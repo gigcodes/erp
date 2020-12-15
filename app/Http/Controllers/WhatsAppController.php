@@ -1109,7 +1109,6 @@ class WhatsAppController extends FindByNumberController
 
             if(!empty($customer)) {
                 try {
-                    
                     $customerDetails = is_object($customer) ? Customer::find($customer->id) : $customer;
                     $language = $customerDetails->language;
 
@@ -1775,18 +1774,26 @@ class WhatsAppController extends FindByNumberController
 //                    }
 
                     if (!empty($params['message'])) {
-                        $replies = ChatbotQuestion::
-                        join('chatbot_question_examples', 'chatbot_questions.id', 'chatbot_question_examples.chatbot_question_id')
+
+                        $replies = ChatbotQuestion::join('chatbot_question_examples', 'chatbot_questions.id', 'chatbot_question_examples.chatbot_question_id')
                             ->join('chatbot_questions_reply', 'chatbot_questions.id', 'chatbot_questions_reply.chatbot_question_id')
                             ->where('chatbot_questions_reply.store_website_id', ($customer->store_website_id) ? $customer->store_website_id : 1)
-                            ->select('chatbot_questions.*', 'chatbot_question_examples.question', 'chatbot_questions_reply.suggested_reply')->get();
-                        
+                            ->select('chatbot_questions.value','chatbot_questions.keyword_or_question','chatbot_questions.erp_or_watson','chatbot_questions.auto_approve','chatbot_question_examples.question','chatbot_questions_reply.suggested_reply')
+                            ->where('chatbot_questions.erp_or_watson', 'erp')
+                            ->get();
+
                         $isReplied = 0;
+
+
+                        $chatbotReply = \App\ChatbotReply::create([
+                            "question" => $params['message'],
+                            "replied_chat_id" => $message->id
+                        ]);
+
                         foreach ($replies as $reply) {
                             if($params['message'] != '' && $customer && array_key_exists('message', $params)){
-                                $keyword = explode("/",$reply->question);
-                                $keyword = $keyword[0];
-                                if(($keyword == $params['message'] || strpos($keyword, $params['message']) !== false) && $reply->suggested_reply) {
+                                $keyword = $reply->question;
+                                if(($keyword == $params['message'] || strpos(strtolower(trim($keyword)), strtolower(trim($params['message']))) !== false) && $reply->suggested_reply) {
                                     /*if($reply->auto_approve) {
                                         $status = 2;
                                     }
@@ -1804,20 +1811,11 @@ class WhatsAppController extends FindByNumberController
                                     $message = ChatMessage::create($temp_params);
 
                                     if ($message->status == ChatMessage::CHAT_AUTO_WATSON_REPLY) {
-                                        \App\ChatbotReply::create([
-                                            "chat_id" => $message->id,
-                                            "question" => $params['message'],
-                                            "reply" => '{
-                                               "output":{
-                                                  "database":[
-                                                     {
-                                                        "response_type":"text",
-                                                        "text":"'.$reply->suggested_reply.'"
-                                                     }
-                                                  ]
-                                               }
-                                            }',
-                                        ]);
+                                        $chatbotReply->chat_id = $message->id;
+                                        $chatbotReply->answer = $reply->suggested_reply;
+                                        $chatbotReply->reply = '{"output":{"database":[{"response_type":"text","text":"'.$reply->suggested_reply.'"}]}}';
+                                        $chatbotReply->reply_from = 'erp';
+                                        $chatbotReply->save();
                                     }
 
                                     // Send message if all required data is set
@@ -1840,7 +1838,7 @@ class WhatsAppController extends FindByNumberController
                         // assigned the first storewebsite to default erp customer
                         $customer->store_website_id = ($customer->store_website_id > 0) ? $customer->store_website_id : 1;
                         if(!$isReplied && $customer->store_website_id) {
-                            WatsonManager::sendMessage($customer,$params['message']);
+                            WatsonManager::sendMessage($customer,$params['message'],false , null , $message);
                         }
                     }
                     // Auto Replies
