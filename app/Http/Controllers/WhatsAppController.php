@@ -1589,7 +1589,8 @@ class WhatsAppController extends FindByNumberController
                 }
             }
             // Is this message from a customer?
-            \Log::info("reached here");
+            \Log::info("reached here => ".$isCustomerNumber);
+            $isCustomerNumber = true;
             if ($customer && $isCustomerNumber) {
                 if ($params['message']) {
                     (new KeywordsChecker())->assignCustomerAndKeywordForNewMessage($params['message'], $customer);
@@ -1769,6 +1770,7 @@ class WhatsAppController extends FindByNumberController
                     }
                 }
                 //Auto reply
+                 \Log::info("reached step 7 here");
                 if (isset($customer->id) && $customer->id > 0) {
 
                     // start to check with watson api directly
