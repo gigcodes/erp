@@ -111,7 +111,7 @@ class WatsonController extends Controller
 
     public function addIntentsToWatson($id) {
         $account = WatsonAccount::find($id);
-        PushToWatson::dispatch($id);
+        PushToWatson::dispatch($id)->onQueue('watson_push');
         $account->update(['watson_push' => 1]);
         return response()->json(['message' => 'Successfully added to the queue', 'code' => 200]);
     }
