@@ -1107,6 +1107,8 @@ class WhatsAppController extends FindByNumberController
                 }
             }
 
+            \Log::info("reached step 0 here");
+
             if(!empty($customer)) {
                 try {
                     $customerDetails = is_object($customer) ? Customer::find($customer->id) : $customer;
@@ -1140,6 +1142,7 @@ class WhatsAppController extends FindByNumberController
                     \Log::info("Message with google api ".self::class."__".__FUNCTION__."_".__LINE__);
                 }
             }
+            \Log::info("reached step 5 here");
             if (!empty($supplier) && $contentType !== 'image') {
                 $supplierDetails = is_object($supplier) ? Supplier::find($supplier->id) : $supplier;
                 $language = $supplierDetails->language;
@@ -1269,6 +1272,7 @@ class WhatsAppController extends FindByNumberController
                 // Continue to the next record
                 continue;
             }
+            \Log::info("reached step 6 here");
             $userId = $supplierId = $contactId = $vendorId = $dubbizleId = $customerId = null;
 
             if ($user != null) {
@@ -1585,6 +1589,7 @@ class WhatsAppController extends FindByNumberController
                 }
             }
             // Is this message from a customer?
+            \Log::info("reached here");
             if ($customer && $isCustomerNumber) {
                 if ($params['message']) {
                     (new KeywordsChecker())->assignCustomerAndKeywordForNewMessage($params['message'], $customer);
@@ -1772,7 +1777,7 @@ class WhatsAppController extends FindByNumberController
 //                            WatsonManager::sendMessage($customer,$params['message']);
 //                        }
 //                    }
-
+                    \Log::info("reached step 1 here");
                     if (!empty($params['message'])) {
 
                         $replies = ChatbotQuestion::join('chatbot_question_examples', 'chatbot_questions.id', 'chatbot_question_examples.chatbot_question_id')
@@ -1789,6 +1794,8 @@ class WhatsAppController extends FindByNumberController
                             "question" => $params['message'],
                             "replied_chat_id" => $message->id
                         ]);
+
+                        \Log::info("reached step 3 here");
 
                         foreach ($replies as $reply) {
                             if($params['message'] != '' && $customer && array_key_exists('message', $params)){
