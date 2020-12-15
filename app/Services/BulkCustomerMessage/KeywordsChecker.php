@@ -25,7 +25,7 @@ class KeywordsChecker
                 continue;
             }
 
-            dump($message);
+            //dump($message);
             $this->makeKeywordEntryForCustomer($customer, $message, $keywords);
         }
     }
@@ -53,7 +53,7 @@ class KeywordsChecker
             return;
         }
 
-        dump($dataToInsert);
+        //dump($dataToInsert);
 
         DB::table('bulk_customer_replies_keyword_customer')->insert($dataToInsert);
         $customer->is_categorized_for_bulk_messages = 1;
