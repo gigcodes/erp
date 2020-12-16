@@ -341,8 +341,11 @@ class SupplierController extends Controller
 						->select('*')
 						->whereRaw("find_in_set(".self::DEFAULT_FOR.",default_for)")
 						->first();
+
+      if($task_info){
+			   $data["whatsapp_number"] = $task_info->number;
+      }
 		
-			$data["whatsapp_number"] = $task_info->number;
 		}
         $supplier = Supplier::create($data);
 
