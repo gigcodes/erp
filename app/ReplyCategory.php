@@ -38,4 +38,8 @@ class ReplyCategory extends Model
     return $this->hasMany('App\Reply', 'category_id')->where('model', 'Vendor');
   }
 
+  public function supplier() {
+    return $this->hasMany('App\Reply', 'category_id')->where('model', 'Supplier');
+  }
+
 }

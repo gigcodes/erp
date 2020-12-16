@@ -423,7 +423,7 @@
 						</button>
                         @endif
                         <button type="button" class="btn send-email-common-btn" data-toemail="{{$supplier->email}}" data-object="supplier" data-id="{{$supplier->id}}"><i class="fa fa-envelope-square"></i></button>
-
+                        <button type="button" class="btn quick-reply-model" data-id="{{$supplier->id}}"><i class="fa fa-fast-forward"></i></button>
 				</td>
 				</tr>
           @endforeach
@@ -574,6 +574,60 @@
             </div>
         </div>
     </div>
+    <div id="quick-reply-model"  class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Quick Reply</h4>
+                </div>
+                <div class="modal-body">
+                  <div class="row">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-6 d-inline form-inline">
+                                <input style="width: 87%" type="text" name="category_name" placeholder="Enter New Category" class="form-control mb-3 quick_category">
+                                <button class="btn btn-secondary quick_category_add" style="position: absolute;  margin-left: 8px;">+</button>
+                            </div>
+                            <div class="col-6 d-inline form-inline" style="padding-left: 0px;">
+                                <div style="float: left; width: 86%">
+                                    <select name="quickCategory" class="form-control mb-3 quickCategory">
+                                        <option value="">Select Category</option>
+                                        @foreach($reply_categories as $category)
+                                            <option value="{{ $category->supplier }}" data-id="{{$category->id}}">{{ $category->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div style="float: right; width: 14%;">
+                                    <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>
+                                </div>
+                            </div>
+                            <div class="col-6 d-inline form-inline">
+                                <input style="width: 87%" type="text" name="quick_comment" placeholder="Enter New Quick Comment" class="form-control mb-3 quick_comment">
+                                <button class="btn btn-secondary quick_comment_add" style="position: absolute;  margin-left: 8px;">+</button>
+                            </div>
+                            <div class="col-6 d-inline form-inline" style="padding-left: 0px;">
+                                <div style="float: left; width: 86%">
+                                    <select name="quickComment" class="form-control quickComment">
+                                        <option value="">Quick Reply</option>
+                                    </select>
+                                </div>
+                                <div style="float: right; width: 14%;">
+                                    <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 chat-message-box-supplier">
+                        
+                    </div> 
+                </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @include('common.commonEmailModal')
 @include('customers.zoomMeeting');
 @endsection
@@ -584,6 +638,7 @@
   <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
   <script src="{{asset('js/zoom-meetings.js')}}"></script>
   <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
+  <script type="text/javascript" src="/js/common-helper.js"></script>
   <script type="text/javascript">
 
       var supplierToRemind = null;
@@ -1429,5 +1484,139 @@
             console.log(response);
         });
     });
+
+    $(document).on("click",".quick-reply-model",function() {
+        var id = $(this).data("id");
+        $("#quick-reply-model").modal("show");
+        var html = `<input type="text" name="message" id="message_`+id+`" placeholder="whatsapp message..." class="form-control send-message" data-id="`+id+`">`;
+        $("#quick-reply-model").find('.chat-message-box-supplier').html(html);
+    });
+
+    var siteHelpers = {
+            quickCategoryAdd : function(ele) {
+                var textBox = ele.closest("div").find(".quick_category");
+                if (textBox.val() == "") {
+                    alert("Please Enter Category!!");
+                    return false;
+                }
+                var params = {
+                    method : 'post',
+                    data : {
+                        _token : $('meta[name="csrf-token"]').attr('content'),
+                        name : textBox.val()
+                    },
+                    url: "/add-reply-category"
+                };
+                siteHelpers.sendAjax(params,"afterQuickCategoryAdd");
+            },
+            afterQuickCategoryAdd : function(response) {
+                $(".quick_category").val('');
+                $(".quickCategory").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
+            },
+            deleteQuickCategory : function(ele) {
+                var quickCategory = ele.closest("#quick-reply-model").find(".quickCategory");
+                if (quickCategory.val() == "") {
+                    alert("Please Select Category!!");
+                    return false;
+                }
+                var quickCategoryId = quickCategory.children("option:selected").data('id');
+                if (!confirm("Are sure you want to delete category?")) {
+                    return false;
+                }
+                var params = {
+                    method : 'post',
+                    data : {
+                        _token : $('meta[name="csrf-token"]').attr('content'),
+                        id : quickCategoryId
+                    },
+                    url: "/destroy-reply-category"
+                };
+                siteHelpers.sendAjax(params,"pageReload");
+            },
+            deleteQuickComment : function(ele) {
+                var quickComment = ele.closest("#quick-reply-model").find(".quickComment");
+                if (quickComment.val() == "") {
+                    alert("Please Select Quick Comment!!");
+                    return false;
+                }
+                var quickCommentId = quickComment.children("option:selected").data('id');
+                if (!confirm("Are sure you want to delete comment?")) {
+                    return false;
+                }
+                var params = {
+                    method : 'DELETE',
+                    data : {
+                        _token : $('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "/reply/" + quickCommentId,
+                };
+                siteHelpers.sendAjax(params,"pageReload");
+            },
+            pageReload : function(response) {
+                location.reload();
+            },
+            quickCommentAdd : function(ele) {
+                var textBox = ele.closest("div").find(".quick_comment");
+                var quickCategory = ele.closest("#quick-reply-model").find(".quickCategory");
+                if (textBox.val() == "") {
+                    alert("Please Enter New Quick Comment!!");
+                    return false;
+                }
+                if (quickCategory.val() == "") {
+                    alert("Please Select Category!!");
+                    return false;
+                }
+                var quickCategoryId = quickCategory.children("option:selected").data('id');
+                var formData = new FormData();
+                formData.append("_token", $('meta[name="csrf-token"]').attr('content'));
+                formData.append("reply", textBox.val());
+                formData.append("category_id", quickCategoryId);
+                formData.append("model", 'Supplier');
+                var params = {
+                    method : 'post',
+                    data : formData,
+                    url: "/reply"
+                };
+                siteHelpers.sendFormDataAjax(params,"afterQuickCommentAdd");
+            },
+            afterQuickCommentAdd : function(reply) {
+                $(".quick_comment").val('');
+                $('.quickComment').append($('<option>', {value:$.trim(reply),text:$.trim(reply)}));
+            },
+            changeQuickCategory : function (ele) {
+                if (ele.val() != "") {
+                    var replies = JSON.parse(ele.val());
+                    ele.closest("#quick-reply-model").find('.quickComment').empty();
+                    ele.closest("#quick-reply-model").find('.quickComment').append($('<option>', {value: '',text: 'Quick Reply'}));
+                    replies.forEach(function (reply) {
+                        ele.closest("#quick-reply-model").find('.quickComment').append($('<option>', {value: reply.reply,text: reply.reply,'data-id': reply.id}));
+                    });
+                }
+            },
+            changeQuickComment : function (ele) {
+                ele.closest('#quick-reply-model').find('.send-message').val(ele.val());
+            }
+        };
+        $.extend(siteHelpers, common);
+
+        $(document).on('click', '.quick_category_add', function () {
+            siteHelpers.quickCategoryAdd($(this));
+        });
+        $(document).on('click', '.delete_category', function () {
+            siteHelpers.deleteQuickCategory($(this));
+        });
+        $(document).on('click', '.delete_quick_comment', function () {
+            siteHelpers.deleteQuickComment($(this));
+        });
+        $(document).on('click', '.quick_comment_add', function () {
+            siteHelpers.quickCommentAdd($(this));
+        });
+        $(document).on('change', '.quickCategory', function () {
+            siteHelpers.changeQuickCategory($(this));
+        });
+        $(document).on('change', '.quickComment', function () {
+            siteHelpers.changeQuickComment($(this));
+        });
+
   </script>
 @endsection

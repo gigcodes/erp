@@ -262,7 +262,8 @@ class SupplierController extends Controller
 		/* echo "<pre>";
 		print_r($allSupplierPriceRanges);
 		exit; */
-		return view('suppliers.index', [
+		$reply_categories = ReplyCategory::all();
+    return view('suppliers.index', [
             'suppliers' => $suppliers,
             'suppliers_all' => $suppliers_all,
             'solo_numbers' => $solo_numbers,
@@ -286,6 +287,7 @@ class SupplierController extends Controller
             'whatsappConfigs' => $whatsappConfigs,
             'allSupplierProduct' => $allSupplierProduct,
             'allSupplierPriceRanges' => $allSupplierPriceRanges,
+            'reply_categories' => $reply_categories
         ]);
     }
 
