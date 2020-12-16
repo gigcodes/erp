@@ -433,7 +433,7 @@ class Kernel extends ConsoleKernel
         // check if time both is not empty then run the cron
         if(!empty($queueStartTime) && !empty($queueEndTime)) {
             $schedule->command('send:queue-pending-chat-messages')->cron('*/5 * * * *')->between($queueStartTime, $queueEndTime)->withoutOverlapping(10);
-            $schedule->command('send:queue-pending-chat-group-messages')->cron('*/5 * * * *')->between($queueStartTime, $queueEndTime)->withoutOverlapping(10);
+            $schedule->command('send:queue-pending-chat-group-messages')->everyMinute();
         }
 
 
