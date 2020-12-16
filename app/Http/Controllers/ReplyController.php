@@ -56,11 +56,11 @@ class ReplyController extends Controller
   		]);
 
   		$data = $request->except('_token','_method');
-
+      $data['reply'] = trim($data['reply']);
   		$reply->create($data);
 
       if ($request->ajax()) {
-        return response($request->reply);
+        return response(trim($request->reply));
       }
 
   		return redirect()->route('reply.index')->with('success','Quick Reply added successfully');
