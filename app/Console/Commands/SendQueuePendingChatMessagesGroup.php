@@ -71,6 +71,8 @@ class SendQueuePendingChatMessagesGroup extends Command
 
         $numberList = array_unique(self::getNumberList());
 
+        \Log::info("Reached goal #1");
+
         // get the status for approval
         $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();
         $limit          = ChatMessage::getQueueLimit();
@@ -80,6 +82,8 @@ class SendQueuePendingChatMessagesGroup extends Command
 
             $allWhatsappNo = config("apiwha.instances");
 
+            \Log::info("Reached goal #2");
+
             $this->waitingMessages = [];
             if (!empty($numberList)) {
                 foreach ($numberList as $no) {
@@ -88,6 +92,8 @@ class SendQueuePendingChatMessagesGroup extends Command
                     $this->waitingMessages[$no] = $waitingMessage;
                 }
             }
+
+            \Log::info("Reached goal #3");
 
             if (!empty($numberList)) {
                 $groups = ChatMessage::where('is_queue', ">", 0)->where("group_id", ">", 0)->groupBy("group_id")->pluck("group_id")->toArray();
@@ -103,6 +109,8 @@ class SendQueuePendingChatMessagesGroup extends Command
                             ->limit($sendLimit)
                             ->get();
 
+                        \Log::info("Reached goal #4");    
+
                         if (!$chatMessage->isEmpty()) {
                             
                             foreach ($chatMessage as $value) {
@@ -110,6 +118,7 @@ class SendQueuePendingChatMessagesGroup extends Command
                                 if ($value->is_queue > 1) {
                                     $sendNumber = \DB::table("whatsapp_configs")->where("id", $value->is_queue)->first();
                                     // if chat message has image then send as a multiple message
+                                    \Log::info("send number found");
                                     if ($images = $value->getMedia(config('constants.media_tags'))) {
                                         foreach ($images as $k => $image) {
                                             \App\ImQueue::create([
@@ -146,10 +155,13 @@ class SendQueuePendingChatMessagesGroup extends Command
                                         continue;
                                     }
 
+                                    \Log::info("Reached goal #5");    
                                     $myRequest = new Request();
                                     $myRequest->setMethod('POST');
                                     $myRequest->request->add(['messageId' => $value->id]);
                                     app('App\Http\Controllers\WhatsAppController')->approveMessage('customer', $myRequest);
+
+                                    \Log::info("Reached goal #6");
                                 }
                             }
                         }
