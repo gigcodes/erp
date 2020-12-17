@@ -11,12 +11,12 @@
 |
 */
 
-Route::prefix('leadqueue')->group(function() {
+Route::prefix('leadqueue')->middleware('auth')->group(function() {
     Route::get('/', 'LeadQueueController@index');
 });
 
 
-Route::prefix('lead-queue')->group(function() {
+Route::prefix('lead-queue')->middleware('auth')->group(function() {
     Route::get('/', 'LeadQueueController@index')->name("lead-queue.index");
 	Route::get('/approve', 'LeadQueueController@approve')->name("lead-queue.approve");
 	Route::get('/approve/approved', 'LeadQueueController@approved')->name("lead-queue.approved");
