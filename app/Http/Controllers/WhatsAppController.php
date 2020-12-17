@@ -1108,7 +1108,7 @@ class WhatsAppController extends FindByNumberController
             }
 
             if(!empty($customer)) {
-                try {
+                /*try {
                     $customerDetails = is_object($customer) ? Customer::find($customer->id) : $customer;
                     $language = $customerDetails->language;
 
@@ -1138,7 +1138,7 @@ class WhatsAppController extends FindByNumberController
                     }
                 }catch(\Exception $e) {
                     \Log::info("Message with google api ".self::class."__".__FUNCTION__."_".__LINE__);
-                }
+                }*/
             }
             
             if (!empty($supplier) && $contentType !== 'image') {
