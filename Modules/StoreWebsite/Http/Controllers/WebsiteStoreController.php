@@ -35,10 +35,10 @@ class WebsiteStoreController extends Controller
 
         // Check for keyword search
         if ($request->keyword != null) {
-            
-            $websiteStores = $websiteStores->where(function($q) use($request) {
+
+            $websiteStores = $websiteStores->where(function ($q) use ($request) {
                 $q->where("website_stores.name", "like", "%" . $request->keyword . "%")
-                ->orWhere("website_stores.code", "like", "%" . $request->keyword . "%");
+                    ->orWhere("website_stores.code", "like", "%" . $request->keyword . "%");
             });
         }
 
@@ -51,8 +51,8 @@ class WebsiteStoreController extends Controller
     {
         $post      = $request->all();
         $validator = Validator::make($post, [
-            'name'             => 'required',
-            'code'             => 'required',
+            'name'       => 'required',
+            'code'       => 'required',
             'website_id' => 'required',
         ]);
 
@@ -76,7 +76,26 @@ class WebsiteStoreController extends Controller
         }
 
         $records->fill($post);
-        $records->save();
+        // if records has been save then call a request to push
+        if ($records->save()) {
+
+            // check that store store has the platform id exist
+            if ($records->website && $records->website->platform_id > 0) {
+
+                $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsiteStore([
+                    "type"       => "store",
+                    "name"       => $records->name,
+                    "code"       => $records->code,
+                    "website_id" => $records->website->platform_id,
+                ], $records->website->storeWebsite);
+
+                if (!empty($id) && is_numeric($id)) {
+                    $records->platform_id = $id;
+                    $records->save();
+                }
+            }
+
+        }
 
         return response()->json(["code" => 200, "data" => $records]);
     }

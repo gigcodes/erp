@@ -17,6 +17,11 @@ class Website extends Model
 
     public function stores()
     {
-        return $this->hasMany(App\WebsiteStore::class, 'website_id', 'id');
+        return $this->hasMany(\App\WebsiteStore::class, 'website_id', 'id');
+    }
+
+    public function storeWebsite()
+    {
+        return $this->hasOne(\App\StoreWebsite::class, 'id', 'store_website_id');
     }
 }

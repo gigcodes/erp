@@ -15,4 +15,9 @@ class WebsiteStore extends Model
         'platform_id', 
         'website_id' 
     ];
+
+    public function website()
+    {
+        return $this->hasOne(\App\Website::class, 'id','website_id');
+    }
 }

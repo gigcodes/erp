@@ -4,7 +4,6 @@ namespace Modules\StoreWebsite\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\StoreWebsite;
-use App\Website;
 use App\WebsiteStore;
 use App\WebsiteStoreView;
 use Illuminate\Http\Request;
@@ -25,7 +24,7 @@ class WebsiteStoreViewController extends Controller
         $websiteStores = WebsiteStore::all()->pluck("name", "id");
 
         return view('storewebsite::website-store-view.index', [
-            'title'    => $title,
+            'title'         => $title,
             'websiteStores' => $websiteStores,
         ]);
     }
@@ -36,9 +35,9 @@ class WebsiteStoreViewController extends Controller
 
         // Check for keyword search
         if ($request->keyword != null) {
-            $websiteStoreViews = $websiteStoreViews->where(function($q) use($request) {
+            $websiteStoreViews = $websiteStoreViews->where(function ($q) use ($request) {
                 $q->where("website_store_views.name", "like", "%" . $request->keyword . "%")
-                ->orWhere("website_store_views.code", "like", "%" . $request->keyword . "%");
+                    ->orWhere("website_store_views.code", "like", "%" . $request->keyword . "%");
             });
         }
 
@@ -76,7 +75,23 @@ class WebsiteStoreViewController extends Controller
         }
 
         $records->fill($post);
-        $records->save();
+        if ($records->save()) {
+            // check that store store has the platform id exist
+            if ($records->websiteStore && $records->websiteStore->platform_id > 0) {
+
+                $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsiteStore([
+                    "type"     => "store_view",
+                    "name"     => $records->name,
+                    "code"     => $records->code,
+                    "group_id" => $records->websiteStore->platform_id,
+                ], $records->websiteStore->website->storeWebsite);
+
+                if (!empty($id) && is_numeric($id)) {
+                    $records->platform_id = $id;
+                    $records->save();
+                }
+            }
+        }
 
         return response()->json(["code" => 200, "data" => $records]);
     }

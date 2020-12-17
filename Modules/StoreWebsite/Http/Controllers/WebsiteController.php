@@ -8,7 +8,6 @@ use App\Website;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
-use Log;
 
 class WebsiteController extends Controller
 {
@@ -31,17 +30,17 @@ class WebsiteController extends Controller
 
     public function records(Request $request)
     {
-        $websites = Website::leftJoin('store_websites as sw','sw.id','websites.store_website_id');
+        $websites = Website::leftJoin('store_websites as sw', 'sw.id', 'websites.store_website_id');
 
         // Check for keyword search
         if ($request->keyword != null) {
-            $websites = $websites->where(function($q) use($request) {
+            $websites = $websites->where(function ($q) use ($request) {
                 $q->where("websites.name", "like", "%" . $request->keyword . "%")
-                ->orWhere("websites.code", "like", "%" . $request->keyword . "%");
+                    ->orWhere("websites.code", "like", "%" . $request->keyword . "%");
             });
         }
 
-        $websites = $websites->select(["websites.*","sw.website as store_website_name"])->paginate();
+        $websites = $websites->select(["websites.*", "sw.website as store_website_name"])->paginate();
 
         return response()->json(["code" => 200, "data" => $websites->items(), "total" => $websites->total()]);
     }
@@ -75,7 +74,20 @@ class WebsiteController extends Controller
         }
 
         $records->fill($post);
-        $records->save();
+
+        // if records has been save then call a request to push
+        if ($records->save()) {
+            $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsite([
+                "type" => "website",
+                "name" => $records->name,
+                "code" => $records->code,
+            ],$records->storeWebsite);
+
+            if(!empty($id) && is_numeric($id)) {
+               $records->platform_id = $id; 
+               $records->save();
+            }
+        }
 
         return response()->json(["code" => 200, "data" => $records]);
     }
@@ -92,7 +104,7 @@ class WebsiteController extends Controller
 
         if ($website) {
             return response()->json(["code" => 200, "data" => $website]);
-            }
+        }
 
         return response()->json(["code" => 500, "error" => "Wrong site id!"]);
     }

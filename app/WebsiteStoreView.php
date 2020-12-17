@@ -15,4 +15,9 @@ class WebsiteStoreView extends Model
         'platform_id', 
         'website_store_id', 
     ];
+
+    public function websiteStore()
+    {
+        return $this->hasOne(\App\WebsiteStore::class, 'id','website_store_id');
+    }
 }
