@@ -46,6 +46,10 @@ var page = {
             page.submitFormSite($(this));
         });
 
+        page.config.bodyView.on("click",".btn-push",function(e) {
+            page.push($(this));
+        });
+
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -160,6 +164,21 @@ var page = {
         if(response.code  == 200) {
             page.loadFirst();
             $(".common-modal").modal("hide");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+    push : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/website-stores/"+ele.data("id")+"/push",
+            method: "get",
+        }
+        this.sendAjax(_z, 'afterPush');
+    },
+    afterPush : function(response) {
+        if(response.code  == 200) {
+            toastr["success"](response.message,"");
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");

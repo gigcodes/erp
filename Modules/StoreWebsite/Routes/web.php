@@ -106,6 +106,7 @@ Route::prefix('store-website')->group(function () {
         Route::post('save', 'WebsiteController@store')->name("store-website.websites.save");
         Route::get('/{id}/edit', 'WebsiteController@edit')->name("store-website.websites.edit");
         Route::get('/{id}/delete', 'WebsiteController@delete')->name("store-website.websites.delete");
+        Route::get('/{id}/push', 'WebsiteController@push')->name("store-website.websites.push");
     });
 
     Route::prefix('website-stores')->group(function () {
@@ -114,6 +115,7 @@ Route::prefix('store-website')->group(function () {
         Route::post('save', 'WebsiteStoreController@store')->name("store-website.website-stores.save");
         Route::get('/{id}/edit', 'WebsiteStoreController@edit')->name("store-website.website-stores.edit");
         Route::get('/{id}/delete', 'WebsiteStoreController@delete')->name("store-website.website-stores.delete");
+        Route::get('/{id}/push', 'WebsiteStoreController@push')->name("store-website.website-stores.push");
     });
 
     Route::prefix('website-store-views')->group(function () {
@@ -122,6 +124,7 @@ Route::prefix('store-website')->group(function () {
         Route::post('save', 'WebsiteStoreViewController@store')->name("store-website.website-store-views.save");
         Route::get('/{id}/edit', 'WebsiteStoreViewController@edit')->name("store-website.website-store-views.edit");
         Route::get('/{id}/delete', 'WebsiteStoreViewController@delete')->name("store-website.website-store-views.delete");
+        Route::get('/{id}/push', 'WebsiteStoreViewController@push')->name("store-website.website-store-views.push");
     });
 
 });

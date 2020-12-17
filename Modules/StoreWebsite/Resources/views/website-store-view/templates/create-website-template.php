@@ -17,7 +17,14 @@
 		      </div>
 		      <div class="form-group col-md-6">
 	            <label for="name">Name</label>
-	            <input type="text" name="name" value="{{if data}}{{:data.name}}{{/if}}" class="form-control" id="name" placeholder="Enter Name">
+	            <select name="name" class="form-control">
+	            	<option value="">-- N/A --</option>
+		            <?php
+		            	foreach($languages as $k => $l) {
+							echo "<option {{if data.name == '".$k."'}} selected {{/if}} value='".$k."'>".$l."</option>";
+						}
+					?>
+		         </select>
 	         </div>
 		      <div class="form-group col-md-6">
 		         <label for="code">Code</label>

@@ -77,18 +77,7 @@ class WebsiteController extends Controller
 
         // if records has been save then call a request to push
         if ($records->save()) {
-            $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsite([
-                "type" => "website",
-                "name" => $records->name,
-                "code" => $records->code,
-            ],$records->storeWebsite);
-
-            if(!empty($id) && is_numeric($id)) {
-               $records->platform_id = $id; 
-               $records->save();
-            }else{
-               return response()->json(["code" => 500, "data" => $records , "error" => "Website stored but store push failed"]);
-            }
+            
         }
 
         return response()->json(["code" => 200, "data" => $records]);
@@ -128,4 +117,31 @@ class WebsiteController extends Controller
 
         return response()->json(["code" => 500, "error" => "Wrong site id!"]);
     }
+
+    public function push(Request $request, $id)
+    {
+        $website = Website::where("id", $id)->first();
+
+        if ($website) {
+            
+            $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsite([
+                "type" => "website",
+                "name" => $website->name,
+                "code" => $website->code,
+            ],$website->storeWebsite);
+
+            if(!empty($id) && is_numeric($id)) {
+               $website->platform_id = $id; 
+               $website->save();
+            }else{
+               return response()->json(["code" => 500, "data" => $website , "error" => "Store push failed"]);
+            }
+
+            return response()->json(["code" => 200, 'message' => "Website stored successfully"]);
+        }
+
+        return response()->json(["code" => 500, "error" => "Wrong site id!"]);
+    }
+
+
 }

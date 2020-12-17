@@ -29,6 +29,9 @@
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template">
 			        		<i class="fa fa-edit" aria-hidden="true"></i>
 			        	</button>
+			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-push">
+			        		<i class="fa fa-upload" aria-hidden="true"></i>
+			        	</button>
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template">
 			        		<i class="fa fa-trash" aria-hidden="true"></i>
 			        	</button>

@@ -44,6 +44,9 @@ var page = {
             page.submitFormSite($(this));
         });
 
+        page.config.bodyView.on("click",".btn-push",function(e) {
+            page.push($(this));
+        });
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -100,7 +103,7 @@ var page = {
     deleteResults : function(response) {
         if(response.code == 200){
             this.getResults();
-            toastr['success']('Message deleted successfully', 'success');
+            toastr['success']('Request deleted successfully', 'success');
         }else{
             toastr['error']('Oops.something went wrong', 'error');
         }
@@ -158,6 +161,21 @@ var page = {
         if(response.code  == 200) {
             page.loadFirst();
             $(".common-modal").modal("hide");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+    push : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/websites/"+ele.data("id")+"/push",
+            method: "get",
+        }
+        this.sendAjax(_z, 'afterPush');
+    },
+    afterPush : function(response) {
+        if(response.code  == 200) {
+            toastr["success"](response.message,"");
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");

@@ -22,10 +22,12 @@ class WebsiteStoreViewController extends Controller
         $title = "Website Store View | Store Website";
 
         $websiteStores = WebsiteStore::all()->pluck("name", "id");
+        $languages = \App\Language::all()->pluck("code", "locale");
 
         return view('storewebsite::website-store-view.index', [
             'title'         => $title,
             'websiteStores' => $websiteStores,
+            'languages' => $languages,
         ]);
     }
 
@@ -77,22 +79,7 @@ class WebsiteStoreViewController extends Controller
         $records->fill($post);
         if ($records->save()) {
             // check that store store has the platform id exist
-            if ($records->websiteStore && $records->websiteStore->platform_id > 0) {
-
-                $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsiteStore([
-                    "type"     => "store_view",
-                    "name"     => $records->name,
-                    "code"     => $records->code,
-                    "group_id" => $records->websiteStore->platform_id,
-                ], $records->websiteStore->website->storeWebsite);
-
-                if (!empty($id) && is_numeric($id)) {
-                    $records->platform_id = $id;
-                    $records->save();
-                }else{
-                   return response()->json(["code" => 500, "data" => $records , "error" => "Website-Store stored but store push failed"]);
-                }
-            }
+            
         }
 
         return response()->json(["code" => 200, "data" => $records]);
@@ -132,4 +119,36 @@ class WebsiteStoreViewController extends Controller
 
         return response()->json(["code" => 500, "error" => "Wrong site id!"]);
     }
+
+    public function push(Request $request, $id)
+    {
+        $website = WebsiteStoreView::where("id", $id)->first();
+
+        if ($website) {
+            // check that store store has the platform id exist
+            if ($website->websiteStore && $website->websiteStore->platform_id > 0) {
+
+                $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsiteStoreView([
+                    "type"       => "store",
+                    "name"       => $website->name,
+                    "code"       => $website->code,
+                    "website_id" => $website->websiteStore->platform_id,
+                ], $website->websiteStore->website->storeWebsite);
+
+                if (!empty($id) && is_numeric($id)) {
+                    $website->platform_id = $id;
+                    $website->save();
+                }else{
+                   return response()->json(["code" => 200, "data" => $website , "error" => "Website-Store-View push failed"]);
+                }
+
+                return response()->json(["code" => 200, 'message' => "Website-Store-View pushed successfully"]);
+            }else{
+                return response()->json(["code" => 500, "error" => "Website-Store platform id is not available!"]);
+            }
+        }
+
+        return response()->json(["code" => 500, "error" => "Wrong site id!"]);
+    }
+
 }
