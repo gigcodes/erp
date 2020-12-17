@@ -5,8 +5,6 @@ var page = {
             bodyView: settings.bodyView
         };
 
-        console.log(settings.bodyView);
-
         settings.baseUrl += "/store-website";
         
         $.extend(page.config, settings);

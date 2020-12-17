@@ -92,6 +92,8 @@ class WebsiteStoreController extends Controller
                 if (!empty($id) && is_numeric($id)) {
                     $records->platform_id = $id;
                     $records->save();
+                }else{
+                   return response()->json(["code" => 200, "data" => $records , "error" => "Website-Store stored but store push failed"]);
                 }
             }
 
