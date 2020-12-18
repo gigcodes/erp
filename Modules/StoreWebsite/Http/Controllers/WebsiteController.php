@@ -23,7 +23,7 @@ class WebsiteController extends Controller
         $title = "Website | Store Website";
 
         $storeWebsites = StoreWebsite::all()->pluck("website", "id");
-        
+
         return view('storewebsite::website.index', [
             'title'         => $title,
             'storeWebsites' => $storeWebsites,
@@ -48,7 +48,18 @@ class WebsiteController extends Controller
 
         $websites = $websites->select(["websites.*", "sw.website as store_website_name"])->paginate();
 
-        return response()->json(["code" => 200, "data" => $websites->items(), "total" => $websites->total()]);
+        $items = $websites->items();
+
+        foreach($items as $k => &$item) {
+            if(!empty($item->countries)) {
+                $item->countires_str = implode(",",json_decode($item->countries));
+            }else{
+                $item->countires_str = "";
+            }
+        }
+
+
+        return response()->json(["code" => 200, "data" => $items, "total" => $websites->total()]);
     }
 
     public function store(Request $request)

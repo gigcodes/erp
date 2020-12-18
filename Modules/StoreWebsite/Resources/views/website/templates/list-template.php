@@ -6,7 +6,7 @@
 		      	<th>Id</th>
 				<th>Name</th>
 				<th>Code</th>
-				<th>Sort Order</th>
+				<th>Countries</th>
 				<th>Site</th>
 				<th>Actions</th>
 		      </tr>
@@ -17,7 +17,7 @@
 			      	<td><input type="checkbox" class="groups" name="groups[]" value="{{:prop.id}}">{{:prop.id}}</td>
 			      	<td>{{:prop.name}}</td>
 			        <td>{{:prop.code}}</td>
-			        <td>{{:prop.sort_order}}</td>
+			        <td>{{:prop.countires_str}}</td>
 			        <td>{{:prop.store_website_name}}</td>
 			        <td>
 			        	<button type="button" title="Edit" data-id="{{>prop.id}}" class="btn btn-edit-template">
