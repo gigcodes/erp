@@ -18,7 +18,6 @@ class CreateTableWebsiteStores extends Migration
             $table->increments('id');
             $table->string('name')->index();
             $table->string('code')->nullable();
-            $table->string('country_code')->nullable();
             $table->string('root_category')->nullable();
             $table->string('platform_id')->nullable();
             $table->integer('website_id')->nullable();

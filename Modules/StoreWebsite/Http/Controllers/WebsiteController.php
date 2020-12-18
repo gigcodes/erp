@@ -5,6 +5,8 @@ namespace Modules\StoreWebsite\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\StoreWebsite;
 use App\Website;
+use App\WebsiteStore;
+use App\WebsiteStoreView;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
@@ -21,7 +23,7 @@ class WebsiteController extends Controller
         $title = "Website | Store Website";
 
         $storeWebsites = StoreWebsite::all()->pluck("website", "id");
-
+        
         return view('storewebsite::website.index', [
             'title'         => $title,
             'storeWebsites' => $storeWebsites,
@@ -38,6 +40,10 @@ class WebsiteController extends Controller
                 $q->where("websites.name", "like", "%" . $request->keyword . "%")
                     ->orWhere("websites.code", "like", "%" . $request->keyword . "%");
             });
+        }
+
+        if ($request->store_website_id != null) {
+            $websites = $websites->where("websites.store_website_id", $request->store_website_id);
         }
 
         $websites = $websites->select(["websites.*", "sw.website as store_website_name"])->paginate();
@@ -77,7 +83,7 @@ class WebsiteController extends Controller
 
         // if records has been save then call a request to push
         if ($records->save()) {
-            
+
         }
 
         return response()->json(["code" => 200, "data" => $records]);
@@ -111,6 +117,19 @@ class WebsiteController extends Controller
         $website = Website::where("id", $id)->first();
 
         if ($website) {
+            $stores = $website->stores;
+            if (!$stores->isEmpty()) {
+                foreach ($stores as $store) {
+                    $storeViews = $store->storeView;
+                    if (!$storeViews->isEmpty()) {
+                        foreach ($storeViews as $storeView) {
+                            $storeView->delete();
+                        }
+                    }
+                    $store->delete();
+                }
+            }
+
             $website->delete();
             return response()->json(["code" => 200]);
         }
@@ -123,25 +142,170 @@ class WebsiteController extends Controller
         $website = Website::where("id", $id)->first();
 
         if ($website) {
-            
-            $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsite([
-                "type" => "website",
-                "name" => $website->name,
-                "code" => $website->code,
-            ],$website->storeWebsite);
-
-            if(!empty($id) && is_numeric($id)) {
-               $website->platform_id = $id; 
-               $website->save();
-            }else{
-               return response()->json(["code" => 500, "data" => $website , "error" => "Store push failed"]);
-            }
-
-            return response()->json(["code" => 200, 'message' => "Website stored successfully"]);
+            \App\Jobs\PushWebsiteToMagento::dispatch($website)->onQueue('mageone');
+            return response()->json(["code" => 200, 'message' => "Website send for push"]);
         }
 
         return response()->json(["code" => 500, "error" => "Wrong site id!"]);
     }
 
+    public function createDefaultStores(Request $request)
+    {
+        $storeWebsiteId = $request->store_website_id;
 
+        if (!empty($storeWebsiteId)) {
+            $countries = \App\SimplyDutyCountry::limit(10)->pluck('country_name', 'country_code')->toArray();
+            if (!empty($countries)) {
+                foreach ($countries as $k => $c) {
+                    $website = Website::where('countries', 'like', '%"' . $k . '"%')->where('store_website_id', $storeWebsiteId)->first();
+                    if (!$website) {
+                        $website                   = new Website;
+                        $website->name             = $c;
+                        $website->code             = $k;
+                        $website->countries        = json_encode([$k]);
+                        $website->store_website_id = $storeWebsiteId;
+                        if ($website->save()) {
+                            $websiteStore             = new WebsiteStore;
+                            $websiteStore->name       = $c;
+                            $websiteStore->code       = $k;
+                            $websiteStore->website_id = $website->id;
+                            $websiteStore->save();
+                            if ($websiteStore->save()) {
+                                $websiteStoreView                   = new WebsiteStoreView;
+                                $websiteStoreView->name             = $c . " En";
+                                $websiteStoreView->code             = strtolower($k . "_en");
+                                $websiteStoreView->website_store_id = $websiteStore->id;
+                                $websiteStoreView->save();
+                            }
+                        }
+                    }
+                }
+
+                return response()->json(["code" => 200, "data" => $website, "message" => "Request created successfully"]);
+            }
+        }
+
+        return response()->json(["code" => 500, "data" => [], "message" => "Your request couldn't meet criteria , website can not be created"]);
+
+    }
+
+    public function moveStores(Request $request)
+    {
+        $storeWebsiteId = $request->store_website_id;
+        $ids            = $request->ids;
+        $groupName      = $request->group_name;
+
+        if (!empty($storeWebsiteId) && !empty($ids)) {
+
+            $countries = [];
+            $websites  = Website::whereIn('id', $ids)->get();
+
+            if (!$websites->isEmpty()) {
+                foreach ($websites as $website) {
+                    $ct = json_decode($website->countries, true);
+                    if (!empty($ct)) {
+                        foreach ($ct as $c) {
+                            $countries[] = $c;
+                        }
+                    }
+                    $stores = $website->stores;
+                    if (!$stores->isEmpty()) {
+                        foreach ($stores as $s) {
+                            $storeViews = $s->storeView;
+                            if (!$storeViews->isEmpty()) {
+                                foreach ($storeViews as $key => $m) {
+                                    $m->delete();
+                                }
+                            }
+                            $s->delete();
+                        }
+                    }
+
+                    $website->delete();
+                }
+            }
+
+            // need to create a group based on given countires
+            $slug                      = preg_replace('/\s+/', '_', strtolower($groupName));
+            $website                   = new Website;
+            $website->name             = $groupName;
+            $website->code             = $slug;
+            $website->countries        = json_encode($countries);
+            $website->store_website_id = $storeWebsiteId;
+            if ($website->save()) {
+                $websiteStore             = new WebsiteStore;
+                $websiteStore->name       = $groupName;
+                $websiteStore->code       = $slug;
+                $websiteStore->website_id = $website->id;
+                $websiteStore->save();
+                if ($websiteStore->save()) {
+                    $websiteStoreView                   = new WebsiteStoreView;
+                    $websiteStoreView->name             = $groupName . " En";
+                    $websiteStoreView->code             = strtolower($slug . "_en");
+                    $websiteStoreView->website_store_id = $websiteStore->id;
+                    $websiteStoreView->save();
+                }
+
+                return response()->json(["code" => 200, "data" => $website, "message" => "Request created successfully"]);
+            }
+        }
+
+        return response()->json(["code" => 500, "data" => [], "message" => "Your request couldn't meet criteria , website can not be created"]);
+
+    }
+
+    public function copyStores(Request $request)
+    {
+        $storeWebsiteId = $request->store_website_id;
+        $copyID         = $request->copy_id;
+
+        if (!empty($copyID)) {
+            
+            $cWebsite = Website::find($copyID);
+
+            if($cWebsite->store_website_id != $storeWebsiteId) {
+                if ($cWebsite) {
+                    
+                    $website            = new Website;
+                    $website->name      = $cWebsite->name;
+                    $website->code      = $cWebsite->code;
+                    $website->countries = $cWebsite->countries;
+                    $website->store_website_id = $storeWebsiteId;
+
+                    if ($website->save()) {
+                        // star to push into store
+                        $cStores = $cWebsite->stores;
+                        if (!$cStores->isEmpty()) {
+                            foreach ($cStores as $cStore) {
+                                $store             = new WebsiteStore;
+                                $store->name       = $cStore->name;
+                                $store->code       = $cStore->code;
+                                $store->website_id = $website->id;
+                                if ($store->save()) {
+                                    $cStoreViews = $cStore->storeView;
+                                    if (!$cStoreViews->isEmpty()) {
+                                        foreach ($cStoreViews as $cStoreView) {
+                                            $storeView                   = new WebsiteStoreView;
+                                            $storeView->name             = $cStoreView->name;
+                                            $storeView->code             = $cStoreView->code;
+                                            $storeView->website_store_id = $store->id;
+                                            $storeView->save();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return response()->json(["code" => 200 , "data" => [], "message" => "Copied has been finished successfully"]);
+            }else{
+                return response()->json(["code" => 500 , "data" => [], "error" => "Copy Store Website and current store website can not be same"]);
+            }
+
+        }
+
+        return response()->json(["code" => 500 , "data" => [], "error" => "Copy field or Store Website id selected"]);
+
+    }
 }

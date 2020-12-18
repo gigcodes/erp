@@ -47,6 +47,24 @@ var page = {
         page.config.bodyView.on("click",".btn-push",function(e) {
             page.push($(this));
         });
+
+        $(document).on("click",".create-default-stores",function(e) {
+            page.createDefaultStores($(this));
+        });
+
+        $(document).on("click",".move-stores",function(e) {
+            page.moveStores($(this));
+        });
+
+        page.config.bodyView.on("click",".btn-copy-template",function(e) {
+            $("#copy-website-modal").find("#copy-website-field").val($(this).data("id"));
+            $("#copy-website-modal").modal("show");
+        });
+
+        $(document).on("click",".copy-stores",function(e) {
+            page.copyStores($(this));
+        });
+
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -104,6 +122,7 @@ var page = {
         if(response.code == 200){
             this.getResults();
             toastr['success']('Request deleted successfully', 'success');
+            location.reload();
         }else{
             toastr['error']('Oops.something went wrong', 'error');
         }
@@ -176,6 +195,78 @@ var page = {
     afterPush : function(response) {
         if(response.code  == 200) {
             toastr["success"](response.message,"");
+            location.reload();
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+    createDefaultStores : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/websites/create-default-stores",
+            method: "post",
+            data : {
+                store_website_id : $(".default-store-website-select").val()
+            }
+        }
+        this.sendAjax(_z, 'afterCreateDefaultStores');
+    },
+    afterCreateDefaultStores : function(response) {
+        if(response.code  == 200) {
+            toastr["success"](response.message,"");
+            location.reload();
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+    moveStores : function(ele) {
+
+        var groups = [];
+        var checkedGroups = $(".groups:checked");
+
+        $.each(checkedGroups,function(k,v) {
+            groups.push($(v).val());
+        });
+
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/websites/move-stores",
+            method: "post",
+            data : {
+                store_website_id : $(".move-store-website-select").val(),
+                ids : groups,
+                group_name : $(".move-store-group-change").val(),
+            }
+        }
+
+        this.sendAjax(_z, 'afterMoveStores');
+    },
+    afterMoveStores : function(response) {
+        if(response.code  == 200) {
+            toastr["success"](response.message,"");
+            location.reload();
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+    copyStores : function(ele) {
+
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/websites/copy-stores",
+            method: "post",
+            data : {
+                store_website_id : $(".copy-store-website-select").val(),
+                copy_id : $("#copy-website-field").val(),
+            }
+        }
+
+        this.sendAjax(_z, 'afterMoveStores');
+    },
+    afterMoveStores : function(response) {
+        if(response.code  == 200) {
+            toastr["success"](response.message,"");
+            location.reload();
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");

@@ -21,14 +21,11 @@ class WebsiteStoreController extends Controller
     {
         $title = "Website Store | Store Website";
 
-        $websites = Website::all()->pluck("name", "id");
-        $countries = \App\SimplyDutyCountry::pluck('country_name','country_code')->toArray();
-
-
+        $websites = Website::all()->pluck("name", "id")->toArray();
+        
         return view('storewebsite::website-store.index', [
             'title'    => $title,
-            'websites' => $websites,
-            'countries'=> $countries,
+            'websites' => $websites
         ]);
     }
 
@@ -43,6 +40,10 @@ class WebsiteStoreController extends Controller
                 $q->where("website_stores.name", "like", "%" . $request->keyword . "%")
                     ->orWhere("website_stores.code", "like", "%" . $request->keyword . "%");
             });
+        }
+
+        if ($request->website_id != null) {
+            $websiteStores = $websiteStores->where('website_stores.website_id',$request->website_id);
         }
 
         $websiteStores = $websiteStores->select(["website_stores.*", "w.name as website_name"])->paginate();

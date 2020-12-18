@@ -17,7 +17,7 @@
     <br>
     <div class="col-lg-12 margin-tb">
     	<div class="row">
-	    	<div class="col col-md-9">
+	    	<div class="col col-md-6">
 		    	<div class="row">
 
 	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action" data-toggle="modal" data-target="#colorCreateModal">
@@ -30,6 +30,10 @@
 					<div class="row">
 		    			<form class="form-inline message-search-handler" method="get">
 					  		<div class="col">
+					  			<div class="form-group">
+								    <label for="keyword">Website:</label>
+								    <?php echo Form::select("website_id",["" => "-- select website --"] + $websites,request('website_id'), ["class" => "form-control"]); ?>
+							  	</div>
 					  			<div class="form-group">
 								    <label for="keyword">Keyword:</label>
 								    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>

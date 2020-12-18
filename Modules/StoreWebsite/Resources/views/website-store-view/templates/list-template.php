@@ -26,13 +26,13 @@
 			        <td>{{:prop.sort_order}}</td>
 			        <td>{{:prop.website_store_name}}</td>
 			        <td>
-			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template">
+			        	<button type="button" title="Edit" data-id="{{>prop.id}}" class="btn btn-edit-template">
 			        		<i class="fa fa-edit" aria-hidden="true"></i>
 			        	</button>
-			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-push">
+			        	<button type="button" title="Push" data-id="{{>prop.id}}" class="btn btn-push">
 			        		<i class="fa fa-upload" aria-hidden="true"></i>
 			        	</button>
-			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template">
+			        	<button type="button" title="Delete" data-id="{{>prop.id}}" class="btn btn-delete-template">
 			        		<i class="fa fa-trash" aria-hidden="true"></i>
 			        	</button>
 			        </td>

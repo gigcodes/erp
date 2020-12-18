@@ -35,17 +35,6 @@
 		         </select>
 		      </div>
 		      <div class="form-group col-md-6">
-		         <label for="country_code">Country Code</label>
-		         <select name="country_code" class="form-control">
-	            	<option value="">-- N/A --</option>
-		            <?php
-						foreach($countries as $k => $l) {
-							echo "<option {{if data.country_code == '".$k."'}} selected {{/if}} value='".$k."'>".$l."</option>";
-						}
-					?>
-		         </select>
-		      </div>
-		      <div class="form-group col-md-6">
 		         <label for="root_category">Root Category</label>
 		         <input type="text" name="root_category" value="{{if data}}{{:data.root_category}}{{/if}}" class="form-control" id="root_category" placeholder="Enter root cateogry">
 		      </div>

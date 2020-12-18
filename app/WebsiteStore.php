@@ -10,7 +10,6 @@ class WebsiteStore extends Model
     protected $fillable = [
         'name', 
         'code', 
-        'country_code', 
         'root_category', 
         'platform_id', 
         'website_id' 
@@ -19,5 +18,10 @@ class WebsiteStore extends Model
     public function website()
     {
         return $this->hasOne(\App\Website::class, 'id','website_id');
+    }
+
+    public function storeView()
+    {
+        return $this->hasMany(\App\WebsiteStoreView::class, 'website_store_id','id');
     }
 }

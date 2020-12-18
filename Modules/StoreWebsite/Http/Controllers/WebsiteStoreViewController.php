@@ -21,7 +21,7 @@ class WebsiteStoreViewController extends Controller
     {
         $title = "Website Store View | Store Website";
 
-        $websiteStores = WebsiteStore::all()->pluck("name", "id");
+        $websiteStores = WebsiteStore::all()->pluck("name", "id")->all();
         $languages = \App\Language::all()->pluck("code", "locale");
 
         return view('storewebsite::website-store-view.index', [
@@ -41,6 +41,10 @@ class WebsiteStoreViewController extends Controller
                 $q->where("website_store_views.name", "like", "%" . $request->keyword . "%")
                     ->orWhere("website_store_views.code", "like", "%" . $request->keyword . "%");
             });
+        }
+
+        if($request->website_store_id != null) {
+            $websiteStoreViews = $websiteStoreViews->where('website_store_id',$request->website_store_id);
         }
 
         $websiteStoreViews = $websiteStoreViews->select(["website_store_views.*", "ws.name as website_store_name"])->paginate();
