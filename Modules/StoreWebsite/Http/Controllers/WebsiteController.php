@@ -181,7 +181,7 @@ class WebsiteController extends Controller
         $storeWebsiteId = $request->store_website_id;
 
         if (!empty($storeWebsiteId)) {
-            $countries = \App\SimplyDutyCountry::limit(10)->pluck('country_name', 'country_code')->toArray();
+            $countries = \App\SimplyDutyCountry::pluck('country_name', 'country_code')->toArray();
             if (!empty($countries)) {
                 foreach ($countries as $k => $c) {
                     $website = Website::where('countries', 'like', '%"' . $k . '"%')->where('store_website_id', $storeWebsiteId)->first();
