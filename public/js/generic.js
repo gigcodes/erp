@@ -1057,7 +1057,7 @@ $(".search_chat_pop_time").datetimepicker({
 });*/
 function exampleFunction(){
     var date = $('.search_chat_pop_time').val();
-    var keyword = $('.search_chat_pop_time').val();
+    var keyword = $('.search_chat_pop').val();
     /*$(".filter-message").each(function () {
         if ($(this).text().search(new RegExp(value, "i")) < 0) {
             $(this).hide();

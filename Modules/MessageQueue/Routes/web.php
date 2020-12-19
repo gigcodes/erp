@@ -11,7 +11,7 @@
 |
 */
 
-Route::prefix('message-queue')->group(function() {
+Route::prefix('message-queue')->middleware('auth')->group(function() {
     Route::get('/', 'MessageQueueController@index')->name("message-queue.index");
     Route::get('/approve', 'MessageQueueController@approve')->name("message-queue.approve");
     Route::get('/status', 'MessageQueueController@status')->name("message-queue.status");

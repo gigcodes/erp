@@ -11,7 +11,7 @@
 |
 */
 
-Route::prefix('web-message')->group(function() {
+Route::prefix('web-message')->middleware('auth')->group(function() {
     Route::get('/', 'WebMessageController@index');
     Route::post('/send', 'WebMessageController@send');
     Route::get('/message-list/{id}', 'WebMessageController@messageList');

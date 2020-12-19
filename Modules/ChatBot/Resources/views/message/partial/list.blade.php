@@ -5,6 +5,7 @@
         <th width="2%">Name</th>
         <th width="15%">User input</th>
         <th width="15%">Bot Replied</th>
+        <th width="15%">From</th>
         <th width="15%">Created</th>
 {{--        <th width="30%">Images</th>--}}
         <th width="5%">Action</th>
@@ -17,7 +18,8 @@
         <td>{{ $pam->customer_id }}[{{ $pam->chat_id }}]</td>
         <td>{{ $pam->customer_name }}</td>
         <td class="user-input">{{ $pam->question }}</td>
-        <td class="boat-replied">{{ $pam->message }}</td>
+        <td class="boat-replied">{{ $pam->answer }}</td>
+        <td class="boat-replied">{{ $pam->reply_from }}</td>
 {{--        <td class="images-layout">--}}
 {{--            <form class="remove-images-form" action="{{ route('chatbot.messages.remove-images') }}" method="post">--}}
 {{--                {{ csrf_field() }}--}}
@@ -83,7 +85,7 @@
                 </div>
                 <div class="modal-body">
 
-                    <input type="hidden" name="chat_message_id" value="{{$pam->chat_id}}">
+                    <input type="hidden" name="chat_message_id" value="{{ isset($pam) ? $pam->chat_id : null}}">
                     @include('chatbot::partial.form.value')
                 </div>
                 <div class="modal-footer">
