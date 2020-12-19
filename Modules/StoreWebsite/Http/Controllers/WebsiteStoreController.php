@@ -79,6 +79,8 @@ class WebsiteStoreController extends Controller
             $records = new WebsiteStore;
         }
 
+        $post["code"] = replace_dash($post["code"]);
+
         $records->fill($post);
         // if records has been save then call a request to push
         if ($records->save()) {
@@ -135,7 +137,7 @@ class WebsiteStoreController extends Controller
                 $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsiteStore([
                     "type"       => "store",
                     "name"       => $website->name,
-                    "code"       => $website->code,
+                    "code"       => replace_dash(strtolower($website->code)),
                     "website_id" => $website->website->platform_id,
                 ], $website->website->storeWebsite);
 

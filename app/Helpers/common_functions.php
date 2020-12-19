@@ -258,3 +258,14 @@ function GUID()
 
     return sprintf('%04X%04X-%04X-%04X-%04X-%04X%04X%04X', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(16384, 20479), mt_rand(32768, 49151), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535));
 }
+
+function replace_dash($string)
+{
+
+    $string = str_replace(' ', '_', strtolower($string)); // Replaces all spaces with hyphens.
+    $string = str_replace('-', '_', strtolower($string)); // Replaces all spaces with hyphens.
+    
+    //$string = preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
+    
+    return preg_replace('/\s+/', '_', strtolower($string));;
+}

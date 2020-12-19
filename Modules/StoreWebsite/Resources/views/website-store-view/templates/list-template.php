@@ -9,6 +9,7 @@
 				<th>Sort Order</th>
 				<th>Status</th>
 				<th>Store Name</th>
+				<th>Platform id</th>
 				<th>Actions</th>
 		      </tr>
 		    </thead>
@@ -25,6 +26,7 @@
 			        {{/if}}
 			        <td>{{:prop.sort_order}}</td>
 			        <td>{{:prop.website_store_name}}</td>
+			        <td>{{:prop.platform_id}}</td>
 			        <td>
 			        	<button type="button" title="Edit" data-id="{{>prop.id}}" class="btn btn-edit-template">
 			        		<i class="fa fa-edit" aria-hidden="true"></i>

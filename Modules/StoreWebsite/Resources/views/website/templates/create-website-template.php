@@ -28,6 +28,21 @@
 		         <input type="text" name="sort_order" value="{{if data}}{{:data.sort_order}}{{/if}}" class="form-control" id="sort_order" placeholder="Enter sort order">
 		      </div>
 		      <div class="form-group col-md-6">
+		         <label for="countries">Countries</label>
+		         {{if form}}
+		         	{{:form}}
+		         {{else}}
+			         <select name="countries[]" class="form-control select-2" multiple>
+		            	<option value="">-- N/A --</option>
+			            <?php
+							foreach($countries as $k => $l) {
+								echo "<option {{if data.countries == '".$k."'}} selected {{/if}} value='".$k."'>".$l."</option>";
+							}
+						?>
+			         </select>
+		         {{/if}}
+		      </div>
+		      <div class="form-group col-md-6">
 		         <label for="store_website_id">Store website</label>
 		         <select name="store_website_id" class="form-control">
 	            	<option value="">-- N/A --</option>

@@ -44,7 +44,7 @@ class PushWebsiteToMagento implements ShouldQueue
             $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsite([
                 "type" => "website",
                 "name" => $website->name,
-                "code" => $website->code,
+                "code" => replace_dash(strtolower($website->code)),
             ], $website->storeWebsite);
 
             if (!empty($id) && is_numeric($id)) {
@@ -62,7 +62,7 @@ class PushWebsiteToMagento implements ShouldQueue
                             $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsiteStore([
                                 "type"       => "store",
                                 "name"       => $store->name,
-                                "code"       => $store->code,
+                                "code"       => replace_dash(strtolower($store->code)),
                                 "website_id" => $website->platform_id,
                             ], $website->storeWebsite);
 
@@ -79,10 +79,11 @@ class PushWebsiteToMagento implements ShouldQueue
 
                                         foreach ($storeView as $sView) {
                                             $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsiteStoreView([
-                                                "type"       => "store",
-                                                "name"       => $sView->name,
-                                                "code"       => $sView->code,
-                                                "website_id" => $store->platform_id,
+                                                "type"     => "store_view",
+                                                "name"     => $sView->name,
+                                                "code"     => replace_dash(strtolower($sView->code)),
+                                                "website_id" => $website->platform_id,
+                                                "group_id" => $store->platform_id,
                                             ], $website->storeWebsite);
 
                                             if (!empty($id) && is_numeric($id)) {

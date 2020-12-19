@@ -65,6 +65,8 @@ var page = {
             page.copyStores($(this));
         });
 
+        $(".select2").select2({tags:true});
+
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -151,6 +153,8 @@ var page = {
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
+
+            common.find(".select-2").select2({tags:true});
     },
 
     submitFormSite : function(ele) {
@@ -189,10 +193,14 @@ var page = {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/websites/"+ele.data("id")+"/push",
             method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
         }
         this.sendAjax(_z, 'afterPush');
     },
     afterPush : function(response) {
+        $("#loading-image").hide();
         if(response.code  == 200) {
             toastr["success"](response.message,"");
             location.reload();

@@ -8,6 +8,7 @@
 				<th>Code</th>
 				<th>Countries</th>
 				<th>Site</th>
+				<th>Magento Id</th>
 				<th>Actions</th>
 		      </tr>
 		    </thead>
@@ -19,6 +20,7 @@
 			        <td>{{:prop.code}}</td>
 			        <td>{{:prop.countires_str}}</td>
 			        <td>{{:prop.store_website_name}}</td>
+			        <td>{{:prop.platform_id}}</td>
 			        <td>
 			        	<button type="button" title="Edit" data-id="{{>prop.id}}" class="btn btn-edit-template">
 			        		<i class="fa fa-edit" aria-hidden="true"></i>

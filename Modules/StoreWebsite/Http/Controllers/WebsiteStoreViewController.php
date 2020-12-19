@@ -80,6 +80,8 @@ class WebsiteStoreViewController extends Controller
             $records = new WebsiteStoreView;
         }
 
+        $post["code"] = replace_dash($post["code"]);
+
         $records->fill($post);
         if ($records->save()) {
             // check that store store has the platform id exist
@@ -130,13 +132,14 @@ class WebsiteStoreViewController extends Controller
 
         if ($website) {
             // check that store store has the platform id exist
-            if ($website->websiteStore && $website->websiteStore->platform_id > 0) {
+            if ($website->websiteStore && $website->websiteStore->platform_id > 0 && $website->websiteStore->website->platform_id > 0) {
 
                 $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsiteStoreView([
-                    "type"       => "store",
+                    "type"       => "store_view",
                     "name"       => $website->name,
-                    "code"       => $website->code,
-                    "website_id" => $website->websiteStore->platform_id,
+                    "code"       => replace_dash(strtolower($website->code)),
+                    //"website_id" => $website->websiteStore->website->platform_id,
+                    "group_id"   => $website->websiteStore->platform_id,
                 ], $website->websiteStore->website->storeWebsite);
 
                 if (!empty($id) && is_numeric($id)) {

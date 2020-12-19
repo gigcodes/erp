@@ -8,6 +8,7 @@
 				<th>Code</th>
 				<th>Root Category</th>
 				<th>Website</th>
+				<th>Platform ID</th>
 				<th>Actions</th>
 		      </tr>
 		    </thead>
@@ -19,6 +20,7 @@
 			        <td>{{:prop.code}}</td>
 			        <td>{{:prop.root_category}}</td>
 			        <td>{{:prop.website_name}}</td>
+			        <td>{{:prop.platform_id}}</td>
 			        <td>
 			        	<button type="button" title="Edit" data-id="{{>prop.id}}" class="btn btn-edit-template">
 			        		<i class="fa fa-edit" aria-hidden="true"></i>
