@@ -129,6 +129,17 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/delete', 'WebsiteStoreViewController@delete')->name("store-website.website-store-views.delete");
         Route::get('/{id}/push', 'WebsiteStoreViewController@push')->name("store-website.website-store-views.push");
     });
+    
+    Route::prefix('page')->group(function () {
+        Route::get('/', 'PageController@index')->name("store-website.page.index");
+        Route::get('/records', 'PageController@records')->name("store-website.page.records");
+        Route::post('save', 'PageController@store')->name("store-website.page.save");
+        Route::get('/{id}/edit', 'PageController@edit')->name("store-website.page.edit");
+        Route::get('/{id}/delete', 'PageController@delete')->name("store-website.page.delete");
+        Route::get('/{id}/push', 'PageController@push')->name("store-website.page.push");
+        Route::get('/{id}/get-stores', 'PageController@getStores')->name("store-website.page.getStores");
+        Route::get('/{id}/load-page', 'PageController@loadPage')->name("store-website.page.loadPage");
+    });
 
 });
 
