@@ -95,30 +95,6 @@
   	</div>	
 </div>
 
-<div id="add-default-store" class="modal" role="dialog">
-  	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-	      <div class="modal-header">
-	        <h4 class="modal-title">Add Default Store</h4>
-	        <button type="button" class="close" data-dismiss="modal">&times;</button>
-	      </div>
-	     <div class="modal-body">
-			<div class="form-group">
-          		<div class="form-group">
-            		<strong>Store websites</strong>
-            		<?php //echo Form::select("store_website_id",$storeWebsites,null, ["class" => "form-control default-store-website-select"]);  ?>
-          		</div>
-	        </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-secondary create-default-stores">Create Store</button>
-        </div>
-	    </div>
-  	</div>
-</div>
-
-
 @include("dnd-list.templates.list-template")
 
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
