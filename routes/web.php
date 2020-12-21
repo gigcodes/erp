@@ -772,6 +772,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('chat-messages/{object}/{object_id}/loadMoreMessages', 'ChatMessagesController@loadMoreMessages');
     Route::post('chat-messages/{id}/set-reviewed', 'ChatMessagesController@setReviewed');
     Route::post('chat-messages/downloadChatMessages', 'ChatMessagesController@downloadChatMessages')->name('chat.downloadChatMessages');
+    Route::get('chat-messages/dnd-list', 'ChatMessagesController@dndList')->name('chat.dndList');
+    Route::get('chat-messages/dnd-list/records', 'ChatMessagesController@dndListRecords')->name('chat.dndList.records');
+    Route::post('chat-messages/dnd-list/move-dnd', 'ChatMessagesController@moveDnd')->name('chat.dndList.moveDnd');
     // Customers
     Route::get('customer/exportCommunication/{id}', 'CustomerController@exportCommunication');
     Route::get('customer/test', 'CustomerController@customerstest');
