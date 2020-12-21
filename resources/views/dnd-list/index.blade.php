@@ -44,7 +44,7 @@
                             <div class="col">
                                 <div class="form-group">
                                     <label for="time_range">Range:</label>
-                                    <?php echo Form::text("time_range",request("time_range"),["class"=> "form-control time-range"]) ?>
+                                    <?php echo Form::text("time_range",request("time_range",date("Y-m-d h:i:s A")." - ".date("Y-m-d h:i:s A")),["class"=> "form-control time-range"]) ?>
                                 </div>
                                 <div class="form-group">
                                     <label for="whatsapp_number">Whatsapp number:</label>
