@@ -382,8 +382,10 @@ class CreateShipmentRequest extends APIAbstract
                             }
                             // shipper section ended
                             //  recipient section srarted
+                            $email = "";
                             if(!empty($this->recipient)) {
                                 $recipient = $this->recipient;
+                                $email = !empty($recipient["email"]) ? $recipient["email"] : "";
                                 $xml->startElement('Recipient');
                                     $xml->startElement('Contact');
                                         $xml->writeElement('PersonName',!empty($recipient["person_name"]) ? $recipient["person_name"] : '');
@@ -420,7 +422,11 @@ class CreateShipmentRequest extends APIAbstract
                         $xml->startElement('ShipmentNotifications');
                             $xml->startElement('ShipmentNotification');
                                 $xml->writeElement('NotificationMethod', 'EMAIL');
-                                $xml->writeElement('EmailAddress', 'info@theluxuryunlimited.com');
+                                if(!empty($email)) {
+                                    $xml->writeElement('EmailAddress', $email);
+                                }else{
+                                    $xml->writeElement('EmailAddress', 'info@theluxuryunlimited.com');
+                                }
                                 $xml->writeElement('MobilePhoneNumber', $this->mobile);
                             $xml->endElement();
                         $xml->endElement();

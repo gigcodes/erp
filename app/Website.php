@@ -13,6 +13,7 @@ class Website extends Model
         'sort_order', 
         'platform_id', 
         'store_website_id', 
+        'is_finished'
     ];
 
     public function stores()

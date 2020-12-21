@@ -206,7 +206,6 @@
                         <strong>Customer Phone:</strong>
                         <input type="number" name="customer_phone" id="customer_phone" class="form-control input_customer_phone" >
                         <span class="form-error"></span>
-
                     </div>
 
                     <div class="form-group mb-2">

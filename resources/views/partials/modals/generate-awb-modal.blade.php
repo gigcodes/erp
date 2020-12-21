@@ -69,6 +69,10 @@
                      <input type="text" name="customer_country" id="customer_country" class="form-control input_customer_country" value="" required>
                   </div>
                   <div class="form-group">
+                     <strong>Customer Email:</strong>
+                     <input type="email" name="customer_email" id="customer_email" class="form-control input_customer_email" value="{{ isset($customer) ? $customer->email : '' }}" required>
+                  </div>
+                  <div class="form-group">
                      <strong>Customer Phone:</strong>
                      <input type="number" name="customer_phone" id="customer_phone" class="form-control input_customer_phone" value="{{ isset($customer) ? $customer->phone : '' }}" required>
                   </div>

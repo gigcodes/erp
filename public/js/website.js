@@ -65,6 +65,10 @@ var page = {
             page.copyStores($(this));
         });
 
+        $(document).on("click",".change-status",function(e) {
+            page.changeStatus($(this));
+        });
+
         $(".select2").select2({tags:true});
 
     },
@@ -279,7 +283,30 @@ var page = {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
         }
-    }
+    },
+    changeStatus : function(ele) {
+
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/websites/change-status",
+            method: "post",
+            data : {
+                id : ele.data("id"),
+                value : ele.data("value"),
+            }
+        }
+
+        this.sendAjax(_z, 'afterChangeStatus');
+    },
+    afterChangeStatus : function(response) {
+        if(response.code  == 200) {
+            toastr["success"](response.message,"");
+            location.reload();
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+    
 }
 
 $.extend(page, common);

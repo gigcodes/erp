@@ -39,6 +39,11 @@
 			        	<button type="button" title="Delete" data-id="{{>prop.id}}" class="btn btn-delete-template">
 			        		<i class="fa fa-trash" aria-hidden="true"></i>
 			        	</button>
+			        	{{if prop.is_finished == 1}}
+			        		<span class="badge badge-success change-status" data-id="{{>prop.id}}" data-value="0">Finished</span>
+			        	{{else}}
+			        		<span class="badge badge-danger change-status" data-id="{{>prop.id}}" data-value="1">Pending</span>
+			        	{{/if}}
 			        </td>
 			      </tr>
 			    {{/props}}
