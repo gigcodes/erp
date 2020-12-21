@@ -21,7 +21,7 @@
 	            	<option value="">-- N/A --</option>
 		            <?php
 		            	foreach($languages as $k => $l) {
-							echo "<option {{if data.name == '".$k."'}} selected {{/if}} value='".$k."'>".$l."</option>";
+							echo "<option {{if data.name == '".strtolower($k)."'}} selected {{/if}} value='".$k."'>".$l."</option>";
 						}
 					?>
 		         </select>

@@ -61,7 +61,7 @@ class WebsiteController extends Controller
         }
 
 
-        return response()->json(["code" => 200, "data" => $items, "total" => $websites->total()]);
+        return response()->json(["code" => 200, "data" => $items, "total" => $websites->total(), "pagination" => (string) $websites->render()]);
     }
 
     public function store(Request $request)
