@@ -118,7 +118,7 @@ class WebsiteController extends Controller
         $website = Website::where("id", $id)->first();
 
         if ($website) {
-            if(!empty($request->countries) && $request->countries != "null") {
+            if(!empty($website->countries) && $website->countries != "null") {
                 $website->countries = json_decode($website->countries);
             }else{
                 $website->countries = [];
