@@ -48,6 +48,10 @@ class WebsiteController extends Controller
             $websites = $websites->where("websites.store_website_id", $request->store_website_id);
         }
 
+        if($request->is_finished != null) {
+            $websites = $websites->where("websites.is_finished", $request->is_finished);
+        }
+
         $websites = $websites->select(["websites.*", "sw.website as store_website_name"])->orderBy('websites.id',"desc")->paginate();
 
         $items = $websites->items();

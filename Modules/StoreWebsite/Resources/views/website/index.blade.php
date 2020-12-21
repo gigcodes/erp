@@ -38,8 +38,8 @@
                     </button>
 				 </div>
 		    </div>
-		    <div class="col">
-		    	<div class="h" style="margin-bottom:10px;">
+		    <div class="col col-md-6">
+		    	<div class="h">
 					<div class="row">
 		    			<form class="form-inline message-search-handler" method="get">
                             <div class="col">
@@ -47,9 +47,11 @@
                                     <label for="store_website_id">Store Websites:</label>
                                     <?php echo Form::select("store_website_id",$storeWebsites,request("store_website_id"),["class"=> "form-control","placeholder" => "Select Store website"]) ?>
                                 </div>
-                            </div>                                
-					  		<div class="col">
-					  			<div class="form-group">
+                                <div class="form-group">
+                                    <label for="is_finished">Finished:</label>
+                                    <?php echo Form::select("is_finished",["" => "-- Select--" , 0 => "No" , 1 => "Yes"],request("is_finished"),["class"=> "form-control"]) ?>
+                                </div>
+                            	<div class="form-group">
 								    <label for="keyword">Keyword:</label>
 								    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
 							  	</div>
