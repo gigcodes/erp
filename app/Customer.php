@@ -24,7 +24,8 @@ class Customer extends Model
         'reminder_from',
         'reminder_last_reply',
         'wedding_anniversery',
-        'dob'
+        'dob',
+        'do_not_disturb'
     ];
 
     protected $casts = [

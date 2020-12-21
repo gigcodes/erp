@@ -450,4 +450,75 @@ class ChatMessagesController extends Controller
         readfile($file);
         unlink($file);
     }
+
+    public function dndList(Request $request) 
+    {
+        $title = "DND List";
+
+        return view("dnd-list.index",compact('title'));
+
+    }
+
+    public function dndListRecords(Request $request) 
+    {
+
+        $messages = ChatMessage::join("customers as c","c.id","chat_messages.customer_id")->whereNull("chat_messages.number");
+
+        $startTime =  null;
+        $endTime =  null;
+        if($request->time_range != null) {
+           $time = explode(" - ", $request->time_range);
+           if(!empty($time[0])) {
+               $startTime = $time[0]; 
+           }
+           if(!empty($time[1])) {
+               $endTime = $time[1]; 
+           }
+        }
+
+        if($startTime != null) {
+            $messages = $messages->where("chat_messages.created_at",">=",date("Y-m-d H:i:s",strtotime($startTime)));
+        }
+
+        if($endTime != null) {
+            $messages = $messages->where("chat_messages.created_at","<=",date("Y-m-d H:i:s",strtotime($endTime)));
+        }
+
+        if($request->whatsapp_number != null) {
+            $messages = $messages->where("c.whatsapp_number",$request->whatsapp_number);
+        }
+
+        if($request->keyword != null) {
+            $messages = $messages->where(function($q) use($request) {
+                $q->where("c.name","like",$request->keyword)->orWhere("c.phone","like",$request->keyword);
+            });
+        }
+
+        $messages = $messages->where("c.do_not_disturb",0);
+        
+
+        $messages = $messages->groupBy("c.id")
+        ->orderBy('chat_messages.id','desc')
+        ->select(["c.*"])
+        ->paginate(24);
+
+        return response()->json(["code" => 200 ,"total" => $messages->total(), "data" => $messages->items(), "pagination" => (string)$messages->links()]);
+    }
+
+    public function moveDnd(Request $request) 
+    {
+        $ids = $request->customer_id;
+
+         if(!empty($ids))  {
+            $customer = \App\Customer::whereIn("id",$ids)->get();
+            if(!$customer->isEmpty()) {
+                foreach($customer as $c) {
+                    $c->do_not_disturb = 1;
+                    $c->save();
+                }
+            }
+          }
+
+          return response()->json(["code" => 200 , "data" => [], "messages" => "Customer updated Successfully"]);
+    }
 }
