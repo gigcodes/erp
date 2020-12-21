@@ -32,7 +32,7 @@ class CreateShipmentRequest extends APIAbstract
     private $content            = "DOCUMENTS";
     private $paymentInfo        = "DAP";
     private $serviceType        = "P";
-    private $currency           = "INR";
+    private $currency           = "USD";
     private $invoiceNumber      = "";
     private $shipmentIdentificationNumber = true;
     private $declaredValue;
