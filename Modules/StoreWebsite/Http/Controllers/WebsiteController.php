@@ -53,7 +53,7 @@ class WebsiteController extends Controller
         $items = $websites->items();
 
         foreach($items as $k => &$item) {
-            if(!empty($item->countries)) {
+            if(!empty($item->countries) && $item->countries != "null") {
                 $item->countires_str = implode(",",json_decode($item->countries));
             }else{
                 $item->countires_str = "";
@@ -92,7 +92,9 @@ class WebsiteController extends Controller
             $records = new Website;
         }
 
-        $records->countries        = json_encode($request->countries);
+        if(!empty($request->countries) && $request->countries != "null") {
+            $records->countries        = json_encode($request->countries);
+        }
         $post['code'] = replace_dash($post['code']);
 
         $records->fill($post);
@@ -116,7 +118,7 @@ class WebsiteController extends Controller
         $website = Website::where("id", $id)->first();
 
         if ($website) {
-            if(!empty($website->countries)) {
+            if(!empty($request->countries) && $request->countries != "null") {
                 $website->countries = json_decode($website->countries);
             }else{
                 $website->countries = [];
@@ -333,6 +335,24 @@ class WebsiteController extends Controller
         }
 
         return response()->json(["code" => 500 , "data" => [], "error" => "Copy field or Store Website id selected"]);
+
+    }
+
+    public function changeStatus(Request $request)
+    {
+        $id =$request->get("id");
+        $value =$request->get("value");
+
+        if(!empty($id)) {
+            $website  = Website::find($id);
+            if($website) {
+                $website->is_finished = ($value == 1) ? 1 : 0;
+                $website->save();
+            }
+        }
+
+        return response()->json(["code" => 200 , "data" => [], "message" => "Status updated successfully"]);
+        
 
     }
 }

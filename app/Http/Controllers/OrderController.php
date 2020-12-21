@@ -2532,7 +2532,8 @@ public function createProductOnMagento(Request $request, $id){
             "country_code"  => $request->get("customer_country","IN"),
             "person_name"   => $request->get("customer_name"),
             "company_name"  => $request->get("customer_name"),
-            "phone"         => $request->get("customer_phone")
+            "phone"         => $request->get("customer_phone"),
+            "email"         => $request->get("customer_email")
         ]);
 
         $rateReq->setShippingTime(gmdate("Y-m-d\TH:i:s",strtotime($request->get("pickup_time")))." GMT+04:00");

@@ -613,6 +613,7 @@ color:black!important;
                $("#customer_address2").val(customer.city);
                $("#customer_city").val(customer.city);
                $("#customer_pincode").val(customer.pincode);
+               $("#customer_email").val(customer.email);
             }
 
             if(items.length > 0) {

@@ -8,6 +8,14 @@
 	.preview-category input.form-control {
 	  width: auto;
 	}
+    .badge-danger {
+        color: #fff;
+        background-color: #dc3545;
+    }
+    .badge-success {
+        color: #fff;
+        background-color: #28a745;
+    }
 </style>
 
 <div class="row" id="common-page-layout">

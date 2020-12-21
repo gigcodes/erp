@@ -250,7 +250,8 @@ class ShipmentController extends Controller
                 "country_code" 	=> $request->customer_country,
                 "person_name" 	=> $customer_name,
                 "company_name" 	=> $customer_name,
-                "phone" 		=> $request->customer_phone
+                "phone" 		=> $request->customer_phone,
+                "email"         => $request->get('customer_email')
             ]);
 
             $rateReq->setShippingTime(gmdate("Y-m-d\TH:i:s",strtotime($request->pickup_time))." GMT+05:30");
