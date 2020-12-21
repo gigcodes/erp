@@ -39,7 +39,7 @@ class CreatePickupRequest extends APIAbstract
     private $content            = "DOCUMENTS";
     private $paymentInfo        = "DAP";
     private $serviceType        = "U";
-    private $currency           = "INR";
+    private $currency           = "USD";
     private $shipmentIdentificationNumber = true;
     private $declaredValue;
     private $declaredValueCurrecyCode;
