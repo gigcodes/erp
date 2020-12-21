@@ -48,7 +48,7 @@ class WebsiteController extends Controller
             $websites = $websites->where("websites.store_website_id", $request->store_website_id);
         }
 
-        $websites = $websites->select(["websites.*", "sw.website as store_website_name"])->paginate();
+        $websites = $websites->select(["websites.*", "sw.website as store_website_name"])->orderBy('websites.id',"desc")->paginate();
 
         $items = $websites->items();
 

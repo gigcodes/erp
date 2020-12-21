@@ -46,7 +46,7 @@ class WebsiteStoreController extends Controller
             $websiteStores = $websiteStores->where('website_stores.website_id',$request->website_id);
         }
 
-        $websiteStores = $websiteStores->select(["website_stores.*", "w.name as website_name"])->paginate();
+        $websiteStores = $websiteStores->select(["website_stores.*", "w.name as website_name"])->orderBy('website_stores.id',"desc")->paginate();
 
         return response()->json(["code" => 200, "data" => $websiteStores->items(), "total" => $websiteStores->total(),"pagination" => (string)$websiteStores->render()]);
     }
