@@ -47,9 +47,9 @@ class WebsiteStoreViewController extends Controller
             $websiteStoreViews = $websiteStoreViews->where('website_store_id',$request->website_store_id);
         }
 
-        $websiteStoreViews = $websiteStoreViews->select(["website_store_views.*", "ws.name as website_store_name"])->paginate();
+        $websiteStoreViews = $websiteStoreViews->select(["website_store_views.*", "ws.name as website_store_name"])->orderBy('website_store_views.id',"desc")->paginate();
 
-        return response()->json(["code" => 200, "data" => $websiteStoreViews->items(), "total" => $websiteStoreViews->total()]);
+        return response()->json(["code" => 200, "data" => $websiteStoreViews->items(), "total" => $websiteStoreViews->total(), "pagination" => (string) $websiteStoreViews->render()]);
     }
 
     public function store(Request $request)
