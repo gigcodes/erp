@@ -337,7 +337,7 @@ class WebsiteController extends Controller
 
         }
 
-        return response()->json(["code" => 500, "data" => [], "error" => "Copy field or Store Website id selected"]);
+        return response()->json(["code" => 500, "data" => [], "error" => "Copy field or Store Website id is not selected"]);
 
     }
 
@@ -407,6 +407,6 @@ class WebsiteController extends Controller
 
             return response()->json(["code" => 200, "data" => [], "message" => "Copied has been finished successfully"]);
         }
-        return response()->json(["code" => 500, "data" => [], "error" => "Copy field or Store Website id selected"]);
+        return response()->json(["code" => 500, "data" => [], "error" => "Copy field or Store Website id is not selected"]);
     }
 }
