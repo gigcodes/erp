@@ -23,7 +23,7 @@ class WebsiteController extends Controller
         $title = "Website | Store Website";
 
         $storeWebsites = StoreWebsite::all()->pluck("website", "id");
-        $countries = \App\SimplyDutyCountry::pluck('country_name', 'country_code')->toArray();
+        $countries     = \App\SimplyDutyCountry::pluck('country_name', 'country_code')->toArray();
 
         return view('storewebsite::website.index', [
             'title'         => $title,
@@ -48,22 +48,21 @@ class WebsiteController extends Controller
             $websites = $websites->where("websites.store_website_id", $request->store_website_id);
         }
 
-        if($request->is_finished != null) {
+        if ($request->is_finished != null) {
             $websites = $websites->where("websites.is_finished", $request->is_finished);
         }
 
-        $websites = $websites->select(["websites.*", "sw.website as store_website_name"])->orderBy('websites.id',"desc")->paginate();
+        $websites = $websites->select(["websites.*", "sw.website as store_website_name"])->orderBy('websites.id', "desc")->paginate();
 
         $items = $websites->items();
 
-        foreach($items as $k => &$item) {
-            if(!empty($item->countries) && $item->countries != "null") {
-                $item->countires_str = implode(",",json_decode($item->countries));
-            }else{
+        foreach ($items as $k => &$item) {
+            if (!empty($item->countries) && $item->countries != "null") {
+                $item->countires_str = implode(",", json_decode($item->countries));
+            } else {
                 $item->countires_str = "";
             }
         }
-
 
         return response()->json(["code" => 200, "data" => $items, "total" => $websites->total(), "pagination" => (string) $websites->render()]);
     }
@@ -96,8 +95,8 @@ class WebsiteController extends Controller
             $records = new Website;
         }
 
-        if(!empty($request->countries) && $request->countries != "null") {
-            $records->countries        = json_encode($request->countries);
+        if (!empty($request->countries) && $request->countries != "null") {
+            $records->countries = json_encode($request->countries);
         }
         $post['code'] = replace_dash($post['code']);
 
@@ -122,15 +121,15 @@ class WebsiteController extends Controller
         $website = Website::where("id", $id)->first();
 
         if ($website) {
-            if(!empty($website->countries) && $website->countries != "null") {
+            if (!empty($website->countries) && $website->countries != "null") {
                 $website->countries = json_decode($website->countries);
-            }else{
+            } else {
                 $website->countries = [];
             }
 
             $countries = \App\SimplyDutyCountry::pluck('country_name', 'country_code')->toArray();
 
-            $form = (string)\Form::select('countries[]',$countries, $website->countries,["class" => "form-control select-2", "multiple" => true]);
+            $form = (string) \Form::select('countries[]', $countries, $website->countries, ["class" => "form-control select-2", "multiple" => true]);
 
             return response()->json(["code" => 200, "data" => $website, 'form' => $form]);
         }
@@ -293,16 +292,16 @@ class WebsiteController extends Controller
         $copyID         = $request->copy_id;
 
         if (!empty($copyID)) {
-            
+
             $cWebsite = Website::find($copyID);
 
-            if($cWebsite->store_website_id != $storeWebsiteId) {
+            if ($cWebsite->store_website_id != $storeWebsiteId) {
                 if ($cWebsite) {
-                    
-                    $website            = new Website;
-                    $website->name      = $cWebsite->name;
-                    $website->code      = replace_dash($cWebsite->code);
-                    $website->countries = $cWebsite->countries;
+
+                    $website                   = new Website;
+                    $website->name             = $cWebsite->name;
+                    $website->code             = replace_dash($cWebsite->code);
+                    $website->countries        = $cWebsite->countries;
                     $website->store_website_id = $storeWebsiteId;
 
                     if ($website->save()) {
@@ -331,32 +330,83 @@ class WebsiteController extends Controller
                     }
                 }
 
-                return response()->json(["code" => 200 , "data" => [], "message" => "Copied has been finished successfully"]);
-            }else{
-                return response()->json(["code" => 500 , "data" => [], "error" => "Copy Store Website and current store website can not be same"]);
+                return response()->json(["code" => 200, "data" => [], "message" => "Copied has been finished successfully"]);
+            } else {
+                return response()->json(["code" => 500, "data" => [], "error" => "Copy Store Website and current store website can not be same"]);
             }
 
         }
 
-        return response()->json(["code" => 500 , "data" => [], "error" => "Copy field or Store Website id selected"]);
+        return response()->json(["code" => 500, "data" => [], "error" => "Copy field or Store Website id selected"]);
 
     }
 
     public function changeStatus(Request $request)
     {
-        $id =$request->get("id");
-        $value =$request->get("value");
+        $id    = $request->get("id");
+        $value = $request->get("value");
 
-        if(!empty($id)) {
-            $website  = Website::find($id);
-            if($website) {
+        if (!empty($id)) {
+            $website = Website::find($id);
+            if ($website) {
                 $website->is_finished = ($value == 1) ? 1 : 0;
                 $website->save();
             }
         }
 
-        return response()->json(["code" => 200 , "data" => [], "message" => "Status updated successfully"]);
-        
+        return response()->json(["code" => 200, "data" => [], "message" => "Status updated successfully"]);
 
+    }
+
+    public function copyWebsites(Request $request)
+    {
+        $storeWebsiteId = $request->store_website_id;
+        $ids            = $request->ids;
+
+        if (!empty($ids)) {
+            foreach ($ids as $id) {
+                $cWebsite = Website::find($id);
+
+                if ($cWebsite->store_website_id != $storeWebsiteId) {
+                    if ($cWebsite) {
+
+                        $website                   = new Website;
+                        $website->name             = $cWebsite->name;
+                        $website->code             = replace_dash($cWebsite->code);
+                        $website->countries        = $cWebsite->countries;
+                        $website->store_website_id = $storeWebsiteId;
+
+                        if ($website->save()) {
+                            // star to push into store
+                            $cStores = $cWebsite->stores;
+                            if (!$cStores->isEmpty()) {
+                                foreach ($cStores as $cStore) {
+                                    $store             = new WebsiteStore;
+                                    $store->name       = $cStore->name;
+                                    $store->code       = replace_dash($cStore->code);
+                                    $store->website_id = $website->id;
+                                    if ($store->save()) {
+                                        $cStoreViews = $cStore->storeView;
+                                        if (!$cStoreViews->isEmpty()) {
+                                            foreach ($cStoreViews as $cStoreView) {
+                                                $storeView                   = new WebsiteStoreView;
+                                                $storeView->name             = $cStoreView->name;
+                                                $storeView->code             = replace_dash($cStoreView->code);
+                                                $storeView->website_store_id = $store->id;
+                                                $storeView->save();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            return response()->json(["code" => 200, "data" => [], "message" => "Copied has been finished successfully"]);
+        }
+        return response()->json(["code" => 500, "data" => [], "error" => "Copy field or Store Website id selected"]);
     }
 }
