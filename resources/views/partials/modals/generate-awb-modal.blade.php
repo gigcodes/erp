@@ -36,7 +36,7 @@
                   </div>
                   <div class="form-group mb-2">
                      <strong>Customer Address 1:</strong>
-                     <input type="text" name="from_customer_address1" id="from_customer_address1" class="form-control input_customer_address1" value="{{@$fromdatadefault['street']}}">
+                     <input type="text" name="from_customer_address1" id="from_customer_address1" maxlength="45" class="form-control input_customer_address1" value="{{@$fromdatadefault['street']}}">
                      <span class="form-error"></span>
                   </div>
                   <div class="form-group mb-2">
@@ -78,7 +78,7 @@
                   </div>
                   <div class="form-group">
                      <strong>Customer Address 1:</strong>
-                     <input type="text" name="customer_address1" id="customer_address1" class="form-control input_customer_address1" value="{{ isset($customer) ? $customer->address : '' }}" required>
+                     <input type="text" name="customer_address1" id="customer_address1" maxlength="45" class="form-control input_customer_address1" value="{{ isset($customer) ? $customer->address : '' }}" required>
                   </div>
                   <div class="form-group">
                      <strong>Customer Address 2:</strong>

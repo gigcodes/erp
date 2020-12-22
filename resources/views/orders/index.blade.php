@@ -605,7 +605,7 @@ color:black!important;
                $(".input_customer_pincode").val(customer.pincode); */
                $("#customer_name").val(customer.name);
                $("#customer_phone").val(customer.phone);
-               $("#customer_address1").val(customer.address);
+               $("#customer_address1").val(customer.address.substring(0, 44));
                $("#customer_address2").val(customer.city);
                $("#customer_city").val(customer.city);
                $("#customer_pincode").val(customer.pincode);
