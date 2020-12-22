@@ -388,7 +388,20 @@ class VoucherController extends Controller
             return redirect()->back()->with('warning','Amount can not be greater than receipt amount');
         }
         $input = $request->except('_token');
-        $payment_method = PaymentMethod::find($request->payment_method_id);
+
+        if(!is_numeric($input['payment_method_id'])) {
+            $paymentMethod = PaymentMethod::where("name",$input['payment_method_id'])->first();
+            if(!$paymentMethod) {
+                $paymentMethod = PaymentMethod::create([
+                    "name" => $input['payment_method_id']
+                ]);
+                $input['payment_method_id'] = $paymentMethod->id;
+            }else{
+                $input['payment_method_id'] = $paymentMethod->id;
+            }
+        }
+
+        $payment_method = PaymentMethod::find($input['payment_method_id']);
         $input['payment_receipt_id'] = $preceipt->id;
         $message['message'] = "Admin has given the payment of amount ".$request->amount." ".$request->currency. " through ".$payment_method->name." \n Note: ".$request->note;
         $message['vendor_id'] = $request->user_id;
@@ -520,6 +533,19 @@ class VoucherController extends Controller
             'payment_method_id' => 'required'
         ]);
         $input = $request->except('_token');       
+
+        if(!is_numeric($input['payment_method_id'])) {
+            $paymentMethod = PaymentMethod::where("name",$input['payment_method_id'])->first();
+            if(!$paymentMethod) {
+                $paymentMethod = PaymentMethod::create([
+                    "name" => $input['payment_method_id']
+                ]);
+                $input['payment_method_id'] = $paymentMethod->id;
+            }else{
+                $input['payment_method_id'] = $paymentMethod->id;
+            }
+        }
+
         Payment::create($input);
         $cashData = [
             'user_id'=>$request->user_id,

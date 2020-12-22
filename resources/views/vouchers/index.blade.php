@@ -465,6 +465,8 @@
           $("#loading-image").hide();
           $('#paymentModal').modal('show');
           $('#payment-content').html(response);
+          $(".currency-select2").select2({width: '100%',tags:true});
+          $(".payment-method-select2").select2({width: '100%',tags:true});
         }).fail(function(errObj) {
           $("#loading-image").hide();
         });
@@ -490,6 +492,10 @@
             format: 'YYYY-MM-DD'
           });
           $('.select-multiple').select2({width: '100%'});
+
+          $(".currency-select2").select2({width: '100%',tags:true});
+          $(".payment-method-select2").select2({width: '100%',tags:true});
+
         }).fail(function(errObj) {
           $("#loading-image").hide();
         });
@@ -514,6 +520,7 @@
             format: 'YYYY-MM-DD'
           });
           $('.select-multiple').select2({width: '100%'});
+
         }).fail(function(errObj) {
           $("#loading-image").hide();
         });

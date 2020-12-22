@@ -43,7 +43,7 @@
   <div class="form-group">
     <strong>Currency:</strong>
     <!--input type="text" name="currency" class="form-control" value="{{ old('currency') }}" required-->
-    <select name="currency" class="form-control" required>
+    <select name="currency" class="form-control currency-select2" required>
       <option value="">Select Currency</option>
       @foreach($currencies as $currency)  
         <option @if($currency->code == old('currency')) selected @endif value="{{$currency->code}}">{{$currency->name}}</option>
@@ -57,7 +57,7 @@
 
 <div class="form-group">
     <strong>Method:</strong>
-    <select name="payment_method_id" id="payment_method_id" class="form-control" required>
+    <select name="payment_method_id" id="payment_method_id" class="form-control payment-method-select2" required>
         <option value="">Select method</option>
         
         @foreach($paymentMethods as $key => $method)
