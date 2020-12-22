@@ -217,17 +217,13 @@ $(document).on("click",".btn-add-items",function(e) {
                <strong>Unit Price:</strong>
                <input type="text" id="unit_price" name="items[`+next+`][unit_price]" class="form-control" value="">
             </div>
-            <div class="form-group col-md-5">
-               <strong>Description:</strong>
-               <input type="text" id="description" name="items[`+next+`][description]" class="form-control" value="">
-            </div>
             <div class="form-group col-md-3">
                <strong>Net Weight:</strong>
-               <input type="text" id="net_weight" name="items[`+next+`][net_weight]" class="form-control" value="">
+               <input type="text" id="net_weight" name="items[`+next+`][net_weight]" class="form-control" value="1">
             </div>
             <div class="form-group col-md-3">
                <strong>Gross Weight:</strong>
-               <input type="text" id="gross_weight" name="items[`+next+`][gross_weight]" class="form-control" value="">
+               <input type="text" id="gross_weight" name="items[`+next+`][gross_weight]" class="form-control" value="1">
             </div>
             <div class="form-group col-md-1">
                <button class="btn btn-secondary btn-remove-item"><i class="fa fa-trash"></i></button>

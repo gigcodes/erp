@@ -105,19 +105,19 @@
                        <div class="col">
                           <div class="form-group">
                              <strong>Length:</strong>
-                             <input type="number" name="box_length" id="box_length" class="form-control input_box_length" placeholder="1.0" value="" step="0.1" max="1000" required>
+                             <input type="number" name="box_length" id="box_length" class="form-control input_box_length" placeholder="1.0" value="10" step="0.1" max="1000" required>
                           </div>
                        </div>
                        <div class="col">
                           <div class="form-group">
                              <strong>Width:</strong>
-                             <input type="number" name="box_width" id="box_width" class="form-control input_box_width" placeholder="1.0" value="" step="0.1" max="1000" required>
+                             <input type="number" name="box_width" id="box_width" class="form-control input_box_width" placeholder="1.0" value="10" step="0.1" max="1000" required>
                           </div>
                        </div>
                        <div class="col">
                           <div class="form-group">
                              <strong>Height:</strong>
-                             <input type="number" name="box_height" id="box_height" class="form-control input_box_height" placeholder="1.0" value="" step="0.1" max="1000" required>
+                             <input type="number" name="box_height" id="box_height" class="form-control input_box_height" placeholder="1.0" value="10" step="0.1" max="1000" required>
                           </div>
                        </div>
                     </div>
