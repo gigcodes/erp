@@ -24,7 +24,7 @@
 
           <div class="form-group">
             <strong>Customer Address 1:</strong>
-            <input type="text" name="customer_address1" class="form-control" value="{{ $customer->address }}" required>
+            <input type="text" name="customer_address1" maxlength="20" class="form-control" value="{{ $customer->address }}" required>
           </div>
 
           <div class="form-group">
