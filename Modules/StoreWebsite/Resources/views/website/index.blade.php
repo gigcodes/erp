@@ -36,6 +36,9 @@
                     <button style="display: inline-block;" class="btn btn-secondary btn-merge-group m-2" data-toggle="modal" data-target="#merge-website-modal">
                         Merge Website
                     </button>
+                    <button style="display: inline-block;" class="btn btn-secondary btn-copy-websites m-2" data-toggle="modal" data-target="#copy-websites-modal">
+                        Copy Website
+                    </button>
 				 </div>
 		    </div>
 		    <div class="col col-md-6">
@@ -138,6 +141,31 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-secondary move-stores">Move Store</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="copy-websites-modal" class="modal" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Copy Websites</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <div class="form-group">
+                            <strong>Store websites</strong>
+                            <?php echo Form::select("store_website_id",$storeWebsites,null, ["class" => "form-control copy-store-websites-select"]);  ?>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary copy-websites">Copy Store</button>
             </div>
         </div>
     </div>
