@@ -233,6 +233,7 @@
 
 <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"> </script>
 <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"> </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.min.js"></script>
 <script>
     let paymentMethods;
 

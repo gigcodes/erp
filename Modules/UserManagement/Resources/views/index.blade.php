@@ -85,6 +85,7 @@
   
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet"/>
 @include('partials.flash_messages')
 <div class="row" id="common-page-layout">
     <div class="col-lg-12 margin-tb">
