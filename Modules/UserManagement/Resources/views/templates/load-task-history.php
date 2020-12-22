@@ -103,8 +103,8 @@
             var data = new FormData();
             var task_id = $(this).data('id');
             var type = $(this).data('type');
-            var message = $(this).parent().siblings('input').val();
-            var msgInput = $(this).parent().siblings('input');
+            var message = $(this).closest("td").find(".quick-message-field").val();
+            var msgInput = $(this).closest("td").find(".quick-message-field");
             data.append("task_id", task_id);
             data.append("message", message);
             data.append("status", 1);
