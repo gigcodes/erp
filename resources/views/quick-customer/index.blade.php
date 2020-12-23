@@ -257,6 +257,10 @@
         siteHelpers.addNextAction($(this));
     });
 
+    $(document).on("click",".add_next_action_btn",function() {
+        siteHelpers.addNextAction($(this));
+    });
+
     $(document).on("click",".delete_next_action",function() {
         siteHelpers.deleteNextAction($(this));
     });

@@ -2548,6 +2548,9 @@ public function createProductOnMagento(Request $request, $id){
 
         $rateReq->setDeclaredValue($declaredValue);
         $rateReq->setDescription($request->description);
+        if($request->duty_mode != null) {
+            $rateReq->setPaymentInfo($request->duty_mode);
+        }
         $rateReq->setPackages([
             [
                 "weight" => (float)$request->get("actual_weight"),

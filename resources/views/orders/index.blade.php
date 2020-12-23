@@ -173,6 +173,7 @@ color:black!important;
             <th style="width: 8%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=due{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Due</a></th> --}}
             {{-- <th style="width: 8%">Message Status</th> --}}
             {{-- <th style="width: 20%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th> --}}
+            <th>Waybill</th>
             <th width="10%">Action</th>
          </tr>
         </thead>
@@ -306,6 +307,13 @@ color:black!important;
               <td></td> --}}
               {{-- <td>{{ $order->action->status }}</td>
               <td>{{ $order->action->completion_date ? Carbon\Carbon::parse($order->action->completion_date)->format('d-m') : '' }}</td> --}}
+              <td>
+                @if ($order->waybill)
+                  {{ $order->waybill->awb }}
+                @else
+                  -
+                @endif
+              </td>
               <td>
                 <div class="d-flex">
                   <a class="btn btn-image pd-5 btn-ht" href="{{route('purchase.grid')}}?order_id={{$order->id}}">
