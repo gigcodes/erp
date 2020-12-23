@@ -112,11 +112,11 @@ class MessageQueueController extends Controller
         }
 
         if(request('communicated') == "yes") {
-            $chatMessage = $chatMessage->where(\Db::raw("c.id in (select c.id from customers as c join chat_messages as cm on cm.id = c.id where cm.message != '' and cm.number != '' group by c.id)"));
+            $chatMessage = $chatMessage->whereRaw(\Db::raw("c.id in (select c.id from customers as c join chat_messages as cm on cm.id = c.id where cm.message != '' and cm.number != '' group by c.id)"));
         }
 
         if(request('communicated') == "no") {
-            $chatMessage = $chatMessage->where(\Db::raw("c.id not in (select c.id from customers as c join chat_messages as cm on cm.id = c.id where cm.message != '' and cm.number != '' group by c.id)"));
+            $chatMessage = $chatMessage->whereRaw(\Db::raw("c.id not in (select c.id from customers as c join chat_messages as cm on cm.id = c.id where cm.message != '' and cm.number != '' group by c.id)"));
         }
 
         $chatMessage = $chatMessage->select(["chat_messages.*", "c.phone", "c.whatsapp_number", "c.name as customer_name"]);
