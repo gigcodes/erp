@@ -825,12 +825,16 @@ class UserManagementController extends Controller
             $taskList = DB::select('
             select * from (
                 (SELECT tasks.id as task_id,tasks.task_subject as subject, tasks.task_details as details, tasks.approximate as approximate_time, tasks.due_date,tasks.deleted_at,tasks.assign_to as assign_to,tasks.is_statutory as status_falg,chat_messages.message as last_message, chat_messages.created_at as orderBytime, tasks.is_verified as cond, "TASK" as type,tasks.created_at as created_at,tasks.priority_no  FROM tasks
-                          LEFT JOIN (
-                              SELECT  chat_messages.id as message_id,  chat_messages.task_id,  chat_messages.message,  chat_messages.status as message_status, 
-                              chat_messages.sent as message_type,  chat_messages.created_at as message_created_at,  chat_messages.is_reminder AS message_is_reminder, chat_messages.user_id AS message_user_id,
-                              chat_messages.created_at
-                              FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\Task"
-                          ) as chat_messages  ON chat_messages.task_id = tasks.id WHERE tasks.deleted_at IS NULL and tasks.is_statutory != 1 and tasks.is_verified is null and tasks.assign_to = '.$id.') 
+                          LEFT JOIN
+                           (SELECT MAX(id) AS max_id,
+                                   task_id,
+                                   message,
+                                   created_at
+                            FROM chat_messages
+                            WHERE task_id > 0
+                            GROUP BY task_id) m_max ON m_max.task_id = tasks.id
+                         LEFT JOIN chat_messages ON chat_messages.id = m_max.max_id
+                          WHERE tasks.deleted_at IS NULL and tasks.is_statutory != 1 and tasks.is_verified is null and tasks.assign_to = '.$id.') 
                 
                 union 
                 
