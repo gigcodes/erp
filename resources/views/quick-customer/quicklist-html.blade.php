@@ -1,7 +1,7 @@
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
-		      	<th id="sno">#</th>
+		      	<th id="sno"><input type="checkbox" class="checkbox-select-all">&nbsp;#</th>
 				  <th width="3%">Customer Name</th>
 				  <th width="1%">Next Action</th>
 				  <th width="18%">Shortcuts</th>
@@ -11,7 +11,7 @@
 		    <tbody>
 				@foreach($items as $item)
 				<tr>
-					<td>{{$item->id}}</td>
+					<td><input type="checkbox" name="items[]" value="{{$item->id}}" class="items-id">&nbsp;{{$item->id}}</td>
 					<td>{{$item->short_name}} <br> M : {{ $item->phone }}</td>
 					<td id="new_action_td">
 			        	<div class="row">
@@ -217,12 +217,18 @@
 			                                	<img src="/images/do-disturb.png" />
 			                            	</a>
 										@endif
+
 			                            <a class="btn btn-image  create-customer-related-task" title="Task" href="javascript:;" data-id="{{$item->id}}" data-user-id="">
 			                            	<i class="fa fa-plus" aria-hidden="true"></i>
 			                            </a>
 			                            <a class="btn btn-image count-customer-tasks" title="Task Count" href="javascript:;" data-id="{{$item->id}}" data-user-id="">
 			                            	<img src="/images/remark.png" />
 			                            </a>
+			                            @if($item->in_w_list==1)
+			                        		<a class="btn btn-image" href="javascript:;" data-id="{{$item->id}}" data-user-id="">
+			                                	<img src="/images/2.png" />
+			                            	</a>
+										@endif
 			                            <button type="button" class="btn btn-xs btn-image create-customer-ticket-modal" title="Create Ticket" data-toggle="modal" data-customer_id="{{$item->id}}" data-target="#create-customer-ticket-modal"><img src="/images/new.png" alt=""></button>
 										<button type="button" class="btn btn-xs btn-image show-customer-tickets-modal" title="Show Tickets" data-toggle="modal" data-customer_id="{{$item->id}}" data-target="#show-customer-tickets-modal"><img src="/images/show-ticket.png" alt=""></button>
 										<a href="javascript:;" class="btn btn-xs btn-image add-chat-phrases" title="Create Question"><img src="/images/add.png" alt=""></a>

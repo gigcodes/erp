@@ -108,4 +108,14 @@ class QuickCustomerController extends Controller
         ]);
 
     }
+
+    public function addInWhatsappList(Request $request)
+    {
+        $ids = $request->customer_ids;
+        if(!empty($ids)) {
+            \DB::table('customers')->whereIn('id', $ids)->update(array('in_w_list' => 1));
+        }
+
+        return response()->json(["code" => 200 , "data" => [], "message" => "Whatsapp list added successfully"]);
+    }
 }
