@@ -12,6 +12,7 @@ class QuickCustomerController extends Controller
     {
         $title         = "Quick Customer";
         $nextActionArr = \DB::table('customer_next_actions')->get();
+        $nextActionList = \DB::table('customer_next_actions')->pluck('name','id')->toArray();
 
         $reply_categories = \App\ReplyCategory::orderby('id', 'DESC')->get();
         $groups           = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
@@ -20,7 +21,7 @@ class QuickCustomerController extends Controller
 
         $request->merge(["do_not_disturb" => "0"]); 
 
-        return view("quick-customer.index", compact('title', 'category_suggestion', 'brands', 'nextActionArr','reply_categories', 'groups'));
+        return view("quick-customer.index", compact('title', 'category_suggestion', 'brands', 'nextActionArr','reply_categories', 'groups','nextActionList'));
     }
 
     public function records(Request $request)
@@ -63,6 +64,10 @@ class QuickCustomerController extends Controller
             $customer = $customer->where("customers.name","like","%".$request->customer_name."%");
         }
 
+        if($request->next_action != null) {
+            $customer = $customer->where("customers.customer_next_action_id",$request->next_action);
+        }
+
         if ($request->get('do_not_disturb') || 
             (($request->get('do_not_disturb') === "0" || $request->get('do_not_disturb') === 0) && $request->get('do_not_disturb') != "")) {
             $customer = $customer->where('customers.do_not_disturb', $request->get('do_not_disturb'));
@@ -91,11 +96,14 @@ class QuickCustomerController extends Controller
         $title         = "Quick Customer";
         $nextActionArr = \DB::table('customer_next_actions')->get();
         $reply_categories = \App\ReplyCategory::orderby('id', 'DESC')->get();
+        if(isset($_GET['page'])){
+            unset($_GET['page']);
+        }
         return response()->json([
             "code"       => 200,
             "data"       => view("quick-customer.quicklist-html", compact('items','title', 'nextActionArr','reply_categories'))->render(),
             "total"      => $customer->total(),
-            "pagination" => (string) $customer->appends($request->input())->links(),
+            "pagination" => (string) $customer->appends($_GET)->links(),
             "page"       => $customer->currentPage()
         ]);
 

@@ -84,6 +84,13 @@
 							    	"last_received" => "Last Received",
 							    ],request("type","last_received"),["class"=> "form-control","placeholder" => "Type"]) ?>
 						  	</div>
+
+                            <div class="form-group" style="margin-left: 2px">
+                                <label for="status">Sort By:</label>
+                                <?php echo Form::select("next_action",$nextActionList,request("next_action"),["class"=> "form-control","placeholder" => "Select Next Action"]) ?>
+                            </div>
+
+                            
                             <div class="form-group" style="margin-left: 2px">
                                 <label for="status">DND:</label>
                                 <select class="form-control" name="do_not_disturb">
@@ -91,6 +98,10 @@
                                     <option value="0" {{(request()->get('do_not_disturb')=='0')?'selected':''}}>Without DND</option>
                                     <option value="1" {{(request()->get('do_not_disturb')=='1')?'selected':''}}>With DND</option>
                                  </select>
+                             </div>
+                             <div class="form-group" style="margin-left: 2px">
+                                <label for="status">Page:</label>
+                                <?php echo Form::text("page",request("page"),["class"=> "form-control","placeholder" => "Enter page no"]) ?>
                              </div>
 						  	<div class="form-group">
 						  		<label for="button">&nbsp;</label>

@@ -6,10 +6,10 @@ var page = {
         $.extend(page.config, settings);
         this.getResults();
         //initialize pagination
-        page.config.bodyView.on("click", ".page-link", function(e) {
-            e.preventDefault();
-            page.getResults($(this).attr("href"));
-        });
+            /*page.config.bodyView.on("click", ".page-link", function(e) {
+                e.preventDefault();
+                page.getResults($(this).attr("href"));
+            });*/
         page.config.bodyView.on("click", ".btn-search-action", function(e) {
             e.preventDefault();
             page.getResults();
@@ -20,6 +20,8 @@ var page = {
             e.preventDefault();
             var activePage = $(this).closest(".pagination").find(".active").text();
             var clickedPage = $(this).text();
+
+            console.log($(this).attr("href"));
 
             if(clickedPage == "‹" || clickedPage < activePage) {
                 $('html, body').animate({scrollTop: ($(window).scrollTop() - 500) + "px"}, 200);
@@ -49,7 +51,7 @@ var page = {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/quick-customer/records",
             method: "get",
-            data: $(".message-search-handler").serialize(),
+            data: (typeof href != "undefined") ? {} : $(".message-search-handler").serialize(),
             beforeSend: function() {
                 $("#loading-image").show();
             }
