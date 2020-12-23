@@ -265,7 +265,7 @@
         siteHelpers.deleteNextAction($(this));
     });
 
-    $(document).on("click",".next_action",function() {
+    $(document).on("change",".next_action",function() {
         siteHelpers.changeNextAction($(this));
     });
 
