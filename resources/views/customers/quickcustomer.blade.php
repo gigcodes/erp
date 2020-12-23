@@ -590,15 +590,15 @@
         // @todo use for multiple place
     
 
-        $('.add_next_action').on('click', function(e) {
+        $(document).on('click', '.add_next_action', function (e) {    
             siteHelpers.addNextAction($(this));
         });
 
-        $('.delete_next_action').on('click', function(e) {
+        $(document).on('click', '.delete_next_action', function (e) {    
             siteHelpers.deleteNextAction($(this));
         });
 
-        $('.next_action').on('change', function(e) {
+        $(document).on('change', '.next_action', function (e) {    
             siteHelpers.changeNextAction($(this));
         });
 
