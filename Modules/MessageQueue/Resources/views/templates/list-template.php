@@ -29,7 +29,8 @@
 			        		<img width="75px" heigh="75px" src="{{>prop}}">
 			        	{{/props}}
 			        </td>
-			        <td><button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><img width="15px" src="/images/delete.png"></button></td>
+			        <td><button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><img width="15px" src="/images/delete.png"></button>
+			        	<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-limit="10" data-id="{{:prop.customer_id}}" data-is_admin="1" data-is_hod_crm="" data-load-type="text_with_incoming_img" data-attached="1" data-all="1" title="Load messages"><img src="/images/chat.png" alt="" style="cursor: nwse-resize; width: 0px;"></button></td>
 			      </tr>
 			    {{/props}}  
 		    </tbody>
