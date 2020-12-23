@@ -32,26 +32,30 @@
 </div>
 <div class="infinite-scroll">
     <div class="row col-md-12">
-        <div class="col-md-4">
-            <button class="btn btn-secondary generate-awb">+</button>
-        </div>
+        
     </div>
     <form method="get" action="">
-        <div class="row col-md-12">
-            <div class="col-md-3">
-                <input type="text" placeholder="AWB" name="awb" value="{{ @$_REQUEST['awb'] }}"/>
+        <div class="row col-md-9">
+             <div class="form-group">
+                <input type="text" class="form-control" placeholder="AWB" name="awb" value="{{ @$_REQUEST['awb'] }}"/>
             </div>
-            <div class="col-md-3">
-                <input type="text" placeholder="Destination" name="destination" value="{{ @$_REQUEST['destination'] }}"/>
+            <div class="form-group ml-2">
+                <input type="text" class="form-control" placeholder="Destination" name="destination" value="{{ @$_REQUEST['destination'] }}"/>
             </div>
-            <div class="col-md-3">
-                <input type="text" placeholder="Consignee" name="consignee" value="{{ @$_REQUEST['consignee'] }}"/>
+            <div class="form-group ml-2">
+                <input type="text" class="form-control" placeholder="Consignee" name="consignee" value="{{ @$_REQUEST['consignee'] }}"/>
             </div>
-            <div class="col-md-3">
+            <div class="form-group ml-2">
+                <input type="text" class="form-control" placeholder="Order no" name="order_id" value="{{ @$_REQUEST['order_id'] }}"/>
+            </div>
+            <div class="form-group ml-2">
                 <button class="btn btn-image">
                     <img src="https://erp.amourint.com/images/search.png" alt="Search" style="cursor: default;">
                 </button>
             </div>
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-secondary generate-awb">+</button>
         </div>
     </form>
 
@@ -60,6 +64,7 @@
         <thead>
           <tr>
             <th>AWB number</th>
+            <th>Order</th>
             <th>Customer name</th>
             <th>Destination</th>
             <th>Shipped Date</th>
@@ -78,6 +83,7 @@
             @forelse ($waybills_array as $key => $item)
                 <tr>
                     <td>{{ @$item->awb }}</td>
+                    <td>{{ @$item->order->id }}</td>
                     <td>{{ @$item->order->customer->name ?? @$item->customer->name}}</td>
                     <td>{{ @$item->order->customer->address ?? @$item->customer->address }}</td>
                     <td>{{ ($item->created_at) ? date('d-m-Y', strtotime($item->created_at)) : '' }}</td>

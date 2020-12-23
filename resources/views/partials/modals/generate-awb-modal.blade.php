@@ -153,6 +153,15 @@
                              </div>
                           </div>
                        </div>
+                       <div class="col">
+                          <div class="form-group">
+                             <strong>Duty Mode:</strong>
+                             <select name="duty_mode" class="form-control">
+                                <option value="DAP">Delivered at place</option>
+                                <option value="DDP">Delivered duty paid</option>
+                             </select>
+                          </div>
+                       </div>
                     </div>
                     <div class="row">
                        

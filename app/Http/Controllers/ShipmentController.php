@@ -32,24 +32,35 @@ class ShipmentController extends Controller
 	 * @return \Illuminate\Http\Response
 	 */
 	public function index(Request $request) {
-        $waybills = $this->wayBill;
+        
+        $waybills = $this->wayBill->leftJoin("orders as o","o.id","waybills.order_id");
+        
         if($request->get('awb')){
-            $waybills->where('awb','=',$request->get('awb'));
+            $waybills->where('waybills.awb','=',$request->get('awb'));
         }
+        
         if($request->get('destination')){
-            $waybills->where('destination','like','%'.$request->get('destination').'%');
+            $waybills->where('waybills.destination','like','%'.$request->get('destination').'%');
         }
+
+        if($request->get('order_id')){
+            $waybills->where('o.id',$request->get('order_id'));
+        }
+        
         if($request->get('consignee')){
            $customer_name = Customer::where('name','like','%'.$request->get('consignee').'%')->select('id')->get()->toArray();
            $ids = [];
            foreach($customer_name as $cus){
                array_push($ids, $cus['id']);
            }
-           $waybills->whereIn('customer_id',$ids);
+           $waybills->whereIn('waybills.customer_id',$ids);
         }
-		$waybills = $waybills->orderBy('id', 'desc')->with('order', 'order.customer', 'customer','waybill_track_histories');
+		
+        $waybills = $waybills->orderBy('waybills.id', 'desc')->select("waybills.*")->with('order', 'order.customer', 'customer','waybill_track_histories');
+
         $waybills_array = $waybills->paginate(20);
         $customers = Customer::all();
+        
         $fromdatadefault = array(
            "street" 		=> config("dhl.shipper.street"),
            "city" 			=> config("dhl.shipper.city"),
@@ -58,9 +69,11 @@ class ShipmentController extends Controller
            "person_name" 	=> config("dhl.shipper.person_name"),
            "company_name" 	=> config("dhl.shipper.company_name"),
            "phone" 		=> config("dhl.shipper.phone")
-       );
+        );
+
         $mailinglist_templates = MailinglistTemplate::groupBy('name')->get();
-		return view( 'shipment.index', ['waybills_array' => $waybills_array,
+		
+        return view( 'shipment.index', ['waybills_array' => $waybills_array,
             'customers' => $customers, 'template_names' => $mailinglist_templates,
             'countries' => config('countries'),'fromdatadefault'=>$fromdatadefault
         ]);
@@ -255,6 +268,11 @@ class ShipmentController extends Controller
             ]);
 
             $rateReq->setShippingTime(gmdate("Y-m-d\TH:i:s",strtotime($request->pickup_time))." GMT+05:30");
+            
+            if(isset($request->duty_mode) && $request->duty_mode != null) {
+                $rateReq->setPaymentInfo($request->duty_mode);
+            }
+
             $rateReq->setDeclaredValue($request->amount);
             $rateReq->setCurrency($request->currency);
             $rateReq->setPackages([
