@@ -92,8 +92,8 @@ class MessageQueueController extends Controller
         $groupId      = request("group_id", 0);
 
         $chatMessage = ChatMessage::join("customers as c", "c.id", "chat_messages.customer_id")
-            ->where("is_queue", ">", 0)
-            ->where("customer_id", ">", 0);
+            ->where("chat_messages.is_queue", ">", 0)
+            ->where("chat_messages.customer_id", ">", 0);
 
         if (!empty($from)) {
             $chatMessage = $chatMessage->where("c.whatsapp_number", "like", "%" . $from . "%");
@@ -109,6 +109,14 @@ class MessageQueueController extends Controller
 
         if (!empty($customerName)) {
             $chatMessage = $chatMessage->where("c.name", "like", "%" . $customerName . "%");
+        }
+
+        if(request('communicated') == "yes") {
+            $chatMessage = $chatMessage->where(\Db::raw("c.id in (select c.id from customers as c join chat_messages as cm on cm.id = c.id where cm.message != '' and cm.number != '' group by c.id)"));
+        }
+
+        if(request('communicated') == "no") {
+            $chatMessage = $chatMessage->where(\Db::raw("c.id not in (select c.id from customers as c join chat_messages as cm on cm.id = c.id where cm.message != '' and cm.number != '' group by c.id)"));
         }
 
         $chatMessage = $chatMessage->select(["chat_messages.*", "c.phone", "c.whatsapp_number", "c.name as customer_name"]);

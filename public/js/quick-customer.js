@@ -6,10 +6,10 @@ var page = {
         $.extend(page.config, settings);
         this.getResults();
         //initialize pagination
-        page.config.bodyView.on("click", ".page-link", function(e) {
-            e.preventDefault();
-            page.getResults($(this).attr("href"));
-        });
+            /*page.config.bodyView.on("click", ".page-link", function(e) {
+                e.preventDefault();
+                page.getResults($(this).attr("href"));
+            });*/
         page.config.bodyView.on("click", ".btn-search-action", function(e) {
             e.preventDefault();
             page.getResults();
@@ -20,6 +20,8 @@ var page = {
             e.preventDefault();
             var activePage = $(this).closest(".pagination").find(".active").text();
             var clickedPage = $(this).text();
+
+            console.log($(this).attr("href"));
 
             if(clickedPage == "‹" || clickedPage < activePage) {
                 $('html, body').animate({scrollTop: ($(window).scrollTop() - 500) + "px"}, 200);
@@ -34,6 +36,17 @@ var page = {
                 page.config.bodyView.find("#page-view-result").find(".pagination").find(".active").next().find("a").click();
             }
         });
+
+        $(document).on("click",".checkbox-select-all",function() {
+            $(".items-id").trigger("click");
+        });
+
+        $(document).on("click",".btn-add-whatsapp-list",function() {
+            page.addInWhatsappList($(this));
+        });
+
+        
+
     },
     loadFirst: function() {
         var _z = {
@@ -49,7 +62,7 @@ var page = {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/quick-customer/records",
             method: "get",
-            data: $(".message-search-handler").serialize(),
+            data: (typeof href != "undefined") ? {} : $(".message-search-handler").serialize(),
             beforeSend: function() {
                 $("#loading-image").show();
             }
@@ -78,6 +91,32 @@ var page = {
            page.config.bodyView.find("#page-view-result").append(tplHtml);
         }else{
            page.config.bodyView.find("#page-view-result").html(tplHtml);
+        }
+    },
+    addInWhatsappList : function(ele) {
+
+        var items = [];
+        var checkbox = $(".items-id:checked");
+            $.each(checkbox,function(k,v) {
+                items.push($(v).val());
+            });
+
+        var _z = {
+            url: this.config.baseUrl + "/quick-customer/add-whatsapp-list",
+            method: "post",
+            data: { customer_ids : items},
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "afterAddinWhatsappList",{append : true});
+    },
+    afterAddinWhatsappList : function(response) {
+        $("#loading-image").hide();
+        if(response.code == 200){
+            toastr["success"]("Success");
+        }else{
+            toastr["error"]("Error");
         }
     }
 }

@@ -205,7 +205,11 @@
 						  	</div>
 						  	<div class="form-group">
 							    <label for="action">Number of records:</label>
-							    <?php echo Form::select("limit",[10 => "10", 20 => "20", 30 => "30" , 50 => "50", 100 => "100" , 500 => "500" , 1000 => "1000"],request("limti"),["class" => "form-control select2","placeholder" => "Page limit"]) ?>
+							    <?php echo Form::select("limit",[10 => "10", 20 => "20", 30 => "30" , 50 => "50", 100 => "100" , 500 => "500" , 1000 => "1000"],request("limit"),["class" => "form-control select2","placeholder" => "Page limit"]) ?>
+						  	</div>
+						  	<div class="form-group">
+							    <label for="action">Communicated:</label>
+							    <?php echo Form::select("communicated",["yes" => "Yes", "no" => "No"],request("communicated"),["class" => "form-control select2","placeholder" => "Communicated"]) ?>
 						  	</div>
 						  	<div class="form-group">
 						  		<label for="button">&nbsp;</label>

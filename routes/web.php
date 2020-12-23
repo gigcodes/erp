@@ -834,6 +834,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('quickcustomer', 'CustomerController@quickcustomer')->name('quickcustomer');
     Route::get('quick-customer', 'QuickCustomerController@index')->name('quick.customer.index');
     Route::get('quick-customer/records', 'QuickCustomerController@records')->name('quick.customer.records');
+    Route::post('quick-customer/add-whatsapp-list', 'QuickCustomerController@addInWhatsappList')->name('quick.customer.add-whatsapp-list');
 
     Route::get('broadcast', 'BroadcastMessageController@index')->name('broadcast.index');
     Route::get('broadcast/images', 'BroadcastMessageController@images')->name('broadcast.images');
