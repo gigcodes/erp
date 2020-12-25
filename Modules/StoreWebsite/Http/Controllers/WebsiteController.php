@@ -198,13 +198,13 @@ class WebsiteController extends Controller
                         $website->store_website_id = $storeWebsiteId;
                         if ($website->save()) {
                             $websiteStore             = new WebsiteStore;
-                            $websiteStore->name       = $c;
-                            $websiteStore->code       = replace_dash($k);
+                            $websiteStore->name       = $c." Store";
+                            $websiteStore->code       = replace_dash($k)."_store";
                             $websiteStore->website_id = $website->id;
                             $websiteStore->save();
                             if ($websiteStore->save()) {
                                 $websiteStoreView                   = new WebsiteStoreView;
-                                $websiteStoreView->name             = $c . " En";
+                                $websiteStoreView->name             = "English";
                                 $websiteStoreView->code             = replace_dash(strtolower($k . "_en"));
                                 $websiteStoreView->website_store_id = $websiteStore->id;
                                 $websiteStoreView->save();
@@ -267,12 +267,12 @@ class WebsiteController extends Controller
             if ($website->save()) {
                 $websiteStore             = new WebsiteStore;
                 $websiteStore->name       = $groupName;
-                $websiteStore->code       = replace_dash($slug);
+                $websiteStore->code       = replace_dash($slug)."_store";
                 $websiteStore->website_id = $website->id;
                 $websiteStore->save();
                 if ($websiteStore->save()) {
                     $websiteStoreView                   = new WebsiteStoreView;
-                    $websiteStoreView->name             = $groupName . " En";
+                    $websiteStoreView->name             = "English";
                     $websiteStoreView->code             = replace_dash(strtolower($slug . "_en"));
                     $websiteStoreView->website_store_id = $websiteStore->id;
                     $websiteStoreView->save();
