@@ -57,7 +57,9 @@ class PageController extends Controller
 
         $items = $pages->items();
 
-        return response()->json(["code" => 200, "data" => $items, "total" => $pages->total()]);
+        return response()->json(["code" => 200, "data" => $items, "total" => $pages->total(), 
+            "pagination" => (string)$pages->links()
+        ]);
     }
 
     public function store(Request $request)
