@@ -33,7 +33,7 @@
 				 </div>
 		    </div>
 		    <div class="col col-md-6">
-		    	<div class="h">
+		    	<div class="h" style="float: right;">
 					<div class="row">
 		    			<form class="form-inline message-search-handler" method="get">
                             <div class="form-group">

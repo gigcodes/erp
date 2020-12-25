@@ -399,9 +399,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('/status/fetchMasterStatus/{id}', 'OrderController@fetchMasterStatus');
     });
 
-
-
-
     //plesk
     Route::prefix('plesk')->middleware('auth')->group(static function () {
         Route::get('/domains', 'PleskController@index')->name('plesk.domains');
