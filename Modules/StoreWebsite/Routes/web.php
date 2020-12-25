@@ -143,6 +143,20 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/load-page', 'PageController@loadPage')->name("store-website.page.loadPage");
     });
 
+    Route::prefix('product-attribute')->group(function () {
+        Route::get('/', 'StoreWebsiteProductAttributeController@index')->name("store-website.product-attribute.index");
+        Route::get('/records', 'StoreWebsiteProductAttributeController@records')->name("store-website.product-attribute.records");
+        Route::post('save', 'StoreWebsiteProductAttributeController@store')->name("store-website.product-attribute.save");
+        Route::post('create-default-stores', 'StoreWebsiteProductAttributeController@createDefaultStores')->name("store-website.product-attribute.createDefaultStores");
+        Route::post('move-stores', 'StoreWebsiteProductAttributeController@moveStores')->name("store-website.product-attribute.moveStores");
+        Route::post('copy-stores', 'StoreWebsiteProductAttributeController@copyStores')->name("store-website.product-attribute.copyStores");
+        Route::post('change-status', 'StoreWebsiteProductAttributeController@changeStatus')->name("store-website.product-attribute.changeStatus");
+        Route::post('copy-websites', 'StoreWebsiteProductAttributeController@copyWebsites')->name("store-website.product-attribute.copyWebsites");
+        Route::get('/{id}/edit', 'StoreWebsiteProductAttributeController@edit')->name("store-website.product-attribute.edit");
+        Route::get('/{id}/delete', 'StoreWebsiteProductAttributeController@delete')->name("store-website.product-attribute.delete");
+        Route::get('/{id}/push', 'StoreWebsiteProductAttributeController@push')->name("store-website.product-attribute.push");
+    });
+
 });
 
 Route::prefix('site-development')->group(function () {

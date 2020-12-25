@@ -966,7 +966,7 @@ class Product extends Model
         return ["original_price" => $this->price , "promotion" => "0.00", "total" =>  $this->price];
     }
 
-    public function getDuty($countryCode)
+    public function getDuty($countryCode , $withtype = false)
     {
        $hsCode = ($this->product_category) ? $this->product_category->simplyduty_code : null;
        if(!empty($hsCode)){
@@ -1249,10 +1249,13 @@ class Product extends Model
 
                 // if description is not empty
                 if(!empty($description)) {
-                    $storeWebsitePA = new \App\StoreWebsiteProductAttribute;
-                    $storeWebsitePA->product_id = $product->id;
-                    $storeWebsitePA->store_website_id = $website->id;
-                    $storeWebsitePA->description = $description;
+                    $storeWebsitePA                     = new \App\StoreWebsiteProductAttribute;
+                    $storeWebsitePA->product_id         = $product->id;
+                    $storeWebsitePA->price              = $product->price;
+                    $storeWebsitePA->discount           = "0.00";
+                    $storeWebsitePA->discount_type      = "percentage";
+                    $storeWebsitePA->store_website_id   = $website->id;
+                    $storeWebsitePA->description        = $description;
                     $storeWebsitePA->save();
                 }
             }
