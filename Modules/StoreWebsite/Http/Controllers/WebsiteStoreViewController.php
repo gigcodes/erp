@@ -22,7 +22,7 @@ class WebsiteStoreViewController extends Controller
         $title = "Website Store View | Store Website";
 
         $websiteStores = WebsiteStore::all()->pluck("name", "id")->all();
-        $languages = \App\Language::all()->pluck("code", "locale");
+        $languages = \App\Language::all()->pluck("name", "name");
 
         return view('storewebsite::website-store-view.index', [
             'title'         => $title,
