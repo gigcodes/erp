@@ -42,6 +42,9 @@ class SendQueuePendingChatMessagesGroup extends Command
     public static function getNumberList()
     {
         $allWhatsappNo = config("apiwha.instances");
+
+        \Log::info(print_r(["No found From instance",$allWhatsappNo],true));
+
         ksort($allWhatsappNo);
 
         $noList = [];
