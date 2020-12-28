@@ -52,7 +52,7 @@ class SendQueuePendingChatMessages extends Command
 
         $noList = [];
         foreach($q as $queue) {
-            $noList[] = $queue['number'];
+            $noList[] = $queue->number;
         }
 
         return $noList;
