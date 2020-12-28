@@ -14,7 +14,7 @@ class CreateTableStoreWebsitePageHistory extends Migration
     public function up()
     {
         //
-        Schema::create('store_websites_page_histories',function(Blueprint $table) {
+        Schema::create('store_website_page_histories',function(Blueprint $table) {
             $table->increments('id');
             $table->text('content')->nullable();
             $table->integer('store_website_page_id')->nullable();
@@ -31,6 +31,6 @@ class CreateTableStoreWebsitePageHistory extends Migration
     public function down()
     {
         //
-        Schema::dropIfExists('store_websites_page_histories');
+        Schema::dropIfExists('store_website_page_histories');
     }
 }

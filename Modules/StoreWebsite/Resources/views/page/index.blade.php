@@ -73,6 +73,30 @@
     </div>  
 </div>
 
+<div class="preview-history-modal modal" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="table-responsive mt-3">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Content</th>
+                                <th>Updated By</th>
+                                <th>Updated At</th>
+                            </tr>
+                        </thead>
+                        <tbody id="preview-history-tbody">
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @include("storewebsite::page.templates.list-template")
 @include("storewebsite::page.templates.create-website-template")
 

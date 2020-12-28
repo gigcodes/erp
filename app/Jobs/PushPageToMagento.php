@@ -65,12 +65,6 @@ class PushPageToMagento implements ShouldQueue
                         if(!empty($id) && is_numeric($id)) {
                             $page->platform_id = $id;
                             $page->save();
-
-                            // upload page here
-                            $history = \App\StoreWebsitePageHistory::create([
-                                "content" => $page->content,
-                                "store_website_page_id" => $page->id,
-                            ]);
                         }
                     }
                 }

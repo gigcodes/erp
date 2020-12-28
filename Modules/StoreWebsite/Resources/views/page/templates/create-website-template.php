@@ -86,6 +86,17 @@
                         ?>
                      </select>
                   </div>
+                  <div class="form-group col-md-6">
+                     <label for="language">Language</label>
+                     <select name="language" class="form-control store-website-language">
+                        <option value="">-- N/A --</option>
+                        <?php
+                            foreach(\App\Language::pluck('name','name')->toArray() as $k => $l) {
+                                echo "<option {{if data.language == '".$k."'}} selected {{/if}} value='".$k."'>".$l."</option>";
+                            }
+                        ?>
+                     </select>
+                  </div>
               </div>
               <div class="form-row">
                 {{if data && data.id}}

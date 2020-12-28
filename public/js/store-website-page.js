@@ -63,6 +63,11 @@ var page = {
             page.loadTranslation($(this));
         });
 
+        $(document).on("click",".btn-find-history",function(e) {
+            e.preventDefault();
+            page.loadHistory($(this));
+        });
+
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -246,6 +251,33 @@ var page = {
     afterLoadTranslation : function(response) {
         if(response.code  == 200) {
             $(".content-preview").html(response.content);
+        }
+    },
+    loadHistory:function(ele) {
+        
+        let page     = ele.data("id");
+        
+        var _z = {
+            url: this.config.baseUrl + "/page/"+page+"/history",
+            method: "get"
+        }
+
+        this.sendAjax(_z, 'afterLoadHistory');
+    },
+    afterLoadHistory : function(response) {
+        var html = ``;
+        if(response.code  == 200) {
+            $.each(response.data,function(k,v) {
+                var user = (v.user) ? v.user.name : "";
+                html += `<tr>
+                    <td>`+v.id+`</td>
+                    <td>`+v.content+`</td>
+                    <td>`+user+`</td>
+                    <td>`+v.created_at+`</td>
+                </tr>`;
+            })
+            $("#preview-history-tbody").html(html);
+            $(".preview-history-modal").modal("show");
         }
     }
 }

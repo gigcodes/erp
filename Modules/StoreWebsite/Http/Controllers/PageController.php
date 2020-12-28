@@ -2,11 +2,11 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
+use App\GoogleTranslate;
 use App\Http\Controllers\Controller;
+use App\Language;
 use App\StoreWebsite;
 use App\StoreWebsitePage;
-use App\Language;
-use App\GoogleTranslate;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
@@ -57,8 +57,8 @@ class PageController extends Controller
 
         $items = $pages->items();
 
-        return response()->json(["code" => 200, "data" => $items, "total" => $pages->total(), 
-            "pagination" => (string)$pages->links()
+        return response()->json(["code" => 200, "data" => $items, "total" => $pages->total(),
+            "pagination"                    => (string) $pages->links(),
         ]);
     }
 
@@ -68,8 +68,9 @@ class PageController extends Controller
         $id   = $request->get("id", 0);
 
         $params = [
-            'title'   => 'required',
-            'content' => 'required',
+            'title'    => 'required',
+            'content'  => 'required',
+            'language' => 'required',
             //'stores'           => 'required',
             //'store_website_id' => 'required',
         ];
@@ -99,13 +100,20 @@ class PageController extends Controller
         }
 
         if (empty($id)) {
-            $post["stores"] = implode(",", $post["stores"]);
-            $string = str_replace(' ', '-', strtolower($post["title"])); // Replaces all spaces with hyphens.
-            $string = preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
+            $post["stores"]  = implode(",", $post["stores"]);
+            $string          = str_replace(' ', '-', strtolower($post["title"])); // Replaces all spaces with hyphens.
+            $string          = preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
             $post["url_key"] = $string;
         }
 
         $records->fill($post);
+
+        // upload page here
+        $history = \App\StoreWebsitePageHistory::create([
+            "content"               => $records->content,
+            "store_website_page_id" => $records->id,
+            "updated_by"            => \Auth::user()->id,
+        ]);
 
         // if records has been save then call a request to push
         if ($records->save()) {
@@ -178,12 +186,12 @@ class PageController extends Controller
     {
         $page = \App\StoreWebsitePage::find($id);
 
-        if($page) {
+        if ($page) {
 
             $language = $request->language;
 
-            // do by lanuage 
-            if(!empty($language)) {
+            // do by lanuage
+            if (!empty($language)) {
 
                 $translateDescription = \App\Http\Controllers\GoogleTranslateController::translateProducts(
                     new GoogleTranslate,
@@ -193,7 +201,7 @@ class PageController extends Controller
 
                 return response()->json(["code" => 200, "content" => !empty($translateDescription) ? $translateDescription : $page->content]);
 
-            }else{
+            } else {
                 return response()->json(["code" => 200, "content" => $page->content]);
             }
         }
@@ -202,7 +210,14 @@ class PageController extends Controller
 
     public function pageHistory(Request $request, $page)
     {
+        $histories = \App\StoreWebsitePageHistory::where('store_website_page_id', $page)->latest()->get();
 
+        foreach ($histories as $h => $history) {
+            # code...
+            $history->user;
+        }
+
+        return response()->json(["code" => 200, "data" => $histories]);
     }
 
 }
