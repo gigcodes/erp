@@ -100,7 +100,13 @@
 	        <button type="button" class="close" data-dismiss="modal">&times;</button>
 	      </div>
 	     <div class="modal-body">
-			<div class="form-group">
+			<div class="form-row">
+                <div class="form-group">
+                    <strong>Country Code</strong>
+                    <?php echo Form::text("country_codes",null, ["class" => "form-control default-store-country-code"]);  ?>
+                </div>
+            </div>
+            <div class="form-row">
           		<div class="form-group">
             		<strong>Store websites</strong>
             		<?php echo Form::select("store_website_id",$storeWebsites,null, ["class" => "form-control default-store-website-select"]);  ?>

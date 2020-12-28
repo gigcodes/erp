@@ -227,7 +227,8 @@ var page = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/websites/create-default-stores",
             method: "post",
             data : {
-                store_website_id : $(".default-store-website-select").val()
+                store_website_id : $(".default-store-website-select").val(),
+                country_codes : $(".default-store-country-code").val()
             }
         }
         this.sendAjax(_z, 'afterCreateDefaultStores');
