@@ -33,6 +33,9 @@
                         <button type="button" title="Delete" data-id="{{>prop.id}}" class="btn btn-delete-template">
                             <i class="fa fa-trash" aria-hidden="true"></i>
                         </button>
+                        <button type="button" title="History" data-id="{{>prop.id}}" class="btn btn-find-history">
+                            <i class="fa fa-web" aria-hidden="true"></i>
+                        </button>
                     </td>
                   </tr>
                 {{/props}}

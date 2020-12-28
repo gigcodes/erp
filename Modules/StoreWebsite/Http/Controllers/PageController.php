@@ -200,4 +200,9 @@ class PageController extends Controller
 
     }
 
+    public function pageHistory(Request $request, $page)
+    {
+
+    }
+
 }
