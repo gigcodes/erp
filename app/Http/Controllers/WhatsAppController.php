@@ -4983,6 +4983,24 @@ class WhatsAppController extends FindByNumberController
         // Get configs
         $config = \Config::get("apiwha.instances");
 
+        // check if number is set or not then call from the table
+        if (!isset($config[$whatsapp_number])) { 
+            $whatsappRecord = \App\Marketing\WhatsappConfig::where('provider','Chat-API')
+            ->where("instance_id", "!=", "")
+            ->where("token", "!=", "")
+            ->where("status", 1)
+            ->where("number", $whatsapp_number)
+            ->first();
+
+            if($whatsappRecord) {
+                $config[$whatsapp_number] = [
+                    "instance_id" => $whatsappRecord->instance_id,
+                    "token" => $whatsappRecord->token
+                ];
+            }
+        }
+
+
         // Set instanceId and token
         if (isset($config[$whatsapp_number])) {
             $instanceId = $config[$whatsapp_number]['instance_id'];
