@@ -47,7 +47,7 @@ class SendQueuePendingChatMessagesGroup extends Command
         $noList = [];
         if (!empty($allWhatsappNo)) {
             foreach ($allWhatsappNo as $no => $dataInstance) {
-                $no       = ($no == 0) ? $dataInstance["number"] : $no;
+                $no       = $dataInstance["number"];
                 $noList[] = $no;
             }
         }
