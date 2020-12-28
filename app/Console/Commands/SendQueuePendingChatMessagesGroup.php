@@ -64,6 +64,8 @@ class SendQueuePendingChatMessagesGroup extends Command
     {
         //try {
 
+        \Log::info("Queue chat for group job started");
+
         $report = \App\CronJobReport::create([
             'signature'  => $this->signature,
             'start_time' => Carbon::now(),
@@ -78,6 +80,8 @@ class SendQueuePendingChatMessagesGroup extends Command
         // if message is approve then only need to run the queue
         if ($approveMessage == 1) {
 
+            \Log::info("Queue chat for group job approve message turned on");
+
             $allWhatsappNo = config("apiwha.instances");
 
             $this->waitingMessages = [];
@@ -89,8 +93,14 @@ class SendQueuePendingChatMessagesGroup extends Command
                 }
             }
 
+            \Log::info(print_r($numberList,true));
+            \Log::info("Above number found");
+
             if (!empty($numberList)) {
                 $groups = ChatMessage::where('is_queue', ">", 0)->where("group_id", ">", 0)->groupBy("group_id")->pluck("group_id")->toArray();
+
+                \Log::info(print_r($groups,true));
+
                 foreach ($numberList as $number) {
                     $sendLimit = isset($limit[$number]) ? $limit[$number] : 0;
                     foreach ($groups as $group) {
@@ -102,6 +112,8 @@ class SendQueuePendingChatMessagesGroup extends Command
                             ->select("chat_messages.*")
                             ->limit($sendLimit)
                             ->get();
+
+                        \Log::info("Chat Message count found =>".$chatMessage->count());
 
                         if (!$chatMessage->isEmpty()) {
                             
