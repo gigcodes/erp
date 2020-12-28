@@ -434,7 +434,7 @@ class Kernel extends ConsoleKernel
         if(!empty($queueStartTime) && !empty($queueEndTime)) {
             \Log::info("Cron job is running");
             $schedule->command('send:queue-pending-chat-messages')->cron('*/15 * * * *')->between($queueStartTime, $queueEndTime);
-            $schedule->command('send:queue-pending-chat-group-messages')->everyFifteenMinutes();
+            $schedule->command('send:queue-pending-chat-group-messages')->everyMinute();
         }
 
 
