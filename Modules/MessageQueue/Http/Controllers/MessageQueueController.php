@@ -194,6 +194,15 @@ class MessageQueueController extends Controller
                 ChatMessage::where("is_queue", ">", 0)->delete();
                 return response()->json(["code" => 200, "message" => "Deleted Successfully"]);
                 break;
+            case 'change_to_dnd':
+                if (!empty($ids) && is_array($ids)) {
+                    \DB::update("update chat_messages as cm join customers as c on c.id = cm.customer_id set c.do_not_disturb = 1 where cm.id in (" . implode(",", $ids) . ");");
+                    return response()->json(["code" => 200, "message" => "Updated to DND Successfully"]);
+                }
+
+                return response()->json(["code" => 200, "message" => "Updated dnd Successfully"]);
+            break; 
+                
         }
 
         return response()->json(["code" => 500, "message" => "Please select fields before action"]);

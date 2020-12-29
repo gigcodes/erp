@@ -7,6 +7,7 @@
 		      	<th>Id</th>
 		        <th>Customer Name</th>
 		        <th>Number From</th>
+		        <th>Number To</th>
 		        <th>Group</th>
 		        <th>Message</th>
 		        <th>Created At</th>
@@ -21,6 +22,7 @@
 			      	<td>{{:prop.id}}</td>
 			      	<td>{{:prop.customer_name}}</td>
 			        <td>{{:prop.whatsapp_number}}</td>
+			        <td>{{:prop.phone}}</td>
 			        <td>{{:prop.group_id}}</td>
 			        <td>{{:prop.message}}</td>
 			        <td>{{:prop.created_at}}</td>
