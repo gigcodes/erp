@@ -97,7 +97,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::post('save', 'ColorController@store')->name("store-website.color.save");
         Route::put('/{id}', 'ColorController@update')->name("store-website.color.edit");
         Route::delete('/{id}', 'ColorController@destroy')->name("store-website.color.destroy");
-        Route::post('/{id}/push-to-store', 'ColorController@pushToStore')->name('store-website.color.push-to-store');
+        Route::post('push-to-store', 'ColorController@pushToStore')->name('store-website.color.push-to-store');
     });
 
     Route::prefix('websites')->group(function () {
