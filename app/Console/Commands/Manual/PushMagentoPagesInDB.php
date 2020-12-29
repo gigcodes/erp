@@ -39,7 +39,14 @@ class PushMagentoPagesInDB extends Command
      */
     public function handle()
     {
-        $websites = \App\StoreWebsite::where("api_token", "!=", "")->where('remote_software', '2')->where("website_source", "magento")->get();
+        $ids  = $this->ask('Enter Website ids');
+        
+        if(!empty($ids)) {
+            $ids = explode(",", $ids);
+            $websites = \App\StoreWebsite::whereIn("id",$ids)->where("api_token", "!=", "")->where('remote_software', '2')->where("website_source", "magento")->get();
+        }else{
+            $websites = \App\StoreWebsite::where("api_token", "!=", "")->where('remote_software', '2')->where("website_source", "magento")->get();
+        }
 
         if (!$websites->isEmpty()) {
             foreach ($websites as $website) {
