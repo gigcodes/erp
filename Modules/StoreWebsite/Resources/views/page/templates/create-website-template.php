@@ -100,6 +100,7 @@
               </div>
               <div class="form-row">
                 {{if data && data.id}}
+                    <input type="text" name="stores_str" value="{{if data}}{{:data.stores}}{{/if}}" class="form-control" placeholder="Enter Stores comma seperate">
                 {{else}}
                   <div class="form-group col-md-6">
                      <label for="store_website_id">Store website</label>

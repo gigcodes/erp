@@ -68,6 +68,11 @@ var page = {
             page.loadHistory($(this));
         });
 
+        $(document).on("click",".btn-translate-for-other-language",function(e) {
+            e.preventDefault();
+            page.translateForOtherLanguage($(this));
+        });
+
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -153,6 +158,9 @@ var page = {
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
+
+            $('#google_translate_element').summernote();
+
         //new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
     },
 
@@ -278,6 +286,21 @@ var page = {
             })
             $("#preview-history-tbody").html(html);
             $(".preview-history-modal").modal("show");
+        }
+    },
+    translateForOtherLanguage :function(ele) {
+        let page     = ele.data("id");
+        
+        var _z = {
+            url: this.config.baseUrl + "/page/"+page+"/translate-for-other-langauge",
+            method: "get"
+        }
+
+        this.sendAjax(_z, 'afterTranslateForOtherLanguage');
+    },
+    afterTranslateForOtherLanguage : function(response) {
+        if(response.code  == 200) {
+            location.reload();
         }
     }
 }

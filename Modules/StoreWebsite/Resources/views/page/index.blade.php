@@ -9,7 +9,7 @@
       width: auto;
     }
 </style>
-
+<link href="//cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
 <div class="row" id="common-page-layout">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
@@ -99,7 +99,7 @@
 
 @include("storewebsite::page.templates.list-template")
 @include("storewebsite::page.templates.create-website-template")
-
+<script src="//cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
 <script src="/js/jquery-ui.js"></script>
