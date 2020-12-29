@@ -80,6 +80,12 @@ var page = {
            $(".groups").trigger("click");
         });
 
+        $(document).on("click",".push-stores",function(e) {
+            page.pushStores($(this));
+        });
+
+        
+
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -342,6 +348,28 @@ var page = {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
         }
+    },
+
+    pushStores : function(ele) {
+
+        var id = $(".push-website-store-id").val();
+
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/websites/"+id+"/push-stores",
+            method: "get",
+            data : {}
+        }
+
+        this.sendAjax(_z, 'afterPushStores');
+
+    }, 
+
+    afterPushStores : function(response) {
+        if(response.code == 200) {
+            toastr["success"](response.message,"");
+            location.reload();
+        }
+
     }
     
 }
