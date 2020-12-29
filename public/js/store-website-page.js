@@ -73,6 +73,13 @@ var page = {
             page.translateForOtherLanguage($(this));
         });
 
+        $(document).on("click",".push-pages-store-wise",function(e) {
+            e.preventDefault();
+            page.pushPageInLive($(this));
+        });
+
+        
+
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -301,6 +308,24 @@ var page = {
     afterTranslateForOtherLanguage : function(response) {
         if(response.code  == 200) {
             location.reload();
+        }
+    },
+    pushPageInLive : function(ele) {
+        let page     = $(".push-website-store-id").val();
+        
+        var _z = {
+            url: this.config.baseUrl + "/page/"+page+"/push-website-in-live",
+            method: "get"
+        }
+
+        this.sendAjax(_z, 'afterPushPageInLive');
+    },
+    afterPushPageInLive : function (response) {
+        if(response.code == 200) {
+            toastr["success"](response.message,"");
+            location.reload();
+        }else{
+            toastr["error"](response.message,"");
         }
     }
 }

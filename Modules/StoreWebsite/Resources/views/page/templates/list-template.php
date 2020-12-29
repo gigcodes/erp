@@ -19,7 +19,7 @@
                     <td><input type="checkbox" class="groups" name="groups[]" value="{{:prop.id}}">&nbsp;{{:prop.id}}</td>
                     <td>{{:prop.title}}</td>
                     <td>{{:prop.url_key}}</td>
-                    <td>{{:prop.stores}}</td>
+                    <td title="{{:prop.stores}}">{{:prop.stores_small}}</td>
                     <td>{{:prop.store_website_name}}</td>
                     <td>{{if prop.active == "1"}}Yes{{else}}NO{{/if}}</td>
                     <td>{{:prop.created_at}}</td>
