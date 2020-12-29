@@ -119,6 +119,7 @@
 							    	<option value="delete_records">Delete Records</option>
 							    	<option value="delete_all">Delete All Records</option>
 							    	<option value="change_customer_number">Change Customer Number</option>	
+							    	<option value="change_to_dnd">Change To Dnd</option>	
 							    </select>
 						  	</div>
 						  	<div class="form-group sending-number-section" style="display: none;">
