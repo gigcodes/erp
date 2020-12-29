@@ -31,6 +31,12 @@
 		<div class="col-lg-2">
 			<input class="form-control" type="text" id="search" placeholder="Search name" name="search" value="{{ $name }}">
 		</div>
+        <div class="col-lg-2">
+            <select class="form-control" name="download_option">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+            </select>
+        </div>
 		<div class="col-lg-2">
 			<button type="button" id="tabledata" class="btn btn-image">
 			<img src="/images/filter.png">
@@ -95,7 +101,12 @@
 		function tableData(BASE_URL) {
 			var search = $("input[name='search'").val() != "" ? $("input[name='search'").val() : null;
 			var date = $("#datepicker").val() !="" ? $("#datepicker").val() : null;
-			console.log(BASE_URL+"/scrap-logs/fetch/"+search+"/"+date)
+            var download = "?download=" + $("select[name='download_option'").val();
+
+            if($("select[name='download_option'").val() == "yes") {
+                window.location.href = BASE_URL+"/scrap-logs/fetch/"+search+"/"+date+"/"+download;
+            }
+
 			$.ajax({
 				url: BASE_URL+"/scrap-logs/fetch/"+search+"/"+date,
 				method:"get",
