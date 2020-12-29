@@ -57,7 +57,16 @@ class PageController extends Controller
 
         $items = $pages->items();
 
-        return response()->json(["code" => 200, "data" => $items, "total" => $pages->total(),
+        $recItems = [];
+        foreach($items as $item) {
+            $attributes = $item->getAttributes();
+            $attributes['stores_small'] = strlen($attributes['stores']) > 15 ? substr($attributes['stores'],0,15) : $attributes['stores'];
+            $attributes['stores'] = $attributes['stores'];
+            $recItems[] = $attributes;
+        }
+
+
+        return response()->json(["code" => 200, "data" => $recItems, "total" => $pages->total(),
             "pagination"                    => (string) $pages->links(),
         ]);
     }
@@ -309,6 +318,20 @@ class PageController extends Controller
             }
 
             return response()->json(["code" => 200, "data" => [], "message" => "Records copied succesfully"]);
+        }
+
+        return response()->json(["code" => 500, "data" => [], "message" => "Page does not exist"]);
+
+    }
+
+    public function pushWebsiteInLive (Request $request, $id)
+    {
+        $pages = \App\StoreWebsitePage::where("store_website_id",$id)->get();
+
+        if(!$pages->isEmpty()) {
+            foreach($pages as $page) {
+                \App\Jobs\PushPageToMagento::dispatch($page)->onQueue('mageone');
+            }
         }
 
         return response()->json(["code" => 500, "data" => [], "message" => "Page does not exist"]);
