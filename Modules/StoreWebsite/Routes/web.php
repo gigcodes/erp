@@ -97,7 +97,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::post('save', 'ColorController@store')->name("store-website.color.save");
         Route::put('/{id}', 'ColorController@update')->name("store-website.color.edit");
         Route::delete('/{id}', 'ColorController@destroy')->name("store-website.color.destroy");
-        Route::post('push-to-store', 'ColorController@pushToStore')->name('store-website.color.push-to-store');
+        Route::post('/{id}/push-to-store', 'ColorController@pushToStore')->name('store-website.color.push-to-store');
     });
 
     Route::prefix('websites')->group(function () {
@@ -112,6 +112,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/edit', 'WebsiteController@edit')->name("store-website.websites.edit");
         Route::get('/{id}/delete', 'WebsiteController@delete')->name("store-website.websites.delete");
         Route::get('/{id}/push', 'WebsiteController@push')->name("store-website.websites.push");
+        Route::get('/{id}/push-stores', 'WebsiteController@pushStores')->name("store-website.websites.pushStores");
     });
 
     Route::prefix('website-stores')->group(function () {

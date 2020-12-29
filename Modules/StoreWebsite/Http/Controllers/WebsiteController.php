@@ -52,7 +52,7 @@ class WebsiteController extends Controller
             $websites = $websites->where("websites.is_finished", $request->is_finished);
         }
 
-        $websites = $websites->select(["websites.*", "sw.website as store_website_name"])->orderBy('websites.id', "desc")->paginate();
+        $websites = $websites->select(["websites.*", "sw.website as store_website_name"])->orderBy('websites.name', "asc")->paginate();
 
         $items = $websites->items();
 
@@ -417,5 +417,18 @@ class WebsiteController extends Controller
             return response()->json(["code" => 200, "data" => [], "message" => "Copied has been finished successfully"]);
         }
         return response()->json(["code" => 500, "data" => [], "error" => "Copy field or Store Website id is not selected"]);
+    }
+
+    public function pushStores(Request $request , $id) 
+    {
+        $allWebsites = Website::where("store_website_id",$id)->get();
+
+        if(!$allWebsites->isEmpty()) {
+            foreach($allWebsites as $website) {
+                \App\Jobs\PushWebsiteToMagento::dispatch($website)->onQueue('mageone');
+            }
+        }
+
+        return response()->json(["code" => 200 , "data" => [], "message" => "All Requested pushed successfully"]);
     }
 }
