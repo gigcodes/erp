@@ -34,31 +34,44 @@ class ScrapLogsController extends Controller
 
 		$date = $dateVal;
 
-		foreach ($files as $key => $val) {
-			$day_of_file = explode('-', $val->getFilename());
+        $lines = [];
+
+        foreach ($files as $key => $val) {
+			
+            $day_of_file = explode('-', $val->getFilename());
 			$day_of_file = str_replace('.log', '', $day_of_file);
-			if( ( (end($day_of_file) == $date) || (end($day_of_file) == '0'.$date) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
+
+            if( ( (end($day_of_file) == $date) || (end($day_of_file) == '0'.$date) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
 				
-				if (in_array($val->getRelativepath(), $serverArray)) {
-				    
-				}else{
+				if (!in_array($val->getRelativepath(), $serverArray)) {
 					continue;
 				}
 
 				$file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
 				$file = file($file_path_new);
-				$log_msg = "";
+				
+                $log_msg = "";
 				for ($i = max(0, count($file)-3); $i < count($file); $i++) {
 				  $log_msg.=$file[$i];
 				}
-				if($log_msg == "")
-				{
-					$log_msg = "Log data not found.";	
-				}
+
 				$file_path_info = pathinfo($val->getFilename());
 				$file_name_str = $file_path_info['filename'];
 				$file_name_ss = $val->getFilename();
-				array_push($file_list, array(
+
+                $lines[] = "=============== $file_name_ss log started from here ===============";
+                
+                for ($i = max(0, count($file)-10); $i < count($file); $i++) {
+                  $lines[] = $file[$i];
+                }
+
+                $lines[] = "=============== $file_name_ss log ended from here ===============";
+
+				if($log_msg == "") {
+					$log_msg = "Log data not found.";	
+				}
+				
+                array_push($file_list, array(
 						"filename" => $file_name_ss,
 	        			"foldername" => $val->getRelativepath(),
 	        			"log_msg"=>$log_msg,
@@ -67,6 +80,32 @@ class ScrapLogsController extends Controller
 	    		);
 			}
 		}
+
+        //config
+        if(strtolower(request('download')) == "yes") {
+            $nameF = "scraper-log-temp-file.txt";
+            $namefile = storage_path()."/logs/".$nameF;
+            $content = implode("\n",$lines);
+
+            //save file
+            $file = fopen($namefile, "w") or die("Unable to open file!");
+            fwrite($file, $content);
+            fclose($file);
+
+            //header download
+            header("Content-Disposition: attachment; filename=\"" . $nameF . "\"");
+            header("Content-Type: application/force-download");
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header("Content-Type: text/plain");
+
+            echo $content;
+            die;
+        }
+
+
+
 		return  response()->json(["file_list" => $file_list]);
     }
     public function filtertosavelogdb() 
