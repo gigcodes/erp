@@ -42,6 +42,26 @@ class PushPageToMagento implements ShouldQueue
         if ($website) {
             if ($website->website_source) {
 
+
+                // assign the stores  column
+                $fetchStores = \App\WebsiteStoreView::where('website_store_views.name', $page->name)
+                    ->join("website_stores as ws", "ws.id", "website_store_views.website_store_id")
+                    ->join("websites as w", "w.id", "ws.website_id")
+                    ->where("w.store_website_id", $page->store_website_id)
+                    ->select("website_store_views.*")
+                    ->get();
+
+                $stores = array_filter(explode(",", $page->stores));
+
+                if (!$fetchStores->isEmpty()) {
+                    foreach ($fetchStores as $fetchStore) {
+                        $stores[] = $fetchStore->code;
+                    }
+                }
+
+                $page->stores = implode(",", $stores);
+                $page->save();
+
                 $params         = [];
                 $params['page'] = [
                     "identifier"       => $page->url_key,
@@ -56,7 +76,7 @@ class PushPageToMagento implements ShouldQueue
                 ];
 
 
-                $stores = array_filter(explode(",", $page->stores));
+                
 
                 if (!empty($stores)) {
                     foreach ($stores as $s) {

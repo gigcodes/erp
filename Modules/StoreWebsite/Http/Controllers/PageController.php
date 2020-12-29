@@ -2,11 +2,11 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
+use App\GoogleTranslate;
 use App\Http\Controllers\Controller;
+use App\Language;
 use App\StoreWebsite;
 use App\StoreWebsitePage;
-use App\Language;
-use App\GoogleTranslate;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
@@ -53,11 +53,13 @@ class PageController extends Controller
             $pages = $pages->where("store_website_pages.store_website_id", $request->store_website_id);
         }
 
-        $pages = $pages->select(["store_website_pages.*", "sw.website as store_website_name"])->paginate();
+        $pages = $pages->orderBy("store_website_pages.id","desc")->select(["store_website_pages.*", "sw.website as store_website_name"])->paginate();
 
         $items = $pages->items();
 
-        return response()->json(["code" => 200, "data" => $items, "total" => $pages->total()]);
+        return response()->json(["code" => 200, "data" => $items, "total" => $pages->total(),
+            "pagination"                    => (string) $pages->links(),
+        ]);
     }
 
     public function store(Request $request)
@@ -66,8 +68,9 @@ class PageController extends Controller
         $id   = $request->get("id", 0);
 
         $params = [
-            'title'   => 'required',
-            'content' => 'required',
+            'title'    => 'required',
+            'content'  => 'required',
+            'language' => 'required',
             //'stores'           => 'required',
             //'store_website_id' => 'required',
         ];
@@ -97,13 +100,24 @@ class PageController extends Controller
         }
 
         if (empty($id)) {
-            $post["stores"] = implode(",", $post["stores"]);
-            $string = str_replace(' ', '-', strtolower($post["title"])); // Replaces all spaces with hyphens.
-            $string = preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
+            $post["stores"]  = implode(",", $post["stores"]);
+            $string          = str_replace(' ', '-', strtolower($post["title"])); // Replaces all spaces with hyphens.
+            $string          = preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
             $post["url_key"] = $string;
         }
 
+        if (!empty($post['stores_str'])) {
+            $post['stores'] = $post['stores_str'];
+        }
+
         $records->fill($post);
+
+        // upload page here
+        $history = \App\StoreWebsitePageHistory::create([
+            "content"               => $records->content,
+            "store_website_page_id" => $records->id,
+            "updated_by"            => \Auth::user()->id,
+        ]);
 
         // if records has been save then call a request to push
         if ($records->save()) {
@@ -176,12 +190,12 @@ class PageController extends Controller
     {
         $page = \App\StoreWebsitePage::find($id);
 
-        if($page) {
+        if ($page) {
 
             $language = $request->language;
 
-            // do by lanuage 
-            if(!empty($language)) {
+            // do by lanuage
+            if (!empty($language)) {
 
                 $translateDescription = \App\Http\Controllers\GoogleTranslateController::translateProducts(
                     new GoogleTranslate,
@@ -191,10 +205,113 @@ class PageController extends Controller
 
                 return response()->json(["code" => 200, "content" => !empty($translateDescription) ? $translateDescription : $page->content]);
 
-            }else{
+            } else {
                 return response()->json(["code" => 200, "content" => $page->content]);
             }
         }
+
+    }
+
+    public function pageHistory(Request $request, $page)
+    {
+        $histories = \App\StoreWebsitePageHistory::where('store_website_page_id', $page)->latest()->get();
+
+        foreach ($histories as $h => $history) {
+            # code...
+            $history->user;
+        }
+
+        return response()->json(["code" => 200, "data" => $histories]);
+    }
+
+    public function translateForOtherLanguage(Request $request, $id)
+    {
+        $page = \App\StoreWebsitePage::find($id);
+
+        if ($page) {
+            // find the language all active and then check that record page is exist or not
+            $languages = \App\Language::where("status", 1)->get();
+            foreach ($languages as $l) {
+                if (strtolower($page->language) != strtolower($l->name)) {
+                    $pageExist = \App\StoreWebsitePage::where("copy_page_id", $page->id)->where("language", $l->name)->first();
+                    if (!$pageExist) {
+
+                        $newPage = new \App\StoreWebsitePage;
+
+                        $title = \App\Http\Controllers\GoogleTranslateController::translateProducts(
+                            new GoogleTranslate,
+                            $l->locale,
+                            [$page->title]
+                        );
+
+                        $metaTitle = \App\Http\Controllers\GoogleTranslateController::translateProducts(
+                            new GoogleTranslate,
+                            $l->locale,
+                            [$page->meta_title]
+                        );
+
+                        $metaKeywords = \App\Http\Controllers\GoogleTranslateController::translateProducts(
+                            new GoogleTranslate,
+                            $l->locale,
+                            [$page->meta_keywords]
+                        );
+
+                        $metaDescription = \App\Http\Controllers\GoogleTranslateController::translateProducts(
+                            new GoogleTranslate,
+                            $l->locale,
+                            [$page->meta_description]
+                        );
+
+                        $contentHeading = \App\Http\Controllers\GoogleTranslateController::translateProducts(
+                            new GoogleTranslate,
+                            $l->locale,
+                            [$page->content_heading]
+                        );
+
+                        $content = \App\Http\Controllers\GoogleTranslateController::translateProducts(
+                            new GoogleTranslate,
+                            $l->locale,
+                            [$page->content]
+                        );
+
+                        // assign the stores  column
+                        $fetchStores = \App\WebsiteStoreView::where('website_store_views.name', $l->name)
+                            ->join("website_stores as ws", "ws.id", "website_store_views.website_store_id")
+                            ->join("websites as w", "w.id", "ws.website_id")
+                            ->where("w.store_website_id", $page->store_website_id)
+                            ->select("website_store_views.*")
+                            ->get();
+
+                        $stores = [];
+                        if (!$fetchStores->isEmpty()) {
+                            foreach ($fetchStores as $fetchStore) {
+                                $stores[] = $fetchStore->code;
+                            }
+                        }
+
+                        $newPage->title            = !empty($title) ? $title : $page->title;
+                        $newPage->meta_title       = !empty($metaTitle) ? $metaTitle : $page->meta_title;
+                        $newPage->meta_keywords    = !empty($metaKeywords) ? $metaKeywords : $page->meta_keywords;
+                        $newPage->meta_description = !empty($metaDescription) ? $metaDescription : $page->meta_description;
+                        $newPage->content_heading  = !empty($contentHeading) ? $contentHeading : $page->content_heading;
+                        $newPage->content          = !empty($content) ? $content : $page->content;
+                        $newPage->layout           = $page->layout;
+                        $newPage->url_key          = implode("-", [$page->url_key, strtolower($l->name)]);
+                        $newPage->active           = $page->active;
+                        $newPage->stores           = implode(",", $stores);
+                        $newPage->store_website_id = $page->store_website_id;
+                        $newPage->language         = $l->name;
+                        $newPage->copy_page_id     = $page->id;
+                        $newPage->save();
+
+                    }
+                }
+            }
+
+            return response()->json(["code" => 200, "data" => [], "message" => "Records copied succesfully"]);
+        }
+
+        return response()->json(["code" => 500, "data" => [], "message" => "Page does not exist"]);
 
     }
 

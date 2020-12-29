@@ -21,12 +21,20 @@ class GoogleTranslate
     }
 
     public function translate($target, $text) {
+
+        // on production site it will return the original text
+        if(env("IS_SITE","local") != "production") {
+            return $text;
+        }
+
         $translate = new TranslateClient([
             'keyFile' => json_decode(file_get_contents($this->path), true)
         ]);
+        
         $result = $translate->translate($text, [
             'target' => $target
         ]);
+
         return $result['text'];
     }
 }

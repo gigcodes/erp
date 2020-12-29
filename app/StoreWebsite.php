@@ -93,4 +93,9 @@ class StoreWebsite extends Model
     {
         return self::where("website_source","shopify")->pluck("title","id")->toArray();
     }
+
+    public function websites()
+    {
+        return $this->hasMany('App\Website','store_website_id','id');
+    }
 }

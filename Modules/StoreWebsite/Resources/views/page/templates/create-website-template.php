@@ -86,9 +86,21 @@
                         ?>
                      </select>
                   </div>
+                  <div class="form-group col-md-6">
+                     <label for="language">Language</label>
+                     <select name="language" class="form-control store-website-language">
+                        <option value="">-- N/A --</option>
+                        <?php
+                            foreach(\App\Language::pluck('name','name')->toArray() as $k => $l) {
+                                echo "<option {{if data.language == '".$k."'}} selected {{/if}} value='".$k."'>".$l."</option>";
+                            }
+                        ?>
+                     </select>
+                  </div>
               </div>
               <div class="form-row">
                 {{if data && data.id}}
+                    <input type="text" name="stores_str" value="{{if data}}{{:data.stores}}{{/if}}" class="form-control" placeholder="Enter Stores comma seperate">
                 {{else}}
                   <div class="form-group col-md-6">
                      <label for="store_website_id">Store website</label>
@@ -108,8 +120,6 @@
                   </div>
                 {{/if}}
               </div>
-              
-
            </div>
            <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

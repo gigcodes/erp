@@ -259,7 +259,7 @@ class Category extends Model
         $categoryTree = [];
 
         // Continue only if category is not null
-        if ( $categoryInstance !== NULL ) {
+        if ( $categoryInstance !== NULL && $categoryMulti) {
 
             // Load initial category
             if($needOrigin) {

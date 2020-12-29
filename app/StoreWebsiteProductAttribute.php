@@ -7,9 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class StoreWebsiteProductAttribute extends Model
 {
     protected $fillable = [
-        'product_id', 'description', 'store_website_id', 'created_at', 'updated_at',
+        'product_id', 'price', 'discount', 'discount_type', 'description', 'store_website_id', 'created_at', 'updated_at',
     ];
-
 
     public function storeWebsite()
     {

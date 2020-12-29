@@ -9,7 +9,7 @@
       width: auto;
     }
 </style>
-
+<link href="//cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
 <div class="row" id="common-page-layout">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
@@ -73,90 +73,33 @@
     </div>  
 </div>
 
-<div id="add-default-store" class="modal" role="dialog">
-    <div class="modal-dialog" role="document">
+<div class="preview-history-modal modal" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Add Default Store</h4>
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-          </div>
-         <div class="modal-body">
-            <div class="form-group">
-                <div class="form-group">
-                    <strong>Store websites</strong>
-                    <?php echo Form::select("store_website_id",$storeWebsites,null, ["class" => "form-control default-store-website-select"]);  ?>
+            <div class="modal-body">
+                <div class="table-responsive mt-3">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Content</th>
+                                <th>Updated By</th>
+                                <th>Updated At</th>
+                            </tr>
+                        </thead>
+                        <tbody id="preview-history-tbody">
+                            
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-secondary create-default-stores">Create Store</button>
-        </div>
-        </div>
     </div>
 </div>
-
-<div id="merge-website-modal" class="modal" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Merge Website</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <div class="form-group">
-                        <div class="form-group">
-                            <strong>Group name</strong>
-                            <?php echo Form::text("group_name",null, ["class" => "form-control move-store-group-change"]);  ?>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="form-group">
-                            <strong>Store websites</strong>
-                            <?php echo Form::select("store_website_id",$storeWebsites,null, ["class" => "form-control move-store-website-select"]);  ?>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-secondary move-stores">Move Store</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="copy-website-modal" class="modal" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Copy Website</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <input type="hidden" name="copy_website_id" class="copy-website" id="copy-website-field">
-                    <div class="form-group">
-                        <div class="form-group">
-                            <strong>Store websites</strong>
-                            <?php echo Form::select("store_website_id",$storeWebsites,null, ["class" => "form-control copy-store-website-select"]);  ?>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-secondary copy-stores">Copy Store</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 
 @include("storewebsite::page.templates.list-template")
 @include("storewebsite::page.templates.create-website-template")
-
+<script src="//cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
 <script src="/js/jquery-ui.js"></script>
