@@ -12,9 +12,12 @@
 */
 
 Route::prefix('message-queue')->middleware('auth')->group(function() {
+    
     Route::get('/', 'MessageQueueController@index')->name("message-queue.index");
     Route::get('/approve', 'MessageQueueController@approve')->name("message-queue.approve");
     Route::get('/status', 'MessageQueueController@status')->name("message-queue.status");
+    Route::get('/update-do-not-disturb', 'MessageQueueController@updateDoNotDisturb')->name("message-queue.updateDoNotDisturb");
+    
     Route::prefix('records')->group(function() {
 		Route::get('/', 'MessageQueueController@records');
 		Route::post('action-handler','MessageQueueController@actionHandler');

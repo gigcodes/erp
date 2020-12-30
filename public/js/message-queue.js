@@ -69,6 +69,12 @@ var msQueue = {
             msQueue.filterReport();
         });
 
+
+        msQueue.config.bodyView.on("click",".do_not_disturb",function(e) {
+            e.preventDefault();
+            msQueue.doNotDisturb($(this));
+        });
+
         msQueue.config.bodyView.on("change","#action-to-run",function(e) {
             if($(this).val() == "change_customer_number") {
                 $(".sending-number-section").show();
@@ -258,7 +264,30 @@ var msQueue = {
         }else{
             toastr['error']('Oops.something went wrong', 'error');
         }
+    },
+    doNotDisturb : function(ele) {
+        var _z = {
+            url: this.config.baseUrl + "/message-queue/update-do-not-disturb",
+            method: "get",
+            data : {customer_id : ele.data("customer-id")},
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "afterDoNotDisturb",ele);
+    },
+    afterDoNotDisturb : function(response,ele) {
+        $("#loading-image").hide();
+        if(response.code == 200) {
+            if (response.data.do_not_disturb == 1) {
+                ele.html('<img src="/images/do-not-disturb.png" style="cursor: nwse-resize;">');
+            }else{
+                ele.html('<img src="/images/do-disturb.png" style="cursor: nwse-resize;">');
+            }
+        }else{
+            toastr['error']('Oops.something      wrong', 'error');
+        }
     }
 }
 
-$.extend(msQueue, common);
+$.extend(msQueue, common);1
