@@ -57,14 +57,14 @@ class FetchAllEmails extends Command
             'start_time' => Carbon::now(),
         ]);
 
-        $emailAddresses = EmailAddress::where("driver", "imap")->orderBy('id', 'asc')->get();
+        $emailAddresses = EmailAddress::where("from_address", "customercare@sololuxury.co.in")->orderBy('id', 'asc')->get();
 
         foreach ($emailAddresses as $emailAddress) {
             try {
                 $imap = new Client([
                     'host' => $emailAddress->host,
-                    'port' => $emailAddress->port,
-                    'encryption' => $emailAddress->encryption,
+                    'port' => 993,
+                    'encryption' => "ssl",
                     'validate_cert' => true,
                     'username' => $emailAddress->username,
                     'password' => $emailAddress->password,
