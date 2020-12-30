@@ -55,32 +55,32 @@ class MessageQueueController extends Controller
     public function approve(Request $request)
     {
 
-    $group_id = $request->group_id;
-    $customer_name = $request->customer_name;
-    $groupList = ChatMessage::select('group_id')->distinct('group_id')->where("is_queue" , 0)->where("group_id" , '!=' ,'')->get();
+        $group_id      = $request->group_id;
+        $customer_name = $request->customer_name;
+        $groupList     = ChatMessage::select('group_id')->distinct('group_id')->where("is_queue", 0)->where("group_id", '!=', '')->get();
 
-    $messageData = ChatMessage::select('c.name','chat_messages.*')->join("customers as c", "c.id", "chat_messages.customer_id")->where("is_queue", "=", 0)
-    ->where("group_id" , '!=' ,NULL)
-    ->where("group_id" , '!=' ,'')
-    ->when($group_id != '', function ($q) use($group_id) {
-      return $q->where('group_id', $group_id);
-    })
-    ->when($customer_name != '', function ($q) use($customer_name) {
-      return $q->where("c.name",'LIKE', '%' . $customer_name . '%');
-    })
-    ->groupBy("group_id")
-    ->orderBy("group_id","desc")
-    ->get();
+        $messageData = ChatMessage::select('c.name', 'chat_messages.*')->join("customers as c", "c.id", "chat_messages.customer_id")->where("is_queue", "=", 0)
+            ->where("group_id", '!=', null)
+            ->where("group_id", '!=', '')
+            ->when($group_id != '', function ($q) use ($group_id) {
+                return $q->where('group_id', $group_id);
+            })
+            ->when($customer_name != '', function ($q) use ($customer_name) {
+                return $q->where("c.name", 'LIKE', '%' . $customer_name . '%');
+            })
+            ->groupBy("group_id")
+            ->orderBy("group_id", "desc")
+            ->get();
 
-    return view('messagequeue::approve', compact('groupList','messageData','group_id'));
+        return view('messagequeue::approve', compact('groupList', 'messageData', 'group_id'));
 
     }
 
     public function approved(Request $request)
     {
 
-      $groupIdApprove = ChatMessage::where('group_id',$request->group_id)->update(["is_queue"=>1]);
-      return response()->json(["code" => 200, "message" => "Approved Successfully"]);
+        $groupIdApprove = ChatMessage::where('group_id', $request->group_id)->update(["is_queue" => 1]);
+        return response()->json(["code" => 200, "message" => "Approved Successfully"]);
     }
 
     public function records()
@@ -111,15 +111,15 @@ class MessageQueueController extends Controller
             $chatMessage = $chatMessage->where("c.name", "like", "%" . $customerName . "%");
         }
 
-        if(request('communicated') == "yes") {
+        if (request('communicated') == "yes") {
             $chatMessage = $chatMessage->whereRaw(\Db::raw("c.id in (select c.id from customers as c join chat_messages as cm on cm.id = c.id where cm.message != '' and cm.number != '' group by c.id)"));
         }
 
-        if(request('communicated') == "no") {
+        if (request('communicated') == "no") {
             $chatMessage = $chatMessage->whereRaw(\Db::raw("c.id not in (select c.id from customers as c join chat_messages as cm on cm.id = c.id where cm.message != '' and cm.number != '' group by c.id)"));
         }
 
-        $chatMessage = $chatMessage->select(["chat_messages.*", "c.phone", "c.whatsapp_number", "c.name as customer_name"]);
+        $chatMessage = $chatMessage->select(["chat_messages.*", "c.phone", "c.whatsapp_number", "c.name as customer_name", "c.do_not_disturb"]);
 
         $chatMessage = $chatMessage->orderby("chat_messages.id", "DESC")->paginate($limit);
 
@@ -201,8 +201,8 @@ class MessageQueueController extends Controller
                 }
 
                 return response()->json(["code" => 200, "message" => "Updated dnd Successfully"]);
-            break; 
-                
+                break;
+
         }
 
         return response()->json(["code" => 500, "message" => "Please select fields before action"]);
@@ -283,7 +283,7 @@ class MessageQueueController extends Controller
                         }
                     }
                 }
-               ChatApi::deleteQueues($no);
+                ChatApi::deleteQueues($no);
             }
         }
 
@@ -316,6 +316,24 @@ class MessageQueueController extends Controller
         }
 
         return response()->json(["code" => 200, "data" => [], "message" => "OK"]);
+    }
+
+    public function updateDoNotDisturb(Request $request)
+    {
+        $customerId = $request->get("customer_id");
+
+        if ($customerId > 0) {
+            $customer = \App\Customer::find($customerId);
+            if ($customer) {
+                $customer->do_not_disturb = ($customer->do_not_disturb == 1) ? 0 : 1;
+                $customer->save();
+                return response()->json(["code" => 200, "data" => ["do_not_disturb" => $customer->do_not_disturb]]);
+            }
+
+        }
+
+        return response()->json(["code" => 200, "data" => [], "message" => "Your request has been accepted"]);
+
     }
 
 }
