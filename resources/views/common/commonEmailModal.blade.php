@@ -16,7 +16,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <strong>Send To</strong>
-                        <input type="text" name="sendto" class="form-control" readonly>
+                        <input type="text" name="sendto" class="form-control">
                     </div>
 
                     <div class="form-group">
