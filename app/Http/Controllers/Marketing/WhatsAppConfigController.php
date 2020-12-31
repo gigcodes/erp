@@ -122,7 +122,7 @@ class WhatsappConfigController extends Controller
             'send_end' => 'required',
         ]);
 		$requestData = $request->all();
-		$defaultFor = implode(",",$requestData['default_for']);
+		$defaultFor = implode(",",isset($requestData['default_for']) ? $requestData['default_for'] : []);
 		
 		$data = $request->except('_token','default_for');
         $data['password'] = Crypt::encrypt($request->password);
