@@ -57,7 +57,14 @@ class VoucherController extends Controller
             $tasks = $tasks->where('user_id', Auth::id())->where('date', '>=' , $start)->where('date', '<=' , $end);
         }
 
-        $tasks = $tasks->orderBy('id','desc')->paginate(10)->appends(request()->except('page'));
+        $limit = request('limit');
+        if(!empty($limit)) {
+            if($limit == "all") {
+                $limit = $tasks->count();
+            }
+        }
+
+        $tasks = $tasks->orderBy('id','desc')->paginate($limit)->appends(request()->except('page'));
         foreach($tasks as $task) {
             $task->user;
 
