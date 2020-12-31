@@ -113,6 +113,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/delete', 'WebsiteController@delete')->name("store-website.websites.delete");
         Route::get('/{id}/push', 'WebsiteController@push')->name("store-website.websites.push");
         Route::get('/{id}/push-stores', 'WebsiteController@pushStores')->name("store-website.websites.pushStores");
+        Route::get('/{id}/copy-website-struct', 'WebsiteController@copyWebsiteStructure')->name("store-website.websites.copyWebsiteStructure");
     });
 
     Route::prefix('website-stores')->group(function () {

@@ -42,6 +42,9 @@
                     <button style="display: inline-block;" class="btn btn-secondary btn-push-websites m-2" data-toggle="modal" data-target="#push-websites-modal">
                         Push Website
                     </button>
+                    <button style="display: inline-block;" class="btn btn-secondary btn-copy-full-websites m-2" data-toggle="modal" data-target="#copy-websites-modal-struct">
+                        Copy Websites
+                    </button>
 				 </div>
 		    </div>
 		    <div class="col col-md-6">
@@ -226,6 +229,37 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-secondary push-stores">Push Store(s)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="copy-websites-modal-struct" class="modal" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Copy Website</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <div class="form-group">
+                            <strong>Store websites</strong>
+                            <?php echo Form::select("store_website_id",$storeWebsites,null, ["class" => "form-control copy-website-id"]);  ?>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-group">
+                            <strong>To Store websites</strong>
+                            <?php echo Form::select("to_store_website_id",$storeWebsites,null, ["class" => "form-control to-copy-website-id"]);  ?>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary copy-website-struct">Copy Website(s)</button>
             </div>
         </div>
     </div>

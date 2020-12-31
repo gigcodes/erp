@@ -84,7 +84,9 @@ var page = {
             page.pushStores($(this));
         });
 
-        
+        $(document).on("click",".copy-website-struct",function(e) {
+            page.copyWebsitesStruct($(this));
+        });
 
     },
     validationRule : function(response) {
@@ -370,8 +372,24 @@ var page = {
             location.reload();
         }
 
+    },
+    copyWebsitesStruct : function (ele) {
+        var id = $(".copy-website-id").val();
+        var toStoreWebsite = $(".to-copy-website-id").val();
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/websites/"+id+"/copy-website-struct",
+            method: "get",
+            data : {to_store_website_id : toStoreWebsite}
+        }
+
+        this.sendAjax(_z, 'afterCopyWebsitesStruct');
+    },
+    afterCopyWebsitesStruct  : function (response) {
+        if(response.code == 200) {
+            toastr["success"](response.message,"");
+            location.reload();
+        }
     }
-    
 }
 
 $.extend(page, common);

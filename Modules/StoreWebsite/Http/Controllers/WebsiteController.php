@@ -186,13 +186,13 @@ class WebsiteController extends Controller
         $storeWebsiteId = $request->store_website_id;
 
         if (!empty($storeWebsiteId)) {
-            
-            // check if there is country code set if yes then 
+
+            // check if there is country code set if yes then
             $codes = $request->get("country_codes");
-            if(!empty($codes)) {
-                $codes = explode(",", $codes);
-                $countries = \App\SimplyDutyCountry::whereIn('country_code',$codes)->pluck('country_name', 'country_code')->toArray();
-            }else{
+            if (!empty($codes)) {
+                $codes     = explode(",", $codes);
+                $countries = \App\SimplyDutyCountry::whereIn('country_code', $codes)->pluck('country_name', 'country_code')->toArray();
+            } else {
                 $countries = \App\SimplyDutyCountry::pluck('country_name', 'country_code')->toArray();
             }
 
@@ -207,8 +207,8 @@ class WebsiteController extends Controller
                         $website->store_website_id = $storeWebsiteId;
                         if ($website->save()) {
                             $websiteStore             = new WebsiteStore;
-                            $websiteStore->name       = $c." Store";
-                            $websiteStore->code       = replace_dash($k)."_store";
+                            $websiteStore->name       = $c . " Store";
+                            $websiteStore->code       = replace_dash($k) . "_store";
                             $websiteStore->website_id = $website->id;
                             $websiteStore->save();
                             if ($websiteStore->save()) {
@@ -276,7 +276,7 @@ class WebsiteController extends Controller
             if ($website->save()) {
                 $websiteStore             = new WebsiteStore;
                 $websiteStore->name       = $groupName;
-                $websiteStore->code       = replace_dash($slug)."_store";
+                $websiteStore->code       = replace_dash($slug) . "_store";
                 $websiteStore->website_id = $website->id;
                 $websiteStore->save();
                 if ($websiteStore->save()) {
@@ -419,16 +419,69 @@ class WebsiteController extends Controller
         return response()->json(["code" => 500, "data" => [], "error" => "Copy field or Store Website id is not selected"]);
     }
 
-    public function pushStores(Request $request , $id) 
+    public function pushStores(Request $request, $id)
     {
-        $allWebsites = Website::where("store_website_id",$id)->get();
+        $allWebsites = Website::where("store_website_id", $id)->get();
 
-        if(!$allWebsites->isEmpty()) {
-            foreach($allWebsites as $website) {
+        if (!$allWebsites->isEmpty()) {
+            foreach ($allWebsites as $website) {
                 \App\Jobs\PushWebsiteToMagento::dispatch($website)->onQueue('mageone');
             }
         }
 
-        return response()->json(["code" => 200 , "data" => [], "message" => "All Requested pushed successfully"]);
+        return response()->json(["code" => 200, "data" => [], "message" => "All Requested pushed successfully"]);
+    }
+
+    public function copyWebsiteStructure(Request $request, $id)
+    {
+        $storeWebsiteId = $id;
+        $copyStoreWebsiteID  = $request->to_store_website_id;
+
+        if (!empty($copyStoreWebsiteID)) {
+            $allWebsites = Website::where("store_website_id", $storeWebsiteId)->where('is_finished',1)->get();
+            if(!$allWebsites->isEmpty()) {
+                foreach ($allWebsites as $key => $cWebsite) {
+                    $isExist = Website::where("code", replace_dash($cWebsite->code))->where('store_website_id',$copyStoreWebsiteID)->first();
+                    if($isExist) {
+                        continue;
+                    }
+
+
+                    $website                   = new Website;
+                    $website->name             = $cWebsite->name;
+                    $website->code             = replace_dash($cWebsite->code);
+                    $website->countries        = $cWebsite->countries;
+                    $website->store_website_id = $copyStoreWebsiteID;
+
+                    if ($website->save()) {
+                        // star to push into store
+                        $cStores = $cWebsite->stores;
+                        if (!$cStores->isEmpty()) {
+                            foreach ($cStores as $cStore) {
+                                $store             = new WebsiteStore;
+                                $store->name       = $cStore->name;
+                                $store->code       = replace_dash($cStore->code);
+                                $store->website_id = $website->id;
+                                if ($store->save()) {
+                                    $cStoreViews = $cStore->storeView;
+                                    if (!$cStoreViews->isEmpty()) {
+                                        foreach ($cStoreViews as $cStoreView) {
+                                            $storeView                   = new WebsiteStoreView;
+                                            $storeView->name             = $cStoreView->name;
+                                            $storeView->code             = replace_dash($cStoreView->code);
+                                            $storeView->website_store_id = $store->id;
+                                            $storeView->save();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return response()->json(["code" => 200, "data" => [], "message" => "Copied has been finished successfully"]);
+        }
+        return response()->json(["code" => 500, "data" => [], "error" => "Copy field or Store Website id is not selected"]);
     }
 }
