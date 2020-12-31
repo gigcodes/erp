@@ -128,9 +128,9 @@
               <td>{{ $task->paid_amount }}</td>
               <td>{{ $task->balance }}</td>
               @php
-                $totalRateEstimate += $task->rate_estimated;
-                $totalPaid += $task->paid_amount;
-                $totalBalance += $task->balance;
+                $totalRateEstimate += is_numeric($task->rate_estimated) ? $task->rate_estimated : 0;
+                $totalPaid += is_numeric($task->paid_amount) ? $task->paid_amount : 0;
+                $totalBalance += is_numeric($task->balance) ? $task->balance : 0;
               @endphp
               <td>
                 @if (Auth::user()->hasRole('Admin'))
