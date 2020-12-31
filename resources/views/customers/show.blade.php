@@ -2656,6 +2656,25 @@
     </div>
 </div>
 
+ <div id="chat-list-history" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Communication</h4>&nbsp;&nbsp;
+                <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 50%;">&nbsp;&nbsp;
+                <!-- <input type="text" name="search_chat_pop_time"  class="form-control search_chat_pop_time" placeholder="Search Time" style="width: 200px;"> -->
+      <input style="min-width: 30px;" placeholder="Search by date" value="" type="text" class="form-control search_chat_pop_time" name="search_chat_pop_time">
+                
+            </div>
+            <div class="modal-body" style="background-color: #999999;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <form action="" method="POST" id="product-remove-form">
   @csrf
 </form>
@@ -2683,9 +2702,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ekko-lightbox/5.3.0/ekko-lightbox.min.js" integrity="sha256-Y1rRlwTzT5K5hhCBfAFWABD4cU13QGuRN6P5apfWzVs=" crossorigin="anonymous"></script>
   <script type="text/javascript" src="<?php echo env("DOMAIN_NODE_SPEECH_TO_TEXT"); ?>/scripts/bundle.js"></script>
   <script type="text/javascript">
-      $(document).ready(function () {
-          $('.chat-history-load-communication-modal').trigger('click');
-      });
+      //$(document).ready(function () {
+      //    $('.chat-history-load-communication-modal').trigger('click');
+      //});
       jQuery(document).ready(function() {
         $('.multi_select2').select2({width: '100%'});
         //$('.brand_segment_select').select2({width: '100%'});

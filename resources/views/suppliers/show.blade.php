@@ -681,7 +681,7 @@
     <script type="text/javascript">
 
         $(document).ready(function () {
-            $('.chat-history-load-communication-modal').trigger('click');
+            //$('.chat-history-load-communication-modal').trigger('click');
         });
 
         $(document).on('keyup', '.add-new-remark', function (event) {
