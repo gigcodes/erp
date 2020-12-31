@@ -70,14 +70,24 @@
 
             <div class="col-sm-12 col-md-4">
               <div class="form-group mr-3">
-                <input type="text" value="" name="range_start" hidden/>
-                <input type="text" value="" name="range_end" hidden/>
+                <input type="text" value="" name="range_start" value="{{ request('range_start') }}" hidden/>
+                <input type="text" value="" name="range_end" value="{{ request('range_end') }}" hidden/>
                 <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
                   <i class="fa fa-calendar"></i>&nbsp;
                   <span></span> <i class="fa fa-caret-down"></i>
                 </div>
               </div>
             </div>
+
+            <div class="col-md-2 col-sm-3">
+              <select class="form-control " name="limit" id="limit">
+                  <option value="">--Select Page--</option>
+                  <option {{ request("limit") == "24"  ? 'selected' : ''}} value="24">24</option>
+                  <option {{ request("limit") == "50"  ? 'selected' : ''}} value="50">50</option>
+                  <option {{ request("limit") == "100"  ? 'selected' : ''}} value="100">100</option>
+                  <option {{ request("limit") == "all"  ? 'selected' : ''}} value="all">All</option>
+                </select>
+              </div>
 
             <div class="col-md-2"><button type="submit" class="btn btn-image"><img src="/images/search.png" /></button></div>
           </div>
@@ -101,6 +111,11 @@
           <th width="10%">Balance</th>
           <th width="10%" colspan="2" class="text-center">Action</th>
         </tr>
+          @php
+            $totalRateEstimate = 0;
+            $totalPaid = 0;
+            $totalBalance = 0;
+          @endphp
           @foreach ($tasks as $task)
             <tr>
               <td>@if(isset($task->user)) {{  $task->user->name }} @endif </td>
@@ -112,6 +127,11 @@
               <td>{{ $task->currency }}</td>
               <td>{{ $task->paid_amount }}</td>
               <td>{{ $task->balance }}</td>
+              @php
+                $totalRateEstimate += $task->rate_estimated;
+                $totalPaid += $task->paid_amount;
+                $totalBalance += $task->balance;
+              @endphp
               <td>
                 @if (Auth::user()->hasRole('Admin'))
                   <a data-toggle="tooltip" title="Create Payment" class="btn btn-secondary create-payment" data-id="{{$task->id}}">+</a>
@@ -130,6 +150,11 @@
               </td>
             </tr>
           @endforeach
+          <tr>
+            <td colspan="6" width="10%" style="text-align: right;"><b>TOTAL Amount : {{$totalRateEstimate}}</b></td>
+            <td colspan="2" width="8%" style="text-align: right;"><b>TOTAL Amount Paid : {{$totalPaid}}</b></td>
+            <td colspan="2" width="25%"><b>TOTAL Balance : {{$totalBalance}}</b></td>
+          </tr>
       </table>
       {{$tasks->links()}}
     </div>
