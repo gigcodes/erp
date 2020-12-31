@@ -4,11 +4,33 @@
   <td>{{ date('d-M-Y H:i:s', strtotime($post->posted_at)) }}</td>
   <td>{{ $post->hashTags->hashtag }}</td>
   <td><a style="word-break:break-all; white-space: normal;" href="{{ $post->location }}" target="_blank">{{ $post->location }}</a></td>
-  <td>{{ wordwrap($post->caption,75, "\n", true) }}</td>
+  <td>{{ substr($post->caption,0,50) }}..<button type="button" data-caption="{{$post->caption}}" class="btn btn-xs btn-image load-comment-trick" title="Load messages">
+    <img src="/images/chat.png" alt="" style="cursor: nwse-resize; width: 0px;"></button>
+  </td>
 </tr>
 @endforeach
 
+<div class="modal fade" id="load-comment-trick" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Caption</h3>
+            </div>
+            <div class="modal-body">
+                
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+
+  $(document).on("click",".load-comment-trick",function() {
+      var loadTrick = $("#load-comment-trick");
+      loadTrick.find(".modal-body").html("<p>"+$(this).data('caption')+"</p>");
+      loadTrick.modal("show");
+  });
+
   $(document).on('click', '.searchDelete', function() {
     var id = $(this).attr('id');
 
@@ -37,13 +59,6 @@
          })
         }
       });
-
-
-
-
-
-
-
   });
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
