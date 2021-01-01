@@ -215,6 +215,8 @@
                             for="random">Random</label>
                     <input type="checkbox" class="unsupported" id="unsupported" {{ (request('unsupported')) == 'on' ? 'checked' : '' }} name="unsupported"><label
                             for="unsupported">Unsupported Images</label>
+                    <input type="checkbox" class="drafted_product" id="drafted_product" {{ (request('drafted_product')) == 'on' ? 'checked' : '' }} name="drafted_product">
+                    <label for="drafted_product">Drafted Product</label>
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                 </form>
 
