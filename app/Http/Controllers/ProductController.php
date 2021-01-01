@@ -2383,6 +2383,10 @@ class ProductController extends Controller
             $products = $products->whereRaw("(stock > 0 OR (supplier ='In-Stock'))");
         }
 
+        if($request->drafted_product == "on") {
+            $products = $products->whereRaw("quick_product = 1");
+        }
+
         // if source is attach_media for search then check product has image exist or not
         if ($request->get("unsupported", null) != "") {
 
