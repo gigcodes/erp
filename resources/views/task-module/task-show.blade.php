@@ -190,29 +190,34 @@
                       <input type="hidden"  id="remark-id{{ $note->id }}" value="{{ $note->singleSubnotes->id }}">
                       
                       <td class="td-style">
-
-                        <table class="table table-style">  
-                          <tbody> 
-                            <tr class="tr-style"> 
-                              <th class="table-head-row expand-row table-hover-cell" id="remark{{$note->id}}">
-                                <span class="td-mini-container">
-                                    {{ strlen( $note->singleSubnotes->remark  ) > 70 ? substr( $note->singleSubnotes->remark  , 0, 70).'...' :  $note->singleSubnotes->remark  }}
-                                </span>
-                                <span class="td-full-container hidden">
-                                {{ $note->singleSubnotes->remark }} 
-                                </span>
-                              </th>
-                          </tr>
-                        </tbody> 
-                      </table>
-                      <div class="row" style="margin-bottom:0px;margin-left:0px;margin-right:0px;">
-                      <div class="col-md-8" style="padding:5px;">
-                          <span class="table-head-row">   <input type="text" class="form-control input-sm create-subnote-for-appointment" data-id="{{ $note->id }}" name="note" placeholder="Note" value=""> </span>
-                      </div>
-                        <div class="col-md-4" style="padding:5px;">
-                        <span style="vertical-align: middle !important;" class="table-head-row th-add-user th-created_at" id="created{{$note->id}}"> {{ $note->singleSubnotes->created_at->format('d-m-Y H:i:s') }}   </span> <input type="hidden" id="current-remark-id">
+                        <div class="col-md-12">
+                            <div class="col-md-3">
+                              <table class="table table-style">  
+                                  <tbody> 
+                                    <tr class="tr-style"> 
+                                      <th class="table-head-row expand-row table-hover-cell" id="remark{{$note->id}}">
+                                        <span class="td-mini-container">
+                                            {{ strlen( $note->singleSubnotes->remark  ) > 10 ? substr( $note->singleSubnotes->remark  , 0, 10).'...' :  $note->singleSubnotes->remark  }}
+                                        </span>
+                                        <span class="td-full-container hidden">
+                                        {{ $note->singleSubnotes->remark }} 
+                                        </span>
+                                      </th>
+                                  </tr>
+                                </tbody> 
+                              </table>
+                            </div>
+                            <div class="col-md-9">
+                              <div class="row" style="margin-bottom:0px;margin-left:0px;margin-right:0px;">
+                                <div class="col-md-8" style="padding:5px;">
+                                    <span class="table-head-row">   <input type="text" class="form-control input-sm create-subnote-for-appointment" data-id="{{ $note->id }}" name="note" placeholder="Note" value=""> </span>
+                                </div>
+                                  <div class="col-md-4" style="padding:5px;">
+                                  <span style="vertical-align: middle !important;" class="table-head-row th-add-user th-created_at" id="created{{$note->id}}"> {{ $note->singleSubnotes->created_at->format('d-m-Y H:i:s') }}   </span> <input type="hidden" id="current-remark-id">
+                                  </div>
+                                </div>
+                            </div>
                         </div>
-                      </div>
                     </td>
                     <td>
                     <button type="button" class="btn btn-image create-quick-task-note-button" onclick="createTaskNoteButton({{  $note->id }})" title="Add Task Note"><img src="/images/add.png" /></button>
@@ -1797,7 +1802,7 @@
               
           }
           }).done(function(response) {
-              location.reload();
+              //location.reload();
               $('#archive-remark-details'+noteId).append("<div class='bubble alt'> <div class='txt'><p class='name alt'></p><p class='message'>"+response.success+"</p> </div></div>");
           }).fail(function(response) {
               alert('Could not create task!');
@@ -1827,11 +1832,12 @@
         contentSelector: 'div.infinite-scroll',
         callback: function () {
             $('ul.pagination').first().remove();
-			$('ul.pagination').hide();
+			      $('ul.pagination').hide();
         }
     });
 
 	$(document).on('click', '.remove-task-note', function() {
+    var $this = $(this);
     var noteId = $(this).data('task-note-id');
 		swal({
 			title: "Are you sure?",
@@ -1849,7 +1855,9 @@
 					type: 'GET',
 					data: {note_id: noteId},
 					success: function() {
-						location.reload();
+            $this.closest("tr").remove();
+						//location.reload();
+            toastr['success']('data updated successfully!');
 					}
 				})
 				.fail(function(response) {
@@ -1861,6 +1869,7 @@
 
 	$(document).on('click', '.hide-task-note', function() {
     var noteId = $(this).data('task-note-id');
+    var $this = $(this);
 		swal({
 			title: "Are you sure?",
 			// text: "You will not be able to recover this imaginary file!",
@@ -1877,7 +1886,8 @@
 					type: 'GET',
 					data: {note_id: noteId},
 					success: function() {
-						location.reload();
+						$this.closest("tr").remove();
+            toastr['success']('data updated successfully!');
 					}
 				})
 				.fail(function(response) {
