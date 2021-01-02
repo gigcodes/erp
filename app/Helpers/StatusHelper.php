@@ -44,6 +44,10 @@ class StatusHelper extends Model
     public static $submitForApproval = 34;
     public static $requestForExternalScraper = 35;
     public static $unknownCategory = 36;
+    public static $unknownColor = 37;
+    public static $unknownSize = 38;
+    public static $unknownComposition = 39;
+    public static $unknownMeasurement = 40;
 
     public static function getStatus()
     {
