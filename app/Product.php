@@ -1044,7 +1044,7 @@ class Product extends Model
     public function isNeedToIgnore()
     {
         if(strtolower($this->color) == "white") {
-            $this->status_id = \App\Helpers\StatusHelper::$scrape;
+            $this->status_id = \App\Helpers\StatusHelper::$manualCropping;
             $this->save();
         }
     }
