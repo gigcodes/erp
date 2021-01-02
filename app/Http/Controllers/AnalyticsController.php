@@ -22,21 +22,29 @@ class AnalyticsController extends Controller
     public function showData(Request $request)
     {
         $visitors = ['New Visitor' => 'New Visitor', 'Returning Visitor' => 'Returning Visitor'];
+
+        $data = Analytics::query();
+
         if (!empty($_GET[ 'location' ])) {
             $location = $_GET[ 'location' ];
-            $data = Analytics::where('country', 'like', '%' . $location . '%')->get()->toArray();
-        } elseif (!empty($_GET[ 'user' ])) {
-            $data = Analytics::where('user_type', $request[ 'user' ])->get()->toArray();
-        } elseif (!empty($_GET[ 'device_os' ])) {
-            $data = Analytics::where('operatingSystem', 'like', '%' . $request[ 'device_os' ] . '%')->
-            orWhere('device_info', 'like', '%' . $request[ 'device_os' ] . '%')
-                ->get()->toArray();
-        } else {
-            $data = Analytics::all()->toArray();
-            if(empty($data)){
-                include(app_path() . '/Functions/Analytics.php');
-            }
+            $data = $data->where('country', 'like', '%' . $location . '%');
+        } 
+
+        if (!empty($_GET[ 'user' ])) {
+            $data = $data->where('user_type', $request[ 'user' ]);
+        } 
+
+        if (!empty($_GET[ 'device_os' ])) {
+            $data = $data->where(function($q) use($request) {
+                $q->where('operatingSystem', 'like', '%' . $request[ 'device_os' ] . '%')->orWhere('device_info', 'like', '%' . $request[ 'device_os' ] . '%');
+            });
         }
+
+        if (!empty($_GET[ 'start_date' ]) && !empty($_GET[ 'end_date' ])) {
+            $data = $data->where('date', '>=', $_GET[ 'start_date' ])->where('date', '<=', $_GET[ 'end_date' ]);
+        }
+
+        $data = $data->orderBy('date','desc')->get()->toArray();
         // Analytics::get()->toArray();
         // foreach ($data as $key => $new_item) {
         // DB::table('analytics')->insert(
