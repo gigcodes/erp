@@ -87,7 +87,10 @@ class StatusHelper extends Model
             33 => 'pending products without category',
             34 => 'Submit For approval',
             35 => 'Request For external Scraper',
-            36 => 'Unknown Category',
+            36 => 'Unknown Color',
+            38 => 'Unknown Size',
+            39 => 'Unknown Composition',
+            40 => 'Unknown Measurement',
         ];
     }
     public static function updateStatus(\App\Product $product, $newStatus = 0)
