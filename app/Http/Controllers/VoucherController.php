@@ -386,14 +386,18 @@ class VoucherController extends Controller
             'payment_method_id' => 'required'
         ]);
         $preceipt = PaymentReceipt::find($id);
+
         if(!$preceipt) {
             return redirect()->back()->with('warning','Payment receipt not found');
         }
         $totalPaid = Payment::where('payment_receipt_id',$preceipt->id)->sum('amount');
         $newTotal = $totalPaid + $request->amount;
+        
+
         if($newTotal > $preceipt->rate_estimated) {
             return redirect()->back()->with('warning','Amount can not be greater than receipt amount');
         }
+        
         $input = $request->except('_token');
 
         if(!is_numeric($input['payment_method_id'])) {
@@ -411,11 +415,14 @@ class VoucherController extends Controller
         $payment_method = PaymentMethod::find($input['payment_method_id']);
         $input['payment_receipt_id'] = $preceipt->id;
         $message['message'] = "Admin has given the payment of amount ".$request->amount." ".$request->currency. " through ".$payment_method->name." \n Note: ".$request->note;
-        $message['vendor_id'] = $request->user_id;
+        $message['user_id'] = $request->user_id;
+        $message['status'] = 1;
+
         Payment::create($input);
         $request1 = new \Illuminate\Http\Request();
-        $request1->replace($message);    
-        $sendMessage = app('App\Http\Controllers\WhatsAppController')->sendMessage($request1,'vendor');
+        $request1->replace($message);
+
+        $sendMessage = app('App\Http\Controllers\WhatsAppController')->sendMessage($request1,'user');
         $cashData = [
             'user_id'=>$request->user_id,
             'description'=>'Vendor paid',
@@ -423,6 +430,8 @@ class VoucherController extends Controller
             'amount'=>$newTotal,
             'type'=>'paid',
             'cash_flow_able_type'=>'App\PaymentReceipt',
+            'created_at'=> date("Y-m-d H:i:s"),
+            'updated_by'=> \Auth::user()->id,
 
         ];     
         if($newTotal >= $preceipt->rate_estimated) {

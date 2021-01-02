@@ -8,6 +8,14 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
   <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css" rel="stylesheet" />
 <style>
+  table {
+    font-size: 14px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #333;
+    background-color: #fff;
+  }
 .ajax-loader{
     position: fixed;
     left: 0;
@@ -42,9 +50,11 @@
   width:100%;
   padding: 0;
 }
-.table.table-bordered.order-table a{
-color:black!important;
+.table.table-bordered.order-table th a{
+  color:black!important;
 }
+
+
 </style>
 @endsection
 
@@ -155,10 +165,10 @@ color:black!important;
 <div class="row">
     <div class="infinite-scroll" style="width:100%;">
 	<div class="table-responsive mt-2">
-      <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;">
+      <table class="table table-bordered order-table" style="border: 1px solid #5A6268 !important; color:black;">
         <thead>
         <tr>
-            <th width="5%">select</th>
+            <th width="5%">Select</th>
             <th width="5%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
             <th width="6%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Date</a></th>
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Client</a></th>
