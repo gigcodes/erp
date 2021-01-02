@@ -2426,6 +2426,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('shipment/generate-shipment', 'ShipmentController@generateShipment')->name('shipment/generate');
     Route::get('shipment/get-templates-by-name/{name}', 'ShipmentController@getShipmentByName');
     Route::post('shipment/pickup-request', 'ShipmentController@createPickupRequest')->name('shipment/pickup-request');
+    Route::post('shipment/save-box-size', 'ShipmentController@saveBoxSize')->name('shipment.save-box-size');
 
 
     /**
