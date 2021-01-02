@@ -110,6 +110,14 @@
                             <i class="fa fa-list" aria-hidden="true"></i>
                         </a>
                         <a href="{{ route('order.download.package-slip', $item->id) }}" class="btn-link"><i class="fa fa-download" aria-hidden="true"></i></a>
+                        <button data-editbox='{{ json_encode([
+                        "box_length" => $item->box_length,
+                        "box_width" => $item->box_width,
+                        "box_height" => $item->box_height,
+                        "actual_weight" => $item->actual_weight,
+                        "volume_weight" => $item->volume_weight,
+                        "id" => $item->id
+                        ]) }}' type="button" class="btn btn-image edit-box-shipment edit-box-shipment-{{$item->id}}"><i class="fa fa-th" aria-hidden="true"></i></button>
                     </td>
                 </tr>
             @empty
@@ -122,8 +130,65 @@
 	</div>
 </div>
 
+<div id="box-update-partial" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Partial Box</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form method="post">
+                    {{ csrf_field() }}
+                    <input type="hidden" name="shipment_id" id="shipment_id">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="box_length" class="col-form-label">Box length:</label>
+                                    <input type="text" name="box_length" id="box_length" class="form-control" placeholder="Enter Box length">
+                                 </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group ">
+                                    <label for="box_width" class="col-form-label">Box Width:</label>
+                                    <input type="text" name="box_width" id="box_width" class="form-control" placeholder="Enter Box Width">
+                                 </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="box_height" class="col-form-label">Box height:</label>
+                                    <input type="text" name="box_height" id="box_height" class="form-control" placeholder="Enter Box height">
+                                 </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="actual_weight" class="col-form-label">Actual weight:</label>
+                                    <input type="text" name="actual_weight" id="actual_weight" class="form-control" placeholder="Enter actual weight">
+                                 </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="volume_weight" class="col-form-label">Volume weight:</label>
+                                    <input type="text" name="volume_weight" id="volume_weight" class="form-control" placeholder="Enter volume weight">
+                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-secondary btn-save-box-size">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @include("partials.modals.generate-awb-modal")
 @include('shipment.partial.modal')
+
+
 
 @endsection
 
@@ -150,7 +215,7 @@ $(".to-email, .cc-email, .bcc-email").select2({
     }
 });
 
-$(document).on("click",".generate-awb",function() {
+$(document).on("click",".generate-awb",function(e) {
       var customer = $(this).data("customer");
 
         if(typeof customer != "undefined" && customer != "") {
@@ -168,6 +233,7 @@ $(document).on("click",".generate-awb",function() {
            $("#customer_pincode").val(customer.pincode);
         }
         $("#generateAWBMODAL").modal("show");
+        e.preventDefault();
   });
 
 $(document).on('click', '#view_mail_btn', function() {
@@ -343,6 +409,39 @@ $(document).on("change", '#email_name', function(){
 $(document).on("click", '.add-shipment', function(){
     $('#generate-shipment-form .form-error').html(''),
     $('.any-message').html('');
+});
+
+$(document).on("click",".edit-box-shipment",function(ele) {
+    var $this = $(this);
+    var records = $this.data("editbox");
+
+    var body = $("#box-update-partial").find(".modal-body");
+    
+        body.find("#box_length").val(records.box_length);
+    body.find("#box_width").val(records.box_width);
+    body.find("#box_height").val(records.box_height);
+    body.find("#actual_weight").val(records.actual_weight);
+    body.find("#volume_weight").val(records.volume_weight);
+    body.find("#shipment_id").val(records.id);
+
+    $("#box-update-partial").modal("show");
+});
+
+$(document).on("click",".btn-save-box-size",function(e){
+    e.preventDefault();
+    var $this = $(this);
+    var form = $("#box-update-partial").find("form");
+    $.ajax({
+        url: "{{ url('shipment/save-box-size') }}",
+        type: "POST",
+        data: form.serialize()
+    }).done( function(response) {
+        if(response.code == 200) {
+            $(".edit-box-shipment-"+response.data.id).attr("data-editbox", JSON.stringify(response.data));
+            location.reload();
+        }
+        $("#box-update-partial").modal("hide");
+    })
 });
 
 </script>

@@ -8,7 +8,7 @@ class Waybill extends Model
 {
     protected $table = 'waybills';
 
-    protected $fillable = ['order_id','customer_id','awb','box_length','box_width','box_height','actual_weight','package_slip','pickup_date'];
+    protected $fillable = ['order_id', 'customer_id', 'awb', 'box_length', 'box_width', 'box_height', 'actual_weight', 'volume_weight', 'package_slip', 'pickup_date'];
 
     protected $appends = ['dimension'];
 
@@ -30,7 +30,8 @@ class Waybill extends Model
         return $this->belongsTo('App\Customer', 'customer_id');
     }
 
-    public function waybill_track_histories(){
+    public function waybill_track_histories()
+    {
         return $this->hasMany('App\waybillTrackHistories');
     }
 }
