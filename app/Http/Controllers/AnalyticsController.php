@@ -44,7 +44,7 @@ class AnalyticsController extends Controller
             $data = $data->where('date', '>=', $_GET[ 'start_date' ])->where('date', '<=', $_GET[ 'end_date' ]);
         }
 
-        $data = $data->get()->toArray();
+        $data = $data->orderBy('date','desc')->get()->toArray();
         // Analytics::get()->toArray();
         // foreach ($data as $key => $new_item) {
         // DB::table('analytics')->insert(
