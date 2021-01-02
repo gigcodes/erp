@@ -173,14 +173,13 @@ color:black!important;
       @foreach ($orders_array as $key => $order)
                 @php
                 if($order->supplier_discount_info_id) {
-                  $supplier = \App\SupplierDiscountInfo::join('suppliers','suppliers.id','supplier_discount_infos.supplier_id')->where('supplier_discount_infos.id',$order->supplier_discount_info_id)->select('suppliers.*')->first();
+                  $supplier = \App\SupplierDiscountInfo::join('suppliers','suppliers.id','supplier_discount_infos.supplier_id')->where('supplier_discount_infos.id',$order->supplier_discount_info_id)->select(['suppliers.*','product_suppliers.supplier_link'])->get();
                 }
                 else {
-                  $supplier = \App\ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')->where('product_suppliers.product_id',$order->product_id)->select('suppliers.*')->first();
+                  $supplier = \App\ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')->where('product_suppliers.product_id',$order->product_id)->select(['suppliers.*','product_suppliers.supplier_link'])->get();
                 }
                 @endphp
                 
-
             <tr class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
               <td><span class="td-mini-container">
                   <input type="checkbox" class="selectedOrder" name="selectedOrder" value="{{$order->id}}">
@@ -205,8 +204,14 @@ color:black!important;
                 @endif
               </td>
                 <td class="view-supplier-details" data-id="{{$order->order_product_id}}">
-                    @if($supplier)
-                        {{$supplier->supplier}}
+                    @if(!$supplier->isEmpty())
+                        @foreach($supplier as $s) 
+                          @if(!empty($s->supplier_link))
+                            <a target="_blank" href="{{$s->supplier_link}}">{{$s->supplier}}</a><br>
+                          @else
+                            <a target="_blank" href="javascript:;">{{$s->supplier}}</a><br>
+                          @endif
+                        @endforeach
                     @endif
                 </td>
               <td class="expand-row table-hover-cell">

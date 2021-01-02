@@ -438,6 +438,7 @@ $(document).on("click",".btn-save-box-size",function(e){
     }).done( function(response) {
         if(response.code == 200) {
             $(".edit-box-shipment-"+response.data.id).attr("data-editbox", JSON.stringify(response.data));
+            toastr['success'](response.message, 'success');
             location.reload();
         }
         $("#box-update-partial").modal("hide");
