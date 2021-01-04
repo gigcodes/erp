@@ -59,7 +59,6 @@ class FetchAllEmails extends Command
 
         $emailAddresses = EmailAddress::orderBy('id', 'asc')->get();
 
-        
         foreach ($emailAddresses as $emailAddress) {
             try {
                 $imap = new Client([
@@ -101,7 +100,11 @@ class FetchAllEmails extends Command
                     dump("Getting emails for: " . $type['type']);
 
                     $inbox = $imap->getFolder($type['inbox_name']);
-                    $latest_email = Email::where('type', $type['type'])->latest()->first();
+                    if($type['type'] == "incoming") {
+                        $latest_email = Email::where('to',$emailAddress->from_address)->where('type', $type['type'])->latest()->first();
+                    }else{
+                        $latest_email = Email::where('from',$emailAddress->from_address)->where('type', $type['type'])->latest()->first();
+                    }
 
                     $latest_email_date = $latest_email ? Carbon::parse($latest_email->created_at) : false;
 
@@ -113,6 +116,7 @@ class FetchAllEmails extends Command
                     else $emails = $inbox->messages();
 
                     $emails = $emails->get();
+
                     //
                     // dump($inbox->messages()->where([
                     //     ['SINCE', $latest_email_date->subDays(1)->format('d-M-Y')],
@@ -136,7 +140,7 @@ class FetchAllEmails extends Command
                             $content = $email->getTextBody();
                         }
 
-                        if (!$latest_email_date || $email->getDate()->timestamp > $latest_email_date->timestamp) {
+                        //if (!$latest_email_date || $email->getDate()->timestamp > $latest_email_date->timestamp) {
                             $attachments_array = [];
                             $attachments = $email->getAttachments();
                             $fromThis = $email->getFrom()[0]->mail;
@@ -150,6 +154,7 @@ class FetchAllEmails extends Command
                                 /*start 3215 attachment fetch from DHL mail */
                                 $findFromEmail = explode('@', $fromThis);
                                 if($findFromEmail[1]=='dhl.com'){
+                                    \Log::info("Data was added here ");
                                     $this->getEmailAttachedFileData($attachment->name);
                                 }
                                 /*end 3215 attachment fetch from DHL mail */
@@ -200,7 +205,7 @@ class FetchAllEmails extends Command
                             //                            dump("Received from: ". $email->getFrom()[0]->mail);
                             Email::create($params);
 
-                            if ($type['type'] == 'incoming') {
+                            /*if ($type['type'] == 'incoming') {
                                 $message = trim($content);
                                 $reply = \App\WatsonAccount::getReply($message);
                                 if ($reply) {
@@ -222,8 +227,8 @@ class FetchAllEmails extends Command
                                     ];
                                     Email::create($params);
                                 }
-                            }
-                        }
+                            }*/
+                        //}
                     }
                 }
 
@@ -265,6 +270,7 @@ class FetchAllEmails extends Command
     public function getEmailAttachedFileData($fileName = '')
     {
         $file = fopen(storage_path('app/files/email-attachments/' . $fileName), "r");
+
         $skiprowupto = 1; //skip first line
         $rowincrement = 1;
         $attachedFileDataArray = array();
