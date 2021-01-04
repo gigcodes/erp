@@ -35,7 +35,8 @@ class ShipmentController extends Controller
     public function index(Request $request)
     {
 
-        $waybills = $this->wayBill->leftJoin("orders as o", "o.id", "waybills.order_id");
+        $waybills = $this->wayBill->leftJoin("orders as o", "o.id", "waybills.order_id")
+        ->leftJoin("waybill_invoices as wi", "wi.shipment_number", "waybills.awb");
 
         if ($request->get('awb')) {
             $waybills->where('waybills.awb', '=', $request->get('awb'));
@@ -58,7 +59,9 @@ class ShipmentController extends Controller
             $waybills->whereIn('waybills.customer_id', $ids);
         }
 
-        $waybills = $waybills->orderBy('waybills.id', 'desc')->select("waybills.*")->with('order', 'order.customer', 'customer', 'waybill_track_histories');
+        $waybills = $waybills->groupBy("waybills.awb");
+
+        $waybills = $waybills->orderBy('waybills.id', 'desc')->select(["waybills.*","wi.due_date","wi.invoice_currency","wi.invoice_amount","wi.invoice_number"])->with('order', 'order.customer', 'customer', 'waybill_track_histories');
 
         $waybills_array = $waybills->paginate(20);
         $customers      = Customer::all();

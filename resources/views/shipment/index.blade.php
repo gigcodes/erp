@@ -74,6 +74,9 @@
             <th>Volume Weight</th>
             <th>Cost of Shipment</th>
             <th>Duty Cost</th>
+            <th>Invoice Number</th>
+            <th>Invoice</th>
+            <th>Due Date</th>
             <th>Location</th>
             <th>Action</th>
           </tr>
@@ -93,6 +96,10 @@
                     <td>{{ @$item->volume_weight??'N/A' }}</td>
                     <td>{{ @$item->cost_of_shipment?? 'N/A' }}</td>
                     <td>{{ @$item->duty_cost?? 'N/A' }}</td>
+                    <td>{{ @$item->invoice_number?? 'N/A' }}</td>
+                    <td>{{ @$item->invoice_amount ? $item->currency.$item->invoice_amount : 'N/A' }}</td>
+                    <td>{{ @$item->due_date?? 'N/A' }}</td>
+
                     <td>{{ (@$item->waybill_track_histories->count() > 0)? @$item->waybill_track_histories->last()->location : "" }}</td>
                     <td>
                         <button type="button" class="btn btn-image" id="send_email_btn" data-order-id="{{ $item->order_id }}" title="Send Email"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
