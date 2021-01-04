@@ -241,6 +241,7 @@ class FetchAllEmails extends Command
 
                 $report->update(['end_time' => Carbon::now()]);
             } catch (\Exception $e) {
+                \Log::info($e->getMessage());
                 \App\CronJob::insertLastError($this->signature, $e->getMessage());
             }
         }
