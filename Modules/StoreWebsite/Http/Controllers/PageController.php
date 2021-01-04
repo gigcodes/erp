@@ -305,7 +305,7 @@ class PageController extends Controller
                         $newPage->content_heading  = !empty($contentHeading) ? $contentHeading : $page->content_heading;
                         $newPage->content          = !empty($content) ? $content : $page->content;
                         $newPage->layout           = $page->layout;
-                        $newPage->url_key          = implode("-", [$page->url_key, strtolower($l->name)]);
+                        $newPage->url_key          = $page->url_key;
                         $newPage->active           = $page->active;
                         $newPage->stores           = implode(",", $stores);
                         $newPage->store_website_id = $page->store_website_id;
