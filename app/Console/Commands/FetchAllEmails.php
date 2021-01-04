@@ -106,7 +106,7 @@ class FetchAllEmails extends Command
                         $latest_email = Email::where('from',$emailAddress->from_address)->where('type', $type['type'])->latest()->first();
                     }
 
-                    $latest_email_date = $latest_email ? Carbon::parse($latest_email->created_at) : Carbon::parse("2021-01-03");
+                    $latest_email_date = $latest_email ? Carbon::parse($latest_email->created_at) : false;
 
                     dump("Last received at: " . ($latest_email_date ?: 'never'));
                     // Uncomment below just for testing purpose
