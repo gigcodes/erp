@@ -156,7 +156,7 @@ class FetchAllEmails extends Command
                             $attachments_array[] = $path;
 
                             /*start 3215 attachment fetch from DHL mail */
-                            if (strpos($email_subject, "Your copy invoice") !== false) {
+                            if (strpos(strtolower($email_subject), "your copy invoice") !== false) {
                                 $this->getEmailAttachedFileData($attachment->name);
                             }
                             /*end 3215 attachment fetch from DHL mail */
