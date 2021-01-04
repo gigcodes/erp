@@ -7,6 +7,7 @@
             <th width="5%">Discount</th>
             <th width="5%">Final Price</th>
             <th width="5%">GMU</th>
+            <th width="5%">Web</th>
             <th width="5%">Action</th>
          </tr>
         </thead>
@@ -74,6 +75,7 @@
             @endphp
             {{number_format($gmu,2)}}
             </td>
+            <td><a href="{{ $supplier->supplier_link }}" target="__blank"><i class="fa fa-globe"></i></a></td>
             <td>
             <input data-order_product="{{$order_product_id}}" data-id="{{$supplier->supplier_id}}" data-product="{{$supplier->product_id}}"  type="radio" name="product_default_supplier" class="product_default_supplier" {{$checked ? 'checked' : ''}}>
             </td>
