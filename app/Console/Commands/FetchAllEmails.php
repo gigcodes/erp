@@ -271,7 +271,6 @@ class FetchAllEmails extends Command
     {
         $file = fopen(storage_path('app/files/email-attachments/' . $fileName), "r");
 
-        \Log::info("File name : ".$fileName);
         $skiprowupto = 1; //skip first line
         $rowincrement = 1;
         $attachedFileDataArray = array();
