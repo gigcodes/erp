@@ -214,7 +214,7 @@ class PurchaseProductController extends Controller
     {
         $order_product = OrderProduct::find($order_product_id);
 
-        $suppliers = \App\ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')->where('product_suppliers.product_id',$order_product->product_id)->select('suppliers.*','product_suppliers.id as ps_id','product_suppliers.price as product_price','suppliers.id as supplier_id','product_suppliers.product_id')->get();
+        $suppliers = \App\ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')->where('product_suppliers.product_id',$order_product->product_id)->select('suppliers.*','product_suppliers.id as ps_id','product_suppliers.price as product_price','suppliers.id as supplier_id','product_suppliers.product_id','product_suppliers.supplier_link')->get();
         return view('purchase-product.partials.supplier_info',compact('suppliers','order_product'));
     }
 
