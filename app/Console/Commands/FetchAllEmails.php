@@ -57,8 +57,9 @@ class FetchAllEmails extends Command
             'start_time' => Carbon::now(),
         ]);
 
-        $emailAddresses = EmailAddress::where("from_address", "customercare@sololuxury.co.in")->orderBy('id', 'asc')->get();
+        $emailAddresses = EmailAddress::orderBy('id', 'asc')->get();
 
+        
         foreach ($emailAddresses as $emailAddress) {
             try {
                 $imap = new Client([
