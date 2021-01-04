@@ -149,7 +149,7 @@ class FetchAllEmails extends Command
                         $attachments_array = [];
                         $attachments       = $email->getAttachments();
                         $fromThis          = $email->getFrom()[0]->mail;
-                        $attachments->each(function ($attachment) use (&$attachments_array, $fromThis) {
+                        $attachments->each(function ($attachment) use (&$attachments_array, $fromThis, $email_subject) {
                             $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
                             file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
                             $path = "email-attachments/" . $attachment->name;
