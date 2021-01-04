@@ -18,6 +18,7 @@ Auth::routes();
 
 Route::get('/test/test', 'OrderController@testEmail');
 Route::get('/test/pushProduct', 'TmpTaskController@testPushProduct');
+Route::get('/test/analytics', 'AnalyticsController@cronShowData');
 
 Route::get('/test/dhl', 'TmpTaskController@test');
 Route::get('create-media-image', 'CustomerController@testImage');

@@ -148,33 +148,36 @@ class AnalyticsController extends Controller
     }
 
     public function cronShowData(){
+        \Log::info("Google Analytics Started running ...");
         $analyticsDataArr = [];
         include(app_path() . '/Functions/Analytics.php');
         $data = StoreWebsiteAnalytic::all()->toArray();
         foreach ($data as $value) {
-            getReport($analytics, $value);
+            $response   = getReport($analytics, $value);
             $resultData = printResults($response);
-            foreach ($resultData as $new_item) {
-                 $analyticsDataArr[] = [
-                        "operatingSystem" => $new_item['operatingSystem'],
-                        "user_type" => $new_item['user_type'],
-                        "time" => $new_item['time'],
-                        "page_path" => $value['website'].$new_item['page_path'],
-                        "country" => $new_item['country'],
-                        "city" => $new_item['city'],
-                        "social_network" => $new_item['social_network'],
-                        "date" => $new_item['date'],
-                        "device_info" => $new_item['device_info'],
-                        "sessions" => $new_item['sessions'],
-                        "pageviews" => $new_item['pageviews'],
-                        "bounceRate" => $new_item['bounceRate'],
-                        "avgSessionDuration" => $new_item['avgSessionDuration'],
-                        "timeOnPage" => $new_item['timeOnPage'],
+            if(!empty($resultData)) {
+                foreach ($resultData as $new_item) {
+                     $analyticsDataArr = [
+                            "operatingSystem" => $new_item['operatingSystem'],
+                            "user_type" => $new_item['user_type'],
+                            "time" => $new_item['time'],
+                            "page_path" => $value['website'].$new_item['page_path'],
+                            "country" => $new_item['country'],
+                            "city" => $new_item['city'],
+                            "social_network" => $new_item['social_network'],
+                            "date" => $new_item['date'],
+                            "device_info" => $new_item['device_info'],
+                            "sessions" => $new_item['sessions'],
+                            "pageviews" => $new_item['pageviews'],
+                            "bounceRate" => $new_item['bounceRate'],
+                            "avgSessionDuration" => $new_item['avgSessionDuration'],
+                            "timeOnPage" => $new_item['timeOnPage'],
 
-                  ];
-
+                      ];
+                     Analytics::insert($analyticsDataArr);
+                }
             }
         }
-        Analytics::insert($analyticsDataArr);
+        \Log::info("Google Analytics ended running ...");
     }
 }
