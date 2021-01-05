@@ -577,7 +577,7 @@ class InstagramPostsController extends Controller
                 $mediaDetail = [$mediaDetail];
             }
             $media->media_url = json_encode($mediaDetail);
-            $media->posted_at = $media['posted_at'];
+            $media->posted_at = now();
             $media->save();
             $postData = $media->toArray();
 
