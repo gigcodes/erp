@@ -43,6 +43,8 @@ class RunGoogleAnalytics extends Command
 
             app('App\Http\Controllers\AnalyticsController')->cronShowData();
 
+            $report->update(['end_time' => Carbon::now()]);
+
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
