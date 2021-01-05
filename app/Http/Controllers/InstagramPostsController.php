@@ -565,7 +565,7 @@ class InstagramPostsController extends Controller
             $media->post_id    = $postId;
             $media->caption    = $caption;
             $media->user_id    = $user_id;
-            $media->username   = $media['user']['username'];
+            $media->username   = $user->username;
             $media->media_type = $mediaType;
             $media->code       = $code;
             $media->location   = '';
