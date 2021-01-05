@@ -125,6 +125,7 @@ use App\Console\Commands\LogScraperDelete;
 use App\Console\Commands\AssetsManagerPaymentCron;
 use App\Console\Commands\SendEmailNewsletter;
 use App\Console\Commands\DeleteStoreWebsiteCategory;
+use App\Console\Commands\RunGoogleAnalytics;
 
 
 class Kernel extends ConsoleKernel
@@ -246,7 +247,8 @@ class Kernel extends ConsoleKernel
         LogScraperDelete::class,
         AssetsManagerPaymentCron::class,
         SendEmailNewsletter::class,
-        DeleteStoreWebsiteCategory::class
+        DeleteStoreWebsiteCategory::class,
+        RunGoogleAnalytics::class
     ];
 
     /**
@@ -463,7 +465,7 @@ class Kernel extends ConsoleKernel
 
         // Github
         $schedule->command('live-chat:get-tickets')->everyFifteenMinutes();
-        $schedule->command('google-analytics:run')->daily();
+        $schedule->command('google-analytics:run')->everyFiveMinutes();
         $schedule->command('newsletter:send')->daily();
         $schedule->command('delete:store-website-category')->daily();
         //$schedule->command('github:load_branch_state')->hourly();
