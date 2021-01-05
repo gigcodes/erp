@@ -17,11 +17,47 @@
                                 </td>
                                 <td>@if($post->media_url && isset($post->media_type))
                                 @if($post->media_type == 1)
-                                    <div style="display: flex; width: 150px; height: 150px; background: url('@if($post->media_url) {{ @json_decode($post->media_url)[0] }} @endif'); background-size: cover;">
+                                    <?php 
+                                    //geeting url from json
+                                    try {
+                                        $datas = json_decode($post->media_url);
+                                    
+                                        foreach ($datas as $data) {
+                                            $image = $data->url;
+                                            break;
+                                        }
+
+                                    } catch (\Exception $e) {
+                                        
+                                        $image = '';
+                                    }
+                                    
+                                    //dd($image);
+
+                                    ?>
+
+                                    <div style="display: flex; width: 150px; height: 150px; background: url('{{$image}}'); background-size: cover;">
                                     &nbsp;
                                     </div>  
                                 @elseif($post->media_type == 2 && isset($post->media_type))
-                                    <video controls src="@if($post->media_url) {{ @json_decode($post->media_url)[0] }} @endif" style="display: flex; width: 150px; height: 150px; background-size: cover;"></video>
+                                    <?php 
+
+                                        try {
+                                            $datas = json_decode($post->media_url);
+                                        
+                                            foreach ($datas as $data) {
+                                                $image = $data->url;
+                                                break;
+                                            }
+
+                                        } catch (\Exception $e) {
+                                            $image = '';
+                                        }
+                                        
+
+                                   
+                                    ?>
+                                    <video controls src="{{ $image }}" style="display: flex; width: 150px; height: 150px; background-size: cover;"></video>
                                 @elseif($post->media_type == 8 && isset($post->media_type))
                                     @if(isset($post->media_url))
                                     <?php $count = 0; ?>
