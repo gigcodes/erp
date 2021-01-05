@@ -18,19 +18,31 @@
                                 <td>@if($post->media_url && isset($post->media_type))
                                 @if($post->media_type == 1)
                                     <?php 
-                                    //geeting url from json
-                                    try {
-                                        $datas = json_decode($post->media_url);
-                                    
-                                        foreach ($datas as $data) {
-                                            $image = $data->url;
+
+                                    if($post->hasMedia('instagram')){
+                                        foreach ($post->getMedia('instagram') as $media) {
+                                            $image = $media->getUrl();
+
                                             break;
                                         }
-
-                                    } catch (\Exception $e) {
-                                        
-                                        $image = '';
                                     }
+
+                                    if(!isset($image)){
+                                        //geeting url from json
+                                        try {
+                                            $datas = json_decode($post->media_url);
+                                        
+                                            foreach ($datas as $data) {
+                                                $image = $data->url;
+                                                break;
+                                            }
+
+                                        } catch (\Exception $e) {
+                                            
+                                            $image = '';
+                                        }
+                                    }
+                                    
                                     
                                     //dd($image);
 
@@ -42,6 +54,16 @@
                                 @elseif($post->media_type == 2 && isset($post->media_type))
                                     <?php 
 
+                                    if($post->hasMedia('instagram')){
+                                        foreach ($post->getMedia('instagram') as $media) {
+                                            $image = $media->getUrl();
+                                            
+                                            break;
+                                        }
+                                    }
+
+                                    if(!isset($image)){
+                                        //geeting url from json
                                         try {
                                             $datas = json_decode($post->media_url);
                                         
@@ -51,8 +73,10 @@
                                             }
 
                                         } catch (\Exception $e) {
+                                            
                                             $image = '';
                                         }
+                                    }
                                         
 
                                    
@@ -68,12 +92,34 @@
                                             @break;    
                                         @endif
                                         @if(isset($m->media_type))
+                                        <?php 
+
+                                            if($post->hasMedia('instagram')){
+                                                foreach ($post->getMedia('instagram') as $media) {
+                                                    $image = $media->getUrl();
+                                                    
+                                                    break;
+                                                }
+                                            }
+
+                                            if(!isset($image)){
+                                                //geeting url from json
+                                                try {
+                                                    $image = $m->url;
+
+                                                } catch (\Exception $e) {
+                                                    
+                                                    $image = '';
+                                                }
+                                            }
+                                                
+                                            ?>
                                             @if ($m->media_type == 1)
-                                                <div style="display: flex; width: 150px; height: 150px; background: url('{{ $m->url }}'); background-size: cover;">
+                                                <div style="display: flex; width: 150px; height: 150px; background: url('{{ $image }}'); background-size: cover;">
                                                     &nbsp;
                                                 </div>
                                             @elseif($m->media_type == 2)
-                                                <video controls src="{{ $m->url }}" style="display: flex; width: 150px; height: 150px; background-size: cover;"></video>
+                                                <video controls src="{{ $image }}" style="display: flex; width: 150px; height: 150px; background-size: cover;"></video>
 
                                             @endif
                                         @endif
@@ -87,6 +133,14 @@
                                         &nbsp;
                                     </div>
                                 @endif
+                                @if($post->hasMedia('instagram'))
+                                    <br />
+
+                                    <button type="button" class="btn btn-primary open-post-modal" data-post="{{  $post['id'] }}">
+                                        Post to Instagram
+                                      </button>
+                                @endif
+                                
                                 </td>
                                 <td style="word-wrap: break-word;text-align: justify;">
                                     <div class="expand-row" style="width:150px;text-align: justify">

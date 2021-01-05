@@ -109,30 +109,59 @@ class InstagramPostsController extends Controller
                 $image = self::resize_image_crop($mediaFile,640,640);
             }
         }
+
+        if($request->postId){
+            $userPost = InstagramPosts::find($request->postId);
+            foreach($userPost->getMedia('instagram') as $media){
+                $image = self::resize_image_crop($media,640,640);
+                $mediaPost = $media->id;
+                break; 
+            }
+        }
         
+        if(!isset($mediaPost)){
+            $mediaPost = $request->media;
+        }
 
         $post = new Post();
         $post->account_id = $request->account;
         $post->type       = $request->type;
         $post->caption    = $request->caption;
         $ig         = [
-            'media'    => $request->media,
+            'media'    => $mediaPost,
             'location' => '',
         ];
         $post->ig       = json_encode($ig);
         $post->location = $request->location;
         $post->hashtags = $request->hashtags;
         $post->save();
-        return redirect()->route('post.index')
-                ->with('success', __('Your post has been saved'));
+        $newPost = Post::find($post->id);
 
-        /*if (new PublishPost($post)) {
-            return redirect()->route('post.index')
+        $media = json_decode($newPost->ig,true);
+
+        $ig         = [
+            'media'    => $media['media'],
+            'location' => '',
+        ];
+        $newPost->ig = $ig;
+
+        if (new PublishPost($newPost)) {
+            if($request->ajax()){
+                return response()->json('Your post has been published', 200);
+            }else{
+                return redirect()->route('post.index')
                 ->with('success', __('Your post has been published'));
+            }
+
         } else {
-            return redirect()->route('post.index')
+            if($request->ajax()){
+                return response()->json('Post failed to published', 200);
+            }else{
+                return redirect()->route('post.index')
                 ->with('error', __('Post failed to published'));
-        }*/
+            }
+
+        }
 
     }
 
@@ -546,20 +575,11 @@ class InstagramPostsController extends Controller
             $comment_count = $media['comment_count'];
             $likes = $media['like_count'];
             $code = $media['code'];
+            
             if(!$caption) {
                 $caption = '';
             }
-            // $influencer->post_id    = $postId;
-            // $influencer->post_caption    = $caption;
-            // $influencer->instagram_user_id    = $user_id;
-            // $influencer->post_media_type = $mediaType;
-            // $influencer->post_code       = $code;
-            // $influencer->post_location   = '';
-            // $influencer->post_hashtag_id = 0;
-            // $influencer->post_likes = $likes;
-            // $influencer->post_comments_count = $comment_count;
-            // $influencer->post_media_url = json_encode($mediaDetail);
-            // $influencer->posted_at = '';
+
 
             $media             = new InstagramPosts();
             $media->post_id    = $postId;
@@ -576,9 +596,24 @@ class InstagramPostsController extends Controller
             if (!is_array($mediaDetail)) {
                 $mediaDetail = [$mediaDetail];
             }
+            
             $media->media_url = json_encode($mediaDetail);
             $media->posted_at = now();
             $media->save();
+            $mediaId = $media->id;
+
+            foreach ($mediaDetail as $mediaFile) {
+                $file = @file_get_contents($mediaFile['url']);
+                if (!empty($file)) {
+                    $mediaFileUpload = MediaUploader::fromString($file)
+                        ->toDirectory('instagram')
+                        ->useFilename(md5(date("Y-m-d H:i:s")))
+                        ->upload();
+                    $media->attachMedia($mediaFileUpload, 'instagram');
+                    $imagesSave = true;
+                }
+            }
+
             $postData = $media->toArray();
 
 
@@ -595,7 +630,7 @@ class InstagramPostsController extends Controller
                     $commentEntry->user_id = $comment['user']['pk'];
                     $commentEntry->name = $comment['user']['full_name'];
                     $commentEntry->username = $comment['user']['username'];
-                    $commentEntry->instagram_post_id = '';
+                    $commentEntry->instagram_post_id = $mediaId;
                     $commentEntry->comment_id = $comment['pk'];
                     $commentEntry->comment = $comment['text'];
                     $commentEntry->profile_pic_url = $comment['user']['profile_pic_url'];

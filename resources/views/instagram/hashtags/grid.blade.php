@@ -23,7 +23,7 @@
            
            <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">HASH TAG MONITORING AND COMMENTING  - MISC ACCOUNTS : @if(isset($hashtag)) #{{ $hashtag->hashtag }} ({{ count($medias) }} Posts) @if(env('INSTAGRAM_MAIN_ACCOUNT') == true) <spam style="color: red;"> ADMIN ACCOUNT PLEASE COMMENT CAREFULLY</spam> @endif  @endif</h2>
+            <h2 class="page-heading">HASH TAG MONITORING AND COMMENTING  - MISC ACCOUNTS: @if(isset($hashtag)) #{{ $hashtag->hashtag }} ({{ count($medias) }} Posts) @if(env('INSTAGRAM_MAIN_ACCOUNT') == true) <spam style="color: red;"> ADMIN ACCOUNT PLEASE COMMENT CAREFULLY</spam> @endif  @endif</h2>
             <div class="pull-left">
                 <form action="/instagram/hashtag/grid/{{ $hashtag->id }}" method="GET" class="form-inline align-items-start">
                     <div class="form-group mr-3 mb-3">
@@ -127,6 +127,48 @@
         </div>
 
         
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="postModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Post To Instagram</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="recipient-name" class="col-form-label">Select Account:</label>
+                <select class="form-control" id="instagramUser">
+                    <option>Select Account</option>
+                    <?php 
+                    $accounts = \App\Account::where('platform','instagram')->where('status',1)->whereNotNull('last_name')->get();
+                    ?>
+                    @foreach($accounts as $account)
+                        <option value="{{ $account->id }}">{{ $account->last_name}}</option>
+                    @endforeach
+                </select>
+              </div>
+            <div class="form-group">
+                <label for="recipient-name" class="col-form-label">Please Enter Caption:</label>
+                <textarea class="form-control" id="postCaption"></textarea>
+            </div>
+            <input type="hidden" id="post-id">
+            <div class="form-group">
+                <label for="recipient-name" class="col-form-label">Media:</label>
+                <select class="form-control" id="mediaSelect">
+                    <option value="1">1</option>
+                    <option value="2">All</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" onclick="posttoInstagram()">Post to Instagram</button>
+        </div>
+        </div>
     </div>
 @endsection
 
@@ -356,5 +398,44 @@
         return this.value +' '+username;
         });
     }
+
+    function posttoInstagram(){
+        var account = $('#instagramUser').val();
+        var caption = $('#postCaption').val();
+        var postId = $('#post-id').val(); 
+        if(account == 'Select Account'){
+            alert('Please select User');
+        }
+        if(caption === ''){
+            alert('Please enter caption');
+        }
+        $.ajax({
+            url: '{{action('InstagramPostsController@createPost')}}',
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                'type': 'post',
+                caption,
+                account,
+                postId 
+            },beforeSend: function() {
+               $("#postModal").modal('hide');
+               $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                alert(response);
+            }
+        });
+        
+
+        //mediaSelect
+    }
+
+    $('.open-post-modal').on('click', function(){
+        postId = $(this).data("post")
+        $("#postModal").modal('show');
+        $("#post-id").val(postId);
+    });
     </script>
 @endsection
