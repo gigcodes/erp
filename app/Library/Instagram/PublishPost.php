@@ -167,9 +167,9 @@ class PublishPost
 
         // Set caption
         $metadata['caption'] = $post->caption;
-
+        
         // Get media and prepare for publishing
-        $medias = Media::whereIn('id',$post->ig['media'])->get();
+        $medias = Media::where('id',$post->ig['media'])->get();
         
         // Size matters depending on post type
         switch ($post->type) {

@@ -133,6 +133,14 @@
                                         &nbsp;
                                     </div>
                                 @endif
+                                @if($post->hasMedia('instagram'))
+                                    <br />
+
+                                    <button type="button" class="btn btn-primary open-post-modal" data-post="{{  $post['id'] }}">
+                                        Post to Instagram
+                                      </button>
+                                @endif
+                                
                                 </td>
                                 <td style="word-wrap: break-word;text-align: justify;">
                                     <div class="expand-row" style="width:150px;text-align: justify">

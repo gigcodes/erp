@@ -109,30 +109,59 @@ class InstagramPostsController extends Controller
                 $image = self::resize_image_crop($mediaFile,640,640);
             }
         }
+
+        if($request->postId){
+            $userPost = InstagramPosts::find($request->postId);
+            foreach($userPost->getMedia('instagram') as $media){
+                $image = self::resize_image_crop($media,640,640);
+                $mediaPost = $media->id;
+                break; 
+            }
+        }
         
+        if(!isset($mediaPost)){
+            $mediaPost = $request->media;
+        }
 
         $post = new Post();
         $post->account_id = $request->account;
         $post->type       = $request->type;
         $post->caption    = $request->caption;
         $ig         = [
-            'media'    => $request->media,
+            'media'    => $mediaPost,
             'location' => '',
         ];
         $post->ig       = json_encode($ig);
         $post->location = $request->location;
         $post->hashtags = $request->hashtags;
         $post->save();
-        return redirect()->route('post.index')
-                ->with('success', __('Your post has been saved'));
+        $newPost = Post::find($post->id);
 
-        /*if (new PublishPost($post)) {
-            return redirect()->route('post.index')
+        $media = json_decode($newPost->ig,true);
+
+        $ig         = [
+            'media'    => $media['media'],
+            'location' => '',
+        ];
+        $newPost->ig = $ig;
+
+        if (new PublishPost($newPost)) {
+            if($request->ajax()){
+                return response()->json('Your post has been published', 200);
+            }else{
+                return redirect()->route('post.index')
                 ->with('success', __('Your post has been published'));
+            }
+
         } else {
-            return redirect()->route('post.index')
+            if($request->ajax()){
+                return response()->json('Post failed to published', 200);
+            }else{
+                return redirect()->route('post.index')
                 ->with('error', __('Post failed to published'));
-        }*/
+            }
+
+        }
 
     }
 
