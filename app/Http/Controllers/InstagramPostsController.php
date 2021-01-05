@@ -479,7 +479,137 @@ class InstagramPostsController extends Controller
 
     public function userPost($id)
     {
-        dd($id);
+        $user  = InstagramUsersList::find($id);
+
+        $ig = new \InstagramAPI\Instagram();
+
+        try {
+            $ig->login('satyam_t', 'Schoolrocks93');
+        } catch (\Exception $e) {
+            $msg = 'Instagram login failed: '.$e->getMessage();
+            return response()->json(['message' => $msg, 'code' => 413],413);
+        }
+        try {
+            $user_id = $ig->people->getUserIdForName($user->username);
+        } catch (\Exception $e) {
+            $msg = 'Something went wrong: '.$e->getMessage();
+            return response()->json(['message' => $msg, 'code' => 413],413);
+        }
+
+        try {
+            $feed = $ig->timeline->getUserFeed($user_id);
+        } catch (\Exception $e) {
+            $msg = 'Something went wrong: '.$e->getMessage();
+            return response()->json(['message' => $msg, 'code' => 413],413);
+        }
+
+        $medias = $feed->asArray();
+        $medias = $medias['items'];
+        
+        $count = 0;
+        foreach ($medias as $media) {
+            if($count == 200){
+                break;
+            }
+            $postId = $media['id'];
+            $caption = $media['caption']['text'];
+            $user_id = $user_id;
+            $mediaDetail = [];
+            if ($media['media_type'] === 1) {
+                $mediaDetail[] = [
+                    'media_type' => 1,
+                    'url' => $media['image_versions2']['candidates'][1]['url']
+                ];
+            } else if ($media['media_type'] === 2) {
+                $mediaDetail[] = [
+                    'media_type' => 2,
+                    'url' => $media['video_versions'][0]['url']
+                ];
+            } else if ($media['media_type'] === 8) {
+                $crousal = $media['carousel_media'];
+                $mediaDetail = [];
+                foreach ($crousal as $cro) {
+                    if ($cro['media_type'] === 1) {
+                        $mediaDetail[] = [
+                            'media_type' => 1,
+                            'url' => $cro['image_versions2']['candidates'][0]['url']
+                        ];
+                    } else if ($cro['media_type'] === 2) {
+                        $mediaDetail[] = [
+                            'media_type' => 2,
+                            'url' => $cro['video_versions'][0]['url']
+                        ];
+                    }
+                }
+            }
+            $mediaType = $media['media_type'];
+            $comment_count = $media['comment_count'];
+            $likes = $media['like_count'];
+            $code = $media['code'];
+            if(!$caption) {
+                $caption = '';
+            }
+            // $influencer->post_id    = $postId;
+            // $influencer->post_caption    = $caption;
+            // $influencer->instagram_user_id    = $user_id;
+            // $influencer->post_media_type = $mediaType;
+            // $influencer->post_code       = $code;
+            // $influencer->post_location   = '';
+            // $influencer->post_hashtag_id = 0;
+            // $influencer->post_likes = $likes;
+            // $influencer->post_comments_count = $comment_count;
+            // $influencer->post_media_url = json_encode($mediaDetail);
+            // $influencer->posted_at = '';
+
+            $media             = new InstagramPosts();
+            $media->post_id    = $postId;
+            $media->caption    = $caption;
+            $media->user_id    = $user_id;
+            $media->username   = $media['user']['username'];
+            $media->media_type = $mediaType;
+            $media->code       = $code;
+            $media->location   = '';
+            $media->hashtag_id = 0;
+            $media->likes = $likes;
+            $media->comments_count = $comment_count;
+
+            if (!is_array($mediaDetail)) {
+                $mediaDetail = [$mediaDetail];
+            }
+            $media->media_url = json_encode($mediaDetail);
+            $media->posted_at = $media['posted_at'];
+            $media->save();
+            $postData = $media->toArray();
+
+
+            $comments = $ig->media->getComments($postId)->asArray();
+                    
+            if(isset($comments['comments'])){
+                foreach ($comments['comments'] as $comment) {
+                    $commentEntry = InstagramPostsComments::where('comment_id', $comment['pk'])->where('user_id', $comment['user']['pk'])->first();
+
+                    if (!$commentEntry) {
+                        $commentEntry = new InstagramPostsComments();
+                    }
+
+                    $commentEntry->user_id = $comment['user']['pk'];
+                    $commentEntry->name = $comment['user']['full_name'];
+                    $commentEntry->username = $comment['user']['username'];
+                    $commentEntry->instagram_post_id = '';
+                    $commentEntry->comment_id = $comment['pk'];
+                    $commentEntry->comment = $comment['text'];
+                    $commentEntry->profile_pic_url = $comment['user']['profile_pic_url'];
+                    $commentEntry->posted_at = Carbon::createFromTimestamp($comment['created_at'])->toDateTimeString();
+                    $commentEntry->save();
+               
+                }
+            }
+            
+            sleep(5);
+            $count++;
+        }
+        return redirect()->to('/instagram/users/'.$user->user_id);
+        
     }
 
     public function resizeToRatio()

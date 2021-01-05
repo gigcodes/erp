@@ -68,14 +68,8 @@
                                     {{ $user->posts }}
                                 </td>
                                 <td>
-                                    @if($user->is_processed == 0)
-                                        Waiting
-                                    @elseif($user->is_processed == 1)
-                                        In Process
-                                    @else
-                                        Process Completed    
-                                    @endif
-                                    {{ $user->location }}
+                                    <a href="/instagram/users/{{ $user->id }}">Get Posts</a>
+                                    
                                 </td>
                             </tr>
                     @endforeach
