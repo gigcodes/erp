@@ -144,8 +144,8 @@ class InstagramPostsController extends Controller
             'location' => '',
         ];
         $post->ig       = json_encode($ig);
-        $post->location = $location;
-        $post->hashtags = $hashtag;
+        //$post->location = $location;
+        //$post->hashtags = $hashtag;
         $post->save();
         $newPost = Post::find($post->id);
 
