@@ -123,6 +123,18 @@ class InstagramPostsController extends Controller
             $mediaPost = $request->media;
         }
 
+        if(empty($request->location)){
+            $location = 'blank';
+        }else{
+            $location = $request->location;
+        }
+        
+        if(empty($request->hashtags)){
+            $hashtag = 'blank';
+        }else{
+            $hashtag = $request->hashtags;
+        }
+
         $post = new Post();
         $post->account_id = $request->account;
         $post->type       = $request->type;
@@ -132,8 +144,8 @@ class InstagramPostsController extends Controller
             'location' => '',
         ];
         $post->ig       = json_encode($ig);
-        $post->location = $request->location;
-        $post->hashtags = $request->hashtags;
+        $post->location = $location;
+        $post->hashtags = $hashtag;
         $post->save();
         $newPost = Post::find($post->id);
 
