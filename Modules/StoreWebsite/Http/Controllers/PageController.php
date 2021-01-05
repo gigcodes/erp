@@ -176,7 +176,7 @@ class PageController extends Controller
         $page = StoreWebsitePage::where("id", $id)->first();
 
         if ($page) {
-            \App\Jobs\PushPageToMagento::dispatch($page)->onQueue('mageone');
+            \App\Jobs\PushPageToMagento::dispatch($page)->onQueue('magetwo');
             return response()->json(["code" => 200, 'message' => "Website send for push"]);
         }
 
@@ -330,7 +330,7 @@ class PageController extends Controller
 
         if(!$pages->isEmpty()) {
             foreach($pages as $page) {
-                \App\Jobs\PushPageToMagento::dispatch($page)->onQueue('mageone');
+                \App\Jobs\PushPageToMagento::dispatch($page)->onQueue('magetwo');
             }
         }
 
