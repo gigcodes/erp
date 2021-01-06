@@ -61,7 +61,15 @@ class ShipmentController extends Controller
 
         $waybills = $waybills->groupBy("waybills.awb");
 
-        $waybills = $waybills->orderBy('waybills.id', 'desc')->select(["waybills.*","wi.due_date","wi.invoice_currency","wi.invoice_amount","wi.invoice_number"])->with('order', 'order.customer', 'customer', 'waybill_track_histories');
+        $waybills = $waybills->orderBy('waybills.id', 'desc')->select(
+            [
+                "waybills.*",
+                "wi.due_date",
+                "wi.invoice_currency",
+                "wi.invoice_amount",
+                "wi.invoice_number"
+            ]
+        )->with('order', 'order.customer', 'customer', 'waybill_track_histories');
 
         $waybills_array = $waybills->paginate(20);
         $customers      = Customer::all();
@@ -460,4 +468,36 @@ class ShipmentController extends Controller
         return response()->json(["code" => 500, "error" => "Waybill id is wrong"]);
 
     }
+
+
+    public function editShipment(Request $request, $id)
+    {
+        $wayBill = \App\Waybill::Find($id);
+
+        // if way bill found then start to insert data
+        if($wayBill) {
+
+            $view  = (string)view('shipment.partial.edit-modal',compact('wayBill'));
+
+            return response()->json(["code" => 200, "data" => ["html" => $view]]);
+        }
+
+    }
+
+    public function saveShipment(Request $request, $id)
+    {
+        $wayBill = \App\Waybill::Find($id);
+        // if way bill found then start to insert data
+        if($wayBill) {
+            $wayBill->fill($request->all());
+            if($wayBill->save()) {
+                return response()->json(["code" => 200, "data" => "Record stored successfully"]);
+            }
+        }
+
+        return response()->json(["code" => 500, "data" => "Record stored successfully"]);
+
+    }
+
+    
 }

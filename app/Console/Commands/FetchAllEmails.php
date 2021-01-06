@@ -353,12 +353,12 @@ class FetchAllEmails extends Command
 
                             $wayBill->to_customer_name      = $data[50];
                             $wayBill->to_city               = $data[55];
-                            $wayBill->to_country_code       = $data[58];
+                            $wayBill->to_country_code       = $data[57];
                             $wayBill->to_customer_phone     = "";
                             $wayBill->to_customer_address_1 = $data[51];
                             $wayBill->to_customer_address_2 = $data[52];
                             $wayBill->to_customer_pincode   = $data[54];
-                            $wayBill->to_company_name       = $data[58];
+                            $wayBill->to_company_name       = "";
 
                             $wayBill->actual_weight = $data[68];
                             $wayBill->volume_weight = $data[66];
