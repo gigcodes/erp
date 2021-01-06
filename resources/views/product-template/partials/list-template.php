@@ -16,6 +16,7 @@
 		        <th>Font size</th>
 		        <th>Background color</th>
 		        <th>Is Processed</th>
+		        <th>Website</th>
 		        <th>Created at</th>
 		        <th>Action</th>
 		      </tr>
@@ -36,6 +37,7 @@
 			        <td>{{>prop.font_size}}</td>
 			        <td>{{>prop.background_color}}</td>
 			        <td>{{>prop.is_processed}}</td>
+			        <td>{{>prop.website_name}}</td>
 			        <td>{{>prop.created_at}}</td>
 			        <td><button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><img width="15px" src="/images/delete.png"></button></td>
 			      </tr>

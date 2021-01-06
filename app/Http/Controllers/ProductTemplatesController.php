@@ -48,7 +48,7 @@ class ProductTemplatesController extends Controller
     {
         $keyword = request('keyword');
 
-        $records = \App\ProductTemplate::leftJoin('brands as b','b.id','product_templates.brand_id'); 
+        $records = \App\ProductTemplate::leftJoin('brands as b','b.id','product_templates.brand_id')->leftJoin("store_websites as sw","sw.id","product_templates.store_website_id"); 
 
         if(!empty($keyword)) {
             $records = $records->where(function($q) use($keyword) {
@@ -56,7 +56,7 @@ class ProductTemplatesController extends Controller
             });
         }
         $records = $records->orderBy("id", "desc")
-        ->select(["product_templates.*","b.name as brand_name"])
+        ->select(["product_templates.*","b.name as brand_name","sw.title as website_name"])
         ->paginate(Setting::get('pagination')); 
 
         return response()->json([
@@ -79,7 +79,9 @@ class ProductTemplatesController extends Controller
            $params['product_id'] = [];
         }
         $params['product_id'] = implode(',', (array)$params['product_id']);
-        $params['background_color'] = implode(',', (array)$params['background_color']);
+        if(isset($params['background_color']) && is_array($params['background_color'])) {
+            $params['background_color'] = implode(',', (array)$params['background_color']);
+        }
 
         $template->fill($params);
 
@@ -122,7 +124,7 @@ class ProductTemplatesController extends Controller
 
     public function apiIndex(Request $request)
     {
-        $record = \App\ProductTemplate::where('is_processed','0')->orderBy('id','asc')->first();
+        $record = \App\ProductTemplate::latest()->first();
 
 
         if(!$record) {
@@ -179,7 +181,8 @@ class ProductTemplatesController extends Controller
                 "text" => $record->text,
                 "fontStyle" => $record->font_style,
                 "fontSize" => $record->font_size,
-                "backgroundColor" => explode(",", $record->background_color)
+                "backgroundColor" => explode(",", $record->background_color),
+                "logo" => ($record->storeWebsite) ? $record->storeWebsite->icon : ""
             ];
 
             if ($record->hasMedia('template-image')) {
