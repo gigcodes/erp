@@ -118,6 +118,8 @@ var page = {
             common.find(".modal-dialog").html(tplHtml);
             common.find(".cat-selection-dropdown").select2(); 
             common.modal("show");
+
+        $(".select2").select2({tags :true});
     },
 
     editRecord : function(ele) {
