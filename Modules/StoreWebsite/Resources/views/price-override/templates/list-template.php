@@ -7,7 +7,7 @@
 		      	<th>Store Website</th>
 		        <th>Brand Segment</th>
 		        <th>Category</th>
-		        <th>Country Group</th>
+		        <th>Country</th>
 		        <th>Price</th>
 		        <th>Type</th>
 		        <th>Calculated</th>
@@ -21,7 +21,7 @@
 			      	<td>{{:prop.store_website_name}}</td>
 			        <td>{{:prop.brand_segment}}</td>
 			        <td>{{:prop.category_name}}</td>
-			        <td>{{:prop.country_group_name}}</td>
+			        <td>{{:prop.country_name}}</td>
 			        <td>{{:prop.value}}</td>
 			        <td>{{:prop.type}}</td>
 			        <td>{{:prop.calculated}}</td>

@@ -5,7 +5,7 @@
 		   <div class="modal-header">
 		      <h5 class="modal-title">{{if data.id}}Edit Price override{{else}}Create Price override{{/if}}</h5>
 		      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-		      <span aria-hidden="true">&times;</span>
+		      	<span aria-hidden="true">&times;</span>
 		      </button>
 		   </div>
 		   <div class="modal-body">
@@ -23,34 +23,71 @@
 			             ?>
 			         </select>
 		         </div>
-		         <div class="form-group col-md-6">
-		            <label for="brand_segment">Brand Segment</label>
-		            <select name="brand_segment" class="form-control">
-		            	<option value="">-- Select --</option>
-			            <?php
-			            	foreach(\App\Brand::BRAND_SEGMENT as $k => $l) {
-			            		echo "<option {{if data.brand_segment == '$k'}} selected {{/if}}  value='".$k."'>".$l."</option>";
-			            	}
-			             ?>
-			         </select>
-		         </div>
-		         <div class="form-group col-md-6">
-		            <label for="category_id">Category</label>
-		                <?php
-			            	echo $allCategoriesDropdown;
-			             ?>
-			     </div>
-		         <div class="form-group col-md-6">
-		            <label for="country_group_id">Country Group</label>
-		            <select name="country_group_id" class="form-control">
-		            	<option value="">-- N/A --</option>
-			            <?php
-							foreach(\App\CountryGroup::list() as $k => $l) {
-								echo "<option {{if data.country_group_id == '".$k."'}} selected {{/if}} value='".$k."'>".$l."</option>";
-							}
-						?>
-			         </select>
-		         </div>
+		         {{if data && data.id}}
+			         <div class="form-group col-md-6">
+			            <label for="brand_segment">Brand Segment</label>
+			            <select name="brand_segment" class="form-control">
+			            	<option value="">-- Select --</option>
+				            <?php
+				            	foreach(\App\Brand::BRAND_SEGMENT as $k => $l) {
+				            		echo "<option {{if data.brand_segment == '$k'}} selected {{/if}}  value='".$k."'>".$l."</option>";
+				            	}
+				             ?>
+				         </select>
+			         </div>
+		         {{else}}
+		         	<div class="form-group col-md-6">
+			            <label for="brand_segment">Brand Segment</label>
+			            <select name="brand_segments[]" class="form-control select2" multiple="multiple">
+			            	<option value="">-- Select --</option>
+				            <?php
+				            	foreach(\App\Brand::BRAND_SEGMENT as $k => $l) {
+				            		echo "<option {{if data.brand_segment == '$k'}} selected {{/if}}  value='".$k."'>".$l."</option>";
+				            	}
+				             ?>
+				         </select>
+			         </div>
+		         {{/if}}
+		         {{if data && data.id}}
+			         <div class="form-group col-md-6">
+			            <label for="category_ids">Category</label>
+			                <?php
+				            	echo $allCategoriesDropdown;
+				             ?>
+				     </div>
+			     {{else}}
+			     	<div class="form-group col-md-6">
+			            <label for="category_id">Category</label>
+			                <?php
+				            	echo $allMultipleCategoriesDropdown;
+				             ?>
+				     </div>
+			     {{/if}}
+		         {{if data && data.id}}
+			         <div class="form-group col-md-6">
+			            <label for="country_code">Country</label>
+			            <select name="country_code" class="form-control">
+			            	<option value="">-- N/A --</option>
+				            <?php
+								foreach(\App\SimplyDutyCountry::all() as $k => $l) {
+									echo "<option {{if data.country_code == '".$l->country_code."'}} selected {{/if}} value='".$l->country_code."'>".$l->country_name."</option>";
+								}
+							?>
+				         </select>
+			         </div>
+		         {{else}}
+		         	<div class="form-group col-md-6">
+			            <label for="country_code">Country</label>
+			            <select name="country_codes[]" class="form-control select2" multiple="multiple">
+			            	<option value="">-- N/A --</option>
+				            <?php
+								foreach(\App\SimplyDutyCountry::all() as $k => $l) {
+									echo "<option {{if data.country_code == '".$l->country_code."'}} selected {{/if}} value='".$l->country_code."'>".$l->country_name."</option>";
+								}
+							?>
+				         </select>
+			         </div>
+		         {{/if}}
 		         <div class="form-group col-md-6">
 		            <label for="type">Type</label>
 		            <select name="type" class="form-control">
