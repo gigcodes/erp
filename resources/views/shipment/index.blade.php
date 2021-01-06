@@ -63,22 +63,20 @@
       <table class="table table-bordered">
         <thead>
           <tr>
-            <th>AWB number</th>
+            <th>AWB</th>
             <th>Order</th>
             <th>Customer name</th>
             <th>Destination</th>
             <th>Shipped Date</th>
             <th>Current Status</th>
             <th>Weight of Shipment</th>
-            <th>Dimensions</th>
-            <th>Volume Weight</th>
             <th>Cost of Shipment</th>
             <th>Duty Cost</th>
             <th>Invoice Number</th>
             <th>Invoice</th>
             <th>Due Date</th>
             <th>Location</th>
-            <th>Action</th>
+            <th style="width: 120px">Action</th>
           </tr>
         </thead>
 
@@ -92,8 +90,6 @@
                     <td>{{ ($item->created_at) ? date('d-m-Y', strtotime($item->created_at)) : '' }}</td>
                     <td>{{ @$item->order->order_status }}</td>
                     <td>{{ @$item->actual_weight }}</td>
-                    <td>{{ @$item->dimension }}</td>
-                    <td>{{ @$item->volume_weight??'N/A' }}</td>
                     <td>{{ @$item->cost_of_shipment?? 'N/A' }}</td>
                     <td>{{ @$item->duty_cost?? 'N/A' }}</td>
                     <td>{{ @$item->invoice_number?? 'N/A' }}</td>
@@ -111,12 +107,8 @@
                         </a>
                         <a class="btn" href="javascript:void(0);" id="waybill_track_history_btn" title="Way Bill Track History" data-waybill-id="{{ $item->id }}">
                             <i class="fa fa-list" aria-hidden="true"></i>
-
                         </a>
-                        <a class="btn" href="javascript:void(0);" id="waybill_track_history_btn" title="Way Bill Track History" data-waybill-id="{{ $item->id }}">
-                            <i class="fa fa-list" aria-hidden="true"></i>
-                        </a>
-                        <a href="{{ route('order.download.package-slip', $item->id) }}" class="btn-link"><i class="fa fa-download" aria-hidden="true"></i></a>
+                        <a class="btn" href="{{ route('order.download.package-slip', $item->id) }}" class="btn-link"><i class="fa fa-download" aria-hidden="true"></i></a>
                         <button data-editbox='{{ json_encode([
                         "box_length" => $item->box_length,
                         "box_width" => $item->box_width,
@@ -125,6 +117,9 @@
                         "volume_weight" => $item->volume_weight,
                         "id" => $item->id
                         ]) }}' type="button" class="btn btn-image edit-box-shipment edit-box-shipment-{{$item->id}}"><i class="fa fa-th" aria-hidden="true"></i></button>
+                        <a class="btn btn-edit-shipment" href="javascript:void(0);" title="Edit icon" data-waybill-id="{{ $item->id }}">
+                            <i class="fa fa-edit" aria-hidden="true"></i>
+                        </a>
                     </td>
                 </tr>
             @empty
@@ -187,6 +182,24 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="submit" class="btn btn-secondary btn-save-box-size">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="edit-shipment" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Edit Shipement</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-secondary btn-save-shipment">Save</button>
             </div>
         </div>
     </div>
@@ -450,6 +463,36 @@ $(document).on("click",".btn-save-box-size",function(e){
         }
         $("#box-update-partial").modal("hide");
     })
+});
+
+$(document).on("click",".btn-edit-shipment",function(e){
+    e.preventDefault();
+    var id = $(this).data("waybill-id");
+    $.ajax({
+        url: "/shipment/"+id+"/edit",
+        type: "GET"
+    }).done( function(response) {
+         if(response.code == 200) {
+            $("#edit-shipment").find(".modal-body").html(response.data.html);
+            $("#edit-shipment").modal("show");
+         }
+    });
+});
+
+$(document).on("click",".btn-save-shipment",function(e){
+    e.preventDefault();
+    $this = $(this);
+    var form = $("#edit-shipment").find("form");
+    $.ajax({
+        url: form.attr("action"),
+        type: form.attr("method"),
+        data: form.serialize(),
+    }).done( function(response) {
+         if(response.code == 200) {
+            toastr['success']('data updated successfully!');
+            //location.reload();
+         }
+    });
 });
 
 </script>

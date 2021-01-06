@@ -8,7 +8,40 @@ class Waybill extends Model
 {
     protected $table = 'waybills';
 
-    protected $fillable = ['order_id', 'customer_id', 'awb', 'box_length', 'box_width', 'box_height', 'actual_weight', 'volume_weight', 'package_slip', 'pickup_date'];
+    protected $fillable = [
+        'order_id', 
+        'customer_id', 
+        'awb', 
+        'box_length', 
+        'box_width', 
+        'box_height', 
+        'actual_weight', 
+        'volume_weight', 
+        'package_slip', 
+        'pickup_date',
+        'from_customer_id',
+        'from_customer_name',
+        'from_city',
+        'from_country_code',
+        'from_customer_phone',
+        'from_customer_address_1',
+        'from_customer_address_2',
+        'from_customer_pincode',
+        'from_company_name',
+        'to_customer_id',
+        'to_customer_name',
+        'to_city',
+        'to_country_code',
+        'to_customer_phone',
+        'to_customer_address_1',
+        'to_customer_address_2',
+        'to_customer_pincode',
+        'to_company_name',
+        'cost_of_shipment',
+        'duty_cost',
+        'pickuprequest',
+        'customer_id',
+    ];
 
     protected $appends = ['dimension'];
 
