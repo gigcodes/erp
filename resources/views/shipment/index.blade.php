@@ -85,8 +85,8 @@
                 <tr>
                     <td>{{ @$item->awb }}</td>
                     <td>{{ @$item->order->id }}</td>
-                    <td>{{ @$item->order->customer->name ?? @$item->customer->name}}</td>
-                    <td>{{ @$item->order->customer->address ?? @$item->customer->address }}</td>
+                    <td>{{ @$item->to_customer_name}}</td>
+                    <td>{{ @$item->to_customer_address_1 }}</td>
                     <td>{{ ($item->created_at) ? date('d-m-Y', strtotime($item->created_at)) : '' }}</td>
                     <td>{{ @$item->order->order_status }}</td>
                     <td>{{ @$item->actual_weight }}</td>

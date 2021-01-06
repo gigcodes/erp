@@ -38,12 +38,12 @@
                <span class="form-error"></span>
            </div>
            <div class="form-group" id="from_customer_pincode">
-               <strong>from Customer pincode:</strong>
+               <strong>From Customer pincode:</strong>
                <?php echo Form::text("from_customer_pincode",$wayBill->from_customer_pincode,["class" => "form-control"]); ?>
                <span class="form-error"></span>
            </div>
            <div class="form-group" id="from_company_name">
-               <strong>from Customer pincode:</strong>
+               <strong>From Customer pincode:</strong>
                <?php echo Form::text("from_company_name",$wayBill->from_company_name,["class" => "form-control"]); ?>
                <span class="form-error"></span>
            </div>
@@ -82,7 +82,7 @@
            </div>
            <div class="form-group" id="to_customer_pincode">
                <strong>To Customer pincode:</strong>
-               <?php echo Form::text("from_customer_pincode",$wayBill->to_customer_pincode,["class" => "form-control"]); ?>
+               <?php echo Form::text("to_customer_pincode",$wayBill->to_customer_pincode,["class" => "form-control"]); ?>
                <span class="form-error"></span>
            </div>
            <div class="form-group" id="to_company_name">
@@ -127,7 +127,7 @@
              </div>
              <div class="form-group" id="cost_of_shipment">
                  <strong>Cost of shipment:</strong>
-                 <?php echo Form::text("box_height",$wayBill->cost_of_shipment,["class" => "form-control"]); ?>
+                 <?php echo Form::text("cost_of_shipment",$wayBill->cost_of_shipment,["class" => "form-control"]); ?>
                  <span class="form-error"></span>
              </div>
              <div class="form-group" id="duty_cost">
