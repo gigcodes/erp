@@ -17,7 +17,7 @@
     <br>
     <div class="col-lg-12 margin-tb">
         <div class="row">
-            <div class="col col-md-6">
+            <div class="col col-md-4">
                 <div class="row">
                     <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action" data-toggle="modal" data-target="#colorCreateModal">
                         <img src="/images/add.png" style="cursor: default;">
@@ -31,13 +31,19 @@
                 <div class="h" style="margin-bottom:10px;">
                     <div class="row">
                         <form class="form-inline message-search-handler" method="get">
-                            <div class="col">
+                            <div class="col-4">
+                                <div class="form-group">
+                                    <label for="language">Languages:</label>
+                                    <?php echo Form::select("language",$languagesList,request("language"),["class"=> "form-control","placeholder" => "Select Language"]) ?>
+                                </div>
+                            </div>     
+                            <div class="col-4">
                                 <div class="form-group">
                                     <label for="store_website_id">Store Websites:</label>
                                     <?php echo Form::select("store_website_id",$storeWebsites,request("store_website_id"),["class"=> "form-control","placeholder" => "Select Store website"]) ?>
                                 </div>
-                            </div>                                
-                            <div class="col">
+                            </div>
+                            <div class="col-4">
                                 <div class="form-group">
                                     <label for="keyword">Keyword:</label>
                                     <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>

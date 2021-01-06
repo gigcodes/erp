@@ -29,11 +29,14 @@ class PageController extends Controller
 
         $languages = Language::pluck('locale', 'code')->toArray(); //
 
+        $languagesList = Language::pluck('name', 'name')->toArray(); //
+
         return view('storewebsite::page.index', [
             'title'         => $title,
             'storeWebsites' => $storeWebsites,
             'pages'         => $pages,
             'languages'     => $languages,
+            'languagesList' => $languagesList,
         ]);
     }
 
@@ -47,6 +50,10 @@ class PageController extends Controller
                 $q->where("store_website_pages.title", "like", "%" . $request->keyword . "%")
                     ->orWhere("store_website_pages.content", "like", "%" . $request->keyword . "%");
             });
+        }
+
+        if ($request->language != null) {
+            $pages = $pages->where("store_website_pages.language", $request->language);
         }
 
         if ($request->store_website_id != null) {
