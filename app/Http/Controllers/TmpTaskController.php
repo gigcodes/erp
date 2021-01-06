@@ -175,4 +175,36 @@ class TmpTaskController extends Controller
             }
         }
     }
+
+    public function fixBrandPrice()
+    {
+        $brands = \App\Brand::all();
+
+        if(!$brands->isEmpty()) {
+            foreach($brands as $brand) {
+                $isUpdatePrice = false;
+                if(strlen($brand->min_sale_price) > 4) {
+                   $isUpdatePrice = true;
+                   echo "{$brand->name} updated from {$brand->min_sale_price} to ".substr($brand->min_sale_price, 0,4);
+                   echo "</br>";
+                   $brand->min_sale_price = substr($brand->min_sale_price, 0,4);
+                }
+
+                if(strlen($brand->max_sale_price) > 4) {
+                   $isUpdatePrice = true;
+                   echo "{$brand->name} updated from {$brand->max_sale_price} to ".substr($brand->max_sale_price, 0,4);
+                   echo "</br>";
+                   $brand->max_sale_price = substr($brand->max_sale_price, 0,4);
+                }
+
+                if($isUpdatePrice) {
+                    $brand->save();
+                }
+            }
+        }
+
+        echo "Done";
+        die;
+    }
+
 }
