@@ -104,6 +104,18 @@
                    <?php echo Form::text("discounted_price",(float)0.00,["class" => "form-control"]); ?>
                 </div>
              </div>
+             <div class="form-group row">
+                <label for="discounted_price" class="col-sm-3 col-form-label">Discounted Price</label>
+                <div class="col-sm-6">
+                   <?php echo Form::text("discounted_price",(float)0.00,["class" => "form-control"]); ?>
+                </div>
+             </div>
+             <div class="form-group row">
+                <label for="store_website_id" class="col-sm-3 col-form-label">Store Website</label>
+                <div class="col-sm-6">
+                   <?php echo Form::select("store_website_id",\App\StoreWebsite::pluck('title','id')->toArraY(),null,["class" => "form-control"]); ?>
+                </div>
+             </div>
              <div class="form-group row show-product-image"> </div>
              <div class="form-group row">
               <div class="col-sm-3 imgUp">

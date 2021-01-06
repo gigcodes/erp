@@ -40,7 +40,7 @@
 					<td>{{if prop.is_published == 1}}Yes{{else}}No{{/if}}</td>
 					<td>{{if prop.push_web_key !=null}} {{:prop.push_web_key.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
 					<td>{{if prop.push_web_id !=null}} {{:prop.push_web_id.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
-					<td>{{if prop.icon !=null}} {{:prop.icon}} {{else}} {{/if}} </td>
+					<td>{{if prop.icon !=null}} <img width="25px" height="25px" alt="" src="{{:prop.icon}}""> {{else}} {{/if}} </td>
 			        <td>{{:prop.created_at}}</td>
 			        <td>
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template">
