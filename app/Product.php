@@ -901,29 +901,22 @@ class Product extends Model
            $category = $this->category;
            $country  = $countryId;
 
-           if($countryGroup == null) {
-               $listOfGroups = \App\CountryGroup::join("country_group_items as cgi","cgi.country_group_id","country_groups.id")->where("cgi.country_code",$country)->first();
-               if($listOfGroups) {
-                  $countryGroup = $listOfGroups->country_group_id;
-               }
-           }
-
            $priceModal = \App\PriceOverride::where("store_website_id",$website->id);
            $priceCModal = clone $priceModal;
 
-           if(!empty($brand) && !empty($category) && !empty($countryGroup))  {
-              $priceRecords = $priceModal->where("country_group_id",$countryGroup)->where("brand_segment",$brand)->where("category_id",$category)->first();
+           if(!empty($brand) && !empty($category) && !empty($country))  {
+              $priceRecords = $priceModal->where("country_code",$country)->where("brand_segment",$brand)->where("category_id",$category)->first();
            }
 
            if(!$priceRecords) {
               $priceModal = $priceCModal;
-              $priceRecords = $priceModal->where(function($q) use($brand, $category, $countryGroup) {
+              $priceRecords = $priceModal->where(function($q) use($brand, $category, $country) {
                 $q->orWhere(function($q) use($brand, $category) {
                     $q->where("brand_segment", $brand)->where("category_id",$category);
-                })->orWhere(function($q) use($brand, $countryGroup) {
-                    $q->where("brand_segment", $brand)->where("country_group_id",$countryGroup);
-                })->orWhere(function($q) use($countryGroup, $category) {
-                    $q->where("country_group_id", $countryGroup)->where("category_id",$category);
+                })->orWhere(function($q) use($brand, $country) {
+                    $q->where("brand_segment", $brand)->where("country_code",$country);
+                })->orWhere(function($q) use($country, $category) {
+                    $q->where("country_code", $country)->where("category_id",$category);
                 });
               })->first();
            }
@@ -940,7 +933,7 @@ class Product extends Model
 
            if(!$priceRecords) {
               $priceModal = $priceCModal;
-              $priceRecords = $priceModal->where("country_group_id",$countryGroup)->first();
+              $priceRecords = $priceModal->where("country_code",$country)->first();
            }
 
            if($priceRecords) {
