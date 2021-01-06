@@ -490,7 +490,10 @@ $(document).on("click",".btn-save-shipment",function(e){
     }).done( function(response) {
          if(response.code == 200) {
             toastr['success']('data updated successfully!');
-            //location.reload();
+            location.reload();
+         }else{
+            toastr['error']('Request Failed!');
+            console.log("Response",response);
          }
     });
 });
