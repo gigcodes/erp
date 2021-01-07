@@ -291,5 +291,20 @@ class InfluencersController extends Controller
        
     }
 
+    public function sortData()
+    {
+        try {
+           
+           \Artisan::call('influencer:description'); 
+
+            return response()->json('Console Commnad Ran',200);   
+        
+        } catch (\Exception $e) {
+            
+            return response()->json('Cannot call artisan command',200); 
+        } 
+        
+    }
+
 
 }

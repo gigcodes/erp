@@ -74,6 +74,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/', 'BrandController@list')->name("store-website.brand.list");
         Route::get('records', 'BrandController@records')->name("store-website.brand.records");
         Route::post('push-to-store', 'BrandController@pushToStore')->name("store-website.brand.push-to-store");
+        Route::post('refresh-min-max-price', 'BrandController@refreshMinMaxPrice')->name("store-website.refresh-min-max-price");
     });
 
     Route::prefix('price-override')->group(function () {

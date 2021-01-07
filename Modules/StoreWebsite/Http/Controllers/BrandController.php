@@ -142,4 +142,24 @@ class BrandController extends Controller
 
     }
 
+    /**
+     * run artisan command
+     *
+     */
+
+    public function refreshMinMaxPrice()
+    {
+        try {
+           
+           \Artisan::call('brand:maxminprice'); 
+
+            return response()->json('Console Commnad Ran',200);   
+        
+        } catch (\Exception $e) {
+            
+            return response()->json('Cannot call artisan command',200); 
+        } 
+
+    }
+
 }
