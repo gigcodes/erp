@@ -1629,6 +1629,8 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('influencer-keyword-log', 'InfluencersController@getLogFile')->name('influencers.log');
     Route::post('influencer-restart-script', 'InfluencersController@restartScript')->name('influencers.restart');
     Route::post('influencer-stop-script', 'InfluencersController@stopScript')->name('influencers.stop');
+
+    Route::post('influencer-sort-data', 'InfluencersController@sortData')->name('influencers.sort');
     Route::resource('automated-reply', 'InstagramAutomatedMessagesController');
     Route::get('/', 'InstagramController@index');
     Route::get('comments/processed', 'HashtagController@showProcessedComments');
@@ -2472,6 +2474,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('missing-brands/store', 'MissingBrandController@store')->name('missing-brands.store');
     Route::post('missing-brands/reference', 'MissingBrandController@reference')->name('missing-brands.reference');
     Route::post('missing-brands/multi-reference', 'MissingBrandController@multiReference')->name('missing-brands.multi-reference');
+    Route::post('missing-brands/automatic-merge', 'MissingBrandController@automaticMerge')->name('missing-brands.automatic-merge');
+
+    
 });
 Route::post('message-queue/approve/approved', '\Modules\MessageQueue\Http\Controllers\MessageQueueController@approved');
 

@@ -27,6 +27,9 @@
 		    <div class="col">
 		    	<div class="h" style="margin-bottom:10px;">
 					<div class="row">
+						<div class="form-group">
+					  				<button class="btn btn-secondary" onclick="refresh()">Refresh</button>
+					  			</div>
 		    			<form class="form-inline message-search-handler" method="get">
 					  		<div class="col">
 					  			<div class="form-group">
@@ -98,6 +101,22 @@
 		bodyView : $("#common-page-layout"),
 		baseUrl : "<?php echo url("/"); ?>"
 	});
+
+	function refresh() {
+		$.ajax({
+            url: '{{ route('store-website.refresh-min-max-price')}}',
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+            },beforeSend: function() {
+              
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                alert(response);
+            }
+        });
+	}
 </script>
 
 @endsection

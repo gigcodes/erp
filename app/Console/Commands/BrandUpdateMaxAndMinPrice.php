@@ -42,10 +42,13 @@ class BrandUpdateMaxAndMinPrice extends Command
         foreach ($brands as $brand) {
             $min = $brand->products->where('price','>=',0)->min('price');
             $max = $brand->products->where('price','>=',0)->max('price');
-            //getting brand price from products 
-            $brand->min_sale_price = $min;
-            $brand->max_sale_price = $max;
-            $brand->update();
+            //getting brand price from products
+            if(!empty($min) && !empty($max)){
+                $brand->min_sale_price = $min;
+                $brand->max_sale_price = $max;
+                $brand->update();
+            } 
+
         }
     }
 }

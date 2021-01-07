@@ -36,6 +36,7 @@
                     </div>
             </div>
             <div class="pull-right">
+                <button class="btn btn-secondary" onclick="automaticMerge()">Automatic Merge</button>
                 <a href="javascript:;" class="create-multi-reference">Reference</a>
             </div>
         </div>
@@ -240,6 +241,25 @@
             alert('No response from server');
         });
     });
+
+    function automaticMerge() {
+        $.ajax({
+            type: 'POST',
+            url: "/missing-brands/automatic-merge",
+            data: {
+                _token : "{{ csrf_token() }}"
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done(function(data) {
+            $("#loading-image").hide();
+            toastr["success"](data);
+            //location.reload();
+        }).fail(function(data) {
+            toastr["error"](data);
+        });
+    }
 
 </script>
 
