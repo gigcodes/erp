@@ -315,10 +315,23 @@ class CreateShipmentRequest extends APIAbstract
                                 $xml->writeElement('PaperlessTradeEnabled', $this->paperLess);
                                 if($this->paperLess == true) {
                                     $xml->startElement('SpecialServices');
+                                        if($this->paymentInfo == "DDP") {
+                                            $xml->startElement('Service');
+                                                $xml->writeElement('ServiceType', "DD");
+                                            $xml->endElement();
+                                        }
                                         $xml->startElement('Service');
                                             $xml->writeElement('ServiceType', "WY");
                                         $xml->endElement();
                                     $xml->endElement();
+                                }else{
+                                    if($this->paymentInfo == "DDP") {
+                                        $xml->startElement('SpecialServices');
+                                            $xml->startElement('Service');
+                                                $xml->writeElement('ServiceType', "DD");
+                                            $xml->endElement();
+                                        $xml->endElement();
+                                    }
                                 }
                                 $xml->startElement('LabelOptions');
                                     $xml->writeElement('RequestDHLCustomsInvoice', "Y");
