@@ -13,20 +13,24 @@ class ProductPushErrorLog extends Model
         'request_data',
         'response_data',
         'response_status',
-        'store_website_id'
+        'store_website_id',
+        'url',
     ];
 
-    public static function log($url = null, $productId, $message, $status = null, $storeWebsiteId = null, $request_data = null, $response_data = null)
+    public static function log($url = null, $productId, $message, $status = null, $storeWebsiteId = null, $request_data = null, $response_data = null, $logId = null)
     {
         // Write to database
-        $logListMagento = new ProductPushErrorLog();
-        $logListMagento->url = $url;
-        $logListMagento->product_id = $productId;
-        $logListMagento->message = $message;
+        $logListMagento                   = new ProductPushErrorLog();
+        $logListMagento->url              = $url;
+        $logListMagento->product_id       = $productId;
+        $logListMagento->message          = $message;
         $logListMagento->store_website_id = $storeWebsiteId;
-        $logListMagento->response_status = $status;
-        $logListMagento->request_data = json_encode($request_data);
-        $logListMagento->response_data = json_encode($response_data);
+        $logListMagento->response_status  = $status;
+        $logListMagento->request_data     = json_encode($request_data);
+        $logListMagento->response_data    = json_encode($response_data);
+        if ($logId) {
+            $logListMagento->log_list_magento_id = $logId;
+        }
         $logListMagento->save();
         return;
     }

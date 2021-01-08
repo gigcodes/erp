@@ -125,7 +125,7 @@
                             <td> {{$item->sync_status}} </td>
                             <td>
                                 <button data-toggle="modal" data-target="#update_modal" class="btn btn-xs btn-secondary update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
-                                <button class="btn btn-xs btn-secondary show_error_logs" data-id="{{ $item->product_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-eye"></i></button>
+                                <button class="btn btn-xs btn-secondary show_error_logs" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-eye"></i></button>
                             </td>
                         </tr>
                         @endforeach()
@@ -293,18 +293,17 @@
 <script type="text/javascript">
 
 $(document).on("click", ".show_error_logs", function() {
-        var product_id = $(this).data('id');
+        var id = $(this).data('id');
         var store_website_id = $(this).data('website');
         $.ajax({
                 method: "GET",
-                url: "/logging/show-error-logs/" + product_id+'/'+store_website_id,
+                url: "/logging/show-error-log-by-id/" + id,
                 data: {
                     "_token": "{{ csrf_token() }}"
                 },
                 dataType: 'html'
             })
             .done(function(result) {
-                console.log(result);
                 $('#ErrorLogModal').modal('show');
                 $('.error-log-data').html(result);
             });

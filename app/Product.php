@@ -892,7 +892,7 @@ class Product extends Model
     **/
     public function getPrice($websiteId,$countryId = null, $countryGroup = null)
     {
-        $website        = \App\StoreWebsite::find($websiteId);
+        $website        = is_object($websiteId) ? $websiteId : \App\StoreWebsite::find($websiteId);
         $priceRecords   = null;
 
         if($website) {
