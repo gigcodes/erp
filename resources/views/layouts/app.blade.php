@@ -1909,7 +1909,6 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                            </span>
                         </a>
                     </li>
-                   
                     <li>
                         <a class="create-zoom-meeting quick-icon" data-toggle="modal" data-target="#quick-zoomModal">
                             <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>
@@ -1918,6 +1917,18 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                     <li>
                         <a class="create-easy-task quick-icon" data-toggle="modal" data-target="#quick-create-task">
                             <span><i class="fa fa-tasks fa-2x" aria-hidden="true"></i></span>
+                        </a>
+                    </li>
+                    @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+                        <li>
+                            <a title="Manual Payment" class="manual-payment-btn quick-icon">
+                                <span><i class="fa fa-money fa-2x" aria-hidden="true"></i></span>
+                            </a>
+                        </li>
+                    @endif
+                    <li>
+                        <a title="Manual Request" class="manual-request-btn quick-icon">
+                            <span><i class="fa fa-credit-card-alt fa-2x" aria-hidden="true"></i></span>
                         </a>
                     </li>
                 </ul>
@@ -2103,6 +2114,15 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="create-manual-payment" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content" id="create-manual-payment-content">
+              
             </div>
         </div>
     </div>
@@ -2686,6 +2706,60 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
             $('#prod_small_string_'+id).hide();
             $('#prod_long_string_'+id).css({'display':'block'});
         });
+
+        $(document).on('click', '.manual-payment-btn', function(e) {
+          e.preventDefault();
+          var thiss = $(this);
+          var type = 'GET';
+            $.ajax({
+              url: '/voucher/manual-payment',
+              type: type,
+              beforeSend: function() {
+                $("#loading-image").show();
+              }
+            }).done( function(response) {
+              $("#loading-image").hide();
+              $('#create-manual-payment').modal('show');
+              $('#create-manual-payment-content').html(response);
+
+              $('#date_of_payment').datetimepicker({
+                format: 'YYYY-MM-DD'
+              });
+              $('.select-multiple').select2({width: '100%'});
+
+              $(".currency-select2").select2({width: '100%',tags:true});
+              $(".payment-method-select2").select2({width: '100%',tags:true});
+
+            }).fail(function(errObj) {
+              $("#loading-image").hide();
+            });
+        });
+
+        $(document).on('click', '.manual-request-btn', function(e) {
+          e.preventDefault();
+          var thiss = $(this);
+          var type = 'GET';
+            $.ajax({
+              url: '/voucher/payment/request',
+              type: type,
+              beforeSend: function() {
+                $("#loading-image").show();
+              }
+            }).done( function(response) {
+              $("#loading-image").hide();
+              $('#create-manual-payment').modal('show');
+              $('#create-manual-payment-content').html(response);
+
+              $('#date_of_payment').datetimepicker({
+                format: 'YYYY-MM-DD'
+              });
+              $('.select-multiple').select2({width: '100%'});
+
+            }).fail(function(errObj) {
+              $("#loading-image").hide();
+            });
+        });
+
 
     </script>
     @if ($message = Session::get('actSuccess'))
