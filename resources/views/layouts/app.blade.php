@@ -1389,6 +1389,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                         <a class="dropdown-item" href="{{ route('store-website.page.index') }}">Website Page</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.page.histories') }}">Website Page History</a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.product-attribute.index') }}">Product Attribute</a>
                                     </li>
                                 </ul>
