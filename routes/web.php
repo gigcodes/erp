@@ -2322,6 +2322,14 @@ Route::prefix('listing-history')->middleware('auth')->group(function () {
     Route::get('/records', 'ListingHistoryController@records');
 });
 
+
+Route::prefix('ads')->middleware('auth')->group(function () {
+    Route::get('/', 'AdsController@index')->name('ads.index');
+    Route::get('/records', 'AdsController@records')->name('ads.records');
+});
+
+
+
 Route::prefix( 'google-campaigns')->middleware('auth')->group(function () {
     Route::get('/', 'GoogleCampaignsController@index')->name('googlecampaigns.index');
     Route::get('/create', 'GoogleCampaignsController@createPage')->name('googlecampaigns.createPage');
