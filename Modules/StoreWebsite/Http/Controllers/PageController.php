@@ -128,13 +128,6 @@ class PageController extends Controller
 
         $records->fill($post);
 
-        // upload page here
-        $history = \App\StoreWebsitePageHistory::create([
-            "content"               => $records->content,
-            "store_website_page_id" => $records->id,
-            "updated_by"            => \Auth::user()->id,
-        ]);
-
         // if records has been save then call a request to push
         if ($records->save()) {
 
@@ -343,6 +336,33 @@ class PageController extends Controller
 
         return response()->json(["code" => 500, "data" => [], "message" => "Page does not exist"]);
 
+    }
+
+    public function histories(Request $request)
+    {
+        $title = "Page History";
+
+        $storeWebsites = \App\StoreWebsite::pluck("title", "id")->toArray();    
+
+        $records = StoreWebsitePage::join("store_website_page_histories as swh","swh.store_website_page_id","store_website_pages.id")
+        ->join("store_websites as sw","sw.id","store_website_pages.store_website_id")
+        ->select(["swh.*","sw.id as store_website_id","sw.title as store_website_name","store_website_pages.url_key"])
+        ->orderBy("swh.id","desc");
+
+        if($request->store_website_id != null) {
+            $records =  $records->where("store_website_id",$request->store_website_id);
+        }
+
+        if($request->keyword != null) {
+            $records =  $records->where(function($q) use($request) {
+                return $q->where("store_website_pages.url_key","like","%".$request->keyword."%");
+            });
+        }
+
+
+        $records =  $records->paginate();
+
+        return view("storewebsite::page.histories",compact('records','title','storeWebsites'));
     }
 
 }

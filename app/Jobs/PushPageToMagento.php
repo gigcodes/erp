@@ -73,11 +73,11 @@ class PushPageToMagento implements ShouldQueue
                     "content"          => $page->content,
                     "active"           => $page->active,
                     "platform_id"      => $page->platform_id,
+                    "page_id"          => $page->id,
                 ];
 
-
+                $stores = ["jr_er"];
                 
-
                 if (!empty($stores)) {
                     foreach ($stores as $s) {
                         $params['page']['store'] = $s;

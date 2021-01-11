@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class StoreWebsitePageHistory extends Model
 {
     protected $fillable = [
-        'content', 'store_website_page_id', 'updated_by', 'created_at', 'updated_at',
+        'content','url','content','result','result_type', 'store_website_page_id', 'updated_by', 'created_at', 'updated_at',
     ];
 
     public function user()
