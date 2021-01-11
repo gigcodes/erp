@@ -15,9 +15,9 @@ class AlterTableStoreWebsitePageHistoryResponseUrl extends Migration
     {
         //
         Schema::table("store_website_page_histories",function(Blueprint $table) {
-            $table->string("url")->after("content")->index(); 
-            $table->text("result")->after("url"); 
-            $table->string("result_type")->after("result")->index(); 
+            $table->string("url")->nullable()->after("content")->index(); 
+            $table->text("result")->nullable()->after("url"); 
+            $table->string("result_type")->nullable()->after("result")->index(); 
         });
     }
 
