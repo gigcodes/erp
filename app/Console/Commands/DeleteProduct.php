@@ -44,7 +44,7 @@ class DeleteProduct extends Command
         $ids      = $this->ask('Enter Ids');
         $limit    = $this->ask('Enter limit');
 
-        if(!empty($deleteby) && ($deleteby == "supplier" || $deleteby == "product")) {
+        if(!empty($deleteby) && ($deleteby == "supplier" || $deleteby == "product"  || $deleteby == "soldout")) {
             if($deleteby == "supplier") {
                 $supplierProduct = \App\ProductSupplier::whereIn("supplier_id",explode(",",$ids))->limit($limit)->get();
                 if(!$supplierProduct->isEmpty()) {
@@ -57,6 +57,13 @@ class DeleteProduct extends Command
                 }
             }else if($deleteby == "product"){
                 $products = \App\Product::whereIn("id",explode(",",$ids))->limit($limit)->get();
+                if(!$products->isEmpty()) {
+                    foreach($products as $p) {
+                        $this->deleteProduct($p);
+                    }
+                }
+            }else if($deleteby == "soldout"){
+                $products = \App\Product::where("stock","<=" ,0)->where("supplier","!=", "in-stock")->limit($limit)->get();
                 if(!$products->isEmpty()) {
                     foreach($products as $p) {
                         $this->deleteProduct($p);
