@@ -63,7 +63,6 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             </form>
         </div>
     </div>
-<?php } ?>
 <br>
 <?php 
     $bList = \App\Brand::pluck('name','id')->toArray();
