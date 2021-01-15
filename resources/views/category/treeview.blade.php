@@ -71,6 +71,10 @@
                             <span class="text-danger">{{ $errors->first('show_all_id') }}</span>
                         </div>
 
+                        <div class="form-group">
+                            {!! Form::label('Category Segment:') !!}
+                            {!! Form::select('category_segment_id', $category_segments, old('category_segment_id'), ['class'=>'form-control', 'placeholder'=>'Select Category Segment']) !!}
+                        </div>
 
                         <div class="form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
                             {!! Form::label('Category:') !!}

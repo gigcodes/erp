@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Category;
-use App\BrandCategoryPriceRange;
+use App\CategorySegment;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\Paginator;
+use App\BrandCategoryPriceRange;
 use Illuminate\Support\Collection;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class CategoryController extends Controller
@@ -26,6 +27,7 @@ class CategoryController extends Controller
      */
     public function manageCategory( Request $request )
     {
+        $category_segments = CategorySegment::where('status', 1)->get()->pluck( 'name', 'id' );
         $categories = Category::where( 'parent_id', '=', 0 )->get();
         $allCategories = Category::pluck( 'title', 'id' )->all();
 
@@ -40,7 +42,7 @@ class CategoryController extends Controller
             ->selected( $old ? $old : 1 )
             ->renderAsDropdown();
 
-        return view( 'category.treeview', compact( 'categories', 'allCategories', 'allCategoriesDropdown', 'allCategoriesDropdownEdit' ) );
+        return view( 'category.treeview', compact( 'category_segments', 'categories', 'allCategories', 'allCategoriesDropdown', 'allCategoriesDropdownEdit' ) );
     }
 
     /**
@@ -70,6 +72,8 @@ class CategoryController extends Controller
         $data[ 'title' ] = $category->title;
         $data[ 'magento_id' ] = $category->magento_id;
         $data[ 'show_all_id' ] = $category->show_all_id;
+        $data[ 'category_segment_id' ] = $category->category_segment_id;
+        $data[ 'category_segments' ] = CategorySegment::where('status', 1)->get()->pluck( 'name', 'id' );
 
         if ( $request->method() === 'POST' ) {
             $this->validate( $request, [
@@ -81,6 +85,9 @@ class CategoryController extends Controller
             $category->title = $request->input( 'title' );
             $category->magento_id = $request->input( 'magento_id' );
             $category->show_all_id = $request->input( 'show_all_id' );
+            if($request->has('category_segment_id')) {
+                $category->category_segment_id = $request->category_segment_id;
+            }
             $category->save();
 
             return redirect()->route( 'category' )

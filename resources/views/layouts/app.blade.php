@@ -1698,8 +1698,11 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                         </li>
 
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('category')}}">Category</a>
+                                            <a class="dropdown-item" href="{{route('category-segment.index')}}">Category Segment</a>
+                                        </li>
 
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('category')}}">Category</a>
                                         </li>
 
                                         <li class="nav-item dropdown">
