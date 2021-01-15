@@ -287,6 +287,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('brand/create/size/chart', 'BrandSizeChartController@createSizeChart')->name('brand/create/size/chart');
     Route::post('brand/store/size/chart', 'BrandSizeChartController@storeSizeChart')->name('brand/store/size/chart');
 
+    Route::post('brand/store-category-segment-discount', 'BrandController@storeCategorySegmentDiscount')->name('brand.store_category_segment_discount');
     Route::post('brand/attach-website', 'BrandController@attachWebsite');
     Route::post('brand/change-segment', 'BrandController@changeSegment');
     Route::post('brand/update-reference', 'BrandController@updateReference');
@@ -346,6 +347,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('sizes/update-sizes', 'SizeController@updateSizes');
 
     Route::resource('category', 'CategoryController');
+    Route::resource('category-segment', 'CategorySegmentController');
 
     Route::resource('resourceimg', 'ResourceImgController');
     Route::get('resourceimg/pending/1', 'ResourceImgController@pending');

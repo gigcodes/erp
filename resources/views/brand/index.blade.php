@@ -63,31 +63,6 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             </form>
         </div>
     </div>
-</div>
-<br>
-<?php if (!empty($attachedBrands)) { ?>
-    <div class="collapse" id="inProgressFilterCount">
-        <div class="row mt-3">
-            <div class="col-md-12">
-                <div class="card card-body">
-                    <div class="row col-md-12">
-                        <?php foreach ($attachedBrands as $key => $value) { ?>
-                            <div class="col-md-4">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <?php echo isset($storeWebsite[$value['store_website_id']]) ? $storeWebsite[$value['store_website_id']] : "N/A"; ?>
-                                    </div>
-                                    <div class="card-body">
-                                        <?php echo $value['total_brand']; ?> Brands
-                                    </div>
-                                </div>
-                            </div>
-                        <?php } ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 <?php } ?>
 <br>
 <?php 
@@ -105,7 +80,9 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 <th>Magento ID</th>
                 <th>Euro to Inr</th>
                 <th>Deduction%</th>
-                <th>Segment</th>
+                @foreach($category_segments as $category_segment)
+                    <th>{{ $category_segment->name }}</th>
+                @endforeach
                 <th>Selling on</th>
                 <th>Action</th>
             </tr>
@@ -128,17 +105,19 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 <td class="remote-td">{{ $brand->magento_id}}</td>
                 <td>{{ $brand->euro_to_inr }}</td>
                 <td>{{ $brand->deduction_percentage }}</td>
-                <td>
-                    <div class="form-select">
-                        <?php
-                        echo Form::select(
-                            "brand_segment",
-                            ["" => "-- Select segment --"] + \App\Brand::BRAND_SEGMENT,
-                            $brand->brand_segment,
-                            ["class" => "form-control change-brand-segment", "data-brand-id" => $brand->id]
-                        ); ?>
-                    </div>
-                </td>
+                @foreach($category_segments as $category_segment)
+                    <td>
+                        @php
+                            $category_segment_discount = \DB::table('category_segment_discounts')->where('brand_id', $brand->id)->where('category_segment_id', $category_segment->id)->first();
+                        @endphp
+
+                        @if($category_segment_discount)
+                            <input type="text" class="form-control" value="{{ $category_segment_discount->amount }}" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
+                        @else
+                            <input type="text" class="form-control" value="" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
+                        @endif
+                    </td>
+                @endforeach
                 <td>
                     <div class="form-select">
                         <?php
@@ -168,6 +147,19 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 <script type="text/javascript">
+    function store_amount(brand_id, category_segment_id) {
+        var amount = $(this.event.target).val();
+        $.ajax({
+            url: '{{ route('brand.store_category_segment_discount') }}',
+            method: 'POST',
+            data: {
+                _token: "{{ csrf_token() }}",
+                'brand_id': brand_id,
+                'category_segment_id': category_segment_id,
+                'amount': amount
+            }
+        });
+    }
     $(".select-multiple").select2();
     $(".select-multiple4").select2({
         tags: true
