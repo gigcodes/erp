@@ -12,7 +12,7 @@
 
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
+        <h2 class="page-heading">{{ $title }} ({{ $brands->count() }})<span class="count-text"></span></h2>
     </div>
     <br>
     <div class="col-lg-12 margin-tb">
@@ -66,7 +66,7 @@
 				    	<?php foreach($brands as $brand) { ?>
  					      <tr>
 					      	<td><?php echo $brand->id; ?></td>
-					      	<td><?php echo $brand->name; ?></td>
+					      	<td><a target="_blank" href="{{ route('product-inventory.new') }}?brand[]={{ $brand->id }}">{{ $brand->name }}  ( @php $product_count = $product_counts->where('brand', $brand->id)->first(); @endphp {{ $product_count ? $product_count->counts : 0 }} )</a></td>
 					      	<td><?php echo $brand->min_sale_price; ?></td>
 					      	<td><?php echo $brand->max_sale_price; ?></td>
 					      	<?php foreach($storeWebsite as $sw) { 
