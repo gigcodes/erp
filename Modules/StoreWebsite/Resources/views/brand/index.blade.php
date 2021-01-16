@@ -36,6 +36,10 @@
 								    <label for="keyword">Keyword:</label>
 								    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
 							  	</div>
+								<div class="form-group">
+									<label for="no-inventory">No Inventory</label>
+									<input type="checkbox" name="no-inventory" value="1" {{ request()->has('no-inventory') ? 'checked' : '' }} />
+								</div>
 							  	<div class="form-group">
 							  		<label for="button">&nbsp;</label>
 							  		<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
@@ -66,7 +70,7 @@
 				    	<?php foreach($brands as $brand) { ?>
  					      <tr>
 					      	<td><?php echo $brand->id; ?></td>
-					      	<td><a target="_blank" href="{{ route('product-inventory.new') }}?brand[]={{ $brand->id }}">{{ $brand->name }}  ( @php $product_count = $product_counts->where('brand', $brand->id)->first(); @endphp {{ $product_count ? $product_count->counts : 0 }} )</a></td>
+					      	<td><a target="_blank" href="{{ route('product-inventory.new') }}?brand[]={{ $brand->id }}">{{ $brand->name }}  ( {{ $brand->counts }} )</a></td>
 					      	<td><?php echo $brand->min_sale_price; ?></td>
 					      	<td><?php echo $brand->max_sale_price; ?></td>
 					      	<?php foreach($storeWebsite as $sw) { 

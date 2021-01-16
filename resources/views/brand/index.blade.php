@@ -79,6 +79,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 <th>Magento ID</th>
                 <th>Euro to Inr</th>
                 <th>Deduction%</th>
+                <th>Segment</th>
                 @foreach($category_segments as $category_segment)
                     <th>{{ $category_segment->name }}</th>
                 @endforeach
@@ -104,6 +105,17 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 <td class="remote-td">{{ $brand->magento_id}}</td>
                 <td>{{ $brand->euro_to_inr }}</td>
                 <td>{{ $brand->deduction_percentage }}</td>
+                <td>
+                    <div class="form-select">
+                        <?php
+                        echo Form::select(
+                            "brand_segment",
+                            ["" => "-- Select segment --"] + \App\Brand::BRAND_SEGMENT,
+                            $brand->brand_segment,
+                            ["class" => "form-control change-brand-segment", "data-brand-id" => $brand->id]
+                        ); ?>
+                    </div>
+                </td>
                 @foreach($category_segments as $category_segment)
                     <td>
                         @php

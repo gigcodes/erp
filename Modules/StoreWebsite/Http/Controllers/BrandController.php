@@ -86,18 +86,22 @@ class BrandController extends Controller
     }
 
     public function list(Request $request) {
-        $title        = "Store Brand";
-        $brands       = \App\Brand::query();
+        $title = "Store Brand";
+        $query = DB::table('brands')->leftJoin('products', 'products.brand', '=', 'brands.id')->groupBy('brands.name')->select('brands.*', DB::raw('count(products.id) as counts'));
         
         if($request->keyword != null) {
-            $brands = $brands->where("name","like","%".$request->keyword."%");
+            $query->where("name","like","%".$request->keyword."%");
         }
 
-        $brands->orderBy('name', 'asc');
+        if($request->has('no-inventory')) {
+            $query->having('counts', '=', 0);
+        } else {
+            $query->having('counts', '>', 0);
+        }
 
-        $brands = $brands->get();
+        $query->orderBy('brands.name', 'asc');
 
-        $product_counts = DB::table('products')->select('brand', DB::raw('count(*) as counts'))->groupBy('brand')->get();
+        $brands = $query->get();
 
         $storeWebsite = \App\StoreWebsite::all();
         $appliedQ      = \App\StoreWebsiteBrand::all();
@@ -108,7 +112,7 @@ class BrandController extends Controller
             }
         }
 
-        return view("storewebsite::brand.index", compact(['title', 'brands', 'storeWebsite','apppliedResult', 'product_counts']));
+        return view("storewebsite::brand.index", compact(['title', 'brands', 'storeWebsite','apppliedResult']));
     }
 
     public function pushToStore(Request $request)
