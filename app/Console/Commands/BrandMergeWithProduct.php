@@ -67,7 +67,7 @@ class BrandMergeWithProduct extends Command
 
                 similar_text(strtolower($input), strtolower($word), $percent);
 
-                if ($percent >= 80) {
+                if ($percent >= 60) {
 
                     $reference = $originalWord;
                     $brandId   = $brandId;
