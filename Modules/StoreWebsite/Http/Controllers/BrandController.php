@@ -7,8 +7,9 @@ use App\StoreWebsiteBrand;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
-use seo2websites\MagentoHelper\MagentoHelper;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use seo2websites\MagentoHelper\MagentoHelper;
 
 class BrandController extends Controller
 {
@@ -94,6 +95,7 @@ class BrandController extends Controller
 
         $brands = $brands->get();
 
+        $product_counts = DB::table('products')->select('brand', DB::raw('count(*) as counts'))->groupBy('brand')->get();
 
         $storeWebsite = \App\StoreWebsite::all();
         $appliedQ      = \App\StoreWebsiteBrand::all();
@@ -104,8 +106,7 @@ class BrandController extends Controller
             }
         }
 
-
-        return view("storewebsite::brand.index", compact(['title', 'brands', 'storeWebsite','apppliedResult']));
+        return view("storewebsite::brand.index", compact(['title', 'brands', 'storeWebsite','apppliedResult', 'product_counts']));
     }
 
     public function pushToStore(Request $request)
