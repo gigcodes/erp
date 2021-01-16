@@ -93,6 +93,8 @@ class BrandController extends Controller
             $brands = $brands->where("name","like","%".$request->keyword."%");
         }
 
+        $brands->orderBy('name', 'asc');
+
         $brands = $brands->get();
 
         $product_counts = DB::table('products')->select('brand', DB::raw('count(*) as counts'))->groupBy('brand')->get();
