@@ -86,7 +86,20 @@
                         <div class="alert alert-danger">{{$errors->first('magento_id')}}</div>
                     @endif
                 </div>
-                    
+
+                <div class="form-group">
+                    <strong>Segment</strong>
+                    <select name="brand_segment" class="form-control">
+                        <option value=""></option>
+                        <option value="A" {{$brand_segment == 'A' ? ' SELECTED' : ''}}>A</option>
+                        <option value="B" {{$brand_segment == 'B' ? ' SELECTED' : ''}}>B</option>
+                        <option value="C" {{$brand_segment == 'C' ? ' SELECTED' : ''}}>C</option>
+                    </select>
+                    @if ($errors->has('brand_segment'))
+                        <div class="alert alert-danger">{{$errors->first('brand_segment')}}</div>
+                    @endif
+                </div>
+
                 @foreach($category_segments as $category_segment)
                     <div class="form-group">
                         <strong>{{ $category_segment->name }}</strong>
