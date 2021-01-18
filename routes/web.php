@@ -2585,3 +2585,17 @@ Route::prefix('pushfcmnotification')->middleware('auth')->group(static function 
     Route::post('/store', 'FcmNotificationController@store')->name('pushfcmnotification.store');
     Route::post('/update', 'FcmNotificationController@update')->name('pushfcmnotification.update');
 });
+
+
+//System size 
+Route::prefix('system')->middleware('auth')->group(static function () {
+    Route::get('/size', 'SystemSizeController@index')->name('system.size');
+    Route::get('/size/store', 'SystemSizeController@store')->name('system.size.store');
+    Route::get('/size/update', 'SystemSizeController@update')->name('system.size.update');
+    Route::get('/size/delete', 'SystemSizeController@delete')->name('system.size.delete');
+    
+    Route::get('/size/managercheckexistvalue', 'SystemSizeController@managercheckexistvalue')->name('system.size.managercheckexistvalue');
+    Route::post('/size/managerstore', 'SystemSizeController@managerstore')->name('system.size.managerstore');
+    Route::get('/size/managerupdate', 'SystemSizeController@managerupdate')->name('system.size.managerupdate');
+    Route::get('/size/managerdelete', 'SystemSizeController@managerdelete')->name('system.size.managerdelete');
+});
