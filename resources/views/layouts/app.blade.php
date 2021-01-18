@@ -2139,7 +2139,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
 
     <!-- Like page plugin script  -->
 
-
+    @yield('models')
 
     {{-- <script>(function(d, s, id) {
 

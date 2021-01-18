@@ -19,7 +19,7 @@
     	<div class="row">
 	    	<div class="col col-md-9">
 		    	<div class="row">
-	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action">
+	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action" data-toggle="modal" data-target="#campaningmodal">
 		  				Create Campaign
 		  			</button>
 		  			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action">
@@ -63,7 +63,57 @@
   	<div class="modal-dialog" role="document">
   	</div>	
 </div>
-
+@section('models')
+<div class="modal fade" id="campaningmodal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+             <form method="POST" action="{{route('ads.campaignStore')}}" id="create-ad-account-form" enctype="multipart/form-data">
+                {{csrf_field()}}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Create Campaign</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body create-campaning"  style="display: none;">
+	                <div class="form-group row">
+	                    <label for="status" class="col-sm-2 col-form-label">Select the goal</label>
+	                    <div class="col-sm-10">
+	                        <select class="browser-default custom-select" id="goal" name="goal" style="height: auto">
+	                            <option value="" selected>-----Select goal-----</option>
+	                            <option value="Sales" >Sales</option>
+	                            <option value="Leads">Leads</option>
+	                            <option value="Web traffic">Web traffic</option>
+	                            <option value="Product and brand consideration">Product and brand consideration</option>
+	                            <option value="Brand awareness and reach">Brand awareness and reach</option>
+	                            <option value="App promotion">App promotion</option>
+	                            <option value="Local store visits and promotions">Local store visits and promotions</option>
+	                            <option value="Create a campaign without a goal's guidance">Create a campaign without a goal's guidance</option>
+	                        </select>
+	                    </div>
+	                </div>
+                </div>
+                <div class="modal-body create-campaning-phase-2">
+                	<div class="row">
+                		<div class="col-md-12">
+                			<select multiple class="form-control" name="language">
+                				<option value="all">All Languages</option>
+                				<option value="English">English</option>
+                				<option value="Hindi">Hindi</option>
+                			</select>
+                		</div>
+                	</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="continue-phase-1" class="btn btn-primary">Continue</button>
+                    <button type="submit" id="create-camp-btn" style="display: none;" class="btn btn-primary">Create</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endsection
 @include("ads.templates.list-template")
 @include("ads.templates.create-website-template")
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
