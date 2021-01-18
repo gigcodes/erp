@@ -67,7 +67,7 @@
 <div class="modal fade" id="campaningmodal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-             <form method="POST" action="{{route('ads.campaignStore')}}" id="create-ad-account-form" enctype="multipart/form-data">
+             <form method="POST" action="#" id="create-ad-account-form" enctype="multipart/form-data">
                 {{csrf_field()}}
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">Create Campaign</h5>
@@ -96,11 +96,15 @@
                 <div class="modal-body create-campaning-phase-2">
                 	<div class="row">
                 		<div class="col-md-12">
-                			<select multiple class="form-control" name="language">
-                				<option value="all">All Languages</option>
-                				<option value="English">English</option>
-                				<option value="Hindi">Hindi</option>
-                			</select>
+                			<div class="form-group">
+							    <label class="col-md-12 control-label" for="rolename">Languages</label>
+							    <div class="col-md-12">
+							        <select id="dates-field2" class="multiselect-ui form-control" multiple="multiple" >
+		                				<option value="English">English</option>
+		                				<option value="Hindi">Hindi</option>
+							        </select>
+							    </div>
+							</div>
                 		</div>
                 	</div>
                 </div>
@@ -121,11 +125,18 @@
 <script src="/js/jquery-ui.js"></script>
 <script type="text/javascript" src="/js/common-helper.js"></script>
 <script type="text/javascript" src="/js/ads.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.16/js/bootstrap-multiselect.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.16/css/bootstrap-multiselect.min.css" />
 <script type="text/javascript">
 	page.init({
 		bodyView : $("#common-page-layout"),
 		baseUrl : "<?php echo url("/"); ?>"
+	});
+	$(document).ready(function(){
+		$('#dates-field2').multiselect({
+	        includeSelectAllOption: true,
+	        selectAllText: 'All Languages',
+	    });
 	});
 </script>
 
