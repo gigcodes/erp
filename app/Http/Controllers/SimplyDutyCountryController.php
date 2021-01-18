@@ -148,4 +148,15 @@ class SimplyDutyCountryController extends Controller
         }
         return json_encode($countryArray);
     }
+    public function updateduty(Request $request){
+        if (!$request->ajax()) {
+            return response()->json(['success' => false, 'message' => "Something went wrong!"]);
+        }
+        $country = SimplyDutyCountry::find($request->input('id'));
+        $country->defaultDuty = $request->input('duty');
+        if ($country->save()) {
+            return response()->json(['success' => true, 'message' => "Default duty update successfully"]);
+        }
+        return response()->json(['success' => false, 'message' => "Something went wrong!"]);
+    }
 }
