@@ -38,7 +38,7 @@ class BrandUpdateMaxAndMinPrice extends Command
      */
     public function handle()
     {
-        $brands = Brand::all();
+        $brands = Brand::where("min_sale_price","<=",0)->get();
         foreach ($brands as $brand) {
             $min = $brand->products->where('price','>=',0)->min('price');
             $max = $brand->products->where('price','>=',0)->max('price');
