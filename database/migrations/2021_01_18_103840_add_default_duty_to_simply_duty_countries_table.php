@@ -14,7 +14,7 @@ class AddDefaultDutyToSimplyDutyCountriesTable extends Migration
     public function up()
     {
         Schema::table('simply_duty_countries', function (Blueprint $table) {
-            $table->double('defaultDuty',10,2)->default(0);
+            $table->double('default_duty',10,2)->default(0);
         });
     }
 
@@ -26,7 +26,7 @@ class AddDefaultDutyToSimplyDutyCountriesTable extends Migration
     public function down()
     {
         Schema::table('simply_duty_countries', function (Blueprint $table) {
-            $table->double('defaultDuty',10,2)->default(0);
+            $table->double('default_duty',10,2)->default(0);
         });
     }
 }

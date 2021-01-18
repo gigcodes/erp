@@ -153,7 +153,7 @@ class SimplyDutyCountryController extends Controller
             return response()->json(['success' => false, 'message' => "Something went wrong!"]);
         }
         $country = SimplyDutyCountry::find($request->input('id'));
-        $country->defaultDuty = $request->input('duty');
+        $country->default_duty = $request->input('duty');
         if ($country->save()) {
             return response()->json(['success' => true, 'message' => "Default duty update successfully"]);
         }
