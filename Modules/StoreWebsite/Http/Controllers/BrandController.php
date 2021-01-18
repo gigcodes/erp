@@ -90,7 +90,7 @@ class BrandController extends Controller
         $query = DB::table('brands')->leftJoin('products', 'products.brand', '=', 'brands.id')->groupBy('brands.name')->select('brands.*', DB::raw('count(products.id) as counts'));
         
         if($request->keyword != null) {
-            $query->where("name","like","%".$request->keyword."%");
+            $query->where("brands.name","like","%".$request->keyword."%");
         }
 
         if($request->has('no-inventory')) {
