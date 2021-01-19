@@ -2,7 +2,7 @@
 
 @section('favicon' , 'password-manager.png')
 
-@section('title', 'System Duty')
+@section('title', 'System Size')
 
 
 @section('content')
@@ -11,8 +11,8 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">System Size</h2>
             <div class="pull-right">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#sizemanagement">System Size Management</button>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#sizecountry">System Size Country</button>
+                <button type="button" class="btn btn-secondary" id="sizemanagementmodelbtn" data-toggle="modal" data-target="#sizemanagement">System Size Management</button>
+                <button type="button" class="btn btn-secondary"  data-toggle="modal" data-target="#sizecountry">System Size </button>
             </div>
         </div>
     </div>
@@ -39,7 +39,7 @@
             <thead>
                 <tr>
                     <th>Category</th>
-                    <th>Country</th>
+                    <th>Code</th>
                     <th>Size</th>
                     <th>Created At</th>
                     <th>Updated At</th>
@@ -89,7 +89,7 @@
                                 <table class="table table-bordered" id="category-table">
                                     <thead>
                                         <tr>
-                                            <th>Country</th>
+                                            <th>Code</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -137,7 +137,6 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <select class="form-control" name="category" id="categorydrp" required="">
-                                    <option value="">Select Category</option>
                                     @foreach($categories as $cat)
                                         @foreach($cat['subcategories'] as $subcat)
                                         <option value="{{$subcat->id}}">{{$subcat->title}} ({{$cat['parentcategory']}})</option>
@@ -167,7 +166,10 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-4">
+                            <span id="editmanagercode"></span>
+                        </div>
+                        <div class="col-md-8">
                         <input type="text" class="form-control" id="sizemanagereditinputsize" value="" required="">
                         <input type="hidden" class="form-control" id="sizemanagereditinputid" value="">
                         </div>
@@ -208,6 +210,7 @@ $(document).ready(function() {
                 },
                 success:function(result){
                     $selector.remove();   
+                     window.location.reload();
                 },
                 error:function(exx){
                     console.log(exx)
@@ -276,6 +279,7 @@ $(document).ready(function() {
     $(document).on('click','.editmanager',function(){
         $('#sizemanagereditinputsize').val($(this).data('size'));
         $('#sizemanagereditinputid').val($(this).data('id'));
+        $('#editmanagercode').text($(this).data('code'));
         $('#sizemanagementedit').modal('show');
     });
     $(document).on('click','#updatesitemanagerbtn',function(){
@@ -312,10 +316,17 @@ $(document).ready(function() {
             });
         }
     });  
+    $(document).on('click','#sizemanagementmodelbtn',function(){
+        checkVariant();
+    });
     $(document).on('change','#categorydrp',function(){
-        let id = $(this).val();
+        checkVariant();
+    });
+    function checkVariant(){
+        console.log('aas');
+        let id = $('#categorydrp').val();
         if (id != null && id != ''){
-        $('#loading-image-preview').show()
+            $('#loading-image-preview').show()
             $.ajax({
                 url:'{{route("system.size.managercheckexistvalue")}}',
                 dataType:'json',
@@ -336,7 +347,7 @@ $(document).ready(function() {
             $('.sizevarintinput').remove();
 
         }
-    });
+    }
 });  
 </script>
 @endsection

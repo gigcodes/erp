@@ -14,16 +14,18 @@ class SystemSizeController extends Controller
     public function index(){
     	$systemSizesManagers = SystemSizeManager::select(
 	    												'system_size_managers.id',
+                                                        'system_size_managers.system_size_id',
 	    												'categories.title as category',
 	    												'system_sizes.name as country',
 	    												'system_size_managers.size',
 	    												'system_size_managers.created_at',
-	    												'system_size_managers.created_at',
+	    												'system_size_managers.updated_at'
     												)
     												->leftjoin('categories','categories.id','system_size_managers.category_id')
     												->leftjoin('system_sizes','system_sizes.id','system_size_managers.system_size_id')
     												->where('system_size_managers.status',1)
     												->paginate(Setting::get('pagination'));
+        
     	$systemSizes = SystemSize::where('status',1)->get();
     	$parentCategories = Category::where('parent_id',0)->get();
     	$categories = [];
@@ -60,17 +62,24 @@ class SystemSizeController extends Controller
         $systemsize = SystemSize::find($request->input('id'));
         $systemsize->status = 0;
         if ($systemsize->save()) {
+            SystemSizeManager::where('system_size_id',$request->input('id'))->update(['status' => 0]);
         	return response()->json(['success' => true, 'message' => "System size delete successfully"]);
         }
         return response()->json(['success' => false, 'message' => "Something went wrong!"]);
     }
     public function managerstore(Request $request){
     	foreach ($request->sizes as $key => $value) {
-    		SystemSizeManager::create([
-    									'category_id' => $request->category,
-    									'system_size_id' => $value['system_size_id'],
-    									'size' => $value['size'],
-    								]);
+            if (!empty($value['size'])) {
+        		if (isset($value['id'])) {
+                    SystemSizeManager::where('id',$value['id'])->update(['size' => $value['size']]);
+                }else{
+                    SystemSizeManager::create([
+                                            'category_id' => $request->category,
+                                            'system_size_id' => $value['system_size_id'],
+                                            'size' => $value['size'],
+                                        ]);
+                }
+            }
     	}
        	return response()->json(['success' => true, 'message' => "System size saved successfully"]);
     }
@@ -91,17 +100,31 @@ class SystemSizeController extends Controller
     	return response()->json(['success' => false, 'message' => "Something went wrong!"]);
     }
     public function managercheckexistvalue(Request $request){
-    	$sm = SystemSizeManager::where('category_id',$request->id)->get()->pluck('system_size_id')->toArray();
+    	$sm = SystemSizeManager::where('category_id',$request->id)->where('status',1)->get();
     	$systemSizes = SystemSize::where('status',1)->get();
     	$html = '';
+
+        foreach ($sm as $s) {
+            if ($s->system_size_id == 0) {
+                $html .= '<div class="col-md-12 mt-3 sizevarintinput"><div class="row"><div class="col-md-4"><span>ERP Size (IT)</span></div><div class="col-md-8"><input type="text" class="form-control" placeholder="Enter size" name="sizes[0][size]" value="'.$s->size.'"><input type="hidden" name="sizes[0][system_size_id]" value="0"><input type="hidden" name="sizes[0][id]" value="0"></div></div></div>';
+            }
+        }
+        if ($html == "") {
+            $html .= '<div class="col-md-12 mt-3 sizevarintinput"><div class="row"><div class="col-md-4"><span>ERP Size (IT)</span></div><div class="col-md-8"><input type="text" class="form-control" placeholder="Enter size" name="sizes[0][size]"><input type="hidden" name="sizes[0][system_size_id]" value="0"></div></div></div>';
+        }
+
     	foreach($systemSizes as $systemSize){
-		    if (!in_array($systemSize->id, $sm)) {
-		    	$html .= '<div class="col-md-12 mt-3 sizevarintinput"><div class="row"><div class="col-md-4"><span>'.$systemSize->name.'</span></div><div class="col-md-8"><input type="text" class="form-control" placeholder="Enter size" name="sizes['.$systemSize->id.'][size]" required=""><input type="hidden" name="sizes['.$systemSize->id.'][system_size_id]" value="'.$systemSize->id.'"></div></div></div>';
-		    }
+            $sizeValue = '';
+            $id = '';
+            foreach ($sm as $s) {
+                if ($systemSize->id == $s->system_size_id) {
+                    $sizeValue = $s->size;
+                    $id = '<input type="hidden" name="sizes['.$systemSize->id.'][id]" value="'.$s->id.'">';
+                }
+            }
+		    $html .= '<div class="col-md-12 mt-3 sizevarintinput"><div class="row"><div class="col-md-4"><span>'.$systemSize->name.'</span></div><div class="col-md-8"><input type="text" class="form-control" placeholder="Enter size" name="sizes['.$systemSize->id.'][size]" value="'.$sizeValue.'"><input type="hidden" name="sizes['.$systemSize->id.'][system_size_id]" value="'.$systemSize->id.'">'.$id.'</div></div></div>';
 	    }
-	    if ($html == '') {
-	    	$html = '<div class="col-md-12 mt-3 sizevarintinput text-center"> No size variant left!</div>';
-	    }
+
 	    return response()->json(['success' => true, 'message' => "successful!", 'data' => $html]);
     }
 }
