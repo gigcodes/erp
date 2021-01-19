@@ -2596,6 +2596,7 @@ Route::prefix('system')->middleware('auth')->group(static function () {
     
     Route::get('/size/managercheckexistvalue', 'SystemSizeController@managercheckexistvalue')->name('system.size.managercheckexistvalue');
     Route::post('/size/managerstore', 'SystemSizeController@managerstore')->name('system.size.managerstore');
-    Route::get('/size/managerupdate', 'SystemSizeController@managerupdate')->name('system.size.managerupdate');
+    Route::get('/size/manageredit', 'SystemSizeController@manageredit')->name('system.size.manageredit');
+    Route::post('/size/managerupdate', 'SystemSizeController@managerupdate')->name('system.size.managerupdate');
     Route::get('/size/managerdelete', 'SystemSizeController@managerdelete')->name('system.size.managerdelete');
 });

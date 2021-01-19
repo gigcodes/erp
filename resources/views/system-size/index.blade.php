@@ -39,8 +39,8 @@
             <thead>
                 <tr>
                     <th>Category</th>
-                    <th>Code</th>
-                    <th>Size</th>
+                    <th>ERP Size</th>
+                    <th>Sizes</th>
                     <th>Created At</th>
                     <th>Updated At</th>
                     <th>Action</th>
@@ -99,8 +99,8 @@
                                             <tr>
                                                 <td>{{$systemSize->name}}</td>
                                                 <td>
-                                                    <button class="btn btn-primary systemsizeedit" data-id="{{$systemSize->id}}" data-name="{{$systemSize->name}}"><i class="fa fa-edit"></i></button>
-                                                    <button class="btn btn-danger systemsizedelete" data-id="{{$systemSize->id}}"><i class="fa fa-trash"></i></button>
+                                                    <button class="btn btn-default systemsizeedit" data-id="{{$systemSize->id}}" data-name="{{$systemSize->name}}"><i class="fa fa-edit"></i></button>
+                                                    <button class="btn btn-default systemsizedelete" data-id="{{$systemSize->id}}"><i class="fa fa-trash"></i></button>
                                                 </td>
                                             </tr>
                                             @endforeach
@@ -134,6 +134,9 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                        <div class="alert alert-danger alert-sizemanager" style="display: none;">
+                            
+                        </div>
                         <div class="row">
                             <div class="col-md-12">
                                 <select class="form-control" name="category" id="categorydrp" required="">
@@ -144,7 +147,29 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <span id="sizevariant"></span>
+                            <div class="col-md-12 mt-3 sizevarintinput">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <span>ERP Size (IT)</span>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" placeholder="Enter ERP size" name="erp_size">
+                                    </div>
+                                </div>
+                            </div>
+                            @foreach($systemSizes as $systemSize)
+                                <div class="col-md-12 mt-3 sizevarintinput">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <span>{{$systemSize->name}}</span>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control" placeholder="Enter size" name="sizes[{{$systemSize->id}}][size]" required="">
+                                            <input type="hidden" name="sizes[{{$systemSize->id}}][system_size_id]" value="{{$systemSize->id}}">
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -158,27 +183,35 @@
     <div class="modal fade" id="sizemanagementedit" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">System size</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <span id="editmanagercode"></span>
+                <form action="{{route("system.size.managerupdate")}}" method="POST" id="updatesizeformmodel">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">System size manager</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger alert-sizemanageredit" style="display: none;">
+                            
                         </div>
-                        <div class="col-md-8">
-                        <input type="text" class="form-control" id="sizemanagereditinputsize" value="" required="">
-                        <input type="hidden" class="form-control" id="sizemanagereditinputid" value="">
+                        <div class="row">
+                            <div class="col-md-12" id="editnmanagerf">
+                                <select class="form-control" name="category" id="categorydrp" required="">
+                                    @foreach($categories as $cat)
+                                        @foreach($cat['subcategories'] as $subcat)
+                                        <option value="{{$subcat->id}}">{{$subcat->title}} ({{$cat['parentcategory']}})</option>
+                                        @endforeach
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" id="updatesitemanagerbtn" class="btn btn-primary">Update</button>
-                </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -269,7 +302,15 @@ $(document).ready(function() {
             type:'POST',
             data:$('#createsizeformmodel').serialize(),
             success:function(result){
-                window.location.reload();
+                if (result.success){
+                    window.location.reload();
+                }else{
+                    $('.alert-sizemanager').text(result.message);
+                    $('.alert-sizemanager').show();
+                    setTimeout(function(){
+                        $('.alert-sizemanager').hide();
+                    },10000);
+                }
             },
             error:function(exx){
                 alert('Something went wrong!')
@@ -277,21 +318,42 @@ $(document).ready(function() {
         })
     });
     $(document).on('click','.editmanager',function(){
-        $('#sizemanagereditinputsize').val($(this).data('size'));
-        $('#sizemanagereditinputid').val($(this).data('id'));
-        $('#editmanagercode').text($(this).data('code'));
-        $('#sizemanagementedit').modal('show');
-    });
-    $(document).on('click','#updatesitemanagerbtn',function(){
+        $('#loading-image-preview').show()
+        let id = $(this).data('id');
         $.ajax({
-            url:'{{route("system.size.managerupdate")}}',
+            url:'{{route("system.size.manageredit")}}',
             dataType:'json',
             data:{
-                size:$('#sizemanagereditinputsize').val(),
-                id:$('#sizemanagereditinputid').val(),
+                id:id
             },
             success:function(result){
-                window.location.reload();
+                $('.sizevarintinput1').remove();
+                $('#editnmanagerf').append(result.data);
+                $('#sizemanagementedit').modal('show');
+                $('#loading-image-preview').hide()
+            },
+            error:function(exx){
+                $('#loading-image-preview').hide()
+                alert('Something went wrong!')
+            }
+        })
+    });
+    $(document).on('submit','#updatesizeformmodel',function(e){
+        e.preventDefault();
+        $.ajax({
+            url:'{{route("system.size.managerupdate")}}',
+            type:'POST',
+            data:$('#updatesizeformmodel').serialize(),
+            success:function(result){
+                if (result.success){
+                    window.location.reload();
+                }else{
+                    $('.alert-sizemanageredit').text(result.message);
+                    $('.alert-sizemanageredit').show();
+                    setTimeout(function(){
+                        $('.alert-sizemanageredit').hide();
+                    },10000);
+                }
             },
             error:function(exx){
                 alert('Something went wrong!')
@@ -316,11 +378,11 @@ $(document).ready(function() {
             });
         }
     });  
-    $(document).on('click','#sizemanagementmodelbtn',function(){
-        checkVariant();
-    });
+    // $(document).on('click','#sizemanagementmodelbtn',function(){
+    //     checkVariant();
+    // });
     $(document).on('change','#categorydrp',function(){
-        checkVariant();
+        // checkVariant();
     });
     function checkVariant(){
         console.log('aas');

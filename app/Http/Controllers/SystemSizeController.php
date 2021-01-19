@@ -7,6 +7,7 @@ use App\SystemSize;
 use App\SystemSizeManager;
 use App\Setting;
 use App\Category;
+use App\SystemSizeRelation;
 use Response;
 
 class SystemSizeController extends Controller
@@ -14,18 +15,28 @@ class SystemSizeController extends Controller
     public function index(){
     	$systemSizesManagers = SystemSizeManager::select(
 	    												'system_size_managers.id',
-                                                        'system_size_managers.system_size_id',
 	    												'categories.title as category',
-	    												'system_sizes.name as country',
-	    												'system_size_managers.size',
+                                                        'system_size_managers.erp_size',
 	    												'system_size_managers.created_at',
 	    												'system_size_managers.updated_at'
     												)
     												->leftjoin('categories','categories.id','system_size_managers.category_id')
-    												->leftjoin('system_sizes','system_sizes.id','system_size_managers.system_size_id')
     												->where('system_size_managers.status',1)
     												->paginate(Setting::get('pagination'));
-        
+        $managers = [];
+        foreach ($systemSizesManagers as $key => $value) {
+            $related = SystemSizeRelation::select('system_size_relations.size','system_sizes.name')
+                                            ->leftjoin('system_sizes','system_sizes.id','system_size_relations.system_size')
+                                            ->where('system_size_manager_id',$value->id)->get();
+            $value->sizes = '';
+            foreach ($related as $v) {
+                $string = $v->name.' => '.$v->size;
+                $value->sizes .= $value->sizes == '' ? $string : ', '.$string ; 
+            }
+            $managers[] = $value;
+        }
+
+        $systemSizesManagers = SystemSizeManager::paginate(Setting::get('pagination'));
     	$systemSizes = SystemSize::where('status',1)->get();
     	$parentCategories = Category::where('parent_id',0)->get();
     	$categories = [];
@@ -36,7 +47,7 @@ class SystemSizeController extends Controller
     		$categories[] = $tempCat;
     	}
 
-    	return view('system-size.index',compact('systemSizes','systemSizesManagers','categories'));
+    	return view('system-size.index',compact('systemSizes','systemSizesManagers','categories','managers'));
     }
     public function store(Request $request){
     	$this->validate($request, [
@@ -62,34 +73,115 @@ class SystemSizeController extends Controller
         $systemsize = SystemSize::find($request->input('id'));
         $systemsize->status = 0;
         if ($systemsize->save()) {
-            SystemSizeManager::where('system_size_id',$request->input('id'))->update(['status' => 0]);
+            // SystemSizeManager::where('system_size_id',$request->input('id'))->update(['status' => 0]);
         	return response()->json(['success' => true, 'message' => "System size delete successfully"]);
         }
         return response()->json(['success' => false, 'message' => "Something went wrong!"]);
     }
     public function managerstore(Request $request){
-    	foreach ($request->sizes as $key => $value) {
-            if (!empty($value['size'])) {
-        		if (isset($value['id'])) {
-                    SystemSizeManager::where('id',$value['id'])->update(['size' => $value['size']]);
-                }else{
-                    SystemSizeManager::create([
-                                            'category_id' => $request->category,
-                                            'system_size_id' => $value['system_size_id'],
-                                            'size' => $value['size'],
-                                        ]);
+    	$check = SystemSizeManager::where('category_id',$request->category)->where('erp_size',$request->erp_size)->where('status',1)->first();
+        if (!empty($check)) {
+            return response()->json(['success' => false, 'message' => 'ERP Size already exist!']);
+        }
+        $manager = SystemSizeManager::create(['category_id' => $request->category, 'erp_size' => $request->erp_size]);
+        if (!empty($manager)) {
+            if (isset($request->sizes)) {
+                foreach ($request->sizes as $key => $value) {
+                    if (!empty($value['size'])) {
+                        SystemSizeRelation::create([
+                                                'system_size_manager_id' => $manager->id,
+                                                'system_size' => $value['system_size_id'],
+                                                'size' => $value['size'],
+                                            ]);
+                    }
                 }
             }
-    	}
-       	return response()->json(['success' => true, 'message' => "System size saved successfully"]);
+       	    return response()->json(['success' => true, 'message' => "System size saved successfully"]);
+        }
+        return response()->json(['success' => false, 'message' => 'Something went wrong!']);
+    }
+    public function manageredit(Request $request){
+        $sm = SystemSizeManager::find($request->input('id'));
+        $systemSizeRelated = SystemSizeRelation::select(
+                                                    'system_size_relations.id',
+                                                    'system_sizes.name',
+                                                    'system_size_relations.system_size',
+                                                    'system_size_relations.size'
+                                                )
+                                                ->leftjoin('system_sizes','system_sizes.id','system_size_relations.system_size')
+                                                ->where('system_size_manager_id',$sm->id);
+        $exitIds = $systemSizeRelated->pluck('system_size')->toArray();
+        $systemSizeRelated = $systemSizeRelated->get();
+        $html = '<div class="col-md-12 mt-3 sizevarintinput1">
+                    <div class="row">
+                        <input type="hidden" name="manager_id" value="'.$sm->id.'">
+                        <div class="col-md-4">
+                            <span>ERP Size (IT)</span>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" placeholder="Enter ERP size" name="erp_size" value="'.$sm->erp_size.'">
+                        </div>
+                    </div>
+                </div>';
+        $index = 0;
+        foreach ($systemSizeRelated as $key => $value) {
+            $html .= '<div class="col-md-12 mt-3 sizevarintinput1">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <span>'.$value->name.'</span>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" placeholder="Enter size" name="sizes['.$key.'][size]" required="" value="'.$value->size.'">
+                                <input type="hidden" name="sizes['.$key.'][id]" value="'.$value->id.'">
+                            </div>
+                        </div>
+                    </div>';
+            $index = $key;
+        }
+        $systemSizes = SystemSize::where('status',1)->get();
+        
+        foreach ($systemSizes as $key => $value) {
+            if (!in_array($value->id, $exitIds)) {
+                $index++;
+                $html .= '<div class="col-md-12 mt-3 sizevarintinput1">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <span>'.$value->name.'</span>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" placeholder="Enter size" name="sizes['.$index.'][size]" required="">
+                                <input type="hidden" class="form-control" placeholder="Enter size" name="sizes['.$index.'][system_size_id]" value="'.$value->id.'">
+                            </div>
+                        </div>
+                    </div>';
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => "successful!", 'data' => $html]);
     }
     public function managerupdate(Request $request){
-    	$sm = SystemSizeManager::find($request->input('id'));
-    	$sm->size = $request->input('size');
-    	if ($sm->save()) {
-        	return response()->json(['success' => true, 'message' => "Update successfully!"]);
-    	}
-    	return response()->json(['success' => false, 'message' => "Something went wrong!"]);
+        $check = SystemSizeManager::where('id','!=',$request->manager_id)->where('category_id',$request->category)->where('erp_size',$request->erp_size)->where('status',1)->first();
+        if (!empty($check)) {
+            return response()->json(['success' => false, 'message' => 'ERP Size already exist!']);
+        }
+
+        $manager = SystemSizeManager::where('id',$request->manager_id)->update(['category_id' => $request->category, 'erp_size' => $request->erp_size]);
+        if (isset($request->sizes)) {
+            foreach ($request->sizes as $key => $value) {
+                if (!empty($value['size'])) {
+                    if (isset($value['id'])) {
+                        SystemSizeRelation::where('id',$value['id'])->update(['size' => $value['size']]);
+                    }else{
+                        SystemSizeRelation::create([
+                                            'system_size_manager_id' => $request->manager_id,
+                                            'system_size' => $value['system_size_id'],
+                                            'size' => $value['size'],
+                                        ]);
+                    }
+                }
+            }
+        }
+    	return response()->json(['success' => true, 'message' => "Update successfully!"]);
     }
     public function managerdelete(Request $request){
     	$sm = SystemSizeManager::find($request->input('id'));

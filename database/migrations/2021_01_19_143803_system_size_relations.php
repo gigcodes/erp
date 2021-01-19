@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class SystemSizeManger extends Migration
+class SystemSizeRelations extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class SystemSizeManger extends Migration
      */
     public function up()
     {
-        Schema::create('system_size_managers', function (Blueprint $table) {
+        Schema::create('system_size_relations', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('category_id');
-            $table->string('erp_size');
-            $table->integer('status')->default(1)->comment('0-Deleted, 1-Not deleted');
+            $table->integer('system_size_manager_id');
+            $table->integer('system_size');
+            $table->string('size');
             $table->timestamps();
         });
     }
@@ -29,6 +29,6 @@ class SystemSizeManger extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('system_size_managers');
+        //
     }
 }

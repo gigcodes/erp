@@ -8,8 +8,7 @@ class SystemSizeManager extends Model
 {
     protected $fillable = [
         'category_id',
-        'system_size_id',
-        'size',
+        'erp_size',
         'status',
     ];
 }
