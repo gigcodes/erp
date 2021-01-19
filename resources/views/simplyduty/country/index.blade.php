@@ -40,6 +40,7 @@
             <tr>
                 <th style="width:10%">Country Code</th>
                 <th style="width:60%">Country</th>
+                <th>Default Duty</th>
                 <th>Created At</th>
                 <th>Updated At</th>
             </tr>
@@ -64,6 +65,28 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
  $(document).ready(function() {
+        $(document).on('focusout','.dutyinput',function(){
+            let id = $(this).data('id');
+            let duty = $(this).val();
+
+            if (duty != '0' && duty != 0 && duty != null && duty != undefined){
+                $.ajax({
+                    url:'{{route("simplyduty.country.updateduty")}}',
+                    dataType:'json',
+                    data:{
+                        id: id,
+                        duty : duty
+                    },
+                    success:function(result){
+                        // console.log(result);
+                    },
+                    error:function(exx){
+                        alert('Something went wrong!')
+                        window.location.reload();
+                    }
+                })
+            }
+        });
         src = "{{ route('simplyduty.country.index') }}";
         $(".search").autocomplete({
         source: function(request, response) {

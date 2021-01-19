@@ -17,6 +17,8 @@ Auth::routes();
 
 
 Route::get('/test/test', 'OrderController@testEmail');
+
+
 Route::get('/test/pushProduct', 'TmpTaskController@testPushProduct');
 Route::get('/test/fixBrandPrice', 'TmpTaskController@fixBrandPrice');
 Route::get('/test/analytics', 'AnalyticsController@cronShowData');
@@ -1853,6 +1855,7 @@ Route::middleware('auth')->group(function () {
     //Simple Duty Country
     Route::get('duty/country', 'SimplyDutyCountryController@index')->name('simplyduty.country.index');
     Route::get('duty/country/update', 'SimplyDutyCountryController@getCountryFromApi')->name('simplyduty.country.update');
+    Route::get('duty/country/updateduty', 'SimplyDutyCountryController@updateduty')->name('simplyduty.country.updateduty');
 
     //Simple Duty Calculation
     Route::get('duty/calculation', 'SimplyDutyCalculationController@index')->name('simplyduty.calculation.index');
