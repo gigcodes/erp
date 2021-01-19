@@ -30,6 +30,8 @@ class Product extends Model
         4 => "On Hold"
     ];
 
+    const IVA_PERCENTAGE = 22;
+
 //  use LogsActivity;
     use Mediable;
     use SoftDeletes;
@@ -961,7 +963,14 @@ class Product extends Model
 
     public function getDuty($countryCode , $withtype = false)
     {
-       $hsCode = ($this->product_category) ? $this->product_category->simplyduty_code : null;
+
+        $countryCode = \App\SimplyDutyCountry::where("country_code",$countryCode)->first();
+
+        if($countryCode) {
+            return (float)$countryCode->default_duty;
+        }
+
+       /*$hsCode = ($this->product_category) ? $this->product_category->simplyduty_code : null;
        if(!empty($hsCode)){
             $duty = \App\CountryDuty::leftJoin("duty_groups as dg","dg.id","country_duties.duty_group_id")
             ->where("country_duties.hs_code",$hsCode)
@@ -976,7 +985,7 @@ class Product extends Model
                     return $duty->duty_percentage + $duty->vat_percentage;
                 }
             }
-       }
+       }*/
         
         return (float)"0.00";
 
@@ -1263,5 +1272,12 @@ class Product extends Model
         }
 
         return $description;
+    }
+
+    public static function getIvaPrice($price)
+    {
+        $percentage = self::IVA_PERCENTAGE;
+        $percentageA = ($price * $percentage) / 100;
+        return $price + $percentageA;
     }
 }

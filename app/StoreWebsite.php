@@ -40,6 +40,7 @@ class StoreWebsite extends Model
         'push_web_key',
         'push_web_id',
         'icon',
+        'is_price_override'
     ];
 
     // Append attributes
