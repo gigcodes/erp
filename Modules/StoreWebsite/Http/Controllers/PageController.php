@@ -237,6 +237,8 @@ class PageController extends Controller
     {
         $page = \App\StoreWebsitePage::find($id);
 
+        $errorMessage = [];
+
         if ($page) {
             // find the language all active and then check that record page is exist or not
             $languages = \App\Language::where("status", 1)->get();
@@ -313,11 +315,13 @@ class PageController extends Controller
                         $newPage->copy_page_id     = $page->id;
                         $newPage->save();
 
+                    }else{
+                        $errorMessage[] = "Page not pushed because of page already copied to {$pageExist->url_key} for {$l->name}";
                     }
                 }
             }
 
-            return response()->json(["code" => 200, "data" => [], "message" => "Records copied succesfully"]);
+            return response()->json(["code" => 200, "data" => [], "message" => "Records copied succesfully","errorMessage" => implode("<br>",$errorMessage)]);
         }
 
         return response()->json(["code" => 500, "data" => [], "message" => "Page does not exist"]);

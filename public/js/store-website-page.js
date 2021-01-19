@@ -307,7 +307,11 @@ var page = {
     },
     afterTranslateForOtherLanguage : function(response) {
         if(response.code  == 200) {
-            location.reload();
+            if(response.errorMessage != "") {
+                toastr["error"](response.errorMessage,"");
+            }else{
+                location.reload();
+            }
         }
     },
     pushPageInLive : function(ele) {
