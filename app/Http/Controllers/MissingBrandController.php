@@ -119,4 +119,58 @@ class MissingBrandController extends Controller
 
         return response()->json(["code" => 200 , "data" => [], "message" => "Brand reference added successfully"]);
     }
+
+    public function automaticMerge()
+    {
+
+        $missingBrands = MissingBrand::all();
+        $brands = Brand::select('name','id','references')->get();
+        foreach ($missingBrands as $missingBrand) {
+            $isFind = 0;
+            foreach ($brands as $brand) {
+                
+                $word = $brand->name;
+
+                $input = $missingBrand->name;
+                
+                //remove space
+                $input = preg_replace('/\s+/', '', $input);
+
+                $input = strip_tags($input);
+
+                $word = preg_replace('/\s+/', '', $word);
+
+                //remove all special character
+                $input = preg_replace('/[^a-zA-Z0-9_ -]/s', '', $input);
+
+                $word = preg_replace('/[^a-zA-Z0-9_ -]/s', '', $word);
+
+                similar_text(strtolower($input), strtolower($word), $percent);
+
+                if ($percent >= 70) {
+                    dd($missingBrand->name);
+                    $brand->references .= ',' . $missingBrand->name;
+                    $brand->save();
+                    $isFind = 1;
+                    break;
+                }
+            }
+
+            if($isFind){
+                //deleting the missing brand
+                $missingBrand->delete();
+
+            }else{
+                //creating new brand  
+                $newBrand = new Brand;
+                $newBrand->name = strip_tags($missingBrand->name);
+                $newBrand->euro_to_inr = 0;
+                $newBrand->save();
+                
+                //deleting missing brand
+                $missingBrand->delete();
+            }
+        }
+        return response()->json('Missing brands updated',200);
+    }
 }

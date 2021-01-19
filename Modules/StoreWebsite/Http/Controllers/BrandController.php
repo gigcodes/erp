@@ -7,8 +7,9 @@ use App\StoreWebsiteBrand;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
-use seo2websites\MagentoHelper\MagentoHelper;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use seo2websites\MagentoHelper\MagentoHelper;
 
 class BrandController extends Controller
 {
@@ -85,15 +86,22 @@ class BrandController extends Controller
     }
 
     public function list(Request $request) {
-        $title        = "Store Brand";
-        $brands       = \App\Brand::query();
+        $title = "Store Brand";
+        $query = DB::table('brands')->leftJoin('products', 'products.brand', '=', 'brands.id')->groupBy('brands.id')->select('brands.*', DB::raw('count(products.id) as counts'));
         
         if($request->keyword != null) {
-            $brands = $brands->where("name","like","%".$request->keyword."%");
+            $query->where("brands.name","like","%".$request->keyword."%");
         }
 
-        $brands = $brands->get();
+        if($request->has('no-inventory')) {
+            $query->having('counts', '=', 0);
+        } else {
+            $query->having('counts', '>', 0);
+        }
 
+        $query->orderBy('brands.name', 'asc');
+
+        $brands = $query->get();
 
         $storeWebsite = \App\StoreWebsite::all();
         $appliedQ      = \App\StoreWebsiteBrand::all();
@@ -103,7 +111,6 @@ class BrandController extends Controller
                 $apppliedResult[$raw->brand_id][] = $raw->store_website_id;
             }
         }
-
 
         return view("storewebsite::brand.index", compact(['title', 'brands', 'storeWebsite','apppliedResult']));
     }
@@ -116,7 +123,7 @@ class BrandController extends Controller
             if($website){
                 if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
                     $brand = \App\Brand::find($request->brand);
-                    $magentoBrandId = MagentoHelper::addBrand($brand,$website);
+                    //$magentoBrandId = MagentoHelper::addBrand($brand,$website);
                 }
 
             }
@@ -139,6 +146,26 @@ class BrandController extends Controller
         }
 
         return response()->json(["code" => 200, "data" => []]);
+
+    }
+
+    /**
+     * run artisan command
+     *
+     */
+
+    public function refreshMinMaxPrice()
+    {
+        try {
+           
+           \Artisan::call('brand:maxminprice'); 
+
+            return response()->json('Console Commnad Ran',200);   
+        
+        } catch (\Exception $e) {
+            
+            return response()->json('Cannot call artisan command',200); 
+        } 
 
     }
 

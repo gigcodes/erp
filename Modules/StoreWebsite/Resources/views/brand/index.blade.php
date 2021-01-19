@@ -12,7 +12,7 @@
 
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
+        <h2 class="page-heading">{{ $title }} ({{ $brands->count() }})<span class="count-text"></span></h2>
     </div>
     <br>
     <div class="col-lg-12 margin-tb">
@@ -27,12 +27,19 @@
 		    <div class="col">
 		    	<div class="h" style="margin-bottom:10px;">
 					<div class="row">
+						<div class="form-group">
+					  				<button class="btn btn-secondary" onclick="refresh()">Refresh</button>
+					  			</div>
 		    			<form class="form-inline message-search-handler" method="get">
 					  		<div class="col">
 					  			<div class="form-group">
 								    <label for="keyword">Keyword:</label>
 								    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
 							  	</div>
+								<div class="form-group">
+									<label for="no-inventory">No Inventory</label>
+									<input type="checkbox" name="no-inventory" value="1" {{ request()->has('no-inventory') ? 'checked' : '' }} />
+								</div>
 							  	<div class="form-group">
 							  		<label for="button">&nbsp;</label>
 							  		<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
@@ -63,7 +70,7 @@
 				    	<?php foreach($brands as $brand) { ?>
  					      <tr>
 					      	<td><?php echo $brand->id; ?></td>
-					      	<td><?php echo $brand->name; ?></td>
+					      	<td><a target="_blank" href="{{ route('product-inventory.new') }}?brand[]={{ $brand->id }}">{{ $brand->name }}  ( {{ $brand->counts }} )</a></td>
 					      	<td><?php echo $brand->min_sale_price; ?></td>
 					      	<td><?php echo $brand->max_sale_price; ?></td>
 					      	<?php foreach($storeWebsite as $sw) { 
@@ -98,6 +105,22 @@
 		bodyView : $("#common-page-layout"),
 		baseUrl : "<?php echo url("/"); ?>"
 	});
+
+	function refresh() {
+		$.ajax({
+            url: '{{ route('store-website.refresh-min-max-price')}}',
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+            },beforeSend: function() {
+              
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                alert(response);
+            }
+        });
+	}
 </script>
 
 @endsection

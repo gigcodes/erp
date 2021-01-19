@@ -74,6 +74,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/', 'BrandController@list')->name("store-website.brand.list");
         Route::get('records', 'BrandController@records')->name("store-website.brand.records");
         Route::post('push-to-store', 'BrandController@pushToStore')->name("store-website.brand.push-to-store");
+        Route::post('refresh-min-max-price', 'BrandController@refreshMinMaxPrice')->name("store-website.refresh-min-max-price");
     });
 
     Route::prefix('price-override')->group(function () {
@@ -146,6 +147,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/history', 'PageController@pageHistory')->name("store-website.page.history");
         Route::get('/{id}/translate-for-other-langauge', 'PageController@translateForOtherLanguage')->name("store-website.page.translate-for-other-langauge");
         Route::get('/{id}/push-website-in-live', 'PageController@pushWebsiteInLive')->name("store-website.page.push-website-in-live");
+        Route::get('/histories', 'PageController@histories')->name("store-website.page.histories");
     });
 
     Route::prefix('product-attribute')->group(function () {

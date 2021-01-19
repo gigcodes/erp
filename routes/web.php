@@ -17,6 +17,8 @@ Auth::routes();
 
 
 Route::get('/test/test', 'OrderController@testEmail');
+
+
 Route::get('/test/pushProduct', 'TmpTaskController@testPushProduct');
 Route::get('/test/fixBrandPrice', 'TmpTaskController@fixBrandPrice');
 Route::get('/test/analytics', 'AnalyticsController@cronShowData');
@@ -288,6 +290,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('brand/create/size/chart', 'BrandSizeChartController@createSizeChart')->name('brand/create/size/chart');
     Route::post('brand/store/size/chart', 'BrandSizeChartController@storeSizeChart')->name('brand/store/size/chart');
 
+    Route::post('brand/store-category-segment-discount', 'BrandController@storeCategorySegmentDiscount')->name('brand.store_category_segment_discount');
     Route::post('brand/attach-website', 'BrandController@attachWebsite');
     Route::post('brand/change-segment', 'BrandController@changeSegment');
     Route::post('brand/update-reference', 'BrandController@updateReference');
@@ -347,6 +350,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('sizes/update-sizes', 'SizeController@updateSizes');
 
     Route::resource('category', 'CategoryController');
+    Route::resource('category-segment', 'CategorySegmentController');
 
     Route::resource('resourceimg', 'ResourceImgController');
     Route::get('resourceimg/pending/1', 'ResourceImgController@pending');
@@ -1630,6 +1634,8 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('influencer-keyword-log', 'InfluencersController@getLogFile')->name('influencers.log');
     Route::post('influencer-restart-script', 'InfluencersController@restartScript')->name('influencers.restart');
     Route::post('influencer-stop-script', 'InfluencersController@stopScript')->name('influencers.stop');
+
+    Route::post('influencer-sort-data', 'InfluencersController@sortData')->name('influencers.sort');
     Route::resource('automated-reply', 'InstagramAutomatedMessagesController');
     Route::get('/', 'InstagramController@index');
     Route::get('comments/processed', 'HashtagController@showProcessedComments');
@@ -1850,6 +1856,7 @@ Route::middleware('auth')->group(function () {
     //Simple Duty Country
     Route::get('duty/country', 'SimplyDutyCountryController@index')->name('simplyduty.country.index');
     Route::get('duty/country/update', 'SimplyDutyCountryController@getCountryFromApi')->name('simplyduty.country.update');
+    Route::get('duty/country/updateduty', 'SimplyDutyCountryController@updateduty')->name('simplyduty.country.updateduty');
 
     //Simple Duty Calculation
     Route::get('duty/calculation', 'SimplyDutyCalculationController@index')->name('simplyduty.calculation.index');
@@ -2473,6 +2480,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('missing-brands/store', 'MissingBrandController@store')->name('missing-brands.store');
     Route::post('missing-brands/reference', 'MissingBrandController@reference')->name('missing-brands.reference');
     Route::post('missing-brands/multi-reference', 'MissingBrandController@multiReference')->name('missing-brands.multi-reference');
+    Route::post('missing-brands/automatic-merge', 'MissingBrandController@automaticMerge')->name('missing-brands.automatic-merge');
+
+    
 });
 Route::post('message-queue/approve/approved', '\Modules\MessageQueue\Http\Controllers\MessageQueueController@approved');
 

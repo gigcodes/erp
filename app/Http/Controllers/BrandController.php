@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Brand;
-use App\Setting;
 use App\Product;
-use Illuminate\Http\Request;
+use App\Setting;
+use App\CategorySegment;
 use \App\StoreWebsiteBrand;
+use Illuminate\Http\Request;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use DB;
 
 class BrandController extends Controller
 {
@@ -20,7 +22,6 @@ class BrandController extends Controller
 
     public function index()
     {
-
         $brands = Brand::leftJoin("store_website_brands as swb","swb.brand_id","brands.id")
         ->leftJoin("store_websites as sw","sw.id","swb.store_website_id")
         ->select(["brands.*",\DB::raw("group_concat(sw.id) as selling_on")])
@@ -34,6 +35,8 @@ class BrandController extends Controller
 
         $brands = $brands->paginate(Setting::get('pagination'));
 
+        $category_segments = CategorySegment::where('status',1)->get();
+
         $storeWebsite = \App\StoreWebsite::all()->pluck("website","id")->toArray();
         $brandsData = \App\Brand::select("name","references","id")->get()->toArray();
         $attachedBrands = \App\StoreWebsiteBrand::groupBy("store_website_id")->select(
@@ -41,13 +44,12 @@ class BrandController extends Controller
         )->get()->toArray();
 
 
-        return view('brand.index', compact('brands','storeWebsite','attachedBrands'))
+        return view('brand.index', compact('brands','storeWebsite','attachedBrands', 'category_segments'))
             ->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
     public function create()
     {
-
         $data[ 'name' ] = '';
         $data[ 'euro_to_inr' ] = '';
         $data[ 'deduction_percentage' ] = '';
@@ -55,7 +57,8 @@ class BrandController extends Controller
         $data[ 'brand_segment' ] = '';
         $data[ 'brand_segment' ] = '';
         $data[ 'brand_segment' ] = '';
-
+        $data[ 'category_segments'] = CategorySegment::where('status', 1)->get();
+        $data[ 'amount' ] = '';
         $data[ 'modify' ] = 0;
 
         return view('brand.form', $data);
@@ -64,8 +67,16 @@ class BrandController extends Controller
 
     public function edit(Brand $brand)
     {
-
         $data = $brand->toArray();
+        $data[ 'category_segments'] = CategorySegment::where('status', 1)->get();
+        $category_segment_discount = DB::table('category_segment_discounts')->where('brand_id', $brand->id)->first();
+        if($category_segment_discount) {
+            $data[ 'category_segment_id'] = $category_segment_discount->id;
+            $data[ 'amount' ] = $category_segment_discount->amount;
+        } else {
+            $data[ 'category_segment_id'] = '';
+            $data['amount'] = '';
+        }
         $data[ 'modify' ] = 1;
 
         return view('brand.form', $data);
@@ -82,9 +93,13 @@ class BrandController extends Controller
             'magento_id' => 'required|numeric',
         ]);
 
-        $data = $request->except('_token', '_method');
+        $data = $request->except('_token', '_method', 'category_segment_id', 'amount');
 
-        $brand->create($data);
+        $brand = $brand->create($data);
+
+        DB::table('category_segment_discounts')->insert([
+            ['brand_id' => $brand->id, 'category_segment_id' => $request->category_segment_id, 'amount' => $request->amount, 'amount_type' => 'percentage', 'created_at' => now(), 'updated_at' => now()]
+        ]);
 
         return redirect()->route('brand.index')->with('success', 'Brand added successfully');
     }
@@ -99,7 +114,14 @@ class BrandController extends Controller
             'magento_id' => 'required|numeric',
         ]);
 
-        $data = $request->except(['_token', '_method','references']);
+        DB::table('category_segment_discounts')->where('brand_id', $brand->id)->update([
+            'category_segment_id' => $request->category_segment_id,
+            'amount' => $request->amount,
+            'amount_type' => 'percentage',
+            'updated_at' => now() 
+        ]);
+
+        $data = $request->except(['_token', '_method','references', 'category_segment_id', 'amount']);
 
         foreach ($data as $key => $value) {
             $brand->$key = $value;
@@ -338,5 +360,20 @@ class BrandController extends Controller
 
         return response()->json(["code" => 500 , "data" => [],"message" => "Please check valid brand exist"]);
 
+    }
+
+    public function storeCategorySegmentDiscount(Request $request) {
+        $category_segment = DB::table('category_segment_discounts')->where('brand_id', $request->brand_id)->where('category_segment_id', $request->category_segment_id)->first();
+        if($category_segment) {
+            return DB::table('category_segment_discounts')->where('brand_id', $request->brand_id)->where('category_segment_id', $request->category_segment_id)->update([
+                'amount' => $request->amount,
+                'amount_type' => 'percentage',
+                'updated_at' => now() 
+            ]);
+        } else {
+            return DB::table('category_segment_discounts')->insert([
+                ['brand_id' => $request->brand_id, 'category_segment_id' => $request->category_segment_id, 'amount' => $request->amount, 'amount_type' => 'percentage', 'created_at' => now(), 'updated_at' => now()]
+            ]);
+        }
     }
 }

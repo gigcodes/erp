@@ -120,6 +120,9 @@
             </div>
             <div class="pull-right">
                 <div class="row">
+                <div class="form-group mr-3 mb-3">    
+                    <button class="btn btn-secondary btn-sm" onclick="sortData()">Sort Data</button> 
+                </div>        
                 <div class="form-group mr-3 mb-3">
                         <input name="name" type="text" class="form-control" id="keywordname"
                                placeholder="New Keyword">
@@ -688,6 +691,32 @@
             console.log(id);
             $(id).toggleClass('dis-none');
         });
+
+
+        function sortData() {
+                
+                $.ajax({
+                url: '{{ route('influencers.sort') }}',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        '_token': "{{ csrf_token() }}",
+                    },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                    toastr['success'](data);
+                }).fail(function (error) {
+                    console.log(error);
+                    $("#loading-image").hide();
+                    toastr['error'](error);
+                });
+
+            
+        }    
     </script>
 
 @endsection

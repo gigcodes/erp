@@ -128,9 +128,9 @@
               <td>{{ $task->paid_amount }}</td>
               <td>{{ $task->balance }}</td>
               @php
-                $totalRateEstimate += is_numeric($task->rate_estimated) ? $task->rate_estimated : 0;
-                $totalPaid += is_numeric($task->paid_amount) ? $task->paid_amount : 0;
-                $totalBalance += is_numeric($task->balance) ? $task->balance : 0;
+                $totalRateEstimate += is_numeric(str_replace(",","",$task->rate_estimated)) ? str_replace(",","",$task->rate_estimated) : 0;
+                $totalPaid += is_numeric(str_replace(",","",$task->paid_amount)) ? str_replace(",","",$task->paid_amount) : 0;
+                $totalBalance += is_numeric(str_replace(",","",$task->balance)) ? str_replace(",","",$task->balance) : 0;
               @endphp
               <td>
                 @if (Auth::user()->hasRole('Admin'))
@@ -204,18 +204,6 @@
 
         </div>
     </div>
-
-
-
-    <div id="create-manual-payment" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content" id="create-manual-payment-content">
-              
-            </div>
-        </div>
-    </div>
-    
     <div id="manualPayments" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <!-- Modal content-->
@@ -497,59 +485,6 @@
         });
     });
 
-
-    $(document).on('click', '.manual-payment-btn', function(e) {
-      e.preventDefault();
-      var thiss = $(this);
-      var type = 'GET';
-        $.ajax({
-          url: '/voucher/manual-payment',
-          type: type,
-          beforeSend: function() {
-            $("#loading-image").show();
-          }
-        }).done( function(response) {
-          $("#loading-image").hide();
-          $('#create-manual-payment').modal('show');
-          $('#create-manual-payment-content').html(response);
-
-          $('#date_of_payment').datetimepicker({
-            format: 'YYYY-MM-DD'
-          });
-          $('.select-multiple').select2({width: '100%'});
-
-          $(".currency-select2").select2({width: '100%',tags:true});
-          $(".payment-method-select2").select2({width: '100%',tags:true});
-
-        }).fail(function(errObj) {
-          $("#loading-image").hide();
-        });
-    });
-
-    $(document).on('click', '.manual-request-btn', function(e) {
-      e.preventDefault();
-      var thiss = $(this);
-      var type = 'GET';
-        $.ajax({
-          url: '/voucher/payment/request',
-          type: type,
-          beforeSend: function() {
-            $("#loading-image").show();
-          }
-        }).done( function(response) {
-          $("#loading-image").hide();
-          $('#create-manual-payment').modal('show');
-          $('#create-manual-payment-content').html(response);
-
-          $('#date_of_payment').datetimepicker({
-            format: 'YYYY-MM-DD'
-          });
-          $('.select-multiple').select2({width: '100%'});
-
-        }).fail(function(errObj) {
-          $("#loading-image").hide();
-        });
-    }); 
 
     $(document).on("click",".btn-file-upload",function() {
       var $this = $(this);
