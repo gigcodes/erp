@@ -123,7 +123,7 @@ class BrandController extends Controller
             if($website){
                 if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
                     $brand = \App\Brand::find($request->brand);
-                    $magentoBrandId = MagentoHelper::addBrand($brand,$website);
+                    //$magentoBrandId = MagentoHelper::addBrand($brand,$website);
                 }
 
             }
