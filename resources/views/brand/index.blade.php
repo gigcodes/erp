@@ -1,5 +1,13 @@
 @extends('layouts.app')
 
+@section('styles')
+<style>
+.btn {
+    padding: 6px 6px;
+}
+</style>
+@endsection
+
 @section('content')
 <?php
 $query = http_build_query(Request::except('page'));
@@ -74,17 +82,17 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             <tr>
                 <th>ID</th>
                 <th>Name</th>
-                <th width="200px">Similar Brands</th>
-                <th>Merge Brands</th>
+                <th width="300px">Similar Brands</th>
+                <th width="160px">Merge Brands</th>
                 <th>Magento ID</th>
                 <th>Euro to Inr</th>
                 <th>Deduction%</th>
-                <th>Segment</th>
+                <th width="150px">Segment</th>
                 @foreach($category_segments as $category_segment)
-                    <th>{{ $category_segment->name }}</th>
+                    <th width="150px">{{ $category_segment->name }}</th>
                 @endforeach
-                <th>Selling on</th>
-                <th>Action</th>
+                <th width="150px">Selling on</th>
+                <th width="150px">Action</th>
             </tr>
             @foreach ($brands as $key => $brand)
             <tr>
