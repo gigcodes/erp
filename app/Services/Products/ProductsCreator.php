@@ -170,6 +170,9 @@ class ProductsCreator
                 $product->size = implode(',', $allSize);
                 $euSize = ProductHelper::getEuSize($product, $allSize, $supplierModel->size_system_id , $image->size_system);
                 $product->size_eu = implode(',', $euSize);
+                if(empty($euSize)) {
+                    $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
+                }
             }
 
             // Store measurement
@@ -337,6 +340,9 @@ class ProductsCreator
 
                 $euSize = ProductHelper::getEuSize($product, $helperSize, $supplierModel->size_system_id , $image->size_system);
                 $product->size_eu = implode(',', $euSize);
+                if(empty($euSize)) {
+                    $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
+                }
 
                 /*if(!empty($euSize)) {
                     $product->size_eu = implode(',', $euSize);
