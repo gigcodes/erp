@@ -38,7 +38,50 @@ class BrandReferenceMergeAndDelete extends Command
      */
     public function handle()
     {
-        $brands = Brand::all();
+        echo "Starting to add from here".PHP_EOL;
+
+        $count = Brand::count();
+
+        echo "Total brand found :".$count.PHP_EOL;
+
+        for ($i=0; $i < $count; $i++) { 
+            
+            if($i == 0) {
+                $brand = Brand::first();
+            }else if($lastBrand){
+                $brand = Brand::where("id",">",$lastBrand->id)->whereNull("deleted_at")->first(); 
+            }
+
+            if($brand) {
+                // call the reference
+                $reference = explode(',', $brand->references);
+                foreach ($reference as $ref) {
+                    if(!empty($ref)){
+                        $similarBrands = Brand::where('name','LIKE',$ref)->where("references","")->where('id', '!=', $brand)->get();
+                        foreach ($similarBrands as $similarBrand) {
+                            $product = \App\Product::where("brand", $similarBrand->id)->get();
+                            if (!$product->isEmpty()) {
+                                foreach ($product as $p) {
+                                    $lastBrandId     = $p->brand;
+                                    $p->brand      = $brandId;
+                                    $p->last_brand = $lastBrandId;
+                                    $p->save();
+                                    \Log::info("{$brandId} updated with product" . $p->sku);
+                                }
+                            }
+                            $similarBrand->delete();
+                        }
+                    }
+                }
+                $lastBrand = $brand;
+            }
+        }
+
+        die;
+
+
+
+        /*$brands = Brand::all();
 
         foreach ($brands as $brand) {
             $brandId = $brand->id;
@@ -64,6 +107,6 @@ class BrandReferenceMergeAndDelete extends Command
                        }
                    }   
             }
-        }
+        }*/
     }
 }
