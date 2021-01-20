@@ -88,6 +88,8 @@ class BrandController extends Controller
     public function list(Request $request) {
         $title = "Store Brand";
         $query = DB::table('brands')->leftJoin('products', 'products.brand', '=', 'brands.id')->groupBy('brands.id')->select('brands.*', DB::raw('count(products.id) as counts'));
+
+        $query = $query->whereNull("brands.deleted_at");
         
         if($request->keyword != null) {
             $query->where("brands.name","like","%".$request->keyword."%");
