@@ -1393,6 +1393,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/change/mail', 'SupplierController@changeMail')->name('supplier/change/mail');
     Route::post('supplier/change/phone', 'SupplierController@changePhone')->name('supplier/change/phone');
     Route::post('supplier/change/size', 'SupplierController@changeSize')->name('supplier/change/size');
+    Route::post('supplier/change/size-system', 'SupplierController@changeSizeSystem')->name('supplier/change/size-system');
     Route::post('supplier/change/whatsapp', 'SupplierController@changeWhatsapp')->name('supplier/change/whatsapp');
     // Supplier Category Permission
     Route::get('supplier/category/permission', 'SupplierCategoryController@usersPermission')->name('supplier/category/permission');

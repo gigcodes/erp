@@ -29,20 +29,20 @@ class ProductsCreator
         Log::channel('productUpdates')->debug("[Start] createProduct is called");
 
         // Set supplier
-        $supplier = Supplier::leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($image) {
+        $supplierModel = Supplier::leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($image) {
             $query->where('supplier', '=', $image->website)->orWhere('sc.scraper_name', '=', $image->website);
         })->first();
 
         // Do we have a supplier?
-        if ($supplier == null) {
+        if ($supplierModel == null) {
             // Debug
             Log::channel('productUpdates')->debug("[Error] Supplier is null " . $image->website);
 
             // Return false
             return false;
         } else {
-            $supplierId = $supplier->id;
-            $supplier = $supplier->supplier;
+            $supplierId = $supplierModel->id;
+            $supplier = $supplierModel->supplier;
         }
 
         // Get formatted data
@@ -163,11 +163,12 @@ class ProductsCreator
                         $helperSize = ProductHelper::getRedactedText($size, 'composition');
                         $allSize[] = $helperSize;
                         //find the eu size and update into the field
-                        $euSize[]  = ProductHelper::getWebsiteSize($image->size_system, $helperSize, $product->category);
+                        /*$euSize[]  = ProductHelper::getWebsiteSize($image->size_system, $helperSize, $product->category);*/
                     }
                 }
 
                 $product->size = implode(',', $allSize);
+                $euSize = ProductHelper::getEuSize($product, $allSize, $supplierModel->size_system_id , $image->size_system);
                 $product->size_eu = implode(',', $euSize);
             }
 
@@ -193,6 +194,8 @@ class ProductsCreator
             $image->save();
             // check that if product has no title and everything then send to the external scraper
             $product->checkExternalScraperNeed();
+
+            \Log::info("Saved product id :" . $product->id);
 
 
             if ($image->is_sale) {
@@ -329,11 +332,15 @@ class ProductsCreator
                 foreach($sizeExplode as $sizeE){
                     $helperSize = ProductHelper::getRedactedText($sizeE, 'composition');
                     //find the eu size and update into the field
-                    $euSize[]  = ProductHelper::getWebsiteSize($image->size_system, $helperSize, $product->category);
+                    //$euSize[]  = ProductHelper::getWebsiteSize($image->size_system, $helperSize, $product->category);
                 }
-                if(!empty($euSize)) {
+
+                $euSize = ProductHelper::getEuSize($product, $helperSize, $supplierModel->size_system_id , $image->size_system);
+                $product->size_eu = implode(',', $euSize);
+
+                /*if(!empty($euSize)) {
                     $product->size_eu = implode(',', $euSize);
-                }
+                }*/
             }
         }
 

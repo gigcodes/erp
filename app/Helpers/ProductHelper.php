@@ -253,23 +253,423 @@ class ProductHelper extends Model
         return \Form::select($name, $brandSegment, $select, $attr);
     }
 
-    public static function getWebsiteSize($sizeSystem, $size, $categoryId = 0)
+
+    public static function getEuSize($product, $sizes, $supplierSizeSystem = null, $scraperSizeSystem = null)
     {
         // For Italian sizes, return the original
         // if (strtoupper($sizeSystem) == 'IT') {
         //     return $size;
         // }
+        // $sizeSystem = $product->supllier
+        $category = $product->categories;
+        $ids = [];
+        if($category) {
+            $ids[] = $product->category_id;
+            if($category && $category->parent) {
+                $parentModel = $category->parent;
+                if($parentModel) {
+                    $ids[] = $parentModel->id;
+                    $grandParentModel = $parentModel->parent;
+                    if($grandParentModel) {
+                        $ids[] = $grandParentModel->id;
+                    }
+                }
+            }
+        }
 
-        $sizemanager = SystemSizeManager::select('system_size_relations.size')
-                            ->leftjoin('system_size_relations','system_size_relations.system_size_manager_id','system_size_managers.id')
-                            ->leftjoin('system_sizes','system_sizes.id','system_size_relations.system_size')
-                            ->where('category_id',$categoryId)
-                            ->where('erp_size',$size)
-                            ->where('system_sizes.name',$sizeSystem)
-                            ->where('system_sizes.status',1)
-                            ->where('system_size_managers.status',1)
-                            ->first();
-        return !empty($sizemanager->size) ? $sizemanager->size : $size;
+        $ids = array_filter($ids);
+
+        $sizeManager = SystemSizeManager::select('system_size_managers.erp_size')
+        ->leftjoin('system_size_relations','system_size_relations.system_size_manager_id','system_size_managers.id')
+        ->leftjoin('system_sizes','system_sizes.id','system_size_relations.system_size')
+        ->whereIn('category_id',$ids)
+        ->whereIn('system_size_relations.size',$sizes)
+        ->where('system_sizes.status',1)
+        ->where('system_size_managers.status',1);
+
+        if(!empty($supplierSizeSystem)) {
+            $sizeManager = $sizeManager->where('system_size_relations.system_size',$supplierSizeSystem);
+        }else{
+            $sizeManager = $sizeManager->where('system_sizes.name',$scraperSizeSystem);
+        }
+
+        $returnSizes = $sizeManager->pluck('erp_size')->toArray();
+
+        return $returnSizes;
+    }
+
+
+    public static function getWebsiteSize($sizeSystem, $size, $categoryId = 0)
+    {
+        if (strtoupper($sizeSystem) == 'IT') {
+            return $size;
+        }
+
+        // Get all category IDs for men's shoes (parent ID 5)
+        if (count(self::$_menShoesCategoryIds) == 0) {
+            self::$_menShoesCategoryIds = Category::where('parent_id', 5)->pluck('id')->toArray();
+        }
+
+        // Get all category IDs for men's shoes (parent ID 41)
+        if (count(self::$_menShoesCategoryIds) == 0) {
+            self::$_womenShoesCategoryIds = Category::where('parent_id', 41)->pluck('id')->toArray();
+        }
+
+        // US Shoes Men
+        if (strtoupper($sizeSystem) == 'US' && in_array($categoryId, self::$_menShoesCategoryIds)) {
+            switch ((int)$size) {
+                // Shoes
+                case 6:
+                    return 38;
+                case 7:
+                    return 39;
+                case 7.5:
+                    return 40;
+                case 8:
+                    return 41;
+                case 8.5:
+                    return 42;
+                case 9:
+                    return 43;
+                case 10.5:
+                    return 44;
+                case 11.5:
+                    return 45;
+                case 12:
+                    return 46;
+                case 13:
+                    return 47;
+                case 14:
+                    return 48;
+            }
+        }
+
+        // US Shoes Women
+        if (strtoupper($sizeSystem) == 'US' && in_array($categoryId, self::$_womenShoesCategoryIds)) {
+            switch ((int)$size) {
+                // Shoes
+                case 5:
+                    return 35;
+                case 6:
+                    return 36;
+                case 6.5:
+                    return 37;
+                case 7.5:
+                    return 38;
+                case 8.5:
+                    return 39;
+                case 9:
+                    return 40;
+                case 9.5:
+                    return 41;
+                case 10:
+                    return 42;
+                case 10.5:
+                    return 43;
+            }
+        }
+
+        // US Clothing
+        if (strtoupper($sizeSystem) == 'US') {
+            switch ((int)$size) {
+                // Clothing
+                case 2:
+                    return 38;
+                case 4:
+                    return 40;
+                case 6:
+                    return 42;
+                case 8:
+                    return 44;
+                case 10:
+                    return 46;
+                case 12:
+                    return 48;
+                case 14:
+                    return 50;
+                case 16:
+                    return 52;
+                case 18:
+                    return 54;
+                case 20:
+                    return 56;
+                case 22:
+                    return 58;
+                case 24:
+                    return 60;
+            }
+        }
+
+        // AU NZ Shoes Women
+        if (in_array(strtoupper($sizeSystem), ['AU', 'NZ']) && in_array($categoryId, self::$_womenShoesCategoryIds)) {
+            switch ((int)$size) {
+                // Shoes
+                case 3.5:
+                    return 35;
+                case 4.5:
+                    return 36;
+                case 5:
+                    return 37;
+                case 6:
+                    return 38;
+                case 7:
+                    return 39;
+                case 7.5:
+                    return 40;
+                case 8:
+                    return 41;
+                case 8.5:
+                    return 42;
+                case 9:
+                    return 43;
+            }
+        }
+
+        // UK Shoes Men and Women
+        if (in_array(strtoupper($sizeSystem), ['UK', 'AU', 'NZ']) && (in_array($categoryId, self::$_menShoesCategoryIds) || in_array($categoryId, self::$_womenShoesCategoryIds))) {
+            switch ((int)$size) {
+                // Shoes
+                case 2.5:
+                    return 35;
+                case 3.5:
+                    return 36;
+                case 4:
+                    return 37;
+                case 5:
+                    return 38;
+                case 6:
+                    return 39;
+                case 6.5:
+                    return 40;
+                case 7:
+                    return 41;
+                case 7.5:
+                    return 42;
+                case 8:
+                    return 43;
+                case 9.5:
+                    return 44;
+                case 10.5:
+                    return 45;
+                case 11:
+                    return 46;
+                case 12:
+                    return 47;
+                case 13:
+                    return 48;
+            }
+        }
+
+        // UK / AU / NZ
+        if (in_array(strtoupper($sizeSystem), ['UK', 'AU', 'NZ'])) {
+            switch ((int)$size) {
+                // Clothing
+                case 6:
+                    return 38;
+                case 8:
+                    return 40;
+                case 10:
+                    return 42;
+                case 12:
+                    return 44;
+                case 14:
+                    return 46;
+                case 16:
+                    return 48;
+                case 18:
+                    return 50;
+                case 20:
+                    return 52;
+                case 22:
+                    return 54;
+                case 24:
+                    return 56;
+                case 26:
+                    return 58;
+                case 28:
+                    return 60;
+            }
+        }
+
+        // French Shoes Men and Women
+        if (strtoupper($sizeSystem) == 'FR' && (in_array($categoryId, self::$_menShoesCategoryIds) || in_array($categoryId, self::$_womenShoesCategoryIds))) {
+            // Same size, just return
+            return $size;
+        }
+
+        // French
+        if (strtoupper($sizeSystem) == 'FR') {
+            switch ((int)$size) {
+                // Clothing
+                case 34:
+                    return 38;
+                case 36:
+                    return 40;
+                case 38:
+                    return 42;
+                case 40:
+                    return 44;
+                case 42:
+                    return 46;
+                case 44:
+                    return 48;
+                case 46:
+                    return 50;
+                case 48:
+                    return 52;
+                case 50:
+                    return 54;
+                case 52:
+                    return 56;
+                case 54:
+                    return 58;
+                case 56:
+                    return 60;
+            }
+        }
+
+        // German Shoes Men and Women
+        if (strtoupper($sizeSystem) == 'DE' && (in_array($categoryId, self::$_menShoesCategoryIds) || in_array($categoryId, self::$_womenShoesCategoryIds))) {
+            // Same size, just return
+            return $size;
+        }
+
+        // German Clothing
+        if (strtoupper($sizeSystem) == 'DE') {
+            switch ((int)$size) {
+                // Clothing
+                case 32:
+                    return 38;
+                case 34:
+                    return 40;
+                case 36:
+                    return 42;
+                case 38:
+                    return 44;
+                case 40:
+                    return 46;
+                case 42:
+                    return 48;
+                case 44:
+                    return 50;
+                case 46:
+                    return 52;
+                case 48:
+                    return 54;
+                case 50:
+                    return 56;
+                case 52:
+                    return 58;
+                case 54:
+                    return 60;
+            }
+        }
+
+        // Japanese Shoes Men and Women
+        if (strtoupper($sizeSystem) == 'JP' && (in_array($categoryId, self::$_menShoesCategoryIds) || in_array($categoryId, self::$_womenShoesCategoryIds))) {
+            switch ((int)$size) {
+                // Shoes
+                case 21:
+                    return 35;
+                case 22:
+                    return 36;
+                case 22.5:
+                    return 37;
+                case 23.5:
+                    return 38;
+                case 24.5:
+                    return 39;
+                case 25:
+                    return 40;
+                case 25.5:
+                    return 41;
+                case 26:
+                    return 42;
+                case 27:
+                    return 43;
+                case 28:
+                    return 44;
+                case 29:
+                    return 45;
+                case 30:
+                    return 46;
+                case 31:
+                    return 47;
+                case 32:
+                    return 48;
+            }
+        }
+
+        // Japanese Clothing
+        if (strtoupper($sizeSystem) == 'JP') {
+            switch ((int)$size) {
+                // Clothing
+                case 7:
+                    return 38;
+                case 9:
+                    return 40;
+                case 11:
+                    return 42;
+                case 13:
+                    return 44;
+                case 15:
+                    return 46;
+                case 17:
+                    return 48;
+                case 19:
+                    return 50;
+                case 21:
+                    return 52;
+                case 23:
+                    return 54;
+                case 25:
+                    return 56;
+                case 27:
+                    return 58;
+                case 29:
+                    return 60;
+            }
+        }
+
+        // Russian Shoes Men and Women
+        if (strtoupper($sizeSystem) == 'DE' && (in_array($categoryId, self::$_menShoesCategoryIds) || in_array($categoryId, self::$_womenShoesCategoryIds))) {
+            // Same size, just return
+            return $size;
+        }
+
+        // Russian Clothing
+        if (strtoupper($sizeSystem) == 'RU') {
+            switch ((int)$size) {
+                // Clothing
+                case 40:
+                    return 38;
+                case 42:
+                    return 40;
+                case 44:
+                    return 42;
+                case 46:
+                    return 44;
+                case 48:
+                    return 46;
+                case 50:
+                    return 48;
+                case 52:
+                    return 50;
+                case 54:
+                    return 52;
+                case 56:
+                    return 54;
+                case 24:
+                    return 56;
+                case 26:
+                    return 58;
+                case 28:
+                    return 60;
+            }
+        }
+
+        // Still here? Return original size
+        return $size;
     }
 
     public static function checkReadinessForLive($product, $storeWebsiteId = null)
