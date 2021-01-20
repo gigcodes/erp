@@ -30,6 +30,9 @@
                         <button type="button" title="Push" data-id="{{>prop.id}}" class="btn btn-push">
                             <i class="fa fa-upload" aria-hidden="true"></i>
                         </button>
+						<button type="button" title="Pull" data-id="{{>prop.id}}" class="btn btn-pull">
+			        		<i class="fa fa-download" aria-hidden="true"></i>
+			        	</button>
                         <button type="button" title="Delete" data-id="{{>prop.id}}" class="btn btn-delete-template">
                             <i class="fa fa-trash" aria-hidden="true"></i>
                         </button>

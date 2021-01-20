@@ -10,6 +10,7 @@ use App\StoreWebsitePage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
+use seo2websites\MagentoHelper\MagentoHelper;
 
 class PageController extends Controller
 {
@@ -183,6 +184,36 @@ class PageController extends Controller
         return response()->json(["code" => 500, "error" => "Wrong site id!"]);
     }
 
+    public function pull(Request $request, $id)
+    {
+        $page = StoreWebsitePage::where("id", $id)->first();
+
+        if ($page) {
+            $website = $page->storeWebsite;
+            $data = MagentoHelper::pullWebsitePage($website);
+            if (!empty($data)) {
+                foreach ($data as $key => $d) {
+                    $page->store_website_id = $website->id;
+                    $page->platform_id      = $d->id;
+                    $page->title            = isset($d->title) ? $d->title : "";
+                    $page->url_key          = isset($d->identifier) ? $d->identifier : "";
+                    $page->layout           = isset($d->page_layout) ? $d->page_layout : "";
+                    $page->meta_title       = isset($d->meta_title) ? $d->meta_title : "";
+                    $page->meta_keywords    = isset($d->meta_keywords) ? $d->meta_keywords : "";
+                    $page->meta_description = isset($d->meta_description) ? $d->meta_description : "";
+                    $page->content_heading  = isset($d->content_heading) ? $d->content_heading : "";
+                    $page->content          = isset($d->content) ? $d->content : "";
+                    $page->created_at       = isset($d->creation_time) ? $d->creation_time : "";
+                    $page->updated_at       = isset($d->update_time) ? $d->update_time : "";
+                    $page->save();
+                }
+            }
+            return response()->json(["code" => 200, 'message' => "Website send for pull"]);
+        }
+
+        return response()->json(["code" => 500, "error" => "Wrong site id!"]);
+    }
+
     public function getStores(Request $request, $id)
     {
         $stores = \App\StoreWebsite::join("websites as w", "w.store_website_id", "store_websites.id")
@@ -332,6 +363,42 @@ class PageController extends Controller
             foreach($pages as $page) {
                 \App\Jobs\PushPageToMagento::dispatch($page)->onQueue('magetwo');
             }
+        }
+
+        return response()->json(["code" => 500, "data" => [], "message" => "Page does not exist"]);
+
+    }
+
+    public function pullWebsiteInLive (Request $request, $id)
+    {   
+        $website = \App\StoreWebsite::where("id", $id)->where("api_token", "!=", "")->where('remote_software', '2')->where("website_source", "magento")->first();
+        if ($website) {
+            $data = MagentoHelper::pullWebsitePage($website);
+            if (!empty($data)) {
+                foreach ($data as $key => $d) {
+                    $pages = \App\StoreWebsitePage::where("store_website_id", $website->id)->where('platform_id', $d->id)->first();
+                    if (!$pages) {
+                        $pages = new \App\StoreWebsitePage;
+                    }
+
+                    $pages->store_website_id = $website->id;
+                    $pages->platform_id      = $d->id;
+                    $pages->title            = isset($d->title) ? $d->title : "";
+                    $pages->url_key          = isset($d->identifier) ? $d->identifier : "";
+                    $pages->layout           = isset($d->page_layout) ? $d->page_layout : "";
+                    $pages->meta_title       = isset($d->meta_title) ? $d->meta_title : "";
+                    $pages->meta_keywords    = isset($d->meta_keywords) ? $d->meta_keywords : "";
+                    $pages->meta_description = isset($d->meta_description) ? $d->meta_description : "";
+                    $pages->content_heading  = isset($d->content_heading) ? $d->content_heading : "";
+                    $pages->content          = isset($d->content) ? $d->content : "";
+                    $pages->created_at       = isset($d->creation_time) ? $d->creation_time : "";
+                    $pages->updated_at       = isset($d->update_time) ? $d->update_time : "";
+
+                    $pages->save();
+
+                }
+            }
+            return response()->json(["code" => 200, "data" => [], "message" => "Website pages pulled successfully!"]);
         }
 
         return response()->json(["code" => 500, "data" => [], "message" => "Page does not exist"]);
