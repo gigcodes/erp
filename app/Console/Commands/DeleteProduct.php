@@ -77,6 +77,7 @@ class DeleteProduct extends Command
             $product = \App\Product::leftJoin("order_products as op","op.product_id","products.id")->where("stock","<=" ,0)
             ->where("supplier","!=", "in-stock")
             ->havingRaw("op.product_id is null")
+            ->groupBy("products.id")
             ->first();
 
             if($product) {
