@@ -78,7 +78,7 @@ class DeleteProduct extends Command
             ->where("supplier","!=", "in-stock")
             ->havingRaw("op.product_id is null")
             ->groupBy("products.id")
-            ->select("products.*")
+            ->select(["products.*","op.product_id"])
             ->first();
 
             if($product) {
