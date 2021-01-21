@@ -209,7 +209,7 @@ class TmpTaskController extends Controller
 
     public function deleteChatMessages()
     {
-        $limit = request("limit",1000);
+        $limit = request("limit",10000);
         $chatMessages = \App\ChatMessage::where("group_ids",">",0)->orderBy("created_at","asc")->limit($limit)->get();
         if(!$chatMessages->isEmpty()) {
             foreach($chatMessages as $chatM) {
@@ -224,7 +224,7 @@ class TmpTaskController extends Controller
                         }
                     }
                 }
-                $chatM->delete();
+                //$chatM->delete();
             }
         }
     }
