@@ -73,7 +73,12 @@ class DeleteProduct extends Command
         }*/
 
         for ($i=0; $i<20000; $i++) { 
-            $product = \App\Product::where("stock","<=" ,0)->where("supplier","!=", "in-stock")->first();
+
+            $product = \App\Product::leftJoin("order_products as op","op.product_id","products.id")->where("stock","<=" ,0)
+            ->where("supplier","!=", "in-stock")
+            ->havingRaw("op.product_id is null")
+            ->first();
+
             if($product) {
                $this->deleteProduct($product);
             }
