@@ -209,7 +209,7 @@ class TmpTaskController extends Controller
 
     public function deleteChatMessages()
     {
-        $chatMessages = \App\ChatMessage::join("mediables as m","m.mediable_id","chat_messages.id")->where("chat_messages.group_id",">",0)->limit(1000)->get();
+        $chatMessages = \App\ChatMessage::where("group_id",">",0)->orderBy("created_at","asc")->limit(1000)->get();
         if(!$chatMessages->isEmpty()) {
             foreach($chatMessages as $chatM) {
                 $medias = $chatM->getAllMediaByTag();
