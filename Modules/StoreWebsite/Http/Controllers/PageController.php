@@ -193,19 +193,19 @@ class PageController extends Controller
             $data = MagentoHelper::pullWebsitePage($website);
             if (!empty($data)) {
                 foreach ($data as $key => $d) {
-                    $page->store_website_id = $website->id;
-                    $page->platform_id      = $d->id;
-                    $page->title            = isset($d->title) ? $d->title : "";
-                    $page->url_key          = isset($d->identifier) ? $d->identifier : "";
-                    $page->layout           = isset($d->page_layout) ? $d->page_layout : "";
-                    $page->meta_title       = isset($d->meta_title) ? $d->meta_title : "";
-                    $page->meta_keywords    = isset($d->meta_keywords) ? $d->meta_keywords : "";
-                    $page->meta_description = isset($d->meta_description) ? $d->meta_description : "";
-                    $page->content_heading  = isset($d->content_heading) ? $d->content_heading : "";
-                    $page->content          = isset($d->content) ? $d->content : "";
-                    $page->created_at       = isset($d->creation_time) ? $d->creation_time : "";
-                    $page->updated_at       = isset($d->update_time) ? $d->update_time : "";
-                    $page->save();
+                    if($page->platform_id == $d->id) {
+                        $page->title            = isset($d->title) ? $d->title : "";
+                        $page->url_key          = isset($d->identifier) ? $d->identifier : "";
+                        $page->layout           = isset($d->page_layout) ? $d->page_layout : "";
+                        $page->meta_title       = isset($d->meta_title) ? $d->meta_title : "";
+                        $page->meta_keywords    = isset($d->meta_keywords) ? $d->meta_keywords : "";
+                        $page->meta_description = isset($d->meta_description) ? $d->meta_description : "";
+                        $page->content_heading  = isset($d->content_heading) ? $d->content_heading : "";
+                        $page->content          = isset($d->content) ? $d->content : "";
+                        $page->created_at       = isset($d->creation_time) ? $d->creation_time : "";
+                        $page->updated_at       = isset($d->update_time) ? $d->update_time : "";
+                        $page->save();                        
+                    }
                 }
             }
             return response()->json(["code" => 200, 'message' => "Website send for pull"]);
