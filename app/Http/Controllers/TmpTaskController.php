@@ -231,7 +231,7 @@ class TmpTaskController extends Controller
 
     public function deleteProductImages()
     {
-        $limit = request("limit",1000);
+        $limit = request("limit",10000);
         $products = \App\Product::leftJoin("order_products as op","op.product_id","products.id")->where("stock","<=" ,0)
             ->where("supplier","!=", "in-stock")
             ->where("has_mediables",1)
