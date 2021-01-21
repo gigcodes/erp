@@ -40,7 +40,7 @@ class DeleteProduct extends Command
     public function handle()
     {
         //
-        $deleteby = $this->ask('Delete product by ?');
+        /*$deleteby = $this->ask('Delete product by ?');
         $ids      = $this->ask('Enter Ids');
         $limit    = $this->ask('Enter limit');
 
@@ -70,8 +70,14 @@ class DeleteProduct extends Command
                     }
                 }
             }
-        }
+        }*/
 
+        for ($i=0; $i<20000; $i++) { 
+            $product = \App\Product::where("stock","<=" ,0)->where("supplier","!=", "in-stock")->first();
+            if($product) {
+               $this->deleteProduct($product);
+            }
+        }
     }
 
     public function deleteProduct(Product $product)
