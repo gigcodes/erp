@@ -207,4 +207,25 @@ class TmpTaskController extends Controller
         die;
     }
 
+    public function deleteChatMessages()
+    {
+        $chatMessages = \App\ChatMessage::where("group_id",">",0)->orderBy("created_at","asc")->limit(1000)->get();
+        if(!$chatMessages->isEmpty()) {
+            foreach($chatMessages as $chatM) {
+                $medias = $chatM->getAllMediaByTag();
+                if(!$medias->isEmpty()) {
+                    foreach($medias as $i => $media) {
+                        foreach($media as $m) {
+                            if(strpos($m->directory,"product") === false) {
+                                echo $m->getAbsolutePath(). " started to delete";
+                                $m->delete();
+                            }
+                        }
+                    }
+                }
+                $chatM->delete();
+            }
+        }
+    }
+
 }
