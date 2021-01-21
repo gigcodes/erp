@@ -229,4 +229,34 @@ class TmpTaskController extends Controller
         }
     }
 
+    public function deleteProductImages()
+    {
+        $limit = request("limit",1000);
+        $products = \App\Product::leftJoin("order_products as op","op.product_id","products.id")->where("stock","<=" ,0)
+            ->where("supplier","!=", "in-stock")
+            ->where("has_mediables",1)
+            ->havingRaw("op.product_id is null")
+            ->groupBy("products.id")
+            ->select(["products.*","op.product_id"])
+            ->limit($limit)
+            ->get();
+
+        if(!$products->isEmpty()) {
+            foreach($products as $product) {
+                $medias = $product->getAllMediaByTag();
+                if(!$medias->isEmpty()) {
+                    foreach($medias as $i => $media) {
+                        foreach($media as $m) {
+                            echo $m->getAbsolutePath(). " started to delete";
+                            $m->delete();
+                        }
+                    }
+                }
+                $product->has_mediables = 0;
+                $product->save();
+            }
+        }
+
+    }
+
 }
