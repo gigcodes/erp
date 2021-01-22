@@ -86,7 +86,7 @@
                             <span class="same-color flex-column">{{ strtoupper($hscode) }}</span>
                         </p>
                         <p>
-                            <strong>Sizes</strong>: {{ $product->size }}<br/>
+                            <strong>Sizes</strong>: {{ $product->size_eu }}<br/>
                             <strong>Dimension</strong>: {{ \App\Helpers\ProductHelper::getMeasurements($product) }}
                             <br/>
                         </p>
@@ -313,7 +313,7 @@
             </td>
             <td>
                 @php
-                    $size_array = explode(',', $product->size);
+                    $size_array = explode(',', $product->size_eu);
                 @endphp
 
                 {{ isset($size_array[0]) ? $size_array[0] : '' }} {{ isset($size_array[1]) ? ', '.$size_array[1] :  '' }}
