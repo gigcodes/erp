@@ -48,6 +48,10 @@ var page = {
             page.push($(this));
         });
 
+        page.config.bodyView.on("click",".btn-pull",function(e) {
+            page.pull($(this));
+        });
+
         $(document).on("change",".store-website-change",function(e) {
             e.preventDefault();
             page.findStores($(this));
@@ -78,7 +82,10 @@ var page = {
             page.pushPageInLive($(this));
         });
 
-        
+        $(document).on("click",".pull-pages-store-wise",function(e) {
+            e.preventDefault();
+            page.pullPageInLive($(this));
+        });
 
     },
     validationRule : function(response) {
@@ -219,6 +226,22 @@ var page = {
             toastr["error"](response.error,"");
         }
     },
+    pull : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/page/"+ele.data("id")+"/pull",
+            method: "get",
+        }
+        this.sendAjax(_z, 'afterPull');
+    },
+    afterPull : function(response) {
+        if(response.code  == 200) {
+            toastr["success"](response.message,"");
+            location.reload();
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
     findStores : function(ele) {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/page/"+ele.val()+"/get-stores",
@@ -325,6 +348,24 @@ var page = {
         this.sendAjax(_z, 'afterPushPageInLive');
     },
     afterPushPageInLive : function (response) {
+        if(response.code == 200) {
+            toastr["success"](response.message,"");
+            location.reload();
+        }else{
+            toastr["error"](response.message,"");
+        }
+    },
+    pullPageInLive : function(ele) {
+        let page     = $(".pull-website-store-id").val();
+        
+        var _z = {
+            url: this.config.baseUrl + "/page/"+page+"/pull-website-in-live",
+            method: "get"
+        }
+
+        this.sendAjax(_z, 'afterPullPageInLive');
+    },
+    afterPullPageInLive : function (response) {
         if(response.code == 200) {
             toastr["success"](response.message,"");
             location.reload();

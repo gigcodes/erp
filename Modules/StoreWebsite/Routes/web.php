@@ -142,11 +142,13 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/edit', 'PageController@edit')->name("store-website.page.edit");
         Route::get('/{id}/delete', 'PageController@delete')->name("store-website.page.delete");
         Route::get('/{id}/push', 'PageController@push')->name("store-website.page.push");
+        Route::get('/{id}/pull', 'PageController@pull')->name("store-website.page.pull");
         Route::get('/{id}/get-stores', 'PageController@getStores')->name("store-website.page.getStores");
         Route::get('/{id}/load-page', 'PageController@loadPage')->name("store-website.page.loadPage");
         Route::get('/{id}/history', 'PageController@pageHistory')->name("store-website.page.history");
         Route::get('/{id}/translate-for-other-langauge', 'PageController@translateForOtherLanguage')->name("store-website.page.translate-for-other-langauge");
         Route::get('/{id}/push-website-in-live', 'PageController@pushWebsiteInLive')->name("store-website.page.push-website-in-live");
+        Route::get('/{id}/pull-website-in-live', 'PageController@pullWebsiteInLive')->name("store-website.page.pull-website-in-live");
         Route::get('/histories', 'PageController@histories')->name("store-website.page.histories");
     });
 

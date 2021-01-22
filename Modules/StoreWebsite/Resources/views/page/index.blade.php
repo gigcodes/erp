@@ -24,7 +24,8 @@
                     </button>
                 </div>
                 <div class="row">
-                    <button class="btn btn-secondary push-by-store-website"  data-toggle="modal" data-target="#push-by-store-website-modal">Push By Storewebsite</button>
+                    <button class="btn btn-secondary push-by-store-website"  data-toggle="modal" data-target="#push-by-store-website-modal">Push By Storewebsite</button> 
+                    <button class="btn btn-secondary pull-by-store-website"  data-toggle="modal" data-target="#pull-by-store-website-modal">Pull By Storewebsite</button>
                 </div>
             </div>
             <div class="col">
@@ -122,6 +123,27 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-secondary push-pages-store-wise">Push Store(s)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pull-by-store-website-modal modal" id="pull-by-store-website-modal" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form>
+                    <div class="form-row col-md-12">
+                        <div class="form-group">
+                            <strong>Store websites</strong>
+                            <?php echo Form::select("store_website_id",$storeWebsites,null, ["class" => "form-control pull-website-store-id"]);  ?>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary pull-pages-store-wise">Pull Store(s)</button>
             </div>
         </div>
     </div>
