@@ -892,10 +892,16 @@ class Product extends Model
     * Get price calculation
     * @return float
     **/
-    public function getPrice($websiteId,$countryId = null, $countryGroup = null)
+    public function getPrice($websiteId,$countryId = null, $countryGroup = null,$isOvveride = false)
     {
         $website        = is_object($websiteId) ? $websiteId : \App\StoreWebsite::find($websiteId);
         $priceRecords   = null;
+
+        if($isOvveride) {
+            $productPrice = \App\Product::getIvaPrice($this->price);
+        }else{
+            $productPrice = $this->price;
+        }
 
         if($website) {
 
@@ -941,24 +947,24 @@ class Product extends Model
            if($priceRecords) {
               if($priceRecords->calculated == "+") {
                  if($priceRecords->type == "PERCENTAGE")  {
-                    $price = ($this->price * $priceRecords->value) / 100;
-                    return ["original_price" => $this->price , "promotion" => $price , "total" =>  $this->price + $price];
+                    $price = ($productPrice * $priceRecords->value) / 100;
+                    return ["original_price" => $productPrice , "promotion" => $price , "total" =>  $productPrice + $price];
                  }else{
-                    return ["original_price" => $this->price , "promotion" => $priceRecords->value , "total" =>  $this->price + $priceRecords->value];
+                    return ["original_price" => $productPrice , "promotion" => $priceRecords->value , "total" =>  $productPrice + $priceRecords->value];
                  }
               }
               if($priceRecords->calculated == "-") {
                  if($priceRecords->type == "PERCENTAGE")  {
-                    $price = ($this->price * $priceRecords->value) / 100;
-                    return ["original_price" => $this->price , "promotion" => -$price , "total" =>  $this->price - $price];
+                    $price = ($productPrice * $priceRecords->value) / 100;
+                    return ["original_price" => $productPrice , "promotion" => -$price , "total" =>  $productPrice - $price];
                  }else{
-                    return ["original_price" => $this->price , "promotion" => - $priceRecords->value , "total" =>  $this->price - $priceRecords->value];
+                    return ["original_price" => $productPrice , "promotion" => - $priceRecords->value , "total" =>  $productPrice - $priceRecords->value];
                  }
               }
            }
         }
 
-        return ["original_price" => $this->price , "promotion" => "0.00", "total" =>  $this->price];
+        return ["original_price" => $productPrice , "promotion" => "0.00", "total" =>  $productPrice];
     }
 
     public function getDuty($countryCode , $withtype = false)

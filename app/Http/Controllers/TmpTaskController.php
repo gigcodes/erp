@@ -163,9 +163,7 @@ class TmpTaskController extends Controller
                 foreach ($websiteArrays as $websiteArray) {
                     $website = StoreWebsite::find($websiteArray);
                     if ($website) {
-
                         // testing 
-
                         \Log::info("Product started website found For website" . $website->website);
                         $log = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info', $website->id);
                         //currently we have 3 queues assigned for this task.
