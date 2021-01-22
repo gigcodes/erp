@@ -9,6 +9,7 @@
 				<th>Countries</th>
 				<th>Site</th>
 				<th>Magento Id</th>
+				<th>Price Ovveride</th>
 				<th>Actions</th>
 		      </tr>
 		    </thead>
@@ -21,6 +22,13 @@
 			        <td>{{:prop.countires_str}}</td>
 			        <td>{{:prop.store_website_name}}</td>
 			        <td>{{:prop.platform_id}}</td>
+			        <td>
+			        	{{if prop.is_price_ovveride == 1}}
+			        		<span class="badge badge-success change-is_price_ovveride" data-id="{{:prop.id}}" data-value="0">Yes</span>
+			        	{{else}}
+			        		<span class="badge badge-danger change-is_price_ovveride" data-id="{{:prop.id}}" data-value="1">No</span>	
+			        	{{/if}}
+			        </td>
 			        <td>
 			        	<button type="button" title="Edit" data-id="{{>prop.id}}" class="btn btn-edit-template">
 			        		<i class="fa fa-edit" aria-hidden="true"></i>

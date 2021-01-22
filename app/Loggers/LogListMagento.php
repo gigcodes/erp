@@ -22,7 +22,7 @@ class LogListMagento extends Model
         $logListMagento->save();
 
         // Return
-        return;
+        return $logListMagento;
     }
 
     public static function updateMagentoStatus($id, $status)

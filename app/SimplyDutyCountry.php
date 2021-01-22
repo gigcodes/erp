@@ -11,7 +11,7 @@ class SimplyDutyCountry extends Model
      *
      * @var array
      */
-    protected $fillable = ['country_code','country_name','default_duty'];
+    protected $fillable = ['country_code','country_name', 'default_duty'];
 
     public static function getSelectList()
     {

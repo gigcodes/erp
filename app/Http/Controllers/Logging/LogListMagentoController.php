@@ -171,4 +171,10 @@ class LogListMagentoController extends Controller
         $productErrorLogs = $productErrorLogs->get();
         return view('logging.partials.magento_error_data',compact('productErrorLogs'));
     }
+
+    public function showErrorByLogId($id) 
+    {
+        $productErrorLogs = \App\ProductPushErrorLog::where('log_list_magento_id',$id)->get();
+        return view('logging.partials.magento_error_data',compact('productErrorLogs'));
+    }
 }

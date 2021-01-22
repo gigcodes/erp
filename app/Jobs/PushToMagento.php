@@ -2,35 +2,36 @@
 
 namespace App\Jobs;
 
+use App\Product;
+use App\ProductPushErrorLog;
+use App\StoreWebsite;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use seo2websites\MagentoHelper\MagentoHelper;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use App\MagentoSoapHelper;
-use App\Product;
-use App\StoreWebsite;
-use App\Helpers\ProductHelper;
-use App\ProductPushErrorLog;
+use seo2websites\MagentoHelper\MagentoHelper;
+
 class PushToMagento implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $_product;
     protected $_website;
+    protected $log;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct( Product $product, StoreWebsite $website )
+    public function __construct(Product $product, StoreWebsite $website, $log = null)
     {
         // Set product and website
         $this->_product = $product;
         $this->_website = $website;
+        $this->log      = $log;
     }
 
     /**
@@ -47,13 +48,13 @@ class PushToMagento implements ShouldQueue
         $product = $this->_product;
         $website = $this->_website;
 
-        if(!$website->website_source || $website->website_source == '') {
-            ProductPushErrorLog::log('',$product->id, 'Website Source not found', 'error',$website->id);
+        if (!$website->website_source || $website->website_source == '') {
+            ProductPushErrorLog::log('', $product->id, 'Website Source not found', 'error', $website->id, null , null, $this->log->id);
         }
         if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-            MagentoHelper::callHelperForProductUpload($product,$website);
-        }else {
-            ProductPushErrorLog::log('',$product->id, 'Magento helper class not found', 'error',$website->id);
+            MagentoHelper::callHelperForProductUpload($product, $website,$this->log);
+        } else {
+            ProductPushErrorLog::log('', $product->id, 'Magento helper class not found', 'error', $website->id, null , null, $this->log->id);
         }
         // Load Magento Soap Helper
         // $magentoSoapHelper = new MagentoSoapHelper();

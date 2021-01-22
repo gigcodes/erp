@@ -367,6 +367,25 @@ class WebsiteController extends Controller
 
     }
 
+    public function changePriceOvveride(Request $request)
+    {
+        $id    = $request->get("id");
+        $value = $request->get("value");
+
+        $website = null;
+
+        if (!empty($id)) {
+            $website = Website::find($id);
+            if ($website) {
+                $website->is_price_ovveride = $value;
+                $website->save();
+            }
+        }
+
+        return response()->json(["code" => 200, "data" => $website, "message" => "Price ovveride updated successfully"]);
+
+    }
+
     public function copyWebsites(Request $request)
     {
         $storeWebsiteId = $request->store_website_id;

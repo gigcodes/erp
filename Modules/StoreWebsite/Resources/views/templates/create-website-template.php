@@ -148,6 +148,15 @@
 		         <label for="icon">Icon</label>
 		         <input type="text" name="icon" value="{{if data}}{{:data.icon}}{{/if}}" class="form-control" id="icon" placeholder="Enter Icon Url">
 		      </div>
+		      <div class="form-row">
+		         <div class="form-group col-md-4">
+		            <label for="is_price_override">Price ovveride?</label>
+		            <select name="is_price_override" id="is_price_override" class="form-control">
+		               <option {{if data && data.is_price_override == "0"}}selected{{/if}} value="0">No</option>
+		               <option {{if data && data.is_price_override == "1"}}selected{{/if}} value="1">Yes</option>
+		            </select>
+		         </div>
+			  </div>
 		   </div>
 		   <div class="modal-footer">
 		      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

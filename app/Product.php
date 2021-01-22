@@ -30,6 +30,8 @@ class Product extends Model
         4 => "On Hold"
     ];
 
+    const IVA_PERCENTAGE = 22;
+
 //  use LogsActivity;
     use Mediable;
     use SoftDeletes;
@@ -892,7 +894,7 @@ class Product extends Model
     **/
     public function getPrice($websiteId,$countryId = null, $countryGroup = null)
     {
-        $website        = \App\StoreWebsite::find($websiteId);
+        $website        = is_object($websiteId) ? $websiteId : \App\StoreWebsite::find($websiteId);
         $priceRecords   = null;
 
         if($website) {
@@ -901,29 +903,22 @@ class Product extends Model
            $category = $this->category;
            $country  = $countryId;
 
-           if($countryGroup == null) {
-               $listOfGroups = \App\CountryGroup::join("country_group_items as cgi","cgi.country_group_id","country_groups.id")->where("cgi.country_code",$country)->first();
-               if($listOfGroups) {
-                  $countryGroup = $listOfGroups->country_group_id;
-               }
-           }
-
            $priceModal = \App\PriceOverride::where("store_website_id",$website->id);
            $priceCModal = clone $priceModal;
 
-           if(!empty($brand) && !empty($category) && !empty($countryGroup))  {
-              $priceRecords = $priceModal->where("country_group_id",$countryGroup)->where("brand_segment",$brand)->where("category_id",$category)->first();
+           if(!empty($brand) && !empty($category) && !empty($country))  {
+              $priceRecords = $priceModal->where("country_code",$country)->where("brand_segment",$brand)->where("category_id",$category)->first();
            }
 
            if(!$priceRecords) {
               $priceModal = $priceCModal;
-              $priceRecords = $priceModal->where(function($q) use($brand, $category, $countryGroup) {
+              $priceRecords = $priceModal->where(function($q) use($brand, $category, $country) {
                 $q->orWhere(function($q) use($brand, $category) {
                     $q->where("brand_segment", $brand)->where("category_id",$category);
-                })->orWhere(function($q) use($brand, $countryGroup) {
-                    $q->where("brand_segment", $brand)->where("country_group_id",$countryGroup);
-                })->orWhere(function($q) use($countryGroup, $category) {
-                    $q->where("country_group_id", $countryGroup)->where("category_id",$category);
+                })->orWhere(function($q) use($brand, $country) {
+                    $q->where("brand_segment", $brand)->where("country_code",$country);
+                })->orWhere(function($q) use($country, $category) {
+                    $q->where("country_code", $country)->where("category_id",$category);
                 });
               })->first();
            }
@@ -940,7 +935,7 @@ class Product extends Model
 
            if(!$priceRecords) {
               $priceModal = $priceCModal;
-              $priceRecords = $priceModal->where("country_group_id",$countryGroup)->first();
+              $priceRecords = $priceModal->where("country_code",$country)->first();
            }
 
            if($priceRecords) {
@@ -968,7 +963,14 @@ class Product extends Model
 
     public function getDuty($countryCode , $withtype = false)
     {
-       $hsCode = ($this->product_category) ? $this->product_category->simplyduty_code : null;
+
+        $countryCode = \App\SimplyDutyCountry::where("country_code",$countryCode)->first();
+
+        if($countryCode) {
+            return (float)$countryCode->default_duty;
+        }
+
+       /*$hsCode = ($this->product_category) ? $this->product_category->simplyduty_code : null;
        if(!empty($hsCode)){
             $duty = \App\CountryDuty::leftJoin("duty_groups as dg","dg.id","country_duties.duty_group_id")
             ->where("country_duties.hs_code",$hsCode)
@@ -983,7 +985,7 @@ class Product extends Model
                     return $duty->duty_percentage + $duty->vat_percentage;
                 }
             }
-       }
+       }*/
         
         return (float)"0.00";
 
@@ -1270,5 +1272,12 @@ class Product extends Model
         }
 
         return $description;
+    }
+
+    public static function getIvaPrice($price)
+    {
+        $percentage = self::IVA_PERCENTAGE;
+        $percentageA = ($price * $percentage) / 100;
+        return $price + $percentageA;
     }
 }

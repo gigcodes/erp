@@ -16,6 +16,9 @@
         color: #fff;
         background-color: #28a745;
     }
+    .change-is_price_ovveride {
+        cursor: pointer;
+    }
 </style>
 
 <div class="row" id="common-page-layout">

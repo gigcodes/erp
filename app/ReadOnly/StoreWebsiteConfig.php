@@ -41,18 +41,21 @@ class StoreWebsiteConfig extends ReadOnlyBase
             'avoirchic.com'     => 265,
             'brands-labels.com' => 176,
             'sololuxury.com'    => 167,
+            'magento-491806-1552731.cloudwaysapps.com'    => 202,
         ],
         'attribute_set_id'   => [
             'veralusso.com'     => 16,
             'avoirchic.com'     => 16,
             'brands-labels.com' => 9,
             'sololuxury.com' => 9,
+            'magento-491806-1552731.cloudwaysapps.com'    => 16,
         ],
         'simple_attribute_set_id'   => [
             'veralusso.com'     => 4,
             'avoirchic.com'     => 4,
             'brands-labels.com' => 4,
-            'sololuxury.com'    => 4
+            'sololuxury.com'    => 4,
+            'magento-491806-1552731.cloudwaysapps.com'    => 4,
         ]
     ];
 }
