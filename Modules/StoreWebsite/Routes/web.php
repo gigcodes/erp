@@ -109,6 +109,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::post('move-stores', 'WebsiteController@moveStores')->name("store-website.websites.moveStores");
         Route::post('copy-stores', 'WebsiteController@copyStores')->name("store-website.websites.copyStores");
         Route::post('change-status', 'WebsiteController@changeStatus')->name("store-website.websites.changeStatus");
+        Route::post('change-price-ovveride', 'WebsiteController@changePriceOvveride')->name("store-website.websites.changePriceOvveride");
         Route::post('copy-websites', 'WebsiteController@copyWebsites')->name("store-website.websites.copyWebsites");
         Route::get('/{id}/edit', 'WebsiteController@edit')->name("store-website.websites.edit");
         Route::get('/{id}/delete', 'WebsiteController@delete')->name("store-website.websites.delete");

@@ -74,6 +74,10 @@ var page = {
             page.changeStatus($(this));
         });
 
+        $(document).on("click",".change-is_price_ovveride",function(e) {
+            page.changePriceOvveride($(this));
+        });
+
         $(".select2").select2({tags:true});
 
         $(document).on("click",".check-all",function(e) {
@@ -388,6 +392,35 @@ var page = {
         if(response.code == 200) {
             toastr["success"](response.message,"");
             location.reload();
+        }
+    },
+    changePriceOvveride : function(ele) {
+
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/websites/change-price-ovveride",
+            method: "post",
+            data : {
+                id : ele.data("id"),
+                value : ele.data("value"),
+            }
+        }
+
+        this.sendAjax(_z, 'afterChangePriceOvveride',ele);
+    },
+    afterChangePriceOvveride : function(response,ele) {
+        if(response.code  == 200) {
+            toastr["success"](response.message,"");
+            if(response.data.is_price_ovveride == 1) {
+                var html = `<span class="badge badge-success change-is_price_ovveride" data-id="`+response.data.id+`" data-value="0">Yes</span>`;
+            }else{
+                var html = `<span class="badge badge-danger change-is_price_ovveride" data-id="`+response.data.id+`" data-value="1">No</span>`;
+            }
+            ele.closest("td").html(html);
+            
+            //location.reload();
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
         }
     }
 }
