@@ -17,7 +17,6 @@ Auth::routes();
 
 
 Route::get('/test/test', 'OrderController@testEmail');
-
 Route::get('/test/pushProduct', 'TmpTaskController@testPushProduct');
 Route::get('/test/fixBrandPrice', 'TmpTaskController@fixBrandPrice');
 Route::get('/test/deleteChatMessages', 'TmpTaskController@deleteChatMessages');
