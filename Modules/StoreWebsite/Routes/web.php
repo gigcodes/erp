@@ -150,6 +150,15 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/histories', 'PageController@histories')->name("store-website.page.histories");
     });
 
+    Route::prefix('category-seo')->group(function () {
+        Route::get('/', 'CategorySeoController@index')->name("store-website.category-seo.index");
+        Route::get('/records', 'CategorySeoController@records')->name("store-website.category-seo.records");
+        Route::post('save', 'CategorySeoController@store')->name("store-website.category-seo.save");
+        Route::get('/{id}/edit', 'CategorySeoController@edit')->name("store-website.page.edit");
+        Route::get('/{id}/delete', 'CategorySeoController@destroy')->name("store-website.page.delete");
+        Route::get('/{id}/translate-for-other-langauge', 'CategorySeoController@translateForOtherLanguage')->name("store-website.page.translate-for-other-langauge");
+    });
+
     Route::prefix('product-attribute')->group(function () {
         Route::get('/', 'StoreWebsiteProductAttributeController@index')->name("store-website.product-attribute.index");
         Route::get('/records', 'StoreWebsiteProductAttributeController@records')->name("store-website.product-attribute.records");
