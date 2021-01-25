@@ -98,4 +98,18 @@
 
      </div>
 </div>
+
+<div id="viewmore" class="modal fade in" role="dialog">
+     <div class="modal-dialog">        
+          <div class="modal-content">
+               <div class="modal-header">
+                    {{-- <h4 class="modal-title">soruce</h4> --}}
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+               </div>
+            <div id="contentview" style="padding:30px;"></div>
+              
+          </div>
+
+     </div>
+</div>
     
