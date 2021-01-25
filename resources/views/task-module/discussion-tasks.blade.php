@@ -257,7 +257,6 @@
     @endif  
 
     @include('task-module.partials.modal-reminder')
-    <div class="container" style="overflow: auto">
     <div class="tab-pane active" id="1">
                 <div class="row">
                     <div class="infinite-scroll" style="width:100%;">
@@ -286,7 +285,6 @@
                     </div>
                 </div>
             </div>
-    </div>
 
     <div id="priority_model" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">

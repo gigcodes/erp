@@ -9,11 +9,10 @@
                         @foreach ($note->subnotes as $subnote)
                         <div class="bubble alt">
                             <div class="txt">
-                            <p class="name alt"></p>
-                            <p class="message">{{ $subnote->remark }}
-                            </p>
-                             </div>
+                                <p class="name alt"></p>
+                                <p class="message">{{ $subnote->remark }}<span class="message pull-right">{{ $subnote->created_at->diffForHumans() }}</span></p>
                             </div>
+                        </div>
                          @endforeach   
                     </div>
                 </div>
