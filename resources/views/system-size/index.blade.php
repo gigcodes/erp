@@ -197,7 +197,7 @@
                         </div>
                         <div class="row">
                             <div class="col-md-12" id="editnmanagerf">
-                                <select class="form-control" name="category" id="categorydrp" required="">
+                                <select class="form-control" name="category" id="categorydrpedit" required="">
                                     @foreach($categories as $cat)
                                         @foreach($cat['subcategories'] as $subcat)
                                         <option value="{{$subcat->id}}">{{$subcat->title}} ({{$cat['parentcategory']}})</option>
@@ -329,6 +329,7 @@ $(document).ready(function() {
             success:function(result){
                 $('.sizevarintinput1').remove();
                 $('#editnmanagerf').append(result.data);
+                $('#categorydrpedit').val(result.category_id);
                 $('#sizemanagementedit').modal('show');
                 $('#loading-image-preview').hide()
             },

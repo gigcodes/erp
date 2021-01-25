@@ -36,7 +36,6 @@ class SystemSizeController extends Controller
             $managers[] = $value;
         }
 
-        $systemSizesManagers = SystemSizeManager::paginate(Setting::get('pagination'));
     	$systemSizes = SystemSize::where('status',1)->get();
     	$parentCategories = Category::where('parent_id',0)->get();
     	$categories = [];
@@ -157,7 +156,7 @@ class SystemSizeController extends Controller
             }
         }
 
-        return response()->json(['success' => true, 'message' => "successful!", 'data' => $html]);
+        return response()->json(['success' => true, 'message' => "successful!", 'data' => $html, 'category_id' => $sm->category_id]);
     }
     public function managerupdate(Request $request){
         $check = SystemSizeManager::where('id','!=',$request->manager_id)->where('category_id',$request->category)->where('erp_size',$request->erp_size)->where('status',1)->first();

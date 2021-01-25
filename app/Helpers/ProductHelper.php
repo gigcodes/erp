@@ -12,8 +12,8 @@ use App\Product;
 use App\StoreWebsiteCategory;
 use App\StoreWebsiteBrand;
 use App\ProductPushErrorLog;
+use App\SystemSizeManager;
 use App\Helpers\ProductHelper;
-
 
         
 class ProductHelper extends Model
@@ -253,9 +253,54 @@ class ProductHelper extends Model
         return \Form::select($name, $brandSegment, $select, $attr);
     }
 
-    public static function getWebsiteSize($sizeSystem, $size, $categoryId = 0)
+
+    public static function getEuSize($product, $sizes, $supplierSizeSystem = null, $scraperSizeSystem = null)
     {
         // For Italian sizes, return the original
+        // if (strtoupper($sizeSystem) == 'IT') {
+        //     return $size;
+        // }
+        // $sizeSystem = $product->supllier
+        $category = $product->categories;
+        $ids = [];
+        if($category) {
+            $ids[] = $product->category_id;
+            if($category && $category->parent) {
+                $parentModel = $category->parent;
+                if($parentModel) {
+                    $ids[] = $parentModel->id;
+                    $grandParentModel = $parentModel->parent;
+                    if($grandParentModel) {
+                        $ids[] = $grandParentModel->id;
+                    }
+                }
+            }
+        }
+
+        $ids = array_filter($ids);
+
+        $sizeManager = SystemSizeManager::select('system_size_managers.erp_size')
+        ->leftjoin('system_size_relations','system_size_relations.system_size_manager_id','system_size_managers.id')
+        ->leftjoin('system_sizes','system_sizes.id','system_size_relations.system_size')
+        ->whereIn('category_id',$ids)
+        ->whereIn('system_size_relations.size',$sizes)
+        ->where('system_sizes.status',1)
+        ->where('system_size_managers.status',1);
+
+        if(!empty($supplierSizeSystem)) {
+            $sizeManager = $sizeManager->where('system_size_relations.system_size',$supplierSizeSystem);
+        }else{
+            $sizeManager = $sizeManager->where('system_sizes.name',$scraperSizeSystem);
+        }
+
+        $returnSizes = $sizeManager->pluck('erp_size')->toArray();
+
+        return $returnSizes;
+    }
+
+
+    public static function getWebsiteSize($sizeSystem, $size, $categoryId = 0)
+    {
         if (strtoupper($sizeSystem) == 'IT') {
             return $size;
         }

@@ -174,7 +174,7 @@ class SupplierController extends Controller
         if($runQuery) {
         $suppliers = DB::select('
                                     SELECT suppliers.frequency,suppliers.supplier_sub_category_id,suppliers.supplier_status_id,suppliers.supplier_size_id,suppliers.scrapper, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source,suppliers.supplier_price_range_id, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.whatsapp_number, suppliers.status, sc.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name, suppliers.scraped_brands_raw,suppliers.language,
-                                    suppliers.est_delivery_time,
+                                    suppliers.est_delivery_time,suppliers.size_system_id,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
@@ -263,6 +263,8 @@ class SupplierController extends Controller
 		print_r($allSupplierPriceRanges);
 		exit; */
 		$reply_categories = ReplyCategory::all();
+    $sizeSystem = \App\SystemSize::pluck('name', 'id')->toArray();
+
     return view('suppliers.index', [
             'suppliers' => $suppliers,
             'suppliers_all' => $suppliers_all,
@@ -287,7 +289,8 @@ class SupplierController extends Controller
             'whatsappConfigs' => $whatsappConfigs,
             'allSupplierProduct' => $allSupplierProduct,
             'allSupplierPriceRanges' => $allSupplierPriceRanges,
-            'reply_categories' => $reply_categories
+            'reply_categories' => $reply_categories,
+            'sizeSystem' => $sizeSystem
         ]);
     }
 
@@ -1471,6 +1474,14 @@ public function changeSize(Request $request)
   $supplier->save();
   return response()->json(["code" => 200, "data" => [], "message" => "Size updated successfully"]);
 }
+
+public function changeSizeSystem(Request $request) {
+  $supplier = Supplier::find($request->supplier_id);
+  $supplier->size_system_id = $request->size;
+  $supplier->save();
+  return response()->json(["code" => 200, "data" => [], "message" => "Size System updated successfully"]); 
+}
+
 public function changeWhatsapp(Request $request)
 {
   $supplier = Supplier::find($request->supplier_id);

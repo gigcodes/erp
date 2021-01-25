@@ -190,6 +190,7 @@
               {{-- <th>Source</th> --}}
               <th>Designers</th>
               <th>Status</th>
+              <th>Size System</th>
               <th>Supplier Size</th>
               <th>Category</th>
               <th>Sub Category</th>
@@ -265,6 +266,15 @@
                         <option value="">Select</option>
                         @forelse ($supplierstatus as $supplierstatus_key => $item)
                             <option value="{{ $supplierstatus_key }}" {{ ($supplier->supplier_status_id == $supplierstatus_key) ? 'selected' : ''}} >{{ $item }}</option>
+                        @empty
+                        @endforelse
+                    </select>
+                </td>
+                <td>
+                    <select name="size_system_id" class="form-control size_system_id" data-size-system-id="{{ $supplier->id }}">
+                        <option value="">Select</option>
+                        @forelse ($sizeSystem as $suppliersize_key => $item)
+                            <option value="{{ $suppliersize_key }}" {{ ($supplier->size_system_id == $suppliersize_key) ? 'selected' : ''}} >{{ $item }}</option>
                         @empty
                         @endforelse
                     </select>
@@ -1400,6 +1410,26 @@
         $.ajax({
             type: "POST",
             url: "{{ route('supplier/change/size') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                supplier_id: supplierId,
+                size : size
+            }
+        }).done(function(data){
+            if(data.code == 200) {
+                toastr["success"](data.message);
+            }
+            //location.reload();
+        }).fail(function(error) {
+        })
+    });
+
+    $(document).on('change', '.size_system_id', function() {
+        var size = $(this).val();
+        var supplierId = $(this).data('size-system-id');
+        $.ajax({
+            type: "POST",
+            url: "{{ route('supplier/change/size-system') }}",
             data: {
                 _token: "{{ csrf_token() }}",
                 supplier_id: supplierId,
