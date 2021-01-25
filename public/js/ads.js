@@ -41,7 +41,7 @@ var thirtChild = [
                                         <div class="col-sm-12">
                                             <div class="row">
                                                 <div class="col-md-3">
-                                                    <input type="checkbox" value="Website visits" id="wbsitevisit" class="form-control">
+                                                    <input type="checkbox" value="Website visits" name="data[reach_goal][website]" id="wbsitevisit" class="form-control">
                                                 </div>
                                                 <div class="col-md-3">
                                                     <label>Website visits</lable>
@@ -730,8 +730,8 @@ $(document).on('change','#goal',function(){
     $('.child-campaning-goal').remove();
     let goal = $(this).val();
     let html = `<div class="form-group child-campaning-goal row" >
-                        <label for="status" class="col-sm-2 col-form-label">Select the type</label>
-                        <div class="col-sm-10">
+                        <div class="col-sm-12">
+                            <span for="campanin-type">Select the type</span>
                             <select class="browser-default custom-select" id="campanin-type" name="type" style="height: auto">
                              <option value="" selected>-----Select type-----</option>
                            `;
@@ -760,7 +760,7 @@ $(document).on('change','#campanin-type',function(){
 $(document).on('change','#wbsitevisit',function(){
     $('.wbsitevisitcheck').remove();
     if ($(this).is(':checked')){
-        $(this).parent().parent().append('<div class="col-md-6 wbsitevisitcheck"> <input type="url" class="form-control " name="websitevisit" placeholder="Your bussiness url"/> </div>');
+        $(this).parent().parent().append('<div class="col-md-6 wbsitevisitcheck"> <input type="url" class="form-control " name="data[reach_goal][website][input]" placeholder="Your bussiness url"/> </div>');
     }
 });
 $(document).on('change','#phonecalls',function(){
@@ -796,23 +796,26 @@ $(document).on('change','#appdownload',function(){
                                                     </div>`);
     }
 });
+var customParamsCount = 1;
 $(document).on('click','.addurlcustomvalue',function(){
     $(this).before(`<div class="row">
                         <div class="col-md-4">
-                            <input type="text"  name="start-date" class="form-control" placeholder="Name">
+                            <input type="text"  name="data[campaign_url][custom_param][${customParamsCount}][name]" class="form-control" placeholder="Name">
                         </div>
                         <div class="col-md-1">
                             =
                         </div>
                         <div class="col">
-                            <input type="text"  name="start-date" class="form-control" placeholder="Value">
+                            <input type="text"  name="data[campaign_url][custom_param][${customParamsCount}][value]" class="form-control" placeholder="Value">
                         </div>
                     </div>`);
+    customParamsCount++
 });
+let scheduleCount = 1;
 $(document).on('click','.addSchedule',function(){
     $(this).before(`<div class="row">
                         <div class="col-md-5">
-                            <select  class="form-control" name="language">
+                            <select  class="form-control" name="data[ads_schedule][${scheduleCount}][day]">
                                 <option value="All days">All days</option>
                                 <option value="Mondays-Friday">Mondays-Friday</option>
                                 <option value="Saturdays-Sundays">Saturdays-Sundays</option>
@@ -826,19 +829,22 @@ $(document).on('click','.addSchedule',function(){
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <input type="text" name="from" class="form-control" value="00:00">
+                            <input type="text" name="data[ads_schedule][${scheduleCount}][from]" class="form-control" value="00:00">
                         </div>
                         <div class="col-md-1">
                             to
                         </div>
                         <div class="col-md-3">
-                            <input type="text" name="to" class="form-control" value="00:00">
+                            <input type="text" name="data[ads_schedule][${scheduleCount}][to]" class="form-control" value="00:00">
                         </div>
                     </div>`);
+    scheduleCount++
 });
 $(document).on('click','#continue-phase-1',function(){
     $('.create-campaning').hide();
     $('.create-campaning-phase-2').show();
+    $('#continue-phase-1').hide();
+    $('#create-campaign-btn').show();
     initPhase2();
 }); 
 function initPhase2(){
@@ -847,10 +853,10 @@ function initPhase2(){
                     <div class="form-group row">
                         <label for="status" class="col-sm-12 col-form-label">Campaign name</label>
                         <div class="col-md-12">
-                            <input type="text" class="form-control" placeholder="Enter a campaign name"/>
+                            <input type="text" class="form-control" name="camp_name" placeholder="Enter a campaign name"/>
                         </div>
                     </div>       
-            <div class="form-group row campanin-type-child child-campaning-goal">
+            <div class="row campanin-type-child child-campaning-goal">
                 <div class="col-sm-4">
                     <label for="status" class="col-sm-12 col-form-label">Networks</label>
                 </div>
@@ -861,7 +867,7 @@ function initPhase2(){
                             <p style="font-weight: 200;">Ads can appear near Google Search results and other Google sites when people search for terms that are relevant to your keywords</p>
                         </div>
                         <div class="col-md-3">
-                            <input type="checkbox" name="campaning_subtype" value="Include Google search partners" class="form-control">
+                            <input type="checkbox" name="data[network][search_network]" value="Include Google search partners" class="form-control">
                         </div>
                         <div class="col-md-6">
                             <label>Include Google search partners</lable>
@@ -874,7 +880,7 @@ function initPhase2(){
                             <p style="font-weight: 200;">Expand your reach by showing ads to relevant customers as they browse sites, videos, and apps across the Internet</p>
                         </div>
                         <div class="col-md-3">
-                            <input type="checkbox" name="campaning_subtype" value="Include Google search partners" class="form-control">
+                            <input type="checkbox" name="data[network][display_network]" value="Include Google search partners" class="form-control">
                         </div>
                         <div class="col-md-6">
                             <label>Include Google search partners</lable>
@@ -882,259 +888,606 @@ function initPhase2(){
                     </div>
                 </div>
             </div>
-            <div class="row">
-                        <div class="col-md-12">
-                            <a href="#demo" data-toggle="collapse">Show more settings</a>
-                            <div id="demo" class="collapse">
+            <div class="row campanin-type-child child-campaning-goal">
+                <div class="col-md-12">
+                    <a href="#demo" data-toggle="collapse">Show more settings</a>
+                    <div id="demo" class="collapse">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label>Start and end dates</lable>
+                            </div>
+                            <div class="col-md-6">
+                                <p>Start date</p>
+                                <input type="date" name="data[start_end_dated][startdate]" class="form-control">
+                            </div>
+                            <div class="col-md-4">
+                                
+                            </div>
+                            <div class="col-md-6">
+                                <p>End date</p>
                                 <div class="row">
-                                    <div class="col-md-4">
-                                        <label>Start and end dates</lable>
+                                    <div class="col-md-3">
+                                        <input type="radio" name="data[start_end_dated][type]" value="none" checked class="form-control">
                                     </div>
                                     <div class="col-md-6">
-                                        <p>Start date</p>
-                                        <input type="date" name="start-date" class="form-control">
-                                    </div>
-                                    <div class="col-md-4">
-                                        
-                                    </div>
-                                    <div class="col-md-6">
-                                        <p>End date</p>
-                                        <div class="row">
-                                            <div class="col-md-3">
-                                                <input type="radio" name="radio-end-date" value="None" checked class="form-control">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label>None</lable>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-3">
-                                                <input type="radio" name="radio-end-date" value="None" class="form-control">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <input type="date" name="end-date" class="form-control">
-                                            </div>
-                                        </div>
+                                        <label>None</lable>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-4">
-                                        <label>Campaign URL options</lable>
+                                    <div class="col-md-3">
+                                        <input type="radio" name="data[start_end_dated][type]" value="date" class="form-control">
                                     </div>
-                                    <div class="col-md-8">
-                                        <div class="row">
-                                            <div class="col-md-10">
-                                                <p>Tracking template</p>
-                                                <input type="text"  name="start-date" class="form-control">
-                                            </div>
-                                            <div class="col-md-10">
-                                                <p>Final URL Suffix</p>
-                                                <input type="text"  name="start-date" class="form-control">
-                                            </div>
-                                            <div class="col-md-10">
-                                                <p>Custom parameters</p>
-                                                <div class="row">
-                                                    <div class="col-md-4">
-                                                        <input type="text"  name="start-date" class="form-control" placeholder="Name">
-                                                    </div>
-                                                    <div class="col-md-1">
-                                                        =
-                                                    </div>
-                                                    <div class="col">
-                                                        <input type="text"  name="start-date" class="form-control" placeholder="Value">
-                                                    </div>
-                                                </div>
-                                                <button class="btn btn-primary pull-right addurlcustomvalue" type="button">+</button>
-                                            </div>
-                                        </div>
+                                    <div class="col-md-6">
+                                        <input type="date" name="data[start_end_dated][enddate]" class="form-control">
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label>Campaign URL options</lable>
+                            </div>
+                            <div class="col-md-8">
                                 <div class="row">
-                                    <div class="col-md-4">
-                                        <label>Dynamic Search Ads setting</lable>
+                                    <div class="col-md-10">
+                                        <p>Tracking template</p>
+                                        <input type="text"  name="data[campaign_url][tracking_tamplate]" class="form-control">
                                     </div>
-                                    <div class="col-md-6">
-                                        <p>Enter the domain</p>
-                                        <input type="text" name="domain" class="form-control">
+                                    <div class="col-md-10">
+                                        <p>Final URL Suffix</p>
+                                        <input type="text"  name="data[campaign_url][final_url_suffix]" class="form-control">
                                     </div>
-                                    <div class="col-md-4">
-                                        
-                                    </div>
-                                    <div class="col-md-6">
-                                        <p>Select the language of the Dynamic Search Ads within this campaign</p>
-                                        <select  class="form-control" name="language">
-                                            <option value="English">English</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        
-                                    </div>
-                                    <div class="col-md-6">
-                                        <p>Select a targeting source:</p>
+                                    <div class="col-md-10">
+                                        <p>Custom parameters</p>
                                         <div class="row">
-                                            <div class="col-md-3">
-                                                <input type="radio" name="target_source" value="Use Google's index of my website" class="form-control" checked>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label>Use Google's index of my website</lable>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-3">
-                                                <input type="radio" name="target_source" value="Use URLs from my page feed only" class="form-control">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label>Use URLs from my page feed only</lable>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-3">
-                                                <input type="radio" name="target_source" value="Actions on your website" class="form-control">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label>Use URLs from both Google's index of my website and my page feed</lable>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <label>Ad schedule</lable>
-                                    </div>
-                                    <div class="col-md-8">
-                                        <div class="row">
-                                            <div class="col-md-5">
-                                                <select  class="form-control" name="language">
-                                                    <option value="All days">All days</option>
-                                                    <option value="Mondays-Friday">Mondays-Friday</option>
-                                                    <option value="Saturdays-Sundays">Saturdays-Sundays</option>
-                                                    <option value="Mondays">Mondays</option>
-                                                    <option value="Tuesdays">Tuesdays</option>
-                                                    <option value="Wednesdays">Wednesdays</option>
-                                                    <option value="Thursdays">Thursdays</option>
-                                                    <option value="Fridays">Fridays</option>
-                                                    <option value="Saturdays">Saturdays</option>
-                                                    <option value="Sundays">Sundays</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <input type="text" name="from" class="form-control" value="00:00">
+                                            <div class="col-md-4">
+                                                <input type="text"  name="data[campaign_url][custom_param][0][name]" class="form-control" placeholder="Name">
                                             </div>
                                             <div class="col-md-1">
-                                                to
+                                                =
                                             </div>
-                                            <div class="col-md-3">
-                                                <input type="text" name="to" class="form-control" value="00:00">
+                                            <div class="col">
+                                                <input type="text"  name="data[campaign_url][custom_param][0][value]" class="form-control" placeholder="Value">
                                             </div>
                                         </div>
-                                        <button class="btn btn-primary pull-right addSchedule" type="button">add</button>
+                                        <button class="btn btn-primary pull-right addurlcustomvalue" type="button">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label>Dynamic Search Ads setting</lable>
+                            </div>
+                            <div class="col-md-6">
+                                <p>Enter the domain</p>
+                                <input type="text" name="data[dynamic_search_ads_setting][domain]" class="form-control">
+                            </div>
+                            <div class="col-md-4">
+                                
+                            </div>
+                            <div class="col-md-6">
+                                <p>Select the language of the Dynamic Search Ads within this campaign</p>
+                                <select  class="form-control" name="data[dynamic_search_ads_setting][language]">
+                                    <option value="English">English</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                
+                            </div>
+                            <div class="col-md-6">
+                                <p>Select a targeting source:</p>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <input type="radio" name="data[dynamic_search_ads_setting][target_source]" value="Use Google's index of my website" class="form-control" checked>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Use Google's index of my website</lable>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <input type="radio" name="data[dynamic_search_ads_setting][target_source]" value="Use URLs from my page feed only" class="form-control">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Use URLs from my page feed only</lable>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <input type="radio" name="data[dynamic_search_ads_setting][target_source]" value="Actions on your website" class="form-control">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Use URLs from both Google's index of my website and my page feed</lable>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label>Ad schedule</lable>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <select  class="form-control" name="data[ads_schedule][0][day]">
+                                            <option value="All days">All days</option>
+                                            <option value="Mondays-Friday">Mondays-Friday</option>
+                                            <option value="Saturdays-Sundays">Saturdays-Sundays</option>
+                                            <option value="Mondays">Mondays</option>
+                                            <option value="Tuesdays">Tuesdays</option>
+                                            <option value="Wednesdays">Wednesdays</option>
+                                            <option value="Thursdays">Thursdays</option>
+                                            <option value="Fridays">Fridays</option>
+                                            <option value="Saturdays">Saturdays</option>
+                                            <option value="Sundays">Sundays</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="text" name="data[ads_schedule][0][from]" class="form-control" value="00:00">
+                                    </div>
+                                    <div class="col-md-1">
+                                        to
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="text" name="data[ads_schedule][0][to]" class="form-control" value="00:00">
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary pull-right addSchedule" type="button">add</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row campanin-type-child child-campaning-goal">
+                <div class="col-md-12">
+                    <h3>Targeting and audiences</h3>
+                    <p>Choose who you want to reach</p>
+                </div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <br>
+                            <br>
+                            <label>Locations</lable>
+                        </div>
+                        <div class="col-md-6">
+                            <p>Select locations to target</p>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <input type="radio" name="data[targeting_and_audience][location][location]" value="All countries and territories" class="form-control location_radio" checked>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>All countries and territories</lable>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <input type="radio" name="data[targeting_and_audience][location][location]" value="India" class="form-control location_radio">
+                                </div>
+                                <div class="col-md-6">
+                                    <label>India</lable>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <input type="radio" name="data[targeting_and_audience][location][location]" value="Enter another location" class="form-control location_radio">
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Enter another location</lable>
+                                </div>
+                            </div>
+                            <a href="#demo1" data-toggle="collapse">Location Option</a>
+                            <div id="demo1" class="collapse">
+                                <div class="row">
+                                    <p>Target</p>
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <input type="radio" name="data[targeting_and_audience][location][target]" value="Presence or interest: People in, regularly in, or who've shown interest in your targeted locations (recommended)" class="form-control" checked>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label>Presence or interest: People in, regularly in, or who've shown interest in your targeted locations (recommended)</lable>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <input type="radio" name="data[targeting_and_audience][location][target]" value="Presence: People in or regularly in your targeted locations" class="form-control">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label>Presence: People in or regularly in your targeted locations</lable>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <input type="radio" name="data[targeting_and_audience][location][target]" value="Search interest: People searching for your targeted locations" class="form-control">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label>Search interest: People searching for your targeted locations</lable>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p>Exclude</p>
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <input type="radio" name="data[targeting_and_audience][location][exlude]" value="Presence: People in your excluded locations (recommended)" class="form-control" checked>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label>Presence: People in your excluded locations (recommended)</lable>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <input type="radio" name="data[targeting_and_audience][location][exlude]" value="Presence or interest: People in, regularly in, or who’ve shown interest in your excluded locations" class="form-control">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label>Presence or interest: People in, regularly in, or who’ve shown interest in your excluded locations</lable>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                </div>
+            </div>
+            <div class="row campanin-type-child child-campaning-goal">
+                <div class="col-md-4">
+                    <br>
+                    <br>
+                    <label class="control-label" for="rolename">Languages</label>
+                </div>
+                <div class="col-md-8">
+                    <br>
+                    <br>
+                    <div class="form-group">
                         <div class="col-md-12">
-                            <h3>Targeting and audiences</h3>
-                            <p>Choose who you want to reach</p>
+                            <select id="dates-field2" class="multiselect-ui form-control" name="data[targeting_and_audience][language]" multiple="multiple" >
+                                <option value="English">English</option>
+                                <option value="Hindi">Hindi</option>
+                            </select>
                         </div>
-                        <div class="col-md-12">
+                    </div>
+                    <br>
+                    <br>
+                    <br>
+                </div>
+            </div>
+            <div class="row campanin-type-child child-campaning-goal">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <br>
+                            <br>
+                            <label>Audiences</lable>
+                        </div>
+                        <div class="col-md-6">
+                            <p>Audiences targeting setting for this campaign</p>
                             <div class="row">
-                                <div class="col-md-4">
-                                    <br>
-                                    <br>
-                                    <label>Locations</lable>
+                                <div class="col-md-3">
+                                    <input type="radio" name="data[targeting_and_audience][audiences]" value="Targeting" class="form-control" checked>
                                 </div>
-                                <div class="col-md-6">
-                                    <p>Select locations to target</p>
-                                    <div class="row">
-                                        <div class="col-md-3">
-                                            <input type="radio" name="location_radio" value="All countries and territories" class="form-control location_radio" checked>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label>All countries and territories</lable>
-                                        </div>
+                                <div class="col-md-9">
+                                    <label>Targeting</lable>
+                                    <br><span style="font-size: 10px;">Narrow the reach of your campaign to the selected audiences, with the option to adjust the bids</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <input type="radio" name="data[targeting_and_audience][audiences]" value="Observation (recommended)" class="form-control">
+                                </div>
+                                <div class="col-md-9">
+                                    <label>Observation (recommended)</lable>
+                                    <br><span style="font-size: 10px;">Don't narrow the reach of your campaign, with the option to adjust the bids on the selected audiences</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row campanin-type-child child-campaning-goal">
+                <div class="col-md-12">
+                    <h3>Budget and bidding</h3>
+                    <p>Define how much you want to spend and how you want to spend it</p>
+                </div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <br>
+                            <br>
+                            <label>Budget</lable>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p>Enter the average you want to spend each day</p>
+                                    <input type="number" name="data[budget_and_bidding][budget]" class="form-control location_radio">
+                                    <br>
+                                    <br>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <br>
+                            <br>
+                            <label>Bidding</lable>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p>What do you want to focus on?</p>
+                                    <select class="form-control" id="biding_select" name="data[budget_and_bidding][bidding][focus]">
+                                        <optgroup label="Recommended">
+                                            <option value="TARGET_CPA">Conversions</option>
+                                            <option value="TARGET_ROAS">Conversion value</option>
+                                        </optgroup>
+                                        <optgroup label="Other optimization options">
+                                            <option value="TARGET_SPEND">Clicks</option>
+                                            <option value="MANUAL_CPM">Impression share</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row bidding-sections">
+                                <div class="col-md-12">
+                                    <br>
+                                    <span style="font-size: 10px;">Target CPA</span>
+                                    <input type="number" step="0.00" name="data[budget_and_bidding][bidding][cpa]" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row campanin-type-child child-campaning-goal">
+                <div class="col-md-12">
+                    <a href="#demox" data-toggle="collapse">Show more settings</a>
+                    <div id="demox" class="collapse">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label>Conversions</lable>
+                            </div>
+                            <div class="col-md-8">
+                                <p>Select which conversions are included in the "Conversions" column for this campaign and used for Smart Bidding </p>
+                            </div>
+                            <div class="col-md-4">
+                                
+                            </div>
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <input type="radio" name="data[budget_and_bidding][budget_and_bidding][conversions]" checked value="Use the account-level Include in 'Conversions' setting" class="form-control" />
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-3">
-                                            <input type="radio" name="location_radio" value="India" class="form-control location_radio">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label>India</lable>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-3">
-                                            <input type="radio" name="location_radio" value="Enter another location" class="form-control location_radio">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label>Enter another location</lable>
-                                        </div>
-                                    </div>
-                                    <a href="#demo1" data-toggle="collapse">Location Option</a>
-                                    <div id="demo1" class="collapse">
-                                        <div class="row">
-                                            <p>Target</p>
-                                            <div class="col-md-12">
-                                                <div class="row">
-                                                    <div class="col-md-3">
-                                                        <input type="radio" name="location_target_radio" value="Presence or interest: People in, regularly in, or who've shown interest in your targeted locations (recommended)" class="form-control" checked>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label>Presence or interest: People in, regularly in, or who've shown interest in your targeted locations (recommended)</lable>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-3">
-                                                        <input type="radio" name="location_target_radio" value="Presence: People in or regularly in your targeted locations" class="form-control">
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label>Presence: People in or regularly in your targeted locations</lable>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-3">
-                                                        <input type="radio" name="location_target_radio" value="Search interest: People searching for your targeted locations" class="form-control">
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label>Search interest: People searching for your targeted locations</lable>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <p>Exclude</p>
-                                            <div class="col-md-12">
-                                                <div class="row">
-                                                    <div class="col-md-3">
-                                                        <input type="radio" name="location_target_radio" value="Presence: People in your excluded locations (recommended)" class="form-control" checked>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label>Presence: People in your excluded locations (recommended)</lable>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-3">
-                                                        <input type="radio" name="location_target_radio" value="Presence or interest: People in, regularly in, or who’ve shown interest in your excluded locations" class="form-control">
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label>Presence or interest: People in, regularly in, or who’ve shown interest in your excluded locations</lable>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div class="col-md-3">
+                                        <label>Use the account-level "Include in 'Conversions'" setting</lable>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>`
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label>Ad rotation</lable>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <input type="radio" checked name="data[budget_and_bidding][budget_and_bidding][ad_rotation]" value="Optimize: Prefer best performing ads" class="form-control" />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Optimize: Prefer best performing ads</lable>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <input type="radio" name="data[budget_and_bidding][budget_and_bidding][ad_rotation]" value="Do not optimize: Rotate ads indefinitely" class="form-control" />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Do not optimize: Rotate ads indefinitely</lable>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <input type="radio" name="data[budget_and_bidding][budget_and_bidding][ad_rotation]" value="Optimize for conversions (Not supported)" class="form-control" />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Optimize for conversions (Not supported)</lable>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <input type="radio" name="data[budget_and_bidding][budget_and_bidding][ad_rotation]" value="Rotate evenly (Not supported)" class="form-control" />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Rotate evenly (Not supported)</lable>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row campanin-type-child child-campaning-goal">
+                <div class="col-md-12">
+                    <h3>Ad extensions</h3>
+                    <p>Get up to 15% higher clickthrough rate by showing additional information on your ads</p>
+                </div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <br>
+                            <br>
+                            <label>Sitelink extensions</lable>
+                        </div>
+                        <div class="col-md-6 sitelink-url-section">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <input type="url" name="data[ads_extension][url][]" class="form-control location_radio" placeholder="Enter url">
+                                    <br>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 text-right">
+                                    <button type="button" id="addSitelink" class="btn btn-default">
+                                        Add
+                                    </button>
+                                    <br>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `
     $('.create-campaning-phase-2').html($html);
     $('#phase-1-type').text($('#campanin-type').val());
     $('#phase-1-goal').text($('#goal').val());
+    $('#dates-field2').multiselect({
+        includeSelectAllOption: true,
+        selectAllText: 'All Languages',
+        buttonWidth:'100%',
+        maxHeight:200,
+        dropUp:true,
+    });
+    $('#create-camp-btn').show()
+    $('#continue-phase-1').hide();
 }
+$(document).on('change','#biding_select',function(){
+    $('.bidding-sections').remove();
+    let value = $(this).val();
+    let biddingSelect = '';
+    if (value == 'TARGET_CPA'){
+        biddingSelect = `<div class="row bidding-sections">
+                            <div class="col-md-12">
+                                <br>
+                                <span style="font-size: 10px;">Target CPA</span>
+                                <input type="number" step="0.00" name="data[budget_and_bidding][bidding][cpa]" class="form-control">
+                            </div>
+                        </div>`;        
+    }
+    else if(value == 'TARGET_ROAS'){
+        biddingSelect = `<div class="row bidding-sections">
+                            <div class="col-md-12">
+                                <br>
+                                <span style="font-size: 10px;">Target ROAS</span>
+                                <input type="number" step="0.00" name="data[budget_and_bidding][bidding][roas]" class="form-control">
+                            </div>
+                        </div>`; 
+    }
+    else if(value == 'TARGET_SPEND'){
+        biddingSelect = `<div class="row bidding-sections">
+                            <div class="col-md-12">
+                                <br>
+                                <span style="font-size: 10px;">Maximum CPC bid limit</span>
+                                <input type="number" step="0.00" name="data[budget_and_bidding][bidding][cpc]" class="form-control">
+                            </div>
+                        </div>`; 
+    }
+    else if(value == 'MANUAL_CPM'){
+        biddingSelect = `<div class="row bidding-sections">
+                            <div class="col-md-12">
+                                <br>
+                                <span style="font-size: 10px;">Where do you want your ads to appear</span>
+                                <select name="data[budget_and_bidding][bidding][where_do_ad_appear]" class="form-control">
+                                    <option>Anywhere on results page</option>
+                                    <option>Top of results page</option>
+                                    <option>Absolute top of results page</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12">
+                                <br>
+                                <span style="font-size: 10px;">Percent (%) impression share to targe</span>
+                                <input type="number" step="0.00" name="data[budget_and_bidding][bidding][percent_impression_share_to_target]" class="form-control">
+                            </div>
+                            <div class="col-md-12">
+                                <br>
+                                <span style="font-size: 10px;">Maximum CPC bid limit</span>
+                                <input type="number" step="0.00" name="data[budget_and_bidding][bidding][max_cpc_bit_limit]" class="form-control">
+                            </div>
+                        </div>`; 
+    }
+    $(this).parent().parent().after(biddingSelect);
+});
 $(document).on('change','.location_radio',function(){
     if ($(this).val() == "Enter another location"){
         $(this).parent().parent().append('<div class="col-md-12"><input type="text" name="customcountry" class="form-control customcountryinput" placeholder="Enter a location to target or exclude" /> </div>')
     }else{
         $('.customcountryinput').remove();
+    }
+});
+$(document).on('click','#addSitelink',function(){
+    $(this).before(`<div class="row">
+                        <div class="col-md-12">
+                            <input type="url" name="data[ads_extension][url][]" class="form-control location_radio" placeholder="Enter url">
+                            <br>
+                        </div>
+                    </div>`);
+})
+let adgroupCount = 1;
+$(document).on('click','#removeAdGroupSecion',function(){
+    $(this).parent().parent().remove();
+});
+$(document).on('click','#addmoreGroup',function(){
+    $('#addGroupbefore').before(`<div class="form-group row" style="margin: 10px; border: 1px solid #f2f2f2; padding: 20px;">
+                        <div class="col-md-12" style="text-align: right; margin-top: -20px; margin-left: 28px;">
+                            <i class="fa fa-close" id="removeAdGroupSecion"></i>
+                        </div>
+                        <div class="col-md-6">
+                            <span>Ad group name</span>
+                            <input type="text" name="adgroup[${adgroupCount}][name]" class="form-control" placeholder="Enter Ad group name" value="Ad group ${adgroupCount+1}" required="">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <span class="mt-5">Keywords</span>
+                                </div>
+                                <div class="col-md-12">
+                                    <input type="url" name="adgroup[${adgroupCount}][url]" class="form-control" placeholder="Enter relate web page URL " required="">
+                                </div>
+                                <div class="col-md-12 mt-3">
+                                    <input type="text" value="" name="adgroup[${{adgroupCount}}][keywords]" id="taginput" data-role="tagsinput" class="taginput form-control" placeholder="Enter Keywords" />
+                                </div>
+                                <div class="col-md-12 mt-3">
+                                    <input type="number" step="0.00" name="adgroup[${adgroupCount}][budget]" class="form-control" placeholder="Enter budget" required="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>`)
+    adgroupCount++
+    $(".taginput").tagsinput('items')
+    $('.bootstrap-tagsinput').css('width', '100%');
+});
+$(document).on('click','#addHeadline',function(){
+    $(this).parent().before(`
+                        <div class="col-md-12 mt-2 mb-2">
+                            <input type="text" name="headlines[]" class="form-control" placeholder="New headline">
+                        </div>`)
+});
+$(document).on('click','#addDescriptions',function(){
+    $(this).parent().before(`
+                        <div class="col-md-12 mt-2 mb-2">
+                            <input type="text" name="descriptions[]" class="form-control" placeholder="New descriptions">
+                        </div>`)
+});
+let customParamCount = 1;
+$(document).on('click','#addCustomParam',function(){
+    $(this).parent().parent().before(`<div class="row mb-4">
+                                            <div class="col-md-6">
+                                                <input type="text" name="customparam[${customParamCount}][name]" class="form-control" placeholder="Name">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <input type="text" name="customparam[${customParamCount}][value]" class="form-control" placeholder="Value">
+                                            </div>
+                                        </div>`);
+    customParamCount++
+});
+$(document).on('change','#different_url_mobile',function(){
+    if ($(this).is(':checked')) {
+        $('.mobile-url-container').show();
+    }else{
+        $('.mobile-url-container').hide();
     }
 });
 var page = {
