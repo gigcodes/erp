@@ -68,10 +68,10 @@
 
   </div>
 </div>
-<div id="subject1" class="modal fade in" role="dialog">
+{{-- <div id="subject1" class="modal fade in" role="dialog">
      <div class="modal-dialog">
 
-          <!-- Modal content-->
+          
           <div class="modal-content">
                <div class="modal-header">
                     <h4 class="modal-title">Subject </h4>
@@ -97,7 +97,7 @@
           </div>
 
      </div>
-</div>
+</div> --}}
 
 <div id="viewmore" class="modal fade in" role="dialog">
      <div class="modal-dialog">        

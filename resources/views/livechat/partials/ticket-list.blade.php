@@ -10,47 +10,32 @@
     <td>{{ ++$i }}</td>
     <td>{{ substr($ticket->ticket_id, -5) }}</td>
     <td>
-        <a href="javascript:void(0)" class="source_<?=$ticket->id?>" data-content="{{ $ticket->source_of_ticket }}">
+        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->source_of_ticket }}">
             {{ mb_strimwidth($ticket->source_of_ticket, 0, 25, "...") }}
         </a>
     </td>
     <td style="width:50px;">{{ $ticket->name}}</td>
     <td>
-        <a href="javascript:void(0)" class="email_<?=$ticket->id?>" data-content="{{ $ticket->email }}">
+        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->email }}">
             {{ mb_strimwidth($ticket->email, 0, 15, "...") }}
         </a>
     </td>
-    <td><a href="javascript:void(0)" class="subject1_<?=$ticket->id?>">{{ substr($ticket->subject,0,6) }}</a></td>
-    <td><a href="javascript:void(0)" class="message1_<?=$ticket->id?>">{{ substr($ticket->message,0,6) }}</a></td>
+    <td>
+        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->subject }}">
+            {{ substr($ticket->subject,0,6) }}
+        </a>
+    </td>
+    <td>
+        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->message }}">
+            {{ substr($ticket->message,0,6) }}
+        </a>
+    </td>
     <td>{{ $ticket->assigned_to_name }}</td>
     <td>{{ $ticket->type_of_inquiry }}</td>
     <td>{{ $ticket->country }}</td>
     <td>{{ substr($ticket->order_no,0,5) }}</td>
     <td>{{ $ticket->phone_no }}</td>
-        <script type="text/javascript">
-               $(document).on('click', '.subject1_<?=$ticket->id?>', function () {
-                $('#subject1 #content').html('<?=$ticket->subject?>');
-                $('#subject1').modal("show");
-
-            });
-        </script>
-        <script type="text/javascript">
-            $(document).on('click', '.message1_<?=$ticket->id?>', function () {
-                $('#message1 #content').html('<?=$ticket->message?>');
-                $('#message1').modal("show");
-            });
-
-            $(document).on('click', '.source_<?=$ticket->id?>', function () {
-                $('#viewmore #contentview').html($(this).data('content'));
-                $('#viewmore').modal("show");
-            });
-
-            $(document).on('click', '.email_<?=$ticket->id?>', function () {
-                $('#viewmore #contentview').html($(this).data('content'));
-                $('#viewmore').modal("show");
-            });
-        </script>
-
+    
     <td class="table-hover-cell" style="word-break: break-all;padding: 5px;">
         <div class="row">
             <div class="col-md-12 form-inline cls_remove_rightpadding">
