@@ -151,6 +151,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/push-website-in-live', 'PageController@pushWebsiteInLive')->name("store-website.page.push-website-in-live");
         Route::get('/{id}/pull-website-in-live', 'PageController@pullWebsiteInLive')->name("store-website.page.pull-website-in-live");
         Route::get('/histories', 'PageController@histories')->name("store-website.page.histories");
+        Route::put('/store-platform-id', 'PageController@store_platform_id')->name('store_website_page.store_platform_id');
     });
 
     Route::prefix('product-attribute')->group(function () {

@@ -162,5 +162,17 @@
         bodyView : $("#common-page-layout"),
         baseUrl : "<?php echo url("/"); ?>"
     });
+    function save_platform_id(page_id) {
+        var platform_id = $(this.event.target).val();
+        $.ajax({
+            url: '{{ route('store_website_page.store_platform_id') }}',
+            method: 'PUT',
+            data: {
+                _token: "{{ csrf_token() }}",
+                'page_id': page_id,
+                'platform_id': platform_id
+            }
+        });
+    }
 </script>
 @endsection 

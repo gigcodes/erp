@@ -131,7 +131,13 @@ class PageController extends Controller
 
         // if records has been save then call a request to push
         if ($records->save()) {
-
+            //Logging activity
+            if($id == 0) {
+                activity()->causedBy(auth()->user())->performedOn($records)->log('page created');
+            } else {
+                activity()->causedBy(auth()->user())->performedOn($records)->log('page updated');
+            }
+            
         }
 
         return response()->json(["code" => 200, "data" => $records]);
@@ -166,6 +172,7 @@ class PageController extends Controller
 
         if ($page) {
             $page->delete();
+            activity()->causedBy(auth()->user())->performedOn($page)->log('page deleted');
             return response()->json(["code" => 200]);
         }
 
@@ -177,6 +184,7 @@ class PageController extends Controller
         $page = StoreWebsitePage::where("id", $id)->first();
 
         if ($page) {
+            activity()->causedBy(auth()->user())->performedOn($page)->log('page pushed');
             \App\Jobs\PushPageToMagento::dispatch($page)->onQueue('magetwo');
             return response()->json(["code" => 200, 'message' => "Website send for push"]);
         }
@@ -190,6 +198,7 @@ class PageController extends Controller
 
         if ($page) {
             $website = $page->storeWebsite;
+            activity()->causedBy(auth()->user())->performedOn($page)->log('page pulled');
             $data = MagentoHelper::pullWebsitePage($website);
             if (!empty($data)) {
                 foreach ($data as $key => $d) {
@@ -275,7 +284,7 @@ class PageController extends Controller
             $languages = \App\Language::where("status", 1)->get();
             foreach ($languages as $l) {
                 if (strtolower($page->language) != strtolower($l->name)) {
-                    $pageExist = \App\StoreWebsitePage::where("copy_page_id", $page->id)->where("language", $l->name)->first();
+                    $pageExist = \App\StoreWebsitePage::where("url_key", $page->url_key)->where("store_website_id", $page->store_website_id)->where("language", $l->name)->first();
                     if (!$pageExist) {
 
                         $newPage = new \App\StoreWebsitePage;
@@ -362,7 +371,7 @@ class PageController extends Controller
     public function pushWebsiteInLive (Request $request, $id)
     {
         $pages = \App\StoreWebsitePage::where("store_website_id",$id)->get();
-
+        activity()->causedBy(auth()->user())->log('pages pushed');
         if(!$pages->isEmpty()) {
             foreach($pages as $page) {
                 \App\Jobs\PushPageToMagento::dispatch($page)->onQueue('magetwo');
@@ -377,6 +386,7 @@ class PageController extends Controller
     {   
         $website = \App\StoreWebsite::where("id", $id)->where("api_token", "!=", "")->where('remote_software', '2')->where("website_source", "magento")->first();
         if ($website) {
+            activity()->causedBy(auth()->user())->log('pages pulled');
             $data = MagentoHelper::pullWebsitePage($website);
             if (!empty($data)) {
                 foreach ($data as $key => $d) {
@@ -434,6 +444,17 @@ class PageController extends Controller
         $records =  $records->paginate();
 
         return view("storewebsite::page.histories",compact('records','title','storeWebsites'));
+    }
+
+    public function store_platform_id() {
+        $page = StoreWebsitePage::find(request()->page_id);
+        $page->platform_id = request()->platform_id;
+        if($page->save()) {
+            activity()->causedBy(auth()->user())->performedOn($page)->log('page platform id updated');
+            return "success";
+        } else {
+            return "failed";
+        }
     }
 
 }

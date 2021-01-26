@@ -4,6 +4,7 @@
             <thead>
               <tr>
                 <th>Id</th>
+                <th>Platform ID</th>
                 <th>Title</th>
                 <th>Url</th>
                 <th>Store View</th>
@@ -17,6 +18,7 @@
                 {{props data}}
                   <tr>
                     <td><input type="checkbox" class="groups" name="groups[]" value="{{:prop.id}}">&nbsp;{{:prop.id}}</td>
+                    <td><input type="text" value="{{:prop.platform_id}}" onchange="save_platform_id({{:prop.id}})"/></td>
                     <td>{{:prop.title}}</td>
                     <td>{{:prop.url_key}}</td>
                     <td title="{{:prop.stores}}">{{:prop.stores_small}}</td>
