@@ -157,6 +157,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/edit', 'CategorySeoController@edit')->name("store-website.page.edit");
         Route::get('/{id}/delete', 'CategorySeoController@destroy')->name("store-website.page.delete");
         Route::get('/{id}/translate-for-other-langauge', 'CategorySeoController@translateForOtherLanguage')->name("store-website.page.translate-for-other-langauge");
+        Route::get('/{id}/push', 'CategorySeoController@push')->name("store-website.page.push");
     });
 
     Route::prefix('product-attribute')->group(function () {

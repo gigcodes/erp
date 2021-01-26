@@ -40,6 +40,10 @@ var page = {
             page.editRecord($(this));
         });
 
+        page.config.bodyView.on("click",".btn-push",function(e) {
+            page.push($(this));
+        });
+
         $(".common-modal").on("click",".submit-store-category-seo",function() {
             page.submitFormSite($(this));
         });
@@ -178,7 +182,23 @@ var page = {
                 location.reload();
             }
         }
-    }
+    },
+    push : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/category-seo/"+ele.data("id")+"/push",
+            method: "get",
+        }
+        this.sendAjax(_z, 'afterPush');
+    },
+    afterPush : function(response) {
+        if(response.code  == 200) {
+            toastr["success"](response.message,"");
+            location.reload();
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
 }
 
 $.extend(page, common);

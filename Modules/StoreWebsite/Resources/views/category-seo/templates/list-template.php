@@ -22,6 +22,9 @@
                     <td>{{:prop.meta_description}}</td>
                     <td>{{:prop.created_at}}</td>
                     <td>
+                        <button type="button" title="Push" data-id="{{>prop.id}}" class="btn btn-push">
+                            <i class="fa fa-upload" aria-hidden="true"></i>
+                        </button>
                         <button type="button" title="Edit" data-id="{{>prop.id}}" class="btn btn-edit-template">
                             <i class="fa fa-edit" aria-hidden="true"></i>
                         </button>
