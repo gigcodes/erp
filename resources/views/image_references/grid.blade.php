@@ -142,6 +142,7 @@
                     <thead>
                     <tr>
                         <th>ID <input type="checkbox" name="" id="globalCheckbox"></th>
+                        <th>Pro. Id</th>
                         <th>Category</th>
                         <th>Supplier</th>
                         <th>Brand</th>
