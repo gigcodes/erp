@@ -546,6 +546,7 @@ class CategoryController extends Controller
         $unKnownCategory = Category::where('title','LIKE','%Unknown Category%')->first();
         $unKnownCategories = explode(',', $unKnownCategory->references );
         $unKnownCategories = array_unique($unKnownCategories);
+        
         $unKnownCategory->references = implode(",", $unKnownCategories);
         $unKnownCategory->save();
 
