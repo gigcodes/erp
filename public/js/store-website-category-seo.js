@@ -44,6 +44,7 @@ var page = {
             page.push($(this));
         });
 
+
         $(".common-modal").on("click",".submit-store-category-seo",function() {
             page.submitFormSite($(this));
         });
@@ -51,6 +52,11 @@ var page = {
         $(document).on("click",".btn-translate-for-other-language",function(e) {
             e.preventDefault();
             page.translateForOtherLanguage($(this));
+        });
+
+        $(document).on("click",".push-pages-store-wise",function(e) {
+            e.preventDefault();
+            page.pushPageInLive($(this));
         });
 
     },
@@ -176,11 +182,9 @@ var page = {
     },
     afterTranslateForOtherLanguage : function(response) {
         if(response.code  == 200) {
-            if(response.errorMessage != "") {
-                toastr["error"](response.errorMessage,"");
-            }else{
-                location.reload();
-            }
+            toastr["success"](response.message,'');
+        }else{
+            toastr["error"]('something went wrong!',"");
         }
     },
     push : function(ele) {
@@ -199,6 +203,24 @@ var page = {
             toastr["error"](response.error,"");
         }
     },
+    pushPageInLive : function(ele) {
+        let page     = $(".push-website-store-id").val();
+        
+        var _z = {
+            url: this.config.baseUrl + "/category-seo/"+page+"/push-website-in-live",
+            method: "get"
+        }
+
+        this.sendAjax(_z, 'afterPushPageInLive');
+    },
+    afterPushPageInLive : function (response) {
+        if(response.code == 200) {
+            toastr["success"](response.message,"");
+            location.reload();
+        }else{
+            toastr["error"](response.message,"");
+        }
+    }
 }
 
 $.extend(page, common);

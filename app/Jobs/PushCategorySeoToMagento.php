@@ -66,9 +66,9 @@ class PushCategorySeoToMagento implements ShouldQueue
                 if ($case == 'single') {
                     $data['id']       = $category->id;
                     $data['level']    = 1;
-                    $data['name']     = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
+                    $data['name']     = ucwords($category->title);
                     $data['meta_title'] = $store_website_category_seo->meta_title;
-                    $data['meta_keywords'] = $store_website_category_seo->meta_keywords;
+                    $data['meta_keywords'] = $store_website_category_seo->meta_keyword;
                     $data['meta_description'] = $store_website_category_seo->meta_description;
                     $data['parentId'] = 0;
                     $parentId         = 0;
@@ -90,9 +90,9 @@ class PushCategorySeoToMagento implements ShouldQueue
 
                         $data['id']       = $category->id;
                         $data['level']    = 1;
-                        $data['name']     = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
+                        $data['name']     = ucwords($category->title);
                         $data['meta_title'] = $store_website_category_seo->meta_title;
-                        $data['meta_keywords'] = $store_website_category_seo->meta_keywords;
+                        $data['meta_keywords'] = $store_website_category_seo->meta_keyword;
                         $data['meta_description'] = $store_website_category_seo->meta_description;
                         $data['parentId'] = 0;
                         $parentId         = 0;
@@ -162,10 +162,10 @@ class PushCategorySeoToMagento implements ShouldQueue
 
                             $data['id']       = $category->id;
                             $data['level']    = 1;
-                            $data['name']     = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
+                            $data['name']     = ucwords($category->title);
                             $data['parentId'] = 0;
                             $data['meta_title'] = $store_website_category_seo->meta_title;
-                            $data['meta_keywords'] = $store_website_category_seo->meta_keywords;
+                            $data['meta_keywords'] = $store_website_category_seo->meta_keyword;
                             $data['meta_description'] = $store_website_category_seo->meta_description;
                             $parentId         = 0;
 

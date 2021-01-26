@@ -21,6 +21,9 @@
                 <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action" data-toggle="modal" data-target="#colorCreateModal">
                     <img src="/images/add.png" style="cursor: default;">
                 </button>
+                <div class="row">
+                    <button class="btn btn-secondary push-by-store-website"  data-toggle="modal" data-target="#push-by-store-website-modal">Push By Storewebsite</button>
+                </div>
             </div>
             <div class="col-5">
                 <div class="h" style="margin-bottom:10px;">
@@ -65,6 +68,26 @@
 <div class="common-modal modal" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
     </div>  
+</div>
+<div class="push-by-store-website-modal modal" id="push-by-store-website-modal" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form>
+                    <div class="form-row col-md-12">
+                        <div class="form-group">
+                            <strong>Store websites</strong>
+                            <?php echo Form::select("store_website_id",$storeWebsites,null, ["class" => "form-control push-website-store-id"]);  ?>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary push-pages-store-wise">Push Store(s)</button>
+            </div>
+        </div>
+    </div>
 </div>
 @include("storewebsite::category-seo.templates.list-template")
 @include("storewebsite::category-seo.templates.create-website-template")

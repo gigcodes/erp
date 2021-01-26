@@ -41,6 +41,17 @@
                   <textarea name="meta_description" class="form-control" placeholder="Enter meta description">{{if data}}{{:data.meta_description}}{{/if}}</textarea>
                 </div>
               </div>
+              <div class="row">
+                <div class="form-group col-md-6">
+                    <label for="language">Language</label>
+                    <select name="language_id" class="form-control">
+                      <option value="">-- Select --</option>
+                        <?php foreach($languages as $k => $language) { ?>
+                          <option value="<?php echo $k; ?>"><?php echo $language; ?></option>
+                        <?php } ?>
+                    </select> 
+                </div>
+              </div>
            </div>
            <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

@@ -4,6 +4,7 @@ namespace Modules\StoreWebsite\Http\Controllers;
 
 use App\Category;
 use App\Language;
+use App\GoogleTranslate;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
 use App\StoreWebsiteCategory;
@@ -22,6 +23,7 @@ class CategorySeoController extends Controller
     public function index()
     {
         $title = "Category SEO | Store Website";
+        $languages = Language::pluck('name', 'id')->toArray();
         $storeWebsites = StoreWebsite::all()->pluck("website", "id");
         $categories = Category::all();
         $categories_list = Category::pluck('title', 'id')->toArray();
@@ -30,12 +32,13 @@ class CategorySeoController extends Controller
             'storeWebsites' => $storeWebsites,
             'categories' => $categories,
             'categories_list' => $categories_list,
+            'languages' => $languages,
         ]);
     }
 
     public function records(Request $request)
     {
-        $storewebsite_category_seos = StoreWebsiteCategorySeo::join("categories as cat", "cat.id", "store_website_category_seos.category_id");
+        $storewebsite_category_seos = StoreWebsiteCategorySeo::join("categories as cat", "cat.id", "store_website_category_seos.category_id")->join("languages", "languages.id", "store_website_category_seos.language_id");
 
         if ($request->has('category_id')) {
             $storewebsite_category_seos = $storewebsite_category_seos->where(function ($q) use ($request) {
@@ -50,11 +53,18 @@ class CategorySeoController extends Controller
             });
         }
 
-        $storewebsite_category_seos = $storewebsite_category_seos->orderBy("store_website_category_seos.id","asc")->select(["cat.title", "store_website_category_seos.*"])->paginate();
+        $storewebsite_category_seos = $storewebsite_category_seos->orderBy("store_website_category_seos.id","DESC")->select(["languages.store_view","cat.title", "store_website_category_seos.*"])->paginate();
 
         $items = $storewebsite_category_seos->items();
 
-        return response()->json(["code" => 200, "data" => $items, "total" => $storewebsite_category_seos->total(),
+        $recItems = [];
+        foreach($items as $item) {
+            $attributes = $item->getAttributes();
+            $attributes['store_small'] = strlen($attributes['store_view']) > 15 ? substr($attributes['store_view'],0,15) : $attributes['store_view'];
+            $recItems[] = $attributes;
+        }
+
+        return response()->json(["code" => 200, "data" => $recItems, "total" => $storewebsite_category_seos->total(),
             "pagination"  => (string) $storewebsite_category_seos->links(),
         ]);
     }
@@ -81,6 +91,7 @@ class CategorySeoController extends Controller
         $params = [
             'meta_title'    => 'required',
             'category_id'  => 'required',
+            'language_id'  => 'required',
         ];
 
         $validator = Validator::make($post, $params);
@@ -165,227 +176,242 @@ class CategorySeoController extends Controller
     {
         $store_website_category_seo = StoreWebsiteCategorySeo::find($id);
 
-        if ($store_website_category_seo) {
-            // find the language all active and then check that record page is exist or not
-            $storeWebsiteCategory = StoreWebsiteCategory::where("category_id", $store_website_category_seo->category_id)->first();
+        if (!empty($store_website_category_seo)) {
+            $languages = \App\Language::where("status", 1)->get();
+            foreach ($languages as $lang) {
+                if ($lang->id != $store_website_category_seo->language_id) {
+                    $categoryExist = \App\StoreWebsiteCategorySeo::where("category_id", $store_website_category_seo->category_id)->where("language_id", $lang->id)->first();
+                    if (empty($categoryExist)) {
+                        $newStoreCategorySeo = new StoreWebsiteCategorySeo();
+                        
+                        $meta_title = \App\Http\Controllers\GoogleTranslateController::translateProducts(
+                            new GoogleTranslate,
+                            $lang->locale,
+                            [$store_website_category_seo->meta_title]
+                        );
+                        $meta_description = \App\Http\Controllers\GoogleTranslateController::translateProducts(
+                            new GoogleTranslate,
+                            $lang->locale,
+                            [$store_website_category_seo->meta_description]
+                        );
+                        $meta_keyword = \App\Http\Controllers\GoogleTranslateController::translateProducts(
+                            new GoogleTranslate,
+                            $lang->locale,
+                            [$store_website_category_seo->meta_keyword]
+                        );
 
-            $category = Category::find($store_website_category_seo->category_id);
-
-            $storeId = $storeWebsiteCategory->store_website_id;
-
-            $website = StoreWebsite::find($storeId);
-
-            if ($website && $category) {
-
-                if ($category->parent_id == 0) {
-                    $case = 'single';
-                } elseif ($category->parent->parent_id == 0) {
-                    $case = 'second';
-                } else {
-                    $case = 'third';
-                }
-
-                //Check if category
-                if ($case == 'single') {
-                    $data['id']       = $category->id;
-                    $data['level']    = 1;
-                    $data['name']     = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
-                    $data['meta_title'] = $store_website_category_seo->meta_title;
-                    $data['meta_keywords'] = $store_website_category_seo->meta_keywords;
-                    $data['meta_description'] = $store_website_category_seo->meta_description;
-                    $data['parentId'] = 0;
-                    $parentId         = 0;
-
-                    $checkIfExist = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->id)->first();
-                    if (empty($checkIfExist)) {
-                        $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                        $storeWebsiteCategory->category_id      = $category->id;
-                        $storeWebsiteCategory->store_website_id = $storeId;
-                        // $storeWebsiteCategory->remote_id        = $categ;
-                        $storeWebsiteCategory->save();
+                        $newStoreCategorySeo->category_id = $store_website_category_seo->category_id;
+                        $newStoreCategorySeo->meta_title = $meta_title;
+                        $newStoreCategorySeo->meta_description = $meta_description;
+                        $newStoreCategorySeo->meta_keyword = $meta_keyword;
+                        $newStoreCategorySeo->language_id = $lang->id;
+                        $newStoreCategorySeo->save();
                     }
-
-
-                    // if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                    //     $categ = MagentoHelper::createCategory($parentId, $data, $storeId);
-                    // }
-                    // if ($category) {
-                    //     $checkIfExist = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->id)->where('remote_id', $categ)->first();
-                    //     if (empty($checkIfExist)) {
-                    //         $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                    //         $storeWebsiteCategory->category_id      = $category->id;
-                    //         $storeWebsiteCategory->store_website_id = $storeId;
-                    //         $storeWebsiteCategory->remote_id        = $categ;
-                    //         $storeWebsiteCategory->save();
-                    //     }
-                    // }
                 }
-
-                //if case second
-                if ($case == 'second') {
-                    $parentCategory = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->parent->id)->whereNotNull('remote_id')->first();
-                    //if parent remote null then send to magento first
-                    if (empty($parentCategory)) {
-
-                        $data['id']       = $category->id;
-                        $data['level']    = 1;
-                        $data['name']     = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
-                        $data['meta_title'] = $store_website_category_seo->meta_title;
-                        $data['meta_keywords'] = $store_website_category_seo->meta_keywords;
-                        $data['meta_description'] = $store_website_category_seo->meta_description;
-                        $data['parentId'] = 0;
-                        $parentId         = 0;
-
-                        if ($parentCategoryDetails) {
-                            $checkIfExist = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->id)->first();
-                            if (empty($checkIfExist)) {
-                                $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                $storeWebsiteCategory->category_id      = $category->id;
-                                $storeWebsiteCategory->store_website_id = $storeId;
-                                // $storeWebsiteCategory->remote_id        = $parentCategoryDetails;
-                                $storeWebsiteCategory->save();
-                            }
-                        }
-
-                        /*if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                            $parentCategoryDetails = MagentoHelper::createCategory($parentId, $data, $storeId);
-                        }
-                        if ($parentCategoryDetails) {
-                            $checkIfExist = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->id)->where('remote_id', $parentCategoryDetails)->first();
-                            if (empty($checkIfExist)) {
-                                $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                $storeWebsiteCategory->category_id      = $category->id;
-                                $storeWebsiteCategory->store_website_id = $storeId;
-                                $storeWebsiteCategory->remote_id        = $parentCategoryDetails;
-                                $storeWebsiteCategory->save();
-                            }
-                        }*/
-                        // $parentRemoteId = $parentCategoryDetails;
-                    } else {
-                        $parentRemoteId = $parentCategory->remote_id;
-                    }
-
-                    // $data['id']       = $category->id;
-                    // $data['level']    = 2;
-                    // $data['name']     = ucwords($category->title);
-                    // $data['parentId'] = isset($parentRemoteId) ? $parentRemoteId : NULL;
-
-                    // if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                    //     $categoryDetail = MagentoHelper::createCategory($parentRemoteId, $data, $storeId);
-                    // }
-                    // if ($categoryDetail) {
-                        $checkIfExist = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->id)->first();
-                        if (empty($checkIfExist)) {
-                            $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                            $storeWebsiteCategory->category_id      = $category->id;
-                            $storeWebsiteCategory->store_website_id = $storeId;
-                            // $storeWebsiteCategory->remote_id        = $categoryDetail;
-                            $storeWebsiteCategory->save();
-                        }
-                    // }
-                }
-
-                //if case third
-                if ($case == 'third') {
-                    //Find Parent
-                    $parentCategory = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->id)->whereNotNull('remote_id')->first();
-
-                    //Check if parent had remote id
-                    if (empty($parentCategory)) {
-
-                        //check for grandparent
-                        $grandCategory       = Category::find($category->parent->id);
-                        $grandCategoryDetail = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $grandCategory->parent->id)->whereNotNull('remote_id')->first();
-
-                        if (empty($grandCategoryDetail)) {
-
-                            // $data['id']       = $category->id;
-                            // $data['level']    = 1;
-                            // $data['name']     = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
-                            // $data['parentId'] = 0;
-                            // $data['meta_title'] = $store_website_category_seo->meta_title;
-                            // $data['meta_keywords'] = $store_website_category_seo->meta_keywords;
-                            // $data['meta_description'] = $store_website_category_seo->meta_description;
-                            // $parentId         = 0;
-
-                            // if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-
-                            //     $grandCategoryDetails = MagentoHelper::createCategory($parentId, $data, $storeId);
-
-                            // }
-
-                            // if ($grandCategoryDetails) {
-                                $checkIfExist = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->parent->id)->where('remote_id', $grandCategoryDetails)->first();
-                                if (empty($checkIfExist)) {
-                                    $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                    $storeWebsiteCategory->category_id      = $category->parent->id;
-                                    $storeWebsiteCategory->store_website_id = $storeId;
-                                    // $storeWebsiteCategory->remote_id        = $grandCategoryDetails;
-                                    $storeWebsiteCategory->save();
-                                }
-
-                            // }
-
-                            // $grandRemoteId = $grandCategoryDetails;
-
-                        } else {
-                            $grandRemoteId = $grandCategoryDetail->remote_id;
-                        }
-                        //Search for child category
-
-                        // $data['id']       = $category->parent->id;
-                        // $data['level']    = 2;
-                        // $data['name']     = ucwords($category->parent->title);
-                        // $data['parentId'] = $grandRemoteId;
-                        // $parentId         = $grandRemoteId;
-
-                        // if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-
-                        //     $childCategoryDetails = MagentoHelper::createCategory($parentId, $data, $storeId);
-
-                        // }
-
-                        $checkIfExist = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->parent->id)->first();
-                        if (empty($checkIfExist)) {
-                            $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                            $storeWebsiteCategory->category_id      = $category->parent->id;
-                            $storeWebsiteCategory->store_website_id = $storeId;
-                            $storeWebsiteCategory->remote_id        = $childCategoryDetails;
-                            $storeWebsiteCategory->save();
-                        }
-
-                        // $data['id']       = $category->id;
-                        // $data['level']    = 3;
-                        // $data['name']     = ucwords($category->title);
-                        // $data['parentId'] = $childCategoryDetails;
-
-                        // if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-
-                        //     $categoryDetail = MagentoHelper::createCategory($childCategoryDetails, $data, $storeId);
-
-                        // }
-
-                        // if ($categoryDetail) {
-                            $checkIfExist = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->id)->first();
-                            if (empty($checkIfExist)) {
-                                $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                $storeWebsiteCategory->category_id      = $category->id;
-                                $storeWebsiteCategory->store_website_id = $storeId;
-                                // $storeWebsiteCategory->remote_id        = $categoryDetail;
-                                $storeWebsiteCategory->save();
-                            }
-                        // }
-
-                    }
-
-                }
-
             }
-
             return response()->json(["code" => 200, "data" => [], "message" => "Records copied succesfully"]);
         }
 
-        return response()->json(["code" => 500, "data" => [], "message" => "Page does not exist"]);
+        // if ($store_website_category_seo) {
+        //     // find the language all active and then check that record page is exist or not
+        //     $storeWebsiteCategory = StoreWebsiteCategory::where("category_id", $store_website_category_seo->category_id)->first();
+
+        //     $category = Category::find($store_website_category_seo->category_id);
+
+        //     $storeId = $storeWebsiteCategory->store_website_id;
+
+        //     $website = StoreWebsite::find($storeId);
+
+        //     if ($website && $category) {
+
+        //         if ($category->parent_id == 0) {
+        //             $case = 'single';
+        //         } elseif ($category->parent->parent_id == 0) {
+        //             $case = 'second';
+        //         } else {
+        //             $case = 'third';
+        //         }
+
+        //         //Check if category
+        //         if ($case == 'single') {
+        //             $data['id']       = $category->id;
+        //             $data['level']    = 1;
+        //             $data['name']     = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
+        //             $data['meta_title'] = $store_website_category_seo->meta_title;
+        //             $data['meta_keywords'] = $store_website_category_seo->meta_keywords;
+        //             $data['meta_description'] = $store_website_category_seo->meta_description;
+        //             $data['parentId'] = 0;
+        //             $parentId         = 0;
+
+        //             if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+        //                 $categ = MagentoHelper::createCategory($parentId, $data, $storeId);
+        //             }
+        //             if ($category) {
+        //                 $checkIfExist = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->id)->where('remote_id', $categ)->first();
+        //                 if (empty($checkIfExist)) {
+        //                     $storeWebsiteCategory                   = new StoreWebsiteCategory();
+        //                     $storeWebsiteCategory->category_id      = $category->id;
+        //                     $storeWebsiteCategory->store_website_id = $storeId;
+        //                     $storeWebsiteCategory->remote_id        = $categ;
+        //                     $storeWebsiteCategory->save();
+        //                 }
+        //             }
+        //         }
+
+        //         //if case second
+        //         if ($case == 'second') {
+        //             $parentCategory = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->parent->id)->whereNotNull('remote_id')->first();
+        //             //if parent remote null then send to magento first
+        //             if (empty($parentCategory)) {
+
+        //                 $data['id']       = $category->id;
+        //                 $data['level']    = 1;
+        //                 $data['name']     = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
+        //                 $data['meta_title'] = $store_website_category_seo->meta_title;
+        //                 $data['meta_keywords'] = $store_website_category_seo->meta_keywords;
+        //                 $data['meta_description'] = $store_website_category_seo->meta_description;
+        //                 $data['parentId'] = 0;
+        //                 $parentId         = 0;
+
+        //                 if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+        //                     $parentCategoryDetails = MagentoHelper::createCategory($parentId, $data, $storeId);
+        //                 }
+        //                 if ($parentCategoryDetails) {
+        //                     $checkIfExist = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->id)->where('remote_id', $parentCategoryDetails)->first();
+        //                     if (empty($checkIfExist)) {
+        //                         $storeWebsiteCategory                   = new StoreWebsiteCategory();
+        //                         $storeWebsiteCategory->category_id      = $category->id;
+        //                         $storeWebsiteCategory->store_website_id = $storeId;
+        //                         $storeWebsiteCategory->remote_id        = $parentCategoryDetails;
+        //                         $storeWebsiteCategory->save();
+        //                     }
+        //                 }
+        //                 $parentRemoteId = $parentCategoryDetails;
+        //             } else {
+        //                 $parentRemoteId = $parentCategory->remote_id;
+        //             }
+
+        //             $data['id']       = $category->id;
+        //             $data['level']    = 2;
+        //             $data['name']     = ucwords($category->title);
+        //             $data['parentId'] = isset($parentRemoteId) ? $parentRemoteId : NULL;
+
+        //             if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+        //                 $categoryDetail = MagentoHelper::createCategory($parentRemoteId, $data, $storeId);
+        //             }
+        //             if ($categoryDetail) {
+        //                 $checkIfExist = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->id)->first();
+        //                 if (empty($checkIfExist)) {
+        //                     $storeWebsiteCategory                   = new StoreWebsiteCategory();
+        //                     $storeWebsiteCategory->category_id      = $category->id;
+        //                     $storeWebsiteCategory->store_website_id = $storeId;
+        //                     $storeWebsiteCategory->remote_id        = $categoryDetail;
+        //                     $storeWebsiteCategory->save();
+        //                 }
+        //             }
+        //         }
+
+        //         //if case third
+        //         if ($case == 'third') {
+        //             //Find Parent
+        //             $parentCategory = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->id)->whereNotNull('remote_id')->first();
+
+        //             //Check if parent had remote id
+        //             if (empty($parentCategory)) {
+
+        //                 //check for grandparent
+        //                 $grandCategory       = Category::find($category->parent->id);
+        //                 $grandCategoryDetail = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $grandCategory->parent->id)->whereNotNull('remote_id')->first();
+
+        //                 if (empty($grandCategoryDetail)) {
+
+        //                     $data['id']       = $category->id;
+        //                     $data['level']    = 1;
+        //                     $data['name']     = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
+        //                     $data['parentId'] = 0;
+        //                     $data['meta_title'] = $store_website_category_seo->meta_title;
+        //                     $data['meta_keywords'] = $store_website_category_seo->meta_keywords;
+        //                     $data['meta_description'] = $store_website_category_seo->meta_description;
+        //                     $parentId         = 0;
+
+        //                     if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+
+        //                         $grandCategoryDetails = MagentoHelper::createCategory($parentId, $data, $storeId);
+
+        //                     }
+
+        //                     if ($grandCategoryDetails) {
+        //                         $checkIfExist = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->parent->id)->where('remote_id', $grandCategoryDetails)->first();
+        //                         if (empty($checkIfExist)) {
+        //                             $storeWebsiteCategory                   = new StoreWebsiteCategory();
+        //                             $storeWebsiteCategory->category_id      = $category->parent->id;
+        //                             $storeWebsiteCategory->store_website_id = $storeId;
+        //                             // $storeWebsiteCategory->remote_id        = $grandCategoryDetails;
+        //                             $storeWebsiteCategory->save();
+        //                         }
+
+        //                     }
+
+        //                     $grandRemoteId = $grandCategoryDetails;
+
+        //                 } else {
+        //                     $grandRemoteId = $grandCategoryDetail->remote_id;
+        //                 }
+        //                 //Search for child category
+
+        //                 $data['id']       = $category->parent->id;
+        //                 $data['level']    = 2;
+        //                 $data['name']     = ucwords($category->parent->title);
+        //                 $data['parentId'] = $grandRemoteId;
+        //                 $parentId         = $grandRemoteId;
+
+        //                 if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+
+        //                     $childCategoryDetails = MagentoHelper::createCategory($parentId, $data, $storeId);
+
+        //                 }
+
+        //                 $checkIfExist = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->parent->id)->first();
+        //                 if (empty($checkIfExist)) {
+        //                     $storeWebsiteCategory                   = new StoreWebsiteCategory();
+        //                     $storeWebsiteCategory->category_id      = $category->parent->id;
+        //                     $storeWebsiteCategory->store_website_id = $storeId;
+        //                     $storeWebsiteCategory->remote_id        = $childCategoryDetails;
+        //                     $storeWebsiteCategory->save();
+        //                 }
+
+        //                 $data['id']       = $category->id;
+        //                 $data['level']    = 3;
+        //                 $data['name']     = ucwords($category->title);
+        //                 $data['parentId'] = $childCategoryDetails;
+
+        //                 if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+
+        //                     $categoryDetail = MagentoHelper::createCategory($childCategoryDetails, $data, $storeId);
+
+        //                 }
+
+        //                 if ($categoryDetail) {
+        //                     $checkIfExist = StoreWebsiteCategory::where('store_website_id', $storeId)->where('category_id', $category->id)->first();
+        //                     if (empty($checkIfExist)) {
+        //                         $storeWebsiteCategory                   = new StoreWebsiteCategory();
+        //                         $storeWebsiteCategory->category_id      = $category->id;
+        //                         $storeWebsiteCategory->store_website_id = $storeId;
+        //                         // $storeWebsiteCategory->remote_id        = $categoryDetail;
+        //                         $storeWebsiteCategory->save();
+        //                     }
+        //                 }
+
+        //             }
+
+        //         }
+
+        //     }
+
+        //     return response()->json(["code" => 200, "data" => [], "message" => "Records copied succesfully"]);
+        // }
+
+        return response()->json(["code" => 500, "data" => [], "message" => "Category does not exist"]);
 
     }
     public function push($id){
@@ -396,6 +422,17 @@ class CategorySeoController extends Controller
             return response()->json(["code" => 200, 'message' => "category send for push"]);
         }
 
-        return response()->json(["code" => 500, "error" => "Wrong site id!"]);
+        return response()->json(["code" => 500, "message" => "Wrong site id!"]);
+    }
+    public function pushWebsiteInLive($id){
+        $category = StoreWebsiteCategory::where('store_website_id',$id)->first();
+        $categories = StoreWebsiteCategorySeo::where("category_id", $category->category_id)->first();
+
+        if ($categories) {
+            \App\Jobs\PushCategorySeoToMagento::dispatch($categories->id);
+            return response()->json(["code" => 200, 'message' => "category send for push"]);
+        }
+
+        return response()->json(["code" => 500, "message" => "Wrong site id!"]);
     }
 }

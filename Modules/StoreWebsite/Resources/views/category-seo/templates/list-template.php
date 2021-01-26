@@ -8,6 +8,7 @@
                 <th>Meta Title</th>
                 <th>Meta Keyword</th>
                 <th>Meta Description</th>
+                <th>Store View</th>
                 <th>Created at</th>
                 <th>Actions</th>
               </tr>
@@ -20,6 +21,7 @@
                     <td>{{:prop.meta_title}}</td>
                     <td>{{:prop.meta_keyword}}</td>
                     <td>{{:prop.meta_description}}</td>
+                    <td title="{{:prop.store_view}}">{{:prop.store_small}}</td>
                     <td>{{:prop.created_at}}</td>
                     <td>
                         <button type="button" title="Push" data-id="{{>prop.id}}" class="btn btn-push">
