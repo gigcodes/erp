@@ -9,6 +9,7 @@ use App\BrandCategoryPriceRange;
 use Illuminate\Support\Collection;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\ScrapedProducts;
 
 class CategoryController extends Controller
 {
@@ -551,10 +552,37 @@ class CategoryController extends Controller
         $input = preg_quote($request->get('search'), '~');
         $unKnownCategories = preg_grep('~' . $input . '~', $unKnownCategories);
 
+        $mainArr = [];
+        foreach ($unKnownCategories as $cat) {
 
+            $q = '"'.$cat.'"';
+            $count = ScrapedProducts::where("properties","like",'%'.$q.'%')->count();
 
-        $unKnownCategories = $this->paginate($unKnownCategories);
+            $subArr = [];
+            $subArr['categoryName'] = $cat;
+            $subArr['cat_product_count'] = $count;
+            $mainArr[] = $subArr;
+        }
+
+        // $mainArr = [
+        //         [
+        //             'categoryName' => "1dfsdfsdfs",
+        //             'cat_product_count' => 150
+        //         ],
+        //         [
+        //             'categoryName' => "2dfsdfsdfs",
+        //             'cat_product_count' => 500
+        //         ],
+        //         [
+        //             'categoryName' => "3asdasdasd",
+        //             'cat_product_count' => 500
+        //         ]
+        //     ];
+
+        $unKnownCategories = $this->paginate($mainArr);
         $unKnownCategories->setPath($request->url());
+        
+        $TotalProductCount = array_sum(array_column($mainArr,'cat_product_count'));
 
         $categoryAll   = Category::where('id','!=',$unKnownCategory)->where('magento_id','!=','0')->get();
         $categoryArray = [];
@@ -572,7 +600,7 @@ class CategoryController extends Controller
             }
         }
         
-        return view('category.new-reference',['unKnownCategories' => $unKnownCategories,'categoryAll' => $categoryArray,'unKnownCategoryId' => $unKnownCategory->id]);   
+        return view('category.new-reference',['unKnownCategories' => $unKnownCategories,'categoryAll' => $categoryArray,'unKnownCategoryId' => $unKnownCategory->id,'TotalProductCount' => $TotalProductCount]);   
     }
 
     /**
@@ -583,7 +611,11 @@ class CategoryController extends Controller
     public function paginate($items, $perPage = 20, $page = null, $options = [])
     {
         $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+
         $items = $items instanceof Collection ? $items : Collection::make($items);
+
+        $items = $items->sortByDesc("cat_product_count");
+
         return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
     }
 

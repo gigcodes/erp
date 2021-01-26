@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Schema;
 use Facebook\Facebook;
 use Blade;
 use Studio\Totem\Totem;
+use App\ScrapedProducts;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -43,6 +44,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(Facebook::class, function ($app) {
             return new Facebook(config('facebook.config'));
         });
+
+        $this->app->singleton(ScrapedProducts::class);
 
         
     }
