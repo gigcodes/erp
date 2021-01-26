@@ -42,6 +42,7 @@ class StoreWebsiteConfig extends ReadOnlyBase
             'brands-labels.com' => 176,
             'sololuxury.com'    => 167,
             'magento-491806-1552731.cloudwaysapps.com'    => 202,
+            'magento-501091-1587493.cloudwaysapps.com'    => 167,
         ],
         'attribute_set_id'   => [
             'veralusso.com'     => 16,
@@ -49,6 +50,7 @@ class StoreWebsiteConfig extends ReadOnlyBase
             'brands-labels.com' => 9,
             'sololuxury.com' => 9,
             'magento-491806-1552731.cloudwaysapps.com'    => 16,
+            'magento-501091-1587493.cloudwaysapps.com'    => 9,
         ],
         'simple_attribute_set_id'   => [
             'veralusso.com'     => 4,
@@ -56,6 +58,7 @@ class StoreWebsiteConfig extends ReadOnlyBase
             'brands-labels.com' => 4,
             'sololuxury.com'    => 4,
             'magento-491806-1552731.cloudwaysapps.com'    => 4,
+            'magento-501091-1587493.cloudwaysapps.com'    => 4,
         ]
     ];
 }

@@ -332,13 +332,15 @@ class ProductsCreator
             $sizeExplode = explode(",", $product->size);
             if(!empty($sizeExplode) && is_array($sizeExplode)){
                 $euSize = [];
+                $allSize = [];
                 foreach($sizeExplode as $sizeE){
                     $helperSize = ProductHelper::getRedactedText($sizeE, 'composition');
+                    $allSize[] = $helperSize;
                     //find the eu size and update into the field
                     //$euSize[]  = ProductHelper::getWebsiteSize($image->size_system, $helperSize, $product->category);
                 }
 
-                $euSize = ProductHelper::getEuSize($product, $helperSize, $supplierModel->size_system_id , $image->size_system);
+                $euSize = ProductHelper::getEuSize($product, $allSize, $supplierModel->size_system_id , $image->size_system);
                 $product->size_eu = implode(',', $euSize);
                 if(empty($euSize)) {
                     $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
