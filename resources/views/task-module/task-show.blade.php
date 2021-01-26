@@ -248,9 +248,7 @@
 
                             <tr class="tr-style"> 
 
-                              <th class="table-head-row expand-row table-hover-cell th-remark" id="remark{{$note->id}}"> 
-                              No Remark   
-                              </th>
+
                                
                                
                           
