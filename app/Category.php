@@ -410,4 +410,9 @@ class Category extends Model
         return self::pluck("title","id")->toArray();
     }
 
+    public static function ScrapedProducts($name)
+    {
+        return \App\ScrapedProducts::where('properties','LIKE','%'.$name.'%')->count();
+    }
+
 }

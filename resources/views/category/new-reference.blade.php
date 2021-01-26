@@ -13,7 +13,7 @@
 </style>
 <div class="row">
     <div class="col-md-12">
-        <h2 class="page-heading">New Category Reference ({{ count($unKnownCategories) }})</h2>
+        <h2 class="page-heading">New Category Reference ({{ $unKnownCategories->total() }})</h2>
     </div>
     <div class="col-md-12">
         <form>
@@ -40,29 +40,41 @@
             <tr>
                 <th width="10%"><input type="checkbox" class="check-all-btn">&nbsp;SN</th>
                 <th width="30%">Category</th>
-                <th width="40%">Erp Composition</th>
+                <th width="10%">Count</th>
+                <th width="40%">Erp Category</th>
                <!--  <th width="20%">Action</th> -->
             </tr>
             <?php $count = 1; ?>
+            {{-- @dd($unKnownCategories->items()); --}}
             @foreach($unKnownCategories as $unKnownCategory)
                 @if($unKnownCategory != '')
-                <?php 
-                    //getting name 
-                    $nameArray  = explode('/',$unKnownCategory);
-                    $name = end($nameArray);
-                ?>
-                <tr>
-                    <td><input type="checkbox" name="categories[]" value="{{ $unKnownCategory }}" class="categories-checkbox">&nbsp;{{ $count }}</td>
-                    <td><span class="call-used-product"  data-type="name">{{ $unKnownCategory }}</span> <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $unKnownCategory }}" ><img src="/images/add.png"></button></td>
-                    <td>
-                        <select class="select2 form-control change-list-category" data-name="{{ $name }}" data-whole="{{ $unKnownCategory }}">
-                            @foreach($categoryAll as $cat)
-                                <option value="{{ $cat['id'] }}">{{ $cat['value'] }}</option>
-                            @endforeach
-                        </select>
-                   </td>
-                </tr>
-                <?php $count++; ?>
+                    <?php 
+                        //getting name 
+                        $nameArray  = explode('/',$unKnownCategory);
+                        $name = end($nameArray);
+                    ?>
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="categories[]" value="{{ $unKnownCategory }}" class="categories-checkbox">&nbsp;{{ $count }}
+                        </td>
+                        
+                        <td>
+                            <span class="call-used-product"  data-type="name">{{ $unKnownCategory }}</span> <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $unKnownCategory }}" ><img src="/images/add.png"></button>
+                        </td>
+                        
+                        <td>
+                            {{ \App\Category::ScrapedProducts($unKnownCategory) }}
+                        </td>
+
+                        <td>
+                            <select class="select2 form-control change-list-category" data-name="{{ $name }}" data-whole="{{ $unKnownCategory }}">
+                                @foreach($categoryAll as $cat)
+                                    <option value="{{ $cat['id'] }}">{{ $cat['value'] }}</option>
+                                @endforeach
+                            </select>
+                       </td>
+                    </tr>
+                    <?php $count++; ?>
                 @endif
             @endforeach
         </table>
