@@ -13,7 +13,7 @@
 </style>
 <div class="row">
     <div class="col-md-12">
-        <h2 class="page-heading">New Category Reference ({{ $unKnownCategories->total() }}) Product({{ $TotalProductCount }})</h2>
+        <h2 class="page-heading">New Category Reference ({{ $unKnownCategories->total() }})</h2>
     </div>
     <div class="col-md-12">
         <form>
@@ -46,8 +46,7 @@
             </tr>
             <?php $count = 1; ?>
             {{-- @dd($unKnownCategories->items()); --}}
-            @foreach($unKnownCategories->items() as $unKnownCategoryarr)
-                @php $unKnownCategory = $unKnownCategoryarr['categoryName']; @endphp
+            @foreach($unKnownCategories as $unKnownCategory)
                 @if($unKnownCategory != '')
                     <?php 
                         //getting name 
@@ -64,7 +63,7 @@
                         </td>
                         
                         <td>
-                            {{ $unKnownCategoryarr['cat_product_count'] }}
+                            {{ \App\Category::ScrapedProducts($unKnownCategory) }}
                         </td>
 
                         <td>

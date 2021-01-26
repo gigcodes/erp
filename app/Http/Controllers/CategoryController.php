@@ -552,37 +552,22 @@ class CategoryController extends Controller
         $input = preg_quote($request->get('search'), '~');
         $unKnownCategories = preg_grep('~' . $input . '~', $unKnownCategories);
 
-        $mainArr = [];
-        foreach ($unKnownCategories as $cat) {
+        // $mainArr = [];
+        // foreach ($unKnownCategories as $cat) {
 
-            $q = '"'.$cat.'"';
-            $count = ScrapedProducts::where("properties","like",'%'.$q.'%')->count();
+        //     $q = '"'.$cat.'"';
+        //     $count = ScrapedProducts::where("properties","like",'%'.$q.'%')->count();
 
-            $subArr = [];
-            $subArr['categoryName'] = $cat;
-            $subArr['cat_product_count'] = $count;
-            $mainArr[] = $subArr;
-        }
+        //     $subArr = [];
+        //     $subArr['categoryName'] = $cat;
+        //     $subArr['cat_product_count'] = $count;
+        //     $mainArr[] = $subArr;
+        // }
 
-        // $mainArr = [
-        //         [
-        //             'categoryName' => "1dfsdfsdfs",
-        //             'cat_product_count' => 150
-        //         ],
-        //         [
-        //             'categoryName' => "2dfsdfsdfs",
-        //             'cat_product_count' => 500
-        //         ],
-        //         [
-        //             'categoryName' => "3asdasdasd",
-        //             'cat_product_count' => 500
-        //         ]
-        //     ];
-
-        $unKnownCategories = $this->paginate($mainArr);
+        $unKnownCategories = $this->paginate($unKnownCategories);
         $unKnownCategories->setPath($request->url());
         
-        $TotalProductCount = array_sum(array_column($mainArr,'cat_product_count'));
+        // $TotalProductCount = array_sum(array_column($mainArr,'cat_product_count'));
 
         $categoryAll   = Category::where('id','!=',$unKnownCategory)->where('magento_id','!=','0')->get();
         $categoryArray = [];
@@ -600,7 +585,7 @@ class CategoryController extends Controller
             }
         }
         
-        return view('category.new-reference',['unKnownCategories' => $unKnownCategories,'categoryAll' => $categoryArray,'unKnownCategoryId' => $unKnownCategory->id,'TotalProductCount' => $TotalProductCount]);   
+        return view('category.new-reference',['unKnownCategories' => $unKnownCategories,'categoryAll' => $categoryArray,'unKnownCategoryId' => $unKnownCategory->id]);   
     }
 
     /**
