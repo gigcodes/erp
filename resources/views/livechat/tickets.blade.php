@@ -184,6 +184,12 @@
   
 <script type="text/javascript">
 
+    $(document).on('click', '.row-ticket', function () {
+        $('#viewmore #contentview').html($(this).data('content'));
+        $('#viewmore').modal("show");
+    });
+        
+
    $(document).on('click', '.send-email-to-vender', function () {
 
        // console.log($(this).data('message'));

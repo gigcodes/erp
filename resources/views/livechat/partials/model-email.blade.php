@@ -68,10 +68,10 @@
 
   </div>
 </div>
-<div id="subject1" class="modal fade in" role="dialog">
+{{-- <div id="subject1" class="modal fade in" role="dialog">
      <div class="modal-dialog">
 
-          <!-- Modal content-->
+          
           <div class="modal-content">
                <div class="modal-header">
                     <h4 class="modal-title">Subject </h4>
@@ -93,6 +93,20 @@
                     <button type="button" class="close" data-dismiss="modal">×</button>
                </div>
             <div id="content" style="padding:30px;"></div>
+              
+          </div>
+
+     </div>
+</div> --}}
+
+<div id="viewmore" class="modal fade in" role="dialog">
+     <div class="modal-dialog">        
+          <div class="modal-content">
+               <div class="modal-header">
+                    {{-- <h4 class="modal-title">soruce</h4> --}}
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+               </div>
+            <div id="contentview" style="padding:30px;"></div>
               
           </div>
 
