@@ -44,14 +44,14 @@ class DeleteCategoriesWithNoProduct extends Command
             $unKnownCategories = explode(',', $unKnownCategory->references);
             $unKnownCategories = array_unique($unKnownCategories);
             if (!empty($unKnownCategories)) {
-                foreach ($unKnownCategories as $unKnownCategory) {
-                    $count = \App\Category::ScrapedProducts($unKnownCategory);
+                foreach ($unKnownCategories as $unKnownC) {
+                    $count = \App\Category::ScrapedProducts($unKnownC);
                     if ($count > 1) {
-                        $neededCategories[] = $unKnownCategory;
-                        echo "Added in  {$unKnownCategory} categories";
+                        $neededCategories[] = $unKnownC;
+                        echo "Added in  {$unKnownC} categories";
                         echo  PHP_EOL;
                     }else{
-                        echo "removed from  {$unKnownCategory} categories";
+                        echo "removed from  {$unKnownC} categories";
                         echo  PHP_EOL;
                     }
                 }
