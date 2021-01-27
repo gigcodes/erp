@@ -52,7 +52,7 @@ class DeleteCategoriesWithNoProduct extends Command
                         echo  PHP_EOL;
                     }else{
                         $key = array_search ($unKnownC, $unKnownCategories);
-                        @unset($unKnownCategories[$key]);
+                        unset($unKnownCategories[$key]);
                         echo "removed from  {$unKnownC} categories";
                         echo  PHP_EOL;
                     }
