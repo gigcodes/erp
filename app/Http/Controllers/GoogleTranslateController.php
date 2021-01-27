@@ -31,41 +31,31 @@ class GoogleTranslateController extends Controller
             $product_translation->save();
         }
         foreach($languages as $language) {
-            $isLocaleAvailable = Product_translation::where('locale',$language)
-            ->where('product_id',$product->id)
-            ->where('title','!=','')
-            ->where('description','!=','')
-            ->where('composition','!=','')
-            ->where('color','!=','')
-            ->where('size','!=','')
-            ->where('country_of_manufacture','!=','')
-            ->where('dimension','!=','')
-            ->first();
+            $isLocaleAvailable = Product_translation::where('locale',$language)->where('product_id',$product->id)->first();
+
             if(!$isLocaleAvailable) { //if product translation not available
                 $title = $description = $composition = $color = $size = $country_of_manufacture = $dimension = '';
-                $product_translation = Product_translation::find($product->id);
+                $product_translation = Product_translation::where('locale',$language)->where('product_id',$product->id)->first();
                 if (empty($product_translation)) { //check if id existing or not
                     $product_translation= new Product_translation; //if id not existing create new object for insert else update
                 }
-                $checkdata = Product_translation::select(['title','description','composition','color','size','country_of_manufacture','dimension'])
-                ->where('locale',$language)->where('product_id',$product->id)->first();
                 $googleTranslate = new GoogleTranslate();
                 $productNames = splitTextIntoSentences($product->name);
                 $productShortDescription =  splitTextIntoSentences($product->short_description);
                 //check in table is field is empty and then translate
-                if(!$checkdata || $checkdata->title==''){
+                if($product_translation->title == ''){
                     $title = self::translateProducts($googleTranslate, $language, $productNames);
                     $product_translation->title = $title;
                 }
-                if(!$checkdata || $checkdata->description==''){
+                if($product_translation->description == ''){
                     $description = self::translateProducts($googleTranslate, $language, $productShortDescription);
                     $product_translation->description = $description;
                 }
-                if(!$checkdata || $checkdata->composition==''){
+                if($product_translation->composition == ''){
                     $composition = self::translateProducts($googleTranslate, $language, [$product->composition]);
                     $product_translation->composition = $composition;
                 }
-                if(!$checkdata || $checkdata->color==''){
+                if($product_translation->color == ''){
                     $color = self::translateProducts($googleTranslate, $language, [$product->color]);
                     $product_translation->color = $color;
                 }
@@ -73,11 +63,11 @@ class GoogleTranslateController extends Controller
                     $size = self::translateProducts($googleTranslate, $language, [$product->size]);
                     $product_translation->size = $size;
                 }*/
-                if(!$checkdata || $checkdata->country_of_manufacture==''){
+                if($product_translation->country_of_manufacture == ''){
                     $country_of_manufacture = self::translateProducts($googleTranslate, $language, [$product->made_in]);
                     $product_translation->country_of_manufacture = $country_of_manufacture;
                 }
-                if(!$checkdata || $checkdata->dimension==''){
+                if($product_translation->dimension == ''){
                     $dimension = self::translateProducts($googleTranslate, $language, [$measurement]);
                     $product_translation->dimension = $dimension;
                 }
