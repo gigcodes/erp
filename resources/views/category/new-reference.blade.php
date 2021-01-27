@@ -64,7 +64,7 @@
                         </td>
                         
                         <td>
-                            {{ \App\Category::ScrapedProducts(str_replace('/',' ', $unKnownCategory)) }}
+                            {{ \App\Category::ScrapedProducts($name) }}
                         </td>
 
                         <td>
