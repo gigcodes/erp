@@ -41,8 +41,10 @@ class ColorNamesReference extends Model
         // Check if color can be found in url
         if (!empty($productObject->url)) {
             foreach ($mainColorNames as $colorName) {
-                if (stristr(self::_replaceKnownProblems($productObject->url), $colorName->color_name)) {
-                    return $colorName->erp_name;
+                if(!empty($productObject->url) && !empty($colorName->color_name)) {
+                    if (stristr(self::_replaceKnownProblems($productObject->url), $colorName->color_name)) {
+                        return $colorName->erp_name;
+                    }
                 }
             }
         }
@@ -50,8 +52,10 @@ class ColorNamesReference extends Model
         // Check if color can be found in title
         if (!empty($productObject->title)) {
             foreach ($mainColorNames as $colorName) {
-                if (stristr(self::_replaceKnownProblems($productObject->title), $colorName->color_name)) {
-                    return $colorName->erp_name;
+                if(!empty($productObject->title) && !empty($colorName->color_name)) {
+                    if (stristr(self::_replaceKnownProblems($productObject->title), $colorName->color_name)) {
+                        return $colorName->erp_name;
+                    }
                 }
             }
         }
@@ -59,8 +63,10 @@ class ColorNamesReference extends Model
         // Check if color can be found in description
         if (!empty($productObject->description)) {
             foreach ($mainColorNames as $colorName) {
-                if (stristr(self::_replaceKnownProblems($productObject->description), $colorName->color_name)) {
-                    return $colorName->erp_name;
+                if(!empty($productObject->description) && !empty($colorName->color_name)) {
+                    if (stristr(self::_replaceKnownProblems($productObject->description), $colorName->color_name)) {
+                        return $colorName->erp_name;
+                    }
                 }
             }
         }
@@ -77,8 +83,10 @@ class ColorNamesReference extends Model
         // Check if color exists
         if (!empty($color)) {
             foreach ($mainColorNames as $colorName) {
-                if (stristr($color, $colorName->color_name)) {
-                    return $colorName->erp_name;
+                if(!empty($color) && !empty($colorName->color_name)) {
+                    if (stristr($color, $colorName->color_name)) {
+                        return $colorName->erp_name;
+                    }
                 }
             }
             // in this case color refenrece we don't found so we need to add that one
@@ -102,8 +110,10 @@ class ColorNamesReference extends Model
         // Check if color can be found in url
         if (!empty($url)) {
             foreach ($mainColorNames as $colorName) {
-                if (stristr(self::_replaceKnownProblems($url), $colorName->color_name)) {
-                    return $colorName->erp_name;
+                if(!empty($url) && !empty($colorName->color_name)) {
+                    if (stristr(self::_replaceKnownProblems($url), $colorName->color_name)) {
+                        return $colorName->erp_name;
+                    }
                 }
             }
         }
@@ -111,8 +121,10 @@ class ColorNamesReference extends Model
         // Check if color can be found in title
         if (!empty($title)) {
             foreach ($mainColorNames as $colorName) {
-                if (stristr(self::_replaceKnownProblems($title), $colorName->color_name)) {
-                    return $colorName->erp_name;
+                if(!empty($title) && !empty($colorName->color_name)) {
+                    if (stristr(self::_replaceKnownProblems($title), $colorName->color_name)) {
+                        return $colorName->erp_name;
+                    }
                 }
             }
         }
@@ -120,8 +132,10 @@ class ColorNamesReference extends Model
         // Check if color can be found in description
         if (!empty($description)) {
             foreach ($mainColorNames as $colorName) {
-                if (stristr(self::_replaceKnownProblems($description), $colorName->color_name)) {
-                    return $colorName->erp_name;
+                if(!empty($description) && !empty($colorName->color_name)) {
+                    if (stristr(self::_replaceKnownProblems($description), $colorName->color_name)) {
+                        return $colorName->erp_name;
+                    }
                 }
             }
         }
