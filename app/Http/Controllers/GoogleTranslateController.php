@@ -16,7 +16,7 @@ class GoogleTranslateController extends Controller
     {
         $measurement = ProductHelper::getMeasurements($product);
         $isDefaultAvailable = Product_translation::where('locale','en')->where('product_id',$product->id)->first();
-        $languages = Language::pluck('locale')->where("status",1)->toArray();
+        $languages = Language::where("status",1)->pluck('locale')->toArray();
         if(!$isDefaultAvailable) {
             $product_translation = new Product_translation();
             $product_translation->title = html_entity_decode($product->name);
