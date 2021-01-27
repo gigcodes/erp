@@ -51,7 +51,6 @@
                     <?php 
                         //getting name 
                         $nameArray  = explode('/',$unKnownCategory);
-                        $searchArray  = explode(' ',$unKnownCategory);
                         $name = end($nameArray);
 
                     ?>
@@ -65,7 +64,7 @@
                         </td>
                         
                         <td>
-                            {{ \App\Category::ScrapedProducts($searchArray) }}
+                            {{ \App\Category::ScrapedProducts(str_replace('/',' ', $unKnownCategory)) }}
                         </td>
 
                         <td>
