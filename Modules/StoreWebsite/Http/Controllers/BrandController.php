@@ -10,6 +10,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelper;
+use App\Brand; 
 
 class BrandController extends Controller
 {
@@ -87,7 +88,7 @@ class BrandController extends Controller
 
     public function list(Request $request) {
         $title = "Store Brand";
-        $query = DB::table('brands')->leftJoin('products', 'products.brand', '=', 'brands.id')->groupBy('brands.id')->select('brands.*', DB::raw('count(products.id) as counts'));
+        $query = Brand::leftJoin('products', 'products.brand', '=', 'brands.id')->groupBy('brands.id')->select('brands.*', DB::raw('count(products.id) as counts'));
 
         $query = $query->whereNull("brands.deleted_at");
         
@@ -125,8 +126,15 @@ class BrandController extends Controller
             if($website){
                 if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
                     $brand = \App\Brand::find($request->brand);
-                    //$magentoBrandId = MagentoHelper::addBrand($brand,$website);
-                }
+                    if (!$brandStore) {
+                        $magentoBrandId = MagentoHelper::addBrand($brand,$website);
+                    }else{
+                        $bID = $brandStore->magento_value;
+                        if($bID){
+                            MagentoHelper::deleteBrand($bID,$website);
+                        }
+                    }
+                }        
 
             }
 
@@ -138,7 +146,7 @@ class BrandController extends Controller
                 if (!$brandStore) {
                     $brandStore = new \App\StoreWebsiteBrand;
                 }
-                $brandStore->brand_id         = $request->brand;
+                $brandStore->brand_id = $request->brand;
                 if(isset($magentoBrandId)){
                     $brandStore->magento_value = $magentoBrandId;
                 }

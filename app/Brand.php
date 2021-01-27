@@ -112,4 +112,14 @@ class Brand extends Model
     {
         return self::pluck("name","id")->toArray();
     }
+
+    public function storewebsitebrand($StoreID)
+    {
+        $record = $this->hasOne(StoreWebsiteBrand::class,'brand_id','id')->where('store_website_id',$StoreID)->first();
+        if($record){
+            return $record->magento_value??'';
+        }else{
+            return '';
+        }
+    }
 }
