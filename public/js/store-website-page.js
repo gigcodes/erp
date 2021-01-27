@@ -72,6 +72,11 @@ var page = {
             page.loadHistory($(this));
         });
 
+        $(document).on("click",".btn-activities",function(e) {
+            e.preventDefault();
+            page.loadActivities($(this));
+        });
+
         $(document).on("click",".btn-translate-for-other-language",function(e) {
             e.preventDefault();
             page.translateForOtherLanguage($(this));
@@ -316,6 +321,33 @@ var page = {
             })
             $("#preview-history-tbody").html(html);
             $(".preview-history-modal").modal("show");
+        }
+    },
+    loadActivities:function(ele) {
+        
+        let page     = ele.data("id");
+        
+        var _z = {
+            url: this.config.baseUrl + "/page/"+page+"/activities",
+            method: "get"
+        }
+
+        this.sendAjax(_z, 'afterLoadActivities');
+    },
+    afterLoadActivities : function(response) {
+        var html = ``;
+        if(response.code  == 200) {
+            $.each(response.data,function(k,v) {
+                var user = (v.causer) ? v.causer.name : "";
+                html += `<tr>
+                    <td>`+v.id+`</td>
+                    <td>`+v.description+`</td>
+                    <td>`+user+`</td>
+                    <td>`+v.created_at+`</td>
+                </tr>`;
+            })
+            $("#preview-activities-tbody").html(html);
+            $(".preview-activities-modal").modal("show");
         }
     },
     translateForOtherLanguage :function(ele) {

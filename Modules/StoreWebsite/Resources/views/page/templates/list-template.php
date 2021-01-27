@@ -44,6 +44,9 @@
                         <button type="button" title="Language" data-id="{{>prop.id}}" class="btn btn-translate-for-other-language">
                             <i class="fa fa-language" aria-hidden="true"></i>
                         </button>
+                        <button type="button" title="Activities" data-id="{{>prop.id}}" class="btn btn-activities">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                        </button>
                     </td>
                   </tr>
                 {{/props}}

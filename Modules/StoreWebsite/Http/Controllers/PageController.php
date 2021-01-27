@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelper;
+use Spatie\Activitylog\Models\Activity;
 
 class PageController extends Controller
 {
@@ -271,6 +272,11 @@ class PageController extends Controller
         }
 
         return response()->json(["code" => 200, "data" => $histories]);
+    }
+
+    public function pageActivities(Request $request, $page) {
+        $activities = Activity::with('causer')->where('subject_id', $page)->latest()->get();
+        return response()->json(["code" => 200, "data" => $activities]);
     }
 
     public function translateForOtherLanguage(Request $request, $id)

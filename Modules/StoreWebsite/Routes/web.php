@@ -147,6 +147,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/get-stores', 'PageController@getStores')->name("store-website.page.getStores");
         Route::get('/{id}/load-page', 'PageController@loadPage')->name("store-website.page.loadPage");
         Route::get('/{id}/history', 'PageController@pageHistory')->name("store-website.page.history");
+        Route::get('/{id}/activities', 'PageController@pageActivities')->name('store_website_page.activities');
         Route::get('/{id}/translate-for-other-langauge', 'PageController@translateForOtherLanguage')->name("store-website.page.translate-for-other-langauge");
         Route::get('/{id}/push-website-in-live', 'PageController@pushWebsiteInLive')->name("store-website.page.push-website-in-live");
         Route::get('/{id}/pull-website-in-live', 'PageController@pullWebsiteInLive')->name("store-website.page.pull-website-in-live");
