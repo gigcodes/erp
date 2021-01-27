@@ -286,6 +286,7 @@ class PageController extends Controller
         $errorMessage = [];
 
         if ($page) {
+            activity()->causedBy(auth()->user())->performedOn($page)->log('page translated');
             // find the language all active and then check that record page is exist or not
             $languages = \App\Language::where("status", 1)->get();
             foreach ($languages as $l) {
