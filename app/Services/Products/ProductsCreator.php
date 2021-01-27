@@ -168,10 +168,12 @@ class ProductsCreator
                 }
 
                 $product->size = implode(',', $allSize);
-                $euSize = ProductHelper::getEuSize($product, $allSize, $supplierModel->size_system_id , $image->size_system);
+                $euSize = ProductHelper::getEuSize($product, $allSize, !empty($product->size_system) ? $product->size_system : $image->size_system);
                 $product->size_eu = implode(',', $euSize);
                 if(empty($euSize)) {
                     $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
+                }else{
+                    $product->size_system = $image->size_system;
                 }
             }
 

@@ -254,7 +254,7 @@ class ProductHelper extends Model
     }
 
 
-    public static function getEuSize($product, $sizes, $supplierSizeSystem = null, $scraperSizeSystem = null)
+    public static function getEuSize($product, $sizes,$scraperSizeSystem = null)
     {
         // For Italian sizes, return the original
         // if (strtoupper($sizeSystem) == 'IT') {
@@ -287,11 +287,7 @@ class ProductHelper extends Model
         ->where('system_sizes.status',1)
         ->where('system_size_managers.status',1);
 
-        if(!empty($supplierSizeSystem)) {
-            $sizeManager = $sizeManager->where('system_size_relations.system_size',$supplierSizeSystem);
-        }else{
-            $sizeManager = $sizeManager->where('system_sizes.name',$scraperSizeSystem);
-        }
+        $sizeManager = $sizeManager->where('system_sizes.name',$scraperSizeSystem);
 
         $returnSizes = $sizeManager->pluck('erp_size')->toArray();
 

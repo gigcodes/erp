@@ -994,7 +994,7 @@ class ProductInventoryController extends Controller
 
 	public function inventoryList(Request $request)
     {
-        $filter_data = $request->input();
+    	$filter_data = $request->input();
         $inventory_data = \App\Product::getProducts($filter_data);
         $inventory_data_count = $inventory_data->total();
         $status_list = \App\Helpers\StatusHelper::getStatus();
@@ -1047,5 +1047,34 @@ class ProductInventoryController extends Controller
 		 }
 	  }
 	  return response()->json(['urls' => $urls]);
+	}
+
+	public function changeSizeSystem(Request $request) 
+	{
+		$product_ids = $request->get("product_ids");
+		$size_system = $request->get("size_system");
+		$messages = [];
+		$errorMessages = [];
+		if(!empty($size_system) && !empty($product_ids)) {
+			$products = \App\Product::whereIn("id",$product_ids)->get();
+			if(!$products->isEmpty()) {
+				foreach($products as $product) {
+					$product->size_system = $size_system;
+					$allSize =  explode(",",$product->size);
+					$euSize = \App\Helpers\ProductHelper::getEuSize($product, $allSize, $product->size_system);
+	                $product->size_eu = implode(',', $euSize);
+	                if(empty($euSize)) {
+	                	//$product->size_system = "";
+	                    $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
+	                    $errorMessages[] = "$product->sku has issue with size";
+	                }else{
+	                	$messages[] = "$product->sku updated successfully";
+	                }
+	                $product->save();
+				}
+			}
+		}
+
+		return response()->json(["code" => 200 , "data" => [],"message" => implode("</br>", $messages),"error_messages" => implode("</br>", $errorMessages)]);
 	}
 }
