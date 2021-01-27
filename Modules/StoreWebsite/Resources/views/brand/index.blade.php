@@ -76,7 +76,16 @@
 					      	<?php foreach($storeWebsite as $sw) { 
 					      			$checked = (isset($apppliedResult[$brand->id]) && in_array($sw->id, $apppliedResult[$brand->id])) ? "checked" : ""; 
 					      		?>
-					        	<td><input data-brand="<?php echo $brand->id; ?>" data-sw="<?php echo $sw->id; ?>" <?php echo $checked; ?> class="push-brand" type="checkbox" name="brand_website"></td>
+					        	<td>
+					        		<input data-brand="<?php echo $brand->id; ?>" data-sw="<?php echo $sw->id; ?>" <?php echo $checked; ?> class="push-brand" type="checkbox" name="brand_website">
+					        		<span>
+					        			@php $magentoStoreBrandId = $brand->storewebsitebrand($sw->id); @endphp
+					        			{{ $magentoStoreBrandId ? $magentoStoreBrandId : '' }}
+					        		</span>
+					        		
+
+
+					        	</td>
 					        <?php } ?>
 					      </tr>
 					    <?php } ?>

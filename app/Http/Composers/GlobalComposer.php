@@ -16,7 +16,6 @@ class GlobalComposer
 {
     public function compose(View $view)
     {
-
         if (auth()->check() == true) {
             $currentPath = Route::getFacadeRoot()->current()->uri();
             $permission = new PermissionCheck();
