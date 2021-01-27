@@ -756,16 +756,11 @@
                                                 @endif
 
                                                 @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
-                                                    @if (is_null($task->is_completed))
-                                                        @if($task->assign_to == Auth::id())
-                                                            <button type="button" title="Complete the task by user" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png"/></button>
-                                                        @endif
+                                                    <button type="button" title="Complete the task by user" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png"/></button>
+                                                    @if ($task->assign_from == Auth::id())
+                                                        <button type="button" title="Verify the task by admin" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/completed-green.png"/></button>
                                                     @else
-                                                        @if ($task->assign_from == Auth::id())
-                                                            <button type="button" title="Verify the task by admin" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/completed-green.png"/></button>
-                                                        @else
-                                                            <button type="button" class="btn btn-image pd-5"><img src="/images/completed-green.png"/></button>
-                                                        @endif
+                                                        <button type="button" class="btn btn-image pd-5"><img src="/images/completed-green.png"/></button>
                                                     @endif
 
                                                     <button type="button" class='btn btn-image ml-1 reminder-message pd-5' data-id="{{ $task->message_id }}" data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png'/></button>
