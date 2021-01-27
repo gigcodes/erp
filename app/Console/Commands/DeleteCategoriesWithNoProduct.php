@@ -47,17 +47,18 @@ class DeleteCategoriesWithNoProduct extends Command
                 foreach ($unKnownCategories as $unKnownC) {
                     $count = \App\Category::ScrapedProducts($unKnownC);
                     if ($count > 1) {
-                        $neededCategories[] = $unKnownC;
+                        //$neededCategories[] = $unKnownC;
                         echo "Added in  {$unKnownC} categories";
                         echo  PHP_EOL;
                     }else{
+                        $key = array_search ($unKnownC, $unKnownCategories);
+                        @unset($unKnownCategories[$key]);
                         echo "removed from  {$unKnownC} categories";
                         echo  PHP_EOL;
                     }
+                    $unKnownCategory->references = implode(",",array_filter($unKnownCategories));
+                    $unKnownCategory->save();
                 }
-
-                $unKnownCategory->references = implode(",",array_filter($neededCategories));
-                $unKnownCategory->save();
             }
         }
     }
