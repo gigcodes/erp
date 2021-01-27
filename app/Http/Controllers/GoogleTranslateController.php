@@ -16,7 +16,7 @@ class GoogleTranslateController extends Controller
     {
         $measurement = ProductHelper::getMeasurements($product);
         $isDefaultAvailable = Product_translation::where('locale','en')->where('product_id',$product->id)->first();
-        $languages = Language::pluck('locale')->where("status",1)->toArray();
+        $languages = Language::where("status",1)->pluck('locale')->toArray();
         if(!$isDefaultAvailable) {
             $product_translation = new Product_translation();
             $product_translation->title = html_entity_decode($product->name);
@@ -47,38 +47,38 @@ class GoogleTranslateController extends Controller
                 if (empty($product_translation)) { //check if id existing or not
                     $product_translation= new Product_translation; //if id not existing create new object for insert else update
                 }
-                $checkdata = Product_translation::select('title,description,composition,color,size,country_of_manufacture,dimension')
+                $checkdata = Product_translation::select(['title','description','composition','color','size','country_of_manufacture','dimension'])
                 ->where('locale',$language)->where('product_id',$product->id)->first();
                 $googleTranslate = new GoogleTranslate();
                 $productNames = splitTextIntoSentences($product->name);
                 $productShortDescription =  splitTextIntoSentences($product->short_description);
                 //check in table is field is empty and then translate
-                if($checkdata->title==''){
+                if(!$checkdata || $checkdata->title==''){
                     $title = self::translateProducts($googleTranslate, $language, $productNames);
                     $product_translation->title = $title;
                 }
-                if($checkdata->description==''){
+                if(!$checkdata || $checkdata->description==''){
                     $description = self::translateProducts($googleTranslate, $language, $productShortDescription);
                     $product_translation->description = $description;
                 }
-                if($checkdata->composition==''){
-                    $composition = self::translateProducts($googleTranslate, $language, $product->composition);
+                if(!$checkdata || $checkdata->composition==''){
+                    $composition = self::translateProducts($googleTranslate, $language, [$product->composition]);
                     $product_translation->composition = $composition;
                 }
-                if($checkdata->color==''){
-                    $color = self::translateProducts($googleTranslate, $language, $product->color);
+                if(!$checkdata || $checkdata->color==''){
+                    $color = self::translateProducts($googleTranslate, $language, [$product->color]);
                     $product_translation->color = $color;
                 }
-                if($checkdata->size==''){
-                    $size = self::translateProducts($googleTranslate, $language, $product->size);
+                /*if(!$checkdata || $checkdata->size==''){
+                    $size = self::translateProducts($googleTranslate, $language, [$product->size]);
                     $product_translation->size = $size;
-                }
-                if($checkdata->country_of_manufacture==''){
-                    $country_of_manufacture = self::translateProducts($googleTranslate, $language, $product->made_in);
+                }*/
+                if(!$checkdata || $checkdata->country_of_manufacture==''){
+                    $country_of_manufacture = self::translateProducts($googleTranslate, $language, [$product->made_in]);
                     $product_translation->country_of_manufacture = $country_of_manufacture;
                 }
-                if($checkdata->dimension==''){
-                    $dimension = self::translateProducts($googleTranslate, $language, $measurement);
+                if(!$checkdata || $checkdata->dimension==''){
+                    $dimension = self::translateProducts($googleTranslate, $language, [$measurement]);
                     $product_translation->dimension = $dimension;
                 }
                 $product_translation->product_id = $product->id;
