@@ -65,7 +65,7 @@ trait hubstaffTrait
             return Storage::disk('local')->put($this->HUBSTAFF_TOKEN_FILE_NAME, json_encode($tokens));
         } catch (Exception $e) {
             // we need to send email and whatsapp
-            $requestData = new Request();
+            /*$requestData = new Request();
             $requestData->setMethod('POST');
             $requestData->request->add([
                 'priority'    => 1,
@@ -75,7 +75,9 @@ trait hubstaffTrait
                 'subject'     => "Hubstaff token regenerate issue - create a personal token if expired",
                 'assigned_to' => \App\Setting::get("cron_issue_assinged_to",6),
             ]);
-            app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+            app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');*/
+
+            \Log::info("Hubstaff token regenerate issue - create a personal token if expired");
 
             return false;
         }
