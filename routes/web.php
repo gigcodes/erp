@@ -557,6 +557,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('email/resendMail/{id}', 'EmailController@resendMail');
     Route::put('email/{id}/mark-as-read', 'EmailController@markAsRead');
+    Route::post('email/{id}/excel-import', 'EmailController@excelImporter');
     Route::resource('email', 'EmailController');
 
     Route::post('email/category', 'EmailController@category');
