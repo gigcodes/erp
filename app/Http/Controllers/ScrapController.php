@@ -645,7 +645,7 @@ class ScrapController extends Controller
             // if size is empty then only update
             if(empty($product->size)) {
                 $product->size = $formatter['size'];
-                $product->size_eu = $formatter['size'];
+                //$product->size_eu = $formatter['size'];
             }
             if ((int)$product->price == 0) {
                 $product->price = $request->get('price');
