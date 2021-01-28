@@ -1031,6 +1031,14 @@ class Product extends Model
             $this->status_id = StatusHelper::$unknownMeasurement;
             $this->save();
         } else{
+
+            // check that product has how many description
+            $descriptionCount = $this->suppliers_info->count();
+            if($descriptionCount <= 1) {
+                $this->status_id = StatusHelper::$requestForExternalScraper;
+                $this->save();
+            }
+
             // if validation pass and status is still external scraper then remove and put for the auto crop
             if($this->status_id == StatusHelper::$requestForExternalScraper) {
                $this->status_id =  StatusHelper::$autoCrop;
