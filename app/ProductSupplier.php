@@ -13,4 +13,11 @@ class ProductSupplier extends Model
 	{
 		return $this->hasOne("\App\Supplier","id","supplier_id");
 	}
+
+    public static function getSizeSystem($productId, $supplierId)
+    {
+        $product = self::where("product_id",$productId)->where("supplier_id",$supplierId)->first();
+
+        return ($product) ? $product->size_system : "";
+    }
 }

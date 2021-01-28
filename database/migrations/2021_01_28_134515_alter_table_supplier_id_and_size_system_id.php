@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterTableProductSizeSystem extends Migration
+class AlterTableSupplierIdAndSizeSystemId extends Migration
 {
     /**
      * Run the migrations.
@@ -15,8 +15,8 @@ class AlterTableProductSizeSystem extends Migration
     {
         //
         Schema::table('products',function(Blueprint $table) {
-            $table->string("size_system")->nullable()->after('size_eu');
-        });
+            $table->integer("supplier_id")->after('supplier')->nullable();
+        }); 
     }
 
     /**
@@ -28,7 +28,7 @@ class AlterTableProductSizeSystem extends Migration
     {
         //
         Schema::table('products',function(Blueprint $table) {
-            $table->dropField("size_system");
-        });
+            $table->dropField("supplier_id");
+        }); 
     }
 }

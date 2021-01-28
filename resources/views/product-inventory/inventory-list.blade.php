@@ -98,6 +98,7 @@
                 <th>Supplier</th>
                 <th>Size system</th>
                 <th>Size</th>
+                <th>Size(IT)</th>
                 <th>Status</th>
                 <th>Created Date</th>
                 <th>Actions</th>
@@ -149,6 +150,9 @@
             </div>
         </div>
     </div>
+</div>
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+          50% 50% no-repeat;display:none;">
 </div>
 
 @endsection
@@ -394,11 +398,11 @@ return;
                 'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
             },
             beforeSend: function() {
-                loader.show();
+                $("#loading-image").show();
             }
         })
         .done(function(data) {
-            loader.hide();
+            $("#loading-image").hide();
             if(data.code == 200) {
                 if(data.message != "") {
                     toastr['success'](data.message, 'success');

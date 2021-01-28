@@ -18,6 +18,7 @@
     <td>{{ $data['supplier'] }}</td>
     <td>{{ $data['size_system'] }}</td>
     <td>{{ $data['size'] }}</td>
+    <td>{{ $data['size_eu'] }}</td>
     <td>
       @foreach(\App\Helpers\StatusHelper::getStatus() as $key => $status)
         @if($key==$data['status_id'])

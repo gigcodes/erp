@@ -1003,9 +1003,9 @@ class ProductInventoryController extends Controller
         foreach ($inventory_data as $product) {
             $product['medias'] =  \App\Mediables::getMediasFromProductId($product['id']);
 			$product_history   =  \App\ProductStatusHistory::getStatusHistoryFromProductId($product['id']);
-            foreach ($product_history as $each) {
-                $each['old_status'] = $status_list[$each['old_status']];
-                $each['new_status'] = $status_list[$each['new_status']];
+			foreach ($product_history as $each) {
+                $each['old_status'] = isset($status_list[$each['old_status']]) ? $status_list[$each['old_status']]  : 0;
+                $each['new_status'] = isset($status_list[$each['new_status']]) ? $status_list[$each['new_status']] : 0;
             }
 			$product['status_history'] = $product_history;
 		
@@ -1059,18 +1059,22 @@ class ProductInventoryController extends Controller
 			$products = \App\Product::whereIn("id",$product_ids)->get();
 			if(!$products->isEmpty()) {
 				foreach($products as $product) {
-					$product->size_system = $size_system;
-					$allSize =  explode(",",$product->size);
-					$euSize = \App\Helpers\ProductHelper::getEuSize($product, $allSize, $product->size_system);
-	                $product->size_eu = implode(',', $euSize);
-	                if(empty($euSize)) {
-	                	//$product->size_system = "";
-	                    $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
-	                    $errorMessages[] = "$product->sku has issue with size";
-	                }else{
-	                	$messages[] = "$product->sku updated successfully";
-	                }
-	                $product->save();
+					$productSupplier = \App\ProductSupplier::where("product_id",$product->id)->where("supplier_id",$product->supplier_id)->first();
+					if($productSupplier) {
+						$productSupplier->size_system = $size_system;
+						$allSize =  explode(",",$product->size);
+						$euSize = \App\Helpers\ProductHelper::getEuSize($product, $allSize, $productSupplier->size_system);
+		                $product->size_eu = implode(',', $euSize);
+		                if(empty($euSize)) {
+		                	//$product->size_system = "";
+		                    $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
+		                    $errorMessages[] = "$product->sku has issue with size";
+		                }else{
+		                	$messages[] = "$product->sku updated successfully";
+		                }
+		                $productSupplier->save();
+		                $product->save();
+					}
 				}
 			}
 		}
