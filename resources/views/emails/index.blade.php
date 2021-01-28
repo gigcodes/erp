@@ -718,12 +718,15 @@
               url: '/email/'+id+'/excel-import',
               type: 'post'
             }).done( function(response) {
+              $('#excelImporter').modal('toggle');
               toastr['success'](response.message);
             }).fail(function(errObj) {
+              $('#excelImporter').modal('toggle');
               alert('Something went wrong')
             });
         }else{
           alert('Please Select Supplier')
+          
         }
         
     }
