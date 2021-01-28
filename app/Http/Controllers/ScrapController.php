@@ -556,7 +556,7 @@ class ScrapController extends Controller
     public function saveFromNewSupplier(Request $request)
     {
         // Overwrite website
-        $request->website = 'internal_scraper';
+        //$request->website = 'internal_scraper';
 
         // Log before validating
         //LogScraper::LogScrapeValidationUsingRequest($request);
@@ -629,13 +629,34 @@ class ScrapController extends Controller
             }
             
             // Set basic data
-            $product->name = $request->get('title');
-            $product->short_description = $description;
-            $product->composition = $composition;
-            $product->color = $color;
-            $product->description_link = $request->get('url');
-            $product->made_in = $formatter['made_in'];
-            $product->category = $formatter['category'];
+            if(empty($product->name)) {
+                $product->name = $request->get('title');
+            }
+
+            if(empty($product->short_description)) {
+                $product->short_description = $description;
+            }
+            
+            if(empty($product->composition)) {
+                $product->composition = $composition;
+            }
+
+            if(empty($product->color)) {
+                $product->color = $color;
+            }
+
+            if(empty($product->description_link)) {
+                $product->description_link = $request->get('url');
+            }
+
+            if(empty($product->made_in)) {
+                $product->made_in = $formatter['made_in'];
+            }
+
+            if(empty($product->category)) {
+                $product->category = $formatter['category'];
+            }
+            
             // if size is empty then only update
             if(empty($product->size)) {
                 $product->size = $formatter['size'];
@@ -663,6 +684,33 @@ class ScrapController extends Controller
 
             // Check if we have images
             $product->attachImagesToProduct($request->get('images'));
+
+
+            if($request->website) {
+                $supplierModel = Supplier::leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($request) {
+                    $query->where('supplier', '=', $request->website)->orWhere('sc.scraper_name', '=', $request->website);
+                })->first();
+
+                if($supplierModel) {
+                    $productSupplier = \App\ProductSupplier::where("supplier_id",$supplierModel->id)->where("product_id",$product->id)->first();
+                    if(!$productSupplier)  {
+                        $productSupplier = new \App\ProductSupplier;
+                        $productSupplier->supplier_id = $supplierModel->id;
+                        $productSupplier->product_id = $product->id;
+                    }
+
+                    $productSupplier->title = $request->title;
+                    $productSupplier->description = $description;
+                    $productSupplier->supplier_link = $request->url;
+                    $productSupplier->stock = 1;
+                    $productSupplier->price = ($product->price > 0) ? $product->price : 0;
+                    $productSupplier->size = $formatter[ 'size' ];
+                    $productSupplier->color = isset($formatter[ 'color' ]) ? $formatter[ 'color' ]  : "";
+                    $productSupplier->composition = isset($formatter[ 'composition' ]) ? $formatter[ 'composition' ] : "";
+                    $productSupplier->sku = $request->sku;
+                    $productSupplier->save();
+                }
+            }
 
             // Update scrape_queues by product ID
             ScrapeQueues::where('done', 0)->where('product_id', $product->id)->update(['done' => 1]);
