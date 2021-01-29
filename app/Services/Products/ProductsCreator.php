@@ -174,6 +174,7 @@ class ProductsCreator
                 $product->size_eu = implode(',', $euSize);
                 if(empty($euSize)) {
                     $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
+                    \Log::info("product {$product->id} updated to unknown size");
                 }else{
                     foreach($euSize as $es) {
                         \App\ProductSizes::updateOrCreate([
@@ -182,6 +183,7 @@ class ProductsCreator
                            'product_id' =>  $product->id,'quantity' => 1,'supplier_id' => $supplierModel->id, 'size' => $es
                         ]);
                     }
+                    \Log::info("product {$product->id} updated to size");
                 }
             }
 
@@ -200,8 +202,6 @@ class ProductsCreator
             if($product->category <= 1) {
                 $product->status_id = \App\Helpers\StatusHelper::$unknownCategory;
             }
-
-            \Log::info(print_r([$euSize,"Eu size found"],true));
 
             $product->save();
             $product->attachImagesToProduct();
@@ -360,7 +360,9 @@ class ProductsCreator
                 $product->size_eu = implode(',', $euSize);
                 if(empty($euSize)) {
                     $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
+                    \Log::info("product {$product->id} updated to unknown size");
                 }else{
+                    \Log::info("product {$product->id} updated to size found");
                     foreach($euSize as $es) {
                         \App\ProductSizes::updateOrCreate([
                            'product_id' =>  $product->id,'quantity' => 1, 'supplier_id' => $supplierModel->id, 'size' => $es 
@@ -394,8 +396,6 @@ class ProductsCreator
             // check that if product has no title and everything then send to the external scraper
             $product->checkExternalScraperNeed();
             $product->isNeedToIgnore();
-
-            \Log::info(print_r([$euSize,"Eu size found"],true));
 
             Log::channel('productUpdates')->debug("[New] Product created with ID " . $product->id);
         } catch (\Exception $exception) {
