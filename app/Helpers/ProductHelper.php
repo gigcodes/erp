@@ -280,19 +280,40 @@ class ProductHelper extends Model
 
         $ids = array_filter($ids);
 
-        $sizeManager = SystemSizeManager::select('system_size_managers.erp_size')
-        ->leftjoin('system_size_relations','system_size_relations.system_size_manager_id','system_size_managers.id')
-        ->leftjoin('system_sizes','system_sizes.id','system_size_relations.system_size')
-        ->whereIn('category_id',$ids)
-        ->whereIn('system_size_relations.size',$sizes)
-        ->where('system_sizes.status',1)
-        ->where('system_size_managers.status',1);
+        $needToMatch = false;
+        foreach([5,12,38,40,41,149,152] as $k) {
+            if(in_array($k, $ids)) {
+                $needToMatch = true;
+            }
+        }
 
-        $sizeManager = $sizeManager->where('system_sizes.name',$scraperSizeSystem);
+        if($needToMatch) {
 
-        $returnSizes = $sizeManager->pluck('erp_size')->toArray();
+            $sizeManager = SystemSizeManager::select('system_size_managers.erp_size')
+            ->leftjoin('system_size_relations','system_size_relations.system_size_manager_id','system_size_managers.id')
+            ->leftjoin('system_sizes','system_sizes.id','system_size_relations.system_size')
+            ->whereIn('category_id',$ids)
+            ->whereIn('system_size_relations.size',$sizes)
+            ->where('system_sizes.status',1)
+            ->where('system_size_managers.status',1);
 
-        return $returnSizes;
+            $sizeManager = $sizeManager->where('system_sizes.name',$scraperSizeSystem);
+
+            return $sizeManager->pluck('erp_size')->toArray();
+
+        }else{
+            if(strtolower($scraperSizeSystem) == "it") {
+                return $sizes;
+            }else{
+                $returnSizes = [];
+                foreach($sizes as $s) {
+                    $returnSizes[] = self::getWebsiteSize($scraperSizeSystem,$s,$product->category_id);
+                }
+                return array_filter($returnSizes);
+            }
+        }
+
+        return [];
     }
 
 
