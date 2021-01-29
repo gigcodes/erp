@@ -303,15 +303,7 @@ class ProductHelper extends Model
             return $sizeManager->pluck('erp_size')->toArray();
 
         }else{
-            if(strtolower($scraperSizeSystem) == "it") {
-                return $sizes;
-            }else{
-                $returnSizes = [];
-                foreach($sizes as $s) {
-                    $returnSizes[] = self::getWebsiteSize($scraperSizeSystem,$s,$product->category_id);
-                }
-                return array_filter($returnSizes);
-            }
+            return $sizes;
         }
 
         return [];

@@ -1005,7 +1005,7 @@ class Product extends Model
         return \App\StoreWebsiteProductAttribute::where("product_id", $this->id)->where("store_website_id",$storeId)->first();
     }
 
-    public function checkExternalScraperNeed()
+    public function checkExternalScraperNeed($fromscraper = false)
     {
         $parentcate = ($this->category > 0 && $this->categories) ? $this->categories->parent_id :  null;
 
@@ -1036,8 +1036,13 @@ class Product extends Model
         } else{
             // if validation pass and status is still external scraper then remove and put for the auto crop
             if($this->status_id == StatusHelper::$requestForExternalScraper) {
-               $this->status_id =  StatusHelper::$autoCrop;
-               $this->save();
+                if(empty($this->size_eu)) {
+                   $this->status_id =  StatusHelper::$unknownSize;
+                   $this->save();
+                }else{
+                   $this->status_id =  StatusHelper::$autoCrop;
+                   $this->save();
+                }
             }
         }
     }
