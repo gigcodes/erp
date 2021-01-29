@@ -84,7 +84,9 @@ class ProductInventoryController extends Controller
 			if ($category->parent_id != 0) {
 				$parent = $category->parent;
 				if ($parent->parent_id != 0) {
-					$category_tree[$parent->parent_id][$parent->id][$category->id];
+					if(isset($category_tree[$parent->parent_id][$parent->id])) {
+						$category_tree[$parent->parent_id][$parent->id][$category->id];
+					}
 				} else {
 					$category_tree[$parent->id][$category->id] = 0;
 				}
@@ -1071,6 +1073,13 @@ class ProductInventoryController extends Controller
 		                    $errorMessages[] = "$product->sku has issue with size";
 		                }else{
 		                	$messages[] = "$product->sku updated successfully";
+		                	foreach($euSize as $es) {
+		                        \App\ProductSizes::updateOrCreate([
+		                           'product_id' =>  $product->id,'supplier_id' => $product->supplier_id, 'size' => $es 
+		                        ],[
+		                           'product_id' =>  $product->id,'quantity' => 1,'supplier_id' => $product->supplier_id, 'size' => $es
+		                        ]);
+		                    }
 		                }
 		                $productSupplier->save();
 		                $product->save();

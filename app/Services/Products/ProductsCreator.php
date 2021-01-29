@@ -174,6 +174,14 @@ class ProductsCreator
                 $product->size_eu = implode(',', $euSize);
                 if(empty($euSize)) {
                     $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
+                }else{
+                    foreach($euSize as $es) {
+                        \App\ProductSizes::updateOrCreate([
+                           'product_id' =>  $product->id,'supplier_id' => $supplierModel->id, 'size' => $es 
+                        ],[
+                           'product_id' =>  $product->id,'quantity' => 1,'supplier_id' => $supplierModel->id, 'size' => $es
+                        ]);
+                    }
                 }
             }
 
@@ -350,6 +358,14 @@ class ProductsCreator
                 $product->size_eu = implode(',', $euSize);
                 if(empty($euSize)) {
                     $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
+                }else{
+                    foreach($euSize as $es) {
+                        \App\ProductSizes::updateOrCreate([
+                           'product_id' =>  $product->id,'quantity' => 1, 'supplier_id' => $supplierModel->id, 'size' => $es 
+                        ],[
+                           'product_id' =>  $product->id, 'quantity' => 1, 'supplier_id' => $supplierModel->id, 'size' => $es
+                        ]);
+                    }
                 }
 
                 /*if(!empty($euSize)) {

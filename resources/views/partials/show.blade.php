@@ -512,7 +512,7 @@
                             </form>
                         @endif
                     </div> --}}
-                    @if ($isUploaded == 1)
+                    @if ($isUploaded == 1 || 1 == 1)
                       <div class="form-group">
                            @if(auth()->user()->checkPermission('productinventory-edit'))
                               <form method="POST" action="{{ route('productinventory.stock',$id) }}"
