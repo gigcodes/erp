@@ -201,6 +201,8 @@ class ProductsCreator
                 $product->status_id = \App\Helpers\StatusHelper::$unknownCategory;
             }
 
+            \Log::info(print_r([$euSize,"Eu size found"],true));
+
             $product->save();
             $product->attachImagesToProduct();
             $image->product_id = $product->id;
@@ -392,6 +394,8 @@ class ProductsCreator
             // check that if product has no title and everything then send to the external scraper
             $product->checkExternalScraperNeed();
             $product->isNeedToIgnore();
+
+            \Log::info(print_r([$euSize,"Eu size found"],true));
 
             Log::channel('productUpdates')->debug("[New] Product created with ID " . $product->id);
         } catch (\Exception $exception) {
