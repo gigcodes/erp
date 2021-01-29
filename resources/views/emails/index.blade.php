@@ -306,6 +306,51 @@
 		</div>
 	</div>
 </div>
+
+<div id="excelImporter" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Excel Importer</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+        <div class="modal-body">
+              <select name="supplier" class="form-control" id="supplier_excel_import">
+                <option value="">Select a supplier</option>
+                <option value="birba_excel">Birba</option>
+                <option value="brunarosso_excel">Bruna Rosso</option>
+                <option value="colognese_excel">Colognese (Dior)</option>
+                <option value="cologneseSecond_excel">Colognese (Balenciaga, Chloe, Valentino)</option>
+                <option value="cologneseThird_excel">Colognese (Saint Laurent)</option>
+                <option value="cologneseFourth_excel">Colognese (SS20 Shoes)</option>
+                <option value="distributionet_excel">Distributionet</option>
+                <option value="gru_excel">Gruppo Pritelli</option>
+                <option value="maxim_gucci_excel">Maxim Gucci</option>
+                <option value="ines_excel">Ines</option>
+                <option value="le-lunetier_excel">Le Lunetier</option>
+                <option value="lidia_excel">Lidia</option>
+                <option value="lidiafirst_excel">Lidia (Salvatore)</option>
+                <option value="modes_excel">Modes</option>
+                <option value="mv1_excel">MV1</option>
+                <option value="master">Master</option>
+                <option value="tory_excel">Tory Outlet</option>
+                <option value="tessabit_excel">Tessabit</option>
+                <option value="valenti_excel">Valenti</option>
+                <option value="valentisecond_excel">Valenti New Format</option>
+                <option value="dna_excel">DNA Excel</option>
+              </select>
+              <input type="hidden" id="excel_import_email_id">
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary" onclick="importExcel()">Store</button>
+            </div>
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
 @include('partials.modals.remarks')
 
 @endsection
@@ -651,6 +696,39 @@
       $('#seen').val(seen);
 
       get_data();
+    }
+
+    function excelImporter(id) {
+        $('#excel_import_email_id').val(id)
+        $('#excelImporter').modal('toggle');
+    }
+
+    function importExcel() {
+        id = $('#excel_import_email_id').val()
+        supplier = $('#supplier_excel_import option:selected').val()
+        if(supplier){
+          $.ajax({
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+              data : {
+                supplier,
+                id
+              },
+              url: '/email/'+id+'/excel-import',
+              type: 'post'
+            }).done( function(response) {
+              $('#excelImporter').modal('toggle');
+              toastr['success'](response.message);
+            }).fail(function(errObj) {
+              $('#excelImporter').modal('toggle');
+              alert('Something went wrong')
+            });
+        }else{
+          alert('Please Select Supplier')
+          
+        }
+        
     }
     </script>
 
