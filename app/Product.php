@@ -94,19 +94,19 @@ class Product extends Model
         });
 
         static::updating(function ($product) {
-            $newCatID = $product->category;
-            $oldCatID = $product->getOriginal('category');
+            // $newCatID = $product->category;
+            // $oldCatID = $product->getOriginal('category');
 
-            if($oldCatID != $newCatID && $newCatID > 1) {
-                \DB::table("products")->where("id", $product->id)->update(["status_id" => StatusHelper::$autoCrop]);
-                $data = array(
-                    'product_id' => $product->id,
-                    'old_status' => $product->status_id,
-                    'new_status' => StatusHelper::$autoCrop,
-                    'created_at' => date("Y-m-d H:i:s")
-                );
-                \App\ProductStatusHistory::addStatusToProduct($data);
-            }
+            // if($oldCatID != $newCatID && $newCatID > 1) {
+            //     \DB::table("products")->where("id", $product->id)->update(["status_id" => StatusHelper::$autoCrop]);
+            //     $data = array(
+            //         'product_id' => $product->id,
+            //         'old_status' => $product->status_id,
+            //         'new_status' => StatusHelper::$autoCrop,
+            //         'created_at' => date("Y-m-d H:i:s")
+            //     );
+            //     \App\ProductStatusHistory::addStatusToProduct($data);
+            // }
 
             $new_status_id = $product->status_id;
             $old_status_id = $product->getOriginal('status_id');
