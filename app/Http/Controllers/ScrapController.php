@@ -166,6 +166,7 @@ class ScrapController extends Controller
             }
         }
 
+
         // fix property array
         $requestedProperties = $request->get('properties');
         if(!empty($requestedProperties)) {
@@ -175,26 +176,56 @@ class ScrapController extends Controller
                 }
             }
         }
-
         $request->request->add(["properties" => $requestedProperties]);
 
-
+        $categoryForScrapedProducts = '';
+        $colorForScrapedProducts = '';
+        $compositionForScrapedProducts = '';
+        
         // remove categories if it is matching with sku
         $propertiesExt = $request->get('properties');
         if(isset($propertiesExt["category"])) {
             if(is_array($propertiesExt["category"])){
+                
                 $categories = array_map("strtolower", $propertiesExt["category"]);
                 $strsku     =  strtolower($sku);
+                
                 if(in_array($strsku, $categories)) {
                    $index = array_search($strsku, $categories);
                    unset($categories[$index]);
                 }
+                //category for scrapper
+                if(is_array($categories)){
+                    $categoryForScrapedProducts = implode(',',$categories);
+                }else{
+                    $categoryForScrapedProducts = $categories;
+                }
+                
                 $propertiesExt["category"] = $categories;
             }else{
                 $propertiesExt["category"] = '';
             }
         }
 
+        //color for scraperProducts for
+        if(isset($propertiesExt['color'])){
+            if(is_array($propertiesExt['color'])){
+                $colorForScrapedProducts = implode(',',$propertiesExt['color']);
+            }else{
+                $colorForScrapedProducts = $propertiesExt['color'];
+            }
+        }
+
+        //compostion for scraped Products
+        if(isset($propertiesExt['material_used'])){
+            if(is_array($propertiesExt['material_used'])){
+                $compositionForScrapedProducts = implode(',',$propertiesExt['material_used']);
+            }else{
+                $compositionForScrapedProducts = $propertiesExt['material_used'];
+            }
+        }
+
+        
         // Get this product from scraped products
         $scrapedProduct = ScrapedProducts::where('sku', $sku)->where('website', $request->get('website'))->first();
         $images = $request->get('images') ?? [];
@@ -228,6 +259,9 @@ class ScrapController extends Controller
             $scrapedProduct->validated = empty($errorLog["error"]) ? 1 : 0;
             $scrapedProduct->validation_result = $errorLog["error"].$errorLog["warning"];
             $scrapedProduct->category = isset($request->properties[ 'category' ]) ? serialize($request->properties[ 'category' ]) : null;
+            $scrapedProduct->categories = $categoryForScrapedProducts;
+            $scrapedProduct->color = $colorForScrapedProducts;
+            $scrapedProduct->composition = $compositionForScrapedProducts;
             $scrapedProduct->save();
             $scrapedProduct->touch();
         } else {
@@ -265,6 +299,10 @@ class ScrapController extends Controller
             $scrapedProduct->category = isset($request->properties[ 'category' ]) ? serialize($request->properties[ 'category' ]) : null;
             $scrapedProduct->validated = empty($errorLog) ? 1 : 0;
             $scrapedProduct->validation_result = $errorLog["error"].$errorLog["warning"];
+            //adding new fields
+            $scrapedProduct->categories = $categoryForScrapedProducts;
+            $scrapedProduct->color = $colorForScrapedProducts;
+            $scrapedProduct->composition = $compositionForScrapedProducts;
             $scrapedProduct->save();
         }
         
