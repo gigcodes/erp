@@ -174,7 +174,6 @@ class ProductsCreator
                 $product->size_eu = implode(',', $euSize);
                 if(empty($euSize)) {
                     $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
-                    \Log::info("product {$product->id} updated to unknown size");
                 }else{
                     foreach($euSize as $es) {
                         \App\ProductSizes::updateOrCreate([
@@ -183,7 +182,6 @@ class ProductsCreator
                            'product_id' =>  $product->id,'quantity' => 1,'supplier_id' => $supplierModel->id, 'size' => $es
                         ]);
                     }
-                    \Log::info("product {$product->id} updated to size");
                 }
             }
 
@@ -360,9 +358,7 @@ class ProductsCreator
                 $product->size_eu = implode(',', $euSize);
                 if(empty($euSize)) {
                     $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
-                    \Log::info("product {$product->id} updated to unknown size");
                 }else{
-                    \Log::info("product {$product->id} updated to size found");
                     foreach($euSize as $es) {
                         \App\ProductSizes::updateOrCreate([
                            'product_id' =>  $product->id,'quantity' => 1, 'supplier_id' => $supplierModel->id, 'size' => $es 
