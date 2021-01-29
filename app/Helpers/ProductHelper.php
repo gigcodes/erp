@@ -283,7 +283,7 @@ class ProductHelper extends Model
         $sizeManager = SystemSizeManager::select('system_size_managers.erp_size')
         ->leftjoin('system_size_relations','system_size_relations.system_size_manager_id','system_size_managers.id')
         ->leftjoin('system_sizes','system_sizes.id','system_size_relations.system_size')
-        //->whereIn('category_id',$ids)
+        ->whereIn('category_id',$ids)
         ->whereIn('system_size_relations.size',$sizes)
         ->where('system_sizes.status',1)
         ->where('system_size_managers.status',1);
