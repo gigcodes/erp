@@ -162,16 +162,18 @@ var page = {
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
     },
-
     editRecord : function(ele) {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/page/"+ele.data("id")+"/edit",
             method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
         }
         this.sendAjax(_z, 'editResult');
     },
-
     editResult : function(response) {
+        $("#loading-image").hide();
         var createWebTemplate = $.templates("#template-create-website");
         var tplHtml = createWebTemplate.render(response);
         var common =  $(".common-modal");
@@ -182,7 +184,6 @@ var page = {
 
         //new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
     },
-
     submitFormSite : function(ele) {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/page/save",
@@ -194,7 +195,6 @@ var page = {
         }
         this.sendAjax(_z, "saveSite");
     },
-
     assignSelect2 : function () {
         var selectList = $("select.select-searchable");
             if(selectList.length > 0) {
@@ -219,6 +219,9 @@ var page = {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/page/"+ele.data("id")+"/push",
             method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
         }
         this.sendAjax(_z, 'afterPush');
     },
@@ -235,6 +238,9 @@ var page = {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/page/"+ele.data("id")+"/pull",
             method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
         }
         this.sendAjax(_z, 'afterPull');
     },
@@ -251,6 +257,9 @@ var page = {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/page/"+ele.val()+"/get-stores",
             method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
         }
         this.sendAjax(_z, 'afterStores');
     },
@@ -263,7 +272,7 @@ var page = {
                     text : value.code 
                 }));
             });
-
+            $("#loading-image").hide();
             $(".store-selection").select2({});
         }
     },
@@ -271,12 +280,17 @@ var page = {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/page/"+ele.val()+"/load-page",
             method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
         }
         this.sendAjax(_z, 'afterLoadPage');
     },
     afterLoadPage : function(response) {
         if(response.code  == 200) {
-            $(".content-preview").html(response.content);
+            $("#loading-image").hide();
+            $('#google_translate_element').summernote('reset');
+            $('#google_translate_element').summernote('insertText', response.content);
         }
     },
     loadTranslation : function(ele) {
@@ -287,12 +301,16 @@ var page = {
             method: "get",
             data : {
                 language : language
+            },
+            beforeSend : function() {
+                $("#loading-image").show();
             }
         }
         this.sendAjax(_z, 'afterLoadTranslation');
     },
     afterLoadTranslation : function(response) {
         if(response.code  == 200) {
+            $("#loading-image").hide();
             $(".content-preview").html(response.content);
         }
     },
@@ -302,7 +320,10 @@ var page = {
         
         var _z = {
             url: this.config.baseUrl + "/page/"+page+"/history",
-            method: "get"
+            method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
         }
 
         this.sendAjax(_z, 'afterLoadHistory');
@@ -320,6 +341,7 @@ var page = {
                 </tr>`;
             })
             $("#preview-history-tbody").html(html);
+            $("#loading-image").hide();
             $(".preview-history-modal").modal("show");
         }
     },
@@ -329,7 +351,10 @@ var page = {
         
         var _z = {
             url: this.config.baseUrl + "/page/"+page+"/activities",
-            method: "get"
+            method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
         }
 
         this.sendAjax(_z, 'afterLoadActivities');
@@ -347,6 +372,7 @@ var page = {
                 </tr>`;
             })
             $("#preview-activities-tbody").html(html);
+            $("#loading-image").hide();
             $(".preview-activities-modal").modal("show");
         }
     },
@@ -355,7 +381,10 @@ var page = {
         
         var _z = {
             url: this.config.baseUrl + "/page/"+page+"/translate-for-other-langauge",
-            method: "get"
+            method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
         }
 
         this.sendAjax(_z, 'afterTranslateForOtherLanguage');
@@ -363,6 +392,7 @@ var page = {
     afterTranslateForOtherLanguage : function(response) {
         if(response.code  == 200) {
             if(response.errorMessage != "") {
+                $("#loading-image").hide();
                 toastr["error"](response.errorMessage,"");
             }else{
                 location.reload();
@@ -374,13 +404,17 @@ var page = {
         
         var _z = {
             url: this.config.baseUrl + "/page/"+page+"/push-website-in-live",
-            method: "get"
+            method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
         }
 
         this.sendAjax(_z, 'afterPushPageInLive');
     },
     afterPushPageInLive : function (response) {
         if(response.code == 200) {
+            $("#loading-image").hide();
             toastr["success"](response.message,"");
             location.reload();
         }else{
@@ -392,13 +426,17 @@ var page = {
         
         var _z = {
             url: this.config.baseUrl + "/page/"+page+"/pull-website-in-live",
-            method: "get"
+            method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
         }
 
         this.sendAjax(_z, 'afterPullPageInLive');
     },
     afterPullPageInLive : function (response) {
         if(response.code == 200) {
+            $("#loading-image").hide();
             toastr["success"](response.message,"");
             location.reload();
         }else{

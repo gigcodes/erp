@@ -455,9 +455,10 @@ class PageController extends Controller
 
     public function store_platform_id() {
         $page = StoreWebsitePage::find(request()->page_id);
+        $old = $page->platform_id;
         $page->platform_id = request()->platform_id;
         if($page->save()) {
-            activity()->causedBy(auth()->user())->performedOn($page)->log('page platform id updated');
+            activity()->causedBy(auth()->user())->performedOn($page)->log('page platform id updated from ' .$old. ' to '. request()->platform_id);
             return "success";
         } else {
             return "failed";
