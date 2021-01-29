@@ -289,7 +289,6 @@
                               <div>
                                   <input style="width: 100px;" type="text" name="qty[]" placeholder="Qty">
                                   <input style="width: 100px;" type="text" name="sizex[]" placeholder="Size">
-                                  <input style="width: 100px;" type="text" name="supplier[]" placeholder="Supplier">
                                   <span class="btn btn-xs btn-secondary add-sizeQtHolder">Add</span>
                               </div>
                           </div>
