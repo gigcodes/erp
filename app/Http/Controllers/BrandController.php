@@ -362,6 +362,45 @@ class BrandController extends Controller
 
     }
 
+    public function unMergeBrand(Request $request)
+    {
+        $this->validate($request, [
+            'brand_name' => 'required',
+            'from_brand_id' => 'required'
+        ]);
+        
+        $fromBrand = \App\Brand::find($request->from_brand_id);
+
+        if($fromBrand) {
+            // now store the all brands
+            $freferenceBrand = explode(",", $fromBrand->references);
+
+            if (($key = array_search($request->brand_name, $freferenceBrand)) !== false) {
+                unset($freferenceBrand[$key]);
+            }
+
+            $fromBrand->references = implode(',', $freferenceBrand);
+            $fromBrand->save();
+
+            $brand_count = Brand::where('name', '=', $request->brand_name)->count();
+
+            if($brand_count == 0) {
+                $newBrand = new Brand();
+                $newBrand->name = $request->brand_name;
+                $newBrand->euro_to_inr = 0;
+                $newBrand->deduction_percentage = 0;
+                $newBrand->magento_id = 0;
+                $newBrand->save();
+            } else {
+                return response()->json(['message' => 'Brand already exist!'], 422);
+            }
+            return response()->json(["data" => []], 200);
+        }
+
+        return response()->json(["code" => 500 , "data" => [],"message" => "Please check valid brand exist"]);
+
+    }
+
     public function storeCategorySegmentDiscount(Request $request) {
         $category_segment = DB::table('category_segment_discounts')->where('brand_id', $request->brand_id)->where('category_segment_id', $request->category_segment_id)->first();
         if($category_segment) {
