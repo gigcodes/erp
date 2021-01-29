@@ -168,10 +168,20 @@ class ProductsCreator
                 }
 
                 $product->size = implode(',', $allSize);
-                $euSize = ProductHelper::getEuSize($product, $allSize, $supplierModel->size_system_id , $image->size_system);
+                // get size system
+                $supplierSizeSystem = \App\ProductSupplier::getSizeSystem($product->id, $supplierModel->id);
+                $euSize = ProductHelper::getEuSize($product, $allSize, !empty($supplierSizeSystem) ? $supplierSizeSystem : $image->size_system);
                 $product->size_eu = implode(',', $euSize);
                 if(empty($euSize)) {
                     $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
+                }else{
+                    foreach($euSize as $es) {
+                        \App\ProductSizes::updateOrCreate([
+                           'product_id' =>  $product->id,'supplier_id' => $supplierModel->id, 'size' => $es 
+                        ],[
+                           'product_id' =>  $product->id,'quantity' => 1,'supplier_id' => $supplierModel->id, 'size' => $es
+                        ]);
+                    }
                 }
             }
 
@@ -233,7 +243,10 @@ class ProductsCreator
                     $productSupplier->color = $formattedDetails[ 'color' ];
                     $productSupplier->composition = $formattedDetails[ 'composition' ];
                     $productSupplier->sku = $image->original_sku;
+                    $productSupplier->size_system = $image->size_system;
                     $productSupplier->save();
+
+                    $product->supplier_id = $db_supplier->id;
 
 
                     /*$product->suppliers()->syncWithoutDetaching([
@@ -304,6 +317,7 @@ class ProductsCreator
         $product->sku = str_replace(' ', '', $image->sku);
         $product->brand = $image->brand_id;
         $product->supplier = $supplier;
+        $product->supplier_id = $supplierModel->id;
         $product->name = $image->title;
         $product->short_description = $description;
         $product->supplier_link = $image->url;
@@ -339,11 +353,19 @@ class ProductsCreator
                     //find the eu size and update into the field
                     //$euSize[]  = ProductHelper::getWebsiteSize($image->size_system, $helperSize, $product->category);
                 }
-
-                $euSize = ProductHelper::getEuSize($product, $allSize, $supplierModel->size_system_id , $image->size_system);
+                $supplierSizeSystem = \App\ProductSupplier::getSizeSystem($product->id, $supplierModel->id);
+                $euSize = ProductHelper::getEuSize($product, $allSize, !empty($supplierSizeSystem) ? $supplierSizeSystem : $image->size_system);
                 $product->size_eu = implode(',', $euSize);
                 if(empty($euSize)) {
                     $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
+                }else{
+                    foreach($euSize as $es) {
+                        \App\ProductSizes::updateOrCreate([
+                           'product_id' =>  $product->id,'quantity' => 1, 'supplier_id' => $supplierModel->id, 'size' => $es 
+                        ],[
+                           'product_id' =>  $product->id, 'quantity' => 1, 'supplier_id' => $supplierModel->id, 'size' => $es
+                        ]);
+                    }
                 }
 
                 /*if(!empty($euSize)) {
@@ -400,6 +422,7 @@ class ProductsCreator
             $productSupplier->color = $formattedDetails[ 'color' ];
             $productSupplier->composition = $formattedDetails[ 'composition' ];
             $productSupplier->sku = $image->original_sku;
+            $productSupplier->size_system = $image->size_system;
             $productSupplier->save();
             $image->product_id = $product->id;
             $image->save();

@@ -55,6 +55,8 @@ class Product extends Model
         'is_barcode_check',
         'has_mediables',
         'size_eu',
+        'supplier',
+        'supplier_id',
         'stock_status',
         'shopify_id',
         'scrap_priority',
@@ -299,6 +301,7 @@ class Product extends Model
                                 'sku' => $json->original_sku
                             ]
                         ]);
+                        $product->supplier_id = $dbSupplier->id;
                     }
                 }
 
@@ -1090,6 +1093,9 @@ class Product extends Model
             'category',
             'supplier',
             'products.sku',
+            'products.size',
+            'products.size_eu',
+            'psu.size_system',
             'status_id',
             'products.created_at',
             'inventory_status_histories.date as history_date'
@@ -1099,6 +1105,9 @@ class Product extends Model
             })
             ->leftJoin("categories as c",function($q){
                 $q->on("c.id","products.category");
+            })
+            ->Join("product_suppliers as psu",function($q){
+                $q->on("psu.product_id","products.id")->on("psu.supplier_id","products.supplier_id");
             });
 
         //  check filtering
@@ -1127,6 +1136,10 @@ class Product extends Model
 
         if(isset($filter_data['no_category']) && $filter_data['no_category'] == "on") {
             $query = $query->where('products.category',"<=",0);
+        }
+
+        if(isset($filter_data['no_size']) && $filter_data['no_size'] == "on") {
+            $query = $query->where('products.status_id',"=",\App\Helpers\StatusHelper::$unknownSize);
         }
 
         if (isset($filter_data['supplier']) && is_array($filter_data['supplier']) && $filter_data['supplier'][0] != null) {

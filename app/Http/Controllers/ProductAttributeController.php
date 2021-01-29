@@ -113,7 +113,9 @@ class ProductAttributeController extends Controller
 			if ($category->parent_id != 0) {
 				$parent = $category->parent;
 				if ($parent->parent_id != 0) {
-					$data['category_tree'][$parent->parent_id][$parent->id][$category->id];
+					if(isset($data['category_tree'][$parent->parent_id][$parent->id])) {
+						$data['category_tree'][$parent->parent_id][$parent->id][$category->id];
+					}
 				} else {
 					$data['category_tree'][$parent->id][$category->id] = $category->id;
 				}
@@ -260,6 +262,7 @@ class ProductAttributeController extends Controller
 		    $q = new ProductSizes();
 		    $q->product_id = $productattribute->id;
 		    $q->quantity = $qty;
+		    $q->supplier_id = $productattribute->supplier_id;
 		    $q->size = $request->get('sizex')[$k];
 		    $q->save();
         }
@@ -300,8 +303,8 @@ class ProductAttributeController extends Controller
 
 			if( !empty($request->file('image.'.$i ) ) ){
 				$media = MediaUploader::fromSource($request->file('image.'.$i ))
-										->toDirectory('product/'.floor($productattribute->id / config('constants.image_per_folder')))
-										->upload();
+				->toDirectory('product/'.floor($productattribute->id / config('constants.image_per_folder')))
+				->upload();
 				$productattribute->attachMedia($media,config('constants.media_tags'));
 			}
 		}

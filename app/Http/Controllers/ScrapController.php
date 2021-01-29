@@ -228,6 +228,9 @@ class ScrapController extends Controller
             $scrapedProduct->validated = empty($errorLog["error"]) ? 1 : 0;
             $scrapedProduct->validation_result = $errorLog["error"].$errorLog["warning"];
             $scrapedProduct->category = isset($request->properties[ 'category' ]) ? serialize($request->properties[ 'category' ]) : null;
+            if($request->get('size_system') != "") {
+                $scrapedProduct->size_system = $request->get('size_system');
+            }
             $scrapedProduct->save();
             $scrapedProduct->touch();
         } else {
@@ -265,6 +268,9 @@ class ScrapController extends Controller
             $scrapedProduct->category = isset($request->properties[ 'category' ]) ? serialize($request->properties[ 'category' ]) : null;
             $scrapedProduct->validated = empty($errorLog) ? 1 : 0;
             $scrapedProduct->validation_result = $errorLog["error"].$errorLog["warning"];
+            if($request->get('size_system') != "") {
+                $scrapedProduct->size_system = $request->get('size_system');
+            }
             $scrapedProduct->save();
         }
         
@@ -660,7 +666,7 @@ class ScrapController extends Controller
             // if size is empty then only update
             if(empty($product->size)) {
                 $product->size = $formatter['size'];
-                $product->size_eu = $formatter['size'];
+                //$product->size_eu = $formatter['size'];
             }
             if ((int)$product->price == 0) {
                 $product->price = $request->get('price');

@@ -1,7 +1,7 @@
 @if(!empty($inventory_data->items()))
   @foreach ($inventory_data as $row => $data)
     <tr>
-    <td>{{ $data['id'] }}</td>
+    <td><input type="checkbox" class="selected-product-ids" name="selected_product_ids[]" value="{{ $data['id'] }}"> {{ $data['id'] }}</td>
     <td>
       <span id="sku_long_string_{{$data['id']}}" style="display: none">{{ $data['sku'] }}</span>
       <span id="sku_small_string_{{$data['id']}}"><?php echo \Illuminate\Support\Str::substr($data['sku'],-10) ?> @if(strlen($data['sku'])>10) ...<a href="javascript:;" data-id="{{$data['id']}}" class="show_sku_long">More</a> @endif
@@ -16,6 +16,9 @@
     <td>{{ $data['category_name'] }}</td>
     <td>{{ $data['brand_name'] }}</td>
     <td>{{ $data['supplier'] }}</td>
+    <td>{{ $data['size_system'] }}</td>
+    <td>{{ $data['size'] }}</td>
+    <td>{{ $data['size_eu'] }}</td>
     <td>
       @foreach(\App\Helpers\StatusHelper::getStatus() as $key => $status)
         @if($key==$data['status_id'])
