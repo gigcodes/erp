@@ -55,6 +55,8 @@ class Product extends Model
         'is_barcode_check',
         'has_mediables',
         'size_eu',
+        'supplier',
+        'supplier_id',
         'stock_status',
         'shopify_id',
         'scrap_priority',
@@ -299,6 +301,7 @@ class Product extends Model
                                 'sku' => $json->original_sku
                             ]
                         ]);
+                        $product->supplier_id = $dbSupplier->id;
                     }
                 }
 
@@ -1002,7 +1005,7 @@ class Product extends Model
         return \App\StoreWebsiteProductAttribute::where("product_id", $this->id)->where("store_website_id",$storeId)->first();
     }
 
-    public function checkExternalScraperNeed()
+    public function checkExternalScraperNeed($fromscraper = false)
     {
         $parentcate = ($this->category > 0 && $this->categories) ? $this->categories->parent_id :  null;
 
@@ -1031,10 +1034,23 @@ class Product extends Model
             $this->status_id = StatusHelper::$unknownMeasurement;
             $this->save();
         } else{
+
+            // check that product has how many description
+            $descriptionCount = $this->suppliers_info->count();
+            if($descriptionCount <= 1) {
+                $this->status_id = StatusHelper::$requestForExternalScraper;
+                $this->save();
+            }
+
             // if validation pass and status is still external scraper then remove and put for the auto crop
             if($this->status_id == StatusHelper::$requestForExternalScraper) {
-               $this->status_id =  StatusHelper::$autoCrop;
-               $this->save();
+                if(empty($this->size_eu)) {
+                   $this->status_id =  StatusHelper::$unknownSize;
+                   $this->save();
+                }else{
+                   $this->status_id =  StatusHelper::$autoCrop;
+                   $this->save();
+                }
             }
         }
     }
@@ -1082,6 +1098,9 @@ class Product extends Model
             'category',
             'supplier',
             'products.sku',
+            'products.size',
+            'products.size_eu',
+            'psu.size_system',
             'status_id',
             'products.created_at',
             'inventory_status_histories.date as history_date'
@@ -1091,6 +1110,9 @@ class Product extends Model
             })
             ->leftJoin("categories as c",function($q){
                 $q->on("c.id","products.category");
+            })
+            ->Join("product_suppliers as psu",function($q){
+                $q->on("psu.product_id","products.id")->on("psu.supplier_id","products.supplier_id");
             });
 
         //  check filtering
@@ -1119,6 +1141,10 @@ class Product extends Model
 
         if(isset($filter_data['no_category']) && $filter_data['no_category'] == "on") {
             $query = $query->where('products.category',"<=",0);
+        }
+
+        if(isset($filter_data['no_size']) && $filter_data['no_size'] == "on") {
+            $query = $query->where('products.status_id',"=",\App\Helpers\StatusHelper::$unknownSize);
         }
 
         if (isset($filter_data['supplier']) && is_array($filter_data['supplier']) && $filter_data['supplier'][0] != null) {

@@ -83,16 +83,6 @@
                             <input type="text" class="form-control" name="dmeasurement" placeholder="D" value="{{ old('dmeasurement') ? old('dmeasurement') : $dmeasurement }}"/>
                         </div>
                     </div>
-
-                   {{-- <div id="size_row" class="" style="display:none;">
-                        <select class="form-control" name="size_value">
-                            <option value="" disabled selected>select</option>
-                        @foreach( $sizes_array as $size )
-                            <option value="{{ $size }}" {{ $size == $size_value ? 'selected' : '' }}>{{ $size }}</option>
-                        @endforeach
-                        </select>
-                    </div>
---}}
                     @if ($errors->any())
                         <div style="padding-top: 10px;">
                             @if ($errors->has('measurement_size_type'))
@@ -204,15 +194,6 @@
                         <div class="alert alert-danger">{{$errors->first('price')}}</div>
                     @endif
                 </div>
-
-           {{-- <div class="col-xs-12 col-sm-12 col-md-8">
-                <div class="form-group">
-                    <strong>Euro to Inr (conversion):</strong>
-                    <input type="number" class="form-control" name="euro_to_inr" placeholder="Leave the field blank to use default" value="{{ old('euro_to_inr') ? old('euro_to_inr') : $euro_to_inr }}"/>
-                </div>
-            </div>--}}
-
-
                 <div class="form-group">
                     <strong> Price (in INR):</strong>
                     <input type="number" disabled class="form-control" placeholder="Price (in INR)" value="{{ $price_inr }}"/>
@@ -296,6 +277,7 @@
                                       <tr>
                                           <td>{{ $q->quantity }}</td>
                                           <td>{{ $q->size }}</td>
+                                          <td>{{ ($q->supplier) ? $q->supplier->supplier : "Name" }}</td>
                                           <td>
                                               <a href="{{ action('ProductAttributeController@delSizeQty', $q->id) }}">Delete</a>
                                           </td>

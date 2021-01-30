@@ -254,7 +254,7 @@ class ProductHelper extends Model
     }
 
 
-    public static function getEuSize($product, $sizes, $supplierSizeSystem = null, $scraperSizeSystem = null)
+    public static function getEuSize($product, $sizes,$scraperSizeSystem = null)
     {
         // For Italian sizes, return the original
         // if (strtoupper($sizeSystem) == 'IT') {
@@ -277,25 +277,36 @@ class ProductHelper extends Model
             }
         }
 
+
         $ids = array_filter($ids);
 
-        $sizeManager = SystemSizeManager::select('system_size_managers.erp_size')
-        ->leftjoin('system_size_relations','system_size_relations.system_size_manager_id','system_size_managers.id')
-        ->leftjoin('system_sizes','system_sizes.id','system_size_relations.system_size')
-        ->whereIn('category_id',$ids)
-        ->whereIn('system_size_relations.size',$sizes)
-        ->where('system_sizes.status',1)
-        ->where('system_size_managers.status',1);
-
-        if(!empty($supplierSizeSystem)) {
-            $sizeManager = $sizeManager->where('system_size_relations.system_size',$supplierSizeSystem);
-        }else{
-            $sizeManager = $sizeManager->where('system_sizes.name',$scraperSizeSystem);
+        $needToMatch = false;
+        // this categories id need to fix
+        foreach([5,12,38,40,41,149,152] as $k) {
+            if(in_array($k, $ids)) {
+                $needToMatch = true;
+            }
         }
 
-        $returnSizes = $sizeManager->pluck('erp_size')->toArray();
+        if($needToMatch) {
 
-        return $returnSizes;
+            $sizeManager = SystemSizeManager::select('system_size_managers.erp_size')
+            ->leftjoin('system_size_relations','system_size_relations.system_size_manager_id','system_size_managers.id')
+            ->leftjoin('system_sizes','system_sizes.id','system_size_relations.system_size')
+            ->whereIn('category_id',$ids)
+            ->whereIn('system_size_relations.size',$sizes)
+            ->where('system_sizes.status',1)
+            ->where('system_size_managers.status',1);
+
+            $sizeManager = $sizeManager->where('system_sizes.name',$scraperSizeSystem);
+
+            return $sizeManager->pluck('erp_size')->toArray();
+
+        }else{
+            return $sizes;
+        }
+
+        return [];
     }
 
 
