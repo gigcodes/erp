@@ -409,11 +409,10 @@ class EmailController extends Controller
 
         preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $body, $match);
 
-        
         if(isset($match[0])){
             $matches = $match[0];
             foreach ($matches as $matchLink) {
-                if(strpos($matchLink, 'wetransfer.com') !== false || strpos($matchLink, 'we.') !== false){
+                if((strpos($matchLink, 'wetransfer.com') !== false || strpos($matchLink, 'we.') !== false) && strpos($matchLink, 'google.com') !== true ){
                     //check if wetransfer already exist
                     $checkIfExist = Wetransfer::where('url',$matchLink)->where('supplier',$request->supplier)->first();
                     if(!$checkIfExist){

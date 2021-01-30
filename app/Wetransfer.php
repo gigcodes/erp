@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Wetransfer extends Model
 {
-    //
+    public $fillable = [ 'type','url', 'supplier','is_processed'];
 }
