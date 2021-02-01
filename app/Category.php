@@ -412,7 +412,8 @@ class Category extends Model
 
     public static function ScrapedProducts($name)
     {
-        return \App\ScrapedProducts::where('properties','LIKE','%'.$name.'%')->count();
+        $name = strtolower(str_replace('/', ',', $name));
+        return \App\ScrapedProducts::where('categories',$name)->count();
     }
 
 }
