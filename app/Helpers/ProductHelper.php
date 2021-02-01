@@ -282,7 +282,7 @@ class ProductHelper extends Model
 
         $needToMatch = false;
         // this categories id need to fix
-        foreach([5,12,38,40,41,149,152] as $k) {
+        foreach([5,12,40,41,149,152] as $k) {
             if(in_array($k, $ids)) {
                 $needToMatch = true;
             }
