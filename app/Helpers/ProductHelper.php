@@ -264,7 +264,7 @@ class ProductHelper extends Model
         $category = $product->categories;
         $ids = [];
         if($category) {
-            $ids[] = $product->category_id;
+            $ids[] = $product->category;
             if($category && $category->parent) {
                 $parentModel = $category->parent;
                 if($parentModel) {
@@ -281,8 +281,10 @@ class ProductHelper extends Model
         $ids = array_filter($ids);
 
         $needToMatch = false;
+
+        $categoryIds = \App\SystemSizeManager::groupBy('category_id')->pluck('category_id')->toArray();
         // this categories id need to fix
-        foreach([5,12,40,41,149,152] as $k) {
+        foreach($categoryIds as $k) {
             if(in_array($k, $ids)) {
                 $needToMatch = true;
             }
@@ -294,13 +296,12 @@ class ProductHelper extends Model
             ->leftjoin('system_size_relations','system_size_relations.system_size_manager_id','system_size_managers.id')
             ->leftjoin('system_sizes','system_sizes.id','system_size_relations.system_size')
             ->whereIn('category_id',$ids)
-            ->whereIn('system_size_relations.size',$sizes)
-            ->where('system_sizes.status',1)
-            ->where('system_size_managers.status',1);
+            ->whereIn('system_size_relations.size',$sizes);
+
 
             $sizeManager = $sizeManager->where('system_sizes.name',$scraperSizeSystem);
 
-            return $sizeManager->pluck('erp_size')->toArray();
+            return $sizeManager->groupBy("erp_size")->pluck('erp_size')->toArray();
 
         }else{
             return $sizes;
