@@ -492,9 +492,6 @@ return;
                 if(data.message != "") {
                     toastr['success'](data.message, 'success');
                 }
-                if(data.error_messages != "") {
-                    toastr['error'](data.error_messages, 'error');
-                }
             }
         })
         .fail(function(jqXHR, ajaxOptions, thrownError) {
