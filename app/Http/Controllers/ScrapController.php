@@ -262,6 +262,9 @@ class ScrapController extends Controller
             $scrapedProduct->categories = $categoryForScrapedProducts;
             $scrapedProduct->color = $colorForScrapedProducts;
             $scrapedProduct->composition = $compositionForScrapedProducts;
+            if($request->get('size_system') != "") {
+                $scrapedProduct->size_system = $request->get('size_system');
+            }
             $scrapedProduct->save();
             $scrapedProduct->touch();
         } else {
@@ -303,6 +306,9 @@ class ScrapController extends Controller
             $scrapedProduct->categories = $categoryForScrapedProducts;
             $scrapedProduct->color = $colorForScrapedProducts;
             $scrapedProduct->composition = $compositionForScrapedProducts;
+            if($request->get('size_system') != "") {
+                $scrapedProduct->size_system = $request->get('size_system');
+            }
             $scrapedProduct->save();
         }
         
@@ -698,7 +704,7 @@ class ScrapController extends Controller
             // if size is empty then only update
             if(empty($product->size)) {
                 $product->size = $formatter['size'];
-                $product->size_eu = $formatter['size'];
+                //$product->size_eu = $formatter['size'];
             }
             if ((int)$product->price == 0) {
                 $product->price = $request->get('price');

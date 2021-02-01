@@ -13,6 +13,8 @@ use DB;
 use App\Mails\Manual\ReplyToEmail;
 use App\Mails\Manual\ForwardEmail;
 use Illuminate\Support\Facades\Validator;
+use App\Wetransfer;
+use seo2websites\ErpExcelImporter\ErpExcelImporter;
 
 class EmailController extends Controller
 {
@@ -394,4 +396,68 @@ class EmailController extends Controller
 		session()->flash('success', 'Data updated successfully');
 		return redirect('email');
 	}
+
+    public function excelImporter(Request $request)
+    {
+        $id = $request->id;
+
+        $email = Email::find($id);
+
+        $body = $email->message;
+
+        //check for wetransfer link
+
+        preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $body, $match);
+
+        if(isset($match[0])){
+            $matches = $match[0];
+            foreach ($matches as $matchLink) {
+                if((strpos($matchLink, 'wetransfer.com') !== false || strpos($matchLink, 'we.') !== false) && strpos($matchLink, 'google.com') !== true ){
+                    //check if wetransfer already exist
+                    $checkIfExist = Wetransfer::where('url',$matchLink)->where('supplier',$request->supplier)->first();
+                    if(!$checkIfExist){
+                        $wetransfer = new Wetransfer();
+                        $wetransfer->type = 'excel';
+                        $wetransfer->url = $matchLink;
+                        $wetransfer->supplier = $request->supplier;
+                        $wetransfer->save();
+                    }
+                }
+            }
+        }
+
+        //getting from attachments
+
+        $attachments = $email->additional_data;
+        if($attachments){
+            $attachJson = json_decode($attachments);
+            $attachs = $attachJson->attachment;
+            
+            //getting all attachments
+            //check if extension is .xls or xlsx
+            foreach ($attachs as $attach) {
+                $attach = str_replace('email-attachments/', '', $attach);
+                $extension = last(explode('.', $attach));
+                if ($extension == 'xlsx' || $extension == 'xls') {
+                    if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                        $excel = $request->supplier;
+                        ErpExcelImporter::excelFileProcess($attach, $excel,'');
+                    }
+                } elseif ($extension == 'zip') {
+                    if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                        $excel = $request->supplier;
+                        $attachments_array = [];
+                        $attachments       = ErpExcelImporter::excelZipProcess('', $attach, $excel, '', $attachments_array);
+                        
+                    }
+                }
+            }
+
+
+        }
+
+        
+        return response()->json(['message' => 'Successfully Imported'], 200);
+
+    }
 }

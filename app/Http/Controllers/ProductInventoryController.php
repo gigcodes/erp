@@ -21,6 +21,7 @@ use Carbon\Carbon;
 use App\ColorReference;
 use Illuminate\Support\Facades\Validator;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use \App\Jobs\UpdateFromSizeManager;
 
 class ProductInventoryController extends Controller
 {
@@ -84,7 +85,9 @@ class ProductInventoryController extends Controller
 			if ($category->parent_id != 0) {
 				$parent = $category->parent;
 				if ($parent->parent_id != 0) {
-					$category_tree[$parent->parent_id][$parent->id][$category->id];
+					if(isset($category_tree[$parent->parent_id][$parent->id])) {
+						$category_tree[$parent->parent_id][$parent->id][$category->id];
+					}
 				} else {
 					$category_tree[$parent->id][$category->id] = 0;
 				}
@@ -994,7 +997,7 @@ class ProductInventoryController extends Controller
 
 	public function inventoryList(Request $request)
     {
-        $filter_data = $request->input();
+    	$filter_data = $request->input();
         $inventory_data = \App\Product::getProducts($filter_data);
         $inventory_data_count = $inventory_data->total();
         $status_list = \App\Helpers\StatusHelper::getStatus();
@@ -1003,9 +1006,9 @@ class ProductInventoryController extends Controller
         foreach ($inventory_data as $product) {
             $product['medias'] =  \App\Mediables::getMediasFromProductId($product['id']);
 			$product_history   =  \App\ProductStatusHistory::getStatusHistoryFromProductId($product['id']);
-            foreach ($product_history as $each) {
-                $each['old_status'] = $status_list[$each['old_status']];
-                $each['new_status'] = $status_list[$each['new_status']];
+			foreach ($product_history as $each) {
+                $each['old_status'] = isset($status_list[$each['old_status']]) ? $status_list[$each['old_status']]  : 0;
+                $each['new_status'] = isset($status_list[$each['new_status']]) ? $status_list[$each['new_status']] : 0;
             }
 			$product['status_history'] = $product_history;
 		
@@ -1047,5 +1050,105 @@ class ProductInventoryController extends Controller
 		 }
 	  }
 	  return response()->json(['urls' => $urls]);
+	}
+
+	public function changeSizeSystem(Request $request) 
+	{
+		$product_ids = $request->get("product_ids");
+		$size_system = $request->get("size_system");
+		$messages = [];
+		$errorMessages = [];
+		if(!empty($size_system) && !empty($product_ids)) {
+			$products = \App\Product::whereIn("id",$product_ids)->get();
+			if(!$products->isEmpty()) {
+				foreach($products as $product) {
+					$productSupplier = \App\ProductSupplier::where("product_id",$product->id)->where("supplier_id",$product->supplier_id)->first();
+					if($productSupplier) {
+						$productSupplier->size_system = $size_system;
+						$allSize =  explode(",",$product->size);
+						$euSize = \App\Helpers\ProductHelper::getEuSize($product, $allSize, $productSupplier->size_system);
+		                $product->size_eu = implode(',', $euSize);
+		                if(empty($euSize)) {
+		                	//$product->size_system = "";
+		                    $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
+		                    $errorMessages[] = "$product->sku has issue with size";
+		                }else{
+		                	$messages[] = "$product->sku updated successfully";
+		                	foreach($euSize as $es) {
+		                        \App\ProductSizes::updateOrCreate([
+		                           'product_id' =>  $product->id,'supplier_id' => $product->supplier_id, 'size' => $es 
+		                        ],[
+		                           'product_id' =>  $product->id,'quantity' => 1,'supplier_id' => $product->supplier_id, 'size' => $es
+		                        ]);
+		                    }
+		                }
+		                $productSupplier->save();
+		                $product->save();
+					}
+				}
+			}
+		}
+
+		return response()->json(["code" => 200 , "data" => [],"message" => implode("</br>", $messages),"error_messages" => implode("</br>", $errorMessages)]);
+	}
+
+	public function changeErpSize(Request $request)
+	{
+		$sizes = $request->sizes;
+		$erpSizes = $request->erp_size;
+		$sizeSystemStr = $request->size_system;
+		$categoryId = $request->category_id;
+
+
+		if(!empty($sizes) && !empty($erpSizes) && !empty($sizeSystemStr)) {
+			/// check first size system exist or not
+			$sizeSystem = \App\SystemSize::where("name",$sizeSystemStr)->first();
+
+			if(!$sizeSystem) {
+				$sizeSystem = new \App\SystemSize;
+				$sizeSystem->name = $sizeSystem;
+				$sizeSystem->save();
+			}
+
+			// check size exist or not
+			if(!empty($erpSizes)) {
+				foreach($erpSizes as  $k => $epSize) {
+					$existSize  = \App\SystemSizeManager::where("category_id", $categoryId)->where("erp_size",$epSize)->first();
+
+					if(!$existSize) {
+						$existSize = new \App\SystemSizeManager;
+						$existSize->category_id = $categoryId;
+						$existSize->erp_size = $epSize;
+						$existSize->status = 1;
+						$existSize->save();
+					}
+
+					if(isset($sizes[$k])) {
+						$checkMainSize = \App\SystemSizeRelation::where("system_size_manager_id", $sizeSystem->id)
+						->where("system_size",$existSize->id)
+						->where("size",$sizes[$k])
+						->first();
+
+						if(!$checkMainSize) {
+							$checkMainSize = new \App\SystemSizeRelation;
+							$checkMainSize->system_size_manager_id = $existSize->id;
+							$checkMainSize->system_size = $sizeSystem->id;
+							$checkMainSize->size = $sizes[$k];
+							$checkMainSize->save();
+						}
+
+					}
+
+				}
+
+				UpdateFromSizeManager::dispatch([
+				 	"category_id" => $categoryId,
+				 	"size_system" => $sizeSystemStr
+				])->onQueue("mageone");
+			}
+		}
+
+		return response()->json(["code" => 200 , "data" => [], "message" => "Your request has been send to the jobs"]);
+
 	}
 }

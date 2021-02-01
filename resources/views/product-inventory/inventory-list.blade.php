@@ -61,8 +61,11 @@
         <div class="form-group mr-pd col-md-1">
             {!! Form::select('product_status[]',$status_list, request("product_status",[]), ['data-placeholder' => 'Select a Status','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
         </div>
-        <div class="form-group mr-pd col-md-2">
+        <div class="form-group mr-pd col-md-1">
             {!! Form::checkbox('no_category',"on",request("no_category"), ['class' => 'form-control']) !!} No Category
+        </div>
+        <div class="form-group mr-pd col-md-1">
+            {!! Form::checkbox('no_size',"on",request("no_size"), ['class' => 'form-control']) !!} No Size
         </div>
         <div class="form-group mr-pd col-md-2">
             <div class='input-group date' id='filter-date'>
@@ -73,22 +76,29 @@
             </div>
         </div>
         <div class="form-group mr-pd col-md-1">
-        <button type="submit" class="btn btn-secondary"><i class="fa fa-filter"></i>Filter</button>
+            <button type="submit" class="btn btn-secondary"><i class="fa fa-filter"></i>Filter</button>
         </div>
-        
-
+        <div class="form-group mr-pd col-md-2">
+            {!! Form::select('size_system',["" => "Select Size Sytem"] + \App\SystemSize::pluck('name','name')->toArray(), request("size_system"), ['data-placeholder' => 'Select a Size System','class' => 'form-control change-selectable-size']) !!}
+        </div>
+        <div class="form-group mr-pd col-md-2">    
+            <button type="button" class="btn btn-secondary btn-change-size-system"></i>Change Size System</button>
+        </div>
     </form>
 </div>
 <div class="table-responsive" id="inventory-data">
     <table class="table table-bordered infinite-scroll">
         <thead>
             <tr>
-                <th>Id</th>
+                <th><input type="checkbox" class="chk-select-call" name="select-all">&nbsp;ID</th>
                 <th>Sku</th>
                 <th>Name</th>
                 <th>Category</th>
                 <th>Brand</th>
                 <th>Supplier</th>
+                <th>Size system</th>
+                <th>Size</th>
+                <th>Size(IT)</th>
                 <th>Status</th>
                 <th>Created Date</th>
                 <th>Actions</th>
@@ -140,6 +150,31 @@
             </div>
         </div>
     </div>
+</div>
+
+<div id="add-size-btn-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form class="form" action="/productinventory/store-erp-size" method="post">
+                 {!! csrf_field() !!} 
+                <div class="modal-header">
+                    <h4 class="modal-title">Add Size</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary btn-save-erp-size">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+          50% 50% no-repeat;display:none;">
 </div>
 
 @endsection
@@ -348,5 +383,121 @@ return;
     $('#filter-date').datetimepicker({
         format: 'YYYY-MM-DD'
     });
+
+
+    $(document).on("click",".chk-select-call",function() {
+        $(".selected-product-ids").trigger("click");
+    });
+
+    $(document).on("click",".btn-change-size-system",function() {
+
+        if($(".change-selectable-size").val() == "") {
+            alert("Select size system for update");
+            return false;
+        }
+
+        var loader = $('.infinite-scroll-products-loader');
+
+        var ids = [];
+        $(".selected-product-ids:checked").each(function(){
+            ids.push($(this).val());
+        });
+
+        if(ids.length <= 0) {
+            alert("Please select products for update first");
+            return false;
+        }
+
+        $.ajax({
+            url: "/productinventory/change-size-system",
+            type: 'POST',
+            data : {
+                product_ids : ids, 
+                size_system : $(".change-selectable-size").val()
+            },
+            dataType:"json",
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+        })
+        .done(function(data) {
+            $("#loading-image").hide();
+            if(data.code == 200) {
+                if(data.message != "") {
+                    toastr['success'](data.message, 'success');
+                }
+                if(data.error_messages != "") {
+                    toastr['error'](data.error_messages, 'error');
+                }
+            }
+        })
+        .fail(function(jqXHR, ajaxOptions, thrownError) {
+            console.error(jqXHR);
+        });
+    });
+
+    $(document).on("click",".add-size-btn",function() {
+    
+        var sizeSystem = $(this).data("size-system");
+        var sizes = $(this).data("sizes");
+        var category_id = $(this).data("category-id");
+        //var allSizes = 
+        var html = `<table class="table table-bordered" id="category-table">
+                       <thead>
+                          <tr>
+                             <th>System Size</th>
+                             <th>Erp Size</th>
+                          </tr>
+                       </thead>
+                       <tbody>
+                       <input class='form-control' type='hidden' name='size_system' value="`+sizeSystem+`">
+                       <input class='form-control' type='hidden' name='category_id' value="`+category_id+`">
+                       `;
+
+        $.each(sizes,function(k,v) {
+            html += `<tr>
+                        <td><input class='form-control' type='text' name='sizes[`+k+`]' value="`+v+`"></td>
+                        <td><input class='form-control' type='text' name='erp_size[`+k+`]' value=""></td>
+                    </tr>`;
+        });
+
+        html += `</tbody></table>`;
+
+        
+        $("#add-size-btn-modal").find(".modal-body").html(html);
+        $("#add-size-btn-modal").modal("show");
+    });
+
+    $(document).on("click",".btn-save-erp-size",function(e) {
+        e.preventDefault();
+        var form = $(this).closest("form");
+        $.ajax({
+            url: "/productinventory/store-erp-size",
+            type: 'POST',
+            data : form.serialize(),
+            dataType:"json",
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+        })
+        .done(function(data) {
+            $("#loading-image").hide();
+            if(data.code == 200) {
+                if(data.message != "") {
+                    toastr['success'](data.message, 'success');
+                }
+            }
+        })
+        .fail(function(jqXHR, ajaxOptions, thrownError) {
+            console.error(jqXHR);
+        });
+    });
+
 </script>
 @endsection
