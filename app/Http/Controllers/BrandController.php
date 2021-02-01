@@ -387,20 +387,23 @@ class BrandController extends Controller
             if($brand_count == 0) {
                 $oldBrand = Brand::where('name', '=', $request->brand_name)->onlyTrashed()->latest()->first();
                 if($oldBrand) {
+                    $oldBrand->deleted_at = null;
+                    $oldBrand->save();
+                    $scrapedProducts = ScrapedProducts::where('brand_id', $oldBrand->id)->get();
+                    foreach($scrapedProducts as $scrapedProduct) {
+                        $product = \App\Product::where("id", $scrapedProduct->product_id)->first();
+                        if($product) {
+                            $product->brand = $oldBrand->id;
+                            $product->save();
+                        }
+                    }
+                }else{
                     $newBrand = new Brand();
                     $newBrand->name = $request->brand_name;
                     $newBrand->euro_to_inr = 0;
                     $newBrand->deduction_percentage = 0;
                     $newBrand->magento_id = 0;
                     $newBrand->save();
-                    $scrapedProducts = ScrapedProducts::where('brand_id', $oldBrand->id)->get();
-                    foreach($scrapedProducts as $scrapedProduct) {
-                        $product = \App\Product::where("id", $scrapedProduct->product_id)->first();
-                        if($product) {
-                            $product->brand = $newBrand->id;
-                            $product->save();
-                        }
-                    }
                 }
             } else {
                 return response()->json(['message' => 'Brand already exist!'], 422);
