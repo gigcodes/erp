@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use DB;
 use App\Brand;
 use App\Product;
 use App\Setting;
 use App\CategorySegment;
+use App\ScrapedProducts;
 use \App\StoreWebsiteBrand;
 use Illuminate\Http\Request;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-use DB;
 
 class BrandController extends Controller
 {
@@ -383,14 +384,24 @@ class BrandController extends Controller
             $fromBrand->save();
 
             $brand_count = Brand::where('name', '=', $request->brand_name)->count();
-
             if($brand_count == 0) {
-                $newBrand = new Brand();
-                $newBrand->name = $request->brand_name;
-                $newBrand->euro_to_inr = 0;
-                $newBrand->deduction_percentage = 0;
-                $newBrand->magento_id = 0;
-                $newBrand->save();
+                $oldBrand = Brand::where('name', '=', $request->brand_name)->onlyTrashed()->latest()->first();
+                if($oldBrand) {
+                    $newBrand = new Brand();
+                    $newBrand->name = $request->brand_name;
+                    $newBrand->euro_to_inr = 0;
+                    $newBrand->deduction_percentage = 0;
+                    $newBrand->magento_id = 0;
+                    $newBrand->save();
+                    $scrapedProducts = ScrapedProducts::where('brand_id', $oldBrand->id)->get();
+                    foreach($scrapedProducts as $scrapedProduct) {
+                        $product = \App\Product::where("id", $scrapedProduct->product_id)->first();
+                        if($product) {
+                            $product->brand = $newBrand->id;
+                            $product->save();
+                        }
+                    }
+                }
             } else {
                 return response()->json(['message' => 'Brand already exist!'], 422);
             }
