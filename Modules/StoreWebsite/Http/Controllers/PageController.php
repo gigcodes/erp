@@ -286,7 +286,6 @@ class PageController extends Controller
         $errorMessage = [];
 
         if ($page) {
-            activity()->causedBy(auth()->user())->performedOn($page)->log('page translated');
             // find the language all active and then check that record page is exist or not
             $languages = \App\Language::where("status", 1)->get();
             foreach ($languages as $l) {
@@ -362,6 +361,7 @@ class PageController extends Controller
                         $newPage->copy_page_id     = $page->id;
                         $newPage->save();
 
+                        activity()->causedBy(auth()->user())->performedOn($page)->log('page translated to ' . $l->name);
                     }else{
                         $errorMessage[] = "Page not pushed because of page already copied to {$pageExist->url_key} for {$l->name}";
                     }
