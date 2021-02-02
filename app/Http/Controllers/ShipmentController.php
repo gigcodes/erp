@@ -499,5 +499,34 @@ class ShipmentController extends Controller
 
     }
 
+    public function getPaymentInfo(Request $request){
+        $wayBill = \App\Waybill::leftJoin("waybill_invoices", "waybill_invoices.shipment_number", "waybills.awb")
+            ->select('waybills.id','waybill_invoices.invoice_number','waybills.awb','waybills.cost_of_shipment',)
+            ->where('waybills.id',$request->waybill_id)->groupBy('waybills.id')->first();
+
+        // if way bill found then start to insert data
+        if($wayBill) {
+            $view  = (string)view('shipment.partial.payment-model',compact('wayBill'));
+
+            return response()->json(["code" => 200, "data" => $view]);
+        }
+        else
+        {
+            return response()->json(["code" => 500, "message" => "Shipment not found."]);
+        }
+    }
+
+
+    public function savePaymentInfo(Request $request){
+        $wayBill = \App\Waybill::Find($request->waybill_id);
+
+        if ($wayBill) {
+            $wayBill->paid_date = now();
+            $wayBill->payment_mode = $request->payment_mode;
+            $wayBill->save();
+        }
+        return response()->json(["code" => 200, "message" => "Payment updated successfully."]);
+    }
+
     
 }
