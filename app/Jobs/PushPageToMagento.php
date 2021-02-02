@@ -81,7 +81,7 @@ class PushPageToMagento implements ShouldQueue
                         $params['page']['store'] = $s;
                         $id = MagentoHelper::pushWebsitePage($params, $website);
                         if(!empty($id) && is_numeric($id)) {
-                            $pageCount = StoreWebsitePage::where("store_website_id", $page->store_website_id)->where('store', 'like', '%' . $s . '%')->count();
+                            $pageCount = StoreWebsitePage::where("store_website_id", $page->store_website_id)->where('stores', 'like', '%' . $s . '%')->count();
                             if($pageCount > 0) {
                                 $newPage = new StoreWebsitePage();
                                 $newPage->title = $params['page']['title'];
