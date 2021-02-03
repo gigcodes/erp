@@ -18,6 +18,16 @@ use Illuminate\Http\Request;
 //});
 
 
+/**
+*Routes added by Hitesh Start
+**/ 
+Route::post('mailinglist/add', 'Api\v1\MailinglistController@add');
+/**
+*Routes added by Hitesh Ends
+**/ 
+
+
+
 Route::get('scrape/queue', 'Products\ScrapeController@getUrlFromQueue');
 Route::get('scrape/process', 'Products\ScrapeController@processDataFromScraper');
 
