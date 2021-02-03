@@ -503,7 +503,7 @@ class ShipmentController extends Controller
 
     public function getPaymentInfo(Request $request){
         $wayBill = \App\Waybill::leftJoin("waybill_invoices", "waybill_invoices.shipment_number", "waybills.awb")
-            ->select('waybills.id','waybill_invoices.invoice_number','waybills.awb','waybills.cost_of_shipment',)
+            ->select('waybills.id','waybill_invoices.invoice_number','waybills.awb','waybills.cost_of_shipment')
             ->where('waybills.id',$request->waybill_id)->groupBy('waybills.id')->first();
 
         // if way bill found then start to insert data
