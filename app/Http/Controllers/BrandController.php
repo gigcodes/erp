@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use DB;
 use App\Brand;
 use App\Product;
 use App\Setting;
 use App\CategorySegment;
+use App\ScrapedProducts;
 use \App\StoreWebsiteBrand;
 use Illuminate\Http\Request;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-use DB;
 
 class BrandController extends Controller
 {
@@ -356,6 +357,58 @@ class BrandController extends Controller
                 $fromBrand->delete();
                 return response()->json(["code" => 200 , "data" => []]);
             }
+        }
+
+        return response()->json(["code" => 500 , "data" => [],"message" => "Please check valid brand exist"]);
+
+    }
+
+    public function unMergeBrand(Request $request)
+    {
+        $this->validate($request, [
+            'brand_name' => 'required',
+            'from_brand_id' => 'required'
+        ]);
+        
+        $fromBrand = \App\Brand::find($request->from_brand_id);
+
+        if($fromBrand) {
+            // now store the all brands
+            $freferenceBrand = explode(",", $fromBrand->references);
+
+            if (($key = array_search($request->brand_name, $freferenceBrand)) !== false) {
+                unset($freferenceBrand[$key]);
+            }
+
+            $fromBrand->references = implode(',', $freferenceBrand);
+            $fromBrand->save();
+
+            $brand_count = Brand::where('name', '=', $request->brand_name)->count();
+            if($brand_count == 0) {
+                $oldBrand = Brand::where('name', '=', $request->brand_name)->onlyTrashed()->latest()->first();
+                if($oldBrand) {
+                    $oldBrand->deleted_at = null;
+                    $oldBrand->save();
+                    $scrapedProducts = ScrapedProducts::where('brand_id', $oldBrand->id)->get();
+                    foreach($scrapedProducts as $scrapedProduct) {
+                        $product = \App\Product::where("id", $scrapedProduct->product_id)->first();
+                        if($product) {
+                            $product->brand = $oldBrand->id;
+                            $product->save();
+                        }
+                    }
+                }else{
+                    $newBrand = new Brand();
+                    $newBrand->name = $request->brand_name;
+                    $newBrand->euro_to_inr = 0;
+                    $newBrand->deduction_percentage = 0;
+                    $newBrand->magento_id = 0;
+                    $newBrand->save();
+                }
+            } else {
+                return response()->json(['message' => 'Brand already exist!'], 422);
+            }
+            return response()->json(["data" => []], 200);
         }
 
         return response()->json(["code" => 500 , "data" => [],"message" => "Please check valid brand exist"]);
