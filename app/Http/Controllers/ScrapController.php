@@ -605,6 +605,8 @@ class ScrapController extends Controller
         // Log before validating
         //LogScraper::LogScrapeValidationUsingRequest($request);
 
+        \Log::channel('scraper')->debug("\n##!EXTERNAL-SCRAPER!##\n".json_encode($request->all())."\n##!EXTERNAL-SCRAPER!##\n");
+
         // Find product
         $product = Product::find($request->get('id'));
 
