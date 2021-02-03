@@ -2450,6 +2450,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('shipment/pickup-request', 'ShipmentController@createPickupRequest')->name('shipment/pickup-request');
     Route::post('shipment/save-box-size', 'ShipmentController@saveBoxSize')->name('shipment.save-box-size');
 
+    Route::get('shipments/payment_info', 'ShipmentController@getPaymentInfo')->name('shipment.get-payment-info');
+    Route::post('shipments/payment_info', 'ShipmentController@savePaymentInfo')->name('shipment.save-payment-info');
 
     /**
      * Twilio account management

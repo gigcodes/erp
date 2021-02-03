@@ -228,4 +228,24 @@ class LaravelLogController extends Controller
         $fullPath = $path . $filename;
         return response()->download($fullPath,str_replace('/', '', $filename));
     }
+    
+    public function saveNewLogData(Request $request){
+        
+        $url = $request->url;
+        $message = $request->message;
+        $website = $request->website;
+    	
+        if($url==''){
+            return response()->json(['status' => 'failed', 'message' => 'URL is required'], 400);
+        }
+        if($message==''){
+            return response()->json(['status' => 'failed', 'message' => 'Message is required'], 400);
+        }
+        $laravelLog = new LaravelLog();
+        $laravelLog->filename=$url;
+        $laravelLog->log=$message;
+        $laravelLog->website=$website;
+        $laravelLog->save();
+		 return response()->json(['status' => 'success', 'message' => 'Log data Saved'], 200);
+	}
 }
