@@ -607,6 +607,7 @@ class ScrapController extends Controller
         $receivedJson = json_decode($request->getContent());
 
         
+        
         // Find product
         $product = Product::find($receivedJson->id);
         
