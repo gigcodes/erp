@@ -11,12 +11,14 @@ use App\Mails\Manual\ShipmentEmail;
 use App\Order;
 use App\Waybill;
 use App\waybillTrackHistories;
+use App\CashFlow;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Mail;
 use Validator;
+use App\Mail\InvoicePaymentMail;
 
 class ShipmentController extends Controller
 {
@@ -518,14 +520,34 @@ class ShipmentController extends Controller
 
 
     public function savePaymentInfo(Request $request){
-        $wayBill = \App\Waybill::Find($request->waybill_id);
+        try {
+            $wayBill = \App\Waybill::leftJoin("waybill_invoices", "waybill_invoices.shipment_number", "waybills.awb")
+                ->select('waybills.id','waybill_invoices.id as invoice_id','waybills.cost_of_shipment')
+                ->where('waybills.id',$request->waybill_id)->groupBy('waybills.id')->first();
 
-        if ($wayBill) {
-            $wayBill->paid_date = now();
-            $wayBill->payment_mode = $request->payment_mode;
-            $wayBill->save();
+            if ($wayBill) {
+                $wayBill->paid_date = now();
+                $wayBill->payment_mode = $request->payment_mode;
+                $wayBill->save();
+
+                $cash_flow = new CashFlow();
+                $cash_flow->fill([
+                    'user_id' => auth()->user()->id,
+                    'amount' => $wayBill->cost_of_shipment,
+                    'actual' => $wayBill->cost_of_shipment,
+                    'date'                => $wayBill->paid_date,
+                    'type'                => 'paid',
+                    'description'         => 'Waybill invoice details',
+                    'cash_flow_able_id'   => $wayBill->invoice_id,
+                    'cash_flow_able_type' => \App\Waybillinvoice::class,
+                    'updated_by' => auth()->user()->id,
+                ])->save();
+                Mail::to('rvmehta745@gmail.com')->send(new InvoicePaymentMail($wayBill));
+            }
+            return response()->json(["code" => 200, "message" => "Payment updated successfully."]);
+        } catch(Exception $e){
+            return response()->json(["code" => 500, "message" => "Something went wrong, please try after sometimes."]);
         }
-        return response()->json(["code" => 200, "message" => "Payment updated successfully."]);
     }
 
     
