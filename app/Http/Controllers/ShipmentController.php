@@ -542,7 +542,7 @@ class ShipmentController extends Controller
                     'cash_flow_able_type' => \App\Waybillinvoice::class,
                     'updated_by' => auth()->user()->id,
                 ])->save();
-                Mail::to('rvmehta745@gmail.com')->send(new InvoicePaymentMail($wayBill));
+                Mail::to('billing-query.ae@dhl.com')->send(new InvoicePaymentMail($wayBill));
             }
             return response()->json(["code" => 200, "message" => "Payment updated successfully."]);
         } catch(Exception $e){
