@@ -604,10 +604,12 @@ class ScrapController extends Controller
 
         // Log before validating
         //LogScraper::LogScrapeValidationUsingRequest($request);
+        $receivedJson = json_decode($request->getContent());
 
+        
         // Find product
-        $product = Product::find($request->get('id'));
-
+        $product = Product::find($receivedJson->id);
+        
         // Return false if no product is found
         if ($product == null) {
             return response()->json([
@@ -615,7 +617,7 @@ class ScrapController extends Controller
             ], 400);
         }
 
-        if(isset($request->status)){
+        if(isset($receivedJson->status)){
 
             // Search For ScraperQueue
             ScrapeQueues::where('done', 0)->where('product_id', $product->id)->update(['done' => 2]);
@@ -630,13 +632,17 @@ class ScrapController extends Controller
         $product->status_id = in_array($product->status_id,[StatusHelper::$isBeingScraped, StatusHelper::$requestForExternalScraper]) ? StatusHelper::$unableToScrape : StatusHelper::$unableToScrapeImages;
         $product->save();
 
+        $input = get_object_vars($receivedJson);
+
+        
         // Validate request
-        $validator = Validator::make($request->toArray(), [
+        $validator = Validator::make($input, [
             'id' => 'required',
             //'website' => 'required',
             'images' => 'required|array',
             'description' => 'required'
         ]);
+
 
         // Return an error if the validator fails
         if ($validator->fails()) {
@@ -648,18 +654,21 @@ class ScrapController extends Controller
 
         // If product is found, update it
         if ($product) {
-            
+            // dd($receivedJson);
             // clear the request using for the new scraper
             $propertiesArray = [
-                "material_used" => $request->get('composition'),
-                "color" => $request->get('color'),
-                "sizes" => $request->get('sizes'),
-                "category" => $request->get('category'),
-                "dimension" => $request->get('dimension'),
-                "country" => $request->get('country')
+                "material_used" => $receivedJson->properties->material_used,
+                "color" => $receivedJson->properties->color,
+                "sizes" => $receivedJson->properties->sizes,
+                "category" => $receivedJson->properties->category,
+                "dimension" => $receivedJson->properties->dimension,
+                "country" => $receivedJson->properties->country
             ];
+            
 
             $formatter = (new \App\Services\Products\ProductsCreator)->getGeneralDetails($propertiesArray);
+
+            
 
             $color = \App\ColorNamesReference::getColorRequest($formatter['color'],$request->get('url'),$request->get('title'),$request->get('description'));
             $composition = $formatter['composition'];
