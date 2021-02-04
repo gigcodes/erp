@@ -599,6 +599,8 @@ class ScrapController extends Controller
      */
     public function saveFromNewSupplier(Request $request)
     {
+        \Log::channel('scraper')->debug("\n##!EXTERNAL-SCRAPER!##\n".json_encode($request->all())."\n##!EXTERNAL-SCRAPER!##\n");
+        
         // Overwrite website
         //$request->website = 'internal_scraper';
 
