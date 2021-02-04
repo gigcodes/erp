@@ -632,8 +632,8 @@ class ScrapController extends Controller
         }
         
         // Set product to unable to scrape - will be updated later if we have info
-        $product->status_id = in_array($product->status_id,[StatusHelper::$isBeingScraped, StatusHelper::$requestForExternalScraper]) ? StatusHelper::$unableToScrape : StatusHelper::$unableToScrapeImages;
-        $product->save();
+        /*$product->status_id = in_array($product->status_id,[StatusHelper::$isBeingScraped, StatusHelper::$requestForExternalScraper]) ? StatusHelper::$unableToScrape : StatusHelper::$unableToScrapeImages;
+        $product->save();*/
 
         $input = get_object_vars($receivedJson);
 
@@ -750,7 +750,7 @@ class ScrapController extends Controller
                 $product->dmeasurement = $formatter['dmeasurement'];;
             }
 
-            $product->status_id = StatusHelper::$autoCrop;
+            //$product->status_id = StatusHelper::$autoCrop;
             // Save
             $product->save();
 
