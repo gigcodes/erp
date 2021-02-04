@@ -998,7 +998,9 @@ class ProductInventoryController extends Controller
 	public function inventoryList(Request $request)
     {
     	$filter_data = $request->input();
-        $inventory_data = \App\Product::getProducts($filter_data);
+		$inventory_data = \App\Product::getProducts($filter_data);
+		
+		//dd($inventory_data);
         $inventory_data_count = $inventory_data->total();
         $status_list = \App\Helpers\StatusHelper::getStatus();
         $supplier_list = \App\Supplier::pluck('supplier','id')->toArray();
@@ -1037,6 +1039,11 @@ class ProductInventoryController extends Controller
 			}
 		}
 		return response()->json(['data' => $inventory_history]);;
+	}
+	
+	public function getSuppliers($id) {
+		$suppliers   =  Product::with(['suppliers_info','suppliers_info.supplier'])->find($id);
+		return response()->json(['data' => $suppliers->suppliers_info]);;
 	}
   
 	public function getProductImages($id) {
