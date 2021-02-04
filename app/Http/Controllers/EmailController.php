@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Email;
 use App\EmailRemark;
+use App\CronJob;
+use App\CronJobReport;
 use Webklex\IMAP\Client;
 use App\Mails\Manual\PurchaseEmail;
 use Mail;
