@@ -6,6 +6,12 @@ use App\CronJobReport;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use App\Product;
+use App\Helpers\ProductHelper;
+use App\StoreWebsite;
+use seo2websites\MagentoHelper\MagentoHelper;
+use Illuminate\Support\Facades\Log;
+use App\ProductPushErrorLog;
 
 class UpdateInventory extends Command
 {
@@ -38,7 +44,7 @@ class UpdateInventory extends Command
      */
     public function handle()
     {
-        return false;
+        //return false;
         try {
             $report = CronJobReport::create([
                 'signature'  => $this->signature,
@@ -52,24 +58,20 @@ class UpdateInventory extends Command
                 ->join("scraped_products as sp", "sp.website", "sc.scraper_name")
                 ->where("suppliers.supplier_status_id", 1)
                 ->select("sp.last_inventory_at", "sp.sku", "sc.inventory_lifetime","sp.product_id","suppliers.id as supplier_id")->get()->groupBy("sku")->toArray();
-            if (!empty($products)) {                
+                
+            if (!empty($products)) {  
+                $zeroStock=[];
                 foreach ($products as $sku => $skuRecords) {
+                    
                     $hasInventory = false;
                     $today = date('Y-m-d');
-
+                    
                     foreach ($skuRecords as $records) {
+                        
                         $inventoryLifeTime = isset($records["inventory_lifetime"]) && is_numeric($records["inventory_lifetime"])
                         ? $records["inventory_lifetime"]
                         : 0;
-
-                        if (is_null($records["last_inventory_at"])) {
-                            continue;
-                        }
-
-                        if (strtotime($records["last_inventory_at"]) < strtotime('-' . $inventoryLifeTime . ' days')) {
-                            continue;
-                        }                    
-
+                        
                         if(isset($records["product_id"]) && isset($records["supplier_id"])) {
                             $history = \App\InventoryStatusHistory::where('date', $today)->where('product_id',$records["product_id"])->where('supplier_id',$records["supplier_id"])->first();
                             $lasthistory = \App\InventoryStatusHistory::where('date', '<=', $today)->where('product_id',$records["product_id"])->where('supplier_id',$records["supplier_id"])->orderBy('created_at','desc')->first();
@@ -92,12 +94,37 @@ class UpdateInventory extends Command
                                 $history->save();
                             }
                         }
+                        
+                        if (is_null($records["last_inventory_at"]) || strtotime($records["last_inventory_at"]) < strtotime('-' . $inventoryLifeTime . ' days')) {
+                            $product=Product::where('isUploaded',1)->where('id',$records["product_id"])->first();
+                            if($product){
+                                $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+                                if(count($websiteArrays) > 0){
+                                    foreach ($websiteArrays as $websiteArray) {
+                                        $website = StoreWebsite::find($websiteArray);
+                                        if($website){
+                                            $zeroStock[$websiteArray]['stock'][]=array('sku'=>$sku . $product->color,'qty'=>0);  
+                                        }
+                                    }
+                                }
+                                 
+                            }
+                            continue;
+                        }
+                  
                         $hasInventory = true;
                     }
                     if (!$hasInventory) {
                         \DB::statement("update `products` set `stock` = 0, `updated_at` = '" . date("Y-m-d H:i:s") . "' where `sku` = '" . $sku . "' and `products`.`deleted_at` is null");
                     }
+                  
+                } 
+                if(!empty($zeroStock)){
+                    if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                        MagentoHelper::callHelperForZeroStockQtyUpdate($zeroStock);
+                    }
                 }
+                
             }
             
             // Update all products in database to inventory = 0
