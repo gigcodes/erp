@@ -177,6 +177,8 @@
 @endsection
 
 @section('large_content')
+<div style="position:fixed;z-index:1"><button class="btn btn-secondary hide start-again" onclick="callinterval();" disabled>Start Scroll</button>
+<button class="btn btn-secondary stopfunc hide pause" id="clearInt">Stop Scroll</button></div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Approved Product Listing ({{ $products_count }}) 
@@ -336,6 +338,18 @@
                     <div class="col-sm-1">
                         <div class="form-group">
                             <input type="button" onclick="pushProduct()" class="btn btn-secondary" value="Push product"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">  
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="scrolltime" placeholder="scroll interval in second"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-1">  
+                        <div class="form-group">
+                        <input type="button" onclick="callinterval()" class="btn btn-secondary" value="Start"/>
                         </div>
                     </div>
                 </div>
@@ -1757,5 +1771,56 @@
                 alert('Could not update status');
             });
         })
+
+       
     </script>
+    <script>
+    var i=1;
+        var scroll = true;
+        function start_scroll_down() { 
+            if(scroll){
+                console.log("in scroll")
+                 // scroll =  setInterval(function() {
+           // $(".infinite-scroll-data table thead").each(function(i, e) {
+            $("html, body").animate({
+                scrollTop: $(".infinite-scroll-data table thead").eq(i).offset().top
+                }, 500).delay(500); // First value is a speed of scroll, and second time break
+          //  });
+          i++;
+          //  }(), 500);
+            }else{
+                console.log("no scroll")
+            }
+          
+
+         
+        }
+	    var stop;
+        function callinterval(){
+            if($("#scrolltime").val() == ""){
+                toastr["error"]("please add time interval for scroll");
+                return;
+            }
+                
+            $(".start-again").removeClass("hide")
+            $(".pause").removeClass("hide")
+
+            $(".start-again").attr("disabled","disabled")
+            $(".pause").attr("disabled",false)
+            $("html, body").animate({
+                scrollTop: $(".infinite-scroll-data table thead").eq(i).offset().top
+                }, 500).delay(500); // First value is a speed of scroll, and second time break
+          //  });
+          i++;
+            stop = setInterval(function(){ console.log("Running");start_scroll_down() }, $("#scrolltime").val()*1000);
+        }
+
+	    
+	    $('#clearInt').click(function(){ 
+            $(".start-again").attr("disabled",false)
+            $(".pause").attr("disabled","disabled")
+	        clearInterval(stop);
+	        console.log("Stopped");
+	    });
+	</script>
 @endsection
