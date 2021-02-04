@@ -661,3 +661,39 @@ Content-Type: application/json
     "message": "unable to add influencer !"
 }
 ```
+
+## Store data into the laravel logs
+
+**Request:**
+
+```json
+POST http://erp.theluxuryunlimited.com/api/laravel-logs/save
+Accept: application/json
+Content-Type: application/json
+{
+    "message": "error-message",
+    "website": "Farfetch",  
+    "url": "https:\/\/www.farfetch.com\/mt\/shopping\/kids\/young-versace-crystal-logo-t-shirt-item-15339323.aspx?q=YC000346YA00019A1008"
+}
+```
+
+**Successful Response:**
+
+```json
+Content-Type: application/json
+{
+    "status": "success",
+    "message": "Log data Saved"
+}
+```
+
+**Failed Response:**
+
+```json
+Content-Type: application/json
+
+{
+    "status": "failed",
+    "message": "{message}"
+}
+```
