@@ -432,33 +432,23 @@ class Category extends Model
                             $case = 'fourth';
                         }
                         if ($case == 'single') {
+                            $data['id']       = $category->id;
+                            $data['level']    = 1;
+                            $data['name']     = ucwords($category->title);
+                            $data['parentId'] = 0;
+                            $parentId         = 0;
 
-                            $mainCategory = StoreWebsiteCategory::where('store_website_id', $swi)
-                                ->where('category_id', $category->id)
-                                ->where('remote_id','>',0)
-                                ->first();
-
-                            if(!$mainCategory) {
-                                $data['id']       = $category->id;
-                                $data['level']    = 1;
-                                $data['name']     = ucwords($category->title);
-                                $data['parentId'] = 0;
-                                $parentId         = 0;
-
-                                $categ = MagentoHelper::createCategory($parentId, $data, $swi);
-                                if ($category) {
-                                    $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)
-                                    ->where('category_id', $category->id)
-                                    ->where('remote_id', $categ)
-                                    ->first();
-                                    if (empty($checkIfExist)) {
-                                        $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                        $storeWebsiteCategory->category_id      = $category->id;
-                                        $storeWebsiteCategory->store_website_id = $swi;
-                                        $storeWebsiteCategory->remote_id        = $categ;
-                                        $storeWebsiteCategory->save();
-                                    }
-                                }
+                            $categ = MagentoHelper::createCategory($parentId, $data, $swi);
+                            $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)
+                            ->where('category_id', $category->id)
+                            ->where('remote_id', $categ)
+                            ->first();
+                            if (empty($checkIfExist)) {
+                                $storeWebsiteCategory                   = new StoreWebsiteCategory();
+                                $storeWebsiteCategory->category_id      = $category->id;
+                                $storeWebsiteCategory->store_website_id = $swi;
+                                $storeWebsiteCategory->remote_id        = $categ;
+                                $storeWebsiteCategory->save();
                             }
                         }
 
