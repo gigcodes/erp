@@ -59,7 +59,7 @@ class MailinglistController extends Controller
 
 
         // Step4
-        $mailinglist = Mailinglist::where('website_id', $store_website->id);
+        $mailinglist = Mailinglist::where('website_id', $store_website->id)->get();
 
         // Step5
         foreach ($mailinglist as $key => $m) {
