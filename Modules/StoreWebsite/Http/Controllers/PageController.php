@@ -339,6 +339,7 @@ class PageController extends Controller
                             ->select("website_store_views.*")
                             ->get();
 
+
                         $stores = [];
                         if (!$fetchStores->isEmpty()) {
                             foreach ($fetchStores as $fetchStore) {
@@ -346,22 +347,25 @@ class PageController extends Controller
                             }
                         }
 
-                        $newPage->title            = !empty($title) ? $title : $page->title;
-                        $newPage->meta_title       = !empty($metaTitle) ? $metaTitle : $page->meta_title;
-                        $newPage->meta_keywords    = !empty($metaKeywords) ? $metaKeywords : $page->meta_keywords;
-                        $newPage->meta_description = !empty($metaDescription) ? $metaDescription : $page->meta_description;
-                        $newPage->content_heading  = !empty($contentHeading) ? $contentHeading : $page->content_heading;
-                        $newPage->content          = !empty($content) ? $content : $page->content;
-                        $newPage->layout           = $page->layout;
-                        $newPage->url_key          = $page->url_key;
-                        $newPage->active           = $page->active;
-                        $newPage->stores           = implode(",", $stores);
-                        $newPage->store_website_id = $page->store_website_id;
-                        $newPage->language         = $l->name;
-                        $newPage->copy_page_id     = $page->id;
-                        $newPage->save();
+                        if($fetchStores->isNotEmpty()) {
+                            $store = $fetchStores->pop();
+                            $newPage->title            = !empty($title) ? $title : $page->title;
+                            $newPage->meta_title       = !empty($metaTitle) ? $metaTitle : $page->meta_title;
+                            $newPage->meta_keywords    = !empty($metaKeywords) ? $metaKeywords : $page->meta_keywords;
+                            $newPage->meta_description = !empty($metaDescription) ? $metaDescription : $page->meta_description;
+                            $newPage->content_heading  = !empty($contentHeading) ? $contentHeading : $page->content_heading;
+                            $newPage->content          = !empty($content) ? $content : $page->content;
+                            $newPage->layout           = $page->layout;
+                            $newPage->url_key          = $page->url_key;
+                            $newPage->active           = $page->active;
+                            $newPage->stores           = $store->code;
+                            $newPage->store_website_id = $page->store_website_id;
+                            $newPage->language         = $l->name;
+                            $newPage->copy_page_id     = $page->id;
+                            $newPage->save();
 
-                        activity()->causedBy(auth()->user())->performedOn($page)->log('page translated to ' . $l->name);
+                            activity()->causedBy(auth()->user())->performedOn($page)->log('page translated to ' . $l->name);
+                        }
                     }else{
                         $errorMessage[] = "Page not pushed because of page already copied to {$pageExist->url_key} for {$l->name}";
                     }
