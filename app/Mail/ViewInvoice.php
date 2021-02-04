@@ -6,7 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
-
+use Dompdf\Dompdf;
 class ViewInvoice extends Mailable
 {
     use Queueable, SerializesModels;
@@ -41,15 +41,34 @@ class ViewInvoice extends Mailable
 
     public function preview()
     {
+        //echo $this->orderItems;exit;
         return view('maileclipse::templates.viewInvoice', [
             'orderItems' => $this->orderItems,
             'customer'   => $this->customer,
             'orders'      => $this->orders,
             'orderTotal' => $this->orderTotal,
             'invoice' => $this->invoice,
+            'buyerDetails' => $this->customer,
+            'order'      => $this->orders[0],
         ]);
     }
+    //TODO download function - added by jammer
+    public function download()
+    {
 
+        $html =  view('maileclipse::templates.orderInvoice', [
+            'orderItems' => $this->orderItems,
+            'customer'   => $this->customer,
+            'orders'      => $this->orders,
+            'order'      =>  $this->orders[0],
+            'orderTotal' => $this->orderTotal,
+            'buyerDetails' => $this->customer
+        ]);
+        $pdf = new Dompdf();
+        $pdf->loadHtml($html);
+        $pdf->render();
+        $pdf->stream(date('Y-m-d H:i:s') . 'invoice.pdf');
+    }
     /**
      * Build the message.
      *
@@ -66,17 +85,19 @@ class ViewInvoice extends Mailable
         $string = "";
         if (!empty($orders)) {
             foreach ($orders as $order) {
+            
                 foreach ($order->order_product as $products) {
+
                     if($products->product) {
-                        $string .= '<tr class="item last" style="height: 25px;">
-                                  <td class="bl br vm" style="height: 25px; width: 300px; text-align: left;">' . $products->product->name . ' '. $products->product->short_description .'</td>
-                                  <td class="vm" style="height: 25px; width: 100px; text-align: left;"></td>
-                                  <td class="bl vm" style="height: 25px; width: 100px; text-align: left;">' . $products->product->made_in . '</td>
-                                  <td class="bl vm" style="height: 25px; width: 100px; text-align: left;">' . $products->qty . '</td>
-                                  <td class="bl vm" style="height: 25px; width: 100px; text-align: left;">1</td>
-                                  <td class="bl br vm" style="height: 25px; width: 100px; text-align: left;">&#8377;' . $products->product_price . '</td>
-                               </tr>';
-                    }
+        
+                        $string .= '<tr>
+                                    <td>' . $products->product->name . ' ' . $products->product->short_description . '</td>
+                                    <td>' . $products->made_in . '</td>
+                                    <td>'. $products->qty . '</td>
+                                    <td>USD</td>
+                                    <td>USD ' . $products->product_price . '</td>
+                                    </tr>';
+                    } 
                     $this->orderTotal += $products->product_price;
                 }
             }
