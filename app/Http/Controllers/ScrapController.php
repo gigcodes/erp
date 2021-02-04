@@ -718,7 +718,7 @@ class ScrapController extends Controller
                 $product->size = $formatter['size'];
                 //$product->size_eu = $formatter['size'];
                 // get size system
-                $supplierSizeSystem = \App\ProductSupplier::getSizeSystem($product->id, $product->supplier_id);
+                /*$supplierSizeSystem = \App\ProductSupplier::getSizeSystem($product->id, $product->supplier_id);
                 $euSize = ProductHelper::getEuSize($product, explode(",",$formatter['size']), !empty($supplierSizeSystem) ? $supplierSizeSystem : $receivedJson->size_system);
                 $product->size_eu = implode(',', $euSize);
                 if(empty($euSize)) {
@@ -731,7 +731,7 @@ class ScrapController extends Controller
                            'product_id' =>  $product->id,'quantity' => 1,'supplier_id' => $supplierModel->id, 'size' => $es
                         ]);
                     }
-                }
+                }*/
 
             }
             if ((int)$product->price == 0) {
