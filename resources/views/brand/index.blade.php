@@ -98,7 +98,17 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             <tr>
                 <td>{{ $brand->id }}</td>
                 <td>{{ $brand->name }}</td>
-                <td><?php echo $brand->references; ?></td>
+                <td>
+                    @php
+                        $similar_brands = explode(',', $brand->references);
+                        $similar_brands = array_filter($similar_brands, function($element) {
+                            return trim($element) !== "";
+                        });
+                    @endphp
+                    @foreach($similar_brands as $similar_brand)
+                        <p><span>{!! $similar_brand !!}</span> <a href="#"><span data-id="{{ $brand->id }}" class="fa fa-close unmerge-brand"></span></a></p>
+                    @endforeach
+                </td>
                 <td>
                     <div class="form-select">
                         <?php
@@ -179,6 +189,30 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             }
         });
     }
+
+    $('.unmerge-brand').click(function() {
+        if(confirm("Do you want to unmerge this brand?")) {
+            var brand_name = $(this).parents().eq(1).find('span').first().text();
+            var from_brand_id = $(this).data('id'); 
+            $.ajax({
+                url: '{{ route('brand.unmerge-brand') }}',
+                method: 'POST',
+                dataType: "json",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    'brand_name': brand_name,
+                    'from_brand_id': from_brand_id
+                },
+                success: function() {
+                    toastr['success']('Brand unmerged successfully', 'success');
+                    location.reload();
+                },
+                error: function(response){
+                    toastr['error'](response.responseJSON.message, 'error');
+                } 
+            });
+        }
+    });
     $(".select-multiple").select2();
     $(".select-multiple4").select2({
         tags: true

@@ -31,7 +31,10 @@ class ScrapedProducts extends Model
         'is_enriched',
         'has_sku',
         'price',
-        'can_be_deleted'
+        'can_be_deleted',
+        'categories',
+        'color',
+        'composition'
     ];
 
     public function bulkScrapeImport($arrBulkJson = [], $isExcel = 0, $nextExcelStatus = 2)

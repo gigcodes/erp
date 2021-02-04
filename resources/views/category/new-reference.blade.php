@@ -64,7 +64,7 @@
                         </td>
                         
                         <td>
-                            {{ \App\Category::ScrapedProducts($name) }}
+                            {{ \App\Category::ScrapedProducts($unKnownCategory) }}
                         </td>
 
                         <td>
