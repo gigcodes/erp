@@ -53,14 +53,14 @@ class CategorySeoController extends Controller
             });
         }
 
-        $storewebsite_category_seos = $storewebsite_category_seos->orderBy("store_website_category_seos.id","DESC")->select(["languages.store_view","cat.title", "store_website_category_seos.*"])->paginate();
+        $storewebsite_category_seos = $storewebsite_category_seos->orderBy("store_website_category_seos.id","DESC")->select(["languages.name","cat.title", "store_website_category_seos.*"])->paginate();
 
         $items = $storewebsite_category_seos->items();
 
         $recItems = [];
         foreach($items as $item) {
             $attributes = $item->getAttributes();
-            $attributes['store_small'] = strlen($attributes['store_view']) > 15 ? substr($attributes['store_view'],0,15) : $attributes['store_view'];
+            $attributes['store_small'] = strlen($attributes['name']) > 15 ? substr($attributes['name'],0,15) : $attributes['name'];
             $recItems[] = $attributes;
         }
 
@@ -217,7 +217,7 @@ class CategorySeoController extends Controller
         $SeoCategory = StoreWebsiteCategorySeo::where("id", $id)->first();
         $stores = StoreWebsiteCategory::where('category_id',$SeoCategory->category_id)->pluck('store_website_id')->toArray();
         if ($SeoCategory) {
-            \App\Jobs\PushCategorySeoToMagento::dispatch([$SeoCategory->category_id],$stores);
+            \App\Jobs\PushCategorySeoToMagento::dispatch([$SeoCategory->category_id],array_unique($stores));
             return response()->json(["code" => 200, 'message' => "category send for push"]);
         }
 

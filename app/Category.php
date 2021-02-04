@@ -431,6 +431,7 @@ class Category extends Model
                         } else {
                             $case = 'fourth';
                         }
+
                         if ($case == 'single') {
                             $data['id']       = $category->id;
                             $data['level']    = 1;
