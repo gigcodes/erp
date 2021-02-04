@@ -599,6 +599,8 @@ class ScrapController extends Controller
      */
     public function saveFromNewSupplier(Request $request)
     {
+        \Log::channel('scraper')->debug("\n##!EXTERNAL-SCRAPER!##\n".json_encode($request->all())."\n##!EXTERNAL-SCRAPER!##\n");
+        
         // Overwrite website
         //$request->website = 'internal_scraper';
 
@@ -715,6 +717,22 @@ class ScrapController extends Controller
             if(empty($product->size)) {
                 $product->size = $formatter['size'];
                 //$product->size_eu = $formatter['size'];
+                // get size system
+                $supplierSizeSystem = \App\ProductSupplier::getSizeSystem($product->id, $product->supplier_id);
+                $euSize = ProductHelper::getEuSize($product, explode(",",$formatter['size']), !empty($supplierSizeSystem) ? $supplierSizeSystem : $receivedJson->size_system);
+                $product->size_eu = implode(',', $euSize);
+                if(empty($euSize)) {
+                    $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
+                }else{
+                    foreach($euSize as $es) {
+                        \App\ProductSizes::updateOrCreate([
+                           'product_id' =>  $product->id,'supplier_id' => $supplierModel->id, 'size' => $es 
+                        ],[
+                           'product_id' =>  $product->id,'quantity' => 1,'supplier_id' => $supplierModel->id, 'size' => $es
+                        ]);
+                    }
+                }
+
             }
             if ((int)$product->price == 0) {
                 $product->price = $receivedJson->price;
