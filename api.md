@@ -661,7 +661,7 @@ Content-Type: application/json
     "message": "unable to add influencer !"
 }
 ```
-## Influencer Api
+## Newsletter Api
 
 **Request:**
 
