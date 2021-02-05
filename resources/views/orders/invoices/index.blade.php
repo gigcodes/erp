@@ -6,7 +6,7 @@
 <a style="color:white;" title="Add invoice" class="btn btn-secondary add-invoice-btn pd-5 pull-right" data-id='q'>
   + Add New
 </a>
-<a style="color:white;" title="+ Add New Invoice without Order" data-toggle="modal" data-target="#addInvoiceWithoutOrder" class="btn btn-warning add-invoice-btn pd-5 pull-right">
+<a style="color:white;" id="addInvoiceWithoutOrderBtn" title="+ Add New Invoice without Order" data-toggle="modal" data-target="#addInvoiceWithoutOrder" class="btn btn-warning pull-right">
   + Add New Invoice without Order
 </a>
 <br>
@@ -179,18 +179,12 @@
     });
 
 //Invoice without order --START
-    $(document).on("click","#addInvoiceWithoutOrder",function(e){
-       e.preventDefault();
-       var $this = $(this);
-       $.ajax({
-          url: "/order/"+$this.data("id")+"/edit-invoice",
-          type: "get"
-        }).done(function(response) {
-           $("#invoice-without-order-content")
-        }).fail(function(errObj) {
-          // $("#editInvoice").hide();
-        });
-    });
+    // $(document).on("click","#addInvoiceWithoutOrderBtn",function(e){
+    //   console.log("Hello")
+    //    e.preventDefault();
+    
+    // });
+
 //Invoice without order --END
     $('#order-search').select2({
             tags: true,
