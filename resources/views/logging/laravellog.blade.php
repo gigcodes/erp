@@ -39,12 +39,14 @@
             <tr>
                 <th width="10%">Filename</th>
                 <th width="30%">Log</th>
+                <th width="30%">Website</th>
                 <th width="10%">LogCreated</th>
             </tr>
             <tr>
                 
                 <th width="10%"><input type="text" class="search form-control" id="filename"></th>
                 <th width="10%"><input type="text" class="search form-control" id="log"></th>
+                <th width="10%"><input type="text" class="search form-control" id="website"></th>
                 <th> <div class='input-group' id='log-created-date'>
                         <input type='text' class="form-control " name="phone_date" value="" placeholder="Date" id="log_created" />
                             <span class="input-group-addon">
@@ -116,6 +118,7 @@
                 updated = $('#updated_date').val();
                 filename = $('#filename').val();
                 log = $('#log').val();
+                website = $('#website').val();
 
                 src = "{{ route('logging.laravel.log') }}";
                 $.ajax({
@@ -125,6 +128,7 @@
                         created : created,
                         updated : updated,
                         filename : filename,
+                        website : website,
                         log : log,
 
                     },
@@ -162,6 +166,7 @@
                 updated = $('#updated_date').val();
                 filename = $('#filename').val();
                 log = $('#log').val();
+                website = $('#website').val();
 
                  src = "{{ route('logging.laravel.log') }}";
                 $.ajax({
@@ -172,6 +177,7 @@
                         updated : updated,
                         filename : filename,
                         log : log,
+                        website : website,
 
                     },
                     beforeSend: function () {
@@ -209,6 +215,7 @@
 
                 filename = $('#filename').val();
                 log = $('#log').val();
+                website = $('#website').val();
 
                  src = "{{ route('logging.laravel.log') }}";
                 $.ajax({
@@ -220,6 +227,7 @@
                         filename : filename,
                         log : log,
                         log_created : log_created,
+                        website : website,
 
                     },
                     beforeSend: function () {
@@ -251,6 +259,7 @@
         source: function(request, response) {
             filename = $('#filename').val();
             log = $('#log').val();
+            website = $('#website').val();
             
            $.ajax({
                 url: src,
@@ -258,6 +267,7 @@
                 data: {
                     filename : filename,
                     log : log,
+                    website : website,
                 },
                 beforeSend: function() {
                        $("#loading-image").show();
@@ -315,6 +325,7 @@
             orderCreated = $('#header-created').val();
             filename = $('#filename').val();
             log = $('#log').val();
+            website = $('#website').val();
 
             src = "/scrap/scraped-urls";
             $.ajax({
@@ -323,6 +334,7 @@
                 data: {
                    filename : filename,
                     log : log,
+                    website : website,
                     orderCreated : orderCreated,
                 },
                 beforeSend: function () {
@@ -355,6 +367,7 @@
             orderUpdated = $('#header-updated').val();
             filename = $('#filename').val();
             log = $('#log').val();
+            website = $('#website').val();
 
             src = "/scrap/scraped-urls";
             $.ajax({
@@ -363,6 +376,7 @@
                 data: {
                     filename : filename,
                     log : log,
+                    website : website,
                     orderUpdated : orderUpdated,
                 },
                 beforeSend: function () {
