@@ -63,6 +63,10 @@
                     <label for="content_heading">Content heading</label>
                     <input type="text" name="content_heading" value="{{if data}}{{:data.content_heading}}{{/if}}" class="form-control" id="content_heading" placeholder="Enter content_heading">
                   </div>
+                  <div class="form-group col-md-6">
+                    <label for="platform_id">Platform ID</label>
+                    <input type="text" name="platform_id" value="{{if data}}{{:data.platform_id}}{{/if}}" class="form-control" id="content_heading" placeholder="Enter Platform ID">
+                  </div>
               </div>
               <div class="form-row">
                 <div class="form-group col-md-12">
