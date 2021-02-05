@@ -96,15 +96,12 @@ class UpdateInventory extends Command
                         }
                         
                         if (is_null($records["last_inventory_at"]) || strtotime($records["last_inventory_at"]) < strtotime('-' . $inventoryLifeTime . ' days')) {
-                            $product=Product::where('isUploaded',1)->where('id',$records["product_id"])->first();
+                            $product = Product::where('isUploaded',1)->where('id',$records["product_id"])->first();
                             if($product){
                                 $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
                                 if(count($websiteArrays) > 0){
                                     foreach ($websiteArrays as $websiteArray) {
-                                        $website = StoreWebsite::find($websiteArray);
-                                        if($website){
-                                            $zeroStock[$websiteArray]['stock'][]=array('sku'=>$sku . $product->color,'qty'=>0);  
-                                        }
+                                        $zeroStock[$websiteArray]['stock'][]=array('sku'=>$sku . $product->color,'qty'=>0);  
                                     }
                                 }
                                  
