@@ -3245,21 +3245,18 @@ public function updateCustomerInvoiceAddress(Request $request){
 
     public function statusChangeTemplate(Request $request)
     {
-        $statusModal       = \App\OrderStatus::where("id", $request->order_status_id)->first();
-        $order       = \App\Order::where("id", $request->order_id)->first();
-
+        $statusModal= \App\OrderStatus::where("id", $request->order_status_id)->first();
+        $order= \App\Order::where("id", $request->order_id)->first();
         $template = \App\Order::ORDER_STATUS_TEMPLATE;
-
         if($statusModal) {
             if(!empty($statusModal->message_text_tpl)) {
                 $template = $statusModal->message_text_tpl;
             }
         }
-
         $template = str_replace(["#{order_id}", "#{order_status}"], [$order->order_id, $statusModal->status], $template);
-
         return response()->json(["code" => 200, "template" => $template]);
     }
+    
     public function createInvoiceWithoutOrderNumber()
     {
     }

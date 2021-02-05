@@ -6,7 +6,7 @@
 <a style="color:white;" title="Add invoice" class="btn btn-secondary add-invoice-btn pd-5 pull-right" data-id='q'>
   + Add New
 </a>
-<a style="color:white;" title="+ Add New Invoice without Order" class="btn btn-warning add-invoice-btn pd-5 pull-right">
+<a style="color:white;" title="+ Add New Invoice without Order" data-toggle="modal" data-target="#addInvoiceWithoutOrder" class="btn btn-warning add-invoice-btn pd-5 pull-right">
   + Add New Invoice without Order
 </a>
 <br>
@@ -133,6 +133,7 @@
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
 </div>
 @include("partials.modals.edit-invoice-modal")
+@include("partials.modals.invoice-without-order-model")
 <script>
  $(document).on("click",".send-invoice-btn",function(e){
        e.preventDefault();
@@ -177,7 +178,20 @@
        $('#addInvoice').modal('show');
     });
 
-
+//Invoice without order --START
+    $(document).on("click","#addInvoiceWithoutOrder",function(e){
+       e.preventDefault();
+       var $this = $(this);
+       $.ajax({
+          url: "/order/"+$this.data("id")+"/edit-invoice",
+          type: "get"
+        }).done(function(response) {
+           $("#invoice-without-order-content")
+        }).fail(function(errObj) {
+          // $("#editInvoice").hide();
+        });
+    });
+//Invoice without order --END
     $('#order-search').select2({
             tags: true,
             width : '100%',
