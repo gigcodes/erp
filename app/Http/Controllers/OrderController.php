@@ -74,7 +74,7 @@ use App\waybillTrackHistories;
 use stdClass;
 use App\CreditHistory;
 use App\QuickReply;
-
+use Session;
 class OrderController extends Controller {
 
 
@@ -2427,11 +2427,40 @@ public function createProductOnMagento(Request $request, $id){
 
         return abort("404");
     }
+    public function viewInvoice($id)
+    {
+        $invoice = Invoice::where("id", $id)->first();
+        if ($invoice) {
+            $data["invoice"] = $invoice;
+            $data["orders"] = $invoice->orders;
+            $data["buyerDetails"] = $invoice->orders[0]->customer;
+            if ($invoice->orders) {
+                $viewInvoice = new ViewInvoice($data);
+                return $viewInvoice->preview();
+            }
+        }
 
+        return abort("404");
+    }
+
+//TODO downloadInvoice - added by jammer
+    public function downloadInvoice(Request $request, $id)
+    {
+        $invoice = Invoice::where("id", $id)->first();
+        if ($invoice) {
+            $data["invoice"] = $invoice;
+            $data["orders"] = $invoice->orders;
+            $data["buyerDetails"] = $invoice->orders[0]->customer;
+            if ($invoice->orders) {
+                $viewInvoice = new ViewInvoice($data);
+                return $viewInvoice->download();
+            }
+        }
+        return abort("404");
+    }
     public function generateRateRequet(Request $request) 
     {
         $params = $request->all();
-
         $rateReq   = new GetRateRequest("soap");
         $rateReq->setRateEstimates("Y");
         $rateReq->setDetailedBreakDown("Y");
@@ -2656,7 +2685,8 @@ public function createProductOnMagento(Request $request, $id){
 
 
     public function viewAllInvoices() {
-        $invoices = Invoice::orderBy('id','desc')->paginate(30);
+        $invoices = Invoice::with('orders.order_product','orders.customer')->orderBy('id','desc')->paginate(30);
+//dd($invoices);
         return view( 'orders.invoices.index', compact('invoices') );
     }
 
@@ -2715,21 +2745,19 @@ public function createProductOnMagento(Request $request, $id){
             'OrderController@viewAllInvoices');
     }
 
-    public function viewInvoice($id)
-    {
-        $invoice = Invoice::where("id",$id)->first();
-        if($invoice) {
-            $data["invoice"]      = $invoice;
-            $data["orders"]   = $invoice->orders;
-            if($invoice->orders) {
-                $viewInvoice = new ViewInvoice($data);
-                return $viewInvoice->preview();
-            }
-        }
 
-        return abort("404");
-    }
 
+public function updateCustomerInvoiceAddress(Request $request){
+    Customer::where('id',$request->codex)->update([
+        'country'=>$request->country,
+        'pincode'=>$request->pincode,
+        'city'=>$request->city,
+        'address'=>$request->address
+    ]);
+   
+    Session::flash('actSuccess','Address updated successfully!');
+  return redirect()->back();
+}
     public function editInvoice($id) {
         $invoice = Invoice::where("id",$id)->first();
         $order = Order::where('invoice_id',$invoice['id'])->first();
@@ -3217,19 +3245,20 @@ public function createProductOnMagento(Request $request, $id){
 
     public function statusChangeTemplate(Request $request)
     {
-        $statusModal       = \App\OrderStatus::where("id", $request->order_status_id)->first();
-        $order       = \App\Order::where("id", $request->order_id)->first();
-
+        $statusModal= \App\OrderStatus::where("id", $request->order_status_id)->first();
+        $order= \App\Order::where("id", $request->order_id)->first();
         $template = \App\Order::ORDER_STATUS_TEMPLATE;
-
         if($statusModal) {
             if(!empty($statusModal->message_text_tpl)) {
                 $template = $statusModal->message_text_tpl;
             }
         }
-
         $template = str_replace(["#{order_id}", "#{order_status}"], [$order->order_id, $statusModal->status], $template);
-
         return response()->json(["code" => 200, "template" => $template]);
     }
+    
+    public function createInvoiceWithoutOrderNumber()
+    {
+    }
 }
+
