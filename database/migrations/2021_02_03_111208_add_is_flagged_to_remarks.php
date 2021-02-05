@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterscrapedProductsTable extends Migration
+class AddIsFlaggedToRemarks extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AlterscrapedProductsTable extends Migration
      */
     public function up()
     {
-        Schema::table('scraped_products', function($table) {
-            $table->integer('cron_executed')->after('raw_data')->default(0);
+        Schema::table('remarks', function (Blueprint $table) {
+          $table->boolean('is_flagged')->default(0)->after('user_name');
         });
     }
 
@@ -25,8 +25,8 @@ class AlterscrapedProductsTable extends Migration
      */
     public function down()
     {
-        Schema::table('scraped_products', function($table) {
-            $table->dropColumn('cron_executed');
+        Schema::table('remarks', function (Blueprint $table) {
+          $table->dropColumn('is_flagged');
         });
     }
 }

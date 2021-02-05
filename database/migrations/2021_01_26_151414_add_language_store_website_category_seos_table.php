@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddDueDateToTasksTable extends Migration
+class AddLanguageStoreWebsiteCategorySeosTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class AddDueDateToTasksTable extends Migration
      */
     public function up()
     {
-        Schema::table('tasks', function (Blueprint $table) {
-            
-            //$table->dateTime('due_date')->nullable();
+        Schema::table('store_website_category_seos', function (Blueprint $table) {
+            $table->integer("language_id")->default(1);
         });
     }
 
@@ -26,8 +25,8 @@ class AddDueDateToTasksTable extends Migration
      */
     public function down()
     {
-        Schema::table('tasks', function (Blueprint $table) {
-            //
+        Schema::table('store_website_category_seos', function (Blueprint $table) {
+            $table->dropField("language_id"); 
         });
     }
 }

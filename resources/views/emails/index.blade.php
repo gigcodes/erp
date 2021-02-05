@@ -49,6 +49,7 @@
 	<div class="col-lg-12 margin-tb">
 		<div class="pull-right mt-3">
 			<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#statusModel">Create Status</button>
+      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#getCronEmailModal">Cron Email</button>
 			<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createEmailCategorytModal">Create Category</button>
 		</div>
 	</div>   
@@ -239,6 +240,61 @@
 	</div>
 </div>
 
+<div id="getCronEmailModal" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Cron Email</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+      <div class="modal-body">
+        <div class="table-responsive mt-3">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Signature</th>
+                <th>Status</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Updated</th>
+              </tr>
+            </thead>
+
+            <tbody>
+            @if(empty($reports))
+            <tr>
+                <td colspan="5">
+                    No Result Found
+                </td>
+            </tr>
+            @else
+            @foreach ($reports as $report)
+            <tr>
+              <td>
+                {{ $report->signature }}
+              </td>
+              <td>
+                {{ !empty($report->last_error) ? 'Failed' : 'Success' }}
+              </td>
+              <td>
+                {{ $report->start_time }}
+              </td>
+              <td>{{ $report->end_time }}</td>
+            
+              <td>{{ $report->updated_at->format('Y-m-d H:i:s')  }}</td>
+            </tr>
+
+            @endforeach
+            @endif            
+            </tbody>
+          </table>
+        </div>
+      </div>    
+			</div>
+		</div>
+	</div>
+</div>
 
 <div id="statusModel" class="modal fade" role="dialog">
 	<div class="modal-dialog">

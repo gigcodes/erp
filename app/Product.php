@@ -1163,7 +1163,7 @@ class Product extends Model
                 ->orWhere('products.id', 'LIKE', "%$term%");
             });
         }
-        return $query->orderBy('products.created_at','DESC')->paginate(Setting::get('pagination'),$columns);
+        return $query->with('suppliers_info')->orderBy('products.created_at','DESC')->paginate(Setting::get('pagination'),$columns);
     }
     
     public static function getPruductsNames()

@@ -661,9 +661,18 @@ Content-Type: application/json
     "message": "unable to add influencer !"
 }
 ```
+## Newsletter Api
+```json
+POST https://erp.theluxuryunlimited.com/api/mailinglist/add
+Accept: application/json
+Content-Type: application/json
+{
+    "website" : "www.veralusso.com", //existing website
+    "email":"Solo@theluxuryunlimited.com"
+}
+```
 
 ## Store data into the laravel logs
-
 **Request:**
 
 ```json
