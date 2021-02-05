@@ -114,8 +114,8 @@ class EmailController extends Controller
         //Get Cron Email Histroy
 		$reports = CronJobReport::where('cron_job_reports.signature','fetch:all_emails')
         ->join('cron_jobs', 'cron_job_reports.signature', 'cron_jobs.signature')
-        ->select(['cron_job_reports.*','cron_jobs.last_error'])->get();
-		
+        ->select(['cron_job_reports.*','cron_jobs.last_error'])->paginate(15);
+
         $emails = $query->paginate(30)->appends(request()->except(['page']));
         if ($request->ajax()) {
             return response()->json([

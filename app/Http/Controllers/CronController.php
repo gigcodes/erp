@@ -69,6 +69,39 @@ class CronController extends Controller
     	return view('cron.history', ['reports' => $reports , 'signature' => $request->signature]);
     }
 
+	public function getCronHistory(Request $request){
+		$reports = CronJobReport::where('cron_job_reports.signature','fetch:all_emails')
+        ->join('cron_jobs', 'cron_job_reports.signature', 'cron_jobs.signature')
+        ->select(['cron_job_reports.*','cron_jobs.last_error'])->skip(($request->id - 1) *  15)->take(15)->get();
+		$history = '';
+		$pagination = '';
+		if(sizeof($reports) > 0) {
+			foreach ($reports as $report) {
+				$status = !empty($report->last_error) ? "Failed" : "Success";
+				$history .= '<tr>
+				<td>'.$report->signature.'</td>
+				<td>'.$status.'</td>
+				<td>'.$report->start_time.'</td>
+				<td>'.$report->end_time.'</td>
+				<td>'.$report->updated_at->format('Y-m-d H:i:s').'</td>
+				</tr>';
+			}
+			// $pagination = $reports->appends($request->except('page'))->links();
+			// $text  = CronJobReport::where('signature',$request->id)->paginate();
+			// echo '<pre>';
+			// print_r($text);die;
+
+		} else {
+			$history .= '<tr>
+					<td>
+						No Result Found
+					</td>
+				</tr>';
+		}
+		
+		return response()->json(['data' => $history]);
+    }
+
     public function runCommand(Request $request)
     {
         $command = $request->get("name");
