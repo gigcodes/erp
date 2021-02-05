@@ -185,7 +185,6 @@ class PageController extends Controller
         $page = StoreWebsitePage::where("id", $id)->first();
 
         if ($page) {
-            activity()->causedBy(auth()->user())->performedOn($page)->log('page pushed');
             \App\Jobs\PushPageToMagento::dispatch($page)->onQueue('magetwo');
             return response()->json(["code" => 200, 'message' => "Website send for push"]);
         }
@@ -199,11 +198,11 @@ class PageController extends Controller
 
         if ($page) {
             $website = $page->storeWebsite;
-            activity()->causedBy(auth()->user())->performedOn($page)->log('page pulled');
             $data = MagentoHelper::pullWebsitePage($website);
             if (!empty($data)) {
                 foreach ($data as $key => $d) {
                     if($page->platform_id == $d->id) {
+                        activity()->causedBy(auth()->user())->performedOn($page)->log('page pulled');
                         $page->title            = isset($d->title) ? $d->title : "";
                         $page->url_key          = isset($d->identifier) ? $d->identifier : "";
                         $page->layout           = isset($d->page_layout) ? $d->page_layout : "";
@@ -347,25 +346,23 @@ class PageController extends Controller
                             }
                         }
 
-                        if($fetchStores->isNotEmpty()) {
-                            $store = $fetchStores->pop();
-                            $newPage->title            = !empty($title) ? $title : $page->title;
-                            $newPage->meta_title       = !empty($metaTitle) ? $metaTitle : $page->meta_title;
-                            $newPage->meta_keywords    = !empty($metaKeywords) ? $metaKeywords : $page->meta_keywords;
-                            $newPage->meta_description = !empty($metaDescription) ? $metaDescription : $page->meta_description;
-                            $newPage->content_heading  = !empty($contentHeading) ? $contentHeading : $page->content_heading;
-                            $newPage->content          = !empty($content) ? $content : $page->content;
-                            $newPage->layout           = $page->layout;
-                            $newPage->url_key          = $page->url_key;
-                            $newPage->active           = $page->active;
-                            $newPage->stores           = $store->code;
-                            $newPage->store_website_id = $page->store_website_id;
-                            $newPage->language         = $l->name;
-                            $newPage->copy_page_id     = $page->id;
-                            $newPage->save();
+                        $newPage->title            = !empty($title) ? $title : $page->title;
+                        $newPage->meta_title       = !empty($metaTitle) ? $metaTitle : $page->meta_title;
+                        $newPage->meta_keywords    = !empty($metaKeywords) ? $metaKeywords : $page->meta_keywords;
+                        $newPage->meta_description = !empty($metaDescription) ? $metaDescription : $page->meta_description;
+                        $newPage->content_heading  = !empty($contentHeading) ? $contentHeading : $page->content_heading;
+                        $newPage->content          = !empty($content) ? $content : $page->content;
+                        $newPage->layout           = $page->layout;
+                        $newPage->url_key          = $page->url_key;
+                        $newPage->active           = $page->active;
+                        $newPage->stores           = implode(",", $stores);
+                        $newPage->store_website_id = $page->store_website_id;
+                        $newPage->language         = $l->name;
+                        $newPage->copy_page_id     = $page->id;
+                        $newPage->save();
 
-                            activity()->causedBy(auth()->user())->performedOn($page)->log('page translated to ' . $l->name);
-                        }
+                        activity()->causedBy(auth()->user())->performedOn($page)->log('page translated to ' . $l->name);
+                        activity()->causedBy(auth()->user())->performedOn($newPage)->log('Parent Page Title:' . $newPage->title . ' Page URL Key:'. $newPage->url_key);
                     }else{
                         $errorMessage[] = "Page not pushed because of page already copied to {$pageExist->url_key} for {$l->name}";
                     }
