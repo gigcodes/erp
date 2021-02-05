@@ -286,6 +286,15 @@
             </tr>
 
             @endforeach
+            @if ($reports->lastPage() > 1)
+              <ul class="pagination cronEmailPagination">
+                  @for ($i = 1; $i <= $reports->lastPage(); $i++)
+                      <li class="cronEmailActive{{ $i }} {{ ($i == 1) ? ' active' : '' }}">
+                          <a class="cronEmailPage" data-id= "{{ $i }}" href="#">{{ $i }}</a>
+                      </li>
+                  @endfor
+              </ul>
+            @endif
             @endif            
             </tbody>
           </table>
@@ -718,6 +727,32 @@
               toastr['error'](response.errors[0]);
             });
         });
+
+    $(document).on('click', '.cronEmailPage', function(e) {
+        var page = $(this).attr('data-id');
+        $.ajax({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: '/cron/gethistory/'+page,
+          dataType: 'json',
+          type: 'post',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done( function(response) {
+          console.log(response.data);
+          // Show data in modal
+          $('#getCronEmailModal tbody').html(response.data);
+          $('.cronEmailPagination li').removeClass('active');
+          $('.cronEmailActive'+page).addClass('active');
+          $('#getCronEmailModal').modal('show');
+
+          $("#loading-image").hide();
+        }).fail(function(errObj) {
+          $("#loading-image").hide();
+        });
+    });
 
     function opnMsg(email) {
       console.log(email);
