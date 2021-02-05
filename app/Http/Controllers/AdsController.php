@@ -267,7 +267,8 @@ class AdsController extends Controller
         $newCapaign->campaign_id= $addedCampaignId;
         $newCapaign->campaign_response= json_encode($addedCampaign);
         $newCapaign->save();
-        // return redirect('/ads');
+        
+        return redirect('/ads');
     }
     public function savegroup(Request $request){
         $adCampaign = AdCampaign::find($request->campaign);
