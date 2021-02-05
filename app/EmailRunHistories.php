@@ -8,6 +8,6 @@ class EmailRunHistories extends Model
 {
     protected $table = 'email_run_histories';
     protected $fillable = [
-        'email_address_id', 'is_success'
+        'email_address_id', 'is_success','message'
     ];
 }
