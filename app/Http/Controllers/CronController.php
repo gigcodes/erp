@@ -74,7 +74,6 @@ class CronController extends Controller
         ->join('cron_jobs', 'cron_job_reports.signature', 'cron_jobs.signature')
         ->select(['cron_job_reports.*','cron_jobs.last_error'])->skip(($request->id - 1) *  15)->take(15)->get();
 		$history = '';
-		$pagination = '';
 		if(sizeof($reports) > 0) {
 			foreach ($reports as $report) {
 				$status = !empty($report->last_error) ? "Failed" : "Success";
@@ -86,11 +85,6 @@ class CronController extends Controller
 				<td>'.$report->updated_at->format('Y-m-d H:i:s').'</td>
 				</tr>';
 			}
-			// $pagination = $reports->appends($request->except('page'))->links();
-			// $text  = CronJobReport::where('signature',$request->id)->paginate();
-			// echo '<pre>';
-			// print_r($text);die;
-
 		} else {
 			$history .= '<tr>
 					<td>
