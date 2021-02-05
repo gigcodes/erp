@@ -570,6 +570,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Logs<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('ProductController@productScrapLog') }}">Status Logs</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('ScrapLogsController@index') }}">Scrap Logs</a>
                                         </li>
                                         <li class="nav-item dropdown">

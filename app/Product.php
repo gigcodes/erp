@@ -1312,4 +1312,9 @@ class Product extends Model
         $percentageA = ($price * $percentage) / 100;
         return $price + $percentageA;
     }
+
+    public function productstatushistory()
+    {
+        return $this->hasMany('App\ProductStatusHistory','product_id');
+    }
 }

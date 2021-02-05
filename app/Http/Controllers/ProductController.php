@@ -65,6 +65,8 @@ use seo2websites\MagentoHelper\MagentoHelper;
 use App\ProductTranslationHistory;
 use App\Translations;
 use App\ProductPushErrorLog;
+use App\ProductStatusHistory;
+use App\Status;
 
 
 class ProductController extends Controller
@@ -3388,6 +3390,49 @@ class ProductController extends Controller
         return response()->json([
             'status' => 'success'
         ]);
+    }
+
+    public function productScrapLog(Request $request)
+    {
+        //dd($request->input());
+        $products = Product::orderBy('updated_at', 'DESC');
+
+        if ($request->get('select_date') != '') {
+            $date = $request->get('select_date');
+        }else{
+            $date = date('Y-m-d');
+        }
+        $statusarray = array();
+        if ($request->get('status') != '') {
+            $statusarray = [$request->get('status')];
+        }else{
+            $statusarray = [2,4,9,15,20,33,35,36,38,39,40];
+        }
+        $products = $products->whereHas('productstatushistory',function($query) use($date,$statusarray){
+            $query->whereDate('created_at',$date);
+            $query->whereIn('new_status',$statusarray);
+        })->with(['productstatushistory'=>function($query) use($date,$statusarray){
+            $query->whereDate('created_at',$date);
+            $query->whereIn('new_status',$statusarray);
+        }])->paginate(50);
+
+        $products->getCollection()->transform(function($getproduct){
+            $getproduct->total_count = $getproduct->productstatushistory->count();
+            $history_log = array();
+            foreach($getproduct->productstatushistory->toArray() as $key=>$history){
+                $history["created_at"]= Carbon::parse($history["created_at"])->format('H:i');
+                $history_log[$history['new_status']][] = $history;
+            }
+            $getproduct->alllog_status = $history_log;
+            return $getproduct;
+        });
+        //$allproduct = Product::select('name','id')->get();
+
+        $status = DB::table("status")->whereIn('id',[2,4,9,15,20,33,35,36,38,39,40])->get();
+        //dd($status);
+        //echo "<pre>";
+       //  print_r($products->toArray());
+         return view('products.statuslog', compact('products', 'request','status'));
     }
 
     public function productStats(Request $request)
