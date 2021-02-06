@@ -203,6 +203,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('product/relist-product', 'ProductController@relistProduct');
     Route::get('products/stats', 'ProductController@productStats');
+    //ajay singh
+    Route::get('products/scrap-log', 'ProductController@productScrapLog');
+
     Route::post('products/{id}/updateName', 'ProductController@updateName');
     Route::post('products/{id}/updateDescription', 'ProductController@updateDescription');
     Route::post('products/{id}/updateComposition', 'ProductController@updateComposition');
