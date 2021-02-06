@@ -190,7 +190,8 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         });
     }
 
-    $('.unmerge-brand').click(function() {
+    $(document).on('click', '.unmerge-brand', function(e) {
+        e.preventDefault();
         if(confirm("Do you want to unmerge this brand?")) {
             var brand_name = $(this).parents().eq(1).find('span').first().text();
             var from_brand_id = $(this).data('id'); 
