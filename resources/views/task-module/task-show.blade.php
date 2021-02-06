@@ -1648,7 +1648,6 @@
       });
 
   $(document).on('keypress', '.create-subnote-for-appointment', function(e) {
-      console.log(this); return;
       var key = e.which;
       var thiss = $(this);
       var id = $(this).data('id');
