@@ -1085,6 +1085,21 @@ class TaskModuleController extends Controller {
 		return response()->json(['is_flagged' => $task->is_flagged]);
 	}
 
+	public function remarkFlag(Request $request)
+	{
+		$remark = Remark::find($request->remark_id);
+
+		if ($remark->is_flagged == 0) {
+			$remark->is_flagged = 1;
+		} else {
+			$remark->is_flagged = 0;
+		}
+
+		$remark->save();
+
+		return response()->json(['is_flagged' => $remark->is_flagged]);
+	}
+
 	public function plan(Request $request, $id)
 	{
 		$task = Task::find($id);
@@ -1218,8 +1233,14 @@ class TaskModuleController extends Controller {
 		$users_array = Helpers::getUserArray(User::all());
 		$categories = TaskCategory::attr(['title' => 'category','class' => 'form-control input-sm', 'placeholder' => 'Select a Category', 'id' => 'task_category'])
 																						->selected($task->category)
-		                                        ->renderAsDropdown();
-		$taskNotes = $task->notes()->where('is_hide', 0)->paginate(20);
+												->renderAsDropdown();
+		
+		if (request()->has('keyword')) {
+			$taskNotes = $task->notes()->orderBy('is_flagged')->where('is_hide', 0)->where('remark', 'like', '%' . request()->keyword . '%')->paginate(20);
+		} else {
+			$taskNotes = $task->notes()->orderBy('is_flagged')->where('is_hide', 0)->paginate(20);
+		}
+		
 		$hiddenRemarks = $task->notes()->where('is_hide', 1)->get();
 		return view('task-module.task-show', [
 			'task'	=> $task,

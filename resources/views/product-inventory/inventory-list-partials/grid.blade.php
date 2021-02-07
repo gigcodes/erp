@@ -5,7 +5,7 @@
     <td>
       <span id="sku_long_string_{{$data['id']}}" style="display: none">{{ $data['sku'] }}</span>
       <span id="sku_small_string_{{$data['id']}}"><?php echo \Illuminate\Support\Str::substr($data['sku'],-10) ?> @if(strlen($data['sku'])>10) ...<a href="javascript:;" data-id="{{$data['id']}}" class="show_sku_long">More</a> @endif
-
+      <br>Supplier count : <a  title="show suppliers" data-id="{{ $data['id'] }}" class="btn btn-image show-supplier-modal des-pd">{{count($data['suppliers_info'])}}</a>
     </td>
     <td>
     <span id="prod_long_string_{{$data['id']}}" style="display: none">{{ $data['product_name'] }}</span>
@@ -31,6 +31,9 @@
       <a  title="show medias" class="btn btn-image show-medias-modal des-pd" data-id="{{ $data['id'] }}" aria-expanded="false"><i class="fa fa-picture-o" aria-hidden="true"></i></a>
       <a  title="show status history" class="btn btn-image show-status-history-modal des-pd"><i class="fa fa-clock-o" aria-hidden="true"></i></a>
       <a  title="show Inventory history" data-id="{{ $data['id'] }}" class="btn btn-image show-inventory-history-modal des-pd"><i class="fa fa-history" aria-hidden="true"></i></a>
+      @if(empty($data['size_eu']))
+        <a title="add-size" data-id="{{ $data['id'] }}" data-size-system="{{ $data['size_system'] }}" data-category-id="{{ $data['category'] }}" data-sizes='{{ json_encode(explode(",",$data["size"])) }}' class="btn btn-image add-size-btn"><i class="fa fa-plus" aria-hidden="true"></i></a>
+      @endif
     </td>
     <td class="medias-data" data='@if(isset($data['medias']))@json($data['medias'])@endif' style="display:none"></td>
     <td class="status-history" data='@if(isset($data['status_history']))@json($data['status_history'])@endif' style="display:none"></td>

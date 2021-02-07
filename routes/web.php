@@ -212,6 +212,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('product/relist-product', 'ProductController@relistProduct');
     Route::get('products/stats', 'ProductController@productStats');
+    //ajay singh
+    Route::get('products/scrap-log', 'ProductController@productScrapLog');
+
     Route::post('products/{id}/updateName', 'ProductController@updateName');
     Route::post('products/{id}/updateDescription', 'ProductController@updateDescription');
     Route::post('products/{id}/updateComposition', 'ProductController@updateComposition');
@@ -257,8 +260,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('productinventory/list', 'ProductInventoryController@list')->name('productinventory.list');
     Route::get('productinventory/inventory-list', 'ProductInventoryController@inventoryList')->name('productinventory.inventory-list');
     Route::post('productinventory/change-size-system', 'ProductInventoryController@changeSizeSystem')->name('productinventory.change-size-system');
+    Route::post('productinventory/store-erp-size', 'ProductInventoryController@changeErpSize')->name('productinventory.change-erp-size');
 
     Route::get('productinventory/inventory-history/{id}', 'ProductInventoryController@inventoryHistory')->name('productinventory.inventory-history');
+    Route::get('productinventory/all-suppliers/{id}', 'ProductInventoryController@getSuppliers')->name('productinventory.all-suppliers');
     Route::resource('productinventory', 'ProductInventoryController');
 
     Route::prefix('product-inventory')->group(function () {
@@ -310,6 +315,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('brand/change-segment', 'BrandController@changeSegment');
     Route::post('brand/update-reference', 'BrandController@updateReference');
     Route::post('brand/merge-brand', 'BrandController@mergeBrand');
+    Route::post('brand/unmerge-brand', 'BrandController@unMergeBrand')->name('brand.unmerge-brand');
     Route::get('brand/{id}/create-remote-id', 'BrandController@createRemoteId');
     Route::resource('brand', 'BrandController');
 
@@ -408,6 +414,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('cron/run', 'CronController@runCommand')->name('cron.run.command');
     Route::get('cron/history/{id}', 'CronController@history')->name('cron.history');
     Route::post('cron/history/show', 'CronController@historySearch')->name('cron.history.search');
+    Route::post('cron/gethistory/{id}', 'CronController@getCronHistory');
 
 
     Route::prefix('store-website')->middleware('auth')->group(static function () {
@@ -543,14 +550,19 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/change-status', 'OrderController@statusChange');
 
 
-    Route::get('order/invoices', 'OrderController@viewAllInvoices');
+    Route::get('order/invoices', 'OrderController@viewAllInvoices'); 
 
     Route::get('order/{id}/edit-invoice', 'OrderController@editInvoice')->name('order.edit.invoice');
     Route::post('order/edit-invoice', 'OrderController@submitEdit')->name('order.submitEdit.invoice');
     Route::get('order/order-search', 'OrderController@searchOrderForInvoice')->name('order.search.invoice');
     Route::get('order/{id}/add-invoice', 'OrderController@addInvoice')->name('order.add.invoice');
     Route::post('order/submit-invoice', 'OrderController@submitInvoice')->name('order.submit.invoice');
+
+    //view
     Route::get('order/view-invoice/{id}', 'OrderController@viewInvoice')->name('order.view.invoice');
+   //TODO web - added by jammer
+    Route::get('order/download-invoice/{id}', 'OrderController@downloadInvoice')->name('order.download.invoice');
+    Route::post('order/update-customer-address', 'OrderController@updateCustomerInvoiceAddress')->name('order.update.customer.address');
     Route::get('order/{id}/mail-invoice', 'OrderController@mailInvoice')->name('order.mail.invoice');
     Route::get('order/update-delivery-date', 'OrderController@updateDelDate')->name('order.updateDelDate');
     Route::get('order/view-est-delivery-date-history', 'OrderController@viewEstDelDateHistory')->name('order.viewEstDelDateHistory');
@@ -593,6 +605,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('task/get-discussion-subjects', 'TaskModuleController@getDiscussionSubjects')->name('task.discussion-subjects');
     // Route::get('task/create-task', 'TaskModuleController@createTask')->name('task.create-task');
     Route::post('task/flag', 'TaskModuleController@flag')->name('task.flag');
+    Route::post('remark/flag', 'TaskModuleController@remarkFlag')->name('remark.flag');
     Route::post('task/{id}/plan', 'TaskModuleController@plan')->name('task.plan');
     Route::post('task/assign/messages', 'TaskModuleController@assignMessages')->name('task.assign.messages');
     Route::post('task/loadView', 'TaskModuleController@loadView')->name('task.load.view');
@@ -1394,6 +1407,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('google-server', 'GoogleServerController');
     Route::post('log-google-cse', 'GoogleServerController@logGoogleCse')->name('log.google.cse');
     Route::resource('email-addresses', 'EmailAddressesController');
+    Route::post('email/getemailhistory/{id}', 'EmailAddressesController@getEmailAddressHistory');
     Route::post('supplier/block', 'SupplierController@block')->name('supplier.block');
     Route::post('supplier/saveImage', 'SupplierController@saveImage')->name('supplier.image');;
     Route::post('supplier/change-status', 'SupplierController@changeStatus');
@@ -2457,6 +2471,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('shipment/pickup-request', 'ShipmentController@createPickupRequest')->name('shipment/pickup-request');
     Route::post('shipment/save-box-size', 'ShipmentController@saveBoxSize')->name('shipment.save-box-size');
 
+    Route::get('shipments/payment_info', 'ShipmentController@getPaymentInfo')->name('shipment.get-payment-info');
+    Route::post('shipments/payment_info', 'ShipmentController@savePaymentInfo')->name('shipment.save-payment-info');
 
     /**
      * Twilio account management

@@ -21,6 +21,7 @@ use Carbon\Carbon;
 use App\ColorReference;
 use Illuminate\Support\Facades\Validator;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use \App\Jobs\UpdateFromSizeManager;
 
 class ProductInventoryController extends Controller
 {
@@ -997,7 +998,9 @@ class ProductInventoryController extends Controller
 	public function inventoryList(Request $request)
     {
     	$filter_data = $request->input();
-        $inventory_data = \App\Product::getProducts($filter_data);
+		$inventory_data = \App\Product::getProducts($filter_data);
+		
+		//dd($inventory_data);
         $inventory_data_count = $inventory_data->total();
         $status_list = \App\Helpers\StatusHelper::getStatus();
         $supplier_list = \App\Supplier::pluck('supplier','id')->toArray();
@@ -1036,6 +1039,11 @@ class ProductInventoryController extends Controller
 			}
 		}
 		return response()->json(['data' => $inventory_history]);;
+	}
+	
+	public function getSuppliers($id) {
+		$suppliers   =  Product::with(['suppliers_info','suppliers_info.supplier'])->find($id);
+		return response()->json(['data' => $suppliers->suppliers_info]);;
 	}
   
 	public function getProductImages($id) {
@@ -1089,5 +1097,65 @@ class ProductInventoryController extends Controller
 		}
 
 		return response()->json(["code" => 200 , "data" => [],"message" => implode("</br>", $messages),"error_messages" => implode("</br>", $errorMessages)]);
+	}
+
+	public function changeErpSize(Request $request)
+	{
+		$sizes = $request->sizes;
+		$erpSizes = $request->erp_size;
+		$sizeSystemStr = $request->size_system;
+		$categoryId = $request->category_id;
+
+
+		if(!empty($sizes) && !empty($erpSizes) && !empty($sizeSystemStr)) {
+			/// check first size system exist or not
+			$sizeSystem = \App\SystemSize::where("name",$sizeSystemStr)->first();
+
+			if(!$sizeSystem) {
+				$sizeSystem = new \App\SystemSize;
+				$sizeSystem->name = $sizeSystem;
+				$sizeSystem->save();
+			}
+
+			// check size exist or not
+			if(!empty($erpSizes)) {
+				foreach($erpSizes as  $k => $epSize) {
+					$existSize  = \App\SystemSizeManager::where("category_id", $categoryId)->where("erp_size",$epSize)->first();
+
+					if(!$existSize) {
+						$existSize = new \App\SystemSizeManager;
+						$existSize->category_id = $categoryId;
+						$existSize->erp_size = $epSize;
+						$existSize->status = 1;
+						$existSize->save();
+					}
+
+					if(isset($sizes[$k])) {
+						$checkMainSize = \App\SystemSizeRelation::where("system_size_manager_id", $sizeSystem->id)
+						->where("system_size",$existSize->id)
+						->where("size",$sizes[$k])
+						->first();
+
+						if(!$checkMainSize) {
+							$checkMainSize = new \App\SystemSizeRelation;
+							$checkMainSize->system_size_manager_id = $existSize->id;
+							$checkMainSize->system_size = $sizeSystem->id;
+							$checkMainSize->size = $sizes[$k];
+							$checkMainSize->save();
+						}
+
+					}
+
+				}
+
+				UpdateFromSizeManager::dispatch([
+				 	"category_id" => $categoryId,
+				 	"size_system" => $sizeSystemStr
+				])->onQueue("mageone");
+			}
+		}
+
+		return response()->json(["code" => 200 , "data" => [], "message" => "Your request has been send to the jobs"]);
+
 	}
 }

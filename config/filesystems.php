@@ -47,7 +47,10 @@ return [
             'driver' => 'local',
             'root' => storage_path('app'),
         ],
-
+        'analytics_files' => [
+            'driver' => 'local',
+            'root' => base_path('resources/assets/analytics_files'),
+        ],
         'uploads' => [
 	        'driver' => 'local',
 	        'root'   => public_path('uploads'),

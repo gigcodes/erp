@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\EmailAddress;
 use App\StoreWebsite;
+use App\EmailRunHistories;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class EmailAddressesController extends Controller
 {
@@ -110,5 +112,34 @@ class EmailAddressesController extends Controller
         $emailAddress->delete();
 
         return redirect()->route('email-addresses.index')->withSuccess('You have successfully deleted a Email Address');
+    }
+
+    public function getEmailAddressHistory(Request $request){
+		$EmailHistory = EmailRunHistories::where('email_run_histories.email_address_id', $request->id)
+        ->whereDate('email_run_histories.created_at',Carbon::today())
+        ->join('email_addresses', 'email_addresses.id', 'email_run_histories.email_address_id')
+        ->select(['email_run_histories.*','email_addresses.from_name'])->get();
+		$history = '';
+		if(sizeof($EmailHistory) > 0) {
+			foreach ($EmailHistory as $runHistory) {
+				$status = ($runHistory->is_success == 0) ? "Failed" : "Success";
+				$message = empty($runHistory->message) ? "-" : $runHistory->message;
+				$history .= '<tr>
+				<td>'.$runHistory->id.'</td>
+				<td>'.$runHistory->from_name.'</td>
+				<td>'.$status.'</td>
+				<td>'.$message.'</td>
+				<td>'.$runHistory->created_at->format('Y-m-d H:i:s').'</td>
+				</tr>';
+			}
+		} else {
+			$history .= '<tr>
+					<td colspan="5">
+						No Result Found
+					</td>
+				</tr>';
+		}
+		
+		return response()->json(['data' => $history]);
     }
 }

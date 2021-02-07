@@ -151,6 +151,41 @@
         </div>
     </div>
 </div>
+
+<div id="supplier-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Suppliers</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="add-size-btn-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form class="form" action="/productinventory/store-erp-size" method="post">
+                 {!! csrf_field() !!} 
+                <div class="modal-header">
+                    <h4 class="modal-title">Add Size</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary btn-save-erp-size">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
           50% 50% no-repeat;display:none;">
 </div>
@@ -311,6 +346,68 @@ return;
 
     $('#inventory-history-modal').modal('show')
     })
+
+
+    //get suppliers list
+
+    $('body').delegate('.show-supplier-modal', 'click', function() {
+    // let data = $(this).parent().parent().find('.inventory-history').attr('data')
+        var id = $(this).data('id');
+            $.ajax({
+                url: '/productinventory/all-suppliers/'+id,
+                type: 'GET',
+                dataType:'json',
+                success: function (response) {
+                     let result = '';
+                    result += '<table class="table table-bordered">';
+                    result += '<thead><th>Supplier Name</th><th>Title</th><th>Description</th><th>Color</th><th>Composition</th></thead>';
+                    result += '<tbody>';
+                    console.log(response.data);
+                    $.each(response.data, function(i, item) {
+                        result += '<tr>';
+                            result += "<td>" + item.supplier.supplier + "</td>"
+                            result += "<td>" + item.title + "</td>"
+                            result += "<td>" + item.description + "</td>"
+                            result += "<td>" + item.color + "</td>"
+                            result += "<td>" + item.composition + "</td>"
+                            result += '</tr>';
+                        });
+
+                        result += '</tbody>';
+                         result += '</table>';
+                         $('#supplier-modal .modal-body').html(result)
+                        $('#supplier-modal').modal('show')
+                },
+                error: function () {
+                }
+            });
+return;
+    if (data != '[]') {
+        data = JSON.parse(data)
+
+        result += '<table class="table table-bordered">';
+        result += '<thead><th>Supplier</th><th>Date</th><th>Prev Stock</th><th>In Stock</th></thead>';
+        result += '<tbody>';
+        for (let value in data) {
+            result += '<tr>';
+            result += "<td>" + data[value].supplier + "</td>"
+            result += "<td>" + data[value].date + "</td>"
+            result += "<td>" + data[value].prev_in_stock + "</td>"
+            result += "<td>" + data[value].in_stock + "</td>"
+            result += '</tr>';
+        }
+        result += '</tbody>';
+        result += '</table>';
+
+    } else {
+        result = '<h3>This Product dont have any suppliers</h3>';
+    }
+
+    $('#supplier-modal .modal-body').html(result)
+
+    $('#supplier-modal').modal('show')
+    })
+
     var isLoadingProducts = false;
     let page = 1;
     let last_page = {{$inventory_data->lastPage()}};
@@ -409,6 +506,66 @@ return;
                 }
                 if(data.error_messages != "") {
                     toastr['error'](data.error_messages, 'error');
+                }
+            }
+        })
+        .fail(function(jqXHR, ajaxOptions, thrownError) {
+            console.error(jqXHR);
+        });
+    });
+
+    $(document).on("click",".add-size-btn",function() {
+    
+        var sizeSystem = $(this).data("size-system");
+        var sizes = $(this).data("sizes");
+        var category_id = $(this).data("category-id");
+        //var allSizes = 
+        var html = `<table class="table table-bordered" id="category-table">
+                       <thead>
+                          <tr>
+                             <th>System Size</th>
+                             <th>Erp Size</th>
+                          </tr>
+                       </thead>
+                       <tbody>
+                       <input class='form-control' type='hidden' name='size_system' value="`+sizeSystem+`">
+                       <input class='form-control' type='hidden' name='category_id' value="`+category_id+`">
+                       `;
+
+        $.each(sizes,function(k,v) {
+            html += `<tr>
+                        <td><input class='form-control' type='text' name='sizes[`+k+`]' value="`+v+`"></td>
+                        <td><input class='form-control' type='text' name='erp_size[`+k+`]' value=""></td>
+                    </tr>`;
+        });
+
+        html += `</tbody></table>`;
+
+        
+        $("#add-size-btn-modal").find(".modal-body").html(html);
+        $("#add-size-btn-modal").modal("show");
+    });
+
+    $(document).on("click",".btn-save-erp-size",function(e) {
+        e.preventDefault();
+        var form = $(this).closest("form");
+        $.ajax({
+            url: "/productinventory/store-erp-size",
+            type: 'POST',
+            data : form.serialize(),
+            dataType:"json",
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+        })
+        .done(function(data) {
+            $("#loading-image").hide();
+            if(data.code == 200) {
+                if(data.message != "") {
+                    toastr['success'](data.message, 'success');
                 }
             }
         })

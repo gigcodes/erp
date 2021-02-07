@@ -18,6 +18,16 @@ use Illuminate\Http\Request;
 //});
 
 
+/**
+*Routes added by Hitesh Start
+**/ 
+Route::post('mailinglist/add', 'Api\v1\MailinglistController@add');
+/**
+*Routes added by Hitesh Ends
+**/ 
+
+
+
 Route::get('scrape/queue', 'Products\ScrapeController@getUrlFromQueue');
 Route::get('scrape/process', 'Products\ScrapeController@processDataFromScraper');
 
@@ -189,3 +199,6 @@ Route::post('notification/create','\App\Http\Controllers\Api\v1\PushFcmNotificat
 
 //Saving Not Found Brand
 Route::get('missing-brand/save','MissingBrandController@saveMissingBrand');
+
+//Store data into the laravel_logs
+Route::post('laravel-logs/save','LaravelLogController@saveNewLogData');

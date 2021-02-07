@@ -67,4 +67,11 @@ class Waybill extends Model
     {
         return $this->hasMany('App\waybillTrackHistories');
     }
+
+    public static function PaymentMode(){
+        return array(
+            'cash' => 'Cash',
+            'bank_transfer' => 'Bank Transfer'
+        );
+    }
 }
