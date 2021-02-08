@@ -368,7 +368,11 @@ return;
                     console.log(response.data);
                     $.each(response.data, function(i, item) {
                         result += '<tr>';
-                            result += "<td>" + (item.supplier) ? item.supplier.supplier : "" + "</td>"
+                            if(item.supplier != null) {
+                                result += "<td>" + item.supplier.supplier + "</td>";
+                            }else{
+                                result += "<td>-</td>";
+                            }
                             result += "<td>" + item.title + "</td>"
                             result += "<td>" + item.description + "</td>"
                             result += "<td>" + item.color + "</td>"
