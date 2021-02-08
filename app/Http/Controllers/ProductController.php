@@ -3397,6 +3397,9 @@ class ProductController extends Controller
         //dd($request->input());
         $products = Product::orderBy('updated_at', 'DESC');
 
+        if($request->get('product_id') != ''){
+           // $products = Product::where('id',$request->get('product_id'))->get();
+        }
         if ($request->get('select_date') != '') {
             $date = $request->get('select_date');
         }else{
@@ -3408,13 +3411,24 @@ class ProductController extends Controller
         }else{
             $statusarray = [2,4,9,15,20,33,35,36,38,39,40];
         }
-        $products = $products->whereHas('productstatushistory',function($query) use($date,$statusarray){
+
+        $products = $products->whereHas('productstatushistory',function($query) use($date,$statusarray,$request){
             $query->whereDate('created_at',$date);
             $query->whereIn('new_status',$statusarray);
-        })->with(['productstatushistory'=>function($query) use($date,$statusarray){
+            if($request->get('product_id') != ''){
+             $query->where('product_id',$request->get('product_id'));
+            }
+        })->with(['productstatushistory'=>function($query) use($date,$statusarray,$request){
             $query->whereDate('created_at',$date);
             $query->whereIn('new_status',$statusarray);
-        }])->paginate(50);
+            if($request->get('product_id') != ''){
+                $query->where('product_id',$request->get('product_id'));
+               }
+        }]);
+
+        $products_count = $products->count();
+        
+        $products = $products->paginate(50);
 
         $products->getCollection()->transform(function($getproduct){
             $getproduct->total_count = $getproduct->productstatushistory->count();
@@ -3432,7 +3446,7 @@ class ProductController extends Controller
         //dd($status);
         //echo "<pre>";
        //  print_r($products->toArray());
-         return view('products.statuslog', compact('products', 'request','status'));
+         return view('products.statuslog', compact('products', 'request','status','products_count','request'));
     }
 
     public function productStats(Request $request)
