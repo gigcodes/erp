@@ -10,23 +10,18 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">Total Product found ({{$products->count()}})</h2>
+            <h2 class="page-heading">Total Product found ({{$products_count}})</h2>
         </div>
     </div>
     <form action="{{ action('ProductController@productScrapLog') }}" method="get">
         <div class="row mb-5">
             <div class="col-md-3">
                 <div class="form-group">
-                <input type="text" name="select_date" class="form-control datepicker" id="select_date" placeholder="Enter Date">
+                <input type="text" name="select_date" class="form-control datepicker" id="select_date" placeholder="Enter Date" value="{{isset($request->select_date) ? $request->select_date : ''}}">
                 </div>
             </div>
             <div class="col-md-3">
-                <select class="form-control" name="product_id" id="product_id">
-                    <option value="">Products</option>
-                    @foreach($products as $product)
-                        <option {{ $request->get('product_id')==$product->id ? 'selected' : '' }} value="{{ $product->id }}">{{ $product->name }}</option>
-                    @endforeach
-                </select>
+            <input type="text" name="product_id" class="form-control" id="product_id" placeholder="Enter Product ID" value="{{isset($request->product_id) ? $request->product_id : ''}}">
             </div>
             <div class="col-md-3">
                 <div class="form-group">
@@ -70,7 +65,7 @@
                 </tr>
                 @foreach($products as $product)
                     <tr>
-                        <td>{{date('Y-m-d')}}</td>
+                        <td>{{isset($request->select_date) ? $request->select_date : date('Y-m-d')}}</td>
                         <td>
                             <a href="{{ action('ProductController@show', $product->id) }}">{{$product->id}}</a>
                         </td>
