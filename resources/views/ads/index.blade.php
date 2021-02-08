@@ -114,7 +114,7 @@
 <div class="modal fade" id="campaningmodal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-             <form method="POST" action="{{route('ads.savecampaign')}}" id="create-ad-account-form" enctype="multipart/form-data">
+             <form method="POST" id="create-ad-account-form" action="{{route('ads.savecampaign')}}" enctype="multipart/form-data">
                 {{csrf_field()}}
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">Create Campaign</h5>
@@ -125,6 +125,7 @@
                 <div class="modal-body create-campaning">
 	                <div class="form-group row">
 	                    <div class="col-md-6">
+							<input type="hidden" value="1" id="addAccountStatus">
 	                    	<span for="account">Select Account</span>
 	                        <select class="browser-default custom-select" id="account" name="account_id" style="height: auto" required="">
 	                            <option value="" selected>-----Select account-----</option>
@@ -153,7 +154,7 @@
                 	
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="continue-phase-1" class="btn btn-secondary">Continue</button>
+					<button type="submit" id="continue-phase-1" class="btn btn-secondary">Continue</button>
                     <button type="submit" id="create-campaign-btn" style="display: none;" class="btn btn-secondary">Create</button>
                     <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
                 </div>
@@ -191,7 +192,7 @@
 	                        </select>
 	                    </div>
 	                </div>
-	                <div class="form-group row" style="margin: 10px; border: 1px solid #f2f2f2; padding: 20px;">
+	                <div class="form-group row" style="margin:10px 0px 10px 0px; border: 1px solid #f2f2f2; padding: 20px 0px 20px 0px;">
 	                    <div class="col-md-6">
                 			<span>Ad group name</span>
                 			<input type="text" name="adgroup[0][name]" class="form-control" placeholder="Enter Ad group name" value="Ad group 1" required="">
@@ -254,17 +255,17 @@
 	                    </div>
 	                    <div class="col-sm-6">
 	                    	<span for="status">Ad group</span>
-	                        <select class="browser-default custom-select" id="adgroupSelect" name="adgroup" style="height: auto">
+	                        <select class="browser-default custom-select" id="adgroupSelect" name="adgroup" style="height: auto" required="">
 	                           	<option value="">-----Select Group-----</option>
 	                        </select>
 	                    </div>
 	                </div>
 	                <div class="row mb-4">
 	                	<div class="col-md-6">
-	                		<input type="url" name="finalurl" class="form-control" placeholder="Final URL">
+	                		<input type="url" name="finalurl" class="form-control" placeholder="Final URL" required="">
 	                	</div>
 	                	<div class="col-md-6">
-	                		<input type="url" name="displayurl" class="form-control" placeholder="Display URL">
+	                		<input type="url" name="displayurl" class="form-control" placeholder="Display URL" required="">
 	                	</div>
 	                </div>
 	                <div class="row mb-4 mt-5">
@@ -274,7 +275,7 @@
 			                		<span>Headlines</span>
 			                	</div>
 			                	<div class="col-md-12">
-			                		<input type="text" name="headlines[]" class="form-control" placeholder="New headline">
+			                		<input type="text" name="headlines[]" class="form-control" placeholder="New headline" required="">
 			                	</div>
 			                	<div class="col-md-12">
 			                		<a href="javascript:void(0)" id="addHeadline">ADD HEADLINE</a>
@@ -287,7 +288,7 @@
 			                		<span>Descriptions</span>
 			                	</div>
 			                	<div class="col-md-12">
-			                		<input type="text" name="descriptions[]" class="form-control" placeholder="New descriptions">
+			                		<input type="text" name="descriptions[]" class="form-control" placeholder="New descriptions" required="">
 			                	</div>
 			                	<div class="col-md-12">
 			                		<a href="javascript:void(0)" id="addDescriptions">ADD DESCRIPTION</a>

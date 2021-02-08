@@ -732,7 +732,7 @@ $(document).on('change','#goal',function(){
     let html = `<div class="form-group child-campaning-goal row" >
                         <div class="col-sm-12">
                             <span for="campanin-type">Select the type</span>
-                            <select class="browser-default custom-select" id="campanin-type" name="type" style="height: auto">
+                            <select class="browser-default custom-select" id="campanin-type" name="type" style="height: auto" required="">
                              <option value="" selected>-----Select type-----</option>
                            `;
     if (goal != ''){
@@ -841,19 +841,37 @@ $(document).on('click','.addSchedule',function(){
     scheduleCount++
 });
 $(document).on('click','#continue-phase-1',function(){
-    $('.create-campaning').hide();
-    $('.create-campaning-phase-2').show();
-    $('#continue-phase-1').hide();
-    $('#create-campaign-btn').show();
-    initPhase2();
-}); 
+    // $('.create-campaning').hide();
+    // $('.create-campaning-phase-2').show();
+    // $('#continue-phase-1').hide();
+    // $('#create-campaign-btn').show();
+    // initPhase2();
+});
+
+$(document).on('submit','#create-ad-account-form',function(e){
+    var status = $('#addAccountStatus').val();
+    if(status == 1) {
+        e.preventDefault();
+    }
+    if($("#create-ad-account-form").valid()) {
+        if(status == 1) {
+            $('.create-campaning').hide();
+            $('.create-campaning-phase-2').show();
+            $('#continue-phase-1').hide();
+            $('#create-campaign-btn').show();
+            initPhase2();
+        }
+    }
+});
+
+
 function initPhase2(){
     $html = `<label class="col-sm-6 col-form-label">Type: <span id="phase-1-type"></span></label>
                     <label class="col-sm-6 col-form-label">Goal: <span id="phase-1-goal"></span></label>
                     <div class="form-group row">
                         <label for="status" class="col-sm-12 col-form-label">Campaign name</label>
                         <div class="col-md-12">
-                            <input type="text" class="form-control" name="camp_name" placeholder="Enter a campaign name"/>
+                            <input type="text" class="form-control" name="camp_name" placeholder="Enter a campaign name" required=""/>
                         </div>
                     </div>       
             <div class="row campanin-type-child child-campaning-goal">
@@ -1196,13 +1214,30 @@ function initPhase2(){
                         <div class="col-md-4">
                             <br>
                             <br>
+                            <label>Name</lable>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p>Enter the budget name</p>
+                                    <input type="text" name="data[budget_and_bidding][name]" class="form-control location_radio" required="">
+                                    <br>
+                                    <br>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <br>
+                            <br>
                             <label>Budget</lable>
                         </div>
                         <div class="col-md-6">
                             <div class="row">
                                 <div class="col-md-12">
                                     <p>Enter the average you want to spend each day</p>
-                                    <input type="number" name="data[budget_and_bidding][budget]" class="form-control location_radio">
+                                    <input type="number" name="data[budget_and_bidding][budget]" class="form-control location_radio" required="">
                                     <br>
                                     <br>
                                 </div>
@@ -1353,6 +1388,7 @@ function initPhase2(){
     });
     $('#create-camp-btn').show()
     $('#continue-phase-1').hide();
+    $('#addAccountStatus').val(2);
 }
 $(document).on('change','#biding_select',function(){
     $('.bidding-sections').remove();
@@ -1430,7 +1466,7 @@ $(document).on('click','#removeAdGroupSecion',function(){
     $(this).parent().parent().remove();
 });
 $(document).on('click','#addmoreGroup',function(){
-    $('#addGroupbefore').before(`<div class="form-group row" style="margin: 10px; border: 1px solid #f2f2f2; padding: 20px;">
+    $('#addGroupbefore').before(`<div class="form-group row" style="margin:10px 0px 10px 0px;margin-top:10px;margin-bottom:10px; border: 1px solid #f2f2f2; padding: 20px 0px 20px 0px;">
                         <div class="col-md-12" style="text-align: right; margin-top: -20px; margin-left: 28px;">
                             <i class="fa fa-close" id="removeAdGroupSecion"></i>
                         </div>

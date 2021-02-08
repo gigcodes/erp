@@ -65,6 +65,7 @@ use Google\AdsApi\AdWords\v201809\cm\AdGroupAd;
 use Google\AdsApi\AdWords\v201809\cm\AdGroupAdOperation;
 use Google\AdsApi\AdWords\v201809\cm\AdGroupAdService;
 use Exception;
+use Carbon\Carbon;
 
 
 
@@ -127,12 +128,13 @@ class AdsController extends Controller
         $budgetAmount = isset($request->data['budget_and_bidding']['budget']) ? $request->data['budget_and_bidding']['budget'] * 1000000 : 0;
         $campaignName = isset($request->camp_name) ? $request->camp_name : '';
         $channel_type = isset($request->data['type']) ? strtouper($request->data['type']) : 'SEARCH';
+        $budgetName = isset($request->data['budget_and_bidding']['name']) ? $request->data['budget_and_bidding']['name'] : '';
         $bidding_strategy_type = isset($request->data['budget_and_bidding']['bidding']['focus']) ? $request->data['budget_and_bidding']['bidding']['focus'] : ''; 
         $txt_target_cpa = isset($request->data['budget_and_bidding']['bidding']['cpa']) ? $request->data['budget_and_bidding']['bidding']['cpa'] : ''; 
         $txt_target_roas = isset($request->data['budget_and_bidding']['bidding']['roas']) ? $request->data['budget_and_bidding']['bidding']['roas'] : ''; 
         $maximize_clicks = isset($request->data['budget_and_bidding']['bidding']['cpc']) ? $request->data['budget_and_bidding']['bidding']['cpc'] : ''; 
 
-        $campaign_start_date = isset($request->data['start_end_dated']['startdate']) ? $request->data['start_end_dated']['startdate'] : '';
+        $campaign_start_date = (isset($request->data['start_end_dated']['startdate']) && !empty($request->data['start_end_dated']['startdate'])) ? $request->data['start_end_dated']['startdate'] : Carbon::now()->format('Y-m-d');
         $campaign_end_date = isset($request->data['start_end_dated']['enddate']) ? $request->data['start_end_dated']['enddate'] : ''; ;
         $tracking_template_url = isset($request->data['campaign_url']['tracking_tamplate']) ? $request->data['campaign_url']['tracking_tamplate'] : '';
         $final_url_suffix = isset($request->data['campaign_url']['final_url_suffix']) ? $request->data['campaign_url']['final_url_suffix'] : '';
@@ -152,7 +154,7 @@ class AdsController extends Controller
         $uniq_id = uniqid();
         
         $budget = new Budget();
-        $budget->setName('Interplanetary Cruise Budget #' . $uniq_id);
+        $budget->setName($budgetName);
 
 
 
@@ -268,7 +270,7 @@ class AdsController extends Controller
         $newCapaign->campaign_response= json_encode($addedCampaign);
         $newCapaign->save();
         
-        return redirect('/ads');
+        return redirect()->to('/ads')->with('actSuccess', 'Campaign details added successfully');
     }
     public function savegroup(Request $request){
         $adCampaign = AdCampaign::find($request->campaign);
@@ -331,7 +333,7 @@ class AdsController extends Controller
                 $newGroup->google_ad_group_response = json_encode($addedGroup[0]);;
                 $newGroup->save();
             }
-            return redirect('/ads');
+            return redirect()->to('/ads')->with('actSuccess', 'Ads group details added successfully');
         }else{
             return redirect('/ads');
         }
@@ -400,7 +402,7 @@ class AdsController extends Controller
         $newAd->ad_id = $addedAdsId;
         $newAd->ad_response = json_encode($addedAds[0]);
         $newAd->save();
-        return redirect('/ads');
+        return redirect()->to('/ads')->with('actSuccess', 'Ads details added successfully');
     }
     public function getAdvertisingChannelType($v){
         switch ($v) {
