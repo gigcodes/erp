@@ -40,7 +40,7 @@ class StoreWebsiteAnalyticsController extends Controller
             if (!$request->id) {
                 $rules['google_service_account_json'] = 'required|file|mimetypes:application/json';
             }else{
-                $rules['google_service_account_json'] = 'file|mimetypes:application/json';
+                //$rules['google_service_account_json'] = 'file|mimetypes:application/json';
             }
 
             $messages = [
