@@ -13,7 +13,7 @@ class GoogleWebMaster extends Migration
      */
     public function up()
     {
-        Schema::create('GooleWebMasters', function (Blueprint $table) {
+        Schema::create('google_web_masters', function (Blueprint $table) {
             $table->increments('id');
             $table->string('sites')->nullable();
             $table->string('crawls')->nullable();
