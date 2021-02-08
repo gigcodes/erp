@@ -676,7 +676,7 @@ Content-Type: application/json
 **Request:**
 
 ```json
-POST http://erp.theluxuryunlimited.com/api/laravel-logs/save
+POST https://erp.theluxuryunlimited.com/api/laravel-logs/save
 Accept: application/json
 Content-Type: application/json
 {
