@@ -1663,113 +1663,151 @@ class ProductController extends Controller
 
     public function listMagento(Request $request, $id)
     {
-        $queueName = [
-            "1" => "mageone",
-            "2" => "magetwo",
-            "3" => "magethree"
-        ];
-        // Get product by ID
-        $product = Product::find($id);
-        //check for hscode
-        $hsCode = $product->hsCode($product->category, $product->composition);
-        $hsCode = true;
-        if ($hsCode) {
-            // If we have a product, push it to Magento
-            if ($product !== null) {
-                // Dispatch the job to the queue
-                //PushToMagento::dispatch($product)->onQueue('magento');
-                $category = $product->category;
-                $brand = $product->brand;
-                //website search
-                $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
-                if(count($websiteArrays) == 0){
-                    \Log::info("Product started ".$product->id." No website found");
-                    $msg = 'No website found for  Brand: '. $product->brand. ' and Category: '. $product->category;
-                    ProductPushErrorLog::log($product->id, $msg, 'error');
-                    LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
-                }else{
-                    $i = 1;
-                    foreach ($websiteArrays as $websiteArray) {
-                        $website = StoreWebsite::find($websiteArray);
-                        if($website){
-                            \Log::info("Product started website found For website".$website->website);
-                            LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id);
-                            //currently we have 3 queues assigned for this task.
-                            if($i > 3) {
-                               $i = 1;
+        try {
+            //code...
+            $queueName = [
+                "1" => "mageone",
+                "2" => "magetwo",
+                "3" => "magethree"
+            ];
+            // Get product by ID
+            $product = Product::find(100024);
+            //check for hscode
+            $hsCode = $product->hsCode($product->category, $product->composition);
+            $hsCode = true;
+            if ($hsCode) {
+                // If we have a product, push it to Magento
+                if ($product !== null) {
+                    // Dispatch the job to the queue
+                    //PushToMagento::dispatch($product)->onQueue('magento');
+                    $category = $product->category;
+                    $brand = $product->brand;
+                    //website search
+                    $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+                    if(count($websiteArrays) == 0){
+                        \Log::info("Product started ".$product->id." No website found");
+                        $msg = 'No website found for  Brand: '. $product->brand. ' and Category: '. $product->category;
+                        ProductPushErrorLog::log($product->id, $msg, 'error');
+                        LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
+                    }else{
+                        $i = 1;
+                        foreach ($websiteArrays as $websiteArray) {
+                            $website = StoreWebsite::find($websiteArray);
+                            if($website){
+                                \Log::info("Product started website found For website".$website->website);
+                                LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id);
+                                //currently we have 3 queues assigned for this task.
+                                if($i > 3) {
+                                   $i = 1;
+                                }
+                                PushToMagento::dispatch($product,$website)->onQueue($queueName[$i]);
+                                $i++;
+                            }else{
+                                $msg = 'Website not exist ';
+                                ProductPushErrorLog::log($product->id, $msg, 'error');
+                                LogListMagento::log($product->id, "website not exist " . $product->id, 'info');
                             }
-                            PushToMagento::dispatch($product,$website)->onQueue($queueName[$i]);
-                            $i++;
                         }
                     }
-                }
-                // if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                //     $result = MagentoHelper::uploadProduct($product);
-                //     if ( !$result ) {
-                //         // Log alert
-                //         \Log::channel('listMagento')->alert( "[Queued job result] Pushing product with ID " . $product->id . " to Magento failed" );
-
-                //         // Set product to isListed is 0
-                //         $product->isListed = 0;
-                //         $product->save();
-                //     } else {
-                //         // Log info
-                //         \Log::channel('listMagento')->info( "[Queued job result] Successfully pushed product with ID " . $product->id . " to Magento" );
-                //     }
-                // }
-
-                // Update the product so it doesn't show up in final listing
-                $product->isUploaded = 1;
-                $product->save();
-
-                //translate product title and description
-//                $languages = ['hi','ar'];
-                $languages = Language::pluck('locale')->where("status",1)->toArray();
-                $isDefaultAvailable = Product_translation::whereIN('locale', $languages)->where('product_id', $product->id)->first();
-                if (!$isDefaultAvailable) {
-                    $product_translation = new Product_translation;
-                    $product_translation->title = $product->name;
-                    $product_translation->description = $product->short_description;
-                    $product_translation->product_id = $product->id;
-                    $product_translation->locale = 'en';
-                    $product_translation->save();
-                }
-                foreach ($languages as $language) {
-                    $isLocaleAvailable = Product_translation::where('locale', $language)->where('product_id', $product->id)->first();
-                    if (!$isLocaleAvailable) {
+                    // if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                    //     $result = MagentoHelper::uploadProduct($product);
+                    //     if ( !$result ) {
+                    //         // Log alert
+                    //         \Log::channel('listMagento')->alert( "[Queued job result] Pushing product with ID " . $product->id . " to Magento failed" );
+    
+                    //         // Set product to isListed is 0
+                    //         $product->isListed = 0;
+                    //         $product->save();
+                    //     } else {
+                    //         // Log info
+                    //         \Log::channel('listMagento')->info( "[Queued job result] Successfully pushed product with ID " . $product->id . " to Magento" );
+                    //     }
+                    // }
+    
+                    // Update the product so it doesn't show up in final listing
+                    $product->isUploaded = 1;
+                    $product->save();
+                    //return json_encode([$product]);
+                    //translate product title and description
+    //                $languages = ['hi','ar'];
+                    $languages = Language::pluck('locale')->where("status",1)->toArray();
+                    $isDefaultAvailable = Product_translation::whereIN('locale', $languages)->where('product_id', $product->id)->first();
+                    if (!$isDefaultAvailable) {
                         $product_translation = new Product_translation;
-                        $googleTranslate = new GoogleTranslate();
-                        $title = $googleTranslate->translate($language, $product->name);
-                        $description = $googleTranslate->translate($language, $product->short_description);
-                        if ($title && $description) {
-                            $product_translation->title = $title;
-                            $product_translation->description = $description;
-                            $product_translation->product_id = $product->id;
-                            $product_translation->locale = $language;
-                            $product_translation->save();
-                        }
+                        $product_translation->title = isset($product->name) ? $product->name : "";
+                        $product_translation->description = isset($product->short_description) ? $product->short_description : "";
+                        $product_translation->product_id = $product->id;
+                        $product_translation->locale = 'en';
+                        $product_translation->save();
+                    }else{
+                        $msg = 'Product translation data not exists';
+                        ProductPushErrorLog::log($product->id, $msg, 'error');
+                        LogListMagento::log($product->id, $msg . $product->id, 'info');
                     }
+                    if(count($languages) > 0){
+                        foreach ($languages as $language) {
+                            $isLocaleAvailable = Product_translation::where('locale', $language)->where('product_id', $product->id)->first();
+                            if (!$isLocaleAvailable) {
+                                $product_translation = new Product_translation;
+                                $googleTranslate = new GoogleTranslate();
+                                $title = $googleTranslate->translate($language, $product->name);
+                                $description = $googleTranslate->translate($language, $product->short_description);
+                                if ($title && $description) {
+                                    $product_translation->title = $title;
+                                    $product_translation->description = $description;
+                                    $product_translation->product_id = $product->id;
+                                    $product_translation->locale = $language;
+                                    $product_translation->save();
+                                }else{
+                                    $msg = 'Title and description are not available';
+                                    ProductPushErrorLog::log($product->id, $msg, 'error');
+                                    LogListMagento::log($product->id, $msg . $product->id, 'info');
+                                }
+                            }else{
+                                $msg = 'Locale data not exists';
+                                ProductPushErrorLog::log($product->id, $msg, 'error');
+                                LogListMagento::log($product->id, $msg . $product->id, 'info');
+                            }
+                        }
+                    }else{
+                        $msg = 'Languages data not exists';
+                        ProductPushErrorLog::log($product->id, $msg, 'error');
+                        LogListMagento::log($product->id, $msg . $product->id, 'info');
+                    }
+                    
+                    // Update the product so it doesn't show up in final listing
+                    $product->isUploaded = 1;
+                    $product->save();
+                    // Return response
+                    return response()->json([
+                        'result' => 'queuedForDispatch',
+                        'status' => 'listed'
+                    ]);
                 }
-                // Update the product so it doesn't show up in final listing
-                $product->isUploaded = 1;
-                $product->save();
-                // Return response
-                return response()->json([
-                    'result' => 'queuedForDispatch',
-                    'status' => 'listed'
-                ]);
             }
+            
+            $msg = 'Hs Code not found of product id '.$id.'. Parameters where category_id: '. $product->category. ' and composition: '. $product->composition;
+            \App\ProductPushErrorLog::log($id, $msg, 'error');
+            \App\Loggers\LogListMagento::log($product->id, $msg, 'info');
+    
+            // Return error response by default
+            return response()->json([
+                'result' => 'productNotFound',
+                'status' => 'error'
+            ]);
+        } catch(Exception $e) {
+            //throw $th;
+            $msg = 'internal server error';
+            \App\ProductPushErrorLog::log($id, $msg, 'error');
+            \App\Loggers\LogListMagento::log($product->id, $msg, 'info');
+    
+            // Return error response by default
+            return response()->json([
+                'result' => 'productNotFound',
+                'status' => 'error'
+            ]);
         }
         
-        $msg = 'Hs Code not found of product id '.$id.'. Parameters where category_id: '. $product->category. ' and composition: '. $product->composition;
-        \App\ProductPushErrorLog::log($id, $msg, 'error');
-		\App\Loggers\LogListMagento::log($product->id, $msg, 'info');
-
-        // Return error response by default
-        return response()->json([
-            'result' => 'productNotFound',
-            'status' => 'error'
-        ]);
     }
 
     public function unlistMagento(Request $request, $id)
