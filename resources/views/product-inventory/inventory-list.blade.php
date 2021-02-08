@@ -68,6 +68,9 @@
             {!! Form::checkbox('no_size',"on",request("no_size"), ['class' => 'form-control']) !!} No Size
         </div>
         <div class="form-group mr-pd col-md-2">
+            {!! Form::text('supplier_count',request("supplier_count"), ['class' => 'form-control', 'placeholder' => 'Supplier count']) !!}
+        </div>
+        <div class="form-group mr-pd col-md-2">
             <div class='input-group date' id='filter-date'>
                 <input type='text' class="form-control" name="date" value="{{ request('date','') }}" placeholder="Date" />
                 <span class="input-group-addon">
