@@ -848,12 +848,12 @@ $(document).on('click','#continue-phase-1',function(){
     // initPhase2();
 });
 
-$(document).on('submit','#create-ad-account-form',function(e){
+$(document).on('submit','#create-ad-campaign-form',function(e){
     var status = $('#addAccountStatus').val();
     if(status == 1) {
         e.preventDefault();
     }
-    if($("#create-ad-account-form").valid()) {
+    if($("#create-ad-campaign-form").valid()) {
         if(status == 1) {
             $('.create-campaning').hide();
             $('.create-campaning-phase-2').show();
@@ -1485,7 +1485,7 @@ $(document).on('click','#addmoreGroup',function(){
                                     <input type="url" name="adgroup[${adgroupCount}][url]" class="form-control" placeholder="Enter relate web page URL " required="">
                                 </div>
                                 <div class="col-md-12 mt-3">
-                                    <input type="text" value="" name="adgroup[${{adgroupCount}}][keywords]" id="taginput" data-role="tagsinput" class="taginput form-control" placeholder="Enter Keywords" />
+                                    <input type="text" value="" name="adgroup[${{adgroupCount}}][keywords]" id="taginput" data-role="tagsinput" class="taginput form-control" placeholder="Enter Keywords"/>
                                 </div>
                                 <div class="col-md-12 mt-3">
                                     <input type="number" step="0.00" name="adgroup[${adgroupCount}][budget]" class="form-control" placeholder="Enter budget" required="">

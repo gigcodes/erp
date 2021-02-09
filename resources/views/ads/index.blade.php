@@ -92,7 +92,7 @@
 	                <div class="row mt-4">
 	                	<div class="col-md-6">
 	                		<span>Note</span>
-	                		<textarea name="note" class="form-control" placeholder="Note"></textarea>
+	                		<textarea name="note" class="form-control" placeholder="Note" required=""></textarea>
 	                	</div>
 	                	<div class="col-md-6">
 	                		<span>Status</span>
@@ -114,7 +114,7 @@
 <div class="modal fade" id="campaningmodal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-             <form method="POST" id="create-ad-account-form" action="{{route('ads.savecampaign')}}" enctype="multipart/form-data">
+             <form method="POST" id="create-ad-campaign-form" action="{{route('ads.savecampaign')}}" enctype="multipart/form-data">
                 {{csrf_field()}}
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">Create Campaign</h5>
@@ -165,7 +165,7 @@
 <div class="modal fade" id="adgroupmodal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-             <form method="POST" action="{{route('ads.savegroup')}}" id="create-ad-account-form" enctype="multipart/form-data">
+             <form method="POST" action="{{route('ads.savegroup')}}" id="create-ad-group-form" enctype="multipart/form-data">
                 {{csrf_field()}}
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">Create Ads Group</h5>
@@ -206,7 +206,7 @@
 	                    			<input type="url" name="adgroup[0][url]" class="form-control" placeholder="Enter relate web page URL " required="">
 	                    		</div>
 	                    		<div class="col-md-12 mt-3">
-	                    			<input type="text" value="" name="adgroup[0][keywords]" id="taginput" data-role="tagsinput" class="taginput form-control" placeholder="Enter Keywords" />
+	                    			<input type="text" value="" name="adgroup[0][keywords]" id="taginput" data-role="tagsinput" class="taginput form-control" placeholder="Enter Keywords"/>
 	                    		</div>
 	                    		<div class="col-md-12 mt-3">
 	                    			<input type="number" step="0.00" name="adgroup[0][budget]" class="form-control" placeholder="Enter budget" required="">
@@ -234,7 +234,7 @@
 <div class="modal fade" id="admodal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-             <form method="POST" action="{{route('ads.adsstore')}}" id="create-ad-account-form" enctype="multipart/form-data">
+             <form method="POST" action="{{route('ads.adsstore')}}" id="create-ad-store-form" enctype="multipart/form-data">
                 {{csrf_field()}}
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">Create Ads</h5>
