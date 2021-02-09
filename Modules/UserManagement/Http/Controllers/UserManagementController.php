@@ -865,6 +865,18 @@ class UserManagementController extends Controller
             $pending_tasks += $task_time['approximate_time'];
         }
         $u['total_pending_hours'] = intdiv($pending_tasks, 60).':'. ($pending_tasks % 60);
+
+        $priority_tasks_time = Task::where('assign_to',$id)->where('is_verified',NULL)->where('is_flagged',1)->select(DB::raw("SUM(approximate) as approximate_time"))->first();
+        /** get availablity hours */
+        $user_avaibility = UserAvaibility::where('user_id',$id)->selectRaw('minute')->orderBy('id','desc')->first();
+        $available_minute = !empty($user_avaibility) ? $user_avaibility->minute : 0;
+
+        $totalPriority = !empty($priority_tasks_time) ? $priority_tasks_time->approximate_time : 0;
+        $available_minute = $available_minute - $totalPriority;
+        $hours = floor($available_minute / 60); // Get the number of whole hours
+        $available_minute = $available_minute % 60; 
+        $u['total_priority_hours'] = intdiv($totalPriority, 60).':'. ($totalPriority % 60);
+        $u['total_available_time'] = sprintf ("%d:%02d", $hours, $available_minute); 
         $today = date('Y-m-d');
 
         /** get total availablity hours */
@@ -1067,6 +1079,18 @@ class UserManagementController extends Controller
                 ]);
             }
         }
+        if(!$request->availableDay || $request->availableDay == "") {
+            return response()->json([
+                "code"       => 500,
+                "error"       => 'Available day is required'
+            ]);
+        }
+        if(!$request->availableMinute || $request->availableMinute == "") {
+            return response()->json([
+                "code"       => 500,
+                "error"       => 'Available day is required'
+            ]);
+        }
 
         $note = trim($request->note);
         if(!$request->status) {
@@ -1085,6 +1109,8 @@ class UserManagementController extends Controller
         $user_avaibility->from = $request->from;
         $user_avaibility->user_id = $request->user_id;
         $user_avaibility->to = $request->to;
+        $user_avaibility->day = $request->availableDay;
+        $user_avaibility->minute = $request->availableMinute;
         $user_avaibility->status = $request->status;
         $user_avaibility->note = $note;
         $user_avaibility->save();
