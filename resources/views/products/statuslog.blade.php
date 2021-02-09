@@ -27,8 +27,8 @@
                 <div class="form-group">
                 <select class="form-control" name="status" id="status">
                     <option value="">Status</option>
-                    @foreach($status as $val)
-                        <option {{ $request->get('status')==$val->id ? 'selected' : '' }} value="{{ $val->id }}">{{ $val->name }}</option>
+                    @foreach($status as  $k => $val)
+                        <option {{ $request->get('status')==$k ? 'selected' : '' }} value="{{ $k }}">{{ ucwords($val) }}</option>
                     @endforeach
                 </select>
                 </div>
@@ -51,17 +51,17 @@
                 <tr>
                     <th>Date</th>
                     <th>Product ID</th>
-                    <th>scrape</th>
-                    <th>auto crop</th>
-                    <th>final approval</th>
-                    <th>is being cropped</th>
-                    <th>import</th>
-                    <th>unable to scrape image</th>
-                    <th>crop skipped</th>
-                    <th>is being enhanced</th>
-                    <th>is being sequenced</th>
-                    <th>import</th>
-                    <th>scrape</th>
+                    <th>Scrape</th>
+                    <th>Auto crop</th>
+                    <th>Final approval</th>
+                    <th>Is being cropped</th>
+                    <th>Is being scraped</th>
+                    <th>Pending products without category</th>
+                    <th>Request For external Scraper</th>
+                    <th>Unknown Color</th>
+                    <th>Unknown Size</th>
+                    <th>Unknown Composition</th>
+                    <th>Unknown Measurement</th>
                 </tr>
                 @foreach($products as $product)
                     <tr>
@@ -70,7 +70,7 @@
                             <a href="{{ action('ProductController@show', $product->id) }}">{{$product->id}}</a>
                         </td>
                         <td>
-                            {{isset($product->alllog_status[12][0]["created_at"]) ? $product->alllog_status[12][0]["created_at"] : "NA"}}
+                            {{isset($product->alllog_status[2][0]["created_at"]) ? $product->alllog_status[2][0]["created_at"] : "NA"}}
                         </td>
                         <td>
                             {{isset($product->alllog_status[4][0]["created_at"]) ? $product->alllog_status[4][0]["created_at"] : "NA"}}
