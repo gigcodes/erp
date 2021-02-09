@@ -45,6 +45,14 @@
 						@endforeach
 					</select>
 				</div>
+
+                <div class="col-md-4">
+                    <select name="channel" class="form-control select-multiple" id="error-select">
+                        @foreach($filter_channel as $channel)
+                            <option value="{{ $channel }}" {{ app('request')->input('channel') == $channel ? ' selected' : '' }}>{{ $channel }}</option>
+                        @endforeach
+                    </select>
+                </div>
 				<div class="col-md-2">
 					<button type='submit' class="btn btn-default">Search</button>
 				</div>
@@ -56,6 +64,7 @@
             <thead>
             <tr>
                 <th width="10%">Filename</th>
+                <th width="10%">Channel</th>
                 <th width="50%">Log</th>
                 <th width="10%">Action</th>
             </tr>
