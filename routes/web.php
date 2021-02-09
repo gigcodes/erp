@@ -18,7 +18,6 @@ Auth::routes();
 
 Route::get('/test/test', 'OrderController@testEmail');
 
-
 Route::get('/test/pushProduct', 'TmpTaskController@testPushProduct');
 Route::get('/test/fixBrandPrice', 'TmpTaskController@fixBrandPrice');
 Route::get('/test/deleteChatMessages', 'TmpTaskController@deleteChatMessages');
@@ -56,6 +55,16 @@ Route::get('/chat/updatenew', 'ChatController@updatefornew')->name('updatefornew
 Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
 Route::resource('courier', 'CourierController');
 Route::resource('product-location', 'ProductLocationController');
+
+//Google Web Master Routes
+Route::prefix('googlewebmaster')->group(static function () {
+    
+    Route::get('get-access-token','GoogleWebMasterController@googleLogin')->name('googlewebmaster.get-access-token') ;
+    Route::get('/index', 'GoogleWebMasterController@index')->name('googlewebmaster.index');
+   
+});
+
+
 
 Route::prefix('product')->middleware('auth')->group(static function () {
     Route::get('manual-crop/assign-products', 'Products\ManualCroppingController@assignProductsToUser');
