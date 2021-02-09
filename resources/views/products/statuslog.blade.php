@@ -27,8 +27,8 @@
                 <div class="form-group">
                 <select class="form-control" name="status" id="status">
                     <option value="">Status</option>
-                    @foreach($status as $val)
-                        <option {{ $request->get('status')==$val->id ? 'selected' : '' }} value="{{ $val->id }}">{{ $val->name }}</option>
+                    @foreach($status as  $k => $val)
+                        <option {{ $request->get('status')==$k ? 'selected' : '' }} value="{{ $k }}">{{ ucwords($val) }}</option>
                     @endforeach
                 </select>
                 </div>
@@ -70,7 +70,7 @@
                             <a href="{{ action('ProductController@show', $product->id) }}">{{$product->id}}</a>
                         </td>
                         <td>
-                            {{isset($product->alllog_status[12][0]["created_at"]) ? $product->alllog_status[12][0]["created_at"] : "NA"}}
+                            {{isset($product->alllog_status[2][0]["created_at"]) ? $product->alllog_status[2][0]["created_at"] : "NA"}}
                         </td>
                         <td>
                             {{isset($product->alllog_status[4][0]["created_at"]) ? $product->alllog_status[4][0]["created_at"] : "NA"}}
