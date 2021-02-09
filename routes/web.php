@@ -83,6 +83,9 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('live-scraper-logs', 'LaravelLogController@scraperLiveLogs')->name('logging.live.scraper-logs');
     Route::get('live-laravel-logs/downloads', 'LaravelLogController@liveLogDownloads')->name('logging.live.downloads');
     Route::get('live-magento-logs/downloads', 'LaravelLogController@liveMagentoDownloads')->name('logging.live.magento.downloads');
+    //TODO::Magento Product API call Route
+    Route::get('magento-product-api-call', 'Logging\LogListMagentoController@showMagentoProductAPICall')->name('logging.magento.product.api.call');
+    Route::post('magento-product-skus-ajax', 'Logging\LogListMagentoController@getMagentoProductAPIAjaxCall')->name('logging.magento.product.api.ajax.call');
 });
 
 Route::prefix('category-messages')->group(function () {
