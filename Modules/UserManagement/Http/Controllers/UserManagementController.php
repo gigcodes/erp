@@ -872,9 +872,12 @@ class UserManagementController extends Controller
         $available_minute = !empty($user_avaibility) ? $user_avaibility->minute : 0;
 
         $totalPriority = !empty($priority_tasks_time) ? $priority_tasks_time->approximate_time : 0;
-        $available_minute = $available_minute - $totalPriority;
-        $hours = floor($available_minute / 60); // Get the number of whole hours
-        $available_minute = $available_minute % 60; 
+        $hours = 0;
+        if($available_minute != 0) {
+            $available_minute = $available_minute - $totalPriority;
+            $hours = floor($available_minute / 60); // Get the number of whole hours
+            $available_minute = $available_minute % 60; 
+        }
         $u['total_priority_hours'] = intdiv($totalPriority, 60).':'. ($totalPriority % 60);
         $u['total_available_time'] = sprintf ("%d:%02d", $hours, $available_minute); 
         $today = date('Y-m-d');
