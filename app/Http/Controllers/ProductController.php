@@ -1671,7 +1671,7 @@ class ProductController extends Controller
                 "3" => "magethree"
             ];
             // Get product by ID
-            $product = Product::find(100024);
+            $product = Product::find($id);
             //check for hscode
             $hsCode = $product->hsCode($product->category, $product->composition);
             $hsCode = true;
@@ -1797,9 +1797,9 @@ class ProductController extends Controller
             ]);
         } catch(Exception $e) {
             //throw $th;
-            $msg = 'internal server error';
+            $msg = $e->getMessage();
             \App\ProductPushErrorLog::log($id, $msg, 'error');
-            \App\Loggers\LogListMagento::log($product->id, $msg, 'info');
+            \App\Loggers\LogListMagento::log($id, $msg, 'info');
     
             // Return error response by default
             return response()->json([
@@ -2855,7 +2855,14 @@ class ProductController extends Controller
 
             // Add order
             $product = QueryHelper::approvedListingOrder($product);
-
+            //get priority
+            // $product = $product->with('suppliers_info.supplier')->whereHas('suppliers_info.supplier')->get()->transform(function($productData){
+            //     //$productData->priority = $productData->suppliers_info->first()
+            //     return $productData;
+            // });
+            // return response()->json([
+            //     'status' => $product
+            // ]);
             // Get first product
             $product = $product->whereHasMedia('original')->first();
         }
