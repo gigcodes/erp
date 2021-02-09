@@ -94,6 +94,15 @@ class GoogleWebMasterController extends Controller
 
 							$response1 = curl_exec($curl1);
 							$err = curl_error($curl1);
+							if ($err) {
+				  				echo "cURL Error #:" . $err;
+							} else {
+								if(is_array( json_decode( $response1)->sitemap ) ){
+									foreach(json_decode( $response1)->sitemap as $key=> $sitemap) {
+										GoogleWebMasters::where('sites',$site->siteUrl)->update(['crawls' => $sitemap->errors]);
+									}
+								}
+							}
 						}
 					}else{
 						 return redirect()->route('googlewebmaster.index');  

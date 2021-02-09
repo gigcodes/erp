@@ -49,7 +49,7 @@
                               <div class="modal-body">
                                   <div class="form-group">
                                       <label for="frequency">Error's</label>
-                                      {{$key}}
+                                      <a href="https://search.google.com/search-console/index?resource_id={{$site->sites}}" target="_blank">{{ $site->crawls }}</a>
                                   </div>
                               </div>
                               <div class="modal-footer">
