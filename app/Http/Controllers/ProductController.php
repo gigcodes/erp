@@ -1687,8 +1687,8 @@ class ProductController extends Controller
                     if(count($websiteArrays) == 0){
                         \Log::info("Product started ".$product->id." No website found");
                         $msg = 'No website found for  Brand: '. $product->brand. ' and Category: '. $product->category;
-                        ProductPushErrorLog::log($product->id, $msg, 'error');
-                        LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
+                        $logId = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
+                        ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
                     }else{
                         $i = 1;
                         foreach ($websiteArrays as $websiteArray) {
@@ -1704,8 +1704,9 @@ class ProductController extends Controller
                                 $i++;
                             }else{
                                 $msg = 'Website not exist ';
-                                ProductPushErrorLog::log($product->id, $msg, 'error');
-                                LogListMagento::log($product->id, "website not exist " . $product->id, 'info');
+
+                                $logId = LogListMagento::log($product->id, $msg, 'info');
+                                ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
                             }
                         }
                     }
@@ -1741,8 +1742,9 @@ class ProductController extends Controller
                         $product_translation->save();
                     }else{
                         $msg = 'Product translation data not exists';
-                        ProductPushErrorLog::log($product->id, $msg, 'error');
-                        LogListMagento::log($product->id, $msg . $product->id, 'info');
+
+                        $logId = LogListMagento::log($product->id, $msg, 'info');
+                        ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
                     }
                     if(count($languages) > 0){
                         foreach ($languages as $language) {
@@ -1760,19 +1762,21 @@ class ProductController extends Controller
                                     $product_translation->save();
                                 }else{
                                     $msg = 'Title and description are not available';
-                                    ProductPushErrorLog::log($product->id, $msg, 'error');
-                                    LogListMagento::log($product->id, $msg . $product->id, 'info');
+                                    
+                                    $logId = LogListMagento::log($product->id, $msg, 'info');
+                                    ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
                                 }
                             }else{
                                 $msg = 'Locale data not exists';
-                                ProductPushErrorLog::log($product->id, $msg, 'error');
-                                LogListMagento::log($product->id, $msg . $product->id, 'info');
+                                $logId = LogListMagento::log($product->id, $msg, 'info');
+                                ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
                             }
                         }
                     }else{
                         $msg = 'Languages data not exists';
-                        ProductPushErrorLog::log($product->id, $msg, 'error');
-                        LogListMagento::log($product->id, $msg . $product->id, 'info');
+                        
+                        $logId = LogListMagento::log($product->id, $msg, 'info');
+                        ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
                     }
                     
                     // Update the product so it doesn't show up in final listing
@@ -1787,8 +1791,9 @@ class ProductController extends Controller
             }
             
             $msg = 'Hs Code not found of product id '.$id.'. Parameters where category_id: '. $product->category. ' and composition: '. $product->composition;
-            \App\ProductPushErrorLog::log($id, $msg, 'error');
-            \App\Loggers\LogListMagento::log($product->id, $msg, 'info');
+
+            $logId = LogListMagento::log($product->id, $msg, 'info');
+            ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
     
             // Return error response by default
             return response()->json([
@@ -1798,9 +1803,10 @@ class ProductController extends Controller
         } catch(Exception $e) {
             //throw $th;
             $msg = $e->getMessage();
-            \App\ProductPushErrorLog::log($id, $msg, 'error');
-            \App\Loggers\LogListMagento::log($id, $msg, 'info');
-    
+
+            $logId = LogListMagento::log($id, $msg, 'info');
+            ProductPushErrorLog::log("",$id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+           
             // Return error response by default
             return response()->json([
                 'result' => 'productNotFound',
@@ -2856,15 +2862,20 @@ class ProductController extends Controller
             // Add order
             $product = QueryHelper::approvedListingOrder($product);
             //get priority
-            // $product = $product->with('suppliers_info.supplier')->whereHas('suppliers_info.supplier')->get()->transform(function($productData){
-            //     //$productData->priority = $productData->suppliers_info->first()
-            //     return $productData;
-            // });
+            $product = $product->with('suppliers_info.supplier')->whereHas('suppliers_info.supplier',function($query){
+               // $query->where('priority','!=',null);
+            })->whereHasMedia('original')->get()->transform(function($productData){
+                $productData->priority = isset($productData->suppliers_info->first()->supplier->priority) ? $productData->suppliers_info->first()->supplier->priority : 5;
+                return $productData;
+            });
+            $product = $product->sortBy('priority')->first();
+            unset($product->priority);
             // return response()->json([
             //     'status' => $product
             // ]);
             // Get first product
-            $product = $product->whereHasMedia('original')->first();
+           // $product = $product->whereHasMedia('original')->first();
+           
         }
 
         
