@@ -2858,7 +2858,6 @@ class ProductController extends Controller
             // Get next product
             $product = Product::where('status_id', StatusHelper::$autoCrop)
                 ->where('category', '>', 3);
-
             // Add order
             $product = QueryHelper::approvedListingOrder($product);
             //get priority
