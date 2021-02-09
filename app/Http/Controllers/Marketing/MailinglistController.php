@@ -64,7 +64,10 @@ class MailinglistController extends Controller
                 $response = curl_exec($curl);
 
                 curl_close($curl);
+                \Log::info($response);
                 $res = json_decode($response);
+                
+
                 Mailinglist::create([
                     'id' => $res->id,
                     'name' => $request->name,
