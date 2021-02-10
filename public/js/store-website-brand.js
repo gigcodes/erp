@@ -36,14 +36,14 @@ var page = {
             beforeSend : function() {
                 $("#loading-image").show();
             },
-            error: function(){
-                alert("Something went wrong, please check log history");
+            complete : function() {
                 $("#loading-image").hide();
             }
         }
-        this.sendAjax(_z, "afterPush");
+        this.sendAjax(_z, "doneAjax");
+
     },
-    afterPush :function(response) {
+    doneAjax :function(response) {
         $("#loading-image").hide();
     }
 }
