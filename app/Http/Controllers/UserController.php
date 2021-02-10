@@ -623,7 +623,7 @@ class UserController extends Controller
 
 	public function checkUserLogins()
 	{
-		Log::info(Carbon::now() . " begin checking users logins");
+		Log::channel('customer')->info(Carbon::now() . " begin checking users logins");
 		$users = User::all();
 
 		foreach ($users as $user) {
@@ -645,7 +645,7 @@ class UserController extends Controller
 			}
 		}
 
-		Log::info(Carbon::now() . " end of checking users logins");
+		Log::channel('customer')->info(Carbon::now() . " end of checking users logins");
 	}
 
 	public function searchUser(Request $request)

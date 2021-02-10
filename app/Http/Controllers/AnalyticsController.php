@@ -148,7 +148,7 @@ class AnalyticsController extends Controller
     }
 
     public function cronShowData(){
-        \Log::info("Google Analytics Started running ...");
+        \Log::channel('scraper')->info("Google Analytics Started running ...");
         $analyticsDataArr = [];
         include(app_path() . '/Functions/Analytics.php');
         $data = StoreWebsiteAnalytic::all()->toArray();
@@ -178,6 +178,6 @@ class AnalyticsController extends Controller
                 }
             }
         }
-        \Log::info("Google Analytics ended running ...");
+        \Log::channel('scraper')->info("Google Analytics ended running ...");
     }
 }

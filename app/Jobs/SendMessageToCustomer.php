@@ -243,7 +243,7 @@ class SendMessageToCustomer implements ShouldQueue
                             try {
                                 $chatMessage->attachMedia($media, config('constants.media_tags'));
                             } catch (\Exception $e) {
-                                \Log::error($e);
+                                \Log::channel('customer')->error($e);
                             }
                         }
                     }

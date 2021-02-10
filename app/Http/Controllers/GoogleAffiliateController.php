@@ -341,9 +341,9 @@ class GoogleAffiliateController extends Controller
             'subject' => 'required|min:3|max:255',
             'message' => 'required'
         ]);
-        \Log::info($request);
+        \Log::channel('scraper')->info($request);
         $affiliates = Affiliates::find($request->affiliate_id);
-        \Log::info($affiliates);
+        \Log::channel('scraper')->info($affiliates);
         Mail::to($affiliates->emailaddress)->send(new AffiliateEmail($request->subject, $request->message));
 
 

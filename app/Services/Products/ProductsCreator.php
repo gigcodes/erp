@@ -208,7 +208,7 @@ class ProductsCreator
             // check that if product has no title and everything then send to the external scraper
             $product->checkExternalScraperNeed();
 
-            \Log::info("Saved product id :" . $product->id);
+            \Log::channel('productUpdates')->info("Saved product id :" . $product->id);
 
 
             if ($image->is_sale) {

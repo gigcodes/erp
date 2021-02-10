@@ -82,12 +82,12 @@ class ShopifyHelper
         }
 
         if (!empty($errors)) {
-            \Log::info(json_encode(["code" => 500, "data" => $response, "message" => implode("<br>", $errors)]));
+            \Log::channel('productUpdates')->info(json_encode(["code" => 500, "data" => $response, "message" => implode("<br>", $errors)]));
             return false;
         }
 
         if(empty($response->product)) {
-            \Log::info(json_encode(["code" => 500, "data" => $response, "message" => "Response is missing"]));
+            \Log::channel('productUpdates')->info(json_encode(["code" => 500, "data" => $response, "message" => "Response is missing"]));
             return false;
         }
 
@@ -232,7 +232,7 @@ class ShopifyHelper
         $websiteOrder->platform_order_id = $shopify_order_id;
         $websiteOrder->save();
 
-        \Log::info("Saved order: " . $orderSaved->id);
+        \Log::channel('productUpdates')->info("Saved order: " . $orderSaved->id);
 
     }
 
@@ -279,7 +279,7 @@ class ShopifyHelper
         $customer->store_website_id = $store_id;
         $customer->save();
 
-        \Log::info("Saved customer: " . $customer->id);
+        \Log::channel('customer')->info("Saved customer: " . $customer->id);
 
     }
 
