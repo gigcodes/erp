@@ -471,7 +471,13 @@ class ProductCropperController extends Controller
         ProductStatus::updateStatus($product->id, 'CROP_APPROVAL_CONFIRMATION', 1);
 
         // Set new status
-        $product->status_id = StatusHelper::$finalApproval;
+        //check final approval
+        if($product->checkPriceRange()){
+            $product->status_id = StatusHelper::$finalApproval;
+        }else{
+            $product->status_id = StatusHelper::$priceCheck;
+        }
+        //$product->status_id = StatusHelper::$finalApproval;
         $product->save();
 
         return 'ok';

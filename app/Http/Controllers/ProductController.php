@@ -3120,7 +3120,13 @@ class ProductController extends Controller
 
             if ($productMediacount <= $cropCount) {
                 $product->cropped_at = Carbon::now()->toDateTimeString();
-                $product->status_id = StatusHelper::$finalApproval;
+                //check final approval
+                if($product->checkPriceRange()){
+                    $product->status_id = StatusHelper::$finalApproval;
+                }else{
+                    $product->status_id = StatusHelper::$priceCheck;
+                }
+                
                 $product->scrap_priority = 0;
                 $product->save();
             } else {
