@@ -81,16 +81,21 @@ class AdsController extends Controller
 
     public function records(Request $request)
     {
-        $records = GoogleAdsAccount::leftJoin("googlecampaigns as gc","gc.account_id","googleadsaccounts.id")
-        ->leftJoin("googleadsgroups as gg","gg.adgroup_google_campaign_id","gc.google_campaign_id")
-        ->leftJoin("googleads as ga","ga.google_adgroup_id","gg.google_adgroup_id");
+        // $records = GoogleAdsAccount::leftJoin("googlecampaigns as gc","gc.account_id","googleadsaccounts.id")
+        // ->leftJoin("googleadsgroups as gg","gg.adgroup_google_campaign_id","gc.google_campaign_id")
+        // ->leftJoin("googleads as ga","ga.google_adgroup_id","gg.google_adgroup_id");
+
+        $records = AdAccount::leftJoin("ad_campaigns as gc","gc.ad_account_id","ad_accounts.id")
+        ->leftJoin("ad_groups as gg","gg.campaign_id","gc.id")
+        ->leftJoin("ads as ga","ga.adgroup_id","gg.id")
+        ->select('ad_accounts.id','ad_accounts.account_name','ad_accounts.status','ad_accounts.created_at', 'gc.campaign_name','gc.data', 'ga.headlines');
 
         $keyword = request("keyword");
         if (!empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
-                $q->where("gg.ad_group_name", "LIKE", "%$keyword%")
+                $q->where("gg.group_name", "LIKE", "%$keyword%")
                 ->orWhere("gc.campaign_name", "LIKE", "%$keyword%")
-                ->orWhere("ga.headline1", "LIKE", "%$keyword%");
+                ->orWhere("ga.headlines", "LIKE", "%$keyword%");
             });
         }
 

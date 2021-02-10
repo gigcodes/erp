@@ -1485,7 +1485,7 @@ $(document).on('click','#addmoreGroup',function(){
                                     <input type="url" name="adgroup[${adgroupCount}][url]" class="form-control" placeholder="Enter relate web page URL " required="">
                                 </div>
                                 <div class="col-md-12 mt-3">
-                                    <input type="text" value="" name="adgroup[${{adgroupCount}}][keywords]" id="taginput" data-role="tagsinput" class="taginput form-control" placeholder="Enter Keywords"/>
+                                    <input type="text" value="" name="adgroup[${adgroupCount}][keywords]" class="form-control" placeholder="Enter Keywords" required=""/>
                                 </div>
                                 <div class="col-md-12 mt-3">
                                     <input type="number" step="0.00" name="adgroup[${adgroupCount}][budget]" class="form-control" placeholder="Enter budget" required="">

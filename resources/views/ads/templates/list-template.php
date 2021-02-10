@@ -9,7 +9,7 @@
 		        <th>Campaign</th>
 		        <th>Date</th>
 		        <th>Country</th>
-		        <th>Headline1</th>
+		        <th>Headline</th>
 		        <th>Status</th>
 		        <th>Created at</th>
 		        <th>Action</th>
@@ -20,11 +20,11 @@
 			      <tr>
 			      	<td>{{:prop.id}}</td>
 			        <td>{{:prop.account_name}}</td>
-			        <td>{{:prop.store_websites}}</td>
+			        <td>-</td>
 			        <td>{{:prop.campaign_name}}</td>
-			        <td>{{:prop.start_date}}-{{:prop.end_date}}</td>
-			        <td>{{:prop.sales_country}}</td>
-			        <td>{{:prop.headline1}}</td>
+			        <td>-</td>
+			        <td>-</td>
+			        <td>{{:prop.headlines}}</td>
 			        <td>{{:prop.status}}</td>
 			        <td>{{:prop.created_at}}</td>
 			        <td>

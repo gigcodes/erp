@@ -206,7 +206,7 @@
 	                    			<input type="url" name="adgroup[0][url]" class="form-control" placeholder="Enter relate web page URL " required="">
 	                    		</div>
 	                    		<div class="col-md-12 mt-3">
-	                    			<input type="text" value="" name="adgroup[0][keywords]" id="taginput" data-role="tagsinput" class="taginput form-control" placeholder="Enter Keywords"/>
+	                    			<input type="text" value="" name="adgroup[0][keywords]"  class="form-control" placeholder="Enter Keywords" required=""/>
 	                    		</div>
 	                    		<div class="col-md-12 mt-3">
 	                    			<input type="number" step="0.00" name="adgroup[0][budget]" class="form-control" placeholder="Enter budget" required="">
@@ -278,6 +278,12 @@
 			                		<input type="text" name="headlines[]" class="form-control" placeholder="New headline" required="">
 			                	</div>
 			                	<div class="col-md-12">
+			                		<input type="text" name="headlines[]" class="form-control" placeholder="New headline" required="">
+			                	</div>
+			                	<div class="col-md-12">
+			                		<input type="text" name="headlines[]" class="form-control" placeholder="New headline" required="">
+			                	</div>
+			                	<div class="col-md-12">
 			                		<a href="javascript:void(0)" id="addHeadline">ADD HEADLINE</a>
 			                	</div>
 	                		</div>	
@@ -304,10 +310,10 @@
 	                </div>
 	                <div class="row mb-4">
 	                	<div class="col-md-6">
-	                		<input type="text" name="tracking_tamplate" class="form-control" placeholder="Tracking template">
+	                		<input type="text" name="tracking_tamplate" class="form-control" placeholder="Tracking template" required="">
 	                	</div>
 	                	<div class="col-md-6">
-	                		<input type="text" name="final_url_suffix" class="form-control" placeholder="Final URL suffix">
+	                		<input type="text" name="final_url_suffix" class="form-control" placeholder="Final URL suffix" required="">
 	                	</div>
 	                </div>
 	                <div class="row mb-4">
@@ -330,13 +336,13 @@
 	                </div>
 	                <div class="row mb-5">
 	                	<div class="col-md-12">
-	                		<input type="checkbox" name="different_url_mobile" id="different_url_mobile" value="different_url_mobile">
+	                		<input type="checkbox" name="different_url_mobile" id="different_url_mobile" value="different_url_mobile" checked>
 	                		Use a different final URL for mobile
 	                	</div>
 	                </div>
-	                <div class="row mb-5 mobile-url-container"  style="display: none">
+	                <div class="row mb-5 mobile-url-container">
 	                	<div class="col-md-12">
-	                		<input type="url" name="mobile_final_url" class="form-control" placeholder="m.example.com">
+	                		<input type="url" name="mobile_final_url" class="form-control" placeholder="m.example.com" required="">
 	                	</div>
 	                </div>
                 </div>
