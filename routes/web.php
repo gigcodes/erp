@@ -214,6 +214,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/stats', 'ProductController@productStats');
     //ajay singh
     Route::get('products/scrap-logs', 'ProductController@productScrapLog');
+    Route::get('products/description', 'ProductController@productDescription');
 
     Route::post('products/{id}/updateName', 'ProductController@updateName');
     Route::post('products/{id}/updateDescription', 'ProductController@updateDescription');
