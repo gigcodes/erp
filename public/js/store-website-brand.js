@@ -36,6 +36,10 @@ var page = {
             beforeSend : function() {
                 $("#loading-image").show();
             }
+            error: function(){
+                alert("Something went wrong, please check log history");
+                $("#loading-image").hide();
+            }
         }
         this.sendAjax(_z, "afterPush");
     },
