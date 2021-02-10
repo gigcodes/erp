@@ -67,6 +67,7 @@ use App\Translations;
 use App\ProductPushErrorLog;
 use App\ProductStatusHistory;
 use App\Status;
+use App\ProductSupplier;
 
 
 class ProductController extends Controller
@@ -3445,6 +3446,27 @@ class ProductController extends Controller
         return response()->json([
             'status' => 'success'
         ]);
+    }
+
+    public function productDescription(Request $request)
+    {
+        $query = ProductSupplier::with('supplier','product');
+        if($request->get('product_id') != ''){
+             $products = $query->where('product_id',$request->get('product_id'));
+        }
+        if($request->get('supplier') != ''){
+            $products = $query->where('supplier_id',$request->get('supplier'));
+       }
+       if($request->get('sku') != ''){
+            $products = $query->whereHas('product',function($query) use($request){
+                $query->where('sku',$request->get('sku'));
+            });
+        }
+        $products_count = $query->count();
+        $products = $query->orderBy('product_id')->paginate(50);
+        $supplier = Supplier::all();
+        return view('products.description', compact('products','products_count','request','supplier'));
+       // dd($products);
     }
 
     public function productScrapLog(Request $request)
