@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterscrapedProductsTable extends Migration
+class UpdateSuppliers extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AlterscrapedProductsTable extends Migration
      */
     public function up()
     {
-        Schema::table('scraped_products', function($table) {
-            $table->integer('cron_executed')->after('raw_data')->default(0);
+        Schema::table('suppliers', function (Blueprint $table) {
+            $table->longText('priority')->nullable();
         });
     }
 
@@ -25,8 +25,8 @@ class AlterscrapedProductsTable extends Migration
      */
     public function down()
     {
-        Schema::table('scraped_products', function($table) {
-            $table->dropColumn('cron_executed');
+        Schema::table("suppliers",function(Blueprint $table) {
+            $table->dropField('priority');
         });
     }
 }

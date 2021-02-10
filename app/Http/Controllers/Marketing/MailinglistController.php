@@ -33,14 +33,13 @@ class MailinglistController extends Controller
      */
     public function create(Request $request)
     {
-		$website_id = $request->websites_id;
+        $website_id = $request->websites_id;
         //FInd Service 
         $service = Service::find($request->service_id);
-        
+
         if($service){
             //dd($service->name);
-            if (strpos($service->name, 'SendInBlue') !== false) {
-                
+            if (strpos(strtolower($service->name), strtolower('SendInBlue')) !== false) {
                 $curl = curl_init();
                 $data = [
                     "folderId" => 1,
@@ -65,7 +64,10 @@ class MailinglistController extends Controller
                 $response = curl_exec($curl);
 
                 curl_close($curl);
+                \Log::info($response);
                 $res = json_decode($response);
+                
+
                 Mailinglist::create([
                     'id' => $res->id,
                     'name' => $request->name,

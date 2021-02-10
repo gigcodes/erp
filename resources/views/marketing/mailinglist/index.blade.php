@@ -108,7 +108,8 @@
 @endsection
 @section('scripts')
     <script>
-        $('.save_list').click(function () {
+        $('.save_list').click(function (e) {
+            e.preventDefault();
             $.ajax({
                 url: '/marketing/mailinglist/create',
                 type: 'POST',
@@ -117,7 +118,6 @@
                     service_id: $('#service_id').val(),
                     websites_id: $('#websites_id').val(),
                     email : $('#email').val(),
-
                 },
                 beforeSend: function (request) {
                     return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));

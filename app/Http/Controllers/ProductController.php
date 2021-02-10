@@ -2858,7 +2858,6 @@ class ProductController extends Controller
             // Get next product
             $product = Product::where('status_id', StatusHelper::$autoCrop)
                 ->where('category', '>', 3);
-
             // Add order
             $product = QueryHelper::approvedListingOrder($product);
             //get priority
@@ -3498,7 +3497,7 @@ class ProductController extends Controller
         });
         //$allproduct = Product::select('name','id')->get();
 
-        $status = DB::table("status")->whereIn('id',[2,4,9,15,20,33,35,36,38,39,40])->get();
+        $status = \App\Helpers\StatusHelper::getStatus();
         //dd($status);
         //echo "<pre>";
        //  print_r($products->toArray());

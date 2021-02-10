@@ -18,7 +18,6 @@ Auth::routes();
 
 Route::get('/test/test', 'OrderController@testEmail');
 
-
 Route::get('/test/pushProduct', 'TmpTaskController@testPushProduct');
 Route::get('/test/fixBrandPrice', 'TmpTaskController@fixBrandPrice');
 Route::get('/test/deleteChatMessages', 'TmpTaskController@deleteChatMessages');
@@ -56,6 +55,16 @@ Route::get('/chat/updatenew', 'ChatController@updatefornew')->name('updatefornew
 Route::get('users/check/logins', 'UserController@checkUserLogins')->name('users.check.logins');
 Route::resource('courier', 'CourierController');
 Route::resource('product-location', 'ProductLocationController');
+
+//Google Web Master Routes
+Route::prefix('googlewebmaster')->group(static function () {
+    
+    Route::get('get-access-token','GoogleWebMasterController@googleLogin')->name('googlewebmaster.get-access-token') ;
+    Route::get('/index', 'GoogleWebMasterController@index')->name('googlewebmaster.index');
+   
+});
+
+
 
 Route::prefix('product')->middleware('auth')->group(static function () {
     Route::get('manual-crop/assign-products', 'Products\ManualCroppingController@assignProductsToUser');
@@ -204,7 +213,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('product/relist-product', 'ProductController@relistProduct');
     Route::get('products/stats', 'ProductController@productStats');
     //ajay singh
-    Route::get('products/scrap-log', 'ProductController@productScrapLog');
+    Route::get('products/scrap-logs', 'ProductController@productScrapLog');
 
     Route::post('products/{id}/updateName', 'ProductController@updateName');
     Route::post('products/{id}/updateDescription', 'ProductController@updateDescription');
@@ -405,6 +414,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('cron/run', 'CronController@runCommand')->name('cron.run.command');
     Route::get('cron/history/{id}', 'CronController@history')->name('cron.history');
     Route::post('cron/history/show', 'CronController@historySearch')->name('cron.history.search');
+    Route::post('cron/gethistory/{id}', 'CronController@getCronHistory');
 
 
     Route::prefix('store-website')->middleware('auth')->group(static function () {
@@ -540,14 +550,19 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/change-status', 'OrderController@statusChange');
 
 
-    Route::get('order/invoices', 'OrderController@viewAllInvoices');
+    Route::get('order/invoices', 'OrderController@viewAllInvoices'); 
 
     Route::get('order/{id}/edit-invoice', 'OrderController@editInvoice')->name('order.edit.invoice');
     Route::post('order/edit-invoice', 'OrderController@submitEdit')->name('order.submitEdit.invoice');
     Route::get('order/order-search', 'OrderController@searchOrderForInvoice')->name('order.search.invoice');
     Route::get('order/{id}/add-invoice', 'OrderController@addInvoice')->name('order.add.invoice');
     Route::post('order/submit-invoice', 'OrderController@submitInvoice')->name('order.submit.invoice');
+
+    //view
     Route::get('order/view-invoice/{id}', 'OrderController@viewInvoice')->name('order.view.invoice');
+   //TODO web - added by jammer
+    Route::get('order/download-invoice/{id}', 'OrderController@downloadInvoice')->name('order.download.invoice');
+    Route::post('order/update-customer-address', 'OrderController@updateCustomerInvoiceAddress')->name('order.update.customer.address');
     Route::get('order/{id}/mail-invoice', 'OrderController@mailInvoice')->name('order.mail.invoice');
     Route::get('order/update-delivery-date', 'OrderController@updateDelDate')->name('order.updateDelDate');
     Route::get('order/view-est-delivery-date-history', 'OrderController@viewEstDelDateHistory')->name('order.viewEstDelDateHistory');
@@ -590,6 +605,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('task/get-discussion-subjects', 'TaskModuleController@getDiscussionSubjects')->name('task.discussion-subjects');
     // Route::get('task/create-task', 'TaskModuleController@createTask')->name('task.create-task');
     Route::post('task/flag', 'TaskModuleController@flag')->name('task.flag');
+    Route::post('remark/flag', 'TaskModuleController@remarkFlag')->name('remark.flag');
     Route::post('task/{id}/plan', 'TaskModuleController@plan')->name('task.plan');
     Route::post('task/assign/messages', 'TaskModuleController@assignMessages')->name('task.assign.messages');
     Route::post('task/loadView', 'TaskModuleController@loadView')->name('task.load.view');
@@ -1391,6 +1407,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('google-server', 'GoogleServerController');
     Route::post('log-google-cse', 'GoogleServerController@logGoogleCse')->name('log.google.cse');
     Route::resource('email-addresses', 'EmailAddressesController');
+    Route::post('email/getemailhistory/{id}', 'EmailAddressesController@getEmailAddressHistory');
     Route::post('supplier/block', 'SupplierController@block')->name('supplier.block');
     Route::post('supplier/saveImage', 'SupplierController@saveImage')->name('supplier.image');;
     Route::post('supplier/change-status', 'SupplierController@changeStatus');
@@ -2233,6 +2250,7 @@ Route::get('fetchlog', 'ScrapLogsController@fetchlog');
 Route::get('filtertosavelogdb', 'ScrapLogsController@filtertosavelogdb');
 Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
 Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
+Route::put('supplier/priority/{id}', 'SupplierController@priority');
 Route::get('temp-task/product-creator', 'TmpTaskController@importProduct');
 
 Route::prefix('google')->middleware('auth')->group(function () {

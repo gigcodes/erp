@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Email;
 use App\EmailRemark;
+use App\CronJob;
+use App\CronJobReport;
 use Webklex\IMAP\Client;
 use App\Mails\Manual\PurchaseEmail;
 use Mail;
@@ -107,8 +109,13 @@ class EmailController extends Controller
 		$email_status = DB::table('email_status')->get();
 		
 		//Get All Status
-		$email_categories = DB::table('email_category')->get();
-		
+        $email_categories = DB::table('email_category')->get();
+        
+        //Get Cron Email Histroy
+		$reports = CronJobReport::where('cron_job_reports.signature','fetch:all_emails')
+        ->join('cron_jobs', 'cron_job_reports.signature', 'cron_jobs.signature')
+        ->select(['cron_job_reports.*','cron_jobs.last_error'])->paginate(15);
+
         $emails = $query->paginate(30)->appends(request()->except(['page']));
         if ($request->ajax()) {
             return response()->json([
@@ -130,7 +137,7 @@ class EmailController extends Controller
 
         // dont load any data, data will be loaded by tabs based on ajax
         // return view('emails.index',compact('emails','date','term','type'))->with('i', ($request->input('page', 1) - 1) * 5);
-        return view('emails.index',['emails'=>$emails,'type'=>'email' ,'search_suggestions'=>$search_suggestions,'email_categories'=>$email_categories,'email_status'=>$email_status ])->with('i', ($request->input('page', 1) - 1) * 5);
+        return view('emails.index',['emails'=>$emails,'type'=>'email' ,'search_suggestions'=>$search_suggestions,'email_categories'=>$email_categories,'email_status'=>$email_status, 'reports' => $reports])->with('i', ($request->input('page', 1) - 1) * 5);
 
     }
 

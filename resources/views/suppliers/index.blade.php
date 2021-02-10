@@ -207,6 +207,7 @@
             <th>Inventory Lifetime (Days)</th>
 			<th>Inventory</th>
             <th>Translation</th>
+            <th>Priority</th>
             <th width="15%">Action</th>
           </tr>
         </thead>
@@ -396,6 +397,17 @@
 						</select>
 					</div>
 				</td>
+                <td>
+                <div class="form-group">
+						<select name="priority" data-id="{{ $supplier->id }}" class="form-control input-sm mb-3 priority">
+							<option value="">Priority</option>
+							<option value="1" {{ $supplier->priority === '1'  ? 'selected' : '' }}>Critical</option>
+							<option value="2" {{ $supplier->priority === '2'  ? 'selected' : '' }}>High</option>
+							<option value="3" {{ $supplier->priority === '3'  ? 'selected' : '' }}>Medium</option>
+                            <option value="4" {{ $supplier->priority === '4'  ? 'selected' : '' }}>Low</option>
+						</select>
+					</div>       
+                </td>
 				<td class='action-btn'>
 						@if ($supplier->is_flagged == 1)
 							<button type="button" class="btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
@@ -1206,6 +1218,25 @@
                 }
             }).done(function () {
                 alert('Language updated successfully!');
+            }).fail(function (response) {
+               alert('Please check entry for supplier');
+            });
+        });
+
+        $(document).on('change', '.priority', function () {
+            var $this = $(this);
+            var supplier_id = $this.data("id");
+            var priority = $this.val();
+            $.ajax({
+                type: "PUT",
+                url: "/supplier/priority/"+supplier_id,
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    supplier_id : supplier_id,
+                    priority: priority
+                }
+            }).done(function () {
+                alert('Priority updated successfully!');
             }).fail(function (response) {
                alert('Please check entry for supplier');
             });

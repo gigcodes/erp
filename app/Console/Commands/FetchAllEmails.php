@@ -6,6 +6,7 @@ use App\CashFlow;
 use App\CronJobReport;
 use App\Email;
 use App\EmailAddress;
+use App\EmailRunHistories;
 use App\Supplier;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -210,6 +211,12 @@ class FetchAllEmails extends Command
                         //                            dump("Received from: ". $email->getFrom()[0]->mail);
                         Email::create($params);
 
+                        $historyParam = [
+                            'email_address_id'        => $emailAddress->id,
+                            'is_success'              => 1,
+                        ];
+                        EmailRunHistories::create($historyParam);
+
                         /*if ($type['type'] == 'incoming') {
                         $message = trim($content);
                         $reply = \App\WatsonAccount::getReply($message);
@@ -242,6 +249,12 @@ class FetchAllEmails extends Command
                 $report->update(['end_time' => Carbon::now()]);
             } catch (\Exception $e) {
                 \Log::info($e->getMessage());
+                $historyParam = [
+                    'email_address_id'        => $emailAddress->id,
+                    'is_success'              => 0,
+                    'message'                 => $e->getMessage()
+                ];
+                EmailRunHistories::create($historyParam);
                 \App\CronJob::insertLastError($this->signature, $e->getMessage());
             }
         }
