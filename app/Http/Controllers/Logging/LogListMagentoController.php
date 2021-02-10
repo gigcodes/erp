@@ -6,7 +6,7 @@ use App\ListingPayments;
 use App\Loggers\LogListMagento;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-
+use DataTables;
 class LogListMagentoController extends Controller
 {
   private const VALID_MAGENTO_STATUS = [
@@ -179,36 +179,19 @@ class LogListMagentoController extends Controller
   }
 
   public function showMagentoProductAPICall(Request $request){
-    $sku = '["SB0AB15C50GK92","SW2S0P39JZI","EE4791White-45.5","EE4791White","A0510XXAS5Black-36"]';
-    $products = array();
-    $skudata = json_decode($sku);
-    $client = new \GuzzleHttp\Client();
-    foreach ($skudata as $sku) {
-      try {
-        $req = $client->get('https://sololuxury.com/rest/V1/products/'.$sku,[
-          'headers' => [
-            'Accept'     => 'application/json',
-            'Authorization'=>'Bearer u75tnrg0z2ls8c4yubonwquupncvhqie'
-          ]
-        ]);
-        $response = $req->getBody()->getContents();
-        $products []= json_decode($response);
-      } catch (\Exception $e) {
-      }
-    }
-    if(!empty(  $products )){
-    dd(  $this->processProductAPIResponce($products));
-    }
     return view('logging.magento-api-call');
   }
   protected function processProductAPIResponce($products){
     $prepared_products_data = array();
-
+    $websites=array();
     $category_names = array();
     $size ='';
     $brands='';
     $composition='';
     foreach ($products as $value) {
+      foreach ($value->extension_attributes->website_ids as $vwi) {
+        $websites[]=\App\StoreWebsite::where('id',$vwi)->value('title');
+      }
       foreach ($value->custom_attributes as $v) {
         if($v->attribute_code === "category_ids"){
           foreach ($v->value as $key =>$cat_id) {
@@ -221,19 +204,17 @@ class LogListMagentoController extends Controller
         }else if($v->attribute_code === "composition" ){
           $composition = $v->value;
         }
-       $websites= \App\Website::with(array('storeWebsite'=>function($query){
-          $query->select('website');
-          }))->whereIn('id',$value->extension_attributes->website_ids)->get();
         $prepared_products_data[$value->sku]=[
           'magento_id'=>$value->id,
           'sku'=>$value->sku,
           'product_name'=>$value->name,
           'media_gallery_entries'=>$value->media_gallery_entries,
-          'websites'=>$websites,
+          'websites'=>array_filter($websites),
           'category_names'=>$category_names,
           'size'=>$size,
           'brands'=>$brands,
           'composition'=>$composition,
+          'dimensions'=> $value->size ?? 0,
           'english'=>'Yes',
           'arabic'=>'Yes',
           'german'=>'Yes',
@@ -247,18 +228,45 @@ class LogListMagentoController extends Controller
         ];
       }
       $category_names =[];
+      $websites=[];
       $size ='';
       $brands='';
       $composition='';
     }
-  return $prepared_products_data;
+    return $prepared_products_data;
   }
-    function key_value_pair_exists(array $haystack, $key) {
-      return array_key_exists($key, $haystack);
-    }
-    public function getMagentoProductAPIAjaxCall(Request $request){
+  function key_value_pair_exists(array $haystack, $key) {
+    return array_key_exists($key, $haystack);
+  }
+  public function getMagentoProductAPIAjaxCall(Request $request){
+    if($request->ajax()){
+      $sku = '["SB0AB15C50GK92","SW2S0P39JZI","EE4791White-45.5","EE4791White","A0510XXAS5Black-36"]';
+      $products = array();
+      $skudata = json_decode($sku);
+      $client = new \GuzzleHttp\Client();
+      foreach ($skudata as $sku) {
+        try {
+          $req = $client->get('https://sololuxury.com/rest/V1/products/'.$sku,[
+            'headers' => [
+              'Accept'     => 'application/json',
+              'Authorization'=>'Bearer u75tnrg0z2ls8c4yubonwquupncvhqie'
+            ]
+          ]);
+          $response = $req->getBody()->getContents();
+          $products []= json_decode($response);
+        } catch (\Exception $e) {
+        }
+      }
+      if(!empty($products)){
+        $data =collect($this->processProductAPIResponce($products));
+        if(!empty($data)){
+          return DataTables::collection($data)->toJson();
+        }else{
+          return response()->json(['data'=>null,'message'=>'success'],200);
+        }
 
-      //if($request->ajax())
-      // dd($request->productSkus);
+      }
     }
+    // dd($request->productSkus);
   }
+}

@@ -6,6 +6,8 @@
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  <link href="https://cdn.datatables.net/1.10.9/css/jquery.dataTables.min.css" rel="stylesheet"/>
+  <script src="https://cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js"></script>
   <style type="text/css">
 
   #loading-image {
@@ -17,21 +19,21 @@
   input {
     width: 100px;
   }
-
+  thead tr th{
+    width: 220px !important;
+  }
+  thead tr th:nth-child(5),thead tr th:nth-child(6),thead tr th:nth-child(7),thead tr th:nth-child(8),thead tr th:nth-child(9),thead tr th:nth-child(11),thead tr th:nth-child(12),thead tr th:nth-child(13),thead tr th:nth-child(14)
+   ,thead tr th:nth-child(15),thead tr th:nth-child(16),thead tr th:nth-child(17),thead tr th:nth-child(18),thead tr th:nth-child(19),thead tr th:nth-child(20){
+    width: 80px !important;
+  }
 </style>
 @endsection
 
 @section('content')
-  <div id="myDiv">
-    <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
-  </div>
+
   <div class="row">
     <div class="col-lg-12 margin-tb">
       <h2 class="page-heading">Magento Product API Call</h2>
-      <div class="pull-right">
-        <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
-      </div>
-
     </div>
   </div>
 
@@ -41,68 +43,177 @@
         <div class="table-responsive">
           <table id="magento_list_tbl_895" class="table table-bordered table-hover" style="table-layout:fixed;">
             <thead>
-              <th style="width:10%">Website</th>
-              <th style="width:10%">Product SKU</th>
-              <th style="width:9%">Product Name</th>
-              <th style="width:10%">Category assigned</th>
-              <th style="width:7%">Size Pushed</th>
-              <th style="width:11%">Brand Pushed</th>
-              <th style="width:8%">Size Chart Pushed</th>
-              <th style="width:11%">Dimensions Pushed</th>
-              <th style="width:12%">Composition Pushed</th>
-              <th style="width:10%">Images Pushed</th>
-              <th style="width:7%">Sync Status</th>
-              <th style="width:8%">English</th>
-              <th style="width:8%">Arabic</ th>
-              <th style="width:8%">German</th>
-              <th style="width:8%">Spanish</th>
-              <th style="width:8%">French</th>
-              <th style="width:8%">Italian</th>
-              <th style="width:10%">Japanese</th>
-              <th style="width:8%">Korean</th>
-              <th style="width:8%">Russian</th>
-              <th style="width:8%">Chinese</th>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="text-center">
+              <th>Website</th>
+              <th>Product SKU</th>
+              <th>Product Name</th>
+              <th>Category assigned</th>
+              <th>Size Pushed</th>
+              <th>Brand Pushed</th>
+              <th>Size Chart Pushed</th>
+              <th>Dimensions Pushed</th>
+              <th>Composition Pushed</th>
+              <th>Images Pushed</th>
+              <th>English</th>
+              <th>Arabic</ th>
+              <th>German</th>
+              <th>Spanish</th>
+              <th>French</th>
+              <th>Italian</th>
+              <th>Japanese</th>
+              <th>Korean</th>
+              <th>Russian</th>
+              <th>Chinese</th>
+              </thead>
+            </table>
+            <div class="text-center">
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-@endsection
-@section('scripts')
-  <script type="text/javascript">
-  if (localStorage.getItem("luxury-product-data-asin") !== null) {
-    var data = JSON.parse(localStorage.getItem('luxury-product-data-asin'));
-    $.ajax({
-      method: "POST",
-      url: "/logging/magento-product-skus-ajax/",
-      data: {
-        "_token": "{{ csrf_token() }}",
-        productSkus:JSON.stringify(data)
-      }
-    })
-    .done(function(msg) {
-      console.log("Data Saved: ", msg);
-    });
-  }
-</script>
-@if (Session::has('errors'))
-  <script>
-  toastr["error"]("{{ $errors->first() }}", "Message")
-</script>
-@endif
-@if (Session::has('success'))
-  <script>
-  toastr["success"]("{{Session::get('success')}}", "Message")
-</script>
-@endif
-@endsection
+  @endsection
+  @section('scripts')
+    <script type="text/javascript">
+    if (localStorage.getItem("luxury-product-data-asin") !== null) {
+      var data = JSON.parse(localStorage.getItem('luxury-product-data-asin'));
+      var example = $("#magento_list_tbl_895").DataTable({
+        dom: 'flBrtip',
+        stateSave: true,
+        paging: true,
+        processing: true,
+        serverSide: true,
+        bJQueryUI: true,
+        ordering: false,
+        lengthMenu: [[10, 25, 50,100,200, -1], [10, 25, 50,100,200, "All"]],
+        ajax:{
+          method: "POST",
+          url: "/logging/magento-product-skus-ajax/",
+          data: {
+            "_token": "{{ csrf_token() }}",
+            productSkus:JSON.stringify(data)
+          }
+        },  fixedColumns: true,
+        language: {
+          searchPlaceholder: "Search..."
+        },columns:
+        [
+          {
+            mRender: function (data, type, row)
+            {
+              return row.websites.join(', ')
+            }
+          },{
+            mRender: function (data, type, row)
+            {
+              return row.sku
+            }
+          }, {
+            mRender: function (data, type, row)
+            {
+              return row.product_name
+            }
+          },{
+            mRender: function (data, type, row)
+            {
+              return row.category_names.join(', ')
+            }
+          },{
+            mRender: function (data, type, row)
+            {
+              return row.size
+            }
+          },{
+            mRender: function (data, type, row)
+            {
+              return row.brands ?  row.brands  :'Not Provided'
+            }
+          },{
+            mRender: function (data, type, row)
+            {
+            return '<input type="text" style="width:90%" class="bulk_listing_codes_class" name="bulk_listing_codes" value=""/>'
+            }
+          },{
+            mRender: function (data, type, row)
+            {
+              return row.dimensions ? row.dimensions: 'Not Provided'
+            }
+          },{
+            mRender: function (data, type, row)
+            {
+              return row.composition ? row.composition : 'Not Provided'
+            }
+          },{
+            mRender: function (data, type, row)
+            {
+              if(row.media_gallery_entries.length > 0 ){
+                return row.media_gallery_entries[0].file
+              }else{
+                return 'Not Provided'
+              }
+            }
+          },{
+            mRender: function (data, type, row)
+            {
+              return row.english
+            }
+          },{
+            mRender: function (data, type, row)
+            {
+              return row.arabic
+            }
+          },{
+            mRender: function (data, type, row)
+            {
+              return row.german
+            }
+          },{
+            mRender: function (data, type, row)
+            {
+              return row.spanish
+            }
+          },{
+            mRender: function (data, type, row)
+            {
+              return row.french
+            }
+          },{
+            mRender: function (data, type, row)
+            {
+              return row.italian
+            }
+          },{
+            mRender: function (data, type, row)
+            {
+              return row.japanese
+            }
+          },{
+            mRender: function (data, type, row)
+            {
+              return row.korean
+            }
+          },{
+            mRender: function (data, type, row)
+            {
+              return row.russian
+            }
+          },{
+            mRender: function (data, type, row)
+            {
+              return row.chinese
+            }
+          }
+        ]
+      });
+    }
+    </script>
+    @if (Session::has('errors'))
+      <script>
+      toastr["error"]("{{ $errors->first() }}", "Message")
+      </script>
+    @endif
+    @if (Session::has('success'))
+      <script>
+      toastr["success"]("{{Session::get('success')}}", "Message")
+      </script>
+    @endif
+  @endsection
