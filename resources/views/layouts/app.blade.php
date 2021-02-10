@@ -2159,7 +2159,7 @@ $metaData = '';
 
     <!-- Like page plugin script  -->
 
-
+    @yield('models')
 
     {{-- <script>(function(d, s, id) {
 

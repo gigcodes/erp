@@ -10,6 +10,8 @@
 		   <div class="modal-body">
 
            <div class="task_hours_section" style="text-align:center;">
+                    <p style="margin:0px;text-align:right"><strong>Total Priority Task Hours:</strong>  <span>{{:userTiming.total_priority_hours}} Hours</span></p>
+                    <p style="margin:0px;text-align:right"><strong>Today Available Hours:</strong>  <span>{{:userTiming.total_available_time}} Hours</span></p>
                     <p style="margin:0px;"><strong>Pending Task Estimated Hours:</strong> <span>{{:userTiming.total_pending_hours}} Hours</span></><br>
                     <p style="margin:0px;"><strong>Total Available Hours:</strong>  <span>{{:userTiming.total_avaibility_hour}} Hours</span></p>
             </div>

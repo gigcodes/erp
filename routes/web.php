@@ -2360,6 +2360,21 @@ Route::prefix('listing-history')->middleware('auth')->group(function () {
     Route::get('/records', 'ListingHistoryController@records');
 });
 
+
+Route::prefix('ads')->middleware('auth')->group(function () {
+    Route::prefix('account')->group(function () {
+        Route::post('store','AdsController@saveaccount')->name('ads.saveaccount');
+    });
+    Route::get('/', 'AdsController@index')->name('ads.index');
+    Route::get('/records', 'AdsController@records')->name('ads.records');
+    Route::post('/savecampaign', 'AdsController@savecampaign')->name('ads.savecampaign');
+    Route::post('/savegroup', 'AdsController@savegroup')->name('ads.savegroup');
+    Route::get('/getgroups', 'AdsController@getgroups')->name('ads.getgroups');
+    Route::post('/adsstore', 'AdsController@adsstore')->name('ads.adsstore');
+});
+
+
+
 Route::prefix( 'google-campaigns')->middleware('auth')->group(function () {
     Route::get('/', 'GoogleCampaignsController@index')->name('googlecampaigns.index');
     Route::get('/create', 'GoogleCampaignsController@createPage')->name('googlecampaigns.createPage');
