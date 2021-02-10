@@ -125,10 +125,10 @@
                   </td>
                   <td> {{(!empty($item->languages)) ? implode(", ",json_decode($item->languages)) : ''}} </td>
                   <td> {{$item->sync_status}} </td>
-                  <td style="display:flex;">
+                  <td style="display:flex;justify-content: space-between;align-items: center;">
                     <button data-toggle="modal" data-target="#update_modal" class="btn btn-xs btn-secondary update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
                     <button class="btn btn-xs btn-secondary show_error_logs" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-eye"></i></button>
-                    <input type="checkbox" class="form-control selectProductCheckbox_class" value="{{ $item->sku }}" name="selectProductCheckbox"/>
+                    <input style="width:20px;height:20px" type="checkbox" class="form-control selectProductCheckbox_class" value="{{ $item->sku }}" name="selectProductCheckbox"/>
                   </td>
                 </tr>
               @endforeach()

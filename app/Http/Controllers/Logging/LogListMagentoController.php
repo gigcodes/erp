@@ -197,11 +197,14 @@ class LogListMagentoController extends Controller
           foreach ($v->value as $key =>$cat_id) {
             $category_names[] = \App\Category::where('id',$key+1)->value('title');
           }
-        }else if($v->attribute_code === "size_v2" || "size"){
+        }
+         if($v->attribute_code === "size_v2" || $v->attribute_code ===  "size"){
           $size = $v->value;
-        }else if($v->attribute_code === "brands" ){
+        }
+        if($v->attribute_code === "brands" ){
           $brands = $v->value;
-        }else if($v->attribute_code === "composition" ){
+        }
+        if($v->attribute_code === "composition" ){
           $composition = $v->value;
         }
         $prepared_products_data[$value->sku]=[
@@ -226,6 +229,7 @@ class LogListMagentoController extends Controller
           'russian'=>'No',
           'chinese'=>'No'
         ];
+
       }
       $category_names =[];
       $websites=[];
@@ -240,9 +244,9 @@ class LogListMagentoController extends Controller
   }
   public function getMagentoProductAPIAjaxCall(Request $request){
     if($request->ajax()){
-      $sku = '["SB0AB15C50GK92","SW2S0P39JZI","EE4791White-45.5","EE4791White","A0510XXAS5Black-36"]';
+    //  $sku =$request->productSkus; //'["SB0AB15C50GK92","SW2S0P39JZI","EE4791White-45.5","EE4791White","A0510XXAS5Black-36"]';
       $products = array();
-      $skudata = json_decode($sku);
+      $skudata = json_decode($request->productSkus);
       $client = new \GuzzleHttp\Client();
       foreach ($skudata as $sku) {
         try {

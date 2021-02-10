@@ -17,7 +17,7 @@
     margin: -50px 0px 0px -50px;
   }
   input {
-    width: 100px;
+    width: 130px;
   }
   thead tr th{
     width: 220px !important;
@@ -135,7 +135,7 @@
           },{
             mRender: function (data, type, row)
             {
-              return row.dimensions ? row.dimensions: 'Not Provided'
+              return row.dimensions ? row.dimensions : 'Not Provided'
             }
           },{
             mRender: function (data, type, row)
