@@ -20,7 +20,9 @@ var common = {
                 }
             },
             complete: function() {
-                
+                if (common.checkTypeOf(params, 'complete', false)) {
+                    params.complete();
+                }
             }
         }).done(function(result) {
             if (common.checkTypeOf(params, 'doneAjax', false)) {

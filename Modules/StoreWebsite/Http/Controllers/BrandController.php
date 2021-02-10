@@ -145,6 +145,11 @@ class BrandController extends Controller
                                     'type' => "assign",
                                     'message' => "{$website->title} assigned to {$brand->name} brand."
                                 ]);
+                                return response()->json("Brand is pushed to store successfully.",200);
+                            }
+                            else
+                            {
+                                return response()->json("Brand is not pushed to store,please check history log.",422);
                             }
                         }else{
                             $bID = $brandStore->magento_value;
@@ -158,6 +163,11 @@ class BrandController extends Controller
                                         'type' => "remove",
                                         'message' => "{$brand->name} removed from {$website->title} store."
                                     ]);
+                                    return response()->json("Brand is remooved from store successfully.",200);
+                                }
+                                else
+                                {
+                                    return response()->json("Brand is not removed from store,please check history log.",422);
                                 }
                             }
                         }
