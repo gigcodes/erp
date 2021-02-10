@@ -1697,6 +1697,12 @@
                 thiss.removeClass('fa-spinner').addClass('fa-upload')
                 toastr['success']('Request Send successfully', 'Success')
                 $('#product' + id).hide();
+            }).fail(function (response) {
+                console.log(response);
+                thiss.removeClass('fa-spinner').addClass('fa-upload')
+                toastr['error']('Internal server error', 'Failure')
+                $('#product' + id).hide();
+                //alert('Could not update product on magento');
             }));
 
             // }
