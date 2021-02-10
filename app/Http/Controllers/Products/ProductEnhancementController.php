@@ -103,7 +103,13 @@ class ProductEnhancementController extends Controller
         }
 
         // Update status
-        $product->status_id = StatusHelper::$finalApproval;
+        //check final approval
+        if($product->checkPriceRange()){
+            $product->status_id = StatusHelper::$finalApproval;
+        }else{
+            $product->status_id = StatusHelper::$priceCheck;
+        }
+       // $product->status_id = StatusHelper::$finalApproval;
         $product->is_enhanced = 1;
         $product->save();
 

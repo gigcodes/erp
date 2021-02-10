@@ -1323,4 +1323,25 @@ class Product extends Model
     {
         return $this->hasMany('App\ProductStatusHistory','product_id');
     }
+
+    public function checkPriceRange()
+    {
+        $get_brand_segment = $this->brands()->first();
+        $get_category = $this->category;
+
+        if($get_brand_segment != null &&  isset($get_brand_segment) && $get_brand_segment->brand_segment != ""){
+            $getbrandpricerange = \App\BrandCategoryPriceRange::where(['category_id'=>$get_category,'brand_segment'=>$get_brand_segment->brand_segment])->first();
+            if($getbrandpricerange != null){
+                if($this->price != "" && $this->price >= $getbrandpricerange->min_price && $this->price <= $getbrandpricerange->max_price){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else{
+                return true;
+            }
+        }else{
+            return true;
+        }
+    }
 }

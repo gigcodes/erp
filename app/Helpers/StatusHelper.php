@@ -48,6 +48,7 @@ class StatusHelper extends Model
     public static $unknownSize = 38;
     public static $unknownComposition = 39;
     public static $unknownMeasurement = 40;
+    public static $priceCheck = 41;
 
     public static function getStatus()
     {
@@ -92,6 +93,7 @@ class StatusHelper extends Model
             38 => 'Unknown Size',
             39 => 'Unknown Composition',
             40 => 'Unknown Measurement',
+            41 => 'Price Check'
         ];
     }
     public static function updateStatus(\App\Product $product, $newStatus = 0)
