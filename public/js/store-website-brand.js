@@ -45,6 +45,11 @@ var page = {
     },
     doneAjax :function(response) {
         $("#loading-image").hide();
+        if(response.code == 200) {
+            toastr["success"](response.message,"");
+        }else {
+            toastr["error"](response.message,"");
+        }
     }
 }
 

@@ -149,7 +149,7 @@ class BrandController extends Controller
                             }
                             else
                             {
-                                return response()->json("Brand is not pushed to store,please check history log.",422);
+                                return response()->json(["code" => 500 , "message" =>  "Brand is not pushed to store,please check history log."]);
                             }
                         }else{
                             $bID = $brandStore->magento_value;
@@ -167,7 +167,7 @@ class BrandController extends Controller
                                 }
                                 else
                                 {
-                                    return response()->json("Brand is not removed from store,please check history log.",422);
+                                    return response()->json("Brand is not removed from store,please check history log.",200);
                                 }
                             }
                         }
