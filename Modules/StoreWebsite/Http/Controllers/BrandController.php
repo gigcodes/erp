@@ -131,7 +131,6 @@ class BrandController extends Controller
                         $brand = \App\Brand::find($request->brand);
                         if (!$brandStore) {
                             $magentoBrandId = MagentoHelper::addBrand($brand,$website);
-                            dd($magentoBrandId);
                             if($magentoBrandId) {
                                 $brandStore = new \App\StoreWebsiteBrand;
                                 $brandStore->brand_id = $request->brand;
