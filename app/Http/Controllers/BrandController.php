@@ -387,6 +387,7 @@ class BrandController extends Controller
             if($brand_count == 0) {
                 $oldBrand = Brand::where('name', '=', $request->brand_name)->onlyTrashed()->latest()->first();
                 if($oldBrand) {
+                    $oldBrand->references = null;
                     $oldBrand->deleted_at = null;
                     $oldBrand->save();
                     $scrapedProducts = ScrapedProducts::where('brand_id', $oldBrand->id)->get();
