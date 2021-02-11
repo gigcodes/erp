@@ -210,6 +210,20 @@ class ProductsCreator
 
             \Log::channel('productUpdates')->info("Saved product id :" . $product->id);
 
+            // check for the auto crop 
+            $needToCheckStatus = [
+                StatusHelper::$requestForExternalScraper,
+                StatusHelper::$unknownComposition,
+                StatusHelper::$unknownColor,
+                StatusHelper::$unknownCategory,
+                StatusHelper::$unknownMeasurement,
+                StatusHelper::$unknownSize
+            ];
+
+            if(!in_array($product->status_id, $needToCheckStatus)) {
+                $product->status_id = \App\Helpers\StatusHelper::$autoCrop;
+            }
+
 
             if ($image->is_sale) {
                 $product->is_on_sale = 1;
