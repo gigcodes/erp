@@ -144,7 +144,7 @@ class FetchAllEmails extends Command
                         }
 
                         $email_subject = $email->getSubject();
-                        \Log::info("Subject  => ".$email_subject);
+                        \Log::channel('customer')->info("Subject  => ".$email_subject);
 
                         //if (!$latest_email_date || $email->getDate()->timestamp > $latest_email_date->timestamp) {
                         $attachments_array = [];
@@ -158,9 +158,9 @@ class FetchAllEmails extends Command
                             $attachments_array[] = $path;
 
                             /*start 3215 attachment fetch from DHL mail */
-                            \Log::info("Match Start  => ".$email_subject);
+                            \Log::channel('customer')->info("Match Start  => ".$email_subject);
                             if (strpos(strtolower($email_subject), "your copy invoice") !== false) {
-                                \Log::info("Match Found  => ".$email_subject);
+                                \Log::channel('customer')->info("Match Found  => ".$email_subject);
                                 $this->getEmailAttachedFileData($attachment->name);
                             }
                             /*end 3215 attachment fetch from DHL mail */
@@ -248,7 +248,7 @@ class FetchAllEmails extends Command
 
                 $report->update(['end_time' => Carbon::now()]);
             } catch (\Exception $e) {
-                \Log::info($e->getMessage());
+                \Log::channel('customer')->info($e->getMessage());
                 $historyParam = [
                     'email_address_id'        => $emailAddress->id,
                     'is_success'              => 0,

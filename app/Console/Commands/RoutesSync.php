@@ -42,7 +42,7 @@ class RoutesSync extends Command
     public function handle()
     {
         try {
-			\Log::info("Schedule Job Start : Routes Sync in DB ");
+			\Log::channel('errorlog')->info("Schedule Job Start : Routes Sync in DB ");
 			$method = 'GET';
 			$routes = \Route::getRoutes()->getRoutesByMethod();
 			$routesByGET = $routes[$method];
@@ -52,14 +52,14 @@ class RoutesSync extends Command
 				{	
 					continue;
 				}
-				\Log::info("URL---".$route->uri);
+				\Log::channel('errorlog')->info("URL---".$route->uri);
 				Routes::create(['url' => $route->uri]);
 			}
 			
-			\Log::info("Schedule Job End : Routes Sync in DB");
+			\Log::channel('errorlog')->info("Schedule Job End : Routes Sync in DB");
 		}
 		catch (\Exception $e) {
-            \Log::info("EXCEPTION---".$e->getMessage());
+            \Log::channel('errorlog')->info("EXCEPTION---".$e->getMessage());
         }
     }
 }

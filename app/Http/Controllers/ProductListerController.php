@@ -106,7 +106,7 @@ class ProductListerController extends Controller
             foreach ($websiteArrays as $websiteArray) {
                 $website = StoreWebsite::find($websiteArray);
                 if($website){
-                    \Log::info("Product started website found For website".$website->website);
+                    \Log::channel('productUpdates')->info("Product started website found For website".$website->website);
                     LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id);
                     //currently we have 3 queues assigned for this task.
                     if($i > 3) {

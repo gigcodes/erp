@@ -9,11 +9,12 @@ use File;
 use Session;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Storage;
 
 
 class LaravelLogController extends Controller
 {
-
+    public $channel_filter = [];
     public function index(Request $request)
     {
         if ($request->filename || $request->log || $request->log_created || $request->created || $request->updated || $request->orderCreated || $request->orderUpdated) {
@@ -82,16 +83,18 @@ class LaravelLogController extends Controller
 
     public function liveLogs(Request $request)
     {
+        
         $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
         //$filename = '/laravel-2020-09-10.log';
         $path     = storage_path('logs');
         $fullPath = $path . $filename;
+        $errSelection = [];
         try {
             $content = File::get($fullPath);
             preg_match_all("/\[(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\](.*)/", $content, $match);
 			$errorTypeArr = ['ERROR','INFO','WARNING'];
 			$errorTypeSeparated = implode('|', $errorTypeArr);
-			$errSelection = [];
+			
 
 			$defaultSearchTerm = 'ERROR';
 			if($request->get('type'))
@@ -111,20 +114,27 @@ class LaravelLogController extends Controller
 				}
 				if(preg_match("/".$defaultSearchTerm."/", $value))
 				{
-					$errors[] = $value;
+                    $str = $value;
+                    $temp1 = explode(".",$str);
+                    $temp2 = explode(" ",$temp1[0]);
+                    $type = $temp2[2];
+                    array_push($this->channel_filter,$type);
+                    
+					$errors[] = $value."===".str_replace('/', '', $filename);
 				}
-			}
-		    $errors = array_reverse($errors);
+            }
+            //if(isset($_GET['channel']) && $_GET['channel'] == "local"){
+                $errors = array_reverse($errors);
+            //}
         } catch (\Exception $e) {
             $errors = [];
 
         }
-		/* echo "<pre>";
-		print_r($errors);
-		print_r();
-
-		exit;
- */
+		
+        $other_channel_data = $this->getDirContents($path);
+        foreach($other_channel_data as $other){
+            array_push($errors,$other);
+        }
 		$allErrorTypes = array_values(array_unique($errSelection));
 
 		$users = User::all();
@@ -132,13 +142,58 @@ class LaravelLogController extends Controller
 
         $perPage = Setting::get('pagination');
 
+        
+        
+
+        $final = $key =  [];
+        if(isset($_GET['channel']) ){
+            session(['channel' => $_GET['channel']]);
+        }
+        foreach($errors as $key => $error){
+            
+            
+            $str = $error;
+            $temp1 = explode(".",$str);
+            $temp2 = explode(" ",$temp1[0]);
+            $type = $temp2[2];
+            if(isset($_GET['channel']) && $_GET['channel'] == $type ){
+                // echo "<pre>";
+                // print_r($key);
+                array_push($final,$error);
+               
+            }
+
+            if(!isset($_GET['channel'])){
+
+                // echo "<pre>";
+                // print_r($key);
+                array_push($final,$error);
+            }
+        }
+    //     dd($final);
+    //    exit;
+
+        $errors = [];
+        $errors = $final;
         $currentItems = array_slice($errors, $perPage * ($currentPage - 1), $perPage);
+        //dd($currentItems);
 
         $logs = new LengthAwarePaginator($currentItems, count($errors), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath(),
+            'query' => $request->query(),
         ]);
-
-        return view('logging.livelaravellog', ['logs' => $logs, 'filename' => str_replace('/', '', $filename), 'errSelection' => $allErrorTypes, 'users' => $users]);
+        //dd($errors);
+        
+        //$this->channel_filter;
+        $filter_channel = [];
+        foreach($this->channel_filter as $ch){
+            if(!in_array($ch,$filter_channel)){
+                array_push($filter_channel,$ch);
+            }
+        }
+        
+        
+        return view('logging.livelaravellog', ['logs' => $logs, 'filename' => str_replace('/', '', $filename), 'errSelection' => $allErrorTypes, 'users' => $users,'filter_channel' => $filter_channel]);
 
     }
 
@@ -247,5 +302,72 @@ class LaravelLogController extends Controller
         $laravelLog->website=$website;
         $laravelLog->save();
 		 return response()->json(['status' => 'success', 'message' => 'Log data Saved'], 200);
-	}
+    }
+    
+    public function getDirContents($dir, $results = array()) {
+        $directories = glob($dir . '/*' , GLOB_ONLYDIR);
+        $allErrorTypes = [];
+        $final_result = [];
+        foreach($directories as $dir){
+            
+            if ($handle = opendir($dir)) {
+
+                while (false !== ($entry = readdir($handle))) {
+                    if ($entry != "." && $entry != "..") {
+                        $current_date = explode('-',date('Y-m-d'));
+                        $temp = explode('-',$entry);
+                        $errors = [];
+                        $errSelection = [];
+                        if($current_date[0] == $temp[1] && $current_date[1] == $temp[2] && $current_date[2] == str_replace('.log','',$temp[3])){
+                            
+                            $fullPath = $dir."/".$entry;
+                            $content = File::get($fullPath);
+                            preg_match_all("/\[(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\](.*)/", $content, $match);
+                            $errorTypeArr = ['ERROR','INFO','WARNING'];
+                            $errorTypeSeparated = implode('|', $errorTypeArr);
+                            
+
+                            $defaultSearchTerm = 'ERROR';
+                            if(isset($_GET['type']))
+                            {
+                                $defaultSearchTerm = $_GET['type'];
+                            }
+                            
+                            
+                            foreach ($match[0] as $value) {
+                                foreach($errorTypeArr as $errType)
+                                {
+                                    if(preg_match("/".$errType."/", $value))
+                                    {
+                                        $errSelection[] = $errType;
+                                        break;
+                                    }
+                                }
+                                if(preg_match("/".$defaultSearchTerm."/", $value))
+                                {
+                                    $str = $value;
+                                    $temp1 = explode(".",$str);
+                                    $temp2 = explode(" ",$temp1[0]);
+                                    $type = $temp2[2];
+                                    array_push($this->channel_filter,$type);
+                                    $errors[] = $value."===".str_replace('/', '', $entry);
+                                }
+                            }
+                            $errors = array_reverse($errors);
+                            $allErrorTypes[] = array_values(array_unique($errSelection));
+                            foreach($errors as $er){
+                                array_push($final_result,$er);
+                            }
+                            //$final_result[] = $errors;   
+                        }
+                    }
+                }
+                closedir($handle);
+            }
+        }
+        
+        return $final_result;
+    }
+
+    
 }

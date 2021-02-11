@@ -39,7 +39,7 @@ class PushWebsiteToMagento implements ShouldQueue
 
         if ($website) {
 
-            \Log::info("Website pushed start" . $website->id);
+            \Log::channel('productUpdates')->info("Website pushed start" . $website->id);
 
             $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsite([
                 "type" => "website",
@@ -49,14 +49,14 @@ class PushWebsiteToMagento implements ShouldQueue
 
             if (!empty($id) && is_numeric($id)) {
 
-                \Log::info("Website pushed with id : " . $id);
+                \Log::channel('productUpdates')->info("Website pushed with id : " . $id);
                 $website->platform_id = $id;
 
                 if ($website->save()) {
                     // start uploading
                     $stores = $website->stores;
                     if (!$stores->isEmpty()) {
-                        \Log::info("Website Store pushed start");
+                        \Log::channel('productUpdates')->info("Website Store pushed start");
                         foreach ($stores as $store) {
 
                             $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsiteStore([
@@ -68,14 +68,14 @@ class PushWebsiteToMagento implements ShouldQueue
 
                             if (!empty($id) && is_numeric($id)) {
 
-                                \Log::info("Website Store pushed =>" . $id);
+                                \Log::channel('productUpdates')->info("Website Store pushed =>" . $id);
 
                                 $store->platform_id = $id;
                                 if ($store->save()) {
                                     $storeView = $store->storeView;
                                     if (!$storeView->isEmpty()) {
 
-                                        \Log::info("Website Store view start");
+                                        \Log::channel('productUpdates')->info("Website Store view start");
 
                                         foreach ($storeView as $sView) {
                                             $id = \seo2websites\MagentoHelper\MagentoHelper::pushWebsiteStoreView([
@@ -88,7 +88,7 @@ class PushWebsiteToMagento implements ShouldQueue
 
                                             if (!empty($id) && is_numeric($id)) {
 
-                                                \Log::info("Website Store view pushed =>" . $id);
+                                                \Log::channel('productUpdates')->info("Website Store view pushed =>" . $id);
 
                                                 $sView->platform_id = $id;
                                                 $sView->save();
