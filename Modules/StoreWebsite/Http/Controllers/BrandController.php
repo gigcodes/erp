@@ -145,10 +145,17 @@ class BrandController extends Controller
                                     'type' => "assign",
                                     'message' => "{$website->title} assigned to {$brand->name} brand."
                                 ]);
-                                return response()->json("Brand is pushed to store successfully.",200);
+                                
+                                return response()->json(["code" => 200 , "message" =>  "Brand is pushed to store successfully."]);
                             }
                             else
                             {
+                                StoreWebsiteBrandHistory::create([
+                                    'brand_id' => $request->brand,
+                                    'store_website_id' => $request->store,
+                                    'type' => "error",
+                                    'message' => "{$website->title} assigned to {$brand->name} brand failed."
+                                ]);
                                 return response()->json(["code" => 500 , "message" =>  "Brand is not pushed to store,please check history log."]);
                             }
                         }else{
