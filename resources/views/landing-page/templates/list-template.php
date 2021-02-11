@@ -70,6 +70,7 @@
                         <div style="width:126px;">
                             <button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template"><img width="15px" title="Edit" src="/images/edit.png"></button>
                             <button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                            <button type="button" data-id="{{>prop.id}}" class="btn btn-push-icon-mangto" title="Refresh product in magnto"><i class="fa fa-refresh" aria-hidden="true"></i></button>
                             {{if prop.shopify_id != null}}
                                 <button type="button" data-id="{{>prop.id}}" class="btn btn-push-icon" title="Refresh product in shopify"><i class="fa fa-refresh" aria-hidden="true"></i></button>
                                 {{if prop.stock_status == 1}}

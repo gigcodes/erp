@@ -25,6 +25,11 @@
             page.createRecord();
         });
 
+        page.config.bodyView.on("click",".btn-push-icon-mangto",function(e) {
+            e.preventDefault();
+            page.pushMagentoProduct($(this));
+        });
+
         page.config.bodyView.on("click",".btn-push-icon",function(e) {
             e.preventDefault();
             page.pushShopifyProduct($(this));
@@ -281,6 +286,16 @@
     pushShopifyProduct : function(ele) {
         var _z = {
             url: this.config.baseUrl + "/landing-page/"+ele.data("id")+"/push-to-shopify",
+            method: "GET",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveSite");
+    },
+    pushMagentoProduct : function(ele) {
+       var _z = {
+            url: this.config.baseUrl + "/landing-page/"+ele.data("id")+"/push-to-magento",
             method: "GET",
             beforeSend : function() {
                 $("#loading-image").show();
