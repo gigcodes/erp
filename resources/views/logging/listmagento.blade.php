@@ -65,9 +65,22 @@
                         </select>
 
                     </div>
+                    <div class="col-md-2">
+                        <label for="sku">Sync Status</label>
+                        <select class="form-control" name="sync_status">
+                            <option value=''>All</option>
+                            <option value="success" {{ $filters['sync_status'] == 'success' ? 'selected' : '' }}>Success</option>
+                            <option value="error" {{ $filters['sync_status'] == 'error' ? 'selected' : '' }}>Error</option>
+                        </select>
+
+                    </div>
+                </div>
+                <div class="row p-3 pull-right">
+                    <div class="col-md-2">
                     <button class="btn btn-light" id="submit">
                         <span class="fa fa-filter"></span> Filter Results
                     </button>
+                    </div>
                 </div>
             </form>
 
@@ -85,6 +98,7 @@
                         <th style="width:8%">Status</th>
                         <th style="width:8%">Language Id</th>
                         <th style="width:7%">Sync Status</th>
+                        <th style="width:7%">Status Count</th>
                         <th style="width:8%">Action</th>
                     </thead>
                     <tbody>
@@ -123,6 +137,7 @@
                             </td>
                             <td> {{(!empty($item->languages)) ? implode(", ",json_decode($item->languages)) : ''}} </td>
                             <td> {{$item->sync_status}} </td>
+                            <td> Total Error : {{$item->total_error}}<br> Total Success : {{$item->total_success}} </td>
                             <td>
                                 <button data-toggle="modal" data-target="#update_modal" class="btn btn-xs btn-secondary update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
                                 <button class="btn btn-xs btn-secondary show_error_logs" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-eye"></i></button>
