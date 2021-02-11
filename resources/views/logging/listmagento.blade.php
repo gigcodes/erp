@@ -69,8 +69,8 @@
                         <label for="sku">Sync Status</label>
                         <select class="form-control" name="sync_status">
                             <option value=''>All</option>
-                            <option value="success" {{ $filters['sync_status'] == 'success' ? 'selected' : '' }}>Success</option>
-                            <option value="error" {{ $filters['sync_status'] == 'error' ? 'selected' : '' }}>Error</option>
+                            <option value="success" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'success' ? 'selected' : '' }}>Success</option>
+                            <option value="error" {{ isset($filters['sync_status']) && $filters['sync_status'] == 'error' ? 'selected' : '' }}>Error</option>
                         </select>
 
                     </div>
