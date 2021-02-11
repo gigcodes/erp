@@ -38,11 +38,14 @@ class CategorySeoController extends Controller
 
     public function records(Request $request)
     {
-        $storewebsite_category_seos = StoreWebsiteCategorySeo::join("categories as cat", "cat.id", "store_website_category_seos.category_id")->join("languages", "languages.id", "store_website_category_seos.language_id");
+        $storewebsite_category_seos = StoreWebsiteCategorySeo::join("categories as cat", "cat.id", "store_website_category_seos.category_id")
+            ->leftjoin("categories as sub_cat", "sub_cat.id", "cat.parent_id")
+            ->leftjoin("categories as main_cat", "main_cat.id", "sub_cat.parent_id")
+            ->join("languages", "languages.id", "store_website_category_seos.language_id");
 
-        if ($request->has('category_id')) {
+        if ($request->has('category_id') && !empty($request->category_id)) {
             $storewebsite_category_seos = $storewebsite_category_seos->where(function ($q) use ($request) {
-                $q->where("cat.id", "like", "%" . $request->category_id . "%");
+                $q->where("cat.id",$request->category_id);
             });
         }
 
@@ -53,7 +56,7 @@ class CategorySeoController extends Controller
             });
         }
 
-        $storewebsite_category_seos = $storewebsite_category_seos->orderBy("store_website_category_seos.id","DESC")->select(["languages.name","cat.title", "store_website_category_seos.*"])->paginate();
+        $storewebsite_category_seos = $storewebsite_category_seos->orderBy("store_website_category_seos.id","DESC")->select(["languages.name", "cat.title", "sub_cat.title as sub_category", "main_cat.title as main_category", "store_website_category_seos.*"])->paginate();
 
         $items = $storewebsite_category_seos->items();
 
@@ -61,7 +64,17 @@ class CategorySeoController extends Controller
         foreach($items as $item) {
             $attributes = $item->getAttributes();
             $attributes['store_small'] = strlen($attributes['name']) > 15 ? substr($attributes['name'],0,15) : $attributes['name'];
+            $attributes['category'] = $attributes['title'];
+            if(!empty($attributes['sub_category']))
+            {
+                $attributes['category'] = $attributes['sub_category']." > ".$attributes['category'];
+            }
+            if(!empty($attributes['main_category']))
+            {
+                $attributes['category'] = $attributes['main_category']." > ".$attributes['category'];
+            }
             $recItems[] = $attributes;
+
         }
 
         return response()->json(["code" => 200, "data" => $recItems, "total" => $storewebsite_category_seos->total(),

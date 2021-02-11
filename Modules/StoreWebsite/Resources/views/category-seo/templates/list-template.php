@@ -17,7 +17,7 @@
                 {{props data}}
                   <tr>
                     <td><input type="checkbox" class="groups" name="groups[]" value="{{:prop.id}}">&nbsp;{{:prop.id}}</td>
-                    <td>{{:prop.title}}</td>
+                    <td>{{:prop.category}}</td>
                     <td>{{:prop.meta_title}}</td>
                     <td>{{:prop.meta_keyword}}</td>
                     <td>{{:prop.meta_description}}</td>
