@@ -1158,4 +1158,30 @@ class ProductInventoryController extends Controller
 		return response()->json(["code" => 200 , "data" => [], "message" => "Your request has been send to the jobs"]);
 
 	}
+
+	public function updateStatus(Request $request) 
+	{
+		$product_ids 	= $request->get("product_ids");
+		$product_status = $request->get("product_status");
+		
+		$messages = [];
+		$errorMessages = [];
+		if(!empty($product_status) && !empty($product_ids)) {
+
+			$products = \App\Product::whereIn("id",$product_ids)->get();
+			if(!$products->isEmpty()) {
+					foreach($products as $product) {
+						if( $product->status_id != $product_status ){
+							$product->status_id = $product_status;
+							$product->save();
+							$messages[] = "$product->name updated successfully";
+						}
+					}
+			}else{
+				$messages[] = 'Something went wrong. Please try again later.';
+			}
+		}
+
+		return response()->json(["code" => 200 , "data" => [],"message" => implode("</br>", $messages),"error_messages" => implode("</br>", $errorMessages)]);
+	}
 }
