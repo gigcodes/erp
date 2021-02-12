@@ -47,9 +47,7 @@ class MasterDevTaskController extends Controller
         //$github     = new GithubClient;
         //$repository = $github->getRepository();
         $repoArr    = [];
-        /*if (!empty($repository)) {
-        $repoArr    = [];
-		/*$github     = new GithubClient;
+		$github     = new GithubClient;
         $repository = $github->getRepository();
         
         if (!empty($repository)) {
@@ -68,7 +66,7 @@ class MasterDevTaskController extends Controller
                     }
                 }
             }
-        }*/
+        }
         $cronjobReports = null;
         
         $cronjobReports = \App\CronJob::join("cron_job_reports as cjr", "cron_jobs.signature", "cjr.signature")
@@ -94,6 +92,17 @@ class MasterDevTaskController extends Controller
         )->first();
 
         $last24HrsMsg = \DB::table("chat_messages")->where("created_at",">=",\DB::raw("DATE_SUB(NOW(),INTERVAL 24 HOUR)"))->select(
+            [\DB::raw("count(*) as cnt")]
+        )->first();
+
+        $threehours = strtotime(date("Y-m-d H:i:s", strtotime('-3 hours')));
+        $twentyfourhours = strtotime(date("Y-m-d H:i:s", strtotime('-24 hours')));
+
+        $last3HrsJobs = \DB::table("jobs")->where("created_at",">=",$threehours)->select(
+            [\DB::raw("count(*) as cnt")]
+        )->first();
+
+        $last24HrsJobs = \DB::table("jobs")->whereDate("created_at",">=",$twentyfourhours)->select(
             [\DB::raw("count(*) as cnt")]
         )->first();
 
@@ -129,6 +138,6 @@ class MasterDevTaskController extends Controller
 
 		$projectDirectoryData = \DB::select($projectDirectorySql);	 
 		return view("master-dev-task.index",compact(
-            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports','projectDirectoryData'));
+            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports','projectDirectoryData','last3HrsJobs','last24HrsJobs'));
     }
 }
