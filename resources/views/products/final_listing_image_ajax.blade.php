@@ -1,7 +1,7 @@
 @php $imageCropperRole = Auth::user()->hasRole('ImageCropers'); @endphp
 <table class="table table-bordered table-striped" style="table-layout:fixed;">
         @foreach ($products as $key => $product)
-        <thead>
+        <thead productid="{{ $product->id }}">
             <tr>
                 <th>#{{ $product->id }} [{{$product->sku}}] {{$product->name}}</th>
             </tr>
@@ -18,7 +18,7 @@
                             @if(!$websiteList->isEmpty())
                                 @foreach($websiteList as $index => $site)
                                     <div class="col-md-12">
-                                            <h5 style="text-decoration: underline; width: 100%;">{{ $site->title }}</h5>
+                                            <h5 style="text-decoration: underline; width: 100%;">{{ $site->title }} {{ $site->id }}</h5>
                                             @php
                                                 $tag        = 'gallery_'.$site->cropper_color;
                                                 $testing    = false;

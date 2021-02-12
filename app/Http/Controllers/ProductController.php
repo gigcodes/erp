@@ -122,6 +122,13 @@ class ProductController extends Controller
 
     public function approvedListing(Request $request,$pageType = "")
     {
+        
+        if(!Setting::has('auto_push_product')){
+            $auto_push_product = Setting::add('auto_push_product',0,'int');
+        }else{
+            $auto_push_product = Setting::get('auto_push_product');
+        }
+       // dd(Setting::get('auto_push_product'));
         $cropped = $request->cropped;
         $colors = (new Colors)->all();
         $categories = Category::all();
@@ -392,7 +399,8 @@ class ProductController extends Controller
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
             'store_websites' => StoreWebsite::all(),
-            'pageType' => $pageType
+            'pageType' => $pageType,
+            'auto_push_product' => $auto_push_product
             //'store_website_count' => StoreWebsite::count(),
         ]);
     }
@@ -4230,6 +4238,17 @@ class ProductController extends Controller
         }
 
         return response()->json(["code" => 500, "data" => [], "message" => "Required field is missing"]);
+    }
+
+    public function changeAutoPushValue(Request $request)
+    {
+        if(Setting::get('auto_push_product') == 0){
+            $val = 1;
+        }else{
+            $val = 0;
+        }
+        $settings = Setting::set('auto_push_product', $val, 'int');
+        return response()->json(["code" => 200, "data" => $settings, "message" => "Status changed"]);
     }
 
     public function pushProduct()
