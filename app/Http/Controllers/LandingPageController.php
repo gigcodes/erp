@@ -75,6 +75,7 @@ class LandingPageController extends Controller
         }
 
         $productStatus = request("product_status");
+
         if($productStatus != null) {
             $records = $records->where("p.status_id", $productStatus);
         }

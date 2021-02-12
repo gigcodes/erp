@@ -30,6 +30,11 @@
             page.pushMagentoProduct($(this));
         });
 
+        page.config.bodyView.on("click",".btn-stock-status-magnto",function(e) {
+            e.preventDefault();
+            page.pushStockStatusMangto($(this));
+        });
+
         page.config.bodyView.on("click",".btn-push-icon",function(e) {
             e.preventDefault();
             page.pushShopifyProduct($(this));
@@ -303,6 +308,18 @@
         }
         this.sendAjax(_z, "saveSite");
     },
+    pushStockStatusMangto : function(ele) {
+        var _z = {
+            url: this.config.baseUrl + "/landing-page/"+ele.data("id")+"/push-to-magento",
+            method: "GET",
+            data : {stock_status : ele.data("value")},
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveSite");
+    },
+
     pushStockStatus : function(ele) {
         var _z = {
             url: this.config.baseUrl + "/landing-page/"+ele.data("id")+"/push-to-shopify",
