@@ -88,6 +88,12 @@
             <button type="button" class="btn btn-secondary btn-change-size-system"></i>Change Size System</button>
         </div>
     </form>
+    <div class="form-group mr-pd col-md-2">
+        {!! Form::select('size_system',["" => "Select status"] + \App\Helpers\StatusHelper::getStatus(), request("status"), ['data-placeholder' => 'Select status','class' => 'form-control change-status']) !!}
+    </div>
+    <div class="form-group mr-pd col-md-2">    
+        <button type="button" class="btn btn-secondary btn-change-status"></i>Change status</button>
+    </div>
 </div>
 <div class="table-responsive" id="inventory-data">
     <table class="table table-bordered infinite-scroll">
@@ -496,6 +502,59 @@ return;
             data : {
                 product_ids : ids, 
                 size_system : $(".change-selectable-size").val()
+            },
+            dataType:"json",
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+        })
+        .done(function(data) {
+            $("#loading-image").hide();
+            if(data.code == 200) {
+                if(data.message != "") {
+                    toastr['success'](data.message, 'success');
+                }
+                if(data.error_messages != "") {
+                    toastr['error'](data.error_messages, 'error');
+                }
+            }
+        })
+        .fail(function(jqXHR, ajaxOptions, thrownError) {
+            console.error(jqXHR);
+        });
+    });
+
+    // Update status
+    $(document).on("click",".btn-change-status",function() {
+
+        if($(".change-status").val() == "") {
+            alert("Select status for update");
+            return false;
+        }
+
+        var loader = $('.infinite-scroll-products-loader');
+
+        var ids = [];
+        $(".selected-product-ids:checked").each(function(){
+            ids.push($(this).val());
+        });
+
+        if(ids.length <= 0) {
+            alert("Please select products for update first");
+            return false;
+        }
+
+        // console.log(ids);
+        // return;
+        $.ajax({
+            url: "/productinventory/change-product-status",
+            type: 'POST',
+            data : {
+                product_ids : ids, 
+                product_status : $(".change-status").val()
             },
             dataType:"json",
             headers: {
