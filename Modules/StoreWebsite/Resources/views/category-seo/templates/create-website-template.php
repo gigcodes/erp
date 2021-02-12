@@ -23,25 +23,34 @@
                           <?php } ?>
                       </select>  
                     </div>
+                    <div class="form-group col-md-6">
+                      <label for="store_website_id">Store Website</label>
+                      <select name="store_website_id" class="form-control">
+                        <option value="">-- Select --</option>
+                          <?php foreach($store_list as $k => $store) { ?>
+                            <option {{if data.store_website_id == '<?php echo $k; ?>'}} selected {{/if}} value="<?php echo $k; ?>"><?php echo $store; ?></option>
+                          <?php } ?>
+                      </select>  
+                    </div>
                      {{if data}}
                         <input type="hidden" name="id" value="{{:data.id}}"/>
                      {{/if}}
+              </div>
+              <div class="form-row">
                   <div class="form-group col-md-6">
                     <label for="meta_title">Meta Title</label>
                     <input type="text" name="meta_title" value="{{if data}}{{:data.meta_title}}{{/if}}" class="form-control" id="meta_title" placeholder="Enter Meta title">
                   </div>
-              </div>
-              <div class="form-row">
-                <div class="form-group col-md-6">
+                  <div class="form-group col-md-6">
                   <label for="meta_keywords">Meta Keywords</label>
                   <input type="text" name="meta_keyword" value="{{if data}}{{:data.meta_keyword}}{{/if}}" class="form-control" id="meta_keywords" placeholder="Enter Keywords">
                 </div>
+              </div>
+              <div class="row">
                 <div class="form-group col-md-6">
                   <label for="meta_description">Meta Description</label>
                   <textarea name="meta_description" class="form-control" placeholder="Enter meta description">{{if data}}{{:data.meta_description}}{{/if}}</textarea>
                 </div>
-              </div>
-              <div class="row">
                 <div class="form-group col-md-6">
                     <label for="language">Language</label>
                     <select name="language_id" class="form-control">
