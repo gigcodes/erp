@@ -340,7 +340,7 @@
                     @if ($product->product_user_id != null)
                         {{ \App\User::find($product->product_user_id)->name }}
                     @endif
-                    <i style="cursor: pointer;" class="fa fa-upload upload-single" data-id="{{ $product->id }}" title="push to magento" aria-hidden="true"></i>
+                    <i style="cursor: pointer;" class="fa fa-upload upload-single {{$auto_push_product == 0 ? '' : 'hide'}}" data-id="{{ $product->id }}" title="push to magento" aria-hidden="true"></i>
                 @else
                     <i style="cursor: pointer;" class="fa fa-toggle-off upload-magento" title="Enable" data-id="{{ $product->id }}" data-type="submit_for_approval" aria-hidden="true"></i>
                 @endif
