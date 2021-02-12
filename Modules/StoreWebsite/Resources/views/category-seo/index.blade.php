@@ -17,7 +17,7 @@
     <br>
     <div class="col-lg-12 margin-tb">
         <div class="row">
-            <div class="col-7">
+            <div class="col-6">
                 <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action" data-toggle="modal" data-target="#colorCreateModal">
                     <img src="/images/add.png" style="cursor: default;">
                 </button>
@@ -25,17 +25,23 @@
                     <button class="btn btn-secondary push-by-store-website"  data-toggle="modal" data-target="#push-by-store-website-modal">Push By Storewebsite</button>
                 </div>
             </div>
-            <div class="col-5">
+            <div class="col-6">
                 <div class="h" style="margin-bottom:10px;">
                     <div class="row">
                         <form class="form-inline message-search-handler" method="get"> 
-                            <div class="col-4">
+                            <div class="col-3">
                                 <div class="form-group">
                                     <label for="category_id">Categories:</label>
                                     <?php echo Form::select("category_id",$categories_list,request("category_id"),["class"=> "form-control","placeholder" => "Select Category"]) ?>
                                 </div>
                             </div>
-                            <div class="col-8">
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="category_id">Store:</label>
+                                    <?php echo Form::select("store_website_id",$store_list,request("store_website_id"),["class"=> "form-control","placeholder" => "Select Store"]) ?>
+                                </div>
+                            </div>
+                            <div class="col-6">
                                 <div class="form-group">
                                     <label for="keyword">Keyword:</label>
                                     <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>

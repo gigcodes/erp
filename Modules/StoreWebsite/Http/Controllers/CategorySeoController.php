@@ -27,12 +27,14 @@ class CategorySeoController extends Controller
         $storeWebsites = StoreWebsite::all()->pluck("website", "id");
         $categories = Category::all();
         $categories_list = Category::pluck('title', 'id')->toArray();
+        $store_list = StoreWebsite::pluck('title', 'id')->toArray();
         return view('storewebsite::category-seo.index',[
             'title' => $title,
             'storeWebsites' => $storeWebsites,
             'categories' => $categories,
             'categories_list' => $categories_list,
             'languages' => $languages,
+            'store_list' => $store_list,
         ]);
     }
 
@@ -41,11 +43,18 @@ class CategorySeoController extends Controller
         $storewebsite_category_seos = StoreWebsiteCategorySeo::join("categories as cat", "cat.id", "store_website_category_seos.category_id")
             ->leftjoin("categories as sub_cat", "sub_cat.id", "cat.parent_id")
             ->leftjoin("categories as main_cat", "main_cat.id", "sub_cat.parent_id")
+            ->leftjoin("store_websites as store", "store.id", "store_website_category_seos.store_website_id")
             ->join("languages", "languages.id", "store_website_category_seos.language_id");
 
         if ($request->has('category_id') && !empty($request->category_id)) {
             $storewebsite_category_seos = $storewebsite_category_seos->where(function ($q) use ($request) {
                 $q->where("cat.id",$request->category_id);
+            });
+        }
+
+        if ($request->has('store_website_id') && !empty($request->store_website_id)) {
+            $storewebsite_category_seos = $storewebsite_category_seos->where(function ($q) use ($request) {
+                $q->where("store_website_category_seos.store_website_id",$request->store_website_id);
             });
         }
 
@@ -56,7 +65,7 @@ class CategorySeoController extends Controller
             });
         }
 
-        $storewebsite_category_seos = $storewebsite_category_seos->orderBy("store_website_category_seos.id","DESC")->select(["languages.name", "cat.title", "sub_cat.title as sub_category", "main_cat.title as main_category", "store_website_category_seos.*"])->paginate();
+        $storewebsite_category_seos = $storewebsite_category_seos->orderBy("store_website_category_seos.id","DESC")->select(["languages.name", "cat.title", "sub_cat.title as sub_category", "main_cat.title as main_category","store.title as store_name", "store_website_category_seos.*"])->paginate();
 
         $items = $storewebsite_category_seos->items();
 
@@ -104,6 +113,7 @@ class CategorySeoController extends Controller
         $params = [
             'meta_title'    => 'required',
             'category_id'  => 'required',
+            'store_website_id'  => 'required',
             'language_id'  => 'required',
         ];
 
