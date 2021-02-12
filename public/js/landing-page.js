@@ -275,7 +275,7 @@
     },
     saveSite : function(response) {
         if(response.code  == 200) {
-            toastr["success"]("Product pushed successfully");
+            toastr["success"]("Product added successfully");
             page.loadFirst();
             $(".common-modal").modal("hide");
         }else {

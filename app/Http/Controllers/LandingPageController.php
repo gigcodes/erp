@@ -358,56 +358,23 @@ class LandingPageController extends Controller
     public function pushToMagentoPro(Request $request, $id)
     {
         $landingPage = LandingPageProduct::where("id", $id)->first();
-
+        $queueName = [
+            "1" => "mageone",
+            "2" => "magetwo",
+            "3" => "magethree"
+        ];
+        $i = 1;
         if(!empty($landingPage) && $landingPage->store_website_id > 0){
-            $queueName = [
-                "1" => "mageone",
-                "2" => "magetwo",
-                "3" => "magethree"
-            ];
-
             // Get product by ID
             $product = Product::find($landingPage->product_id);
-
-            //check for hscode
-            $hscode = new HsCode();
-            $hsCode = $product->hsCode($product->category, $product->composition);
-            $hsCode = true;
-
-            if($hsCode){
-                 // If we have a product, push it to Magento
-                if ($product !== null) {
-                    // Dispatch the job to the queue
-                    //PushToMagento::dispatch($product)->onQueue('magento');
-                    $category = $product->category;
-                    $brand = $product->brand;
-                    //website search
-                    // $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
-                    $websiteArrays = [1,2,3,4,5];
-                    if(count($websiteArrays) == 0){
-                        \Log::info("Product started ".$product->id." No website found");
-                        $msg = 'No website found for  Brand: '. $product->brand. ' and Category: '. $product->category;
-                        ProductPushErrorLog::log($product->id, $msg, 'error');
-                        LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
-                    }else{
-                        $i = 1;
-                        foreach ($websiteArrays as $websiteArray) {
-                            $website = StoreWebsite::find($websiteArray);
-                            if($website){
-                                \Log::info("Product started website found For website".$website->website);
-                                LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id);
-                                //currently we have 3 queues assigned for this task.
-                                if($i > 3) {
-                                   $i = 1;
-                                }
-                                PushToMagento::dispatch($product,$website)->onQueue($queueName[$i]);
-                                $i++;
-                            }
-                        }
-                    }
-                    $product->isUploaded = 1;
-                    $save_pro = $product->save();
-                }
+            $websiteArrays = StoreWebsite::where('id', $landingPage->store_website_id)->first();
+            if($websiteArrays){
+                \Log::info("Product started website found For website".$websiteArrays->website);
+                LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$websiteArrays->id);
+                PushToMagento::dispatch($product,$websiteArrays)->onQueue($queueName[$i]);
+                return response()->json(["code" => 200, "data" => "", "message" => "Success!"]);
+            }else{
+                return response()->json(["code" => 500, "data" => "", "message" => "Please select the store website!"]);
             }
         }
     }

@@ -28,6 +28,7 @@
 			        	{{:prop.product_id}}
 			        	<br>
 			        	<div class="row">
+			        		<lable>Shopify Store</lable>
 			        		<select name="store_website_id" class="form-control store-website-change" data-id="{{:prop.id}}">
 			        		<option value="">--SELECT-</option>
 			        		<?php foreach(\App\StoreWebsite::shopifyWebsite() as $k => $v) {  ?>
@@ -35,6 +36,16 @@
 			        		<?php } ?>
 			        		</select>
 			        	</div>
+			        	<div class="row">
+			        		<lable>Magento Website Store</lable>
+			        		<select name="store_website_id" class="form-control store-website-change" data-id="{{:prop.id}}">
+			        		<option value="">--SELECT-</option>
+			        		<?php foreach(\App\StoreWebsite::magentoWebsite() as $k => $v) {  ?>
+			        			<option {{if prop.store_website_id == "<?php echo $k; ?>"}} selected {{/if}} value="<?php echo $k; ?>"><?php echo $v; ?></option>
+			        		<?php } ?>
+			        		</select>
+			        	</div>
+
 			        </td>
 			        <td>{{:prop.name}}</td>
 			        <td>{{:prop.short_dec}}</td>
