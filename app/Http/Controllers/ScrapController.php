@@ -1378,8 +1378,11 @@ class ScrapController extends Controller
     public function scraperNeeded(Request $request)
     {
        $products = Product::where("status_id", StatusHelper::$requestForExternalScraper)
-        ->latest("created_at")
-        ->select(["id","sku","supplier"])
+        ->leftJoin('brands', function($join) {
+            $join->on('products.brand', '=', 'brands.id');
+        })
+        ->latest("products.created_at")
+        ->select(["products.id","products.sku","products.supplier","brands.name"])
         ->limit(50)
         ->get()
         ->toArray(); 
