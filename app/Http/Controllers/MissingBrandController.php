@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\MissingBrand;
 use App\Brand;
+use App\Activity;
+use Auth;
 
 class MissingBrandController extends Controller
 {
@@ -92,6 +94,12 @@ class MissingBrandController extends Controller
         if($mBrand) {
             $mBrand->delete();
         }
+        Activity::create([
+            'subject_type' => "Brand",
+            'subject_id' => $brand->id,
+            'causer_id' => Auth::user()->id,
+            'description' => Auth::user()->name ." has merged ".$brand->name. " to ".$mBrand->brand_name
+        ]);
 
         return redirect()->back()->with('success', 'Brand reference added successfully');
 
