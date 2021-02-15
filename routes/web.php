@@ -763,6 +763,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('delete', 'LandingPageController@delete')->name('landing-page.delete');
             Route::get('push-to-shopify', 'LandingPageController@pushToShopify')->name('landing-page.push-to-shopify');
             Route::get('change-store', 'LandingPageController@changeStore')->name('landing-page.change.store');
+            Route::get('push-to-magento', 'LandingPageController@pushToMagentoPro')->name('landing-page.push-to-magento');
+            Route::get('push-to-magento-status', 'LandingPageController@updateMagentoStock')->name('landing-page.push-to-magento-status');
         });
     });
 

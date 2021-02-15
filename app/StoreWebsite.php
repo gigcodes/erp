@@ -95,6 +95,11 @@ class StoreWebsite extends Model
         return self::where("website_source","shopify")->pluck("title","id")->toArray();
     }
 
+    public static function magentoWebsite()
+    {
+        return self::where("website_source","magento")->pluck("title","id")->toArray();
+    }
+    
     public function websites()
     {
         return $this->hasMany('App\Website','store_website_id','id');
