@@ -157,9 +157,18 @@ var page = {
         }
 
     },
-    createRecord : function(response) {
+    createRecord : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/site-attributes/list",
+            //url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/site-attributes/save",
+            method: "get",
+        }
+        this.sendAjax(_z, 'createResult');
+    },
+    createResult : function(response) {
+        console.log(response);
         var createWebTemplate = $.templates("#template-create-website");
-        var tplHtml = createWebTemplate.render({data:{}});
+        var tplHtml = createWebTemplate.render(response);
         
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
@@ -181,6 +190,7 @@ var page = {
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
+        $("#store_website_id").val(response.data.store_website_id);
     },
 
     submitFormSite : function(ele) {

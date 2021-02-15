@@ -21,14 +21,24 @@
 			         <label for="attribute_val">Attribute Value</label>
 			         <input type="text" name="attribute_val" value="{{if data}}{{:data.attribute_val}}{{/if}}" class="form-control" id="attribute_val" placeholder="Enter Attribute Value">
 			      </div>
-		         <!--div class="form-group col-md-6">
-		            <label for="website">Website</label>
-		            <input type="text" name="website" value="{{if data}}{{:data.website}}{{/if}}" class="form-control" id="website" placeholder="Enter Website">
-		         </div-->
 		      </div>
 		      <div class="form-group">
 		         <label for="store_website_id">Store Website ID</label>
-		         <input type="text" maxlength="14" minlength="14" name="store_website_id" value="{{if data}}{{:data.store_website_id}}{{/if}}" class="form-control" id="store_website_id" placeholder="Enter Store Website ID">
+		         <select name="store_website_id" id="store_website_id">
+		         	<option value=''> Select Website </option>
+		         	{{props websitelist}}
+		         		{{if data}}
+			         		{{if ~data.store_website_id == prop.id}}
+				         		<option value='{{:prop.id}}' selected>{{:prop.website}}</option>
+				         	{{else}}
+				         		<option value='{{:prop.id}}'>{{:prop.website}}</option>
+				         	{{/if}}
+				        {{else}}
+				         	<option value='{{:prop.id}}'>{{:prop.website}}</option>
+				        {{/if}}
+			         {{/props}} 
+		         </select>
+		         <!--input type="text" maxlength="14" minlength="14" name="store_website_id" value="{{if data}}{{:data.store_website_id}}{{/if}}" class="form-control" id="store_website_id" placeholder="Enter Store Website ID" -->
 		      </div>
 		   </div>
 		   <div class="modal-footer">

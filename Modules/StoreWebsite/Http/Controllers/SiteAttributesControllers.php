@@ -5,6 +5,7 @@ namespace Modules\StoreWebsite\Http\Controllers;
 use App\ChatMessage;
 use App\Http\Controllers\WhatsAppController;
 use App\StoreWebsiteAttributes;
+use App\StoreWebsite;
 use Auth;
 use Crypt;
 use Illuminate\Http\Request;
@@ -16,6 +17,7 @@ use App\Setting;
 use App\User;
 use App\SocialStrategy;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Illuminate\Support\Facades\DB;
 
 class SiteAttributesControllers extends Controller
 {
@@ -77,9 +79,32 @@ class SiteAttributesControllers extends Controller
      */
     public function records(Request $request)
     {
-        $StoreWebsiteAttributesViews = StoreWebsiteAttributes::all();
 
-        return response()->json(["code" => 200, "data" => $StoreWebsiteAttributesViews]);
+        
+        $StoreWebsiteAttributesViews = DB::table('store_website_attributes');
+        if ($request->keyword != null) {
+            $StoreWebsiteAttributesViews = StoreWebsiteAttributes::where("store_website_id", "like", "%" . $request->keyword . "%");
+        }
+        //return $StoreWebsiteAttributesViews;
+        $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->paginate();
+
+        //return response()->json(["code" => 200, "data" => $StoreWebsiteAttributesViews, "total" => $StoreWebsiteAttributesViews->count(), "pagination" => (string) $StoreWebsiteAttributesViews->render()]);
+        return response()->json(["code" => 200, "data" => $StoreWebsiteAttributesViews->items(), "total" => $StoreWebsiteAttributesViews->count(),
+            "pagination" => (string) $StoreWebsiteAttributesViews->render()
+    ]);
+    }
+
+    /**
+     * Add Page
+     * @param  Request $request [description]
+     * @return
+     */
+    public function list(Request $request)
+    {
+
+        $websitelist = StoreWebsite::all();
+
+        return response()->json(["code" => 200, "data" => '', "websitelist" => $websitelist]);
     }
 
 
@@ -110,10 +135,13 @@ class SiteAttributesControllers extends Controller
 
     public function edit(Request $request, $id)
     {
-        $StoreWebsiteAttributes = StoreWebsiteAttributes::where("id", $id)->first();
+        $StoreWebsiteAttributes = StoreWebsiteAttributes::where("id", $id)
+        ->first();
+        
+        $websitelist = StoreWebsite::all();
 
         if ($StoreWebsiteAttributes) {
-            return response()->json(["code" => 200, "data" => $StoreWebsiteAttributes]);
+            return response()->json(["code" => 200, "data" => $StoreWebsiteAttributes, "websitelist" => $websitelist]);
         }
 
         return response()->json(["code" => 500, "error" => "Wrong site id!"]);

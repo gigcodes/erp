@@ -132,6 +132,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::prefix('site-attributes')->group(function () {
         Route::get('/', 'SiteAttributesControllers@index')->name("store-website.site-attributes.index");
         Route::post('save', 'SiteAttributesControllers@store')->name("store-website.site-attributes-views.save");
+        Route::get('list', 'SiteAttributesControllers@list')->name("store-website.site-attributes-views.list");
         Route::get('/records', 'SiteAttributesControllers@records')->name("store-website.site-attributes-views.records");
         Route::get('/{id}/delete', 'SiteAttributesControllers@delete')->name("store-website.site-attributes-views.delete");
         Route::get('/{id}/edit', 'SiteAttributesControllers@edit')->name("store-website.site-attributes-views.edit");

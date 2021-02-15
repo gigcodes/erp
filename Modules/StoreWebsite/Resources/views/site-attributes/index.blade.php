@@ -25,7 +25,29 @@
 		  			</button>
 				 </div>
 		    </div>
-		    
+		    <div class="col">
+		    	<div class="h" style="margin-bottom:10px;">
+					<div class="row">
+		    			<form class="form-inline message-search-handler" method="get">
+					  		<div class="col">
+					  			<div class="form-group">
+								    <label for="keyword">Website Store ID:</label>
+							  	</div>
+					  			<div class="form-group">
+								    <label for="keyword">Keyword:</label>
+								    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
+							  	</div>
+							  	<div class="form-group">
+							  		<label for="button">&nbsp;</label>
+							  		<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
+							  			<img src="/images/search.png" style="cursor: default;">
+							  		</button>
+							  	</div>
+					  		</div>
+				  		</form>
+					</div>
+		    	</div>
+		    </div>
 		</div>
 		<div class="row">
 			<div class="col-md-12">
