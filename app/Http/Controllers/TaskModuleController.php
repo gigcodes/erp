@@ -12,6 +12,7 @@ use App\Helpers;
 use App\User;
 use App\Task;
 use App\TaskCategory;
+use App\TaskStatus;
 use App\Contact;
 use App\Setting;
 use App\Remark;
@@ -56,6 +57,7 @@ class TaskModuleController extends Controller {
 			$type = $request->input( 'type' );
 		}
 		$activeCategories = TaskCategory::where('is_active',1)->pluck('id')->all();
+
 		$categoryWhereClause = '';
 		$category = '';
 		$request->category = $request->category ? $request->category : 1;
@@ -595,28 +597,30 @@ class TaskModuleController extends Controller {
 			$title = 'Task & Activity';
 		}
 
-	
+	    $task_statuses=TaskStatus::all();
+
+
 
 		if ($request->ajax()) {
 			if($type == 'pending') {
-				return view( 'task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
+				return view( 'task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses'));
 			}
 			else if( $type == 'statutory_not_completed') {
-				return view( 'task-module.partials.statutory-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
+				return view( 'task-module.partials.statutory-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses'));
 			}
 			else if( $type == 'completed') {
-				return view( 'task-module.partials.completed-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
+				return view( 'task-module.partials.completed-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses'));
 			}
 			else {
-				return view( 'task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
+				return view( 'task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses'));
 			}
 		}
 
 		if($request->is_statutory_query == 3) {
-			return view( 'task-module.discussion-tasks', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
+			return view( 'task-module.discussion-tasks', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses'));
 		}
 		else {
-			return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
+			return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses'));
 		}
 	}
 
@@ -2582,4 +2586,53 @@ class TaskModuleController extends Controller {
 	
 			return response()->json(["message" => "Sorry required fields is missing like id , userid"],500);
 		}
+
+   /* update task status 
+    */
+
+   public function updateStatus(Request $request)
+   {
+   	    try {
+
+   	    	$task=Task::find($request->task_id);
+
+   	    	$task->status=$request->status;
+
+   	    	$task->save();
+
+   	    	return response()->json([
+                'status' => 'success', 'message' =>'The task status updated.'
+            ],200);
+
+
+   	    	
+   	    } catch (Exception $e) {
+
+   	    	return response()->json([
+                'status' => 'error', 'message' =>'The task status not updated.'
+            ],500);
+   	    	
+   	    }
+   }
+
+   /* create new task status */
+
+   public function createStatus(Request $request)
+   {
+   	  $this->validate($request,['task_status'=>'required']);
+
+   	  try {
+
+   	  	TaskStatus::create(['name'=>$request->task_status]);
+
+   	  	return redirect()->back()->with( 'success', 'The task status created successfully.' );
+   	  	
+   	  } catch (Exception $e) {
+   	  	
+   	  	return redirect()->back()->with('error',$e->getMessage());
+   	  }
+
+
+
+   }
 }
