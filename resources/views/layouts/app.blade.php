@@ -797,6 +797,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-template') }}">Mailinglist Templates</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-emails') }}">Mailinglist Emails</a>
+                                            <a class="dropdown-item" href="/mail-templates/mailables">Mailables</a>
                                             <a class="dropdown-item" href="{{ route('emailleads') }}">Email Leads</a>
                                         </li>
                                     </ul>
@@ -1374,6 +1375,7 @@ $metaData = '';
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.color.list') }}">Store Color</a>
                                         <a class="dropdown-item" href="{{ route('size.index') }}">Size</a>
+                                        <a class="dropdown-item" href="{{ route('system.size') }}">System Size</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('landing-page.index') }}">Landing Page</a>
@@ -1411,6 +1413,10 @@ $metaData = '';
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.product-attribute.index') }}">Product Attribute</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.category-seo.index') }}">Category seo</a>
+                                    </li>
+                                    
                                 </ul>
                             </li>
                         @endif
