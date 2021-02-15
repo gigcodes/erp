@@ -7,6 +7,8 @@ use App\Loggers\LogListMagento;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use DataTables;
+use seo2websites\MagentoHelper\MagentoHelperv2;
+
 class LogListMagentoController extends Controller
 {
   private const VALID_MAGENTO_STATUS = [
@@ -89,83 +91,66 @@ class LogListMagentoController extends Controller
       }
     }
 
-    // // Get paginated result
-    // $logListMagentos->select(
-    //   'log_list_magentos.*',
-    //   'products.*',
-    //   'brands.name as brand_name',
-    //   'categories.title as category_title',
-    //   'log_list_magentos.id as log_list_magento_id',
-    //   'log_list_magentos.created_at as log_created_at',
-    //   'sw.website as website',
-    //   'sw.title as website_title',
-    //   'sw.magento_url as website_url'
-    // );
-    // $logListMagentos = $logListMagentos->paginate(100);
-
-    // foreach ($logListMagentos as $key => $item) {
-    //   if ($item->hasMedia(config('constants.media_tags'))) {
-    //     $logListMagentos[$key]['image_url'] = $item->getMedia(config('constants.media_tags'))->first()->getUrl();
-    //   } else {
-    //     $logListMagentos[$key]['image_url'] = '';
-    //   }
-    //   $logListMagentos[$key]['category_home'] = $item->expandCategory();
-    // }
-    // // For ajax
-    // if ($request->ajax()) {
-    //   return response()->json([
-    //     'tbody' => view('logging.partials.listmagento_data', compact('logListMagentos'))->render(),
-    //     'links' => (string) $logListMagentos->render()
-    //   ], 200);
-    // }
-    // $filters = $request->all();
-
-        // Get paginated result
-        $logListMagentos->select(
-            'log_list_magentos.*',
-            'products.*',
-            'brands.name as brand_name',
-            'categories.title as category_title',
-            'log_list_magentos.id as log_list_magento_id',
-            'log_list_magentos.created_at as log_created_at',
-            'sw.website as website',
-            'sw.title as website_title',
-            'sw.magento_url as website_url'
-        );
-        $logListMagentos = $logListMagentos->paginate(25);
-        //dd($logListMagentos);
-        foreach ($logListMagentos as $key => $item) {
-            if($request->sync_status){
-               if($item->sync_status != $request->sync_status)
-               {
-                    unset($logListMagentos[$key]);
-                    continue;
-               }
-               
+      // Get paginated result
+      $logListMagentos->select(
+          'log_list_magentos.*',
+          'products.*',
+          'brands.name as brand_name',
+          'categories.title as category_title',
+          'log_list_magentos.id as log_list_magento_id',
+          'log_list_magentos.created_at as log_created_at',
+          'sw.website as website',
+          'sw.title as website_title',
+          'sw.magento_url as website_url',
+          'log_list_magentos.user_id as log_user_id',
+      );
+      $logListMagentos = $logListMagentos->paginate(25);
+      //dd($logListMagentos);
+      foreach ($logListMagentos as $key => $item) {
+          if($request->sync_status){
+              if($item->sync_status != $request->sync_status)
+              {
+                  unset($logListMagentos[$key]);
+                  continue;
+              }
+              
+          }
+          if($request->user){
+            if($item->log_user_id != $request->user)
+            {
+                unset($logListMagentos[$key]);
+                continue;
             }
-            if ($item->hasMedia(config('constants.media_tags'))) {
-                $logListMagentos[$key]['image_url'] = $item->getMedia(config('constants.media_tags'))->first()->getUrl();
-            } else {
-                $logListMagentos[$key]['image_url'] = '';
-            }
-            $logListMagentos[$key]['category_home'] = $item->expandCategory();
-            if($item->log_list_magento_id){
-                $logListMagentos[$key]['total_error'] = \App\ProductPushErrorLog::where('log_list_magento_id',$item->log_list_magento_id)->where('response_status','error')->count();
-                $logListMagentos[$key]['total_success'] = \App\ProductPushErrorLog::where('log_list_magento_id',$item->log_list_magento_id)->where('response_status','success')->count();
-            }
-            
         }
-        //dd($logListMagentos);
-        // For ajax
-        if ($request->ajax()) {
-            return response()->json([
-                'tbody' => view('logging.partials.listmagento_data', compact('logListMagentos'))->render(),
-                'links' => (string) $logListMagentos->render()
-            ], 200);
-        }
-        $filters = $request->all();
+          if ($item->hasMedia(config('constants.media_tags'))) {
+              $logListMagentos[$key]['image_url'] = $item->getMedia(config('constants.media_tags'))->first()->getUrl();
+          } else {
+              $logListMagentos[$key]['image_url'] = '';
+          }
+          $logListMagentos[$key]['category_home'] = $item->expandCategory();
+          if($item->log_list_magento_id){
+              $logListMagentos[$key]['total_error'] = \App\ProductPushErrorLog::where('log_list_magento_id',$item->log_list_magento_id)->where('response_status','error')->count();
+              $logListMagentos[$key]['total_success'] = \App\ProductPushErrorLog::where('log_list_magento_id',$item->log_list_magento_id)->where('response_status','success')->count();
+          }
+          if($item->log_user_id){
+            $logListMagentos[$key]['log_user_name'] = \App\User::find($item->log_user_id)->name;
+          }else{
+            $logListMagentos[$key]['log_user_name'] = "";
+          }
+          
+      }
+      $users = \App\User::all();
+     // dd($logListMagentos);
+      // For ajax
+      if ($request->ajax()) {
+          return response()->json([
+              'tbody' => view('logging.partials.listmagento_data', compact('logListMagentos'))->render(),
+              'links' => (string) $logListMagentos->render()
+          ], 200);
+      }
+      $filters = $request->all();
     // Show results
-    return view('logging.listmagento', compact('logListMagentos', 'filters'))
+    return view('logging.listmagento', compact('logListMagentos', 'filters', 'users'))
     ->with('success', \Request::Session()->get("success"))
     ->with('brands', $this->get_brands())
     ->with('categories', $this->get_categories());
@@ -233,9 +218,12 @@ class LogListMagentoController extends Controller
     $brands='';
     $composition='';
     foreach ($products as $value) {
-      foreach ($value->extension_attributes->website_ids as $vwi) {
-        $websites[]=\App\StoreWebsite::where('id',$vwi)->value('title');
+      if(isset($value->extension_attributes)){
+        foreach ($value->extension_attributes->website_ids as $vwi) {
+          $websites[]=\App\StoreWebsite::where('id',$vwi)->value('title');
+        }
       }
+      if(isset($value->custom_attributes)){
       foreach ($value->custom_attributes as $v) {
         if($v->attribute_code === "category_ids"){
           foreach ($v->value as $key =>$cat_id) {
@@ -252,6 +240,7 @@ class LogListMagentoController extends Controller
           $composition = $v->value;
         }
         $prepared_products_data[$value->sku]=[
+          'store_website_id' => $value->store_website_id,
           'magento_id'=>$value->id,
           'sku'=>$value->sku,
           'product_name'=>$value->name,
@@ -275,6 +264,8 @@ class LogListMagentoController extends Controller
         ];
 
       }
+    }
+
       $category_names =[];
       $websites=[];
       $size ='';
@@ -291,28 +282,67 @@ class LogListMagentoController extends Controller
     //  $sku =$request->productSkus; //'["SB0AB15C50GK92","SW2S0P39JZI","EE4791White-45.5","EE4791White","A0510XXAS5Black-36"]';
       $products = array();
       $skudata = json_decode($request->productSkus);
+      $magentoHelper = new MagentoHelperv2;
+        
       $client = new \GuzzleHttp\Client();
       foreach ($skudata as $sku) {
         try {
-          $req = $client->get('https://sololuxury.com/rest/V1/products/'.$sku,[
-            'headers' => [
-              'Accept'     => 'application/json',
-              'Authorization'=>'Bearer u75tnrg0z2ls8c4yubonwquupncvhqie'
-            ]
-          ]);
-          $response = $req->getBody()->getContents();
-          $products []= json_decode($response);
+          // $get_store_website = \App\StoreWebsite::find($sku->websiteid);
+           $get_store_website = \App\StoreWebsite::find($sku->websiteid);
+          $result = $magentoHelper->getProductBySku($sku->sku,$get_store_website);
+          // $req = $client->get('https://magento-501091-1587493.cloudwaysapps.com/rest/V1/products/6378180NP001000Black-L',[
+          //  https:\/\/magento-501091-1587493.cloudwaysapps.com\/rest\/V1\/PRODUCTS\/6378180NP001000Black-L"//  
+          // 'headers' => [
+          //     'Accept'     => 'application/json',
+          //     'Authorization'=>'Bearer 7e9pvvgo4u5kel2xlchlj4hmgjb0lu6s'
+          //                                7e9pvvgo4u5kel2xlchlj4hmgjb0lu6s
+          //   ]
+          // ]);
+          // $response = $req->getBody()->getContents();
+          $result->store_website_id = $sku->websiteid;
+          $products []= $result;
+          
         } catch (\Exception $e) {
         }
       }
       if(!empty($products)){
+
         $data =collect($this->processProductAPIResponce($products));
+        //print_r($data);
+         foreach ($data as $value) {
+          $StoreWebsiteProductCheck = \App\StoreWebsiteProductCheck::where('website_id',$value['store_website_id'])->first();
+          $addItem =  ['website_id' => $value['store_website_id'],
+          'website' => implode(",",$value['websites']),
+          'sku' => $value['sku'],
+          'size' => $value['size'],
+          'brands' => $value['brands'],
+          'dimensions' => $value['dimensions'],
+          'composition' => $value['composition'],
+          //'images' => $value->composition,
+          'english'=>'Yes',
+          'arabic'=>'Yes',
+          'german'=>'Yes',
+          'spanish'=>'No',
+          'french'=>'No',
+          'italian'=>'No',
+          'japanese'=>'No',
+          'korean'=>'No',
+          'russian'=>'No',
+          'chinese'=>'No'];
+          if($StoreWebsiteProductCheck == null){
+            $StoreWebsiteProductCheck = \App\StoreWebsiteProductCheck::create($addItem);
+          }else{
+            $StoreWebsiteProductCheck->where('website_id',$value['store_website_id'])->update($addItem);
+          }
+         }
         if(!empty($data)){
           return DataTables::collection($data)->toJson();
         }else{
           return response()->json(['data'=>null,'message'=>'success'],200);
         }
 
+      }else{
+        return response()->json(['data'=>null,'message'=>'success'],200);
       }
     }
     // dd($request->productSkus);

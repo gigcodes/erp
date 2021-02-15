@@ -76,7 +76,17 @@
 
                     </div>
                 </div>
-                <div class="row p-3 pull-right">
+                <div class="row p-3 ">
+                  <div class="col-md-2">
+                      <label for="sku">Users</label>
+                      <select class="form-control" name="user">
+                          <option value=''>All</option>
+                          @foreach($users as $user)
+                            <option value="{{$user->id}}" {{ isset($filters['user']) && $filters['user'] == $user->id ? 'selected' : '' }}>{{$user->name}}</option>
+                          @endforeach
+                          <option >
+                      </select>
+                    </div>
                     <div class="col-md-2">
                     <button class="btn btn-light" id="submit">
                         <span class="fa fa-filter"></span> Filter Results
@@ -84,73 +94,6 @@
                     </div>
                 </div>
             </form>
-
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover" style="table-layout:fixed;">
-                    <thead>
-                        <th style="width:7%">Product ID</th>
-                        <th style="width:10%">SKU</th>
-                        <th style="width:9%">Brand</th>
-                        <th style="width:8%">Category</th>
-                        <th style="width:7%">Price</th>
-                        <th style="width:11%">Message</th>
-                        <th style="width:8%">Date/Time</th>
-                        <th style="width:9%">Website</th>
-                        <th style="width:8%">Status</th>
-                        <th style="width:8%">Language Id</th>
-                        <th style="width:7%">Sync Status</th>
-                        <th style="width:7%">Status Count</th>
-                        <th style="width:8%">Action</th>
-                    </thead>
-                    <tbody>
-                        @foreach($logListMagentos as $item)
-                        <tr>
-                            <td><a href="/products/{{ $item->product_id }}" target="__blank">{{ $item->product_id }}</a></td>
-
-                            <td class="expand-row-msg" data-name="sku" data-id="{{$item->id}}">
-                                <span class="show-short-sku-{{$item->id}}">{{ str_limit($item->sku, 5 ,'...')}}</span>
-                                <span style="word-break:break-all;" class="show-full-sku-{{$item->id}} hidden"><a href="{{ $item->website_url }}/default/catalogsearch/result/?q={{ $item->sku }}" target="__blank">{{$item->sku}}</a></span>
-                            </td>
-                            <td class="expand-row-msg" data-name="brand_name" data-id="{{$item->id}}">
-                                <span class="show-short-brand_name-{{$item->id}}">{{ str_limit($item->brand_name, 10, '...')}}</span>
-                                <span style="word-break:break-all;" class="show-full-brand_name-{{$item->id}} hidden">{{$item->brand_name}}</span>
-                            </td>
-                            <td class="expand-row-msg" data-name="category_title" data-id="{{$item->id}}">
-                                <span class="show-short-category_title-{{$item->id}}">{{ str_limit($item->category_home, 10, '...')}}</span>
-                                <span style="word-break:break-all;" class="show-full-category_title-{{$item->id}} hidden">{{$item->category_home}}</span>
-                            </td>
-                            <td> {{$item->price}} </td>
-                            <td class="expand-row-msg" data-name="message" data-id="{{$item->id}}">
-                                <span class="show-short-message-{{$item->id}}">{{ str_limit($item->message, 20, '...')}}</span>
-                                <span style="word-break:break-all;" class="show-full-message-{{$item->id}} hidden">{{$item->message}}</span>
-                            </td>
-                            <td>
-                                @if(isset($item->log_created_at))
-                                {{ date('M d, Y',strtotime($item->log_created_at))}}
-                                @endif
-                            </td>
-                            <td class="expand-row-msg" data-name="website_title" data-id="{{$item->id}}">
-                                <span class="show-short-website_title-{{$item->id}}">{{ str_limit($item->website_title, 10, '...')}}</span>
-                                <span style="word-break:break-all;" class="show-full-website_title-{{$item->id}} hidden">{{$item->website_title}}</span>
-                            </td>
-                            <td>
-                                {{ (isset($item->stock) && $item->stock > 0) ? 'Available' : 'Out of Stock' }}
-                            </td>
-                            <td> {{(!empty($item->languages)) ? implode(", ",json_decode($item->languages)) : ''}} </td>
-                            <td> {{$item->sync_status}} </td>
-                            <td> Total Error : {{$item->total_error}}<br> Total Success : {{$item->total_success}} </td>
-                            <td>
-                                <button data-toggle="modal" data-target="#update_modal" class="btn btn-xs btn-secondary update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
-                                <button class="btn btn-xs btn-secondary show_error_logs" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-eye"></i></button>
-                            </td>
-                        </tr>
-                        @endforeach()
-                    </tbody>
-                </table>
-            </div>
-            <button class="btn btn-light" id="submit">
-              <span class="fa fa-filter"></span> Filter Results
-            </button>
           </div>
         </form>
 
@@ -168,6 +111,10 @@
               <th style="width:8%">Status</th>
               <th style="width:8%">Language Id</th>
               <th style="width:7%">Sync Status</th>
+              <th style="width:5%">Success</th>
+              <th style="width:5%">Failure</th>
+              <th style="width:6%">User</th>
+              <th style="width:6%">Time</th>
               <th style="width:8%">Action</th>
             </thead>
             <tbody>
@@ -207,10 +154,14 @@
                   </td>
                   <td> {{(!empty($item->languages)) ? implode(", ",json_decode($item->languages)) : ''}} </td>
                   <td> {{$item->sync_status}} </td>
+                  <td>{{$item->total_success}} </td>
+                  <td> {{$item->total_error}}</td>
+                  <td>{{$item->log_user_name}}</td>
+                  <td>{{Carbon\Carbon::parse($item->log_created_at)->format('H:i')}}</td>
                   <td style="display:flex;justify-content: space-between;align-items: center;">
                     <button data-toggle="modal" data-target="#update_modal" class="btn btn-xs btn-secondary update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
                     <button class="btn btn-xs btn-secondary show_error_logs" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-eye"></i></button>
-                    <input style="width:20px;height:20px" type="checkbox" class="form-control selectProductCheckbox_class" value="{{ $item->sku }}" name="selectProductCheckbox"/>
+                    <input style="width:20px;height:20px" type="checkbox" class="form-control selectProductCheckbox_class" value="{{ $item->sku }}" websiteid="{{$item->store_website_id}}" name="selectProductCheckbox"/>
                   </td>
                 </tr>
               @endforeach()
@@ -384,15 +335,35 @@
 
   $('#magento_list_tbl_895 tbody').on('click', 'tr', function () {
     var ref = $(this);
-    ref.find('td:eq(11)').children('.selectProductCheckbox_class').change(function(){
+    ref.find('td:eq(15)').children('.selectProductCheckbox_class').change(function(){
       if($(this).is(':checked')){
-        if(!product.includes($(this).val())){  product.push($(this).val())}
+        console.log("here");
+        var val = $(this).val()
+        //if(!product.includes($(this).val())){  
+          if(product.length > 0){
+            $.each(product,function(i,e){
+            if(e.sku == val){
+              product.splice(i,1)
+            }
+          })
+          }
+          
+          var item = {"sku":$(this).val(),"websiteid":$(this).attr("websiteid")}
+            product.push(item)
+            
+        //  }
           localStorage.setItem('luxury-product-data-asin', JSON.stringify(product));
       } else {
-        var index = product.indexOf($(this).val())
-        if(index !=-1){
-          product.splice(index,1)
-        }
+        //var index = product.indexOf($(this).val())
+        var val = $(this).val()
+        $.each(product,function(i,e){
+          if(e.sku == val){
+            product.splice(i,1)
+          }
+        })
+        // if(index !=-1){
+        //   product.splice(index,1)
+        // }
         localStorage.setItem('luxury-product-data-asin', JSON.stringify(product));
       }
     })
