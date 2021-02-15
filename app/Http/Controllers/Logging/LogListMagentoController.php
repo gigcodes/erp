@@ -102,7 +102,7 @@ class LogListMagentoController extends Controller
           'sw.website as website',
           'sw.title as website_title',
           'sw.magento_url as website_url',
-          'log_list_magentos.user_id as log_user_id',
+          'log_list_magentos.user_id as log_user_id'
       );
       $logListMagentos = $logListMagentos->paginate(25);
       //dd($logListMagentos);
