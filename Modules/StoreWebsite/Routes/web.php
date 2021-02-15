@@ -128,6 +128,15 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/push', 'WebsiteStoreController@push')->name("store-website.website-stores.push");
     });
 
+    //Site Attributes
+    Route::prefix('site-attributes')->group(function () {
+        Route::get('/', 'SiteAttributesControllers@index')->name("store-website.site-attributes.index");
+        Route::post('save', 'SiteAttributesControllers@store')->name("store-website.site-attributes-views.save");
+        Route::get('/records', 'SiteAttributesControllers@records')->name("store-website.site-attributes-views.records");
+        Route::get('/{id}/delete', 'SiteAttributesControllers@delete')->name("store-website.site-attributes-views.delete");
+        Route::get('/{id}/edit', 'SiteAttributesControllers@edit')->name("store-website.site-attributes-views.edit");
+    });
+
     Route::prefix('website-store-views')->group(function () {
         Route::get('/', 'WebsiteStoreViewController@index')->name("store-website.website-store-views.index");
         Route::get('/records', 'WebsiteStoreViewController@records')->name("store-website.website-store-views.records");
