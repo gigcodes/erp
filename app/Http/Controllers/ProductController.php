@@ -2518,8 +2518,8 @@ class ProductController extends Controller
         if (!empty($all_product_ids)) {
             $suppliersGroups = \App\Product::leftJoin('product_suppliers', 'product_id', '=', 'products.id')
                 ->where('products.id', $all_product_ids)
-                ->groupBy("supplier_id")
-                ->select([\DB::raw("count(products.id) as total_product"), "supplier_id"])
+                ->groupBy("product_suppliers.supplier_id")
+                ->select([\DB::raw("count(products.id) as total_product"), "product_suppliers.supplier_id"])
                 ->pluck("total_product", "supplier_id")
                 ->toArray();
             $suppliersIds = array_values(array_filter(array_keys($suppliersGroups)));
