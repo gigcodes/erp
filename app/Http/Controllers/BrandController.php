@@ -9,8 +9,10 @@ use App\Setting;
 use App\CategorySegment;
 use App\ScrapedProducts;
 use \App\StoreWebsiteBrand;
+use App\Activity;
 use Illuminate\Http\Request;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Auth;
 
 class BrandController extends Controller
 {
@@ -355,6 +357,12 @@ class BrandController extends Controller
                 $toBrand->references = implode(",",array_unique($mReference));
                 $toBrand->save();
                 $fromBrand->delete();
+                Activity::create([
+                    'subject_type' => "Brand",
+                    'subject_id' => $fromBrand->id,
+                    'causer_id' => Auth::user()->id,
+                    'description' => Auth::user()->name ." has merged ".$fromBrand->name. " to ".$toBrand->name
+                ]);
                 return response()->json(["code" => 200 , "data" => []]);
             }
         }
@@ -409,6 +417,12 @@ class BrandController extends Controller
             } else {
                 return response()->json(['message' => 'Brand already exist!'], 422);
             }
+            Activity::create([
+                'subject_type' => "Brand",
+                'subject_id' => $fromBrand->id,
+                'causer_id' => Auth::user()->id,
+                'description' => Auth::user()->name ." has unmerged ".$fromBrand->name. " to ".$request->brand_name
+            ]);
             return response()->json(["data" => []], 200);
         }
 

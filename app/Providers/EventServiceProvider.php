@@ -7,6 +7,8 @@ use App\Events\VendorPaymentCreated;
 use App\Listeners\VendorPaymentCashFlow;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use App\Brand;
+use App\Observers\BrandObserver;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -81,6 +83,9 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
+
+        Brand::observe(BrandObserver::class);
+
 
         //
     }
