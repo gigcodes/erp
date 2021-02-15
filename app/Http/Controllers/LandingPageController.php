@@ -379,6 +379,24 @@ class LandingPageController extends Controller
             }
         }
     }
+
+    public function updateMagentoStock(Request $request, $id){
+        $landingPage = LandingPageProduct::where("id", $id)->first();
+        // if stock status exist then store it
+        if ($request->stock_status != null) {
+            $landingPage->stock_status = $request->stock_status;
+            if ($landingPage->stock_status == 1) {
+                $landingPage->start_date = date("Y-m-d H:i:s");
+                $landingPage->end_date   = date("Y-m-d H:i:s", strtotime($landingPage->start_date . ' + 1 days'));
+            }
+            $landingPage->save();
+            return response()->json(["code" => 200, "data" => "", "message" => "Success!"]);
+        }else{
+            return response()->json(["code" => 500, "data" => "", "message" => "Please select the store website!"]);
+        }
+
+
+    }
     public function updateTime(Request $request)
     {
         $productIds = explode(',', $request->product_id);

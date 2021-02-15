@@ -288,6 +288,16 @@
             toastr["error"](response.message,"");
         }
     },
+    saveMagentoStatus : function(response) {
+        if(response.code  == 200) {
+            toastr["success"]("Status Change successfully!");
+            page.loadFirst();
+            $(".common-modal").modal("hide");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.message,"");
+        }
+    },
     pushShopifyProduct : function(ele) {
         var _z = {
             url: this.config.baseUrl + "/landing-page/"+ele.data("id")+"/push-to-shopify",
@@ -310,14 +320,14 @@
     },
     pushStockStatusMangto : function(ele) {
         var _z = {
-            url: this.config.baseUrl + "/landing-page/"+ele.data("id")+"/push-to-magento",
+            url: this.config.baseUrl + "/landing-page/"+ele.data("id")+"/push-to-magento-status",
             method: "GET",
             data : {stock_status : ele.data("value")},
             beforeSend : function() {
                 $("#loading-image").show();
             }
         }
-        this.sendAjax(_z, "saveSite");
+        this.sendAjax(_z, "saveMagentoStatus");
     },
 
     pushStockStatus : function(ele) {

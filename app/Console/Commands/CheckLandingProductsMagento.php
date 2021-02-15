@@ -45,9 +45,14 @@ class CheckLandingProductsMagento extends Command
         $landingProducts = LandingPageProduct::whereRaw('timestamp(end_date) < NOW()')->orWhere("status",0)->get();
         foreach ($landingProducts as $product) {
             $productData = Product::where('id',$product->product_id)->first();
+            $sku = $productData->sku;
+            $status = $product->status;
             $website = StoreWebsite::where('id', $product->store_website_id)->first();
             if($productData){
-                $response = $magentoHelper->magentoUpdateStatus($productData,$website);
+                $response = $magentoHelper->updateStockEnableStatus($productData,$sku,$status,$website);
+               echo "Product Updated successfully!";
+            }else{
+                echo "Something went wrong!";
             }
         }
     }
