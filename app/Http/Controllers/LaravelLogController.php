@@ -112,16 +112,30 @@ class LaravelLogController extends Controller
 						break;
 					}
 				}
-				if(preg_match("/".$defaultSearchTerm."/", $value))
-				{
-                    $str = $value;
-                    $temp1 = explode(".",$str);
-                    $temp2 = explode(" ",$temp1[0]);
-                    $type = $temp2[2];
-                    array_push($this->channel_filter,$type);
-                    
-					$errors[] = $value."===".str_replace('/', '', $filename);
-				}
+                if($request->get('search') && $request->get('search') != '') {
+                    //if(preg_match("/".$request->get('search')."/", $value) && preg_match("/".$defaultSearchTerm."/", $value)) {
+                    if(strpos($value, $request->get('search')) !== false && preg_match("/".$defaultSearchTerm."/", $value)) {
+                        $str = $value;
+                        $temp1 = explode(".",$str);
+                        $temp2 = explode(" ",$temp1[0]);
+                        $type = $temp2[2];
+                        array_push($this->channel_filter,$type);
+                        
+                        $errors[] = $value."===".str_replace('/', '', $filename);
+                    }
+                } else {
+                    if(preg_match("/".$defaultSearchTerm."/", $value))
+                    {
+                        $str = $value;
+                        $temp1 = explode(".",$str);
+                        $temp2 = explode(" ",$temp1[0]);
+                        $type = $temp2[2];
+                        array_push($this->channel_filter,$type);
+                        
+                        $errors[] = $value."===".str_replace('/', '', $filename);
+                    }
+                }
+				
             }
             //if(isset($_GET['channel']) && $_GET['channel'] == "local"){
                 $errors = array_reverse($errors);
