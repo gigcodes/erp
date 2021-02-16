@@ -1810,11 +1810,14 @@
     <script>
     var i=0;
         var scroll = true;
+        var old_product;
         function start_scroll_down() { 
             if(scroll){
                 console.log("in scroll")
-                let product_id = $(".infinite-scroll-data table thead").eq(i-1).attr("productid");
-              if($(".autopushproduct").attr("auto_push_value") == "1"){
+                let product_id = $(".infinite-scroll-data table tbody .col-md-12").eq(i-1).attr("productid");
+                console.log(product_id)
+              if($(".autopushproduct").attr("auto_push_value") == "1" && product_id != undefined && old_product != product_id){
+                old_product = product_id
               //  alert("auto update");
                 var ajaxes = [];
                 var id = product_id;
@@ -1848,7 +1851,7 @@
                  // scroll =  setInterval(function() {
            // $(".infinite-scroll-data table thead").each(function(i, e) {
             $("html, body").animate({
-                scrollTop: $(".infinite-scroll-data table thead").eq(i).offset().top
+                scrollTop: $(".infinite-scroll-data table tbody .col-md-12").eq(i).offset().top
                 }, 500).delay(500); // First value is a speed of scroll, and second time break
           //  });
           i++;
@@ -1873,7 +1876,7 @@
             $(".start-again").attr("disabled","disabled")
             $(".pause").attr("disabled",false)
             $("html, body").animate({
-                scrollTop: $(".infinite-scroll-data table thead").eq(i).offset().top
+                scrollTop: $(".infinite-scroll-data table tbody .col-md-12").eq(i).offset().top
                 }, 500).delay(500); // First value is a speed of scroll, and second time break
           //  });
           i++;
