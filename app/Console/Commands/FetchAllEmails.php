@@ -159,7 +159,9 @@ class FetchAllEmails extends Command
 
                             /*start 3215 attachment fetch from DHL mail */
                             \Log::channel('customer')->info("Match Start  => ".$email_subject);
-                            if (strpos(strtolower($email_subject), "your copy invoice") !== false) {
+
+                            $findFromEmail = explode('@', $fromThis);
+                            if (strpos(strtolower($email_subject), "your copy invoice") !== false && isset($findFromEmail[1]) && (strtolower($findFromEmail[1]) == 'dhl.com')) {
                                 \Log::channel('customer')->info("Match Found  => ".$email_subject);
                                 $this->getEmailAttachedFileData($attachment->name);
                             }
