@@ -1099,6 +1099,8 @@ class Product extends Model
             'supplier',
             'products.sku',
             'products.size',
+            'products.color',
+            'products.composition',
             'products.size_eu',
             'psu.size_system',
             'status_id',

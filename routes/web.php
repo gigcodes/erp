@@ -265,6 +265,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('productinventory/change-size-system', 'ProductInventoryController@changeSizeSystem')->name('productinventory.change-size-system');
     Route::post('productinventory/change-product-status', 'ProductInventoryController@updateStatus')->name('productinventory.update-status');
     Route::post('productinventory/store-erp-size', 'ProductInventoryController@changeErpSize')->name('productinventory.change-erp-size');
+    Route::get('productinventory/get-inventory-report', 'ProductInventoryController@getInventoryReport');
 
     Route::get('productinventory/inventory-history/{id}', 'ProductInventoryController@inventoryHistory')->name('productinventory.inventory-history');
     Route::get('productinventory/all-suppliers/{id}', 'ProductInventoryController@getSuppliers')->name('productinventory.all-suppliers');

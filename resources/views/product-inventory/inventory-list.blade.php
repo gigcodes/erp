@@ -94,6 +94,9 @@
     <div class="form-group mr-pd col-md-2">    
         <button type="button" class="btn btn-secondary btn-change-status"></i>Change status</button>
     </div>
+    <div class="form-group mr-pd col-md-2">    
+        <button type="button" data-toggle="modal" data-target="#missing-report-modal" class="btn btn-secondary"></i>Report</button>
+    </div>
 </div>
 <div class="table-responsive" id="inventory-data">
     <table class="table table-bordered infinite-scroll">
@@ -105,6 +108,8 @@
                 <th>Category</th>
                 <th>Brand</th>
                 <th>Supplier</th>
+                <th>Color</th>
+                <th>Composition</th>
                 <th>Size system</th>
                 <th>Size</th>
                 <th>Size(IT)</th>
@@ -190,6 +195,34 @@
                     <button type="submit" class="btn btn-primary btn-save-erp-size">Save</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div id="missing-report-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Report</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered infinite-scroll">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Supplier</th>
+                            <th>Missing</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>
@@ -619,6 +652,33 @@ return;
             url: "/productinventory/store-erp-size",
             type: 'POST',
             data : form.serialize(),
+            dataType:"json",
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+        })
+        .done(function(data) {
+            $("#loading-image").hide();
+            if(data.code == 200) {
+                if(data.message != "") {
+                    toastr['success'](data.message, 'success');
+                }
+            }
+        })
+        .fail(function(jqXHR, ajaxOptions, thrownError) {
+            console.error(jqXHR);
+        });
+    });
+
+
+    $(document).on("click",".btn-report",function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: "/productinventory/get-inventory-report",
+            type: 'GET',
             dataType:"json",
             headers: {
                 'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
