@@ -210,13 +210,29 @@
                 <table class="table table-bordered infinite-scroll">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>Product ID</th>
                             <th>Supplier</th>
                             <th>Missing</th>
                         </tr>
                     </thead>
                     <tbody>
-                        
+                        @foreach($reportData as $value)
+                        <tr>
+                            <td> {{$value->id}}</td>
+                            <td> {{$value->supplier}}</td>
+                            <td> 
+                                @if(empty($value->category))
+                                    {{'Category is Missing'}} <br/>
+                                @endif
+                                @if(empty($value->color))
+                                    {{'Color is Missing'}} <br/>
+                                @endif
+                                @if(empty($value->composition))
+                                    {{'Composition is Missing'}}
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
