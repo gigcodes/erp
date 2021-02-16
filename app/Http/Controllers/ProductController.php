@@ -68,7 +68,7 @@ use App\ProductPushErrorLog;
 use App\ProductStatusHistory;
 use App\Status;
 use App\ProductSupplier;
-
+use Qoraiche\MailEclipse\MailEclipse;
 
 class ProductController extends Controller
 {
@@ -2671,6 +2671,14 @@ class ProductController extends Controller
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         //\Log::info(print_r(\DB::getQueryLog(),true));
 
+        $mailEclipseTpl = mailEclipse::getTemplates()->where('template_dynamic',FALSE);;
+        $rViewMail      = [];
+        if (!empty($mailEclipseTpl)) {
+            foreach ($mailEclipseTpl as $mTpl) {
+                $rViewMail[$mTpl->template_slug] = $mTpl->template_name . " [" . $mTpl->template_description . "]";
+            }
+        }
+
         return view('partials.image-grid', compact(
             'products',
             'products_count',
@@ -2694,7 +2702,8 @@ class ProductController extends Controller
             'countSuppliers',
             'customerId',
             'categoryArray',
-            'term'
+            'term',
+            'rViewMail'
         ));
     }
 

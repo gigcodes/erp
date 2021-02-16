@@ -38,6 +38,7 @@ Route::post('/products/published', 'ProductController@published');
 Route::get('/productselection/list', 'ProductSelectionController@sList')->name('productselection.list');
 Route::get('/productsearcher/list', 'ProductSearcherController@sList')->name('productsearcher.list');
 
+Route::post('/productselection/email-set', 'ProductSelectionController@emailTplSet')->name('productselection.email.set');
 // adding chat contro
 
 Route::get('sop', 'ProductController@showSOP');
