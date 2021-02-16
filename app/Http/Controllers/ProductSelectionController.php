@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Input;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\Helpers\StatusHelper;
+use Qoraiche\MailEclipse\MailEclipse;
 
 class ProductSelectionController extends Controller
 {
@@ -321,5 +322,20 @@ class ProductSelectionController extends Controller
 		$dis_price = $price - ($price * $dis_per)/100;
 
 		return round($dis_price,-3);
+	}
+
+	public function emailTplSet( Request $request ) {
+
+		$mail_tpl    = $request->input('mail_tpl');
+		$product_ids = $request->input('product_ids');
+		$product_ids = explode(',', $product_ids);
+
+		$productData = product::whereIn('id',$product_ids)->withMedia(config('constants.media_tags'))->get();
+
+		dd( $productData );
+		// return  redirect()->route('viewTemplate',$mail_tpl)->with('data',$productData);
+		// return view('maileclipse::templates.weeklyTest',compact('productData'));
+		// return redirect('mail-templates/templates/edit/'.$mail_tpl)->with('data',$productData);
+
 	}
 }

@@ -1,6 +1,16 @@
 
 <div class="row">
   <div class="col text-center">
+	  <form action="{{ route('viewTemplatePost') }}" method="get" id="product-mail">
+			
+			<div class="form-group mr-pd col-md-2">
+				{{ Form::select(null, ["-- Select email template --"] + $rViewMail, request('tpl'), ["class" => "form-control change-email-template", "required" => true, "id" => "form_mail_tpl"]) }}
+			</div>
+			<input type="hidden" name="product_ids" id="input_product_ids">
+			<div class="form-group mr-pd col-md-2">    
+				<button type="submit" class="btn btn-secondary btn-template-status"></i>Submit</button>
+			</div>
+		</form>
     <button type="button" class="btn btn-image my-3" id="sendImageMessage"><img src="/images/filled-sent.png" /></button>
   </div>
 </div>
