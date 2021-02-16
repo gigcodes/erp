@@ -2429,5 +2429,194 @@
             }
         }
     },
-    "definitions": {}
+    "definitions": {
+        "Account": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "first_name",
+                        "last_name",
+                        "email",
+                        "password",
+                        "dob",
+                        "platform",
+                        "followers_count",
+                        "posts_count",
+                        "dp_count",
+                        "broadcast",
+                        "country",
+                        "gender",
+                        "proxy"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ActivitiesRoutines": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Activity": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "subject_id",
+                        "subject_type",
+                        "causer_id",
+                        "description"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Ad": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "campaign_id",
+                        "adgroup_id",
+                        "finalurl",
+                        "displayurl",
+                        "headlines",
+                        "descriptions",
+                        "tracking_tamplate",
+                        "final_url_suffix",
+                        "customparam",
+                        "different_url_mobile",
+                        "mobile_final_url",
+                        "ad_id",
+                        "ad_response"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "AdAccount": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "account_name",
+                        "note",
+                        "config_file",
+                        "status"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "AdCampaign": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "goal",
+                        "type",
+                        "campaign_name",
+                        "data",
+                        "campaign_budget_id",
+                        "campaign_id",
+                        "campaign_response"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "AdGroup": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "campaign_id",
+                        "type",
+                        "group_name",
+                        "url",
+                        "keywords",
+                        "budget",
+                        "google_campaign_id",
+                        "google_ad_group_id",
+                        "google_ad_group_response"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "AdsSchedules": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Affiliates": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "location",
+                        "hashtag_id",
+                        "location",
+                        "caption",
+                        "posted_at",
+                        "source",
+                        "address",
+                        "facebook",
+                        "facebook_followers",
+                        "instagram",
+                        "instagram_followers",
+                        "twitter",
+                        "twitter_followers",
+                        "youtube",
+                        "youtube_followers",
+                        "linkedin",
+                        "linkedin_followers",
+                        "pinterest",
+                        "pinterest_followers",
+                        "phone",
+                        "emailaddress",
+                        "title",
+                        "is_flagged",
+                        "first_name",
+                        "last_name",
+                        "url",
+                        "website_name",
+                        "unique_visitors_per_month",
+                        "page_views_per_month",
+                        "worked_on",
+                        "city",
+                        "postcode",
+                        "country",
+                        "type",
+                        "store_website_id"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        }
+    }
 }

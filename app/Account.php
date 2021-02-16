@@ -8,10 +8,18 @@ use App\ImQueue;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Mediable;
 
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 class Account extends Model
 {
-    use SoftDeletes;
-    use Mediable;
+  /**
+     * @var string
+     * @SWG\Property(enum={"first_name", "last_name", "email", "password", "dob", "platform", "followers_count", "posts_count", "dp_count", "broadcast", "country", "gender","proxy"})
+     */
+
+  use SoftDeletes;
+  use Mediable;
   protected $fillable = [
     'first_name', 'last_name', 'email', 'password', 'dob', 'platform', 'followers_count', 'posts_count', 'dp_count', 'broadcast', 'country', 'gender','proxy'
   ];
