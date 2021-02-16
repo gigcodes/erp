@@ -11,7 +11,7 @@
 		   <div class="modal-body">
 		      <div class="form-row">
 		         {{if data}}
-		         	<!-- input type="hidden" name="id" value="{{:data.id}}"/ -->
+		         	<input type="hidden" name="id" value="{{:data.id}}"/>
 		         {{/if}}
 		         <div class="form-group col-md-6">
 		            <label for="attribute_key">Attribute Key</label>

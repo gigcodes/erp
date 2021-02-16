@@ -39,6 +39,7 @@ class SiteAttributesControllers extends Controller
      */
     public function store(Request $request)
     {
+        
         $post = $request->all();
         $validator = Validator::make($post, [
             'attribute_key'       => 'required',
@@ -58,11 +59,12 @@ class SiteAttributesControllers extends Controller
         }
         
         $id = $request->get("id", 0);
-        $records = StoreWebsiteAttributes::where('attribute_key', $request->attribute_key)->where('store_website_id',$request->store_website_id)->first();
+        $records = StoreWebsiteAttributes::find($id);
 
         if (!$records) {
             $records = new StoreWebsiteAttributes;
         }
+
         $records->fill($post);
         // if records has been save then call a request to push
         if ($records->save()) {
@@ -80,15 +82,13 @@ class SiteAttributesControllers extends Controller
     public function records(Request $request)
     {
 
-        
-        $StoreWebsiteAttributesViews = DB::table('store_website_attributes');
+        $StoreWebsiteAttributesViews = StoreWebsiteAttributes::join('store_websites','store_websites.id','store_website_attributes.store_website_id');
         if ($request->keyword != null) {
-            $StoreWebsiteAttributesViews = StoreWebsiteAttributes::where("store_website_id", "like", "%" . $request->keyword . "%");
+            $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->where("store_website_id", "like", "%" . $request->keyword . "%");
         }
-        //return $StoreWebsiteAttributesViews;
-        $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->paginate();
 
-        //return response()->json(["code" => 200, "data" => $StoreWebsiteAttributesViews, "total" => $StoreWebsiteAttributesViews->count(), "pagination" => (string) $StoreWebsiteAttributesViews->render()]);
+        $StoreWebsiteAttributesViews = $StoreWebsiteAttributesViews->select(["store_website_attributes.*", "store_websites.website"])->paginate();
+
         return response()->json(["code" => 200, "data" => $StoreWebsiteAttributesViews->items(), "total" => $StoreWebsiteAttributesViews->count(),
             "pagination" => (string) $StoreWebsiteAttributesViews->render()
     ]);
@@ -135,8 +135,8 @@ class SiteAttributesControllers extends Controller
 
     public function edit(Request $request, $id)
     {
-        $StoreWebsiteAttributes = StoreWebsiteAttributes::where("id", $id)
-        ->first();
+
+        $StoreWebsiteAttributes = StoreWebsiteAttributes::where("id", $id)->first();
         
         $websitelist = StoreWebsite::all();
 
