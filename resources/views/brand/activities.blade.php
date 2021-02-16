@@ -2,7 +2,7 @@
     <thead>
       <tr>
         <th width="10%">Id</th>
-        <th width="10%">Type</th>
+        <th width="10%">User</th>
         <th width="50%">Message</th>
         <th width="20%">Date</th>
       </tr>

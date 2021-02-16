@@ -10,7 +10,6 @@ use App\CategorySegment;
 use App\ScrapedProducts;
 use App\Activity;
 use \App\StoreWebsiteBrand;
-use App\Activity;
 use Illuminate\Http\Request;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Auth;
