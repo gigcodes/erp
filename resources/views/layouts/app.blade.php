@@ -27,17 +27,17 @@ $metaData = '';
     @elseif (!\Auth::guest())
         <link rel="shortcut icon" type="image/png" href="/generate-favicon?title={{$title}}" />
     @endif
-	<title>{{$title}}</title>
+    <title>{{$title}}</title>
     <!-- CSRF Token -->
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
-	
-	@if(isset($metaData->page_description) && $metaData->page_description!='')
-		<meta name="description" content="{{ $metaData->page_description }}">
-	@else
-		<meta name="description" content="{{ config('app.name') }}">
-	@endif
-	
+    
+    @if(isset($metaData->page_description) && $metaData->page_description!='')
+        <meta name="description" content="{{ $metaData->page_description }}">
+    @else
+        <meta name="description" content="{{ config('app.name') }}">
+    @endif
+    
 
     {{-- <title>{{ config('app.name', 'ERP for Sololuxury') }}</title> --}}
 
@@ -1414,9 +1414,11 @@ $metaData = '';
                                         <a class="dropdown-item" href="{{ route('store-website.product-attribute.index') }}">Product Attribute</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.site-attributes.index') }}">Site Attributes</a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.category-seo.index') }}">Category seo</a>
                                     </li>
-                                    
                                 </ul>
                             </li>
                         @endif
@@ -1467,7 +1469,7 @@ $metaData = '';
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('charity') }}">Charity</a>
                                         </li>
-									</ul>
+                                    </ul>
                                 </li>
                                 @if(auth()->user()->isAdmin())
                                 <li class="nav-item dropdown">
@@ -1477,7 +1479,7 @@ $metaData = '';
                                 <li class="nav-item dropdown">
                                     <a href="{{ route('watson-accounts') }}">Watson Account Management</a>
                                 </li>
-								
+                                
                                     <li class="nav-item dropdown">
                                         <a href="{{ route('twilio-call-management') }}">Call Management</a>
                                     </li>
