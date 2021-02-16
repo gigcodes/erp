@@ -22,6 +22,7 @@ use App\ColorReference;
 use Illuminate\Support\Facades\Validator;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use \App\Jobs\UpdateFromSizeManager;
+use DB;
 
 class ProductInventoryController extends Controller
 {
@@ -999,6 +1000,15 @@ class ProductInventoryController extends Controller
     {
     	$filter_data = $request->input();
 		$inventory_data = \App\Product::getProducts($filter_data);
+
+		$query = DB::table('products as p')
+				->selectRaw('p.id,p.category,p.color,p.composition,p.supplier,p.size');
+				$query = $query->where(function($q) {
+		            $q->where('p.category', null)
+		            ->orWhere('p.color', null)
+		            ->orWhere('p.composition', null);
+		        });
+		$reportData = $query->get();
 		
 		//dd($inventory_data);
         $inventory_data_count = $inventory_data->total();
@@ -1023,7 +1033,7 @@ class ProductInventoryController extends Controller
         $products_categories = Category::attr(['name' => 'product_categories[]','data-placeholder' => 'Select a Category','class' => 'form-control select-multiple2', 'multiple' => true])->selected(request('product_categories',[]))->renderAsDropdown();
         $products_sku        = \App\Product::getPruductsSku();
         if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more", compact('inventory_data'));
-        return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku','status_list','inventory_data_count','supplier_list'));
+        return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku','status_list','inventory_data_count','supplier_list','reportData'));
     }
   
   public function inventoryHistory($id) {
