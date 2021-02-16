@@ -2183,6 +2183,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('mailinglist-add-manual', 'MailinglistController@addManual')->name('mailinglist.add.manual');
     Route::post('addRemark', 'MailinglistController@addRemark')->name('mailingList.addRemark');
     Route::get('gettaskremark', 'MailinglistController@getBroadCastRemark')->name('mailingList.gets.remark');
+    Route::post('mailinglist/customer/{id}/source', 'MailinglistController@updateCustomerSource')->name('mailingList.customer.source');
 
 
     //Email Leads
