@@ -136,6 +136,24 @@ class SimplyDutyCurrencyController extends Controller
         return Response::json(array('success' => true)); 
     }
 
+    /**
+     * @SWG\Get(
+     *   path="/duty/v1/get-currencies",
+     *   tags={"Duty"},
+     *   summary="Get currencies",
+     *   operationId="get-currencies",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function sendCurrencyJson(){
         $currencies = SimplyDutyCurrency::all();
         foreach($currencies as $currency){

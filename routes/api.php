@@ -33,12 +33,12 @@ Route::get('scrape/process', 'Products\ScrapeController@processDataFromScraper')
 
 Route::get('messages/{thread}', 'InstagramController@getThread');
 Route::post('messages/{thread}', 'InstagramController@replyToThread');
-Route::post('sync-product', 'ScrapController@syncGnbProducts');
+Route::post('sync-product', 'ScrapController@syncGnbProducts'); // This function is not found in controller
 Route::post('scrap-products/add', 'ScrapController@syncProductsFromNodeApp');
-Route::post('add-product-entries', 'ScrapController@addProductEntries');
-Route::post('add-product-images', 'ScrapController@getProductsForImages');
-Route::post('save-product-images', 'ScrapController@saveImagesToProducts');
-Route::post('save-product-images2', 'ScrapController@saveImagesToProducts2');
+Route::post('add-product-entries', 'ScrapController@addProductEntries'); // This function is not found in controller
+Route::post('add-product-images', 'ScrapController@getProductsForImages'); // This function is not found in controller
+Route::post('save-product-images', 'ScrapController@saveImagesToProducts'); // This function is not found in controller
+Route::post('save-product-images2', 'ScrapController@saveImagesToProducts2'); // This function is not found in controller
 Route::post('save-supplier', 'ScrapController@saveSupplier');
 Route::get('hashtags', 'HashtagController@sendHashtagsApi');
 Route::get('crop', 'ProductController@giveImage');
@@ -50,17 +50,17 @@ Route::get('crop/amends', 'ProductCropperController@giveAmends');
 Route::post('crop/amends', 'ProductCropperController@saveAmends');
 
 Route::get('products/auto-rejected', 'ScrapController@getProductsToScrape');
-Route::post('products/auto-rejected', 'ScrapController@saveScrapedProduct');
+Route::post('products/auto-rejected', 'ScrapController@saveScrapedProduct'); // This function is not found in controller
 
-Route::get('products/get-products-to-scrape', 'ScrapController@getProductsToScrape');
-Route::post('products/save-scraped-product', 'ScrapController@saveScrapedProduct');
+Route::get('products/get-products-to-scrape', 'ScrapController@getProductsToScrape'); // This function is also call for other route 
+Route::post('products/save-scraped-product', 'ScrapController@saveScrapedProduct'); // This function is not found in controller
 
 Route::post('twilio-conference','TwilioController@outgoingCallConference');
 Route::post('twilio-conference-mute','TwilioController@muteConferenceNumber');
 Route::post('twilio-conference-hold','TwilioController@holdConferenceNUmber');
 Route::post('twilio-conference-remove','TwilioController@removeConferenceNumber');
 //Route::get('products/new-supplier', 'ScrapController@getFromNewSupplier');
-Route::get('products/new-supplier', 'ScrapController@getProductsToScrape');
+Route::get('products/new-supplier', 'ScrapController@getProductsToScrape'); // This function is also call for other route 
 Route::post('products/new-supplier', 'ScrapController@saveFromNewSupplier');
 
 Route::get('broken-link-details', 'BrokenLinkCheckerController@getBrokenLinkDetails');
@@ -72,7 +72,7 @@ Route::post('userLogs', 'UserLogController@store');
 Route::post('scrape/process-product-links', 'ScrapController@processProductLinks');
 Route::post('values-as-per-user', 'DocumentController@getDataByUserType')->name('getDataByUserType');
 Route::post('values-as-per-category', 'ResourceImgController@getSubCategoryByCategory')->name('imageResourceSubcategory');
-Route::post('get-customers', 'QuickSellController@getCustomers')->name('getCustomers');
+Route::post('get-customers', 'QuickSellController@getCustomers')->name('getCustomers'); // This function is not found in controller
 
 Route::get('product-template', 'ProductTemplatesController@apiIndex');
 Route::post('product-template', 'ProductTemplatesController@apiSave');
@@ -81,16 +81,16 @@ Route::post('product-template', 'ProductTemplatesController@apiSave');
 Route::get('{client}/{numberFrom}/get-im','InstantMessagingController@getMessage');
 Route::post('{client}/{numberFrom}/webhook','InstantMessagingController@processWebhook');
 Route::get('{client}/{numberFrom}/im-status-update','InstantMessagingController@updatePhoneStatus');
-Route::post('{client}/{numberFrom}/social-message','FacebookController@storeMessages');
+
+Route::post('{client}/{numberFrom}/social-message','FacebookController@storeMessages'); // This function is not found in controller
 
 //Competitor Facebook
-Route::get('{client}/{numberFrom}/competitor','FacebookController@competitor');
+Route::get('{client}/{numberFrom}/competitor','FacebookController@competitor'); // This function is not found in controller
 
-Route::post('{client}/{numberFrom}/competitor','FacebookController@saveCompetitor');
+Route::post('{client}/{numberFrom}/competitor','FacebookController@saveCompetitor'); // This function is not found in controller
 
 //Scrapped facebook users
 Route::post('facebook/scrape-user','FacebookController@apiPost');
-
 
 Route::get('duty/v1/get-currencies', 'SimplyDutyCurrencyController@sendCurrencyJson');
 Route::get('duty/v1/get-countries', 'SimplyDutyCountryController@sendCountryJson');
@@ -107,7 +107,6 @@ Route::get('instagram/get-hashtag-list','InstagramPostsController@getHashtagList
 //Giving All Brands with Reference
 Route::get('brands','BrandController@brandReference');
 
-
 // SUPPLIERS
 Route::post('supplier/brands-raw', 'SupplierController@apiBrandsRaw');
 
@@ -122,6 +121,7 @@ Route::post('wetransfer-file-store', 'WeTransferController@storeFile');
 //Google affiliate search
 Route::get('google/affiliate/keywords', 'GoogleAffiliateController@getKeywordsApi');
 Route::post('google/affiliate/search-results', 'GoogleAffiliateController@apiPost');
+
 
 Route::get('scraper/next','ScrapController@sendScrapDetails');
 Route::post('scraper/endtime','ScrapController@recieveScrapDetails');
@@ -163,12 +163,14 @@ Route::post('shopify/order/create','\App\Http\Controllers\Shopify\ShopifyControl
 
 Route::get('price_comparision/{type}','PriceComparisionController@index');
 Route::post('price_comparision/store','PriceComparisionController@storeComparision');
+
 //order details api for a customer
 Route::get('customer/order-details','OrderController@customerOrderDetails');
 
 //refer a friend api
 Route::post('friend/referral/create','\App\Http\Controllers\Api\v1\ReferaFriend@store');
 Route::post('price_comparision/details','PriceComparisionController@sendDetails');
+
 //Ticket api
 Route::post('ticket/create','\App\Http\Controllers\Api\v1\TicketController@store');
 Route::post('ticket/send','\App\Http\Controllers\Api\v1\TicketController@sendTicketsToCustomers');
@@ -180,16 +182,18 @@ Route::post('facebook/account','\App\Http\Controllers\FacebookPostController@get
 Route::post('giftcards/add','\App\Http\Controllers\Api\v1\GiftCardController@store');
 Route::get('giftcards/check-giftcard-coupon-amount','\App\Http\Controllers\Api\v1\GiftCardController@checkGiftcardCouponAmount');
 
-Route::post('facebook/post/status','\App\Http\Controllers\FacebookPostController@setPostStatus');
-Route::post('facebook/account','\App\Http\Controllers\FacebookPostController@getPost');
+Route::post('facebook/post/status','\App\Http\Controllers\FacebookPostController@setPostStatus'); // this route is decleared above
+Route::post('facebook/account','\App\Http\Controllers\FacebookPostController@getPost'); // this route is decleared above
 
 //gift cards api
-Route::post('giftcards/add','\App\Http\Controllers\Api\v1\GiftCardController@store');
-Route::get('giftcards/check-giftcard-coupon-amount','\App\Http\Controllers\Api\v1\GiftCardController@checkGiftcardCouponAmount');
+Route::post('giftcards/add','\App\Http\Controllers\Api\v1\GiftCardController@store'); // this route is decleared above
+Route::get('giftcards/check-giftcard-coupon-amount','\App\Http\Controllers\Api\v1\GiftCardController@checkGiftcardCouponAmount'); // this route is decleared above
+
 
 //Affiliate Api
 Route::post('affiliate/add','\App\Http\Controllers\Api\v1\AffiliateController@store');
 Route::post('influencer/add','\App\Http\Controllers\Api\v1\AffiliateController@store');
+
 //buyback cards api
 Route::get('orders/products','\App\Http\Controllers\Api\v1\BuyBackController@checkProductsForBuyback');
 Route::post('return-exchange-buyback/create','\App\Http\Controllers\Api\v1\BuyBackController@store');
@@ -199,6 +203,3 @@ Route::post('notification/create','\App\Http\Controllers\Api\v1\PushFcmNotificat
 
 //Saving Not Found Brand
 Route::get('missing-brand/save','MissingBrandController@saveMissingBrand');
-
-//Store data into the laravel_logs
-Route::post('laravel-logs/save','LaravelLogController@saveNewLogData');

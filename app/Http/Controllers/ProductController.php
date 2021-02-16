@@ -2847,6 +2847,25 @@ class ProductController extends Controller
         return redirect()->back()->with('success', 'You have successfully uploaded product!');
     }
 
+    /**
+     * @SWG\Get(
+     *   path="/crop",
+     *   tags={"Product"},
+     *   summary="Get Products Image",
+     *   operationId="get-product-img",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+    
     public function giveImage()
     {
         $productId = request("product_id", null);
@@ -3031,7 +3050,24 @@ class ProductController extends Controller
         }
     }
 
-
+    /**
+     * @SWG\Post(
+     *   path="/link/image-crop",
+     *   tags={"Product"},
+     *   summary="Save Product image",
+     *   operationId="save-product-img",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function saveImage(Request $request)
     {
         // Find the product or fail

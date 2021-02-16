@@ -232,6 +232,24 @@ class BrandController extends Controller
         return $result;
     }
 
+    /**
+     * @SWG\Get(
+     *   path="/brands",
+     *   tags={"Brands"},
+     *   summary="Get brands reference",
+     *   operationId="get-brands-reference",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function brandReference()
     {
         $brands = Brand::select('name','references')->where('magento_id', '>', 0)->get();

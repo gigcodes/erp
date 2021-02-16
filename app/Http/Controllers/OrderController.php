@@ -3105,6 +3105,24 @@ public function updateCustomerInvoiceAddress(Request $request){
         return response()->json(["code" => 200 , "html" => $html, "message" => "Something went wrong"]);
     }
 
+    /**
+     * @SWG\Get(
+     *   path="/customer/order-details",
+     *   tags={"Customer"},
+     *   summary="Get customer order details",
+     *   operationId="get-customer-order-details",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function customerOrderDetails(Request $request) {
         $token = $request->token;
         $email = $request->email;

@@ -492,6 +492,24 @@ class InstagramController extends Controller
     }
 
     /**
+     * @SWG\Get(
+     *   path="/messages/{thread}",
+     *   tags={"Instagram"},
+     *   summary="Instagram get Message Thread",
+     *   operationId="instagram-get-thread",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+    /**
      * @param $thread
      * @return \Illuminate\Http\JsonResponse
      * Get the Instragram message thread..
@@ -524,6 +542,25 @@ class InstagramController extends Controller
         return response()->json($threadJson);
     }
 
+    /**
+     * @SWG\Post(
+     *   path="/messages/{thread}",
+     *   tags={"Instagram"},
+     *   summary="Instagram Post Message Thread",
+     *   operationId="instagram-post-thread",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+    
     /**
      * @param $thread
      * @param Request $request

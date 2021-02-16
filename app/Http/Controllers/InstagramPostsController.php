@@ -247,6 +247,24 @@ class InstagramPostsController extends Controller
         return $instagramPosts;
     }
 
+     /**
+     * @SWG\Post(
+     *   path="/instagram/post",
+     *   tags={"Instagram"},
+     *   summary="post instagram",
+     *   operationId="post-instagram",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function apiPost(Request $request)
     {
         // Get raw body
@@ -351,7 +369,24 @@ class InstagramPostsController extends Controller
         ], 200);
     }
 
-
+    /**
+     * @SWG\Get(
+     *   path="/instagram/send-account/{token}",
+     *   tags={"Instagram"},
+     *   summary="get instagram account details",
+     *   operationId="get-instagram-account-details",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function sendAccount($token)
     {
       if($token != 'sdcsds'){
@@ -362,6 +397,24 @@ class InstagramPostsController extends Controller
      return response()->json(['username' => $account->last_name , 'password' => $account->password], 200);
     }
 
+    /**
+     * @SWG\Get(
+     *   path="/instagram/get-comments-list/{username}",
+     *   tags={"Instagram"},
+     *   summary="get instagram comments list",
+     *   operationId="get-instagram-comment-list",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function getComments($username)
     {
         $account = Account::where('last_name',$username)->first();
@@ -380,6 +433,24 @@ class InstagramPostsController extends Controller
 
     }
 
+    /**
+     * @SWG\Post(
+     *   path="/instagram/comment-sent",
+     *   tags={"Instagram"},
+     *   summary="send instagram comments",
+     *   operationId="send-instagram-comment",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function commentSent(Request $request)
     {
         $id = $request->id;
@@ -389,6 +460,24 @@ class InstagramPostsController extends Controller
 
     }    
 
+    /**
+     * @SWG\Get(
+     *   path="/instagram/get-hashtag-list",
+     *   tags={"Instagram"},
+     *   summary="Get instagram hashtag list",
+     *   operationId="get-instagram-hashtag-list",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function getHashtagList()
     {
         $hastags = HashTag::select('id','hashtag')->where('is_processed',0)->first();
@@ -405,6 +494,24 @@ class InstagramPostsController extends Controller
 
     }
 
+    /**
+    * @SWG\Post(
+    *   path="/local/instagram-post",
+    *   tags={"Local"},
+    *   summary="Save Local instagram post",
+    *   operationId="save-local-instagram-post",
+    *   @SWG\Response(response=200, description="successful operation"),
+    *   @SWG\Response(response=406, description="not acceptable"),
+    *   @SWG\Response(response=500, description="internal server error"),
+    *      @SWG\Parameter(
+    *          name="mytest",
+    *          in="path",
+    *          required=true, 
+    *          type="string" 
+    *      ),
+    * )
+    *
+    */
     public function saveFromLocal(Request $request)
     {
         // Get raw JSON
@@ -510,7 +617,24 @@ class InstagramPostsController extends Controller
         return view('instagram.users',compact('users'));
     }
 
-
+    /**
+    * @SWG\Get(
+    *   path="/local/instagram-user-post",
+    *   tags={"Local"},
+    *   summary="Get Local instagram user post",
+    *   operationId="get-local-instagram-user-post",
+    *   @SWG\Response(response=200, description="successful operation"),
+    *   @SWG\Response(response=406, description="not acceptable"),
+    *   @SWG\Response(response=500, description="internal server error"),
+    *      @SWG\Parameter(
+    *          name="mytest",
+    *          in="path",
+    *          required=true, 
+    *          type="string" 
+    *      ),
+    * )
+    *
+    */
     public function getUserForLocal()
     {
         $users = \App\InstagramUsersList::select('id','user_id')->whereNotNull('username')->where('is_manual',1)->where('is_processed',0)->orderBy('id','desc')->first();

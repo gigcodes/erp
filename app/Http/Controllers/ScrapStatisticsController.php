@@ -24,6 +24,24 @@ use App\Exports\ScrapRemarkExport;
 class ScrapStatisticsController extends Controller
 {
     /**
+     * @SWG\Get(
+     *   path="/stat",
+     *   tags={"Statistic"},
+     *   summary="Get Statistics",
+     *   operationId="get-statistics",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response

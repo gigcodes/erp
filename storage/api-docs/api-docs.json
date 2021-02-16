@@ -1,0 +1,2433 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "API Live Test",
+        "description": "This is api testing",
+        "contact": {
+            "email": "xyz@xyz.com"
+        },
+        "version": "1.0"
+    },
+    "basePath": "/api",
+    "schemes": [
+        "http",
+        "https"
+    ],
+    "paths": {
+        "/instagram/create": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Create Account",
+                "operationId": "create-inst-account",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/v1/account/create": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Create Account",
+                "operationId": "create-account",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/affiliate/add": {
+            "post": {
+                "tags": [
+                    "Affiliate"
+                ],
+                "summary": "store affiliate",
+                "operationId": "store-affiliate",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/influencer/add": {
+            "post": {
+                "tags": [
+                    "Influencer"
+                ],
+                "summary": "store influencer",
+                "operationId": "store-influencer",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/return-exchange-buyback/create": {
+            "post": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Create return exchange buyback",
+                "operationId": "create-return-exchange-buy-back",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/orders/products": {
+            "get": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Check product for buyback",
+                "operationId": "check-product-for-buy-back",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/giftcards/add": {
+            "post": {
+                "tags": [
+                    "Giftcards"
+                ],
+                "summary": "Store giftcards",
+                "operationId": "store-giftcard",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/giftcards/check-giftcard-coupon-amount": {
+            "get": {
+                "tags": [
+                    "Giftcards"
+                ],
+                "summary": "Check giftcards coupon amount",
+                "operationId": "check-giftcards-coupon-amount",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/mailinglist/add": {
+            "post": {
+                "tags": [
+                    "Mailing List"
+                ],
+                "summary": "Add customer to mailing list",
+                "operationId": "mail-list",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "website",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/v1/product/{sku}/price": {
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Get product price through sku",
+                "operationId": "get-product-price-through-sku",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/notification/create": {
+            "post": {
+                "tags": [
+                    "Notification"
+                ],
+                "summary": "Create notification",
+                "operationId": "create-notification",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/friend/referral/create": {
+            "post": {
+                "tags": [
+                    "Friend"
+                ],
+                "summary": "create referral friend",
+                "operationId": "create-referral-friend",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/ticket/create": {
+            "post": {
+                "tags": [
+                    "Ticket"
+                ],
+                "summary": "create ticket",
+                "operationId": "create-ticket",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/ticket/send": {
+            "post": {
+                "tags": [
+                    "Ticket"
+                ],
+                "summary": "Send ticket to customers",
+                "operationId": "send-ticket-to-customer",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/brands": {
+            "get": {
+                "tags": [
+                    "Brands"
+                ],
+                "summary": "Get brands reference",
+                "operationId": "get-brands-reference",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/broken-link-details": {
+            "get": {
+                "tags": [
+                    "BrokenLink"
+                ],
+                "summary": "Get broken link details",
+                "operationId": "get-broken-link-details",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/values-as-per-user": {
+            "post": {
+                "tags": [
+                    "Documents"
+                ],
+                "summary": "post Documents values as per user",
+                "operationId": "get-document-per-user",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/facebook/scrape-user": {
+            "post": {
+                "tags": [
+                    "Facebook"
+                ],
+                "summary": "post facebook scrape user",
+                "operationId": "post-facebook-scrape-user",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/facebook/account": {
+            "post": {
+                "tags": [
+                    "Facebook"
+                ],
+                "summary": "facbook posts details",
+                "operationId": "facbook-posts-details",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/facebook/post/status": {
+            "post": {
+                "tags": [
+                    "Facebook"
+                ],
+                "summary": "Set facbook post status",
+                "operationId": "set-facbook-post-status",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/google/affiliate/keywords": {
+            "get": {
+                "tags": [
+                    "Google"
+                ],
+                "summary": "Get google affiliate keywords",
+                "operationId": "get-google-affiliate-keywords",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/google/affiliate/search-results": {
+            "get": {
+                "tags": [
+                    "Google"
+                ],
+                "summary": "store google affiliate search result",
+                "operationId": "store-google-affiliate-search-result",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/google/keywords": {
+            "get": {
+                "tags": [
+                    "Google"
+                ],
+                "summary": "Get google keywords",
+                "operationId": "get-google-keywords",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/google/search-results": {
+            "post": {
+                "tags": [
+                    "Google"
+                ],
+                "summary": "post google search result",
+                "operationId": "post-google-search-result",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/hashtags": {
+            "get": {
+                "tags": [
+                    "Hashtags"
+                ],
+                "summary": "Get hashtags",
+                "operationId": "get-hashtags",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/messages/{thread}": {
+            "get": {
+                "tags": [
+                    "Instagram"
+                ],
+                "summary": "Instagram get Message Thread",
+                "operationId": "instagram-get-thread",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Instagram"
+                ],
+                "summary": "Instagram Post Message Thread",
+                "operationId": "instagram-post-thread",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/instagram/post": {
+            "post": {
+                "tags": [
+                    "Instagram"
+                ],
+                "summary": "post instagram",
+                "operationId": "post-instagram",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/instagram/send-account/{token}": {
+            "get": {
+                "tags": [
+                    "Instagram"
+                ],
+                "summary": "get instagram account details",
+                "operationId": "get-instagram-account-details",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/instagram/get-comments-list/{username}": {
+            "get": {
+                "tags": [
+                    "Instagram"
+                ],
+                "summary": "get instagram comments list",
+                "operationId": "get-instagram-comment-list",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/instagram/comment-sent": {
+            "post": {
+                "tags": [
+                    "Instagram"
+                ],
+                "summary": "send instagram comments",
+                "operationId": "send-instagram-comment",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/instagram/get-hashtag-list": {
+            "get": {
+                "tags": [
+                    "Instagram"
+                ],
+                "summary": "Get instagram hashtag list",
+                "operationId": "get-instagram-hashtag-list",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/local/instagram-post": {
+            "post": {
+                "tags": [
+                    "Local"
+                ],
+                "summary": "Save Local instagram post",
+                "operationId": "save-local-instagram-post",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/local/instagram-user-post": {
+            "get": {
+                "tags": [
+                    "Local"
+                ],
+                "summary": "Get Local instagram user post",
+                "operationId": "get-local-instagram-user-post",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/{client}/{numberFrom}/get-im": {
+            "get": {
+                "tags": [
+                    "Instant Messaging"
+                ],
+                "summary": "Get Instant Message",
+                "operationId": "get-instant-msg",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/{client}/{numberFrom}/webhook": {
+            "post": {
+                "tags": [
+                    "Instant Messaging"
+                ],
+                "summary": "post process Webhook",
+                "operationId": "post-process-webhook",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/{client}/{numberFrom}/im-status-update": {
+            "get": {
+                "tags": [
+                    "Instant Messaging"
+                ],
+                "summary": "update phone Status",
+                "operationId": "update-phone-status",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/magento/customer-reference": {
+            "post": {
+                "tags": [
+                    "Magento"
+                ],
+                "summary": "store magento customer reference",
+                "operationId": "store-magento-customer-reference",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/missing-brand/save": {
+            "get": {
+                "tags": [
+                    "Missing Brand"
+                ],
+                "summary": "Save missing brand",
+                "operationId": "save-missing-brand",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/customer/order-details": {
+            "get": {
+                "tags": [
+                    "Customer"
+                ],
+                "summary": "Get customer order details",
+                "operationId": "get-customer-order-details",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/users/updatePermission": {
+            "get": {
+                "tags": [
+                    "Permission"
+                ],
+                "summary": "update permission",
+                "operationId": "update-permission",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/price_comparision/{type}": {
+            "get": {
+                "tags": [
+                    "Price Comparision"
+                ],
+                "summary": "Price Comparision",
+                "operationId": "price-comparision",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/price_comparision/store": {
+            "post": {
+                "tags": [
+                    "Price Comparision"
+                ],
+                "summary": "Store Price Comparision",
+                "operationId": "store-price-comparision",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/price_comparision/details": {
+            "post": {
+                "tags": [
+                    "Price Comparision"
+                ],
+                "summary": "Send Price Comparision",
+                "operationId": "send-price-comparision",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/crop": {
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Get Products Image",
+                "operationId": "get-product-img",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/link/image-crop": {
+            "post": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Save Product image",
+                "operationId": "save-product-img",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/crop/amends": {
+            "get": {
+                "tags": [
+                    "Crop"
+                ],
+                "summary": "Get Crop amends",
+                "operationId": "get-crop-amends",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Crop"
+                ],
+                "summary": "Save Crop amends",
+                "operationId": "save-crop-amends",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/product-template": {
+            "get": {
+                "tags": [
+                    "Product Template"
+                ],
+                "summary": "Get Product Template",
+                "operationId": "get-product-template",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Product Template"
+                ],
+                "summary": "Save Product Template",
+                "operationId": "save-product-template",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/products/enhance": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "get product enhance",
+                "operationId": "get-product-enhance",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "post product enhance",
+                "operationId": "post-product-enhance",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/scrape/queue": {
+            "get": {
+                "tags": [
+                    "Scrape"
+                ],
+                "summary": "Scrape Queue list",
+                "operationId": "scrape-queue",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "website",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/scrape/process": {
+            "get": {
+                "tags": [
+                    "Scrape"
+                ],
+                "summary": "Scrape process",
+                "operationId": "scrape-process",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "website",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/values-as-per-category": {
+            "post": {
+                "tags": [
+                    "Documents"
+                ],
+                "summary": "post Documents values as per category",
+                "operationId": "get-document-per-category",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/scrap-products/add": {
+            "post": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Add Product",
+                "operationId": "post-product",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/save-supplier": {
+            "post": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Product save supplier",
+                "operationId": "product-save-supplier",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/products/new-supplier": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Get Products new supplier",
+                "operationId": "products-route",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Add procuct supplier",
+                "operationId": "add-procuct-supplier",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/scrape/process-product-links": {
+            "post": {
+                "tags": [
+                    "Scrape"
+                ],
+                "summary": "Process procuct links",
+                "operationId": "process-procuct-links",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/products/auto-rejected": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Get auto rejected products",
+                "operationId": "products-route",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/products/get-products-to-scrape": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Get Products to scrape",
+                "operationId": "products-route",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/scraper/next": {
+            "get": {
+                "tags": [
+                    "Scrape\u200br"
+                ],
+                "summary": "procuct send details",
+                "operationId": "procuct-send-details",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/scraper/endtime": {
+            "post": {
+                "tags": [
+                    "Scrape\u200br"
+                ],
+                "summary": "Save procuct details",
+                "operationId": "save-procuct-details",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/scraper/ready": {
+            "post": {
+                "tags": [
+                    "Scrape\u200br"
+                ],
+                "summary": "Screpper Ready",
+                "operationId": "scrapper-ready",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/scraper/completed": {
+            "post": {
+                "tags": [
+                    "Scrape\u200br"
+                ],
+                "summary": "Screpper completed",
+                "operationId": "scrapper-completed",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/scraper/need-to-start": {
+            "get": {
+                "tags": [
+                    "Scrape\u200br"
+                ],
+                "summary": "Scraper need to start",
+                "operationId": "scraper-need-start",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/scraper-needed-products": {
+            "get": {
+                "tags": [
+                    "Scrape\u200br"
+                ],
+                "summary": "Scraper needed products",
+                "operationId": "scraper-needed-product",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/node/restart-script": {
+            "post": {
+                "tags": [
+                    "Node"
+                ],
+                "summary": "Product restart node",
+                "operationId": "procuct-restart-node",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/node/get-status": {
+            "post": {
+                "tags": [
+                    "Node"
+                ],
+                "summary": "procuct get status",
+                "operationId": "procuct-get-status",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/stat": {
+            "get": {
+                "tags": [
+                    "Statistic"
+                ],
+                "summary": "Get Statistics",
+                "operationId": "get-statistics",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/search/{type}": {
+            "get": {
+                "tags": [
+                    "Search"
+                ],
+                "summary": "get search",
+                "operationId": "get-search",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Search"
+                ],
+                "summary": "upload content",
+                "operationId": "upload-content",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/shopify/order/create": {
+            "post": {
+                "tags": [
+                    "Shopify"
+                ],
+                "summary": "Create Shopify Order",
+                "operationId": "shopify-create-order",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/shopify/customer/create": {
+            "post": {
+                "tags": [
+                    "Shopify"
+                ],
+                "summary": "Shopify create customer",
+                "operationId": "shopify-create-customer",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/duty/v1/calculate": {
+            "post": {
+                "tags": [
+                    "Duty"
+                ],
+                "summary": "post calculate",
+                "operationId": "post-countries",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/duty/v1/get-countries": {
+            "get": {
+                "tags": [
+                    "Duty"
+                ],
+                "summary": "Get Countries",
+                "operationId": "get-countries",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/duty/v1/get-currencies": {
+            "get": {
+                "tags": [
+                    "Duty"
+                ],
+                "summary": "Get currencies",
+                "operationId": "get-currencies",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/supplier/brands-raw": {
+            "post": {
+                "tags": [
+                    "Supplier"
+                ],
+                "summary": "post supplier brands",
+                "operationId": "post-supplier-brands",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/twilio-conference": {
+            "post": {
+                "tags": [
+                    "Twilio"
+                ],
+                "summary": "post twilio conference",
+                "operationId": "post-twilio-conference",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/twilio-conference-mute": {
+            "post": {
+                "tags": [
+                    "Twilio"
+                ],
+                "summary": "post twilio mute conference",
+                "operationId": "post-twilio-mute-conference",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/twilio-conference-hold": {
+            "post": {
+                "tags": [
+                    "Twilio"
+                ],
+                "summary": "post twilio hold conference",
+                "operationId": "post-twilio-hold-conference",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/twilio-conference-remove": {
+            "post": {
+                "tags": [
+                    "Twilio"
+                ],
+                "summary": "post twilio remove conference",
+                "operationId": "post-twilio-remove-conference",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/userLogs": {
+            "post": {
+                "tags": [
+                    "Userlog"
+                ],
+                "summary": "store user logs",
+                "operationId": "save user logs",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/wetransfer": {
+            "get": {
+                "tags": [
+                    "Wetransfer"
+                ],
+                "summary": "Get wetransfer link",
+                "operationId": "get-wetransfer-link",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/wetransfer-file-store": {
+            "post": {
+                "tags": [
+                    "Wetransfer"
+                ],
+                "summary": "store wetransfer file",
+                "operationId": "store-wetransfer-file",
+                "parameters": [
+                    {
+                        "name": "mytest",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {}
+}

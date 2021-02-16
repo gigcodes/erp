@@ -15,6 +15,24 @@ class WeTransferController extends Controller
         return view('wetransfer.index',['wetransfers' => $wetransfers]);
     }
 
+    /**
+     * @SWG\Get(
+     *   path="/wetransfer",
+     *   tags={"Wetransfer"},
+     *   summary="Get wetransfer link",
+     *   operationId="get-wetransfer-link",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function getLink()
     {
     	$wetransfer = Wetransfer::where('is_processed',0)->first();
@@ -24,6 +42,24 @@ class WeTransferController extends Controller
     	return json_encode($wetransfer);
     }
 
+    /**
+     * @SWG\Post(
+     *   path="/wetransfer-file-store",
+     *   tags={"Wetransfer"},
+     *   summary="store wetransfer file",
+     *   operationId="store-wetransfer-file",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function storeFile(Request $request)
     {
         $wetransfer = Wetransfer::find($request->id);

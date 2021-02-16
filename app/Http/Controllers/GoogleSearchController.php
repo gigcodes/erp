@@ -155,6 +155,25 @@ class GoogleSearchController extends Controller
     }
 
     /**
+     * @SWG\Get(
+     *   path="/google/keywords",
+     *   tags={"Google"},
+     *   summary="Get google keywords",
+     *   operationId="get-google-keywords",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+
+    /**
     * function to get keywords to api
     *
     * @return json response with keywords
@@ -165,6 +184,24 @@ class GoogleSearchController extends Controller
         return response()->json($keywords);
     }
 
+    /**
+     * @SWG\Post(
+     *   path="/google/search-results",
+     *   tags={"Google"},
+     *   summary="post google search result",
+     *   operationId="post-google-search-result",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     /**
     * function to store google search results sent from scrapper
     * JSON data posted to this api will be array of objects in below format

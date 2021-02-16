@@ -33,6 +33,25 @@ class GiftCardController extends Controller
         //
     }
 
+
+    /**
+     * @SWG\Post(
+     *   path="/giftcards/add",
+     *   tags={"Giftcards"},
+     *   summary="Store giftcards",
+     *   operationId="store-giftcard",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     /**
      * Store a newly created resource in storage.
      *
@@ -130,6 +149,25 @@ class GiftCardController extends Controller
     {
         //
     }
+
+    /**
+     * @SWG\Get(
+     *   path="/giftcards/check-giftcard-coupon-amount",
+     *   tags={"Giftcards"},
+     *   summary="Check giftcards coupon amount",
+     *   operationId="check-giftcards-coupon-amount",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     /**
      * Display coupon information/amount.
      *

@@ -108,6 +108,24 @@ class SimplyDutyCalculationController extends Controller
         //
     }
 
+    /**
+     * @SWG\Post(
+     *   path="/duty/v1/calculate",
+     *   tags={"Duty"},
+     *   summary="post calculate",
+     *   operationId="post-countries",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function calculate(Request $request){
         
         $receivedJson = json_decode($request->getContent());
