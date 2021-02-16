@@ -7,6 +7,7 @@ use App\StoreWebsite;
 use App\EmailRunHistories;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use DB;
 
 class EmailAddressesController extends Controller
 {
@@ -17,7 +18,8 @@ class EmailAddressesController extends Controller
      */
     public function index(Request $request)
     {
-        $emailAddress = EmailAddress::paginate(15);
+        // $emailAddress = EmailAddress::paginate(15);
+        $emailAddress = EmailAddress::select('email_addresses.*', DB::raw('(SELECT is_success FROM email_run_histories WHERE email_address_id = email_addresses.id Order by id DESC LIMIT 1) as is_success'))->paginate(15);
 		$allStores = StoreWebsite::all();
         return view('email-addresses.index', [
             'emailAddress' => $emailAddress,
