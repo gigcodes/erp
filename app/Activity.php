@@ -7,4 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Activity extends Model
 {
     protected $fillable = ['subject_id','subject_type','causer_id','description'];
+
+    public function causer()
+    {
+        return $this->belongsTo('App\User');
+    }
 }

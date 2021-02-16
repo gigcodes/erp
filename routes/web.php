@@ -321,6 +321,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('brand/merge-brand', 'BrandController@mergeBrand');
     Route::post('brand/unmerge-brand', 'BrandController@unMergeBrand')->name('brand.unmerge-brand');
     Route::get('brand/{id}/create-remote-id', 'BrandController@createRemoteId');
+    Route::get('brand/{id}/activities', 'BrandController@activites')->name('brand.activities');
     Route::resource('brand', 'BrandController');
 
 
