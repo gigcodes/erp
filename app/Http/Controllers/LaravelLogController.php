@@ -318,6 +318,9 @@ class LaravelLogController extends Controller
                         $temp = explode('-',$entry);
                         $errors = [];
                         $errSelection = [];
+                        if(!isset($temp[1]) || !isset($temp[2])) {
+                            continue;
+                        }
                         if($current_date[0] == $temp[1] && $current_date[1] == $temp[2] && $current_date[2] == str_replace('.log','',$temp[3])){
                             
                             $fullPath = $dir."/".$entry;

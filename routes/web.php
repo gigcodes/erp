@@ -764,6 +764,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('delete', 'LandingPageController@delete')->name('landing-page.delete');
             Route::get('push-to-shopify', 'LandingPageController@pushToShopify')->name('landing-page.push-to-shopify');
             Route::get('change-store', 'LandingPageController@changeStore')->name('landing-page.change.store');
+            Route::get('push-to-magento', 'LandingPageController@pushToMagentoPro')->name('landing-page.push-to-magento');
+            Route::get('push-to-magento-status', 'LandingPageController@updateMagentoStock')->name('landing-page.push-to-magento-status');
         });
     });
 
@@ -2170,6 +2172,10 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
 
     Route::get('mailinglist', 'MailinglistController@index')->name('mailingList');
     Route::get('mailinglist/{id}', 'MailinglistController@show')->name('mailingList.single');
+
+    Route::get('mailinglist/edit/{id}', 'MailinglistController@edit')->name('mailingList.edit');
+    Route::post('mailinglist/{id}', 'MailinglistController@update')->name('mailingList.update');
+
     Route::get('mailinglist/add/{id}/{email}', 'MailinglistController@addToList')->name('mailingList.add_to_list');
     Route::get('mailinglist/delete/{id}/{email}', 'MailinglistController@delete')->name('mailingList.delete');
     Route::get('mailinglist/list/delete/{id}', 'MailinglistController@deleteList')->name('mailingList.delete.list');

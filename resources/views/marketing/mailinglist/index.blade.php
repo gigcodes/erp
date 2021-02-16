@@ -32,7 +32,17 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    @if ($message = Session::get('error'))
+        <div class="alert alert-danger">
+            <p>{{ $message }}</p>
+        </div>
+    @endif
+    @if ($message = Session::get('success'))
+        <div class="alert alert-success">
+            <p>{{ $message }}</p>
+        </div>
+    @endif
+    <div class="modal fade" id="AddMailingList" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
          aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -43,7 +53,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="">
+                    <form action="{!! route('mailingList.create') !!}" class="mailing_form">
                         <div class="form-group">
                             <select name="service_id" id="service_id" class="form-control">
                                 <option value="">Select Service</option>
@@ -53,7 +63,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <select name="websites_id" id="websites_id" class="form-control">
+                            <select name="website_id" id="website_id" class="form-control">
                                 <option value="">Select Website</option>
                                 @foreach($websites as $website)
                                     <option value="{{$website->id}}">{{$website->title}}</option>
@@ -74,6 +84,21 @@
                         <button type="button" class="btn btn-primary save_list">Save changes</button>
                     </div>
                 </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="modal fade" id="EditMailingList" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Edit Mailing list</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body"></div>
             </div>
 
         </div>
@@ -99,7 +124,17 @@
                     <td>{{$value['email']}}</td>
                     <!--td><?php //$value->service->name?></td-->
                     <td>{{$value['remote_id']}}</td>
-                    <td><a href="{{route('mailingList.single', $value['remote_id'])}}"><i class="fa fa-list"></i></a> <a href="{{route('mailingList.delete.list', $value['remote_id'])}}">Delete</a></td>
+                    <td>
+                        <a href="{{route('mailingList.single', $value['remote_id'])}}">
+                            <i class="fa fa-list"></i>
+                        </a> 
+                        <a href="javascript:;" data-href="{{route('mailingList.edit', $value['remote_id'])}}" class="edit_maillist">
+                            <i class="fa fa-pencil"></i>
+                        </a> 
+                        <a href="{{route('mailingList.delete.list', $value['remote_id'])}}">
+                            <i class="fa fa-trash-o"></i>
+                        </a>
+                    </td>
                 </tr>
             @endforeach
             </tbody>
@@ -107,18 +142,15 @@
     </div>
 @endsection
 @section('scripts')
-    <script>
-        $('.save_list').click(function (e) {
+<script>
+    jQuery(document).ready(function(){
+        $(document).on("click",".save_list",function (e) {
+            var _this = jQuery(this).parents(".modal-body").find("form");
             e.preventDefault();
             $.ajax({
-                url: '/marketing/mailinglist/create',
+                url: jQuery(_this).attr("action"),
                 type: 'POST',
-                data: {
-                    name: $('.name').val(),
-                    service_id: $('#service_id').val(),
-                    websites_id: $('#websites_id').val(),
-                    email : $('#email').val(),
-                },
+                data: jQuery(_this).serialize(),
                 beforeSend: function (request) {
                     return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
                 },
@@ -128,6 +160,23 @@
                     }
                 }
             });
-        })
-    </script>
+        });
+        jQuery(".edit_maillist").on("click",function (e){
+            e.preventDefault();
+            var _this = jQuery(this);
+            jQuery.ajax({
+                url: jQuery(_this).data('href'),
+                type: 'GET',
+                success: function(response) {
+                    jQuery("#EditMailingList .modal-body").html(response);
+                    jQuery("#EditMailingList").modal('show');
+
+                },
+                error: function(response) {
+                    alert("Something went wrong, please try after sometime");
+                }
+            });
+        });
+    });
+</script>
 @endsection
