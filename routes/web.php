@@ -2233,6 +2233,12 @@ Route::group(['middleware' => 'auth', 'prefix' => 'checkout'], function () {
     Route::delete('coupons/{id}', 'CouponController@destroy');
     Route::get('coupons/{id}/report', 'CouponController@showReport');
     Route::get('coupons/report', 'CouponController@showReport');
+
+
+    Route::post('/coupon-code-rules','CouponController@addRules')->name('couponcode.store');
+    Route::post('/rule-details','CouponController@getCouponCodeRuleById')->name('rule_details');
+    Route::post('/sales-rules-update','CouponController@updateRules')->name('salesrules.update');
+    Route::post('/generate-code','CouponController@generateCouponCode')->name('generateCode');
 });
 
 Route::get('keywordassign', 'KeywordassignController@index')->name('keywordassign.index');
