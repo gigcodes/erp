@@ -16,6 +16,7 @@ use App\Setting;
 use App\User;
 use App\SocialStrategy;
 use App\StoreWebsiteUsers;
+use seo2websites\MagentoHelper\MagentoHelperv2;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 class StoreWebsiteController extends Controller
 {
@@ -158,6 +159,7 @@ class StoreWebsiteController extends Controller
             return response()->json(["code" => 500, "error" => "Your password must be at least 7 characters.Your password must include both numeric and alphabetic characters."]);
         }
 
+        $storeWebsite = StoreWebsite::find($post['store_id']);
         if(!empty($post['store_website_userid'])) {
             $getUser = StoreWebsiteUsers::where('id',$post['store_website_userid'])->first();
             $getUser->first_name = $post['firstName'];
@@ -166,24 +168,8 @@ class StoreWebsiteController extends Controller
             $getUser->password = $post['password'];
             $getUser->save();
 
-            $curl = curl_init();
-            curl_setopt_array($curl, array(
-              CURLOPT_URL => "https://sololuxury.com/rest/V1/multistore/editadminuser/",
-              CURLOPT_RETURNTRANSFER => true,
-              CURLOPT_ENCODING => "",
-              CURLOPT_MAXREDIRS => 10,
-              CURLOPT_TIMEOUT => 0,
-              CURLOPT_FOLLOWLOCATION => true,
-              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-              CURLOPT_CUSTOMREQUEST => "POST",
-              CURLOPT_HTTPHEADER => array(
-                'Content-type: application/json'
-              ),
-              CURLOPT_POSTFIELDS => json_encode(array('username' => $post['username'],'firstname' => $post['firstName'] , 'lastname' => $post['lastName'] , 'email' => $post['userEmail'], 'password' => $post['password'], 'is_active' => 1)),
-            ));
-
-            $response = curl_exec($curl);   
-            $response = json_decode($response);
+            $magentoHelper = new MagentoHelperv2();
+            $result = $magentoHelper->updateMagentouser($storeWebsite, $post);
             return response()->json(["code" => 200, "messages" => 'User details updated Sucessfully']);
         } else {
             $params['username'] = $post['username'];
@@ -201,24 +187,8 @@ class StoreWebsiteController extends Controller
                 $chat_message = ChatMessage::create($params);
             }
 
-            $curl = curl_init();
-            curl_setopt_array($curl, array(
-              CURLOPT_URL => "https://sololuxury.com/rest/V1/multistore/adminuser/",
-              CURLOPT_RETURNTRANSFER => true,
-              CURLOPT_ENCODING => "",
-              CURLOPT_MAXREDIRS => 10,
-              CURLOPT_TIMEOUT => 0,
-              CURLOPT_FOLLOWLOCATION => true,
-              CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-              CURLOPT_CUSTOMREQUEST => "POST",
-              CURLOPT_HTTPHEADER => array(
-                'Content-type: application/json'
-              ),
-              CURLOPT_POSTFIELDS => json_encode(array('username' => $post['username'],'firstname' => $post['firstName'] , 'lastname' => $post['lastName'] , 'email' => $post['userEmail'], 'password' => $post['password'])),
-            ));
-
-            $response = curl_exec($curl);   
-            $response = json_decode($response);
+            $magentoHelper = new MagentoHelperv2();
+            $result = $magentoHelper->addMagentouser($storeWebsite, $post);
             return response()->json(["code" => 200, "messages" => 'User details saved Sucessfully']);
         }
     }
@@ -229,24 +199,11 @@ class StoreWebsiteController extends Controller
         $username = $getUser->username;
         $getUser->is_deleted = 1;
         $getUser->save();
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-          CURLOPT_URL => "https://sololuxury.com/rest/V1/multistore/deleteadminuser/",
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_ENCODING => "",
-          CURLOPT_MAXREDIRS => 10,
-          CURLOPT_TIMEOUT => 0,
-          CURLOPT_FOLLOWLOCATION => true,
-          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => "POST",
-          CURLOPT_HTTPHEADER => array(
-            'Content-type: application/json'
-          ),
-          CURLOPT_POSTFIELDS => json_encode(array('username' => $username)),
-        ));
 
-        $response = curl_exec($curl);   
-        $response = json_decode($response);
+        $storeWebsite = StoreWebsite::find($getUser->store_website_id);
+
+        $magentoHelper = new MagentoHelperv2();
+        $result = $magentoHelper->deleteMagentouser($storeWebsite, $username);
         return response()->json(["code" => 200, "messages" => 'User Deleted Sucessfully']);
     }
 
