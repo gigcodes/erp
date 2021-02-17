@@ -404,6 +404,35 @@ class EmailController extends Controller
 		return redirect('email');
 	}
 
+    public function getFileStatus(Request $request)
+    {
+        $id = $request->id;
+        $email = Email::find($id);
+        
+        if ( isset( $email->email_excel_importer ) ) {
+            $status = 'No any update';
+
+            if ($email->email_excel_importer === 3) {
+                $status = 'File move on wetransfer';
+            }else if ($email->email_excel_importer === 2) {
+                $status = 'Executed but we transfer file not exist';
+            }else if ($email->email_excel_importer === 1) {
+                $status = 'Transfer exist';
+            }
+
+            return response()->json([
+                'status'      => true,
+                'mail_status' => $status,
+                'message'     => 'Data found'
+            ], 200);
+        }
+        return response()->json([
+            'status'  => false,
+            'message' => 'Data not found'
+        ], 200);
+
+    }
+
     public function excelImporter(Request $request)
     {
         $id = $request->id;
@@ -419,16 +448,31 @@ class EmailController extends Controller
         if(isset($match[0])){
             $matches = $match[0];
             foreach ($matches as $matchLink) {
-                if((strpos($matchLink, 'wetransfer.com') !== false || strpos($matchLink, 'we.') !== false) && strpos($matchLink, 'google.com') !== true ){
-                    //check if wetransfer already exist
-                    $checkIfExist = Wetransfer::where('url',$matchLink)->where('supplier',$request->supplier)->first();
-                    if(!$checkIfExist){
-                        $wetransfer = new Wetransfer();
-                        $wetransfer->type = 'excel';
-                        $wetransfer->url = $matchLink;
-                        $wetransfer->supplier = $request->supplier;
-                        $wetransfer->save();
+                if(strpos($matchLink, 'wetransfer.com') !== false || strpos($matchLink, 'we.tl') !== false){
+
+                    if(strpos($matchLink, 'google.com') === false){
+                        //check if wetransfer already exist
+                        $checkIfExist = Wetransfer::where('url',$matchLink)->where('supplier',$request->supplier)->first();
+                        if(!$checkIfExist){
+                            $wetransfer = new Wetransfer();
+                            $wetransfer->type = 'excel';
+                            $wetransfer->url = $matchLink;
+                            $wetransfer->supplier = $request->supplier;
+                            $wetransfer->save();
+
+                            Email::where( 'id', $id )->update(['email_excel_importer' => 3 ]);
+
+                            try {
+                               self::downloadFromURL($matchLink,$request->supplier); 
+                            } catch (Exception $e) {
+                                return response()->json(['message' => 'Something went wrong!'], 422);
+                            }
+                            //downloading wetransfer and generating data
+
+                        }
+                        
                     }
+
                 }
             }
         }
@@ -465,6 +509,144 @@ class EmailController extends Controller
 
         
         return response()->json(['message' => 'Successfully Imported'], 200);
+
+    }
+
+    public static function downloadFromURL($url, $supplier)
+    {
+        $WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers/';
+
+
+
+        if (strpos($url, 'https://we.tl/') !== false) {
+            
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HEADER, true);
+            curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (X11; Linux x86_64; rv:21.0) Gecko/20100101 Feirefox/21.0"); // Necessary. The server checks for a valid User-Agent.
+            curl_exec($ch);
+
+            $response = curl_exec($ch);
+            preg_match_all('/^Location:(.*)$/mi', $response, $matches);
+            curl_close($ch);
+
+            if(isset($matches[1])){
+                if(isset($matches[1][0])){
+                    $url = trim($matches[1][0]);
+                }
+            }
+
+        }
+
+        //replace https://wetransfer.com/downloads/ from url
+
+        $url = str_replace('https://wetransfer.com/downloads/', '', $url);
+
+        //making array from url
+
+        $dataArray = explode('/', $url);
+
+        if(count($dataArray) == 2){
+            $securityhash = $dataArray[1];
+            $transferId = $dataArray[0];
+        }elseif(count($dataArray) == 3){
+            $securityhash = $dataArray[2];
+            $recieptId = $dataArray[1];
+            $transferId = $dataArray[0];
+        }else{
+            die('Something is wrong with url');
+        }
+
+
+
+
+        //making post request to get the url
+        $data = array();
+        $data['intent'] = 'entire_transfer';
+        $data['security_hash'] = $securityhash;
+
+        $curlURL = $WETRANSFER_API_URL.$transferId.'/download'; 
+
+          $cookie= "cookie.txt";
+          $url='https://wetransfer.com/';
+          $ch = curl_init();
+          curl_setopt($ch, CURLOPT_USERAGENT,'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/32.0.1700.107 Chrome/32.0.1700.107 Safari/537.36');
+          curl_setopt($ch, CURLOPT_URL, $url);
+          curl_setopt($ch, CURLOPT_COOKIESESSION, true);
+          curl_setopt($ch, CURLOPT_COOKIEJAR, '/tmp/'.$cookie);
+          curl_setopt($ch, CURLOPT_COOKIEFILE, '/tmp/'.$cookie);
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+          $response = curl_exec($ch);
+          if (curl_errno($ch)) die(curl_error($ch));
+
+          $re = '/name="csrf-token" content="([^"]+)"/m';
+
+            preg_match_all($re, $response, $matches, PREG_SET_ORDER, 0);
+
+            if(count($matches) != 0){
+                if(isset($matches[0])){
+                    if(isset($matches[0][1])){
+                        $token = $matches[0][1];
+                    }
+                }
+            }
+
+          $headers[] = 'Content-Type: application/json';
+          $headers[] = 'X-CSRF-Token:' .  $token;
+
+          curl_setopt($ch, CURLOPT_URL, $curlURL);
+          curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);   
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+          curl_setopt($ch, CURLOPT_POST, true);
+          curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+          $real = curl_exec($ch);
+
+          $urlResponse = json_decode($real);
+
+          //dd($urlResponse);
+
+          if(isset($urlResponse->direct_link)){
+               //echo $real;
+              $downloadURL = $urlResponse->direct_link;
+              
+              $d = explode('?',$downloadURL);
+
+              $fileArray = explode('/',$d[0]);
+
+              $filename = end($fileArray);
+
+              $file = file_get_contents($downloadURL);
+
+              \Storage::put($filename,$file);
+
+              $storagePath  = \Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix();
+              
+              $path = $storagePath."/".$filename;
+            
+              $get = \Storage::get($filename);  
+                
+                if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                    
+                    if(strpos($filename, '.zip') !== false){
+                        $attachments = ErpExcelImporter::excelZipProcess($path, $filename , $supplier, '', '');
+                    }
+
+
+                    if(strpos($filename, '.xls') !== false || strpos($filename, '.xlsx') !== false){
+                        if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                            $excel = $supplier;
+                            ErpExcelImporter::excelFileProcess($path, $filename,'');
+                        }
+                    }
+
+
+
+                }           
+          }
+
+          
 
     }
 }

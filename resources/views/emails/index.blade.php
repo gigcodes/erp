@@ -372,6 +372,28 @@
 	</div>
 </div>
 
+{{-- Showing file status models --}}
+<div id="showFilesStatusModel" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Files status</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="Status">Files status :</label>
+					<div id="filesStatus" class="form-group">  </div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div id="excelImporter" class="modal fade" role="dialog">
   <div class="modal-dialog">
     <!-- Modal content-->
@@ -792,6 +814,40 @@
     function excelImporter(id) {
         $('#excel_import_email_id').val(id)
         $('#excelImporter').modal('toggle');
+    }
+    
+    function showFilesStatus(id) {
+		
+        if( id ){
+			$.ajax({
+				headers: {
+					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				},
+				data : {id},
+				url: '/email/'+id+'/get-file-status',
+				type: 'post',
+
+				beforeSend: function () {
+						$("#loading-image").show();
+					},
+				}).done( function(response) {
+					if (response.status === true) {
+						$("#filesStatus").html(response.mail_status);
+						$('#showFilesStatusModel').modal('toggle');
+					}else{
+						alert('Something went wrong')
+					}
+					
+					$("#loading-image").hide();
+				}).fail(function(errObj) {
+					$("#loading-image").hide();
+					alert('Something went wrong')
+				});
+		}else{
+			alert('Something went wrong')
+		}
+
+        // $('#excelImporter').modal('toggle');
     }
 
     function importExcel() {

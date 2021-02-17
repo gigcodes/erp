@@ -76,3 +76,4 @@ app/Library/_MACOSX/*
 /app/Mail/*
 resources/views/vendor/maileclipse/templates/*
 /public/mailinglist/
+/public/wetransfer/*
