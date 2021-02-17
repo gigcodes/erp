@@ -27,6 +27,7 @@
                 <th width="10%">Supplier</th>
                 <th width="10%">Is Processed</th>
                 <th width="10%">Updated At</th>
+                <th width="10%">Total files</th>
                
             </tr>
             @foreach($wetransfers as $wetransfer)
@@ -42,11 +43,32 @@
                     <td>{{ $wetransfer->supplier }}</td>
                     <td>@if($wetransfer->is_processed == 1) Pending @elseif($wetransfer->is_processed == 2) Success @else Failed @endif</td>
                     <td>{{ $wetransfer->updated_at->format('d-m-Y : H:i:s') }}</td>     
+                    <td> <button style="padding:3px;" type="button" class="btn btn-image show-files-list d-inline" data-json="{{ $wetransfer->files_list }}" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $wetransfer->id }}"> {{ $wetransfer->files_count }} </button></td>     
             </tr>
             @endforeach
             {{ $wetransfers->render() }}
         </thead>
     </table>
+</div>
+
+<div id="makeRemarkModal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-sm">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Files list</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body files-list-body">
+            
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 @endsection  
@@ -60,6 +82,19 @@
             if (selection.toString().length === 0) {
                 $(this).find('.td-mini-container').toggleClass('hidden');
                 $(this).find('.td-full-container').toggleClass('hidden');
+            }
+        });
+         
+        $(document).on('click', '.show-files-list', function () {
+            $('.files-list-body').empty();
+            var data = $(this).data();
+            var asset = '{{ asset("public/wetransfer/") }}';
+            if ( data.json !== null ) {
+                $.each(data.json, function (index, valueOfElement) { 
+                    $('.files-list-body').append('<div class="form-group"><a href="'+asset+'/'+valueOfElement+'"> '+valueOfElement+' </a></div>');
+                });
+            }else{
+                $('.files-list-body').append('<div class="form-group">No files found</div>');
             }
         });
 </script>
