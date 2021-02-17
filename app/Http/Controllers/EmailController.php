@@ -404,6 +404,35 @@ class EmailController extends Controller
 		return redirect('email');
 	}
 
+    public function getFileStatus(Request $request)
+    {
+        $id = $request->id;
+        $email = Email::find($id);
+        
+        if ( isset( $email->email_excel_importer ) ) {
+            $status = 'No any update';
+
+            if ($email->email_excel_importer === 3) {
+                $status = 'File move on wetransfer';
+            }else if ($email->email_excel_importer === 2) {
+                $status = 'Executed but we transfer file not exist';
+            }else if ($email->email_excel_importer === 1) {
+                $status = 'Transfer exist';
+            }
+
+            return response()->json([
+                'status'      => true,
+                'mail_status' => $status,
+                'message'     => 'Data found'
+            ], 200);
+        }
+        return response()->json([
+            'status'  => false,
+            'message' => 'Data not found'
+        ], 200);
+
+    }
+
     public function excelImporter(Request $request)
     {
         $id = $request->id;
@@ -430,6 +459,8 @@ class EmailController extends Controller
                             $wetransfer->url = $matchLink;
                             $wetransfer->supplier = $request->supplier;
                             $wetransfer->save();
+
+                            Email::where( 'id', $id )->update(['email_excel_importer' => 3 ]);
 
                             try {
                                self::downloadFromURL($matchLink,$request->supplier); 

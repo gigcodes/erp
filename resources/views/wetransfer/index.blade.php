@@ -3,9 +3,21 @@
 @section('title', 'WeTransfer Queues')
 
 @section("styles")
-    
-@endsection
+<style>
 
+    #loading-image {
+           position: fixed;
+           top: 50%;
+           left: 50%;
+           margin: -50px 0px 0px -50px;
+           z-index: 60;
+       }
+
+</style>
+@endsection
+<div id="myDiv">
+        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+    </div>
 @section('content')
 
     <div class="row">
@@ -43,7 +55,10 @@
                     <td>{{ $wetransfer->supplier }}</td>
                     <td>@if($wetransfer->is_processed == 1) Pending @elseif($wetransfer->is_processed == 2) Success @else Failed @endif</td>
                     <td>{{ $wetransfer->updated_at->format('d-m-Y : H:i:s') }}</td>     
-                    <td> <button style="padding:3px;" type="button" class="btn btn-image show-files-list d-inline" data-json="{{ $wetransfer->files_list }}" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $wetransfer->id }}"> {{ $wetransfer->files_count }} </button></td>     
+                    <td> 
+                        <button style="padding:3px;" type="button" class="btn btn-success show-files-list d-inline" data-json="{{ $wetransfer->files_list }}" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $wetransfer->id }}"> {{ $wetransfer->files_count ?? 0 }} </button>
+                        <button style="padding:3px;" type="button" class="btn btn-info show-files-list d-inline re-download-files" data-id="{{ $wetransfer->id }}"> <i class="fa fa-repeat"></i></button>
+                    </td>     
             </tr>
             @endforeach
             {{ $wetransfers->render() }}
@@ -96,6 +111,33 @@
             }else{
                 $('.files-list-body').append('<div class="form-group">No files found</div>');
             }
+        });
+
+        $(document).on('click', '.re-download-files', function () {
+
+            var data = $(this).data();
+            $.ajax({
+				headers: {
+					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				},
+				data : {id : data.id },
+				url: '/wetransfer/re-downloads-files',
+				type: 'post',
+
+				beforeSend: function () {
+						$("#loading-image").show();
+					},
+				}).done( function(response) {
+					if (response.status === true) {
+						toastr['success'](response.message);
+					}else{
+                        toastr['error'](response.message);
+					}
+					$("#loading-image").hide();
+				}).fail(function(errObj) {
+					$("#loading-image").hide();
+					alert('Something went wrong')
+				});
         });
 </script>
 
