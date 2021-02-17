@@ -46,6 +46,18 @@ var page = {
             page.submitFormSite($(this));
         });
 
+        $(".common-modal").on("click",".btn-edit-magento-user",function() {
+            page.submitMagentoUserForm($(this));
+        });
+
+        $(".common-modal").on("click",".btn-add-magento-user",function() {
+            page.AddMagentoUserForm($(this));
+        });
+
+        $(".common-modal").on("click",".btn-delete-magento-user",function() {
+            page.deleteMagentoUserForm($(this));
+        });
+
         $(".common-modal").on("click",".add-attached-category",function(e) {
             e.preventDefault();
             page.submitCategory($(this));
@@ -191,6 +203,99 @@ var page = {
                 $("#loading-image").show();
             }
         }
+        this.sendAjax(_z, "saveSite");
+    },
+
+    submitMagentoUserForm : function(ele) {
+        var username = ele.parents('.subMagentoUser').find('.userName').val();
+        var userEmail = ele.parents('.subMagentoUser').find('.userEmail').val();
+        var firstName = ele.parents('.subMagentoUser').find('.firstName').val();
+        var lastName = ele.parents('.subMagentoUser').find('.lastName').val();
+        var password = ele.parent().parent().children('.sub-pass').children('.user-password').val();
+        var store_id = $('#store_website_id').val();
+        var store_website_userid = ele.attr('data-id');
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/save-user-in-magento",
+            method: "post",
+            data : {
+                _token:$('meta[name="csrf-token"]').attr('content'),
+                username:username,
+                userEmail:userEmail,
+                firstName:firstName,
+                lastName:lastName,
+                password:password,
+                store_id:store_id,
+                store_website_userid:store_website_userid
+            },
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveSite");
+    },
+    AddMagentoUserForm : function(ele) {
+        var html = '<div class="subMagentoUser" style="border:1px solid #ccc;padding: 15px;margin-bottom:5px">'+
+                      '<div class="form-group">'+
+                        '<div class="row">'+
+                            '<div class="col-sm-6">'+
+                                '<label for="username">Username</label>'+
+                                '<input type="text" name="username" value="" class="form-control userName" id="username" placeholder="Enter Username">'+
+                            '</div>'+
+                            '<div class="col-sm-6">'+
+                                '<label for="userEmail">Email</label>'+
+                                '<input type="email" name="userEmail" value="" class="form-control userEmail" id="userEmail" placeholder="Enter Email">'+
+                            '</div>'+
+                        '</div>'+
+                      '</div>'+
+                      '<div class="form-group">'+
+                        '<div class="row">'+
+                            '<div class="col-sm-6">'+
+                                '<label for="firstName">First Name</label>'+
+                                '<input type="text" name="firstName" value="" class="form-control firstName" id="firstName" placeholder="Enter First Name">'+
+                            '</div>'+
+                            '<div class="col-sm-6">'+
+                                '<label for="lastName">Last Name</label>'+
+                                '<input type="text" name="lastName" value="" class="form-control lastName" id="lastName" placeholder="Enter Last Name">'+
+                            '</div>'+
+                        '</div>'+
+                      '</div>'+
+                      '<div class="form-group">'+
+                        '<div class="row">'+
+                             '<label class="col-sm-12" for="password">Password</label>'+
+                             '<div class="col-sm-9 sub-pass">'+
+                                '<input type="password" name="password" value="" class="form-control user-password" id="password" placeholder="Enter Password">'+
+                             '</div>'+
+                             '<div class="col-sm-3">'+
+                                '<button type="button" data-id="" class="btn btn-edit-magento-user" style="border:1px solid">'+
+                                    '<i class="fa fa-check" aria-hidden="true"></i>'+
+                                '</button>'+
+                                '<button type="button" data-id="" class="btn btn-delete-magento-user" style="border:1px solid">'+
+                                    '<i class="fa fa-trash" aria-hidden="true"></i>'+
+                                '</button>'+
+                             '</div>'+
+                         '</div>'+
+                      '</div>'+
+                  '</div>';
+        $('.MainMagentoUser').append(html);
+
+    },
+
+    deleteMagentoUserForm : function(ele) {
+        var store_website_userid = ele.attr('data-id');
+        if(store_website_userid != '') {
+            var _z = {
+                url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/delete-user-in-magento",
+                method: "post",
+                data : {
+                    _token:$('meta[name="csrf-token"]').attr('content'),
+                    store_website_userid:store_website_userid,
+                },
+                beforeSend : function() {
+                    $("#loading-image").show();
+                }
+            }
+        }
+        ele.parents('.subMagentoUser').remove();
         this.sendAjax(_z, "saveSite");
     },
     
