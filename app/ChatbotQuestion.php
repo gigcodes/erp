@@ -3,9 +3,15 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 class ChatbotQuestion extends Model
 {
+    /**
+     * @var string
+     * @SWG\Property(enum={"value", "workspace_id", "created_at", "updated_at", "keyword_or_question", "category_id", "sending_time","repeat","is_active","erp_or_watson","suggested_reply","auto_approve","chat_message_id","task_category_id","assigned_to","task_description","task_type","repository_id","module_id","dynamic_reply"})
+     */
     protected $fillable = [
         'value', 'workspace_id', 'created_at', 'updated_at', 'keyword_or_question', 'category_id',
         'sending_time','repeat','is_active','erp_or_watson','suggested_reply','auto_approve','chat_message_id','task_category_id','assigned_to','task_description','task_type','repository_id','module_id','dynamic_reply'

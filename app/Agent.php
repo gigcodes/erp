@@ -4,8 +4,15 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 class Agent extends Model
 {
+  /**
+     * @var string
+     * @SWG\Property(enum={"model_id", "model_type", "name", "phone", "whatsapp_number", "address", "email"})
+     */
   protected $fillable = [
     'model_id', 'model_type', 'name', 'phone', 'whatsapp_number', 'address', 'email'
   ];

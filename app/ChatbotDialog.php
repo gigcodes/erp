@@ -3,9 +3,15 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 class ChatbotDialog extends Model
 {
+    /**
+     * @var string
+     * @SWG\Property(enum={"name", "title", "parent_id", "match_condition", "workspace_id", "previous_sibling", "metadata","response_type","dialog_type"})
+     */
     protected $fillable = [
         'name', 'title', 'parent_id', 'match_condition', 'workspace_id', 'previous_sibling', 'metadata','response_type','dialog_type'
     ];

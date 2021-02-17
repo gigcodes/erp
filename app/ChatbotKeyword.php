@@ -3,9 +3,15 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 class ChatbotKeyword extends Model
 {
+	/**
+     * @var string
+     * @SWG\Property(enum={"keyword", "workspace_id"})
+     */
     protected $fillable = [
         'keyword', 'workspace_id',
     ];

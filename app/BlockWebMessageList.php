@@ -3,9 +3,15 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 class BlockWebMessageList extends Model
 {
+    /**
+     * @var string
+     * @SWG\Property(enum={"object_id", "object_type", "created_at", "updated_at"})
+     */
     protected $fillable = [
         'object_id', 'object_type', 'created_at', 'updated_at'
     ];

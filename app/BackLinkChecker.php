@@ -3,7 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 class BackLinkChecker extends Model
 {
     /**
@@ -12,6 +14,10 @@ class BackLinkChecker extends Model
      * @access protected
      *
      * @var array $fillable
+     */
+    /**
+     * @var string
+     * @SWG\Property(enum={"domains", "links", "link_type", "review_numbers", "rank", "rating", "serp_id", "snippet", "title", "visible_link"})
      */
     protected $fillable = array(
         'domains', 'links', 'link_type',

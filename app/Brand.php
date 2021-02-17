@@ -13,14 +13,23 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\SupplierBrandCount;
 use App\SkuFormat;
 use Plank\Mediable\Mediable;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 class Brand extends Model
 {
 
     use SoftDeletes;
     use Mediable;
-
+    /**
+     * @var string
+     * @SWG\Property(enum={"name", "euro_to_inr", "deduction_percentage", "magento_id", "brand_segment", "sku_strip_last", "sku_add" ,"sku_search_url","references","min_sale_price","max_sale_price"})
+     */
     protected $fillable = [ 'name', 'euro_to_inr', 'deduction_percentage', 'magento_id', 'brand_segment', 'sku_strip_last', 'sku_add' ,'sku_search_url','references','min_sale_price','max_sale_price'];
+    /**
+     * @var string
+     * @SWG\Property(enum={"deleted_at"})
+     */
     protected $dates = [ 'deleted_at' ];
 
     CONST BRAND_SEGMENT = [

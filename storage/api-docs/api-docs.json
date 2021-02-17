@@ -2617,6 +2617,1130 @@
             "xml": {
                 "name": "User"
             }
+        },
+        "Agent": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "model_id",
+                        "model_type",
+                        "name",
+                        "phone",
+                        "whatsapp_number",
+                        "address",
+                        "email"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Analytics": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "operatingSystem",
+                        "user_type",
+                        "time",
+                        "page_path",
+                        "country",
+                        "city",
+                        "social_network",
+                        "date",
+                        "device_info",
+                        "sessions",
+                        "pageviews",
+                        "bounceRate",
+                        "avgSessionDuration",
+                        "timeOnPage"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "AnalyticsCustomerBehaviour": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "pages",
+                        "pageviews",
+                        "uniquePageviews",
+                        "avgTimeOnPage",
+                        "entrances",
+                        "bounceRate",
+                        "exitRate",
+                        "pageValue"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "AnalyticsSummary": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "brand_name",
+                        "gender",
+                        "time",
+                        "country",
+                        "city"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ApiKey": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Article": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "title",
+                        "description",
+                        "status",
+                        "remark",
+                        "assign_to",
+                        "posted_to"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ArticleCategory": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "name"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "AssetsCategory": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "cat_name"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "AssetsManager": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "name",
+                        "capacity",
+                        "asset_type",
+                        "category_id",
+                        "purchase_type",
+                        "payment_cycle",
+                        "amount",
+                        "archived",
+                        "password",
+                        "provider_name",
+                        "location",
+                        "currency",
+                        "usage",
+                        "due_date"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "AttributeReplacement": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "AutoCommentHistory": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "AutoReply": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "type",
+                        "keyword",
+                        "reply"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "AutoReplyHashtags": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "AutomatedMessages": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "BackLinkChecker": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "domains",
+                        "links",
+                        "link_type",
+                        "review_numbers",
+                        "rank",
+                        "rating",
+                        "serp_id",
+                        "snippet",
+                        "title",
+                        "visible_link"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "BackLinking": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "title",
+                        "description",
+                        "url"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "BarcodeMedia": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "media_id",
+                        "type",
+                        "type_id",
+                        "name",
+                        "price",
+                        "extra",
+                        "created_at",
+                        "updated_at"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Benchmark": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "selections",
+                        "searches",
+                        "attributes",
+                        "supervisor",
+                        "imagecropper",
+                        "lister",
+                        "approver",
+                        "inventory",
+                        "for_date"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "BlockWebMessageList": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "object_id",
+                        "object_type",
+                        "created_at",
+                        "updated_at"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Blogger": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "name",
+                        "phone",
+                        "default_phone",
+                        "instagram_handle",
+                        "city",
+                        "country",
+                        "followers",
+                        "followings",
+                        "avg_engagement",
+                        "fake_followers",
+                        "email",
+                        "rating",
+                        "whatsapp_number",
+                        "other",
+                        "agency",
+                        "industry",
+                        "brands"
+                    ]
+                },
+                "casts": {
+                    "type": "string",
+                    "enum": [
+                        "brands"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "BloggerEmailTemplate": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "from",
+                        "subject",
+                        "message",
+                        "cc",
+                        "bcc",
+                        "other",
+                        "type"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "BloggerPayment": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "blogger_id",
+                        "payment_date",
+                        "paid_date",
+                        "payable_amount",
+                        "paid_amount",
+                        "description",
+                        "other",
+                        "status",
+                        "user_id",
+                        "updated_by",
+                        "currency"
+                    ]
+                },
+                "dates": {
+                    "type": "string",
+                    "enum": [
+                        "deleted_at"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "BloggerProduct": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "blogger_id",
+                        "brand_id",
+                        "shoot_date",
+                        "first_post",
+                        "second_post",
+                        "first_post_likes",
+                        "first_post_engagement",
+                        "first_post_response",
+                        "first_post_sales",
+                        "second_post_likes",
+                        "second_post_engagement",
+                        "second_post_response",
+                        "second_post_sales",
+                        "city",
+                        "initial_quote",
+                        "final_quote",
+                        "whatsapp_number",
+                        "remarks",
+                        "other",
+                        "images"
+                    ]
+                },
+                "casts": {
+                    "type": "string",
+                    "enum": [
+                        "images"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "BloggerProductImage": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "file_name",
+                        "blogger_product_id",
+                        "other"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Brand": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "name",
+                        "euro_to_inr",
+                        "deduction_percentage",
+                        "magento_id",
+                        "brand_segment",
+                        "sku_strip_last",
+                        "sku_add",
+                        "sku_search_url",
+                        "references",
+                        "min_sale_price",
+                        "max_sale_price"
+                    ]
+                },
+                "dates": {
+                    "type": "string",
+                    "enum": [
+                        "deleted_at"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "BrandCategoryPriceRange": {
+            "properties": {
+                "table": {
+                    "type": "string",
+                    "enum": [
+                        "brand_category_price_range"
+                    ]
+                },
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "brand_segment",
+                        "category_id",
+                        "min_price",
+                        "max_price"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "BrandCategorySizeChart": {
+            "properties": {
+                "table": {
+                    "type": "string",
+                    "enum": [
+                        "brand_category_size_charts"
+                    ]
+                },
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "brand_id",
+                        "category_id",
+                        "store_website_id"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "BrandFans": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "BrandReviews": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "BrandTaggedPosts": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "BroadcastImage": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "sending_time"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Budget": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "description",
+                        "date",
+                        "amount",
+                        "type",
+                        "budget_category_id",
+                        "budget_subcategory_id"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "BudgetCategory": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "BulkCustomerRepliesKeyword": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "CallBusyMessage": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "lead_id",
+                        "twilio_call_sid",
+                        "caller_sid",
+                        "message",
+                        "recording_url",
+                        "status"
+                    ]
+                },
+                "table": {
+                    "type": "string",
+                    "enum": [
+                        "call_busy_messages"
+                    ]
+                },
+                "dates": {
+                    "type": "string",
+                    "enum": [
+                        "created_at",
+                        "updated_at"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "CallHistory": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "customer_id",
+                        "status"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "CallRecording": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "lead_id",
+                        "order_id",
+                        "customer_id",
+                        "recording_url",
+                        "twilio_call_sid",
+                        "customer_number",
+                        "callsid",
+                        "message"
+                    ]
+                },
+                "table": {
+                    "type": "string",
+                    "enum": [
+                        "model_id",
+                        "model_type",
+                        "name",
+                        "phone",
+                        "whatsapp_number",
+                        "address",
+                        "email"
+                    ]
+                },
+                "dates": {
+                    "type": "string",
+                    "enum": [
+                        "model_id",
+                        "model_type",
+                        "name",
+                        "phone",
+                        "whatsapp_number",
+                        "address",
+                        "email"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Caption": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "CaseCost": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "case_id",
+                        "billed_date",
+                        "amount",
+                        "paid_date",
+                        "amount_paid",
+                        "other"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "CaseReceivable": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "case_id",
+                        "currency",
+                        "receivable_date",
+                        "received_date",
+                        "receivable_amount",
+                        "received_amount",
+                        "description",
+                        "other",
+                        "status",
+                        "user_id",
+                        "updated_by"
+                    ]
+                },
+                "dates": {
+                    "type": "string",
+                    "enum": [
+                        "model_id",
+                        "model_type",
+                        "name",
+                        "phone",
+                        "whatsapp_number",
+                        "address",
+                        "email"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "CashFlow": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "user_id",
+                        "cash_flow_category_id",
+                        "description",
+                        "date",
+                        "amount",
+                        "type",
+                        "expected",
+                        "actual",
+                        "currency",
+                        "status",
+                        "order_status",
+                        "updated_by",
+                        "cash_flow_able_id",
+                        "cash_flow_able_type"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Category": {
+            "properties": {
+                "parent": {
+                    "type": "string",
+                    "enum": [
+                        "parent_id"
+                    ]
+                },
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "id",
+                        "title",
+                        "parent_id",
+                        "status_after_autocrop",
+                        "magento_id",
+                        "show_all_id"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "CategorySegment": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "CategoryUpdateUser": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "supplier_id",
+                        "user_id"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Category_translation": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "category_id",
+                        "locale",
+                        "title",
+                        "site_id",
+                        "is_rejected"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Charity": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "name",
+                        "contact_no",
+                        "email",
+                        "whatsapp_number",
+                        "assign_to"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "CharityOrderHistory": {
+            "properties": {
+                "table": {
+                    "type": "string",
+                    "enum": [
+                        "charity_order_history"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "CharityStatusMaster": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Chat": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "userid",
+                        "sourceid",
+                        "messages"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ChatBotKeywordGroup": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ChatBotPhraseGroup": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ChatbotCategory": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "name"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ChatbotDialog": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "name",
+                        "title",
+                        "parent_id",
+                        "match_condition",
+                        "workspace_id",
+                        "previous_sibling",
+                        "metadata",
+                        "response_type",
+                        "dialog_type"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ChatbotDialogErrorLog": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "status",
+                        "response"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ChatbotDialogResponse": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "response_type",
+                        "value",
+                        "message_to_human_agent",
+                        "chatbot_dialog_id"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ChatbotErrorLog": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "status",
+                        "response"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ChatbotIntentsAnnotation": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "question_example_id",
+                        "chatbot_keyword_id",
+                        "start_char_range",
+                        "end_char_range",
+                        "chatbot_value_id"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ChatbotKeyword": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "keyword",
+                        "workspace_id"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ChatbotKeywordValue": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "value",
+                        "chatbot_keyword_id",
+                        "types"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ChatbotKeywordValueTypes": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "type",
+                        "chatbot_keyword_value_id"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ChatbotQuestion": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "value",
+                        "workspace_id",
+                        "created_at",
+                        "updated_at",
+                        "keyword_or_question",
+                        "category_id",
+                        "sending_time",
+                        "repeat",
+                        "is_active",
+                        "erp_or_watson",
+                        "suggested_reply",
+                        "auto_approve",
+                        "chat_message_id",
+                        "task_category_id",
+                        "assigned_to",
+                        "task_description",
+                        "task_type",
+                        "repository_id",
+                        "module_id",
+                        "dynamic_reply"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ChatbotQuestionErrorLog": {
+            "properties": {
+                "table": {
+                    "type": "string",
+                    "enum": [
+                        "chat_bot_error_logs"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ChatbotQuestionExample": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "question",
+                        "chatbot_question_id",
+                        "types"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ChatbotQuestionReply": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "suggested_reply"
+                    ]
+                },
+                "table": {
+                    "type": "string",
+                    "enum": [
+                        "chatbot_questions_reply"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
         }
     }
 }

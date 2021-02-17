@@ -4,7 +4,9 @@ namespace App;
 
 use App\AssetsCategory;
 use Illuminate\Database\Eloquent\Model;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 class AssetsManager extends Model
 {
 
@@ -14,7 +16,10 @@ class AssetsManager extends Model
     protected $casts = [
         'notes' => 'array',
     ];
-
+    /**
+     * @var string
+     * @SWG\Property(enum={"name", "capacity", "asset_type", "category_id", "purchase_type", "payment_cycle", "amount", "archived", "password", "provider_name", "location", "currency","usage","due_date"})
+     */
     protected $fillable = [
         'name', 'capacity', 'asset_type', 'category_id', 'purchase_type', 'payment_cycle', 'amount', 'archived', 'password', 'provider_name', 'location', 'currency','usage','due_date'];
 

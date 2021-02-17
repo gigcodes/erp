@@ -3,9 +3,15 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 class CategoryUpdateUser extends Model
 {
+    /**
+     * @var string
+     * @SWG\Property(enum={"supplier_id", "user_id"})
+     */
     public $fillable = [
         "supplier_id",
         "user_id"

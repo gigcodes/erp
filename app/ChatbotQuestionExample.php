@@ -3,10 +3,16 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 class ChatbotQuestionExample extends Model
 {
     public $timestamps  = false;
+    /**
+     * @var string
+     * @SWG\Property(enum={"question", "chatbot_question_id", "types"})
+     */
     protected $fillable = [
         'question', 'chatbot_question_id','types',
     ];
