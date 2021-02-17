@@ -204,13 +204,13 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Report</h4>
+                <div style="width: 90%; text-align: right;"> <a href="{{route('download-report')}}" class="btn btn-secondary">Download Report</a></div>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
                 <table class="table table-bordered infinite-scroll">
                     <thead>
                         <tr>
-                            <th>Product ID</th>
                             <th>Supplier</th>
                             <th>Missing</th>
                         </tr>
@@ -218,7 +218,6 @@
                     <tbody>
                         @foreach($reportData as $value)
                         <tr>
-                            <td> {{$value->id}}</td>
                             <td> {{$value->supplier}}</td>
                             <td> 
                                 @if(empty($value->category))

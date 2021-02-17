@@ -1002,14 +1002,16 @@ class ProductInventoryController extends Controller
 		$inventory_data = \App\Product::getProducts($filter_data);
 
 		$query = DB::table('products as p')
-				->selectRaw('p.id,p.category,p.color,p.composition,p.supplier,p.size');
+				->selectRaw('p.category,p.color,p.composition,p.supplier,p.size, count(p.id) as total_product')
+				->where('p.supplier','<>','');
 				$query = $query->where(function($q) {
 		            $q->where('p.category', null)
 		            ->orWhere('p.color', null)
 		            ->orWhere('p.composition', null);
 		        });
+		        $query = $query->groupBy('p.supplier')->orderBy('total_product','DESC');
+
 		$reportData = $query->get();
-		
 		//dd($inventory_data);
         $inventory_data_count = $inventory_data->total();
         $status_list = \App\Helpers\StatusHelper::getStatus();
@@ -1034,6 +1036,21 @@ class ProductInventoryController extends Controller
         $products_sku        = \App\Product::getPruductsSku();
         if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more", compact('inventory_data'));
         return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku','status_list','inventory_data_count','supplier_list','reportData'));
+    }
+
+    public function downloadReport() {
+    	$query = DB::table('products as p')
+				->selectRaw('p.category,p.color,p.composition,p.supplier,p.size, count(p.id) as total_product')
+				->where('p.supplier','<>','');
+				$query = $query->where(function($q) {
+		            $q->where('p.category', null)
+		            ->orWhere('p.color', null)
+		            ->orWhere('p.composition', null);
+		        });
+		        $query = $query->groupBy('p.supplier')->orderBy('total_product','DESC');
+
+		$reportData = $query->get();
+    	return \Excel::download(new \App\Exports\ReportExport($reportData), 'export.xlsx');
     }
   
   public function inventoryHistory($id) {
