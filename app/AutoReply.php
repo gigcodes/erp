@@ -10,7 +10,9 @@ class AutoReply extends Model
 {
     /**
      * @var string
-     * @SWG\Property(enum={"type", "keyword", "reply"})
+     * @SWG\Property(property="type",type="string")
+     * @SWG\Property(property="keyword",type="string")
+     * @SWG\Property(property="reply",type="string")
      */
     protected $fillable = [
         'type', 'keyword', 'reply',

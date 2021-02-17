@@ -1,8 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "title": "API Live Test",
-        "description": "This is api testing",
+        "title": "API Documentation",
+        "description": "This API documentation list all API endpoints available in applicaiton. Documentation also list Modules and variable available in each Modules",
         "contact": {
             "email": "xyz@xyz.com"
         },
@@ -2432,23 +2432,44 @@
     "definitions": {
         "Account": {
             "properties": {
-                "fillable": {
-                    "type": "string",
-                    "enum": [
-                        "first_name",
-                        "last_name",
-                        "email",
-                        "password",
-                        "dob",
-                        "platform",
-                        "followers_count",
-                        "posts_count",
-                        "dp_count",
-                        "broadcast",
-                        "country",
-                        "gender",
-                        "proxy"
-                    ]
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "email"
+                },
+                "password": {
+                    "type": "password"
+                },
+                "dob": {
+                    "type": "datetime"
+                },
+                "platform": {
+                    "type": "string"
+                },
+                "followers_count": {
+                    "type": "integer"
+                },
+                "posts_count": {
+                    "type": "integer"
+                },
+                "dp_count": {
+                    "type": "integer"
+                },
+                "broadcast": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "proxy": {
+                    "type": "string"
                 }
             },
             "type": "object",
@@ -2464,14 +2485,17 @@
         },
         "Activity": {
             "properties": {
-                "fillable": {
-                    "type": "string",
-                    "enum": [
-                        "subject_id",
-                        "subject_type",
-                        "causer_id",
-                        "description"
-                    ]
+                "subject_id": {
+                    "type": "integer"
+                },
+                "subject_type": {
+                    "type": "string"
+                },
+                "causer_id": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "text"
                 }
             },
             "type": "object",
@@ -2481,23 +2505,44 @@
         },
         "Ad": {
             "properties": {
-                "fillable": {
-                    "type": "string",
-                    "enum": [
-                        "campaign_id",
-                        "adgroup_id",
-                        "finalurl",
-                        "displayurl",
-                        "headlines",
-                        "descriptions",
-                        "tracking_tamplate",
-                        "final_url_suffix",
-                        "customparam",
-                        "different_url_mobile",
-                        "mobile_final_url",
-                        "ad_id",
-                        "ad_response"
-                    ]
+                "campaign_id": {
+                    "type": "integer"
+                },
+                "adgroup_id": {
+                    "type": "integer"
+                },
+                "finalurl": {
+                    "type": "string"
+                },
+                "displayurl": {
+                    "type": "string"
+                },
+                "headlines": {
+                    "type": "string"
+                },
+                "descriptions": {
+                    "type": "text"
+                },
+                "tracking_tamplate": {
+                    "type": "string"
+                },
+                "final_url_suffix": {
+                    "type": "string"
+                },
+                "customparam": {
+                    "type": "string"
+                },
+                "different_url_mobile": {
+                    "type": "string"
+                },
+                "mobile_final_url": {
+                    "type": "string"
+                },
+                "ad_id": {
+                    "type": "integer"
+                },
+                "ad_response": {
+                    "type": "strung"
                 }
             },
             "type": "object",
@@ -2507,14 +2552,21 @@
         },
         "AdAccount": {
             "properties": {
-                "fillable": {
-                    "type": "string",
-                    "enum": [
-                        "account_name",
-                        "note",
-                        "config_file",
-                        "status"
-                    ]
+                "account_name": {
+                    "description": "",
+                    "type": "string"
+                },
+                "note": {
+                    "description": "",
+                    "type": "text"
+                },
+                "config_file": {
+                    "description": "",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "",
+                    "type": "string"
                 }
             },
             "type": "object",
@@ -2524,17 +2576,33 @@
         },
         "AdCampaign": {
             "properties": {
-                "fillable": {
-                    "type": "string",
-                    "enum": [
-                        "goal",
-                        "type",
-                        "campaign_name",
-                        "data",
-                        "campaign_budget_id",
-                        "campaign_id",
-                        "campaign_response"
-                    ]
+                "goal": {
+                    "description": "",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "",
+                    "type": "text"
+                },
+                "campaign_name": {
+                    "description": "",
+                    "type": "string"
+                },
+                "data": {
+                    "description": "",
+                    "type": "text"
+                },
+                "campaign_budget_id": {
+                    "description": "",
+                    "type": "integer"
+                },
+                "campaign_id": {
+                    "description": "",
+                    "type": "integer"
+                },
+                "campaign_response": {
+                    "description": "",
+                    "type": "string"
                 }
             },
             "type": "object",
@@ -2544,19 +2612,32 @@
         },
         "AdGroup": {
             "properties": {
-                "fillable": {
-                    "type": "string",
-                    "enum": [
-                        "campaign_id",
-                        "type",
-                        "group_name",
-                        "url",
-                        "keywords",
-                        "budget",
-                        "google_campaign_id",
-                        "google_ad_group_id",
-                        "google_ad_group_response"
-                    ]
+                "campaign_id": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "group_name": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "keywords": {
+                    "type": "string"
+                },
+                "budget": {
+                    "type": "string"
+                },
+                "google_campaign_id": {
+                    "type": "integer"
+                },
+                "google_ad_group_id": {
+                    "type": "integer"
+                },
+                "google_ad_group_response": {
+                    "type": "string"
                 }
             },
             "type": "object",
@@ -2572,45 +2653,107 @@
         },
         "Affiliates": {
             "properties": {
-                "fillable": {
-                    "type": "string",
-                    "enum": [
-                        "location",
-                        "hashtag_id",
-                        "location",
-                        "caption",
-                        "posted_at",
-                        "source",
-                        "address",
-                        "facebook",
-                        "facebook_followers",
-                        "instagram",
-                        "instagram_followers",
-                        "twitter",
-                        "twitter_followers",
-                        "youtube",
-                        "youtube_followers",
-                        "linkedin",
-                        "linkedin_followers",
-                        "pinterest",
-                        "pinterest_followers",
-                        "phone",
-                        "emailaddress",
-                        "title",
-                        "is_flagged",
-                        "first_name",
-                        "last_name",
-                        "url",
-                        "website_name",
-                        "unique_visitors_per_month",
-                        "page_views_per_month",
-                        "worked_on",
-                        "city",
-                        "postcode",
-                        "country",
-                        "type",
-                        "store_website_id"
-                    ]
+                "location": {
+                    "type": "string"
+                },
+                "hashtag_id": {
+                    "type": "integer"
+                },
+                "caption": {
+                    "type": "string"
+                },
+                "posted_at": {
+                    "type": "datetime"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "address": {
+                    "type": "textarea"
+                },
+                "facebook": {
+                    "type": "string"
+                },
+                "facebook_followers": {
+                    "type": "string"
+                },
+                "instagram": {
+                    "type": "string"
+                },
+                "instagram_followers": {
+                    "type": "string"
+                },
+                "twitter": {
+                    "type": "string"
+                },
+                "twitter_followers": {
+                    "type": "string"
+                },
+                "youtube": {
+                    "type": "string"
+                },
+                "youtube_followers": {
+                    "type": "string"
+                },
+                "linkedin": {
+                    "type": "string"
+                },
+                "linkedin_followers": {
+                    "type": "string"
+                },
+                "pinterest": {
+                    "type": "string"
+                },
+                "pinterest_followers": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "emailaddress": {
+                    "type": "email"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "is_flagged": {
+                    "type": "boolean"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "website_name": {
+                    "type": "string"
+                },
+                "unique_visitors_per_month": {
+                    "type": "string"
+                },
+                "page_views_per_month": {
+                    "type": "string"
+                },
+                "worked_on": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "postcode": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "store_website_id": {
+                    "type": "integer"
                 }
             },
             "type": "object",
@@ -2620,17 +2763,26 @@
         },
         "Agent": {
             "properties": {
-                "fillable": {
-                    "type": "string",
-                    "enum": [
-                        "model_id",
-                        "model_type",
-                        "name",
-                        "phone",
-                        "whatsapp_number",
-                        "address",
-                        "email"
-                    ]
+                "model_id": {
+                    "type": "integer"
+                },
+                "model_type": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "whatsapp_number": {
+                    "type": "string"
+                },
+                "address": {
+                    "type": "text"
+                },
+                "email": {
+                    "type": "string"
                 }
             },
             "type": "object",
@@ -2640,24 +2792,47 @@
         },
         "Analytics": {
             "properties": {
-                "fillable": {
-                    "type": "string",
-                    "enum": [
-                        "operatingSystem",
-                        "user_type",
-                        "time",
-                        "page_path",
-                        "country",
-                        "city",
-                        "social_network",
-                        "date",
-                        "device_info",
-                        "sessions",
-                        "pageviews",
-                        "bounceRate",
-                        "avgSessionDuration",
-                        "timeOnPage"
-                    ]
+                "operatingSystem": {
+                    "type": "string"
+                },
+                "user_type": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "page_path": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "social_network": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "date"
+                },
+                "device_info": {
+                    "type": "text"
+                },
+                "sessions": {
+                    "type": "string"
+                },
+                "pageviews": {
+                    "type": "string"
+                },
+                "bounceRate": {
+                    "type": "string"
+                },
+                "avgSessionDuration": {
+                    "type": "string"
+                },
+                "timeOnPage": {
+                    "type": "string"
                 }
             },
             "type": "object",
@@ -2667,18 +2842,29 @@
         },
         "AnalyticsCustomerBehaviour": {
             "properties": {
-                "fillable": {
-                    "type": "string",
-                    "enum": [
-                        "pages",
-                        "pageviews",
-                        "uniquePageviews",
-                        "avgTimeOnPage",
-                        "entrances",
-                        "bounceRate",
-                        "exitRate",
-                        "pageValue"
-                    ]
+                "pages": {
+                    "type": "string"
+                },
+                "pageviews": {
+                    "type": "string"
+                },
+                "uniquePageviews": {
+                    "type": "string"
+                },
+                "avgTimeOnPage": {
+                    "type": "string"
+                },
+                "entrances": {
+                    "type": "string"
+                },
+                "bounceRate": {
+                    "type": "string"
+                },
+                "exitRate": {
+                    "type": "string"
+                },
+                "pageValue": {
+                    "type": "string"
                 }
             },
             "type": "object",
@@ -2688,15 +2874,20 @@
         },
         "AnalyticsSummary": {
             "properties": {
-                "fillable": {
-                    "type": "string",
-                    "enum": [
-                        "brand_name",
-                        "gender",
-                        "time",
-                        "country",
-                        "city"
-                    ]
+                "brand_name": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "time"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
                 }
             },
             "type": "object",
@@ -2712,16 +2903,23 @@
         },
         "Article": {
             "properties": {
-                "fillable": {
-                    "type": "string",
-                    "enum": [
-                        "title",
-                        "description",
-                        "status",
-                        "remark",
-                        "assign_to",
-                        "posted_to"
-                    ]
+                "title": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "text"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "assign_to": {
+                    "type": "string"
+                },
+                "posted_to": {
+                    "type": "string"
                 }
             },
             "type": "object",
@@ -2731,11 +2929,8 @@
         },
         "ArticleCategory": {
             "properties": {
-                "fillable": {
-                    "type": "string",
-                    "enum": [
-                        "name"
-                    ]
+                "name": {
+                    "type": "string"
                 }
             },
             "type": "object",
@@ -2745,11 +2940,8 @@
         },
         "AssetsCategory": {
             "properties": {
-                "fillable": {
-                    "type": "string",
-                    "enum": [
-                        "cat_name"
-                    ]
+                "cat_name": {
+                    "type": "string"
                 }
             },
             "type": "object",
@@ -2759,24 +2951,47 @@
         },
         "AssetsManager": {
             "properties": {
-                "fillable": {
-                    "type": "string",
-                    "enum": [
-                        "name",
-                        "capacity",
-                        "asset_type",
-                        "category_id",
-                        "purchase_type",
-                        "payment_cycle",
-                        "amount",
-                        "archived",
-                        "password",
-                        "provider_name",
-                        "location",
-                        "currency",
-                        "usage",
-                        "due_date"
-                    ]
+                "name": {
+                    "type": "string"
+                },
+                "capacity": {
+                    "type": "string"
+                },
+                "asset_type": {
+                    "type": "string"
+                },
+                "category_id": {
+                    "type": "integer"
+                },
+                "purchase_type": {
+                    "type": "string"
+                },
+                "payment_cycle": {
+                    "type": "string"
+                },
+                "amount": {
+                    "type": "integer"
+                },
+                "archived": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "password"
+                },
+                "provider_name": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "usage": {
+                    "type": "string"
+                },
+                "due_date": {
+                    "type": "datetime"
                 }
             },
             "type": "object",
@@ -2798,13 +3013,14 @@
         },
         "AutoReply": {
             "properties": {
-                "fillable": {
-                    "type": "string",
-                    "enum": [
-                        "type",
-                        "keyword",
-                        "reply"
-                    ]
+                "type": {
+                    "type": "string"
+                },
+                "keyword": {
+                    "type": "string"
+                },
+                "reply": {
+                    "type": "string"
                 }
             },
             "type": "object",
@@ -3512,6 +3728,105 @@
                 "name": "User"
             }
         },
+        "ChatMessage": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "is_queue",
+                        "unique_id",
+                        "lead_id",
+                        "order_id",
+                        "customer_id",
+                        "supplier_id",
+                        "vendor_id",
+                        "user_id",
+                        "ticket_id",
+                        "task_id",
+                        "erp_user",
+                        "contact_id",
+                        "dubbizle_id",
+                        "assigned_to",
+                        "purchase_id",
+                        "message",
+                        "media_url",
+                        "number",
+                        "approved",
+                        "status",
+                        "error_status",
+                        "resent",
+                        "is_reminder",
+                        "created_at",
+                        "issue_id",
+                        "developer_task_id",
+                        "lawyer_id",
+                        "case_id",
+                        "blogger_id",
+                        "voucher_id",
+                        "document_id",
+                        "group_id",
+                        "old_id",
+                        "message_application_id",
+                        "is_chatbot",
+                        "sent_to_user_id",
+                        "site_development_id",
+                        "social_strategy_id",
+                        "store_social_content_id",
+                        "quoted_message_id",
+                        "is_reviewed",
+                        "hubstaff_activity_summary_id",
+                        "question_id"
+                    ]
+                },
+                "table": {
+                    "type": "string",
+                    "enum": [
+                        "chat_messages"
+                    ]
+                },
+                "dates": {
+                    "type": "string",
+                    "enum": [
+                        "created_at",
+                        "updated_at"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ChatMessagePhrase": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "phrase",
+                        "total",
+                        "word_id",
+                        "chat_id",
+                        "deleted_at",
+                        "deleted_by"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ChatMessagesQuickData": {
+            "properties": {
+                "model": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
         "ChatbotCategory": {
             "properties": {
                 "fillable": {
@@ -3734,6 +4049,25 @@
                     "type": "string",
                     "enum": [
                         "chatbot_questions_reply"
+                    ]
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ChatbotReply": {
+            "properties": {
+                "fillable": {
+                    "type": "string",
+                    "enum": [
+                        "question",
+                        "reply",
+                        "chat_id",
+                        "replied_chat_id",
+                        "answer",
+                        "reply_from"
                     ]
                 }
             },

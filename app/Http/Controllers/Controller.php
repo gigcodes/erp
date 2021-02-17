@@ -13,10 +13,10 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
  *	 schemes={"http" , "https"},
  *   basePath="/api" ,
  *   @SWG\Info(
- *     title="API Live Test",
+ *     title="API Documentation",
  *     version="1.0",
  *	   
- *     description="This is api testing",
+ *     description="This API documentation list all API endpoints available in applicaiton. Documentation also list Modules and variable available in each Modules",
  *     @SWG\Contact(
  *         email="xyz@xyz.com"
  *     )

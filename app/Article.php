@@ -17,7 +17,12 @@ class Article extends Model
      */
     /**
      * @var string
-     * @SWG\Property(enum={"title", "description", "status", "remark", "assign_to", "posted_to" })
+     * @SWG\Property(property="title",type="string")
+     * @SWG\Property(property="description",type="text")
+     * @SWG\Property(property="status",type="string")
+     * @SWG\Property(property="remark",type="string")
+     * @SWG\Property(property="assign_to",type="string")
+     * @SWG\Property(property="posted_to",type="string")
      */
     protected $fillable = array(
         'title', 'description', 'status', 'remark', 'assign_to', 'posted_to' 

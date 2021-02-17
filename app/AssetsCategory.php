@@ -14,7 +14,7 @@ class AssetsCategory extends Model
 
  	/**
      * @var string
-     * @SWG\Property(enum={"cat_name"})
+     * @SWG\Property(property="cat_name",type="string")
      */
 
   protected $fillable = [

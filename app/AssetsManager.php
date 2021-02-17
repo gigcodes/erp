@@ -18,7 +18,20 @@ class AssetsManager extends Model
     ];
     /**
      * @var string
-     * @SWG\Property(enum={"name", "capacity", "asset_type", "category_id", "purchase_type", "payment_cycle", "amount", "archived", "password", "provider_name", "location", "currency","usage","due_date"})
+     * @SWG\Property(property="name",type="string")
+     * @SWG\Property(property="capacity",type="string")
+     * @SWG\Property(property="asset_type",type="string")
+     * @SWG\Property(property="category_id",type="integer")
+     * @SWG\Property(property="purchase_type",type="string")
+     * @SWG\Property(property="payment_cycle",type="string")
+     * @SWG\Property(property="amount",type="integer")
+     * @SWG\Property(property="archived",type="string")
+     * @SWG\Property(property="password",type="password")
+     * @SWG\Property(property="provider_name",type="string")
+     * @SWG\Property(property="location",type="string")
+     * @SWG\Property(property="currency",type="string")
+     * @SWG\Property(property="usage",type="string")
+     * @SWG\Property(property="due_date",type="datetime")
      */
     protected $fillable = [
         'name', 'capacity', 'asset_type', 'category_id', 'purchase_type', 'payment_cycle', 'amount', 'archived', 'password', 'provider_name', 'location', 'currency','usage','due_date'];

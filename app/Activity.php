@@ -10,7 +10,10 @@ class Activity extends Model
 {
 	/**
      * @var string
-     * @SWG\Property(enum={"subject_id","subject_type","causer_id","description"})
+     * @SWG\Property(property="subject_id",type="integer")
+     * @SWG\Property(property="subject_type",type="string")
+     * @SWG\Property(property="causer_id",type="integer")
+     * @SWG\Property(property="description",type="text")
      */
     protected $fillable = ['subject_id','subject_type','causer_id','description'];
 }

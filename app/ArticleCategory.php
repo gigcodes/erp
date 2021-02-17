@@ -12,7 +12,7 @@ class ArticleCategory extends Model
 {
 	/**
      * @var string
-     * @SWG\Property(enum={"name"})
+     * @SWG\Property(property="name",type="string")
      */
     protected $fillable = array('name');
 

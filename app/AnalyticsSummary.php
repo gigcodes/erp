@@ -18,7 +18,11 @@ class AnalyticsSummary extends Model
      */
     /**
      * @var string
-     * @SWG\Property(enum={"brand_name", "gender", "time", "country", "city"})
+     * @SWG\Property(property="brand_name",type="string")
+     * @SWG\Property(property="gender",type="string")
+     * @SWG\Property(property="time",type="time")
+     * @SWG\Property(property="country",type="string")
+     * @SWG\Property(property="city",type="string")
      */
     protected $fillable = array(
         'brand_name', 'gender', 'time', 

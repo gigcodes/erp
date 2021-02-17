@@ -18,8 +18,14 @@ class AnalyticsCustomerBehaviour extends Model
      */
     /**
      * @var string
-     * @SWG\Property(enum={"pages", "pageviews", "uniquePageviews", "avgTimeOnPage", "entrances", "bounceRate",
-        "exitRate", "pageValue"})
+     * @SWG\Property(property="pages",type="string")
+     * @SWG\Property(property="pageviews",type="string")
+     * @SWG\Property(property="uniquePageviews",type="string")
+     * @SWG\Property(property="avgTimeOnPage",type="string")
+     * @SWG\Property(property="entrances",type="string")
+     * @SWG\Property(property="bounceRate",type="string")
+     * @SWG\Property(property="exitRate",type="string")
+     * @SWG\Property(property="pageValue",type="string")
      */
     protected $fillable = array(
         'pages', 'pageviews', 'uniquePageviews', 
