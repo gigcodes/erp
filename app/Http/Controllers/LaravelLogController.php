@@ -17,7 +17,7 @@ class LaravelLogController extends Controller
     public $channel_filter = [];
     public function index(Request $request)
     {
-        if ($request->filename || $request->log || $request->log_created || $request->created || $request->updated || $request->orderCreated || $request->orderUpdated) {
+        if ($request->filename || $request->log || $request->log_created || $request->created || $request->updated || $request->orderCreated || $request->orderUpdated || $request->modulename || $request->controllername || $request->action) {
 
             $query = LaravelLog::query();
 
@@ -27,6 +27,18 @@ class LaravelLogController extends Controller
 
             if (request('log') != null) {
                 $query->where('log', 'LIKE', "%{$request->log}%");
+            }
+
+            if (request('modulename') != null) {
+                $query->where('module_name', request('modulename'));
+            }
+
+            if (request('controllername') != null) {
+                $query->where('controller_name', request('controllername'));
+            }
+
+            if (request('action') != null) {
+                $query->where('action', request('action'));
             }
 
             if (request('log_created') != null) {
@@ -289,6 +301,9 @@ class LaravelLogController extends Controller
         $url = $request->url;
         $message = $request->message;
         $website = $request->website;
+        $module_name = $request->module_name;
+        $controller_name = $request->controller_name;
+        $action = $request->action;
     	
         if($url==''){
             return response()->json(['status' => 'failed', 'message' => 'URL is required'], 400);
@@ -296,10 +311,22 @@ class LaravelLogController extends Controller
         if($message==''){
             return response()->json(['status' => 'failed', 'message' => 'Message is required'], 400);
         }
+        if($module_name==''){
+            return response()->json(['status' => 'failed', 'message' => 'Module name is required'], 400);
+        }
+        if($controller_name==''){
+            return response()->json(['status' => 'failed', 'message' => 'Controller name is required'], 400);
+        }
+        if($action==''){
+            return response()->json(['status' => 'failed', 'message' => 'action is required'], 400);
+        }
         $laravelLog = new LaravelLog();
         $laravelLog->filename=$url;
         $laravelLog->log=$message;
         $laravelLog->website=$website;
+        $laravelLog->module_name=$module_name;
+        $laravelLog->controller_name=$controller_name;
+        $laravelLog->action=$action;
         $laravelLog->save();
 		 return response()->json(['status' => 'success', 'message' => 'Log data Saved'], 200);
     }
