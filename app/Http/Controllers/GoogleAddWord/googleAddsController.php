@@ -70,12 +70,23 @@ use Google\AdsApi\AdWords\v201809\o\AttributeType;
 use Google\AdsApi\AdWords\v201809\o\RelatedToQuerySearchParameter;
 use Google\AdsApi\AdWords\v201809\o\TargetingIdeaService;
 use Google\AdsApi\AdWords\v201809\cm\CampaignService;
+use Google\AdsApi\AdWords\v201809\o\LanguageSearchParameter;
 use App\Http\Controllers\GoogleAdsController;
 use Google\AdsApi\Common\AdsSession;
+use Google\AdsApi\AdWords\v201809\cm\Language;
+use Google\AdsApi\AdWords\v201809\cm\NetworkSetting;
+use Google\AdsApi\AdWords\v201809\o\NetworkSearchParameter;
+use Google\AdsApi\Common\Util\MapEntries;
+
+
 
 class googleAddsController extends Controller
 {
-	public function index( Request $request ) {
+
+	const PAGE_LIMIT = 500;
+
+
+	public function index( Request $request , AdWordsServices $adWordsServices) {
 
 		$oAuth2Credential = (new OAuth2TokenBuilder())
             ->fromFile(storage_path('adsapi_php.ini'))
@@ -86,40 +97,105 @@ class googleAddsController extends Controller
                ->withOAuth2Credential($oAuth2Credential)
                ->build();
 
-		$selector = new TargetingIdeaSelector();
-		$selector->setRequestType(RequestType::IDEAS);
-		$selector->setIdeaType(IdeaType::KEYWORD);
+		$targetingIdeaService = $adWordsServices->get($session, TargetingIdeaService::class);
 
+		 // Create selector.
+        $selector = new TargetingIdeaSelector();
+        $selector->setRequestType(RequestType::IDEAS);
+        $selector->setIdeaType(IdeaType::KEYWORD);
+        $selector->setRequestedAttributeTypes(
+            [
+                AttributeType::KEYWORD_TEXT,
+                AttributeType::SEARCH_VOLUME,
+                AttributeType::AVERAGE_CPC,
+                AttributeType::COMPETITION,
+                AttributeType::CATEGORY_PRODUCTS_AND_SERVICES
+            ]
+        );
 
-		$selector->setRequestedAttributeTypes(
-		    [
-		        AttributeType::KEYWORD_TEXT,
-		        AttributeType::SEARCH_VOLUME,
-		        AttributeType::AVERAGE_CPC,
-		        AttributeType::COMPETITION,
-		        AttributeType::CATEGORY_PRODUCTS_AND_SERVICES
-		    ]
-		);
-		$paging = new Paging();
-		$paging->setStartIndex(0);
-		$paging->setNumberResults(10);
-		$selector->setPaging($paging);
+        $paging = new Paging();
+        $paging->setStartIndex(0);
+        $paging->setNumberResults(10);
+        $selector->setPaging($paging);
 
-		$searchParameters = [];
-		// Create related to query search parameter.
-		$relatedToQuerySearchParameter = new RelatedToQuerySearchParameter();
-		$relatedToQuerySearchParameter->setQueries(
-		    [
-		        'bakery',
-		        'pastries',
-		        'birthday cake'
-		    ]
-		);
-		$searchParameters[] = $relatedToQuerySearchParameter;
-		$selector->setSearchParameters($searchParameters);
-		// Get keyword ideas.
-		// $targetingIdeaService = new TargetingIdeaService();
-		// $page = $targetingIdeaService->get($selector);
+        $searchParameters = [];
+        // Create related to query search parameter.
+        $relatedToQuerySearchParameter = new RelatedToQuerySearchParameter();
+        $relatedToQuerySearchParameter->setQueries(
+            [
+                'bakery',
+                'pastries',
+                'birthday cake'
+            ]
+        );
+        $searchParameters[] = $relatedToQuerySearchParameter;
+
+        // Create language search parameter (optional).
+        // The ID can be found in the documentation:
+        // https://developers.google.com/adwords/api/docs/appendix/languagecodes
+        $languageParameter = new LanguageSearchParameter();
+        $english = new Language();
+        $english->setId(1000);
+        $languageParameter->setLanguages([$english]);
+        $searchParameters[] = $languageParameter;
+
+        // Create network search parameter (optional).
+        $networkSetting = new NetworkSetting();
+        $networkSetting->setTargetGoogleSearch(true);
+        $networkSetting->setTargetSearchNetwork(false);
+        $networkSetting->setTargetContentNetwork(false);
+        $networkSetting->setTargetPartnerSearchNetwork(false);
+
+        $networkSearchParameter = new NetworkSearchParameter();
+        $networkSearchParameter->setNetworkSetting($networkSetting);
+        $searchParameters[] = $networkSearchParameter;
+
+        // Optional: Use an existing ad group to generate ideas.
+        if (!empty($adGroupId)) {
+            $seedAdGroupIdSearchParameter = new SeedAdGroupIdSearchParameter();
+            $seedAdGroupIdSearchParameter->setAdGroupId($adGroupId);
+            $searchParameters[] = $seedAdGroupIdSearchParameter;
+        }
+        $selector->setSearchParameters($searchParameters);
+        $selector->setPaging(new Paging(0, self::PAGE_LIMIT));
+
+        // Get keyword ideas.
+        $page = $targetingIdeaService->get($selector);
+
+        // Print out some information for each targeting idea.
+        $entries = $page->getEntries();
+        if ($entries !== null) {
+            foreach ($entries as $targetingIdea) {
+                $data = MapEntries::toAssociativeArray($targetingIdea->getData());
+                $keyword = $data[AttributeType::KEYWORD_TEXT]->getValue();
+                $searchVolume = ($data[AttributeType::SEARCH_VOLUME]->getValue() !== null)
+                    ? $data[AttributeType::SEARCH_VOLUME]->getValue() : 0;
+                $averageCpc = $data[AttributeType::AVERAGE_CPC]->getValue();
+                $competition = $data[AttributeType::COMPETITION]->getValue();
+                $categoryIds = ($data[AttributeType::CATEGORY_PRODUCTS_AND_SERVICES]->getValue() === null)
+                    ? $categoryIds = ''
+                    : implode(
+                        ', ',
+                        $data[AttributeType::CATEGORY_PRODUCTS_AND_SERVICES]->getValue()
+                    );
+                printf(
+                    "Keyword with text '%s', average monthly search volume %d, "
+                    . "average CPC %d, and competition %.2f was found with categories: %s\n",
+                    $keyword,
+                    $searchVolume,
+                    ($averageCpc === null) ? 0 : $averageCpc->getMicroAmount(),
+                    $competition,
+                    $categoryIds
+                );
+            }
+        }
+
+        if (empty($entries)) {
+            print "No related keywords were found.\n";
+        }
+
+        die;
+
 
 
 		// $account_id = 1;
