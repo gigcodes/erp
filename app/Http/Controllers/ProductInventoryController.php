@@ -1002,7 +1002,7 @@ class ProductInventoryController extends Controller
 		$inventory_data = \App\Product::getProducts($filter_data);
 
 		$query = DB::table('products as p')
-				->selectRaw('p.category,p.color,p.composition,p.supplier,p.size, count(p.id) as total_product')
+				->selectRaw('p.category,p.name,p.short_description,p.color,p.composition,p.supplier,p.size, count(p.id) as total_product')
 				->where('p.supplier','<>','');
 				$query = $query->where(function($q) {
 		            $q->where('p.category', null)
@@ -1040,7 +1040,7 @@ class ProductInventoryController extends Controller
 
     public function downloadReport() {
     	$query = DB::table('products as p')
-				->selectRaw('p.category,p.color,p.composition,p.supplier,p.size, count(p.id) as total_product')
+				->selectRaw('p.category,p.name,p.short_description,p.color,p.composition,p.supplier,p.size, count(p.id) as total_product')
 				->where('p.supplier','<>','');
 				$query = $query->where(function($q) {
 		            $q->where('p.category', null)
