@@ -2681,3 +2681,8 @@ Route::prefix('system')->middleware('auth')->group(static function () {
     Route::post('/size/managerupdate', 'SystemSizeController@managerupdate')->name('system.size.managerupdate');
     Route::get('/size/managerdelete', 'SystemSizeController@managerdelete')->name('system.size.managerdelete');
 });
+
+//System size
+Route::group(['middleware' => 'auth', 'admin'], function () {
+    Route::any('/erp-log', 'ErpLogController@index')->name('erp-log');
+});

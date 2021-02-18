@@ -18,6 +18,7 @@ class CretaeErpLogsTable extends Migration
             $table->integer('model_id');
             $table->text('url');
             $table->string('model');
+            $table->string('type');
             $table->text('request')->nullable();
             $table->text('response')->nullable();
             $table->timestamps();

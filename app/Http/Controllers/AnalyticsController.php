@@ -157,17 +157,19 @@ class AnalyticsController extends Controller
             $response   = getReport($analytics, $value);
             $resultData = printResults($response);
 
-            $ERPlogArray = [
-                'model_id' => $value['id'],
-                'url'      => 'https://www.googleapis.com/auth/analytics.readonly',
-                'model'    => 'StoreWebsiteAnalytic::class',
-                'request'  => $value,
-                'response' => $resultData,
-            ];
-
-            storeERPLog($ERPlogArray);
-
             if(!empty($resultData)) {
+
+                $ERPlogArray = [
+                    'model_id' => $value['id'],
+                    'url'      => 'https://www.googleapis.com/auth/analytics.readonly',
+                    'model'    => StoreWebsiteAnalytic::class,
+                    'type'     => 'success',
+                    'request'  => $value,
+                    'response' => $resultData,
+                ];
+
+                storeERPLog($ERPlogArray);
+
                 foreach ($resultData as $new_item) {
                      $analyticsDataArr = [
                             "operatingSystem" => $new_item['operatingSystem'],

@@ -3,26 +3,16 @@
 namespace App\Http\Controllers;
 
 
-use App\StoreWebsiteAnalytic;
+use App\ErpLog;
 
 class ErpLogController extends Controller
 {
 
-    public function test() {
+    public function index() {
 
-        $data = StoreWebsiteAnalytic::all()->toArray();
-        print_r($data); die;
-    //     $erpData = [
+        $erpLogData = ErpLog::all()->toArray();
 
-    //         'model_id' => 1,
-    //         'url'      => 'www.google.com',
-    //         'model'    => 'erplog',
-    //         'request'  => 'sample_req',
-    //         'response' => 'sample_res',
-    //     ];
-
-    //     storeERPLog($erpData);
-
+        return view('erp-log.index', compact('erpLogData'));
     }
 
 }

@@ -11,6 +11,7 @@ class ErpLog extends Model
         'url',
         'model',
         'request',
+        'type',
         'response',
         'created_at',
         'updated_at'

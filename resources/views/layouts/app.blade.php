@@ -1321,6 +1321,9 @@ $metaData = '';
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('manage-task-category.index') }}">Manage Task Category</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('erp-log') }}">ERP Log</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
