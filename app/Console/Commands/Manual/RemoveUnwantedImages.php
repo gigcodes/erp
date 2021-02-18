@@ -58,16 +58,16 @@ class RemoveUnwantedImages extends Command
                         }
                     }
                     if($recordExist == false) {
-                        \Log::info($media->getAbsolutePath() . " Deleted With no relation [DELETE_IMAGES]");
+                        \Log::channel('productUpdates')->info($media->getAbsolutePath() . " Deleted With no relation [DELETE_IMAGES]");
                         $media->delete();
                     }
                 }else{
                     // check file exist or not 
-                    \Log::info($media->getAbsolutePath() . " Deleted with no relation mediables [DELETE_IMAGES]");
+                    \Log::channel('productUpdates')->info($media->getAbsolutePath() . " Deleted with no relation mediables [DELETE_IMAGES]");
                     $media->delete();
                 }
             }else{
-                \Log::info($media->getAbsolutePath() . " Deleted not exist [DELETE_IMAGES]");
+                \Log::channel('productUpdates')->info($media->getAbsolutePath() . " Deleted not exist [DELETE_IMAGES]");
                 $media->delete();
             }
         }

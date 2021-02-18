@@ -7,6 +7,7 @@ use App\ChatbotQuestionReply;
 use App\WatsonAccount;
 use App\ChatbotErrorLog;
 use App\ChatbotDialogErrorLog;
+use App\ChatbotQuestionErrorLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -117,6 +118,16 @@ class ManageWatson implements ShouldQueue
                 $errorlog->status = $success;
                 $errorlog->response = $result->getContent();
                 $errorlog->save();
+
+                $question_error = new ChatbotQuestionErrorLog();
+                $question_error->chatbot_question_id = $this->question->id;
+                $question_error->type = $this->service;
+                $question_error->request = json_encode($this->storeParams);
+                $question_error->response = $errorlog->response;
+                $question_error->response_type = $success == 0 ? "error" : "success";
+                $question_error->save();
+                
+                
             }
         }
     }

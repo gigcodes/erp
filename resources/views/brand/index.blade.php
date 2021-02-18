@@ -165,11 +165,25 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                     {!! Form::close() !!}
                     <a class="btn btn-image btn-attach-website" href="javascript:;"><i class="fa fa-globe"></i></a>
                     <a class="btn btn-image btn-create-remote" data-id="{{ $brand->id }}" href="javascript:;"><i class="fa fa-check-circle-o"></i></a>
+                    <a class="btn btn-image btn-activity" data-href="{{ route('brand.activities',$brand->id) }}" href="javascript:;"><i class="fa fa-info"></i></a>
                 </td>
             </tr>
             @endforeach
         </table>
     </div>
+</div>
+
+<div id="ActivitiesModal" class="modal fade" role="dialog">
+  	<div class="modal-dialog">
+	    <!-- Modal content-->
+	    <div class="modal-content">
+	        <div class="modal-header">
+	        	<h4 class="modal-title">Brand Activities</h4>
+	          	<button type="button" class="close" data-dismiss="modal">&times;</button>
+	        </div>
+	        <div class="modal-body"></div>
+    	</div>
+	</div>
 </div>
 @endsection
 @section('scripts')
@@ -190,7 +204,26 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         });
     }
 
-    $('.unmerge-brand').click(function() {
+    jQuery(document).ready(function(){
+        jQuery(".btn-activity").on("click",function(e){
+            e.preventDefault();
+            _this = jQuery(this);
+            $.ajax({
+                url: jQuery(_this).data('href'),
+                method: 'GET',
+                success: function(response) {
+	                jQuery("#ActivitiesModal .modal-body").html(response);
+	                jQuery("#ActivitiesModal").modal("show");
+                },
+                error: function(response){
+                    toastr['error'](response.responseJSON.message, 'error');
+                }
+            });
+        })
+    });
+
+    $(document).on('click', '.unmerge-brand', function(e) {
+        e.preventDefault();
         if(confirm("Do you want to unmerge this brand?")) {
             var brand_name = $(this).parents().eq(1).find('span').first().text();
             var from_brand_id = $(this).data('id'); 

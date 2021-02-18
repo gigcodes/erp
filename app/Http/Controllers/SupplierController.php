@@ -174,7 +174,7 @@ class SupplierController extends Controller
         if($runQuery) {
         $suppliers = DB::select('
                                     SELECT suppliers.frequency,suppliers.supplier_sub_category_id,suppliers.supplier_status_id,suppliers.supplier_size_id,suppliers.scrapper, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source,suppliers.supplier_price_range_id, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.whatsapp_number, suppliers.status, sc.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name, suppliers.scraped_brands_raw,suppliers.language,
-                                    suppliers.est_delivery_time,suppliers.size_system_id,
+                                    suppliers.est_delivery_time,suppliers.size_system_id,suppliers.priority,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
@@ -1529,6 +1529,14 @@ public function changeWhatsapp(Request $request)
       $supplier->language = $request->language;
       $supplier->save();
       return response()->json(['success' => 'Supplier language updated'], 200);
+    }
+
+    public function priority(Request $request)
+    {
+        $supplier = Supplier::find($request->id);
+      $supplier->priority = $request->priority;
+      $supplier->save();
+      return response()->json(['success' => 'Supplier priority updated'], 200);
     }
 
     public function manageScrapedBrands(Request $request)

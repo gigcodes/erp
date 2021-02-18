@@ -6,6 +6,9 @@
 <a style="color:white;" title="Add invoice" class="btn btn-secondary add-invoice-btn pd-5 pull-right" data-id='q'>
   + Add New
 </a>
+<a style="color:white;" id="addInvoiceWithoutOrderBtn" title="+ Add New Invoice without Order" data-toggle="modal" data-target="#addInvoiceWithoutOrder" class="btn btn-warning pull-right">
+  + Add New Invoice without Order
+</a>
 <br>
 <div class="table-responsive" style="margin-top:20px;">
       <table class="table table-bordered" style="border: 1px solid #ddd;">
@@ -13,15 +16,30 @@
           <tr>
             <th>Date</th>
             <th>Invoice Number</th>
+            <th>Customer Name</th>
+            <th>Invoice Value</th>
             <th>Action</th>
           </tr>
         </thead>
-
         <tbody>
           @foreach ($invoices as $key => $invoice)
             <tr>
               <td>{{ $invoice->invoice_date }}</td>
               <td>{{ $invoice->invoice_number }}</td>
+              <td>
+                {{ $invoice->orders[0]->customer->name }}
+              </td>
+             <td>
+               @php
+                $final_price=0;
+             foreach ($invoice->orders as $ord):
+                foreach ($ord->order_product as $item):
+                  $final_price +=$item->product_price;
+             endforeach;
+             endforeach; 
+              @endphp 
+              {{ $final_price}}
+             </td>
               <td>
               <a class="btn btn-image send-invoice-btn" data-id="{{ $invoice->id }}">
                     <img title="Resend Invoice" src="/images/purchase.png" />
@@ -29,11 +47,22 @@
                 <a title="Edit Invoice" data-toggle="modal" data-target="#editInvoice" class="btn btn-image edit-invoice-btn" href="{{ route('order.edit.invoice',$invoice->id) }}">
                     <i class="fa fa-edit"></i>
                 </a> 
+                  </a>
+                    <a title="Update Invoice Addresses"
+                    data-address="{{$invoice->orders[0]->customer->address}}"
+                    data-city="{{$invoice->orders[0]->customer->city}}"
+                    data-country="{{$invoice->orders[0]->customer->country}}"
+                    data-pincode="{{$invoice->orders[0]->customer->pincode}}"
+                   data-codex="{{$invoice->orders[0]->customer->id}}"
+                     data-toggle="modal" data-target="#updateInvoiceAddresses" class="btn btn-image UpdateInvoiceAddresses456">
+                   <i class="fa fa-address-card-o"></i> 
+                    </a>
                 <a title="View Invoice" class="btn btn-image" href="{{ route('order.view.invoice',$invoice->id) }}">
-                    <!-- <i class="fa fa-edit"></i> -->
                     <img title="View Invoice" src="/images/view.png" />
                 </a>
-              
+                    <a title="Download Invoice" class="btn btn-image" href="{{ route('order.download.invoice',$invoice->id) }}">
+                   <i class="fa fa-download"></i> 
+                </a>
               </td>
             </tr>
           @endforeach
@@ -41,7 +70,7 @@
       </table>
       {{$invoices->links()}}
 </div>
-@include("partials.modals.edit-invoice-modal")
+
 <div id="addInvoice" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
       <!-- Modal content-->
@@ -66,9 +95,45 @@
       </div>
     </div>
 </div>
+<div id="updateInvoiceAddresses" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <!-- Modal content-->
+      <div class="modal-content ">
+      <div class="modal-header">
+        <h4>Update Invoice Addresses</h4>
+      </div>
+      <div class="modal-body">
+         <div id="update-invoice-address">
+           <form method="post" action="{{route('order.update.customer.address')}}">
+            @csrf
+             <div class="form-group">
+              <strong>Address:</strong>
+              <textarea id="address45" name="address" class="form-control"></textarea>
+            </div>
+               <div class="form-group">
+              <strong>City:</strong>
+              <input id="city45" name="city" class="form-control"/>
+              <input id="codex45" name="codex" type="hidden" class="form-control"/>
+            </div>
+               <div class="form-group">
+              <strong>Country:</strong>
+              <input id="country45" name="country" class="form-control"/>
+            </div>
+               <div class="form-group">
+              <strong>Pincode:</strong>
+              <input id="pincode45" name="pincode" class="form-control"/>
+            </div>
+           <button type="submit" name="update_details" class="btn btn-primary btn-sm">Update Address</button> 
+          </form>
+        </div>
+      </div>
+      </div>
+    </div>
+</div>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
 </div>
-
+@include("partials.modals.edit-invoice-modal")
+@include("partials.modals.invoice-without-order-model")
 <script>
  $(document).on("click",".send-invoice-btn",function(e){
        e.preventDefault();
@@ -104,7 +169,7 @@
         }).done(function(response) {
            $("#edit-invoice-content").html(response); 
         }).fail(function(errObj) {
-           $("#editInvoice").hide();
+          // $("#editInvoice").hide();
         });
     });
 
@@ -113,7 +178,14 @@
        $('#addInvoice').modal('show');
     });
 
+//Invoice without order --START
+    // $(document).on("click","#addInvoiceWithoutOrderBtn",function(e){
+    //   console.log("Hello")
+    //    e.preventDefault();
+    
+    // });
 
+//Invoice without order --END
     $('#order-search').select2({
             tags: true,
             width : '100%',
@@ -170,6 +242,18 @@
               toastr['error'](errObj.responseJSON.message);
             });
         });
+$('.UpdateInvoiceAddresses456').on('click',function(){
+  var address = $(this).data('address')
+  var country = $(this).data('country')
+  var city = $(this).data('city')
+  var pincode = $(this).data('pincode')
+  var codex = $(this).data('codex')
 
+  $('#country45').attr("value",country)
+  $('#pincode45').attr("value",pincode)
+  $('#city45').attr("value",city)
+  $('#address45').text(address)
+  $('#codex45').attr("value",codex)
+})
   </script>
 @endsection

@@ -107,6 +107,30 @@
     </div>
 </div>
 
+<div class="preview-activities-modal modal" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="table-responsive mt-3">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Description</th>
+                                <th>Updated By</th>
+                                <th>Updated At</th>
+                            </tr>
+                        </thead>
+                        <tbody id="preview-activities-tbody">
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="push-by-store-website-modal modal" id="push-by-store-website-modal" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -162,5 +186,17 @@
         bodyView : $("#common-page-layout"),
         baseUrl : "<?php echo url("/"); ?>"
     });
+    function save_platform_id(page_id) {
+        var platform_id = $(this.event.target).val();
+        $.ajax({
+            url: '{{ route('store_website_page.store_platform_id') }}',
+            method: 'PUT',
+            data: {
+                _token: "{{ csrf_token() }}",
+                'page_id': page_id,
+                'platform_id': platform_id
+            }
+        });
+    }
 </script>
 @endsection 

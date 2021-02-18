@@ -28,7 +28,7 @@ class UpdateFromSizeManager implements ShouldQueue
 
     public static function putLog($message)
     {
-        \Log::info($message);
+        \Log::channel('productUpdates')->info($message);
         return true;
     }
 
@@ -71,7 +71,7 @@ class UpdateFromSizeManager implements ShouldQueue
             }
         }
 
-        //\Log::info(print_r($sku,true));
+        //\Log::channel('productUpdates')->info(print_r($sku,true));
 
         self::putLog("Job start sizes from erp end time : " . date("Y-m-d H:i:s"));
 

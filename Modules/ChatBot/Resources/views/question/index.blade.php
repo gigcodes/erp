@@ -122,6 +122,7 @@
 				      <td>
 							<a class="btn btn-image edit-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.edit",[$chatQuestion->id]); ?>"><img src="/images/edit.png"></a>
 							<a class="btn btn-image delete-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.delete",[$chatQuestion->id]); ?>"><img src="/images/delete.png"></a>
+							<a class="btn btn-image show-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="javascript:void(0);"><img src="/images/details.png"></a>
 						<!-- @if($chatQuestion->keyword_or_question == 'entity')
 						<a class="btn btn-image edit-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.keyword.edit",[$chatQuestion->id]); ?>"><img src="/images/edit.png"></a>
                         <a class="btn btn-image delete-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.keyword.delete",[$chatQuestion->id]); ?>"><img src="/images/delete.png"></a>
@@ -137,6 +138,7 @@
 	    </div>	
 	</div>
 </div>
+@include('chatbot::partial.question_log')
 @include('chatbot::partial.create_question')
 @include('chatbot::partial.create_dynamic_task')
 @include('chatbot::partial.create_dynamic_reply')
@@ -152,6 +154,48 @@
 	$("#create-reply-btn").on("click",function() {
 		$("#create-dynamic-reply").modal("show");
 	});
+
+	$('.show-button').on('click',function(e){
+		
+		
+		//$('.spinner-border').show();
+		$.ajax({
+			type: "POST",
+            url: "{{ route('chatbot.question.error_log')}}",
+            data: {
+				id : $(this).attr('data-id'),
+				_token: "{{csrf_token()}}",
+			},
+            dataType : "json",
+            success: function (response) {
+               //location.reload();
+               if(response.code == 200) {
+				//$('.spinner-border').hide();
+				$('#question_log_table_body').html('');
+				$.each(response.data, function (key, value) 
+				{	
+					let action = "";
+					if(value.response_type == "error"){
+						action = '<a class="btn btn-image edit-data-button" data-id="'+value.id+'"><img src="/images/edit.png" style="cursor: nwse-resize;"></a>';
+					}
+					
+					let id = key+1;
+				   $('#question_log_table_body').append('<tr><td>'+id+'</td> <td>' + value.response + '</td>  <td class="'+value.response_type+'">' + value.response_type + '</td><td>'+value.type+'</td><td>'+action+'</td></tr>');
+				})
+				$('#question-log-dialog').modal("show");
+               }else{
+				   
+				errorMessage = response.error ? response.error.value : 'data is not found!';
+               	toastr['error'](errorMessage);
+               } 
+            },
+            error: function (error) {
+				console.log(error);
+               toastr['error']('Something Went Wrong!');
+            }
+        });
+	});
+
 	$(".form-save-btn").on("click",function(e) {
 		e.preventDefault();
 		var form = $(this).closest("form");
@@ -166,7 +210,8 @@
                	  toastr['success']('data updated successfully!');
                	  window.location.replace(response.redirect);
                }else{
-				errorMessage = response.error ? response.error : 'data is not correct or duplicate!';
+				   
+				errorMessage = response.error ? response.error.value : 'data is not correct or duplicate!';
                	toastr['error'](errorMessage);
                } 
             },

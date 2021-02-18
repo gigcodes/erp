@@ -8,7 +8,7 @@ class StoreWebsiteAnalytic extends Model {
 
     protected $table = 'store_website_analytics';
     protected $primaryKey = 'id';
-    protected $fillable = ['id', 'website', 'account_id', 'view_id', 'store_website_id', 'created_at', 'updated_at'];
+    protected $fillable = ['id', 'website', 'account_id', 'view_id', 'store_website_id', 'google_service_account_json', 'created_at', 'updated_at'];
 
     public function storeWebsiteDetails() {
         return $this->belongsTo(StoreWebsite::class, 'store_website_id', 'id');

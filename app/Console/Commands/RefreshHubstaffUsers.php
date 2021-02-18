@@ -69,7 +69,8 @@ class RefreshHubstaffUsers extends Command
         // start hubstaff section from here
         $hubstaff          = Hubstaff::getInstance();
         $hubstaff          = $hubstaff->authenticate();
-        $organizationUsers = $hubstaff->getRepository('organization')->getOrgUsers(env("HUBSTAFF_ORG_ID"));
+        $organizationUsers = $hubstaff->getRepository('organization')->getOrgUsers(env("HUBSTAFF_ORG_ID"),0,665240);
+        
         if (!empty($organizationUsers->members)) {
             $record = count($organizationUsers->members);
             echo "Total Record :" . $record;

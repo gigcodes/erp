@@ -158,18 +158,36 @@
 {{ $task->task_details ?? 'N/A' }}
   </p>
 <div class="row">
-  
-  
-
-
 	@if($task->is_statutory == 3)
 		<div class="col-md-12">
-		<div class="infinite-scroll">
+      <form class="form-inline message-search-handler mb-3" method="get" action="{{ route('task.module.show', $task->id) }}">
+          <div class="col-md-3 offset-md-9">
+              <div class="form-group">
+                  <label for="keyword">Keyword:</label>
+                  <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
+              </div>
+
+              <div class="form-group">
+                  <label for="button">&nbsp;</label>
+                  <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
+                      <img src="/images/search.png" style="cursor: default;">
+                  </button>
+              </div>
+          </div>
+      </form>
+		  <div class="infinite-scroll">
         <table class="table table-striped table-bordered">
             <tr>
                 <th width="25%">Update</th>
                 <th width="50%">Remarks</th>
                 <th width="25%">Action</th>
+            </tr>
+            <tr>
+                <td>
+                    <input type="text" id="create-note-field-for-appointment" class="form-control input-sm" name="note" placeholder="Add New Update..." value="">
+                </td>
+                <td></td>
+                <td></td>
             </tr>
             @foreach ($taskNotes as $key=>$note)
                 <tr>
@@ -235,6 +253,11 @@
                                   <button type="button" class="btn btn-image" data-toggle="modal" data-target="#archive-list-history{{ $note->id }}" title="Archive Remark History"><img src="/images/advance-link.png" /></button>
                                   <button type="button" class="btn remove-task-note" data-task-note-id="{{ $note->id }}" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>
                                   <button type="button" class="btn hide-task-note" data-task-note-id="{{ $note->id }}" title="Hide"><i class="fa fa-eye-slash" aria-hidden="true"></i></button>  
+                                  @if ($note->is_flagged == 1)
+                                      <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $note->id }}"><img src="{{asset('images/flagged.png')}}"/></button>
+                                  @else
+                                      <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $note->id }}"><img src="{{asset('images/unflagged.png')}}"/></button>
+                                  @endif
                     </td>
                       @else 
                       <input type="hidden"  id="remark-text{{ $note->id }}">
@@ -296,13 +319,6 @@
                   @include('task-module.partials.modal-remark')
                   @include('task-module.partials.modal-archieve')
             @endforeach
-            <tr>
-                <td>
-                    <input type="text" id="create-note-field-for-appointment" class="form-control input-sm" name="note" placeholder="Add New Update..." value="">
-                </td>
-                <td></td>
-                <td></td>
-            </tr>
 		</table>
 		{!! $taskNotes->appends(Request::except('page'))->links() !!}
 		</div>
@@ -633,6 +649,41 @@
   <script type="text/javascript">
     $(document).ready(function() {
         $('.load-communication-modal').trigger('click');
+
+        $(document).on('click', '.flag-task', function () {
+            var remark_id = $(this).data('id');
+            var thiss = $(this);
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('remark.flag') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    remark_id: remark_id
+                },
+                beforeSend: function () {
+                    $(thiss).text('Flagging...');
+                }
+            }).done(function (response) {
+                if (response.is_flagged == 1) {
+                    // var badge = $('<span class="badge badge-secondary">Flagged</span>');
+                    //
+                    // $(thiss).parent().append(badge);
+                    $(thiss).html('<img src="/images/flagged.png" />');
+                } else {
+                    $(thiss).html('<img src="/images/unflagged.png" />');
+                    // $(thiss).parent().find('.badge').remove();
+                }
+
+                // $(thiss).remove();
+            }).fail(function (response) {
+                $(thiss).html('<img src="/images/unflagged.png" />');
+
+                alert('Could not flag task!');
+
+                console.log(response);
+            });
+        });
     });
 
     $(function() {

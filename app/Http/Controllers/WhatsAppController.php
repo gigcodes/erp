@@ -1532,11 +1532,11 @@ class WhatsAppController extends FindByNumberController
 
                     // check that match if this the assign to is auto user 
                     // then send price and deal
-                    \Log::info("Price Lead section started for customer id : " . $customer->id);
+                    \Log::channel('whatsapp')->channel('whatsapp')->info("Price Lead section started for customer id : " . $customer->id);
                     if ($keywordassign[0]->assign_to == self::AUTO_LEAD_SEND_PRICE) {
-                        \Log::info("Auto section started for customer id : " . $customer->id);
+                        \Log::channel('whatsapp')->info("Auto section started for customer id : " . $customer->id);
                         if (!empty($parentMessage)) {
-                            \Log::info("Auto section parent message found started for customer id : " . $customer->id);
+                            \Log::channel('whatsapp')->info("Auto section parent message found started for customer id : " . $customer->id);
                             $parentMessage->sendLeadPrice($customer);
                         }
                     }
@@ -1791,7 +1791,7 @@ class WhatsAppController extends FindByNumberController
                             "replied_chat_id" => $message->id
                         ]);
 
-                        \Log::info("reached step 3 here");
+                        \Log::channel('whatsapp')->info("reached step 3 here");
 
                         foreach ($replies as $reply) {
                             if($params['message'] != '' && $customer && array_key_exists('message', $params)){
@@ -3204,7 +3204,7 @@ class WhatsAppController extends FindByNumberController
 
                         $number++;
                     } catch (\Exception $e) {
-                        \Log::error($e);
+                        \Log::channel('whatsapp')->error($e);
                     }
                 }
 
@@ -3239,7 +3239,7 @@ class WhatsAppController extends FindByNumberController
                                     }
     
                                 } catch (\Exception $e) {
-                                    \Log::error($e);
+                                    \Log::channel('whatsapp')->error($e);
                                 }
                             }
                         }
@@ -3263,7 +3263,7 @@ class WhatsAppController extends FindByNumberController
                                     }
     
                                 } catch (\Exception $e) {
-                                    \Log::error($e);
+                                    \Log::channel('whatsapp')->error($e);
                                 }
                             }
                         }
@@ -4000,7 +4000,7 @@ class WhatsAppController extends FindByNumberController
                     }
                 }
                 if ($context == 'customer') {
-                    \Log::info('My TEst Run');
+                    \Log::channel('whatsapp')->info('My TEst Run');
                     $supplierDetails = Customer::find($message->supplier_id);
                     $language = $supplierDetails->language;
                     if ($language != null) {

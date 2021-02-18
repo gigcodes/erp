@@ -10982,6 +10982,9 @@ td.title p {
     text-overflow: ellipsis;
     margin-bottom: 0;
 }
+.multiselect-container .form-check-label{
+    margin-left: 25px;
+}
 
 /********* Responsive start Here ****************/
 @media (max-width: 991px) {

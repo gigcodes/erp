@@ -14,6 +14,7 @@ Thumbs.db
 
 # composer vendor dir
 /vendor
+/vendors
 
 # composer itself is not needed
 composer.phar
@@ -71,7 +72,9 @@ app/Http/Composers/GlobalComposer.php
 /.credentials
 #Instagram Library
 app/Library/mgp25/*
+app/Library/_MACOSX/*
 /app/Mail/templates.json
 /app/Mail/*
 resources/views/vendor/maileclipse/templates/*
 /public/mailinglist/
+/public/wetransfer/*
