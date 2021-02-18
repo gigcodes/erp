@@ -11,7 +11,9 @@ class ChatbotKeywordValue extends Model
 	public $timestamps = false;
 	/**
      * @var string
-     * @SWG\Property(enum={"value", "chatbot_keyword_id", "types"})
+   * @SWG\Property(property="value",type="string")
+   * @SWG\Property(property="types",type="string")
+     * @SWG\Property(property="chatbot_keyword_id",type="integer")
      */
     protected $fillable = [
         'value', 'chatbot_keyword_id','types'

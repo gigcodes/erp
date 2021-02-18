@@ -13,12 +13,14 @@ class BrandCategorySizeChart extends Model
     use Mediable;
     /**
      * @var string
-     * @SWG\Property(enum={"brand_category_size_charts"})
+  * @SWG\Property(property="brand_category_size_charts",type="string")
      */
     protected $table = 'brand_category_size_charts';
     /**
      * @var string
-     * @SWG\Property(enum={"brand_id", "category_id", "store_website_id"})
+     * @SWG\Property(property="brand_id",type="integer")
+     * @SWG\Property(property="category_id",type="integer")
+     * @SWG\Property(property="store_website_id",type="integer")
      */
     protected $fillable = ['brand_id', 'category_id', 'store_website_id'];
 

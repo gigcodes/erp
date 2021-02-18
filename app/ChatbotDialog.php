@@ -8,9 +8,15 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ChatbotDialog extends Model
 {
-    /**
+        /**
      * @var string
-     * @SWG\Property(enum={"name", "title", "parent_id", "match_condition", "workspace_id", "previous_sibling", "metadata","response_type","dialog_type"})
+     * @SWG\Property(property="name",type="string")
+     * @SWG\Property(property="title",type="string")
+     * @SWG\Property(property="parent_id",type="integer")
+     * @SWG\Property(property="match_condition",type="string")
+     * @SWG\Property(property="workspace_id",type="integer")
+     * @SWG\Property(property="previous_sibling",type="string")
+     * @SWG\Property(property="metadata",type="string")
      */
     protected $fillable = [
         'name', 'title', 'parent_id', 'match_condition', 'workspace_id', 'previous_sibling', 'metadata','response_type','dialog_type'

@@ -1,11 +1,26 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 
 class OrderProduct extends Model
 {
+	 /**
+     * @var string
+	 * @SWG\Property(property="order_id",type="integer")
+     * @SWG\Property(property="sku",type="string")
+     * @SWG\Property(property="product_id",type="integer")
+     * @SWG\Property(property="product_price",type="float")
+     * @SWG\Property(property="size",type="string")
+     * @SWG\Property(property="color",type="string")
+     * @SWG\Property(property="qty",type="integer")
+     * @SWG\Property(property="purchase_status",type="string")
+     * @SWG\Property(property="supplier_discount_info_id",type="integer")
+     * @SWG\Property(property="inventory_status_id",type="integer")
+     */
 
     protected $fillable = [
 		'order_id',
@@ -14,7 +29,7 @@ class OrderProduct extends Model
 	    'product_price',
 	    'size',
 	    'color',
-      'qty',
+      	'qty',
 		'purchase_status',
 		'supplier_discount_info_id',
 		'inventory_status_id'

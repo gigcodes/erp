@@ -7,6 +7,9 @@
  */
 
 namespace App;
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 
 use App\Product;
 use App\Status;

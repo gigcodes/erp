@@ -10,8 +10,8 @@ class ChatbotQuestionErrorLog extends Model
 {
 	/**
      * @var string
-     * @SWG\Property(enum={"chat_bot_error_logs"})
+      * @SWG\Property(property="chat_bot_error_logs",type="string")
      */
     protected $table = "chat_bot_error_logs";
-
+ 
 }

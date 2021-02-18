@@ -10,7 +10,8 @@ class CategoryUpdateUser extends Model
 {
     /**
      * @var string
-     * @SWG\Property(enum={"supplier_id", "user_id"})
+     * @SWG\Property(property="supplier_id",type="integer")
+     * @SWG\Property(property="user_id",type="integer")
      */
     public $fillable = [
         "supplier_id",

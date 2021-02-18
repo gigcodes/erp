@@ -10,13 +10,11 @@ class ChatbotQuestionReply extends Model
 {
 	/**
      * @var string
-     * @SWG\Property(enum={"suggested_reply"})
+   * @SWG\Property(property="suggested_reply",type="string")
+     * @SWG\Property(property="chatbot_questions_reply",type="string")
      */
     protected $fillable = ['suggested_reply'];
-    /**
-     * @var string
-     * @SWG\Property(enum={"chatbot_questions_reply"})
-     */
+  
     public $table = 'chatbot_questions_reply';
 
     public function storeWebsite()

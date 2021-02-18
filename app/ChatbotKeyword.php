@@ -10,7 +10,8 @@ class ChatbotKeyword extends Model
 {
 	/**
      * @var string
-     * @SWG\Property(enum={"keyword", "workspace_id"})
+ * @SWG\Property(property="keyword",type="string")
+     * @SWG\Property(property="workspace_id",type="integer")
      */
     protected $fillable = [
         'keyword', 'workspace_id',

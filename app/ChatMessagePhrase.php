@@ -13,7 +13,12 @@ class ChatMessagePhrase extends Model
     public $timestamps = false;
     /**
      * @var string
-     * @SWG\Property(enum={ "phrase", "total", "word_id", "chat_id","deleted_at","deleted_by"})
+    * @SWG\Property(property="phrase",type="string")
+     * @SWG\Property(property="word_id",type="integer")
+     * @SWG\Property(property="total",type="string")
+     * @SWG\Property(property="chat_id",type="integer")
+     * @SWG\Property(property="deleted_at",type="datetime")
+     * @SWG\Property(property="deleted_by",type="integer")
      */
 
     protected $fillable = [

@@ -21,14 +21,23 @@ class Brand extends Model
 
     use SoftDeletes;
     use Mediable;
-    /**
+     /**
      * @var string
-     * @SWG\Property(enum={"name", "euro_to_inr", "deduction_percentage", "magento_id", "brand_segment", "sku_strip_last", "sku_add" ,"sku_search_url","references","min_sale_price","max_sale_price"})
+     * @SWG\Property(property="name",type="string")
+     * @SWG\Property(property="euro_to_inr",type="string")
+     * @SWG\Property(property="deduction_percentage",type="integer")
+     * @SWG\Property(property="magento_id",type="integer")
+     * @SWG\Property(property="brand_segment",type="string")
+     * @SWG\Property(property="sku_strip_last",type="string")
+     * @SWG\Property(property="sku_add",type="string")
+     * @SWG\Property(property="references",type="string")
+     * @SWG\Property(property="min_sale_price",type="integer")
+     * @SWG\Property(property="max_sale_price",type="integer")
      */
     protected $fillable = [ 'name', 'euro_to_inr', 'deduction_percentage', 'magento_id', 'brand_segment', 'sku_strip_last', 'sku_add' ,'sku_search_url','references','min_sale_price','max_sale_price'];
     /**
      * @var string
-     * @SWG\Property(enum={"deleted_at"})
+     * @SWG\Property(property="deleted_at",type="datetime")
      */
     protected $dates = [ 'deleted_at' ];
 

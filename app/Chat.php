@@ -11,7 +11,9 @@ class Chat extends Model
     //
     /**
      * @var string
-     * @SWG\Property(enum={"userid", "sourceid", "messages"})
+   * @SWG\Property(property="userid",type="integer")
+     * @SWG\Property(property="sourceid",type="integer")
+     * @SWG\Property(property="messages",type="string")
      */
     protected $fillable = ['userid','sourceid','messages'];
 }

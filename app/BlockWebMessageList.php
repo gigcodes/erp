@@ -12,6 +12,8 @@ class BlockWebMessageList extends Model
      * @var string
      * @SWG\Property(property="object_id",type="integer")
      * @SWG\Property(property="object_type",type="string")
+     * @SWG\Property(property="created_at",type="datetime")
+     * @SWG\Property(property="updated_at",type="datetime")
      */
     protected $fillable = [
         'object_id', 'object_type', 'created_at', 'updated_at'

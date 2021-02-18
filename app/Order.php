@@ -1,13 +1,52 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use App\Events\OrderCreated;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
+       /**
+     * @var string
+ 
+     * @SWG\Property(property="order_id",type="integer")
+     * @SWG\Property(property="customer_id",type="integer")
+     * @SWG\Property(property="order_type",type="string")
+     * @SWG\Property(property="order_date",type="datetime")
+     * @SWG\Property(property="awb",type="string")
+
+     * @SWG\Property(property="client_name",type="sting")
+     * @SWG\Property(property="city",type="sting")
+     * @SWG\Property(property="contact_detail",type="sting")
+     * @SWG\Property(property="shoe_size",type="sting")
+     * @SWG\Property(property="clothing_size",type="sting")
+     * @SWG\Property(property="solophone",type="sting")
+     * @SWG\Property(property="advance_detail",type="sting")
+     * @SWG\Property(property="advance_date",type="datetime")
+     * @SWG\Property(property="balance_amount",type="float")
+     * @SWG\Property(property="office_phone_number",type="integer")
+     * @SWG\Property(property="order_status",type="sting")
+     * @SWG\Property(property="order_status_id",type="integer")
+     * @SWG\Property(property="estimated_delivery_date",type="datetime")
+     * @SWG\Property(property="note_if_any",type="sting")
+     * @SWG\Property(property="date_of_delivery",type="datetime")
+     * @SWG\Property(property="received_by",type="integer")
+     * @SWG\Property(property="payment_mode",type="string")
+     * @SWG\Property(property="auto_messaged",type="string")
+     * @SWG\Property(property="auto_messaged_date",type="datetime")
+     * @SWG\Property(property="auto_emailed",type="string")
+     * @SWG\Property(property="auto_emailed_date",type="datetime")
+     * @SWG\Property(property="remark",type="string")
+     * @SWG\Property(property="whatsapp_number",type="string")
+     * @SWG\Property(property="user_id",type="integer")
+     * @SWG\Property(property="is_priority",type="boolean")
+     * @SWG\Property(property="currency",type="string")
+     * @SWG\Property(property="invoice_id",type="string")
+     */
 
     use SoftDeletes;
 

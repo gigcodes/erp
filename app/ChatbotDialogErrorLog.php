@@ -10,7 +10,8 @@ class ChatbotDialogErrorLog extends Model
 {
 	/**
      * @var string
-     * @SWG\Property(enum={"status", "response"})
+      * @SWG\Property(property="status",type="string")
+     * @SWG\Property(property="response",type="string")
      */
     protected $fillable = ['status','response'];
     public function storeWebsite()

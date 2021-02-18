@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\Model;
  */
 class BloggerProductImage extends Model
 {
-	/**
+	   /**
      * @var string
-     * @SWG\Property(enum={"file_name","blogger_product_id","other"})
+     * @SWG\Property(property="file_name",type="string")
+     * @SWG\Property(property="blogger_product_id",type="integer")
+     * @SWG\Property(property="other",type="string")
      */
     protected $fillable = ['file_name','blogger_product_id','other'];
 }

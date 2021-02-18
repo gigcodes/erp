@@ -10,19 +10,22 @@ class CallBusyMessage extends Model {
 
     /**
      * @var string
-     * @SWG\Property(enum={"lead_id", "twilio_call_sid", "caller_sid", "message", "recording_url", "status"})
+      * @SWG\Property(property="lead_id",type="integer")
+     * @SWG\Property(property="twilio_call_sid",type="string")
+     * @SWG\Property(property="caller_sid",type="string")
+     * @SWG\Property(property="message",type="string")
+     * @SWG\Property(property="recording_url",type="string")
+     * @SWG\Property(property="status",type="string")
+     * @SWG\Property(property="call_busy_messages",type="string")
+     * @SWG\Property(property="created_at",type="datetime")
+     * @SWG\Property(property="updated_at",type="datetime")
+    
      */
     protected $fillable = ['lead_id', 'twilio_call_sid', 'caller_sid', 'message', 'recording_url', 'status'];
-    /**
-     * @var string
-     * @SWG\Property(enum={"call_busy_messages"})
-     */
+ 
     protected $table = "call_busy_messages";
-    /**
-     * @var string
-     * @SWG\Property(enum={"created_at", "updated_at"})
-     */
-    protected $dates = ['created_at', 'updated_at'];
+
+    protected $dates = ['created_atcreated_at', 'updated_at'];
 
     /**
      * Function to insert large amount of data

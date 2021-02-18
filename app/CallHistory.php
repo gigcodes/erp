@@ -11,7 +11,8 @@ class CallHistory extends Model
 {
 	/**
      * @var string
-     * @SWG\Property(enum={"customer_id", "status"})
+   * @SWG\Property(property="customer_id",type="integer")
+     * @SWG\Property(property="status",type="string")
      */
   protected $fillable = ['customer_id', 'status'];
 

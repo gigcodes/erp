@@ -11,7 +11,17 @@ class CallRecording extends Model
     //
     /**
      * @var string
-     * @SWG\Property(enum={"lead_id", "order_id", "customer_id", "recording_url", "twilio_call_sid" , "customer_number","callsid", "message"})
+      * @SWG\Property(property="lead_id",type="integer")
+     * @SWG\Property(property="order_id",type="integer")
+     * @SWG\Property(property="customer_id",type="integer")
+     * @SWG\Property(property="recording_url",type="string")
+     * @SWG\Property(property="twilio_call_sid",type="string")
+     * @SWG\Property(property="customer_number",type="integer")
+     * @SWG\Property(property="callsid",type="sting")
+     * @SWG\Property(property="message",type="sting")
+     * @SWG\Property(property="call_recordings",type="sting")
+     * @SWG\Property(property="created_at",type="datetime")
+     * @SWG\Property(property="updated_at",type="datetime")
      */
     protected $fillable = ['lead_id', 'order_id', 'customer_id', 'recording_url', 'twilio_call_sid' , 'customer_number','callsid', 'message'];
     /**

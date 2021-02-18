@@ -9,9 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 class ChatbotDialogResponse extends Model
 {
     public $timestamps = false;
-    /**
+    /**      
      * @var string
-     * @SWG\Property(enum={"response_type", "value", "message_to_human_agent", "chatbot_dialog_id"})
+     * @SWG\Property(property="response_type",type="string")
+     * @SWG\Property(property="value",type="string")
+     * @SWG\Property(property="message_to_human_agent",type="string")
+     * @SWG\Property(property="chatbot_dialog_id",type="integer")
      */
     protected $fillable = [
         'response_type', 'value', 'message_to_human_agent', 'chatbot_dialog_id',

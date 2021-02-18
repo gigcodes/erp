@@ -1,13 +1,23 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Plank\Mediable\Mediable;
 
 class Issue extends Model
 {
+  /**
+     * @var string
+     * @SWG\Property(property="user_id",type="integer")
+     * @SWG\Property(property="issue",type="string")
+     * @SWG\Property(property="priority",type="string")
+     * @SWG\Property(property="module",type="string")
+     * @SWG\Property(property="subject",type="string")
+     */
   use Mediable;
   use SoftDeletes;
 
