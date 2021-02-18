@@ -1007,7 +1007,9 @@ class ProductInventoryController extends Controller
 				$query = $query->where(function($q) {
 		            $q->where('p.category', null)
 		            ->orWhere('p.color', null)
-		            ->orWhere('p.composition', null);
+		            ->orWhere('p.composition', null)
+		            ->orWhere('p.name', null)
+		            ->orWhere('p.short_description', null);
 		        });
 		        $query = $query->groupBy('p.supplier')->orderBy('total_product','DESC');
 
@@ -1045,7 +1047,9 @@ class ProductInventoryController extends Controller
 				$query = $query->where(function($q) {
 		            $q->where('p.category', null)
 		            ->orWhere('p.color', null)
-		            ->orWhere('p.composition', null);
+		            ->orWhere('p.composition', null)
+		            ->orWhere('p.name', null)
+		            ->orWhere('p.short_description', null);
 		        });
 		        $query = $query->groupBy('p.supplier')->orderBy('total_product','DESC');
 
