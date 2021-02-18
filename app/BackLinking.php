@@ -17,7 +17,11 @@ class BackLinking extends Model
      */
     /**
      * @var string
-     * @SWG\Property(enum={"title", "description", "url"})
+     * @SWG\Property(property="title",type="string")
+     * @SWG\Property(property="description",type="text")
+     * @SWG\Property(property="url",type="string")
+     * @SWG\Property(property="created_at",type="datetime")
+     * @SWG\Property(property="updated_at",type="datetime")
      */
     protected $fillable = array(
         'title', 'description',

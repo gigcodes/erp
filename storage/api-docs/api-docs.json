@@ -3042,20 +3042,41 @@
         },
         "BackLinkChecker": {
             "properties": {
-                "fillable": {
-                    "type": "string",
-                    "enum": [
-                        "domains",
-                        "links",
-                        "link_type",
-                        "review_numbers",
-                        "rank",
-                        "rating",
-                        "serp_id",
-                        "snippet",
-                        "title",
-                        "visible_link"
-                    ]
+                "domains": {
+                    "type": "string"
+                },
+                "links": {
+                    "type": "string"
+                },
+                "link_type": {
+                    "type": "string"
+                },
+                "review_numbers": {
+                    "type": "integer"
+                },
+                "rank": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "integer"
+                },
+                "serp_id": {
+                    "type": "integer"
+                },
+                "snippet": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "visible_link": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "datetime"
+                },
+                "updated_at": {
+                    "type": "datetime"
                 }
             },
             "type": "object",
@@ -3065,13 +3086,20 @@
         },
         "BackLinking": {
             "properties": {
-                "fillable": {
-                    "type": "string",
-                    "enum": [
-                        "title",
-                        "description",
-                        "url"
-                    ]
+                "title": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "text"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "datetime"
+                },
+                "updated_at": {
+                    "type": "datetime"
                 }
             },
             "type": "object",
@@ -3081,18 +3109,29 @@
         },
         "BarcodeMedia": {
             "properties": {
-                "fillable": {
-                    "type": "string",
-                    "enum": [
-                        "media_id",
-                        "type",
-                        "type_id",
-                        "name",
-                        "price",
-                        "extra",
-                        "created_at",
-                        "updated_at"
-                    ]
+                "media_id": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "type_id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "extra": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "datetime"
+                },
+                "updated_at": {
+                    "type": "datetime"
                 }
             },
             "type": "object",
@@ -3102,19 +3141,32 @@
         },
         "Benchmark": {
             "properties": {
-                "fillable": {
-                    "type": "string",
-                    "enum": [
-                        "selections",
-                        "searches",
-                        "attributes",
-                        "supervisor",
-                        "imagecropper",
-                        "lister",
-                        "approver",
-                        "inventory",
-                        "for_date"
-                    ]
+                "selections": {
+                    "type": "string"
+                },
+                "searches": {
+                    "type": "string"
+                },
+                "attributes": {
+                    "type": "string"
+                },
+                "supervisor": {
+                    "type": "string"
+                },
+                "imagecropper": {
+                    "type": "string"
+                },
+                "lister": {
+                    "type": "string"
+                },
+                "approver": {
+                    "type": "string"
+                },
+                "inventory": {
+                    "type": "string"
+                },
+                "for_date": {
+                    "type": "datetime"
                 }
             },
             "type": "object",
@@ -3132,6 +3184,12 @@
                         "created_at",
                         "updated_at"
                     ]
+                },
+                "object_id": {
+                    "type": "inteeeger"
+                },
+                "object_type": {
+                    "type": "string"
                 }
             },
             "type": "object",
