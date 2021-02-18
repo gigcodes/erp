@@ -76,9 +76,13 @@ use Google\AdsApi\Common\AdsSession;
 use Google\AdsApi\AdWords\v201809\cm\Language;
 use Google\AdsApi\AdWords\v201809\cm\NetworkSetting;
 use Google\AdsApi\AdWords\v201809\o\NetworkSearchParameter;
+use Google\AdsApi\AdWords\v201809\o\LocationSearchParameter;
 use Google\AdsApi\Common\Util\MapEntries;
-
-
+use Google\AdsApi\AdWords\v201809\cm\Location;
+use Google\AdsApi\AdWords\v201809\cm\Gender;
+use Google\AdsApi\AdWords\v201809\cm\BiddableAdGroupCriterion;
+use Google\AdsApi\AdWords\v201809\cm\AdGroupCriterionOperation;
+use Google\AdsApi\AdWords\v201809\o\SeedAdGroupIdSearchParameter;
 
 class googleAddsController extends Controller
 {
@@ -87,443 +91,468 @@ class googleAddsController extends Controller
 
 
 	public function index( Request $request , AdWordsServices $adWordsServices) {
-
-		$oAuth2Credential = (new OAuth2TokenBuilder())
-            ->fromFile(storage_path('adsapi_php.ini'))
-            ->build();
-
-		$session = (new AdWordsSessionBuilder())
-               ->fromFile(storage_path('adsapi_php.ini'))
-               ->withOAuth2Credential($oAuth2Credential)
-               ->build();
-
-		$targetingIdeaService = $adWordsServices->get($session, TargetingIdeaService::class);
-
-		 // Create selector.
-        $selector = new TargetingIdeaSelector();
-        $selector->setRequestType(RequestType::IDEAS);
-        $selector->setIdeaType(IdeaType::KEYWORD);
-        $selector->setRequestedAttributeTypes(
-            [
-                AttributeType::KEYWORD_TEXT,
-                AttributeType::SEARCH_VOLUME,
-                AttributeType::AVERAGE_CPC,
-                AttributeType::COMPETITION,
-                AttributeType::CATEGORY_PRODUCTS_AND_SERVICES
-            ]
-        );
-
-        $paging = new Paging();
-        $paging->setStartIndex(0);
-        $paging->setNumberResults(10);
-        $selector->setPaging($paging);
-
-        $searchParameters = [];
-        // Create related to query search parameter.
-        $relatedToQuerySearchParameter = new RelatedToQuerySearchParameter();
-        $relatedToQuerySearchParameter->setQueries(
-            [
-                'bakery',
-                'pastries',
-                'birthday cake'
-            ]
-        );
-        $searchParameters[] = $relatedToQuerySearchParameter;
-
-        // Create language search parameter (optional).
-        // The ID can be found in the documentation:
-        // https://developers.google.com/adwords/api/docs/appendix/languagecodes
-        $languageParameter = new LanguageSearchParameter();
-        $english = new Language();
-        $english->setId(1000);
-        $languageParameter->setLanguages([$english]);
-        $searchParameters[] = $languageParameter;
-
-        // Create network search parameter (optional).
-        $networkSetting = new NetworkSetting();
-        $networkSetting->setTargetGoogleSearch(true);
-        $networkSetting->setTargetSearchNetwork(false);
-        $networkSetting->setTargetContentNetwork(false);
-        $networkSetting->setTargetPartnerSearchNetwork(false);
-
-        $networkSearchParameter = new NetworkSearchParameter();
-        $networkSearchParameter->setNetworkSetting($networkSetting);
-        $searchParameters[] = $networkSearchParameter;
-
-        // Optional: Use an existing ad group to generate ideas.
-        if (!empty($adGroupId)) {
-            $seedAdGroupIdSearchParameter = new SeedAdGroupIdSearchParameter();
-            $seedAdGroupIdSearchParameter->setAdGroupId($adGroupId);
-            $searchParameters[] = $seedAdGroupIdSearchParameter;
-        }
-        $selector->setSearchParameters($searchParameters);
-        $selector->setPaging(new Paging(0, self::PAGE_LIMIT));
-
-        // Get keyword ideas.
-        $page = $targetingIdeaService->get($selector);
-
-        // Print out some information for each targeting idea.
-        $entries = $page->getEntries();
-        if ($entries !== null) {
-            foreach ($entries as $targetingIdea) {
-                $data = MapEntries::toAssociativeArray($targetingIdea->getData());
-                $keyword = $data[AttributeType::KEYWORD_TEXT]->getValue();
-                $searchVolume = ($data[AttributeType::SEARCH_VOLUME]->getValue() !== null)
-                    ? $data[AttributeType::SEARCH_VOLUME]->getValue() : 0;
-                $averageCpc = $data[AttributeType::AVERAGE_CPC]->getValue();
-                $competition = $data[AttributeType::COMPETITION]->getValue();
-                $categoryIds = ($data[AttributeType::CATEGORY_PRODUCTS_AND_SERVICES]->getValue() === null)
-                    ? $categoryIds = ''
-                    : implode(
-                        ', ',
-                        $data[AttributeType::CATEGORY_PRODUCTS_AND_SERVICES]->getValue()
-                    );
-                printf(
-                    "Keyword with text '%s', average monthly search volume %d, "
-                    . "average CPC %d, and competition %.2f was found with categories: %s\n",
-                    $keyword,
-                    $searchVolume,
-                    ($averageCpc === null) ? 0 : $averageCpc->getMicroAmount(),
-                    $competition,
-                    $categoryIds
-                );
-            }
-        }
-
-        if (empty($entries)) {
-            print "No related keywords were found.\n";
-        }
-
-        die;
-
-
-
-		// $account_id = 1;
-		// $result = \App\GoogleAdsAccount::find($account_id);
-  //       if (\Storage::disk('adsapi')->exists($account_id . '/' . $result->config_file_path)) {
-  //           $storagepath = \Storage::disk('adsapi')->url($account_id . '/' . $result->config_file_path);
-  //           $storagepath = storage_path('app/adsapi/' . $account_id . '/' . $result->config_file_path);
-  //           /* echo $storagepath; exit;
-  //       echo storage_path('adsapi_php.ini'); exit; */
-  //           return $storagepath;
-  //       } else {
-  //           abort(404,"Please add adspai_php.ini file");
-  //       }
-
-
-
-		if ( $request->input( 'selected_user' ) == '' ) {
-			$userid = Auth::id();
-		} else {
-			$userid = $request->input( 'selected_user' );
-		}
-		
-		if ( !$request->input( 'type' ) || $request->input( 'type' ) == '' ) {
-			$type = 'pending';
-		} else {
-			$type = $request->input( 'type' );
-		}
-		$activeCategories = TaskCategory::where('is_active',1)->pluck('id')->all();
-		$categoryWhereClause = '';
-		$category = '';
-		$request->category = $request->category ? $request->category : 1;
-		if ($request->category != '') {
-			if ($request->category != 1) {
-				$categoryWhereClause = "AND category = $request->category";
-				$category = $request->category;
-			} else {
-				$category_condition  = implode(',', $activeCategories);
-				if ($category_condition != '' || $category_condition != null) {
-					$category_condition = '( ' . $category_condition . ' )';
-					$categoryWhereClause = "AND category in " . $category_condition;
-				} else {
-					$categoryWhereClause = "";
-				}
-			}
-		}
-
-		$term = $request->term ?? "";
-		$searchWhereClause = '';
-
-		if ($request->term != '') {
-			$searchWhereClause = ' AND (id LIKE "%' . $term . '%" OR category IN (SELECT id FROM task_categories WHERE title LIKE "%' . $term . '%") OR task_subject LIKE "%' . $term . '%" OR task_details LIKE "%' . $term . '%" OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%") OR id IN (SELECT task_id FROM task_users WHERE user_id IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")))';
-		}
-		if ($request->get('is_statutory_query') != '' && $request->get('is_statutory_query') != null) {
-		    $searchWhereClause .= ' AND is_statutory = ' . $request->get('is_statutory_query');
-		}
-		else {
-			$searchWhereClause .= ' AND is_statutory != 3';
-		}
-		$orderByClause = ' ORDER BY';
-		if($request->sort_by == 1) {
-			$orderByClause .= ' tasks.created_at desc,';
-		}
-		else if($request->sort_by == 2) {
-			$orderByClause .= ' tasks.created_at asc,';
-		}
-		$data['task'] = [];
-
-		$search_term_suggestions = [];
-		$search_suggestions = [];
-		$assign_from_arr = array(0);
-		$special_task_arr = array(0);
-		$assign_to_arr = array(0);
-		$data['task']['pending'] = [];
-		$data['task']['statutory_not_completed'] = [];
-		$data['task']['completed'] = [];
-		if($type == 'pending') {
-			$paginate = 50;
-    		$page = $request->get('page', 1);
-			$offSet = ($page * $paginate) - $paginate; 
-			
-			$orderByClause .= ' is_flagged DESC, message_created_at DESC';
-			$isCompleteWhereClose = ' AND is_verified IS NULL ';
-
-			if(!Auth::user()->isAdmin()) {
-				$isCompleteWhereClose = ' AND is_completed IS NULL AND is_verified IS NULL ';
-			}
-			if($request->filter_by == 1) {
-				$isCompleteWhereClose = ' AND is_completed IS NULL ';
-			}
-			if($request->filter_by == 2) {
-				$isCompleteWhereClose = ' AND is_completed IS NOT NULL AND is_verified IS NULL ';
-			}
-
-			$data['task']['pending'] = DB::select('
-			SELECT tasks.*
-
-			FROM (
-			  SELECT * FROM tasks
-			  LEFT JOIN (
-				  SELECT 
-				  chat_messages.id as message_id, 
-				  chat_messages.task_id, 
-				  chat_messages.message, 
-				  chat_messages.status as message_status, 
-				  chat_messages.sent as message_type, 
-				  chat_messages.created_at as message_created_at, 
-				  chat_messages.is_reminder AS message_is_reminder,
-				  chat_messages.user_id AS message_user_id
-				  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
-			  ) as chat_messages  ON chat_messages.task_id = tasks.id
-			) AS tasks
-			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$isCompleteWhereClose.' AND (assign_from = ' . $userid . ' OR master_user_id = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.'; ');
-
-
-			foreach ($data['task']['pending'] as $task) {
-				array_push($assign_to_arr, $task->assign_to);
-				array_push($assign_from_arr, $task->assign_from);
-				array_push($special_task_arr, $task->id);
-			}
-			
-			$user_ids_from = array_unique($assign_from_arr);
-			$user_ids_to = array_unique($assign_to_arr);
-		
-			foreach ($data['task']['pending'] as $task) {
-				$search_suggestions[] = "#" . $task->id . " " . $task->task_subject . ' ' . $task->task_details;
-				$from_exist = in_array($task->assign_from, $user_ids_from);
-				if($from_exist) {
-					$from_user = User::find($task->assign_from);
-					if($from_user) {
-						$search_term_suggestions[] = $from_user->name;
-					}
-				}
-
-				$to_exist = in_array($task->assign_to, $user_ids_to);
-				if($to_exist) {
-					$to_user = User::find($task->assign_to);
-					if($to_user) {
-						$search_term_suggestions[] = $to_user->name;
-					}
-				}			
-				$search_term_suggestions[] = "$task->id";
-				$search_term_suggestions[] = $task->task_subject;
-				$search_term_suggestions[] = $task->task_details;
-			}
-		}
-		else if($type == 'completed') {
-			$paginate = 50;
-    		$page = $request->get('page', 1);
-			$offSet = ($page * $paginate) - $paginate; 
-			$orderByClause .= ' last_communicated_at DESC';
-			$data['task']['completed'] = DB::select('
-                SELECT *,
- 				message_id,
-                message,
-                message_status,
-                message_type,
-                message_created_At as last_communicated_at
-                FROM (
-                  SELECT * FROM tasks
-                 LEFT JOIN (
-					SELECT 
-					chat_messages.id as message_id, 
-					chat_messages.task_id, 
-					chat_messages.message, 
-					chat_messages.status as message_status, 
-					chat_messages.sent as message_type, 
-					chat_messages.created_at as message_created_at, 
-					chat_messages.is_reminder AS message_is_reminder,
-					chat_messages.user_id AS message_user_id
-					FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
-                 ) AS chat_messages ON chat_messages.task_id = tasks.id
-                ) AS tasks
-                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL AND (assign_from = ' . $userid . ' OR master_user_id = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.';');
-				
-
-			foreach ($data['task']['completed'] as $task) {
-				array_push($assign_to_arr, $task->assign_to);
-				array_push($assign_from_arr, $task->assign_from);
-				array_push($special_task_arr, $task->id);
-			}
-			
-			$user_ids_from = array_unique($assign_from_arr);
-			$user_ids_to = array_unique($assign_to_arr);
-		
-			foreach ($data['task']['completed'] as $task) {
-				$search_suggestions[] = "#" . $task->id . " " . $task->task_subject . ' ' . $task->task_details;
-				$from_exist = in_array($task->assign_from, $user_ids_from);
-				if($from_exist) {
-					$from_user = User::find($task->assign_from);
-					if($from_user) {
-						$search_term_suggestions[] = $from_user->name;
-					}
-				}
-
-				$to_exist = in_array($task->assign_to, $user_ids_to);
-				if($to_exist) {
-					$to_user = User::find($task->assign_to);
-					if($to_user) {
-						$search_term_suggestions[] = $to_user->name;
-					}
-				}			
-				$search_term_suggestions[] = "$task->id";
-				$search_term_suggestions[] = $task->task_subject;
-				$search_term_suggestions[] = $task->task_details;
-			}
-		} else if($type == 'statutory_not_completed') {
-			$paginate = 50;
-    		$page = $request->get('page', 1);
-			$offSet = ($page * $paginate) - $paginate; 
-			$orderByClause .= ' last_communicated_at DESC';
-			$data['task']['statutory_not_completed'] = DB::select('
-               SELECT *,
-			   message_id,
-               message,
-               message_status,
-               message_type,
-               message_created_At as last_communicated_at
-
-               FROM (
-                 SELECT * FROM tasks
-                 LEFT JOIN (
-						SELECT 
-						chat_messages.id as message_id, 
-						chat_messages.task_id, 
-						chat_messages.message, 
-						chat_messages.status as message_status, 
-						chat_messages.sent as message_type, 
-						chat_messages.created_at as message_created_at, 
-						chat_messages.is_reminder AS message_is_reminder,
-						chat_messages.user_id AS message_user_id
-						FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
-                 ) AS chat_messages ON chat_messages.task_id = tasks.id
-
-               ) AS tasks
-			   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR master_user_id = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $orderByClause .' limit '.$paginate.' offset '.$offSet.';');
-			   
-			   foreach ($data['task']['statutory_not_completed'] as $task) {
-				array_push($assign_to_arr, $task->assign_to);
-				array_push($assign_from_arr, $task->assign_from);
-				array_push($special_task_arr, $task->id);
-			}
-			
-			$user_ids_from = array_unique($assign_from_arr);
-			$user_ids_to = array_unique($assign_to_arr);
-		
-			foreach ($data['task']['statutory_not_completed'] as $task) {
-				$search_suggestions[] = "#" . $task->id . " " . $task->task_subject . ' ' . $task->task_details;
-				$from_exist = in_array($task->assign_from, $user_ids_from);
-				if($from_exist) {
-					$from_user = User::find($task->assign_from);
-					if($from_user) {
-						$search_term_suggestions[] = $from_user->name;
-					}
-				}
-
-				$to_exist = in_array($task->assign_to, $user_ids_to);
-				if($to_exist) {
-					$to_user = User::find($task->assign_to);
-					if($to_user) {
-						$search_term_suggestions[] = $to_user->name;
-					}
-				}			
-				$search_term_suggestions[] = "$task->id";
-				$search_term_suggestions[] = $task->task_subject;
-				$search_term_suggestions[] = $task->task_details;
-			}
-		} else {
-			return;
-		}
-
-		$users                     = User::oldest()->get()->toArray();
-		$data['users']             = $users;
-		$data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
-
-		//My code start
-		$selected_user = $request->input( 'selected_user' );
-		$users         = Helpers::getUserArray( User::all() );
-		$task_categories = TaskCategory::where('parent_id', 0)->get();
-		$task_categories_dropdown = nestable(TaskCategory::where('is_approved', 1)->get()->toArray())->attr(['name' => 'category','class' => 'form-control input-sm'])
-		->selected($request->category)
-		->renderAsDropdown();
-
-
-		$categories = [];
-		foreach (TaskCategory::all() as $category) {
-			$categories[$category->id] = $category->title;
-		}
-
-		if ( ! empty( $selected_user ) && ! Helpers::getadminorsupervisor() ) {
-			return response()->json( [ 'user not allowed' ], 405 );
-		}
-		//My code end
-		$tasks_view = [];
-		$priority  = \App\ErpPriority::where('model_type', '=', Task::class)->pluck('model_id')->toArray();
-
-		$openTask = \App\Task::join("users as u","u.id","tasks.assign_to")
-		->whereNull("tasks.is_completed")
-		->groupBy("tasks.assign_to")
-		->select(\DB::raw("count(u.id) as total"),"u.name as person")
-		->pluck("total","person");
-
-		if($request->is_statutory_query == 3) {
-			$title = 'Discussion tasks';
-		} else {
-			$title = 'Google Keyword Search';
-		}
+		$title = 'Google Keyword Search';
+		$languages = $this->getGoogleLanguages();
+		$locations = $this->getGooglelocations();
 
 		if ($request->ajax()) {
-			if($type == 'pending') {
-				return view( 'task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
-			}
-			else if( $type == 'statutory_not_completed') {
-				return view( 'task-module.partials.statutory-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
-			}
-			else if( $type == 'completed') {
-				return view( 'task-module.partials.completed-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
-			}
-			else {
-				return view( 'task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
-			}
-		}
 
-		// if($request->is_statutory_query == 3) {
-		// 	return view( 'task-module.discussion-tasks', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
-		// }
-		// else {
-		// 	return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
-		// }
-		return view( 'google.google-adds.index', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
+			$adGroupId = 795625088;
+
+			$keyword = $request->keyword; 
+			$location = $request->location; 
+			$language = $request->language; 
+			$network = $request->network; 
+			$product = $request->product;
+			$gender = $request->gender;
+
+			$google_search = ( $request->google_search == 'true' ) ? true : false;
+			$search_network = ( $request->search_network == 'true' ) ? true : false;
+			$content_network = ( $request->content_network == 'true' ) ? true : false;
+			$partner_search_network = ( $request->partner_search_network == 'true' ) ? true : false;
+
+
+			$oAuth2Credential = (new OAuth2TokenBuilder())
+	            ->fromFile(storage_path('adsapi_php.ini'))
+	            ->build();
+
+			$session = (new AdWordsSessionBuilder())
+	               ->fromFile(storage_path('adsapi_php.ini'))
+	               ->withOAuth2Credential($oAuth2Credential)
+	               ->build();
+
+			$targetingIdeaService = $adWordsServices->get($session, TargetingIdeaService::class);
+
+			// Create selector.
+	        $selector = new TargetingIdeaSelector();
+	        $selector->setRequestType(RequestType::IDEAS);
+	        $selector->setIdeaType(IdeaType::KEYWORD);
+	        $selector->setRequestedAttributeTypes(
+	            [
+					AttributeType::KEYWORD_TEXT,
+					AttributeType::SEARCH_VOLUME,
+					AttributeType::AVERAGE_CPC,
+					AttributeType::COMPETITION,
+	                AttributeType::CATEGORY_PRODUCTS_AND_SERVICES,
+					AttributeType::EXTRACTED_FROM_WEBPAGE,
+					AttributeType::IDEA_TYPE,
+					AttributeType::TARGETED_MONTHLY_SEARCHES
+	            ]
+	        );
+
+	        $paging = new Paging();
+	        $paging->setStartIndex(0);
+	        $paging->setNumberResults(10);
+	        $selector->setPaging($paging);
+
+	        $searchParameters = [];
+	        // Create related to query search parameter.
+	        $relatedToQuerySearchParameter = new RelatedToQuerySearchParameter();
+	        $relatedToQuerySearchParameter->setQueries(
+	            [
+	            	$keyword
+	            ]
+	        );
+	        $searchParameters[] = $relatedToQuerySearchParameter;
+	        if (!empty($language)) {
+		        // Create language search parameter (optional).
+		        // The ID can be found in the documentation:
+		        // https://developers.google.com/adwords/api/docs/appendix/languagecodes
+		        $languageParameter = new LanguageSearchParameter();
+		        $listLanguages = $languageParameter->getLanguages();
+		        $english = new Language();
+		        $english->setId($language);
+		        $languageParameter->setLanguages([$english]);
+		        $searchParameters[] = $languageParameter;
+		    }
+
+	        // Create network search parameter (optional).
+	        $networkSetting = new NetworkSetting();
+	        $networkSetting->setTargetGoogleSearch($google_search);
+	        $networkSetting->setTargetSearchNetwork($search_network);
+	        $networkSetting->setTargetContentNetwork($content_network);
+	        $networkSetting->setTargetPartnerSearchNetwork($partner_search_network);
+
+	        $networkSearchParameter = new NetworkSearchParameter();
+	        $networkSearchParameter->setNetworkSetting($networkSetting);
+	        $searchParameters[] = $networkSearchParameter;
+
+
+	        // Optional: Set additional criteria for filtering estimates.
+	        // See http://code.google.com/apis/adwords/docs/appendix/countrycodes.html
+	        // for a detailed list of country codes.
+	        // Set targeting criteria. Only locations and languages are supported.
+
+	        if (!empty($location)) {
+		        // Create language search parameter (optional).
+		        // The ID can be found in the documentation:
+		        // https://developers.google.com/adwords/api/docs/appendix/languagecodes
+
+		        $locationParameter = new LocationSearchParameter();
+		        $listLocation = $locationParameter->getLocations();
+		        $unitedStates = new Location();
+	        	$unitedStates->setId($location);
+		        $locationParameter->setLocations([$unitedStates]);
+		        $searchParameters[] = $locationParameter;
+		    }
+		    if (!empty($gender)) {
+		        // Optional: Use an existing ad group to generate ideas.
+		        if (!empty($adGroupId)) {
+		            $seedAdGroupIdSearchParameter = new SeedAdGroupIdSearchParameter();
+		            $seedAdGroupIdSearchParameter->setAdGroupId($adGroupId);
+		            $searchParameters[] = $seedAdGroupIdSearchParameter;
+		        }
+
+
+		        $genderTarget = new Gender();
+		        // ID for "male" criterion. The IDs can be found here:
+		        // https://developers.google.com/adwords/api/docs/appendix/genders
+		        $genderTarget->setId($gender);
+		        $genderBiddableAdGroupCriterion = new BiddableAdGroupCriterion();
+		        $genderBiddableAdGroupCriterion->setAdGroupId($adGroupId);
+		        $genderBiddableAdGroupCriterion->setCriterion($genderTarget);
+
+		        // Create an ad group criterion operation and add it to the list.
+		        $genderBiddableAdGroupCriterionOperation = new AdGroupCriterionOperation();
+		        $genderBiddableAdGroupCriterionOperation->setOperand(
+		            $genderBiddableAdGroupCriterion
+		        );
+		        $genderBiddableAdGroupCriterionOperation->setOperator(Operator::ADD);
+
+		        $searchParameters[] = $genderBiddableAdGroupCriterionOperation;
+		    }
+
+	        $selector->setSearchParameters($searchParameters);
+	        $selector->setPaging(new Paging(0, self::PAGE_LIMIT));
+
+	        // Get keyword ideas.
+	        $page = $targetingIdeaService->get($selector);
+
+	        // Print out some information for each targeting idea.
+	        $entries = $page->getEntries();
+	        $finalData = array();
+	        if ($entries !== null) {
+	            foreach ($entries as $targetingIdea) {
+	                $data = MapEntries::toAssociativeArray($targetingIdea->getData());
+	                $keyword = $data[AttributeType::KEYWORD_TEXT]->getValue();
+	                $searchVolume = ($data[AttributeType::SEARCH_VOLUME]->getValue() !== null)
+	                    ? $data[AttributeType::SEARCH_VOLUME]->getValue() : 0;
+	                $averageCpc = $data[AttributeType::AVERAGE_CPC]->getValue();
+	                $competition = $data[AttributeType::COMPETITION]->getValue();
+	                $categoryIds = ($data[AttributeType::CATEGORY_PRODUCTS_AND_SERVICES]->getValue() === null)
+	                    ? $categoryIds = ''
+	                    : implode(
+	                        ', ',
+	                        $data[AttributeType::CATEGORY_PRODUCTS_AND_SERVICES]->getValue()
+	                    );
+	                $extractedFromWebpage = $data[AttributeType::EXTRACTED_FROM_WEBPAGE]->getValue();
+	                $ideaType = $data[AttributeType::IDEA_TYPE]->getValue();
+	                $tragetedMonthlySearches = $data[AttributeType::TARGETED_MONTHLY_SEARCHES]->getValue();
+
+                    $finalData[] = [
+                    	'keyword' => $keyword,
+                    	'searchVolume' => $searchVolume,
+                    	'averageCpc' => ($averageCpc === null) ? 0 : $averageCpc->getMicroAmount(),
+                    	'competition' => $competition,
+                    	'categoryIds' => $categoryIds,
+                    	'extractedFromWebpage' => $extractedFromWebpage,
+						'ideaType' => $ideaType,
+						'tragetedMonthlySearches' => $tragetedMonthlySearches
+                    ];
+	            }
+	        }
+
+	        if (empty($entries)) {
+	            print "No related keywords were found.\n";
+	        }
+	        // echo "<pre>"; print_r($finalData); die;
+	        return $finalData;
+	    }else{
+	    	return view( 'google.google-adds.index', compact('title','languages','locations') );
+	    }
 	}
+
+	public function getGoogleLanguages(){
+
+		$language = [
+			[
+				"language_name" => "Arabic",
+				"language_code" => "ar",
+				"criterion_id" => 1019
+			],
+			[
+				"language_name" => "Bengali",
+				"language_code" => "bn",
+				"criterion_id" => 1056
+			],
+			[
+				"language_name" => "Bulgarian",
+				"language_code" => "bg",
+				"criterion_id" => 1020
+			],
+			[
+				"language_name" => "Catalan",
+				"language_code" => "ca",
+				"criterion_id" => 1038
+			],
+			[
+				"language_name" => "Chinese (simplified)",
+				"language_code" => "zh_CN",
+				"criterion_id" => 1017
+			],
+			[
+				"language_name" => "Chinese (traditional)",
+				"language_code" => "zh_TW",
+				"criterion_id" => 1018
+			],
+			[
+				"language_name" => "Croatian",
+				"language_code" => "hr",
+				"criterion_id" => 1039
+			],
+			[
+				"language_name" => "Czech",
+				"language_code" => "cs",
+				"criterion_id" => 1021
+			],
+			[
+				"language_name" => "Danish",
+				"language_code" => "da",
+				"criterion_id" => 1009
+			],
+			[
+				"language_name" => "Dutch",
+				"language_code" => "nl",
+				"criterion_id" => 1010
+			],
+			[
+				"language_name" => "English",
+				"language_code" => "en",
+				"criterion_id" => 1000
+			],
+			[
+				"language_name" => "Estonian",
+				"language_code" => "et",
+				"criterion_id" => 1043
+			],
+			[
+				"language_name" => "Filipino",
+				"language_code" => "tl",
+				"criterion_id" => 1042
+			],
+			[
+				"language_name" => "Finnish",
+				"language_code" => "fi",
+				"criterion_id" => 1011
+			],
+			[
+				"language_name" => "French",
+				"language_code" => "fr",
+				"criterion_id" => 1002
+			],
+			[
+				"language_name" => "German",
+				"language_code" => "de",
+				"criterion_id" => 1001
+			],
+			[
+				"language_name" => "Greek",
+				"language_code" => "el",
+				"criterion_id" => 1022
+			],
+			[
+				"language_name" => "Gujarati",
+				"language_code" => "gu",
+				"criterion_id" => 1072
+			],
+			[
+				"language_name" => "Hebrew",
+				"language_code" => "iw",
+				"criterion_id" => 1027
+			],
+			[
+				"language_name" => "Hindi",
+				"language_code" => "hi",
+				"criterion_id" => 1023
+			],
+			[
+				"language_name" => "Hungarian",
+				"language_code" => "hu",
+				"criterion_id" => 1024
+			],
+			[
+				"language_name" => "Icelandic",
+				"language_code" => "is",
+				"criterion_id" => 1026
+			],
+			[
+				"language_name" => "Indonesian",
+				"language_code" => "id",
+				"criterion_id" => 1025
+			],
+			[
+				"language_name" => "Italian",
+				"language_code" => "it",
+				"criterion_id" => 1004
+			],
+			[
+				"language_name" => "Japanese",
+				"language_code" => "ja",
+				"criterion_id" => 1005
+			],
+			[
+				"language_name" => "Kannada",
+				"language_code" => "kn",
+				"criterion_id" => 1086
+			],
+			[
+				"language_name" => "Korean",
+				"language_code" => "ko",
+				"criterion_id" => 1012
+			],
+			[
+				"language_name" => "Latvian",
+				"language_code" => "lv",
+				"criterion_id" => 1028
+			],
+			[
+				"language_name" => "Lithuanian",
+				"language_code" => "lt",
+				"criterion_id" => 1029
+			],
+			[
+				"language_name" => "Malay",
+				"language_code" => "ms",
+				"criterion_id" => 1102
+			],
+			[
+				"language_name" => "Malayalam",
+				"language_code" => "ml",
+				"criterion_id" => 1098
+			],
+			[
+				"language_name" => "Marathi",
+				"language_code" => "mr",
+				"criterion_id" => 1101
+			],
+			[
+				"language_name" => "Norwegian",
+				"language_code" => "no",
+				"criterion_id" => 1013
+			],
+			[
+				"language_name" => "Persian",
+				"language_code" => "fa",
+				"criterion_id" => 1064
+			],
+			[
+				"language_name" => "Polish",
+				"language_code" => "pl",
+				"criterion_id" => 1030
+			],
+			[
+				"language_name" => "Portuguese",
+				"language_code" => "pt",
+				"criterion_id" => 1014
+			],
+			[
+				"language_name" => "Romanian",
+				"language_code" => "ro",
+				"criterion_id" => 1032
+			],
+			[
+				"language_name" => "Russian",
+				"language_code" => "ru",
+				"criterion_id" => 1031
+			],
+			[
+				"language_name" => "Serbian",
+				"language_code" => "sr",
+				"criterion_id" => 1035
+			],
+			[
+				"language_name" => "Slovak",
+				"language_code" => "sk",
+				"criterion_id" => 1033
+			],
+			[
+				"language_name" => "Slovenian",
+				"language_code" => "sl",
+				"criterion_id" => 1034
+			],
+			[
+				"language_name" => "Spanish",
+				"language_code" => "es",
+				"criterion_id" => 1003
+			],
+			[
+				"language_name" => "Swedish",
+				"language_code" => "sv",
+				"criterion_id" => 1015
+			],
+			[
+				"language_name" => "Tamil",
+				"language_code" => "ta",
+				"criterion_id" => 1130
+			],
+			[
+				"language_name" => "Telugu",
+				"language_code" => "te",
+				"criterion_id" => 1131
+			],
+			[
+				"language_name" => "Thai",
+				"language_code" => "th",
+				"criterion_id" => 1044
+			],
+			[
+				"language_name" => "Turkish",
+				"language_code" => "tr",
+				"criterion_id" => 1037
+			],
+			[
+				"language_name" => "Ukrainian",
+				"language_code" => "uk",
+				"criterion_id" => 1036
+			],
+			[
+				"language_name" => "Urdu",
+				"language_code" => "ur",
+				"criterion_id" => 1041
+			],
+			[
+				"language_name" => "Vietnamese",
+				"language_code" => "vi",
+				"criterion_id" => 1040
+			]
+		];
+
+		return $language;
+	}
+
+	public function getGooglelocations(){
+		$file = storage_path('app/GoogleAds/geotargets-2020-11-18.csv');
+		$array = [];
+		$row = 0;
+        if (($handle = fopen($file, "r")) !== FALSE) {
+          while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+          	$row++;
+          	if ($row > 1) {
+          		if ( !is_numeric( $data[1] ) ) {
+          			$array[$data[3]] = [
+						'name' => $data[1],
+						'code' => $data[3]
+					];
+          		}
+          		
+          	}
+          }
+          fclose($handle);
+        }
+        usort($array, function($a, $b) {
+		    return $a['name'] <=> $b['name'];
+		});
+
+        return $array;
+    }
 }
