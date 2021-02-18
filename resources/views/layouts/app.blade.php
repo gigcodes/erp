@@ -2162,8 +2162,8 @@ $metaData = '';
 
     @php
 
-        $url = str_replace("http://",'',config('app.url'));
-        $site_account_id = App\StoreWebsiteAnalytic::where('website','LIKE','%'.$url.'%')->first();
+        $url = str_replace(array('https://', 'http://'),array('', ''),config('app.url'));
+        $site_account_id = App\StoreWebsiteAnalytic::where('website',$url)->first();
         $account_id = "";
         if(!empty($site_account_id)){
             $account_id = $site_account_id->account_id;
