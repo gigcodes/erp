@@ -55,7 +55,7 @@ class RunErpLeads extends Command
                 ->where("c.do_not_disturb", 0)
                 ->select(["erp_leads.*", "c.lead_product_freq"])->get();
 
-            \Log::info("Found leads" . $leads->count());
+            \Log::channel('customer')->info("Found leads" . $leads->count());
             if (!$leads->isEmpty()) {
                 foreach ($leads as $lead) {
                     $limitLead = $lead_product_limit;

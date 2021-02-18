@@ -68,6 +68,9 @@
             {!! Form::checkbox('no_size',"on",request("no_size"), ['class' => 'form-control']) !!} No Size
         </div>
         <div class="form-group mr-pd col-md-2">
+            {!! Form::text('supplier_count',request("supplier_count"), ['class' => 'form-control', 'placeholder' => 'Supplier count']) !!}
+        </div>
+        <div class="form-group mr-pd col-md-2">
             <div class='input-group date' id='filter-date'>
                 <input type='text' class="form-control" name="date" value="{{ request('date','') }}" placeholder="Date" />
                 <span class="input-group-addon">
@@ -85,6 +88,15 @@
             <button type="button" class="btn btn-secondary btn-change-size-system"></i>Change Size System</button>
         </div>
     </form>
+    <div class="form-group mr-pd col-md-2">
+        {!! Form::select('size_system',["" => "Select status"] + \App\Helpers\StatusHelper::getStatus(), request("status"), ['data-placeholder' => 'Select status','class' => 'form-control change-status']) !!}
+    </div>
+    <div class="form-group mr-pd col-md-2">    
+        <button type="button" class="btn btn-secondary btn-change-status"></i>Change status</button>
+    </div>
+    <div class="form-group mr-pd col-md-2">    
+        <button type="button" data-toggle="modal" data-target="#missing-report-modal" class="btn btn-secondary"></i>Report</button>
+    </div>
 </div>
 <div class="table-responsive" id="inventory-data">
     <table class="table table-bordered infinite-scroll">
@@ -96,6 +108,8 @@
                 <th>Category</th>
                 <th>Brand</th>
                 <th>Supplier</th>
+                <th>Color</th>
+                <th>Composition</th>
                 <th>Size system</th>
                 <th>Size</th>
                 <th>Size(IT)</th>
@@ -152,6 +166,19 @@
     </div>
 </div>
 
+<div id="supplier-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Suppliers</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="add-size-btn-modal" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -168,6 +195,47 @@
                     <button type="submit" class="btn btn-primary btn-save-erp-size">Save</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div id="missing-report-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Report</h4>
+                <div style="width: 90%; text-align: right;"> <a href="{{route('download-report')}}" class="btn btn-secondary">Download Report</a></div>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered infinite-scroll">
+                    <thead>
+                        <tr>
+                            <th>Supplier</th>
+                            <th>Missing Category</th>
+                            <th>Missing Color</th>
+                            <th>Missing Composition</th>
+                            <th>Missing Name</th>
+                            <th>Missing Short Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($reportData as $value)
+                        <tr>
+                            <td>{{$value->supplier}}</td>
+                            <td>{{$value->missing_category}}</td>
+                            <td>{{$value->missing_color}}</td>
+                            <td>{{$value->missing_composition}}</td>
+                            <td>{{$value->missing_name}}</td>
+                            <td>{{$value->missing_short_description}}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>
@@ -333,6 +401,72 @@ return;
 
     $('#inventory-history-modal').modal('show')
     })
+
+
+    //get suppliers list
+
+    $('body').delegate('.show-supplier-modal', 'click', function() {
+    // let data = $(this).parent().parent().find('.inventory-history').attr('data')
+        var id = $(this).data('id');
+            $.ajax({
+                url: '/productinventory/all-suppliers/'+id,
+                type: 'GET',
+                dataType:'json',
+                success: function (response) {
+                     let result = '';
+                    result += '<table class="table table-bordered">';
+                    result += '<thead><th>Supplier Name</th><th>Title</th><th>Description</th><th>Color</th><th>Composition</th></thead>';
+                    result += '<tbody>';
+                    console.log(response.data);
+                    $.each(response.data, function(i, item) {
+                        result += '<tr>';
+                            if(item.supplier != null) {
+                                result += "<td>" + item.supplier.supplier + "</td>";
+                            }else{
+                                result += "<td>-</td>";
+                            }
+                            result += "<td>" + item.title + "</td>"
+                            result += "<td>" + item.description + "</td>"
+                            result += "<td>" + item.color + "</td>"
+                            result += "<td>" + item.composition + "</td>"
+                            result += '</tr>';
+                        });
+
+                        result += '</tbody>';
+                         result += '</table>';
+                         $('#supplier-modal .modal-body').html(result)
+                        $('#supplier-modal').modal('show')
+                },
+                error: function () {
+                }
+            });
+return;
+    if (data != '[]') {
+        data = JSON.parse(data)
+
+        result += '<table class="table table-bordered">';
+        result += '<thead><th>Supplier</th><th>Date</th><th>Prev Stock</th><th>In Stock</th></thead>';
+        result += '<tbody>';
+        for (let value in data) {
+            result += '<tr>';
+            result += "<td>" + data[value].supplier + "</td>"
+            result += "<td>" + data[value].date + "</td>"
+            result += "<td>" + data[value].prev_in_stock + "</td>"
+            result += "<td>" + data[value].in_stock + "</td>"
+            result += '</tr>';
+        }
+        result += '</tbody>';
+        result += '</table>';
+
+    } else {
+        result = '<h3>This Product dont have any suppliers</h3>';
+    }
+
+    $('#supplier-modal .modal-body').html(result)
+
+    $('#supplier-modal').modal('show')
+    })
+
     var isLoadingProducts = false;
     let page = 1;
     let last_page = {{$inventory_data->lastPage()}};
@@ -439,6 +573,59 @@ return;
         });
     });
 
+    // Update status
+    $(document).on("click",".btn-change-status",function() {
+
+        if($(".change-status").val() == "") {
+            alert("Select status for update");
+            return false;
+        }
+
+        var loader = $('.infinite-scroll-products-loader');
+
+        var ids = [];
+        $(".selected-product-ids:checked").each(function(){
+            ids.push($(this).val());
+        });
+
+        if(ids.length <= 0) {
+            alert("Please select products for update first");
+            return false;
+        }
+
+        // console.log(ids);
+        // return;
+        $.ajax({
+            url: "/productinventory/change-product-status",
+            type: 'POST',
+            data : {
+                product_ids : ids, 
+                product_status : $(".change-status").val()
+            },
+            dataType:"json",
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+        })
+        .done(function(data) {
+            $("#loading-image").hide();
+            if(data.code == 200) {
+                if(data.message != "") {
+                    toastr['success'](data.message, 'success');
+                }
+                if(data.error_messages != "") {
+                    toastr['error'](data.error_messages, 'error');
+                }
+            }
+        })
+        .fail(function(jqXHR, ajaxOptions, thrownError) {
+            console.error(jqXHR);
+        });
+    });
+
     $(document).on("click",".add-size-btn",function() {
     
         var sizeSystem = $(this).data("size-system");
@@ -478,6 +665,33 @@ return;
             url: "/productinventory/store-erp-size",
             type: 'POST',
             data : form.serialize(),
+            dataType:"json",
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+        })
+        .done(function(data) {
+            $("#loading-image").hide();
+            if(data.code == 200) {
+                if(data.message != "") {
+                    toastr['success'](data.message, 'success');
+                }
+            }
+        })
+        .fail(function(jqXHR, ajaxOptions, thrownError) {
+            console.error(jqXHR);
+        });
+    });
+
+
+    $(document).on("click",".btn-report",function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: "/productinventory/get-inventory-report",
+            type: 'GET',
             dataType:"json",
             headers: {
                 'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')

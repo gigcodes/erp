@@ -5,7 +5,7 @@
     <td>
       <span id="sku_long_string_{{$data['id']}}" style="display: none">{{ $data['sku'] }}</span>
       <span id="sku_small_string_{{$data['id']}}"><?php echo \Illuminate\Support\Str::substr($data['sku'],-10) ?> @if(strlen($data['sku'])>10) ...<a href="javascript:;" data-id="{{$data['id']}}" class="show_sku_long">More</a> @endif
-
+      <br>Supplier count : <a  title="show suppliers" data-id="{{ $data['id'] }}" class="btn btn-image show-supplier-modal des-pd">{{$data['total_product']}}</a>
     </td>
     <td>
     <span id="prod_long_string_{{$data['id']}}" style="display: none">{{ $data['product_name'] }}</span>
@@ -16,6 +16,8 @@
     <td>{{ $data['category_name'] }}</td>
     <td>{{ $data['brand_name'] }}</td>
     <td>{{ $data['supplier'] }}</td>
+    <td>{{ $data['color'] }}</td>
+    <td>{{ $data['composition'] }}</td>
     <td>{{ $data['size_system'] }}</td>
     <td>{{ $data['size'] }}</td>
     <td>{{ $data['size_eu'] }}</td>

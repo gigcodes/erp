@@ -82,9 +82,8 @@
 					        			@php $magentoStoreBrandId = $brand->storewebsitebrand($sw->id); @endphp
 					        			{{ $magentoStoreBrandId ? $magentoStoreBrandId : '' }}
 					        		</span>
-					        		
-
-
+					        		<a href="javascript:;" data-href="{!! route('store-website.brand.history',['brand'=>$brand->id,'store'=>$sw->id]) !!}" class="log_history"><i class="fa fa-info-circle" aria-hidden="true"></i>
+					        		</a>
 					        	</td>
 					        <?php } ?>
 					      </tr>
@@ -101,6 +100,20 @@
 <div class="common-modal modal" role="dialog">
   	<div class="modal-dialog" role="document">
   	</div>	
+</div>
+
+
+<div id="HistoryModal" class="modal fade" role="dialog">
+  	<div class="modal-dialog">
+	    <!-- Modal content-->
+	    <div class="modal-content">
+	        <div class="modal-header">
+	        	<h4 class="modal-title">History</h4>
+	          	<button type="button" class="close" data-dismiss="modal">&times;</button>
+	        </div>
+	        <div class="modal-body"></div>
+    	</div>
+	</div>
 </div>
 
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
@@ -130,6 +143,24 @@
             }
         });
 	}
+	jQuery(document).ready(function(){
+		jQuery(".log_history").on("click",function(){
+			$("#loading-image").show();
+			var _this = jQuery(this);
+			$.ajax({
+	            url: jQuery(_this).data('href'),
+	            type: 'GET',
+	            success: function(response) {
+	                jQuery("#loading-image").hide();
+	                jQuery("#HistoryModal .modal-body").html(response);
+	                jQuery("#HistoryModal").modal("show");
+	            },
+	            error: function(response) {
+	            	alert("Something went wrong, please try after sometime.");
+	            }
+        	});
+		});
+	});
 </script>
 
 @endsection

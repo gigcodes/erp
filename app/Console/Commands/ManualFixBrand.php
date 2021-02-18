@@ -47,10 +47,10 @@ class ManualFixBrand extends Command
                     $products        = \App\Product::where("brand", $brand->id)->update(array('brand' => $sb->brand_id));
                     $scrapedProducts = \App\ScrapedProducts::where("brand_id", $brand->id)->update(array('brand_id' => $sb->brand_id));
                     $brand->delete();
-                    \Log::info(sprintf("Brand id %s updated with brand id %s",$brand->id,$sb->brand_id));
+                    \Log::channel('productUpdates')->info(sprintf("Brand id %s updated with brand id %s",$brand->id,$sb->brand_id));
                 }
             }else{
-                \Log::info(sprintf("Not matched brand found : %s",$sb->brand_name));
+                \Log::channel('productUpdates')->info(sprintf("Not matched brand found : %s",$sb->brand_name));
             }
         }
     }

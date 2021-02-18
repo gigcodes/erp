@@ -1,4 +1,4 @@
-         <?php
+<?php
 
 use Illuminate\Http\Request;
 
@@ -16,6 +16,16 @@ use Illuminate\Http\Request;
 //Route::middleware('auth:api')->get('/user', function (Request $request) {
 //    return $request->user();
 //});
+
+
+/**
+*Routes added by Hitesh Start
+**/ 
+Route::post('mailinglist/add', 'Api\v1\MailinglistController@add');
+/**
+*Routes added by Hitesh Ends
+**/ 
+
 
 
 Route::get('scrape/queue', 'Products\ScrapeController@getUrlFromQueue');
@@ -189,3 +199,6 @@ Route::post('notification/create','\App\Http\Controllers\Api\v1\PushFcmNotificat
 
 //Saving Not Found Brand
 Route::get('missing-brand/save','MissingBrandController@saveMissingBrand');
+
+//Store data into the laravel_logs
+Route::post('laravel-logs/save','LaravelLogController@saveNewLogData');

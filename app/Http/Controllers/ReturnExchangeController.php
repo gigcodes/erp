@@ -166,6 +166,8 @@ class ReturnExchangeController extends Controller
                 }catch(\Exception $e) {
                     \Log::info("Sending mail issue at the returnexchangecontroller #158 ->".$e->getMessage());
                 }
+            }catch(\Exception $e) {
+                \Log::channel('productUpdates')->info("Sending mail issue at the returnexchangecontroller #158 ->".$e->getMessage());
             }
         }
 
@@ -359,7 +361,7 @@ class ReturnExchangeController extends Controller
                         ]);
                     }
                 }catch(\Exception $e) {
-                    \Log::info("Sending mail issue at the returnexchangecontroller #158 ->".$e->getMessage());
+                    \Log::channel('productUpdates')->info("Sending mail issue at the returnexchangecontroller #158 ->".$e->getMessage());
                 }
             }
 
@@ -779,7 +781,7 @@ class ReturnExchangeController extends Controller
                     ]);
                 }
             }catch(\Exception $e) {
-                \Log::info("Sending mail issue at the returnexchangecontroller #694 ->".$e->getMessage());
+                \Log::channel('productUpdates')->info("Sending mail issue at the returnexchangecontroller #694 ->".$e->getMessage());
             }
         }
 

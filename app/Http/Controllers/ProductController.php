@@ -65,7 +65,10 @@ use seo2websites\MagentoHelper\MagentoHelper;
 use App\ProductTranslationHistory;
 use App\Translations;
 use App\ProductPushErrorLog;
-
+use App\ProductStatusHistory;
+use App\Status;
+use App\ProductSupplier;
+use Qoraiche\MailEclipse\MailEclipse;
 
 class ProductController extends Controller
 {
@@ -119,6 +122,13 @@ class ProductController extends Controller
 
     public function approvedListing(Request $request,$pageType = "")
     {
+        
+        if(!Setting::has('auto_push_product')){
+            $auto_push_product = Setting::add('auto_push_product',0,'int');
+        }else{
+            $auto_push_product = Setting::get('auto_push_product');
+        }
+       // dd(Setting::get('auto_push_product'));
         $cropped = $request->cropped;
         $colors = (new Colors)->all();
         $categories = Category::all();
@@ -389,7 +399,8 @@ class ProductController extends Controller
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
             'store_websites' => StoreWebsite::all(),
-            'pageType' => $pageType
+            'pageType' => $pageType,
+            'auto_push_product' => $auto_push_product
             //'store_website_count' => StoreWebsite::count(),
         ]);
     }
@@ -1661,113 +1672,157 @@ class ProductController extends Controller
 
     public function listMagento(Request $request, $id)
     {
-        $queueName = [
-            "1" => "mageone",
-            "2" => "magetwo",
-            "3" => "magethree"
-        ];
-        // Get product by ID
-        $product = Product::find($id);
-        //check for hscode
-        $hsCode = $product->hsCode($product->category, $product->composition);
-        $hsCode = true;
-        if ($hsCode) {
-            // If we have a product, push it to Magento
-            if ($product !== null) {
-                // Dispatch the job to the queue
-                //PushToMagento::dispatch($product)->onQueue('magento');
-                $category = $product->category;
-                $brand = $product->brand;
-                //website search
-                $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
-                if(count($websiteArrays) == 0){
-                    \Log::info("Product started ".$product->id." No website found");
-                    $msg = 'No website found for  Brand: '. $product->brand. ' and Category: '. $product->category;
-                    ProductPushErrorLog::log($product->id, $msg, 'error');
-                    LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
-                }else{
-                    $i = 1;
-                    foreach ($websiteArrays as $websiteArray) {
-                        $website = StoreWebsite::find($websiteArray);
-                        if($website){
-                            \Log::info("Product started website found For website".$website->website);
-                            LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id);
-                            //currently we have 3 queues assigned for this task.
-                            if($i > 3) {
-                               $i = 1;
+        try {
+            //code...
+            $queueName = [
+                "1" => "mageone",
+                "2" => "magetwo",
+                "3" => "magethree"
+            ];
+            // Get product by ID
+            $product = Product::find($id);
+            //check for hscode
+            $hsCode = $product->hsCode($product->category, $product->composition);
+            $hsCode = true;
+            if ($hsCode) {
+                // If we have a product, push it to Magento
+                if ($product !== null) {
+                    // Dispatch the job to the queue
+                    //PushToMagento::dispatch($product)->onQueue('magento');
+                    $category = $product->category;
+                    $brand = $product->brand;
+                    //website search
+                    $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+                    if(count($websiteArrays) == 0){
+                        \Log::info("Product started ".$product->id." No website found");
+                        $msg = 'No website found for  Brand: '. $product->brand. ' and Category: '. $product->category;
+                        $logId = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
+                        ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+                    }else{
+                        $i = 1;
+                        foreach ($websiteArrays as $websiteArray) {
+                            $website = StoreWebsite::find($websiteArray);
+                            if($website){
+                                \Log::info("Product started website found For website".$website->website);
+                                LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id);
+                                //currently we have 3 queues assigned for this task.
+                                if($i > 3) {
+                                   $i = 1;
+                                }
+                                PushToMagento::dispatch($product,$website)->onQueue($queueName[$i]);
+                                $i++;
+                            }else{
+                                $msg = 'Website not exist ';
+
+                                $logId = LogListMagento::log($product->id, $msg, 'info');
+                                ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
                             }
-                            PushToMagento::dispatch($product,$website)->onQueue($queueName[$i]);
-                            $i++;
                         }
                     }
-                }
-                // if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                //     $result = MagentoHelper::uploadProduct($product);
-                //     if ( !$result ) {
-                //         // Log alert
-                //         \Log::channel('listMagento')->alert( "[Queued job result] Pushing product with ID " . $product->id . " to Magento failed" );
-
-                //         // Set product to isListed is 0
-                //         $product->isListed = 0;
-                //         $product->save();
-                //     } else {
-                //         // Log info
-                //         \Log::channel('listMagento')->info( "[Queued job result] Successfully pushed product with ID " . $product->id . " to Magento" );
-                //     }
-                // }
-
-                // Update the product so it doesn't show up in final listing
-                $product->isUploaded = 1;
-                $product->save();
-
-                //translate product title and description
-//                $languages = ['hi','ar'];
-                $languages = Language::pluck('locale')->where("status",1)->toArray();
-                $isDefaultAvailable = Product_translation::whereIN('locale', $languages)->where('product_id', $product->id)->first();
-                if (!$isDefaultAvailable) {
-                    $product_translation = new Product_translation;
-                    $product_translation->title = $product->name;
-                    $product_translation->description = $product->short_description;
-                    $product_translation->product_id = $product->id;
-                    $product_translation->locale = 'en';
-                    $product_translation->save();
-                }
-                foreach ($languages as $language) {
-                    $isLocaleAvailable = Product_translation::where('locale', $language)->where('product_id', $product->id)->first();
-                    if (!$isLocaleAvailable) {
+                    // if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                    //     $result = MagentoHelper::uploadProduct($product);
+                    //     if ( !$result ) {
+                    //         // Log alert
+                    //         \Log::channel('listMagento')->alert( "[Queued job result] Pushing product with ID " . $product->id . " to Magento failed" );
+    
+                    //         // Set product to isListed is 0
+                    //         $product->isListed = 0;
+                    //         $product->save();
+                    //     } else {
+                    //         // Log info
+                    //         \Log::channel('listMagento')->info( "[Queued job result] Successfully pushed product with ID " . $product->id . " to Magento" );
+                    //     }
+                    // }
+    
+                    // Update the product so it doesn't show up in final listing
+                    $product->isUploaded = 1;
+                    $product->save();
+                    //return json_encode([$product]);
+                    //translate product title and description
+    //                $languages = ['hi','ar'];
+                    $languages = Language::pluck('locale')->where("status",1)->toArray();
+                    $isDefaultAvailable = Product_translation::whereIN('locale', $languages)->where('product_id', $product->id)->first();
+                    if (!$isDefaultAvailable) {
                         $product_translation = new Product_translation;
-                        $googleTranslate = new GoogleTranslate();
-                        $title = $googleTranslate->translate($language, $product->name);
-                        $description = $googleTranslate->translate($language, $product->short_description);
-                        if ($title && $description) {
-                            $product_translation->title = $title;
-                            $product_translation->description = $description;
-                            $product_translation->product_id = $product->id;
-                            $product_translation->locale = $language;
-                            $product_translation->save();
-                        }
+                        $product_translation->title = isset($product->name) ? $product->name : "";
+                        $product_translation->description = isset($product->short_description) ? $product->short_description : "";
+                        $product_translation->product_id = $product->id;
+                        $product_translation->locale = 'en';
+                        $product_translation->save();
+                    }else{
+                        $msg = 'Product translation data not exists';
+
+                        $logId = LogListMagento::log($product->id, $msg, 'info');
+                        ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
                     }
+                    if(count($languages) > 0){
+                        foreach ($languages as $language) {
+                            $isLocaleAvailable = Product_translation::where('locale', $language)->where('product_id', $product->id)->first();
+                            if (!$isLocaleAvailable) {
+                                $product_translation = new Product_translation;
+                                $googleTranslate = new GoogleTranslate();
+                                $title = $googleTranslate->translate($language, $product->name);
+                                $description = $googleTranslate->translate($language, $product->short_description);
+                                if ($title && $description) {
+                                    $product_translation->title = $title;
+                                    $product_translation->description = $description;
+                                    $product_translation->product_id = $product->id;
+                                    $product_translation->locale = $language;
+                                    $product_translation->save();
+                                }else{
+                                    $msg = 'Title and description are not available';
+                                    
+                                    $logId = LogListMagento::log($product->id, $msg, 'info');
+                                    ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+                                }
+                            }else{
+                                $msg = 'Locale data not exists';
+                                $logId = LogListMagento::log($product->id, $msg, 'info');
+                                ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+                            }
+                        }
+                    }else{
+                        $msg = 'Languages data not exists';
+                        
+                        $logId = LogListMagento::log($product->id, $msg, 'info');
+                        ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+                    }
+                    
+                    // Update the product so it doesn't show up in final listing
+                    $product->isUploaded = 1;
+                    $product->save();
+                    // Return response
+                    return response()->json([
+                        'result' => 'queuedForDispatch',
+                        'status' => 'listed'
+                    ]);
                 }
-                // Update the product so it doesn't show up in final listing
-                $product->isUploaded = 1;
-                $product->save();
-                // Return response
-                return response()->json([
-                    'result' => 'queuedForDispatch',
-                    'status' => 'listed'
-                ]);
             }
+            
+            $msg = 'Hs Code not found of product id '.$id.'. Parameters where category_id: '. $product->category. ' and composition: '. $product->composition;
+
+            $logId = LogListMagento::log($product->id, $msg, 'info');
+            ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+    
+            // Return error response by default
+            return response()->json([
+                'result' => 'productNotFound',
+                'status' => 'error'
+            ]);
+        } catch(Exception $e) {
+            //throw $th;
+            $msg = $e->getMessage();
+
+            $logId = LogListMagento::log($id, $msg, 'info');
+            ProductPushErrorLog::log("",$id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+           
+            // Return error response by default
+            return response()->json([
+                'result' => 'productNotFound',
+                'status' => 'error'
+            ]);
         }
         
-        $msg = 'Hs Code not found of product id '.$id.'. Parameters where category_id: '. $product->category. ' and composition: '. $product->composition;
-        \App\ProductPushErrorLog::log($id, $msg, 'error');
-		\App\Loggers\LogListMagento::log($product->id, $msg, 'info');
-
-        // Return error response by default
-        return response()->json([
-            'result' => 'productNotFound',
-            'status' => 'error'
-        ]);
     }
 
     public function unlistMagento(Request $request, $id)
@@ -2463,8 +2518,8 @@ class ProductController extends Controller
         if (!empty($all_product_ids)) {
             $suppliersGroups = \App\Product::leftJoin('product_suppliers', 'product_id', '=', 'products.id')
                 ->where('products.id', $all_product_ids)
-                ->groupBy("supplier_id")
-                ->select([\DB::raw("count(products.id) as total_product"), "supplier_id"])
+                ->groupBy("product_suppliers.supplier_id")
+                ->select([\DB::raw("count(products.id) as total_product"), "product_suppliers.supplier_id"])
                 ->pluck("total_product", "supplier_id")
                 ->toArray();
             $suppliersIds = array_values(array_filter(array_keys($suppliersGroups)));
@@ -2616,6 +2671,14 @@ class ProductController extends Controller
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         //\Log::info(print_r(\DB::getQueryLog(),true));
 
+        $mailEclipseTpl = mailEclipse::getTemplates()->where('template_dynamic',FALSE);;
+        $rViewMail      = [];
+        if (!empty($mailEclipseTpl)) {
+            foreach ($mailEclipseTpl as $mTpl) {
+                $rViewMail[$mTpl->template_slug] = $mTpl->template_name . " [" . $mTpl->template_description . "]";
+            }
+        }
+
         return view('partials.image-grid', compact(
             'products',
             'products_count',
@@ -2639,7 +2702,8 @@ class ProductController extends Controller
             'countSuppliers',
             'customerId',
             'categoryArray',
-            'term'
+            'term',
+            'rViewMail'
         ));
     }
 
@@ -2812,12 +2876,23 @@ class ProductController extends Controller
             // Get next product
             $product = Product::where('status_id', StatusHelper::$autoCrop)
                 ->where('category', '>', 3);
-
             // Add order
             $product = QueryHelper::approvedListingOrder($product);
-
+            //get priority
+            $product = $product->with('suppliers_info.supplier')->whereHas('suppliers_info.supplier',function($query){
+               // $query->where('priority','!=',null);
+            })->whereHasMedia('original')->get()->transform(function($productData){
+                $productData->priority = isset($productData->suppliers_info->first()->supplier->priority) ? $productData->suppliers_info->first()->supplier->priority : 5;
+                return $productData;
+            });
+            $product = $product->sortBy('priority')->first();
+            unset($product->priority);
+            // return response()->json([
+            //     'status' => $product
+            // ]);
             // Get first product
-            $product = $product->whereHasMedia('original')->first();
+           // $product = $product->whereHasMedia('original')->first();
+           
         }
 
         
@@ -3062,7 +3137,13 @@ class ProductController extends Controller
 
             if ($productMediacount <= $cropCount) {
                 $product->cropped_at = Carbon::now()->toDateTimeString();
-                $product->status_id = StatusHelper::$finalApproval;
+                //check final approval
+                if($product->checkPriceRange()){
+                    $product->status_id = StatusHelper::$finalApproval;
+                }else{
+                    $product->status_id = StatusHelper::$priceCheck;
+                }
+                
                 $product->scrap_priority = 0;
                 $product->save();
             } else {
@@ -3388,6 +3469,84 @@ class ProductController extends Controller
         return response()->json([
             'status' => 'success'
         ]);
+    }
+
+    public function productDescription(Request $request)
+    {
+        $query = ProductSupplier::with('supplier','product');
+        if($request->get('product_id') != ''){
+             $products = $query->where('product_id',$request->get('product_id'));
+        }
+        if($request->get('supplier') != ''){
+            $products = $query->where('supplier_id',$request->get('supplier'));
+       }
+       if($request->get('sku') != ''){
+            $products = $query->whereHas('product',function($query) use($request){
+                $query->where('sku',$request->get('sku'));
+            });
+        }
+        $products_count = $query->count();
+        $products = $query->orderBy('product_id')->paginate(50);
+        $supplier = Supplier::all();
+        return view('products.description', compact('products','products_count','request','supplier'));
+       // dd($products);
+    }
+
+    public function productScrapLog(Request $request)
+    {
+        //dd($request->input());
+        $products = Product::orderBy('updated_at', 'DESC');
+
+        if($request->get('product_id') != ''){
+           // $products = Product::where('id',$request->get('product_id'))->get();
+        }
+        if ($request->get('select_date') != '') {
+            $date = $request->get('select_date');
+        }else{
+            $date = date('Y-m-d');
+        }
+        $statusarray = array();
+        if ($request->get('status') != '') {
+            $statusarray = [$request->get('status')];
+        }else{
+            $statusarray = [2,4,9,15,20,33,35,36,38,39,40];
+        }
+
+        $products = $products->whereHas('productstatushistory',function($query) use($date,$statusarray,$request){
+            $query->whereDate('created_at',$date);
+            $query->whereIn('new_status',$statusarray);
+            if($request->get('product_id') != ''){
+             $query->where('product_id',$request->get('product_id'));
+            }
+        })->with(['productstatushistory'=>function($query) use($date,$statusarray,$request){
+            $query->whereDate('created_at',$date);
+            $query->whereIn('new_status',$statusarray);
+            if($request->get('product_id') != ''){
+                $query->where('product_id',$request->get('product_id'));
+               }
+        }]);
+
+        $products_count = $products->count();
+        
+        $products = $products->paginate(50);
+
+        $products->getCollection()->transform(function($getproduct){
+            $getproduct->total_count = $getproduct->productstatushistory->count();
+            $history_log = array();
+            foreach($getproduct->productstatushistory->toArray() as $key=>$history){
+                $history["created_at"]= Carbon::parse($history["created_at"])->format('H:i');
+                $history_log[$history['new_status']][] = $history;
+            }
+            $getproduct->alllog_status = $history_log;
+            return $getproduct;
+        });
+        //$allproduct = Product::select('name','id')->get();
+
+        $status = \App\Helpers\StatusHelper::getStatus();
+        //dd($status);
+        //echo "<pre>";
+       //  print_r($products->toArray());
+         return view('products.statuslog', compact('products', 'request','status','products_count','request'));
     }
 
     public function productStats(Request $request)
@@ -4088,6 +4247,17 @@ class ProductController extends Controller
         }
 
         return response()->json(["code" => 500, "data" => [], "message" => "Required field is missing"]);
+    }
+
+    public function changeAutoPushValue(Request $request)
+    {
+        if(Setting::get('auto_push_product') == 0){
+            $val = 1;
+        }else{
+            $val = 0;
+        }
+        $settings = Setting::set('auto_push_product', $val, 'int');
+        return response()->json(["code" => 200, "data" => $settings, "message" => "Status changed"]);
     }
 
     public function pushProduct()

@@ -26,7 +26,7 @@ class LiveChatController extends Controller
     //Webhook
     public function incoming(Request $request)
     {
-        \Log::info($request->getContent());
+        \Log::channel('chatapi')->info($request->getContent());
         $receivedJson = json_decode($request->getContent());
 
         if (isset($receivedJson->event_type)) {
@@ -1268,7 +1268,7 @@ if(isset($request->messageId)){
                 \App\Email::create($params);
 
             }catch(\Exception $e) {
-                \Log::info("Sending mail issue at the livechatcontroller #1271 ->".$e->getMessage());
+                \Log::channel('chatapi')->info("Sending mail issue at the livechatcontroller #1271 ->".$e->getMessage());
             }
 
         }

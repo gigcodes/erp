@@ -30,7 +30,7 @@ class Mailinglist extends Model
      */
     public function listCustomers()
     {
-        return $this->belongsToMany(Customer::class, 'list_contacts', 'list_id', 'customer_id');
+        return $this->belongsToMany(Customer::class, 'list_contacts', 'list_id', 'customer_id')->withTimestamps();
     }
 
 }

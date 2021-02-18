@@ -4,6 +4,11 @@
 
 @section('styles')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+<!-- Custom CSS 02/02/2021  -->
+<style>
+.table-res tbody td:last-child{display: flex; align-items: center; justify-content: flex-start; width: 100%; padding: 20px 5px; border-bottom: 0; border-left:0; } 
+.table-res tbody tr:last-child td {border-bottom: 1px solid #ddd; } 
+.table-res tbody tr:first-child td {border-top:0; } </style>
 @endsection
 
 @section('content')
@@ -59,7 +64,7 @@
         </div>
     </form>
 
-	<div class="table-responsive mt-3">
+	<div class="table-responsive mt-3 table-res">
       <table class="table table-bordered">
         <thead>
           <tr>
@@ -75,6 +80,7 @@
             <th>Invoice Number</th>
             <th>Invoice</th>
             <th>Due Date</th>
+            <th>Paid Date</th>
             <th>Location</th>
             <th style="width: 120px">Action</th>
           </tr>
@@ -95,6 +101,7 @@
                     <td>{{ @$item->invoice_number?? 'N/A' }}</td>
                     <td>{{ @$item->invoice_amount ? $item->currency.$item->invoice_amount : 'N/A' }}</td>
                     <td>{{ @$item->due_date?? 'N/A' }}</td>
+                    <td>{{ $item->paid_date ? date('d-m-Y', strtotime($item->paid_date)) :  'N/A' }}</td>
 
                     <td>{{ (@$item->waybill_track_histories->count() > 0)? @$item->waybill_track_histories->last()->location : "" }}</td>
                     <td>
@@ -120,6 +127,11 @@
                         <a class="btn btn-edit-shipment" href="javascript:void(0);" title="Edit icon" data-waybill-id="{{ $item->id }}">
                             <i class="fa fa-edit" aria-hidden="true"></i>
                         </a>
+                        @if($item->invoice_number && $item->cost_of_shipment)
+                            <a class="btn btn-payment" href="javascript:void(0);" title="Payment icon" data-waybill-id="{{ $item->id }}">
+                                <i class="fa fa-money" aria-hidden="true"></i>
+                            </a>
+                        @endif
                     </td>
                 </tr>
             @empty
@@ -205,11 +217,27 @@
     </div>
 </div>
 
+
+<div id="payment-shipment" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Payment For Shipement</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <a href class="btn btn-secondary btn-save-shipment-payment-info">Save</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 @include("partials.modals.generate-awb-modal")
 @include('shipment.partial.modal')
-
-
-
 @endsection
 
 @section('scripts')
@@ -291,6 +319,21 @@ $(document).on('click', '#send_email_btn', function() {
     var orderId = $(this).data('order-id');
     $("#order_id").val(orderId);
     $('#send_email_modal').modal('show');
+});
+
+// Fetch Data for shipment details and open popup
+$(document).on('click', '.btn-payment', function() {
+    var waybillId = $(this).data('waybill-id');
+    $.ajax({
+        url: "{{ route('shipment.get-payment-info') }}",
+        type: 'GET',
+        data: {'waybill_id': waybillId},
+        success: function(data) {
+            console.log(data.data);
+            $("#payment-shipment .modal-body").html(data.data);
+            $('#payment-shipment').modal('show');
+        }
+    });
 });
 
 $(document).on("click",".btn-add-items",function(e) {
@@ -483,6 +526,26 @@ $(document).on("click",".btn-save-shipment",function(e){
     e.preventDefault();
     $this = $(this);
     var form = $("#edit-shipment").find("form");
+    $.ajax({
+        url: form.attr("action"),
+        type: form.attr("method"),
+        data: form.serialize(),
+    }).done( function(response) {
+         if(response.code == 200) {
+            toastr['success']('data updated successfully!');
+            location.reload();
+         }else{
+            toastr['error']('Request Failed!');
+            console.log("Response",response);
+         }
+    });
+});
+
+// Submit Shipment payment form
+$(document).on("click",".btn-save-shipment-payment-info",function(e){
+    e.preventDefault();
+    $this = $(this);
+    var form = $("#payment-shipment").find("form");
     $.ajax({
         url: form.attr("action"),
         type: form.attr("method"),

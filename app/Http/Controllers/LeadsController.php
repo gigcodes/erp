@@ -589,7 +589,7 @@ class LeadsController extends Controller
         $product_names = '';
 
         $params['customer_id'] = $customer->id;
-        \Log::info("Lead send price started : " . $customer->id);
+        \Log::channel('customer')->info("Lead send price started : " . $customer->id);
         foreach ($request->selected_product as $product_id) {
 
             $product = Product::find($product_id);
@@ -650,7 +650,7 @@ class LeadsController extends Controller
             }
 
             $autoApprove = \App\Helpers\DevelopmentHelper::needToApproveMessage();
-            \Log::info("Send price started : " . $chat_message->id);
+            \Log::channel('customer')->info("Send price started : " . $chat_message->id);
 
             if ($autoApprove && !empty($chat_message->id)) {
                 // send request if auto approve

@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\StoreWebsiteAnalytic;
 use App\StoreWebsite;
 use Illuminate\Support\Facades\Validator;
+use Storage;
+use File;
 
 class StoreWebsiteAnalyticsController extends Controller
 {
@@ -25,48 +27,71 @@ class StoreWebsiteAnalyticsController extends Controller
     }
 
     public function create(Request $request)
-    {   if($request->post()){
-        $rules = [
+    {
+        if($request->post()){
+            $rules = [
                 'website' => 'required',
                 'account_id' => 'required',
                 'view_id' => 'required',
                 'store_website_id' => 'required|integer',
             ];
 
+            //validation for googles service account json file for google analytics
+            if (!$request->id) {
+                $rules['google_service_account_json'] = 'required|file|mimetypes:application/json';
+            }else{
+                //$rules['google_service_account_json'] = 'file|mimetypes:application/json';
+            }
+
             $messages = [
-       'website' => 'Website field is required.',
-       'account_id' => 'Account Id field is required.',
-       'view_id' => 'View Id field is required.',
-       'store_website_id' => 'Store Id field is required.',
-       'store_website_id' => 'Store Id value must be a number.',
-   ];
+               'website' => 'Website field is required.',
+               'account_id' => 'Account Id field is required.',
+               'view_id' => 'View Id field is required.',
+               'store_website_id' => 'Store Id field is required.',
+               'store_website_id' => 'Store Id value must be a number.',
+               'google_service_account_json' => 'Please Upload Valid Google Service Account Json File.',
+            ];
 
-   $validation = validator(
-       $request->all(),
-       $rules,
-       $messages
-   );
+            $validation = validator(
+               $request->all(),
+               $rules,
+               $messages
+            );
+            //If validation fail send back the Input with errors
+            if($validation->fails()) {
+                //withInput keep the users info
+                return redirect()->back()->withErrors($validation)->withInput();
+            } else {
 
-   //If validation fail send back the Input with errors
-     if($validation->fails()) {
-         //withInput keep the users info
-         return redirect()->back()->withErrors($validation)->withInput();
-     } else {
-         if($request->id){
-             $updatedData = $request->all();
-             unset($updatedData['_token']);
-             StoreWebsiteAnalytic::whereId($request->id)->update($updatedData);
-             return redirect()->to('/store-website-analytics/index')->with('success','Store Website Analytics updated successfully.');
-         }else{
-             StoreWebsiteAnalytic::create($request->all());
-             return redirect()->to('/store-website-analytics/index')->with('success','Store Website Analytics saved successfully.');
-         }
-     }
-    }else{
-        $storeWebsites = StoreWebsite::where('deleted_at',null)->get();
-        return view('store-website-analytics.create',compact('storeWebsites'));
-    }
+                //file upload code for googles service account json file for google analytics
+                $filename = '';
+                if ($request->hasFile('google_service_account_json')) {
+                    $GoogleServiceAccountJsonFile = $request->file('google_service_account_json');
+                    $extension = $GoogleServiceAccountJsonFile->getClientOriginalExtension();
+                    $filename = $request->view_id.$GoogleServiceAccountJsonFile->getFilename().'.'.$extension;
+                    // file will be uploaded to resources/assets/analytics_files
+                    Storage::disk('analytics_files')->put($filename, File::get($GoogleServiceAccountJsonFile));
+                }
 
+                if($request->id){
+                    $updatedData = $request->all();
+                    unset($updatedData['_token']);
+                    // save uploaded googles service account json file name
+                    $updatedData['google_service_account_json'] = $filename;
+                    StoreWebsiteAnalytic::whereId($request->id)->update($updatedData);
+                    return redirect()->to('/store-website-analytics/index')->with('success','Store Website Analytics updated successfully.');
+                }else{
+                    $insertData = $request->all();
+                    // save uploaded googles service account json file name
+                    $insertData['google_service_account_json'] = $filename;
+                    StoreWebsiteAnalytic::create($insertData);
+                    return redirect()->to('/store-website-analytics/index')->with('success','Store Website Analytics saved successfully.');
+                }
+            }
+        }else{
+            $storeWebsites = StoreWebsite::where('deleted_at',null)->get();
+            return view('store-website-analytics.create',compact('storeWebsites'));
+        }
     }
 
     public function edit($id = null)

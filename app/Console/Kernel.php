@@ -465,7 +465,7 @@ class Kernel extends ConsoleKernel
 
         // Github
         $schedule->command('live-chat:get-tickets')->everyFifteenMinutes();
-        $schedule->command('google-analytics:run')->daily();
+        $schedule->command('google-analytics:run')->everyFifteenMinutes();
         $schedule->command('newsletter:send')->daily();
         $schedule->command('delete:store-website-category')->daily();
         //$schedule->command('github:load_branch_state')->hourly();

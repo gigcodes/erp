@@ -21,6 +21,11 @@ use Plank\Mediable\Media;
 use App\Loggers\LogListMagento;
 use App\ProductPushErrorLog;
 use Google\Cloud\Translate\V3\Translation;
+use App\Helpers\ProductHelper;
+use App\Jobs\PushToMagento;
+use App\HsCodeGroup;
+use App\HsCode;
+use App\HsCodeGroupsCategoriesComposition;
 
 class LandingPageController extends Controller
 {
@@ -70,6 +75,7 @@ class LandingPageController extends Controller
         }
 
         $productStatus = request("product_status");
+
         if($productStatus != null) {
             $records = $records->where("p.status_id", $productStatus);
         }
@@ -349,6 +355,48 @@ class LandingPageController extends Controller
 
     }
 
+
+    public function pushToMagentoPro(Request $request, $id)
+    {
+        $landingPage = LandingPageProduct::where("id", $id)->first();
+        $queueName = [
+            "1" => "mageone",
+            "2" => "magetwo",
+            "3" => "magethree"
+        ];
+        $i = 1;
+        if(!empty($landingPage) && $landingPage->store_website_id > 0){
+            // Get product by ID
+            $product = Product::find($landingPage->product_id);
+            $websiteArrays = StoreWebsite::where('id', $landingPage->store_website_id)->first();
+            if($websiteArrays){
+                \Log::info("Product started website found For website".$websiteArrays->website);
+                LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$websiteArrays->id);
+                PushToMagento::dispatch($product,$websiteArrays)->onQueue($queueName[$i]);
+                return response()->json(["code" => 200, "data" => "", "message" => "Success!"]);
+            }else{
+                return response()->json(["code" => 500, "data" => "", "message" => "Please select the store website!"]);
+            }
+        }
+    }
+
+    public function updateMagentoStock(Request $request, $id){
+        $landingPage = LandingPageProduct::where("id", $id)->first();
+        // if stock status exist then store it
+        if ($request->stock_status != null) {
+            $landingPage->stock_status = $request->stock_status;
+            if ($landingPage->stock_status == 1) {
+                $landingPage->start_date = date("Y-m-d H:i:s");
+                $landingPage->end_date   = date("Y-m-d H:i:s", strtotime($landingPage->start_date . ' + 1 days'));
+            }
+            $landingPage->save();
+            return response()->json(["code" => 200, "data" => "", "message" => "Success!"]);
+        }else{
+            return response()->json(["code" => 500, "data" => "", "message" => "Please select the store website!"]);
+        }
+
+
+    }
     public function updateTime(Request $request)
     {
         $productIds = explode(',', $request->product_id);

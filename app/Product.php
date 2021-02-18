@@ -1099,11 +1099,14 @@ class Product extends Model
             'supplier',
             'products.sku',
             'products.size',
+            'products.color',
+            'products.composition',
             'products.size_eu',
             'psu.size_system',
             'status_id',
             'products.created_at',
-            'inventory_status_histories.date as history_date'
+            'inventory_status_histories.date as history_date',
+            \DB::raw('count(products.id) as total_product')
         );
         $query =  \App\Product::leftJoin("brands as b",function($q){
                 $q->on("b.id","products.brand");
@@ -1112,7 +1115,7 @@ class Product extends Model
                 $q->on("c.id","products.category");
             })
             ->Join("product_suppliers as psu",function($q){
-                $q->on("psu.product_id","products.id")->on("psu.supplier_id","products.supplier_id");
+                $q->on("psu.product_id","products.id");
             });
 
         //  check filtering
@@ -1163,7 +1166,12 @@ class Product extends Model
                 ->orWhere('products.id', 'LIKE', "%$term%");
             });
         }
-        return $query->orderBy('products.created_at','DESC')->paginate(Setting::get('pagination'),$columns);
+
+        if(isset($filter_data['supplier_count'])) {
+            $query = $query->havingRaw('count(products.id) = '.$filter_data['supplier_count']);
+        }
+
+        return $query->groupBy("products.id")->with('suppliers_info')->orderBy('products.created_at','DESC')->paginate(Setting::get('pagination'),$columns);
     }
     
     public static function getPruductsNames()
@@ -1311,5 +1319,31 @@ class Product extends Model
         $percentage = self::IVA_PERCENTAGE;
         $percentageA = ($price * $percentage) / 100;
         return $price + $percentageA;
+    }
+
+    public function productstatushistory()
+    {
+        return $this->hasMany('App\ProductStatusHistory','product_id');
+    }
+
+    public function checkPriceRange()
+    {
+        $get_brand_segment = $this->brands()->first();
+        $get_category = $this->category;
+
+        if($get_brand_segment != null &&  isset($get_brand_segment) && $get_brand_segment->brand_segment != ""){
+            $getbrandpricerange = \App\BrandCategoryPriceRange::where(['category_id'=>$get_category,'brand_segment'=>$get_brand_segment->brand_segment])->first();
+            if($getbrandpricerange != null){
+                if($this->price != "" && $this->price >= $getbrandpricerange->min_price && $this->price <= $getbrandpricerange->max_price){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else{
+                return true;
+            }
+        }else{
+            return true;
+        }
     }
 }

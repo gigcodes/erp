@@ -56,6 +56,7 @@
                         <th>Store Website</th>
                         <th>Url Key</th>
                         <th>URl</th>
+                        <th>Result</th>
                         <th>Result Type</th>
                     </tr>
                     </thead>
@@ -66,6 +67,7 @@
                                 <td><?php echo $record->store_website_name; ?></td>
                                 <td><?php echo $record->url_key; ?></td>
                                 <td><?php echo $record->url; ?></td>
+                                <td><?php echo $record->result; ?></td>
                                 <td><?php echo $record->result_type; ?></td>
                             </tr>
                         <?php } ?>

@@ -20,4 +20,8 @@ class ProductStatusHistory extends Model
     {
         \App\ProductStatusHistory::insert($data);
     }
+
+    public function product(){
+        return $this->belongsTo('App\Product');
+    }
 }

@@ -21,6 +21,7 @@ use App\DeveloperModule;
 use App\Github\GithubRepository;
 use App\MailinglistTemplate;
 use App\ChatbotErrorLog;
+use App\ChatbotQuestionErrorLog;
 class QuestionController extends Controller
 {
     /**
@@ -205,7 +206,31 @@ class QuestionController extends Controller
             if($request->keyword_or_question == 'entity') {
                 $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id));
             }
+
+            
+            // if (property_exists($result, 'error')) {
+            //     $question_error = new ChatbotQuestionErrorLog();
+            //     $question_error->chatbot_question_id = $chatbotQuestion->id;
+            //     $question_error->type = $request->keyword_or_question;
+            //     $question_error->request = json_encode($request->all());
+            //     $question_error->response = json_encode($result);
+            //     $question_error->response_type = "error";
+            //     $question_error->save();
+            //     ChatbotQuestion::where("id", $chatbotQuestion->id)->delete();
+            //     return response()->json(["code" => $result->code, "error" => $result->error]);
+            // }
+
+            // $question_error = new ChatbotQuestionErrorLog();
+            // $question_error->chatbot_question_id = $chatbotQuestion->id;
+            // $question_error->type = $request->keyword_or_question;
+            // $question_error->request = json_encode($request->all());
+            // $question_error->response = json_encode($result);
+            // $question_error->response_type = "success";
+            // $question_error->save();
         }
+               
+
+        
         $route = route("chatbot.question.edit", [$chatbotQuestion->id]);
         return response()->json(["code" => 200, "data" => $chatbotQuestion, "redirect" => $route]);
     }
@@ -855,6 +880,19 @@ class QuestionController extends Controller
             return response()->json(['message' => 'Something went wrong, check error log','code' => 500]);
         }
         
+    }
+
+    public function showLogById(Request $request){
+        $chatbotQuestion = ChatbotQuestionErrorLog::where("chatbot_question_id", $request->id)->get();
+        $body = "";
+        $i = 0;
+        // foreach($chatbotQuestion as $error){
+        //     $response = $error->response;
+        //     $st = 
+        //     $status = $error->status == "Success" ? "<td>".$error->status."</td>" : "";
+        //     $body .= "<tr><td>".$i."</td><td>".$response."</td><td>".;
+        // }
+        return response()->json(['code' => 200,'data' => $chatbotQuestion],200);
     }
     
 }

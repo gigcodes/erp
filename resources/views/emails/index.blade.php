@@ -49,6 +49,7 @@
 	<div class="col-lg-12 margin-tb">
 		<div class="pull-right mt-3">
 			<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#statusModel">Create Status</button>
+      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#getCronEmailModal">Cron Email</button>
 			<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createEmailCategorytModal">Create Category</button>
 		</div>
 	</div>   
@@ -239,6 +240,70 @@
 	</div>
 </div>
 
+<div id="getCronEmailModal" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Cron Email</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+      <div class="modal-body">
+        <div class="table-responsive mt-3">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Signature</th>
+                <th>Status</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Updated</th>
+              </tr>
+            </thead>
+
+            <tbody>
+            @if(empty($reports))
+            <tr>
+                <td colspan="5">
+                    No Result Found
+                </td>
+            </tr>
+            @else
+            @foreach ($reports as $report)
+            <tr>
+              <td>
+                {{ $report->signature }}
+              </td>
+              <td>
+                {{ !empty($report->last_error) ? 'Failed' : 'Success' }}
+              </td>
+              <td>
+                {{ $report->start_time }}
+              </td>
+              <td>{{ $report->end_time }}</td>
+            
+              <td>{{ $report->updated_at->format('Y-m-d H:i:s')  }}</td>
+            </tr>
+
+            @endforeach
+            @if ($reports->lastPage() > 1)
+              <ul class="pagination cronEmailPagination">
+                  @for ($i = 1; $i <= $reports->lastPage(); $i++)
+                      <li class="cronEmailActive{{ $i }} {{ ($i == 1) ? ' active' : '' }}">
+                          <a class="cronEmailPage" data-id= "{{ $i }}" href="#">{{ $i }}</a>
+                      </li>
+                  @endfor
+              </ul>
+            @endif
+            @endif            
+            </tbody>
+          </table>
+        </div>
+      </div>    
+			</div>
+		</div>
+	</div>
+</div>
 
 <div id="statusModel" class="modal fade" role="dialog">
 	<div class="modal-dialog">
@@ -302,6 +367,28 @@
 						<button type="submit" class="btn btn-secondary">Store</button>
 					</div>
 				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+{{-- Showing file status models --}}
+<div id="showFilesStatusModel" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Files status</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="Status">Files status :</label>
+					<div id="filesStatus" class="form-group">  </div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -663,6 +750,32 @@
             });
         });
 
+    $(document).on('click', '.cronEmailPage', function(e) {
+        var page = $(this).attr('data-id');
+        $.ajax({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: '/cron/gethistory/'+page,
+          dataType: 'json',
+          type: 'post',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done( function(response) {
+          console.log(response.data);
+          // Show data in modal
+          $('#getCronEmailModal tbody').html(response.data);
+          $('.cronEmailPagination li').removeClass('active');
+          $('.cronEmailActive'+page).addClass('active');
+          $('#getCronEmailModal').modal('show');
+
+          $("#loading-image").hide();
+        }).fail(function(errObj) {
+          $("#loading-image").hide();
+        });
+    });
+
     function opnMsg(email) {
       console.log(email);
       $('#emailSubject').html(email.subject);
@@ -701,6 +814,40 @@
     function excelImporter(id) {
         $('#excel_import_email_id').val(id)
         $('#excelImporter').modal('toggle');
+    }
+    
+    function showFilesStatus(id) {
+		
+        if( id ){
+			$.ajax({
+				headers: {
+					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				},
+				data : {id},
+				url: '/email/'+id+'/get-file-status',
+				type: 'post',
+
+				beforeSend: function () {
+						$("#loading-image").show();
+					},
+				}).done( function(response) {
+					if (response.status === true) {
+						$("#filesStatus").html(response.mail_status);
+						$('#showFilesStatusModel').modal('toggle');
+					}else{
+						alert('Something went wrong')
+					}
+					
+					$("#loading-image").hide();
+				}).fail(function(errObj) {
+					$("#loading-image").hide();
+					alert('Something went wrong')
+				});
+		}else{
+			alert('Something went wrong')
+		}
+
+        // $('#excelImporter').modal('toggle');
     }
 
     function importExcel() {

@@ -147,16 +147,26 @@ class Organization
      * @return object organizationusers
      */
 
-    public function getOrgUsers($orgId = null, $offset = 0)
+    public function getOrgUsers($orgId = null, $offset = 0 , $pagestartId = 0)
     {
 
         $curl = new Curl();
         $curl->setHeader('Authorization', $this->accessToken);
 
         $url = str_replace('{orgId}', $orgId, $this->urls['orgUsers']);
-        $curl->get($url, array(
+
+        $params = array(
             'offset' => $offset,
-        ));
+        );
+
+        if($pagestartId > 0) {
+            $params = array(
+                'page_start_id' => $pagestartId,
+            );
+        }
+
+        $curl->get($url, $params);
+        
         if ($curl->error) {
             echo 'errorCode' . $curl->error_code;
             die();

@@ -42,4 +42,11 @@ return array(
     'google_text_search' => 'googletextsearch',
 
     'size_chart_media_tag' => 'size_chart',
+
+
+    /* Google Webmaster Credentials */
+    'GOOGLE_CLIENT_APPLICATION_NAME' => env('GOOGLE_CLIENT_APPLICATION_NAME'),
+    'GOOGLE_CLIENT_ID' => env('GOOGLE_CLIENT_ID'),
+    'GOOGLE_CLIENT_SECRET' => env('GOOGLE_CLIENT_SECRET'),
+    'GOOGLE_CLIENT_KEY' => env('GOOGLE_CLIENT_KEY'),
 );
