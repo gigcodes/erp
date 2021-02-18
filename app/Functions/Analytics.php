@@ -4,10 +4,10 @@
 require_once __DIR__ . '/../../vendor/autoload.php';
 $data      = [];
 $analytics = initializeAnalytics();
-if (!empty($analytics)) {
-    $response = getReport($analytics, $request = '');
-    $data     = printResults($response);
-}
+// if (!empty($analytics)) {
+//     $response = getReport($analytics, $request = '');
+//     $data     = printResults($response);
+// }
 
 /**
  * Initializes an Analytics Reporting API V4 service object.

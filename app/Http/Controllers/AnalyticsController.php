@@ -149,12 +149,24 @@ class AnalyticsController extends Controller
 
     public function cronShowData(){
         \Log::channel('scraper')->info("Google Analytics Started running ...");
-        $analyticsDataArr = [];
+        $analyticsDataArr = $ERPlogArray = [];
         include(app_path() . '/Functions/Analytics.php');
         $data = StoreWebsiteAnalytic::all()->toArray();
         foreach ($data as $value) {
+
             $response   = getReport($analytics, $value);
             $resultData = printResults($response);
+
+            $ERPlogArray = [
+                'model_id' => $value['id'],
+                'url'      => 'https://www.googleapis.com/auth/analytics.readonly',
+                'model'    => 'StoreWebsiteAnalytic::class',
+                'request'  => $value,
+                'response' => $resultData,
+            ];
+
+            storeERPLog($ERPlogArray);
+
             if(!empty($resultData)) {
                 foreach ($resultData as $new_item) {
                      $analyticsDataArr = [
