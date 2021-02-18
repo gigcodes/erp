@@ -2162,7 +2162,7 @@ $metaData = '';
 
     @php
 
-        $url = str_replace(array('https://', 'http://'),array('', ''),config('app.url'));
+        $url = strtolower(str_replace(array('https://', 'http://'),array('', ''),config('app.url')));
         $site_account_id = App\StoreWebsiteAnalytic::where('website',$url)->first();
         $account_id = "";
         if(!empty($site_account_id)){
