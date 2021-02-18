@@ -1,6 +1,33 @@
 @extends('layouts.app')
 @section('title', 'Analytics Data')
 @section('content')
+
+<style>
+    /** only for the body of the table. */
+    table.table tbody td {
+        padding:5px;
+    }
+</style>
+<!-- COUPON Rule Edit Modal -->
+<div class="modal fade" id="fullUrlModal" tabindex="-1" role="dialog" aria-labelledby="couponModalLabel" aria-hidden="true">
+<div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="couponModalLabel">Full URL</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div><strong><p class="url"></p></strong></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Analytics Data</h2>
@@ -77,7 +104,10 @@
                         <th scope="col" class="text-center">Avg. Time Spent</th>
                         <th scope="col" class="text-center">New/Returning User</th>
                         <th scope="col" class="text-center">Device/OS</th>
+                        <th scope="col" class="text-center">Sessions</th>
+                        <th scope="col" class="text-center">Page Views</th>
                         <th scope="col" class="text-center">Bounce Rate</th>
+                        <th scope="col" class="text-center">Time On Page</th>
                         <th scope="col" class="text-center">Source</th>
                     </tr>
                 </thead>
@@ -85,15 +115,23 @@
 
                     @foreach ($new_data as $key => $item)
                     <tr>
-                        <td>{{\Carbon\Carbon::parse($item['date'])->format('d M, Y')}}</td>
-                        <td>{{$item['time']}}mins</td>
-                        <td>{{$item['city']}},{{$item['country']}}</td>
-                        <td width=30%>{{$item['page_path']}}</td>
-                        <td>{{$item['avgSessionDuration']}}secs</td>
+
+                        @php
+                            $temp = $item['city'].','.$item['country'];
+                            $city_country = $temp;
+                        @endphp
+                        <td>{{\Carbon\Carbon::parse($item['date'])->format('d-m-y')}}</td>
+                        <td>{{$item['time']}} Mins</td>
+                        <td>{{ $city_country }}</td>
+                        <td data-path="{{ $item['page_path'] }}" onClick="displayFullPath(this);" title="{{ $item['page_path'] }}">{{ substr($item['page_path'], 0, 20)}}</td>
+                        <td>{{$item['avgSessionDuration']}} Secs</td>
                         <td>{{$item['user_type']}}</td>
                         <td>{{($item['device_info'] === '(not set)' ? 'N/A' : $item['device_info'])}}/{{($item['operatingSystem'] === '(not set)' ? 'N/A' : $item['operatingSystem'])}}
                         </td>
+                        <td>{{$item['sessions']}}</td>
+                        <td>{{$item['pageviews']}}</td>
                         <td>{{$item['bounceRate']}}</td>
+                        <td>{{$item['timeOnPage']}}</td>
                         <td>{{($item['social_network'] === '(not set)' ? 'N/A' : $item['social_network'])}}</td>
                     </tr>
                     @endforeach
@@ -105,4 +143,17 @@
         </div>
     </div>
 </div>
+@endsection
+
+
+@section('scripts')
+<script type="text/javascript">
+    $(document).ready(function() {
+    });
+    function displayFullPath(ele){
+        let fullpath = $(ele).attr('data-path');
+        $('.url').text(fullpath);
+        $('#fullUrlModal').modal('show');
+    }
+</script>
 @endsection
