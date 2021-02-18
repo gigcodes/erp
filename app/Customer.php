@@ -287,4 +287,11 @@ class Customer extends Model
     {
         return $this->hasMany(ReturnExchange::class, 'customer_id');
     }
+
+    public static function ListSource(){
+        return array(
+            'instagram' => "Instagram",
+            'default' => "Default"
+        );
+    }
 }
