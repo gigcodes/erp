@@ -2160,6 +2160,15 @@ $metaData = '';
 
     @endif
 
+    @php
+
+        $site_account_id = App\StoreWebsiteAnalytic::where('website',str_replace("https://",'',config('app.url')))->first();
+        $account_id = "";
+        if(!empty($site_account_id)){
+            $account_id = $site_account_id->account_id;
+        }
+    @endphp
+
 
     <!-- Scripts -->
 
@@ -2460,15 +2469,6 @@ $metaData = '';
     </script>
     @if ( !empty($_SERVER['HTTP_HOST']) && !empty($_SERVER['REMOTE_ADDR'])  && $_SERVER['REMOTE_ADDR'] != "127.0.0.1" && !stristr($_SERVER['HTTP_HOST'], '.mac') )
     <!-- Global site tag (gtag.js) - Google Analytics -->
-
-    @php
-
-        $site_account_id = App\StoreWebsiteAnalytic::where('website',config('app.url'))->first();
-        $account_id = "";
-        if(!empty($site_account_id)){
-            $account_id = $site_account_id->account_id;
-        }
-    @endphp
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ $account_id }}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
