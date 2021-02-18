@@ -2163,7 +2163,11 @@ $metaData = '';
     @php
 
         $url = strtolower(str_replace(array('https://', 'http://'),array('', ''),config('app.url')));
+        echo "<pre>";
+        print_r($url);
         $site_account_id = App\StoreWebsiteAnalytic::where('website',$url)->first();
+        echo "<pre>";
+        print_r($site_account_id);
         $account_id = "";
         if(!empty($site_account_id)){
             $account_id = $site_account_id->account_id;
