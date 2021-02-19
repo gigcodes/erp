@@ -152,8 +152,10 @@ class AnalyticsController extends Controller
         $analyticsDataArr = [];
         include(app_path() . '/Functions/Analytics.php');
         $data = StoreWebsiteAnalytic::all()->toArray();
+        \Log::channel('scraper')->info("Data  : ".json_encode($data));
         foreach ($data as $value) {
             $response   = getReport($analytics, $value);
+            \Log::channel('scraper')->info("Loop  : ".json_encode($response));
             $resultData = printResults($response);
             if(!empty($resultData)) {
                 foreach ($resultData as $new_item) {
