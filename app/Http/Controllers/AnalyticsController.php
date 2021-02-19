@@ -141,20 +141,24 @@ class AnalyticsController extends Controller
         $pages = AnalyticsCustomerBehaviour::select('ID', 'pages')->pluck('pages', 'ID')->toArray();
         if (!empty($request[ 'page' ])) {
             $data = AnalyticsCustomerBehaviour::where('pages', $request[ 'page' ])->get()->toArray();
-        } else {
+        } else { 
             include(app_path() . '/Functions/Analytics.php');
         }
         return View('analytics.customer-behaviour', compact('data', 'pages'));
     }
 
     public function cronShowData(){
-        \Log::channel('scraper')->info("Google Analytics Started running ...");
-        $analyticsDataArr = $ERPlogArray = [];
+
+        \Log::channel('daily')->info("Google Analytics Started running ...");
+        $analyticsDataArr = [];
+
         include(app_path() . '/Functions/Analytics.php');
         $data = StoreWebsiteAnalytic::all()->toArray();
+        \Log::channel('daily')->info("Data  : ".json_encode($data));
         foreach ($data as $value) {
 
             $response   = getReport($analytics, $value);
+            \Log::channel('daily')->info("Loop  : ".json_encode($response));
             $resultData = printResults($response);
 
             if(!empty($resultData)) {
@@ -192,6 +196,6 @@ class AnalyticsController extends Controller
                 }
             }
         }
-        \Log::channel('scraper')->info("Google Analytics ended running ...");
+        \Log::channel('daily')->info("Google Analytics ended running ...");
     }
 }
