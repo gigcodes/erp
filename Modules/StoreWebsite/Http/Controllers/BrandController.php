@@ -174,6 +174,12 @@ class BrandController extends Controller
                                 }
                                 else
                                 {
+                                    StoreWebsiteBrandHistory::create([
+                                        'brand_id' => $request->brand,
+                                        'store_website_id' => $request->store,
+                                        'type' => "error",
+                                        'message' => "{$brand->name} is not removed from {$website->title} store."
+                                    ]);
                                     return response()->json(["code" => 500 , "message" => "Brand is not removed from store,please check history log."]);
                                 }
                             }
