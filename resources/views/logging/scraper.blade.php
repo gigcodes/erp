@@ -51,6 +51,13 @@
                                         <span @if(isset($customrange)) style="display:none;" @endif id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{ isset($customrange) ? $from .' '.$to : '' }}</p><i class="fa fa-caret-down"></i>
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                        <select class="form-control" name="is_scraped">
+                                            <option value="">Select type of logs</option>
+                                            <option value="" >All</option>
+                                            <option value="1">External Scrapper only</option>
+                                        </select>
+                                </div>
                             </div>  
                             <div class="pull-right">
                                 <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-filter-report">
@@ -101,6 +108,10 @@
                 <th>Original sku</th>
                 <th>Title</th>
                 <th>Validation result</th>
+                <th>Size</th>
+                <th>Composition</th>
+                <th>Country</th>
+                <th>Supplier</th>        
                 <th>Created at</th>
             </tr>
             <tr>
@@ -112,6 +123,11 @@
                 <th><input type="text" class="search form-control filter-serach-string" data-id="original_sku"></th>
                 <th><input type="text" class="search form-control filter-serach-string" data-id="title"></th>
                 <th><input type="text" class="search form-control filter-serach-string" data-id="validation_result"></th>
+                <th><input type="text" class="search form-control filter-serach-string" data-id="size"></th>
+                <th><input type="text" class="search form-control filter-serach-string" data-id="composition"></th>
+
+                <th><input type="text" class="search form-control filter-serach-string" data-id="country"></th>
+                <th><input type="text" class="search form-control filter-serach-string" data-id="supplier"></th>
                 <th></th>
             </tr>
             </thead>

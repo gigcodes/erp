@@ -62,6 +62,10 @@ class LogScraperController extends Controller
             $scraperLogs = $scraperLogs->where('created_at',">=", $from)->where('created_at', "<=", $to);   
         }
 
+        if(!empty($request->is_scraped)){
+            $scraperLogs = $scraperLogs->where('is_scraped', $request->is_scraped);
+        }
+
         $logsByGroup  = clone($scraperLogs);
         $logsByGroup  = $logsByGroup->where("validation_result","!=" ,"");
         $logsByGroup  = $logsByGroup->select(["website",\DB::raw("count(*) as total_error")]);
