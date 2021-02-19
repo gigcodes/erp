@@ -58,6 +58,14 @@ var page = {
             page.deleteMagentoUserForm($(this));
         });
 
+        $(".common-modal").on("click",".toggle-password",function() {
+            page.showUserPassword($(this));
+        });
+
+        $(".common-modal").on("click",".btn-password-history",function() {
+            page.userPasswordHistory($(this));
+        });
+
         $(".common-modal").on("click",".add-attached-category",function(e) {
             e.preventDefault();
             page.submitCategory($(this));
@@ -263,7 +271,8 @@ var page = {
                         '<div class="row">'+
                              '<label class="col-sm-12" for="password">Password</label>'+
                              '<div class="col-sm-9 sub-pass">'+
-                                '<input type="password" name="password" value="" class="form-control user-password" id="password" placeholder="Enter Password">'+
+                                '<input type="password" name="password" value="" class="form-control user-password" id="password" placeholder="Enter Password" style="float:left;width:90%">'+
+                                '<span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password" style="margin-top:10px;margin-left:-25px;cursor:pointer"></span>'+
                              '</div>'+
                              '<div class="col-sm-3">'+
                                 '<button type="button" data-id="" class="btn btn-edit-magento-user" style="border:1px solid">'+
@@ -297,6 +306,45 @@ var page = {
         }
         ele.parents('.subMagentoUser').remove();
         this.sendAjax(_z, "saveSite");
+    },
+
+    showUserPassword : function(ele) {
+      ele.toggleClass("fa-eye fa-eye-slash");
+      var input = ele.parent('.sub-pass').children('.user-password');
+      if (input.attr("type") == "password") {
+        input.attr("type", "text");
+      } else {
+        input.attr("type", "password");
+      }
+    },
+
+    userPasswordHistory : function(ele) {
+        var store_website_userid = ele.attr('data-id');
+        if(store_website_userid != '') {
+            var _z = {
+                url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/user-password-history",
+                method: "post",
+                data : {
+                    _token:$('meta[name="csrf-token"]').attr('content'),
+                    store_website_userid:store_website_userid,
+                },
+                beforeSend : function() {
+                    $("#loading-image").show();
+                }
+            }
+        }
+        this.sendAjax(_z, "showHistory");
+    },
+
+    showHistory : function(response) {
+        if(response.code  == 200) {
+            $("#loading-image").hide();
+            $('#userPasswordHistory table tbody').html(response.data);
+            $('#userPasswordHistory').modal('show');
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
     },
     
     assignSelect2 : function () {
