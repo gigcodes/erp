@@ -112,8 +112,8 @@ class StoreWebsiteController extends Controller
 
         return response()->json(["code" => 200, "data" => $records]);
     }
-
-    public function saveUserInMagento(Request $request) {
+	
+	public function saveUserInMagento(Request $request) {
         $post = $request->all();
         $validator = Validator::make($post, [
             'username'   => 'required',
@@ -146,7 +146,7 @@ class StoreWebsiteController extends Controller
                 $checkUserNameExist = StoreWebsiteUsers::where('store_website_id',$post['store_id'])->where('is_deleted',0)->where('username',$post['username'])->first();
             }
         }
-        
+
         if(!empty($checkUserExist)) {
             return response()->json(["code" => 500, "error" => "User Email already exist!"]);
         }
@@ -216,7 +216,8 @@ class StoreWebsiteController extends Controller
     public function edit(Request $request, $id)
     {
         $storeWebsite = StoreWebsite::where("id", $id)->first();
-        $storewebsiteusers = StoreWebsiteUsers::where('store_website_id',$id)->where('is_deleted',0)->get();
+		$storewebsiteusers = StoreWebsiteUsers::where('store_website_id',$id)->where('is_deleted',0)->get();
+
         if ($storeWebsite) {
             return response()->json(["code" => 200, "data" => $storeWebsite,"userdata" => $storewebsiteusers, "totaluser" => count($storewebsiteusers)]);
         }
@@ -517,5 +518,48 @@ class StoreWebsiteController extends Controller
         return response()->json(["code" => 200 , "message" => 'Successful']);
     }
 
+	 public function googleKeywordsSearch( Request $request )
+    {    
+        $title    = $request->title;
+        $language = $request->lan;
+
+        // dd( $request->all() );
+
+        try {
+            // create & initialize a curl session
+            $curl = curl_init();
+
+            // set our url with curl_setopt()
+            curl_setopt($curl, CURLOPT_URL, "API_URL");
+
+            // return the transfer as a string, also with setopt()
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+
+            // curl_exec() executes the started curl session
+            // $output contains the output string
+            $output = curl_exec($curl);
+            $output = json_decode( $output );
+
+            return response()->json([
+                "status"  => true,
+                "code"    => 200,
+                "data"    => json_encode( $output ),
+                "message" => 'Successful'
+            ]);
+
+         } catch (\Throwable $th) {
+            return response()->json([
+                "status"  => false,
+                "code"    => 200,
+                "message" => $th->getMessage()
+            ]);
+        }
+
+        return response()->json([
+            "status"  => false,
+            "code"    => 200,
+            "message" => 'Something went wrong!'
+        ]);
+    }
    
 }

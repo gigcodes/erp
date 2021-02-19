@@ -18,6 +18,8 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::post('/save-user-in-magento', 'StoreWebsiteController@saveUserInMagento')->name("store-website.save-user-in-magento");
     Route::post('/delete-user-in-magento', 'StoreWebsiteController@deleteUserInMagento')->name("store-website.delete-user-in-magento");
 
+	Route::post('/get-google-keywords', 'StoreWebsiteController@googleKeywordsSearch')->name("store-website.google.keyword.search");
+
     Route::prefix('{id}')->group(function () {
         Route::get('/edit', 'StoreWebsiteController@edit')->name("store-website.edit");
         Route::get('/delete', 'StoreWebsiteController@delete')->name("store-website.delete");
