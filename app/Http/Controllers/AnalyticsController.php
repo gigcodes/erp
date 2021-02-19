@@ -156,43 +156,50 @@ class AnalyticsController extends Controller
         $data = StoreWebsiteAnalytic::all()->toArray();
         foreach ($data as $value) {
 
-            $response   = getReport($analytics, $value);
-            $resultData = printResults($response);
+            $ERPlogArray = [
+                'model_id' => $value['id'],
+                'url'      => 'https://www.googleapis.com/auth/analytics.readonly',
+                'model'    => StoreWebsiteAnalytic::class,
+                'type'     => 'success',
+                'request'  => $value,
+            ];
 
-            if(!empty($resultData)) {
+            try {
+                
+                $response   = getReport($analytics, $value);
+                $resultData = printResults($response);
 
-                $ERPlogArray = [
-                    'model_id' => $value['id'],
-                    'url'      => 'https://www.googleapis.com/auth/analytics.readonly',
-                    'model'    => StoreWebsiteAnalytic::class,
-                    'type'     => 'success',
-                    'request'  => $value,
-                    'response' => $resultData,
-                ];
+                if(!empty($resultData)) {
+                    foreach ($resultData as $new_item) {
+                         $analyticsDataArr = [
+                                "operatingSystem" => $new_item['operatingSystem'],
+                                "user_type" => $new_item['user_type'],
+                                "time" => $new_item['time'],
+                                "page_path" => $value['website'].$new_item['page_path'],
+                                "country" => $new_item['country'],
+                                "city" => $new_item['city'],
+                                "social_network" => $new_item['social_network'],
+                                "date" => $new_item['date'],
+                                "device_info" => $new_item['device_info'],
+                                "sessions" => $new_item['sessions'],
+                                "pageviews" => $new_item['pageviews'],
+                                "bounceRate" => $new_item['bounceRate'],
+                                "avgSessionDuration" => $new_item['avgSessionDuration'],
+                                "timeOnPage" => $new_item['timeOnPage'],
 
-                storeERPLog($ERPlogArray);
-
-                foreach ($resultData as $new_item) {
-                     $analyticsDataArr = [
-                            "operatingSystem" => $new_item['operatingSystem'],
-                            "user_type" => $new_item['user_type'],
-                            "time" => $new_item['time'],
-                            "page_path" => $value['website'].$new_item['page_path'],
-                            "country" => $new_item['country'],
-                            "city" => $new_item['city'],
-                            "social_network" => $new_item['social_network'],
-                            "date" => $new_item['date'],
-                            "device_info" => $new_item['device_info'],
-                            "sessions" => $new_item['sessions'],
-                            "pageviews" => $new_item['pageviews'],
-                            "bounceRate" => $new_item['bounceRate'],
-                            "avgSessionDuration" => $new_item['avgSessionDuration'],
-                            "timeOnPage" => $new_item['timeOnPage'],
-
-                      ];
-                     Analytics::insert($analyticsDataArr);
+                          ];
+                         Analytics::insert($analyticsDataArr);
+                    }
                 }
+
+                $ERPlogArray['request'] = $value;
+                $ERPlogArray['response'] = $resultData;
+
+            }catch(\Exception  $e) {
+                $ERPlogArray['type']    = 'error';
+                $ERPlogArray['response'] = $e->getMessage();
             }
+            storeERPLog($ERPlogArray);
         }
     }
 }

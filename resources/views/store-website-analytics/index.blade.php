@@ -46,11 +46,22 @@
                 <td>
                     <a href="{{url('/store-website-analytics/edit/'.$record->id)}}" class="btn btn-xs btn-image" title="Edit Record"><img src="/images/edit.png" ></a>
                     <a href="{{url('/store-website-analytics/delete/'.$record->id)}}" class="btn btn-image" title="Delete Record"><img src="/images/delete.png"></a>
+                    <a href="javascript:;" class="btn btn-image find-records" data-id="{{$record->id}}" title="Check Report"><img src="/images/archive.png"></a>
                 </td>
             </tr>
             @endforeach
         </tbody>
     </table>
+</div>
+
+<div class="modal fade bd-report-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+
+       </div> 
+    </div>
+  </div>
 </div>
 
 @endsection
@@ -65,6 +76,24 @@ $(document).ready(function () {
                 return rex.test($(this).text());
             }).show();
         })
+
+        $(document).on("click",".find-records",function(e){
+            e.preventDefault();
+            var id = $(this).data("id");
+            $.ajax({
+                url: "/store-website-analytics/report/"+id,
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function (data) {
+                $("#loading-image").hide();
+                $(".bd-report-modal-lg .modal-body").empty().html(data);
+                $(".bd-report-modal-lg").modal("show");
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        });
+
     }(jQuery));
 });
 </script>
