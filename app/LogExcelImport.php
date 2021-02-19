@@ -10,7 +10,7 @@ use seo2websites\ErpExcelImporter\ExcelImporter;
 class LogExcelImport extends Model
 {
     use Mediable;
-    protected $fillable =  array('filename','supplier','number_of_products','status','website','supplier_email','md5');
+    protected $fillable =  array('filename','supplier','number_of_products','status','website','supplier_email','md5','message');
 
     public function checkIfExcelImporterExist($md5)
     {

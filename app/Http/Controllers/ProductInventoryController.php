@@ -1002,14 +1002,21 @@ class ProductInventoryController extends Controller
 		$inventory_data = \App\Product::getProducts($filter_data);
 
 		$query = DB::table('products as p')
-				->selectRaw('p.category,p.color,p.composition,p.supplier,p.size, count(p.id) as total_product')
+				->selectRaw('
+				   sum(CASE WHEN p.category = ""
+			           OR p.category IS NULL THEN 1 ELSE 0 END) AS missing_category,
+			       sum(CASE WHEN p.color = ""
+			           OR p.color IS NULL THEN 1 ELSE 0 END) AS missing_color,
+			       sum(CASE WHEN p.composition = ""
+			           OR p.composition IS NULL THEN 1 ELSE 0 END) AS missing_composition,
+			       sum(CASE WHEN p.name = ""
+			           OR p.name IS NULL THEN 1 ELSE 0 END) AS missing_name,
+			       sum(CASE WHEN p.short_description = ""
+			           OR p.short_description IS NULL THEN 1 ELSE 0 END) AS missing_short_description,
+			       `p`.`supplier`
+				')
 				->where('p.supplier','<>','');
-				$query = $query->where(function($q) {
-		            $q->where('p.category', null)
-		            ->orWhere('p.color', null)
-		            ->orWhere('p.composition', null);
-		        });
-		        $query = $query->groupBy('p.supplier')->orderBy('total_product','DESC');
+				$query = $query->groupBy('p.supplier')->havingRaw("missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ");
 
 		$reportData = $query->get();
 		//dd($inventory_data);
@@ -1039,18 +1046,27 @@ class ProductInventoryController extends Controller
     }
 
     public function downloadReport() {
-    	$query = DB::table('products as p')
-				->selectRaw('p.category,p.color,p.composition,p.supplier,p.size, count(p.id) as total_product')
+    	
+		$query = DB::table('products as p')
+				->selectRaw('
+				   sum(CASE WHEN p.category = ""
+			           OR p.category IS NULL THEN 1 ELSE 0 END) AS missing_category,
+			       sum(CASE WHEN p.color = ""
+			           OR p.color IS NULL THEN 1 ELSE 0 END) AS missing_color,
+			       sum(CASE WHEN p.composition = ""
+			           OR p.composition IS NULL THEN 1 ELSE 0 END) AS missing_composition,
+			       sum(CASE WHEN p.name = ""
+			           OR p.name IS NULL THEN 1 ELSE 0 END) AS missing_name,
+			       sum(CASE WHEN p.short_description = ""
+			           OR p.short_description IS NULL THEN 1 ELSE 0 END) AS missing_short_description,
+			       `p`.`supplier`
+				')
 				->where('p.supplier','<>','');
-				$query = $query->where(function($q) {
-		            $q->where('p.category', null)
-		            ->orWhere('p.color', null)
-		            ->orWhere('p.composition', null);
-		        });
-		        $query = $query->groupBy('p.supplier')->orderBy('total_product','DESC');
+				$query = $query->groupBy('p.supplier')->havingRaw("missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ");
 
 		$reportData = $query->get();
-    	return \Excel::download(new \App\Exports\ReportExport($reportData), 'export.xlsx');
+
+    	return \Excel::download(new \App\Exports\ReportExport($reportData), 'export.xls');
     }
   
   public function inventoryHistory($id) {

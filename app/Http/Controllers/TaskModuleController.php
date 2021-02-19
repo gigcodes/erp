@@ -2213,6 +2213,8 @@ class TaskModuleController extends Controller {
 
 		if ($request->ajax() && $request->from == 'task-page') {
 			$hasRender = request("has_render", false);
+
+			$task_statuses=TaskStatus::all();
 			
 			if(!empty($hasRender)) {
 				
@@ -2229,7 +2231,7 @@ class TaskModuleController extends Controller {
 					$mode = "task-module.partials.pending-row";
 				}
 
-				$view = (string)view($mode,compact('task','priority','users'));
+				$view = (string)view($mode,compact('task','priority','users','task_statuses'));
 				return response()->json(["code" => 200, "statutory" => $task->is_statutory , "raw" => $view]);	
 
 			}

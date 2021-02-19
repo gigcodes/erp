@@ -212,24 +212,22 @@
                     <thead>
                         <tr>
                             <th>Supplier</th>
-                            <th>Missing</th>
+                            <th>Missing Category</th>
+                            <th>Missing Color</th>
+                            <th>Missing Composition</th>
+                            <th>Missing Name</th>
+                            <th>Missing Short Description</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($reportData as $value)
                         <tr>
-                            <td> {{$value->supplier}}</td>
-                            <td> 
-                                @if(empty($value->category))
-                                    {{'Category is Missing'}} <br/>
-                                @endif
-                                @if(empty($value->color))
-                                    {{'Color is Missing'}} <br/>
-                                @endif
-                                @if(empty($value->composition))
-                                    {{'Composition is Missing'}}
-                                @endif
-                            </td>
+                            <td>{{$value->supplier}}</td>
+                            <td>{{$value->missing_category}}</td>
+                            <td>{{$value->missing_color}}</td>
+                            <td>{{$value->missing_composition}}</td>
+                            <td>{{$value->missing_name}}</td>
+                            <td>{{$value->missing_short_description}}</td>
                         </tr>
                         @endforeach
                     </tbody>
