@@ -17,6 +17,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::post('/save', 'StoreWebsiteController@save')->name("store-website.save");
     Route::post('/save-user-in-magento', 'StoreWebsiteController@saveUserInMagento')->name("store-website.save-user-in-magento");
     Route::post('/delete-user-in-magento', 'StoreWebsiteController@deleteUserInMagento')->name("store-website.delete-user-in-magento");
+    Route::post('/user-password-history', 'StoreWebsiteController@userPasswordHistory')->name("store-website.user-password-history");
 
 	Route::post('/get-google-keywords', 'StoreWebsiteController@googleKeywordsSearch')->name("store-website.google.keyword.search");
 
