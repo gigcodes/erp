@@ -52,7 +52,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                        <select class="form-control" name="is_scraped">
+                                        <select class="form-control" name="is_external_scraper">
                                             <option value="">Select type of logs</option>
                                             <option value="" >All</option>
                                             <option value="1">External Scrapper only</option>

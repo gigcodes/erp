@@ -629,11 +629,14 @@ class ScrapController extends Controller
 
         
         //add log in scraped product
-        $scrapedProduct = ScrapedProducts::where('website',isset($receivedJson->website) ? $receivedJson->website : "")->where('sku',isset($receivedJson->sku) ? $receivedJson->sku : "")->first();
-        if($scrapedProduct == null || $scrapedProduct == ''){
-            $scrapedProduct = new ScrapedProducts();
-            $scrapedProduct->website = isset($receivedJson->website) ? $receivedJson->website : "";
-            $scrapedProduct->sku = isset($receivedJson->sku) ? $receivedJson->sku : "";
+        $website = isset($receivedJson->website) ? $receivedJson->website : "";
+        $scrapedProduct = null;
+        if(!empty($website)) {
+            $scrapedProduct = ScrapedProducts::where('website',isset($receivedJson->website) ? $receivedJson->website : "")->where('sku',isset($receivedJson->sku) ? $receivedJson->sku : "")->first();
+            if($scrapedProduct == null || $scrapedProduct == ''){
+                $scrapedProduct = new ScrapedProducts();
+            }
+
             $scrapedProduct->has_sku = 1;
             $scrapedProduct->supplier = isset($receivedJson->supplier) ? $receivedJson->supplier : "";
             $scrapedProduct->title = isset($receivedJson->title) ? $receivedJson->title : "";
@@ -651,45 +654,24 @@ class ScrapController extends Controller
             $scrapedProduct->price = isset($receivedJson->price) ? ($receivedJson->price) : "";
 
             $scrapedProduct->is_property_updated = 0;
-            $scrapedProduct->is_scraped = 1;
+            $scrapedProduct->is_external_scraper = 1;
             $scrapedProduct->is_price_updated = 0;
             $scrapedProduct->is_enriched = 0;
             $scrapedProduct->can_be_deleted = 0;
             $scrapedProduct->save();
-        }else{
-            //$scrapedProduct->website = isset($receivedJson->website) ? $receivedJson->website : "";
-            //$scrapedProduct->sku = isset($receivedJson->sku) ? $receivedJson->sku : "";
-            $scrapedProduct->has_sku = 1;
-            $scrapedProduct->supplier = isset($receivedJson->supplier) ? $receivedJson->supplier : "";
-            $scrapedProduct->title = isset($receivedJson->title) ? $receivedJson->title : "";
-            $scrapedProduct->composition = isset($receivedJson->composition) ? $receivedJson->composition : "";
-            $scrapedProduct->color = isset($receivedJson->color) ? $receivedJson->color : "";
-            $scrapedProduct->brand_id = $brand->id;
-            $scrapedProduct->description = $brand->description;
-            $scrapedProduct->material_used = isset($receivedJson->composition) ? $receivedJson->composition : "";
-            $scrapedProduct->country = isset($receivedJson->country) ? $receivedJson->country : "";
-            $scrapedProduct->size = isset($receivedJson->sizes) ? implode(",",$receivedJson->sizes) : "";
-            $scrapedProduct->url = isset($receivedJson->url) ? $receivedJson->url : "";
-            $scrapedProduct->images = isset($receivedJson->images) ? serialize($receivedJson->images) : "";
-            $scrapedProduct->size_system = isset($receivedJson->size_system) ? $receivedJson->size_system : "";
-            $scrapedProduct->currency = isset($receivedJson->currency) ? $receivedJson->currency : "";
-            $scrapedProduct->price = isset($receivedJson->price) ? ($receivedJson->price) : "";
-
-            $scrapedProduct->is_property_updated = 0;
-            $scrapedProduct->is_scraped = 1;
-            $scrapedProduct->is_price_updated = 0;
-            $scrapedProduct->is_enriched = 0;
-            $scrapedProduct->can_be_deleted = 0;
-            $scrapedProduct->update();
         }
-        $scrapedProduct = ScrapedProducts::where('website',isset($receivedJson->website) ? $receivedJson->website : "")->where('sku',isset($receivedJson->sku) ? $receivedJson->sku : "")->first();
+        
+
         //dd($scrapedProduct);
 
         // Return false if no product is found
         if ($product == null) {
            // $scrapedProduct->validated = 1;
-            $scrapedProduct->validation_result = 'Error processing your request (#1)';
-            $scrapedProduct->update();
+            if($scrapedProduct) {
+               $scrapedProduct->validation_result = 'Error processing your request (#1)';
+               $scrapedProduct->save();
+            }
+            
             return response()->json([
                 'status' => 'Error processing your request (#1)'
             ], 400);
@@ -704,8 +686,12 @@ class ScrapController extends Controller
             $product->status_id = StatusHelper::$unableToScrape;
             $product->save();
             //$scrapedProduct->validated = 1;
-            $scrapedProduct->validation_result = 'Product processed for unable to scrap';
-            $scrapedProduct->update();
+            
+            if($scrapedProduct) {
+               $scrapedProduct->validation_result = 'Product processed for unable to scrap';
+               $scrapedProduct->save();
+            }
+
             return response()->json([
                 'status' => 'Product processed for unable to scrap'
             ]);
@@ -728,6 +714,12 @@ class ScrapController extends Controller
 
         // Return an error if the validator fails
         if ($validator->fails()) {
+
+            if($scrapedProduct) {
+               $scrapedProduct->validation_result = json_encode($validator->messages());
+               $scrapedProduct->save();
+            }
+
             return response()->json($validator->messages(), 400);
         }
 
@@ -872,8 +864,12 @@ class ScrapController extends Controller
             ]);
         }
         //$scrapedProduct->validated = 1;
-        $scrapedProduct->validation_result = 'Error processing your request (#99)';
-        $scrapedProduct->update();
+        if($scrapedProduct) {
+           $scrapedProduct->validation_result = 'Error processing your request (#99)';
+           $scrapedProduct->save();
+        }
+
+
         // Still here? Return error
         return response()->json([
             'status' => 'Error processing your request (#99)'

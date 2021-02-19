@@ -62,8 +62,8 @@ class LogScraperController extends Controller
             $scraperLogs = $scraperLogs->where('created_at',">=", $from)->where('created_at', "<=", $to);   
         }
 
-        if(!empty($request->is_scraped)){
-            $scraperLogs = $scraperLogs->where('is_scraped', $request->is_scraped);
+        if(!empty($request->is_external_scraper)){
+            $scraperLogs = $scraperLogs->where('is_external_scraper', $request->is_external_scraper);
         }
 
         $logsByGroup  = clone($scraperLogs);

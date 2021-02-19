@@ -14,7 +14,7 @@ class AddColumnToScrapProduct extends Migration
     public function up()
     {
         Schema::table('scraped_products', function (Blueprint $table) {
-            $table->integer('is_scraped')->default(0);
+            $table->integer('is_external_scraper')->default(0);
             $table->longText('size')->nullable();
             $table->longText('material_used')->nullable();
             $table->longText('country')->nullable();
@@ -30,7 +30,7 @@ class AddColumnToScrapProduct extends Migration
     public function down()
     {
         Schema::table('scraped_products', function (Blueprint $table) {
-            $table->dropField('is_scraped');
+            $table->dropField('is_external_scraper');
             $table->dropField('size');
             $table->dropField('material_used');
             $table->dropField('country');
