@@ -1,11 +1,20 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 
 class StoreWebsiteOrder extends Model
 {
+        /**
+     * @var string
+    
+      * @SWG\Property(property="status_id",type="integer")
+      * @SWG\Property(property="order_id",type="integer")
+      * @SWG\Property(property="website_id",type="integer")
+     */
     protected $fillable = ['status_id', 'order_id', 'website_id'];
 
     public function storeWebsite()

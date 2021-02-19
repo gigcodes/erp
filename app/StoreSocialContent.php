@@ -1,12 +1,26 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Mediable;
 class StoreSocialContent extends Model
 {
+     /**
+     * @var string
+      * @SWG\Property(property="store_social_content_category_id",type="integer")
+      * @SWG\Property(property="store_website_id",type="integer")
+      * @SWG\Property(property="store_social_content_status_id",type="integer")
+      * @SWG\Property(property="creator_id",type="integer")
+      * @SWG\Property(property="publisher_id",type="integer")
+     * @SWG\Property(property="request_date",type="datetime")
+     * @SWG\Property(property="due_date",type="datetime")
+     * @SWG\Property(property="publish_date",type="datetime")
+     * @SWG\Property(property="platform",type="string")
+     */
     use Mediable;
     protected $fillable = [
         'store_social_content_category_id','store_website_id','store_social_content_status_id','creator_id','publisher_id','request_date','due_date','publish_date','platform'

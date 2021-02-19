@@ -1,12 +1,50 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class StoreWebsite extends Model
 {
+    /**
+     * @var string
+     
+     * @SWG\Property(property="title",type="string")
+     * @SWG\Property(property="remote_software",type="string")
+     * @SWG\Property(property="website",type="string")
+     * @SWG\Property(property="description",type="string")
+     * @SWG\Property(property="is_published",type="boolean")
+     * @SWG\Property(property="deleted_at",type="datetime")
+     * @SWG\Property(property="created_at",type="datetime")
+     * @SWG\Property(property="updated_at",type="datetime")
+     * @SWG\Property(property="magento_url",type="string")
+     * @SWG\Property(property="magento_username",type="string")
+     * @SWG\Property(property="magento_password",type="string")
+     * @SWG\Property(property="api_token",type="string")
+     * @SWG\Property(property="cropper_color",type="string")
+     * @SWG\Property(property="cropping_size",type="string")
+     * @SWG\Property(property="instagram",type="string")
+     * @SWG\Property(property="instagram_remarks",type="string")
+     * @SWG\Property(property="facebook",type="string")
+     * @SWG\Property(property="facebook_remarks",type="string")
+      * @SWG\Property(property="server_ip",type="integer")
+      * @SWG\Property(property="username",type="string")
+      * @SWG\Property(property="password",type="string")
+      * @SWG\Property(property="staging_username",type="string")
+      * @SWG\Property(property="staging_password",type="string")
+      * @SWG\Property(property="mysql_username",type="string")
+      * @SWG\Property(property="mysql_password",type="string")
+      * @SWG\Property(property="mysql_staging_username",type="string")
+      * @SWG\Property(property="mysql_staging_password",type="string")
+      * @SWG\Property(property="website_source",type="string")
+      * @SWG\Property(property="push_web_key",type="string")
+      * @SWG\Property(property="push_web_id",type="integer")
+      * @SWG\Property(property="icon",type="string")
+      * @SWG\Property(property="is_price_override",type="boolean")
+     */
     use SoftDeletes;
     protected $fillable = [
         'title', 

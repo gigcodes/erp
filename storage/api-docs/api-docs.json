@@ -9495,6 +9495,40 @@
                 "name": "User"
             }
         },
+        "SEOAnalytics": {
+            "properties": {
+                "seo_analytics": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SERanking": {
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "group_id": {
+                    "type": "integer"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "first_check_date": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
         "Sale": {
             "type": "object",
             "xml": {
@@ -9527,7 +9561,7 @@
                     "type": "string"
                 },
                 "assign_from": {
-                    "type": "strintergering"
+                    "type": "integer"
                 },
                 "assign_to": {
                     "type": "interger"
@@ -9546,6 +9580,23 @@
                 },
                 "recurring_day": {
                     "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ScheduleGroup": {
+            "properties": {
+                "images": {
+                    "type": "string"
+                },
+                "scheduled_for": {
+                    "type": "datetime"
+                },
+                "timestamps": {
+                    "type": "datetime"
                 }
             },
             "type": "object",
@@ -9578,6 +9629,3291 @@
                 },
                 "recurring_day": {
                     "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ScrapActivity": {
+            "properties": {
+                "website": {
+                    "type": "string"
+                },
+                "scraped_product_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ScrapCounts": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ScrapEntries": {
+            "properties": {
+                "pagination": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ScrapHistory": {
+            "properties": {
+                "operation": {
+                    "type": "string"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "model_id": {
+                    "type": "integer"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ScrapInfluencer": {
+            "properties": {
+                "post_id": {
+                    "type": "integer"
+                },
+                "post_caption": {
+                    "type": "string"
+                },
+                "instagram_user_id": {
+                    "type": "integer"
+                },
+                "post_media_type": {
+                    "type": "string"
+                },
+                "post_code": {
+                    "type": "string"
+                },
+                "post_location": {
+                    "type": "string"
+                },
+                "post_hashtag_id": {
+                    "type": "interger"
+                },
+                "post_likes": {
+                    "type": "string"
+                },
+                "post_comments_count": {
+                    "type": "string"
+                },
+                "post_media_url": {
+                    "type": "string"
+                },
+                "posted_at": {
+                    "type": "datetime"
+                },
+                "comment_user_id": {
+                    "type": "integer"
+                },
+                "comment_user_full_name": {
+                    "type": "string"
+                },
+                "comment_username": {
+                    "type": "string"
+                },
+                "instagram_post_id": {
+                    "type": "integer"
+                },
+                "comment_id": {
+                    "type": "integer"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "comment_profile_pic_url": {
+                    "type": "string"
+                },
+                "comment_posted_at": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ScrapRemark": {
+            "properties": {
+                "user_name": {
+                    "type": "string"
+                },
+                "scraper_name": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "module_type": {
+                    "type": "string"
+                },
+                "scrap_field": {
+                    "type": "string"
+                },
+                "scrap_id": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ScrapRequestHistory": {
+            "properties": {
+                "scrap_request_histories": {
+                    "type": "string"
+                },
+                "scraper_id": {
+                    "type": "integer"
+                },
+                "date": {
+                    "type": "datetime"
+                },
+                "start_time": {
+                    "type": "datetime"
+                },
+                "end_time": {
+                    "type": "datetime"
+                },
+                "request_sent": {
+                    "type": "string"
+                },
+                "request_failed": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ScrapStatistics": {
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "supplier": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "brand": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ScrapeQueues": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ScrapedProducts": {
+            "properties": {
+                "images": {
+                    "type": "string"
+                },
+                "properties": {
+                    "type": "string"
+                },
+                "sku": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "interger"
+                },
+                "website": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "brand_id": {
+                    "type": "interger"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "is_properly_updated": {
+                    "type": "boolean"
+                },
+                "is_price_updated": {
+                    "type": "boolean"
+                },
+                "is_enriched": {
+                    "type": "boolean"
+                },
+                "has_sku": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "float"
+                },
+                "can_be_deleted": {
+                    "type": "boolean"
+                },
+                "categories": {
+                    "type": "string"
+                },
+                "color": {
+                    "type": "string"
+                },
+                "composition": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Scraper": {
+            "properties": {
+                "supplier_id": {
+                    "type": "integer"
+                },
+                "parent_supplier_id": {
+                    "type": "integer"
+                },
+                "scraper_name": {
+                    "type": "string"
+                },
+                "scraper_type": {
+                    "type": "string"
+                },
+                "scraper_total_urls": {
+                    "type": "string"
+                },
+                "scraper_new_urls": {
+                    "type": "string"
+                },
+                "scraper_existing_urls": {
+                    "type": "string"
+                },
+                "scraper_start_time": {
+                    "type": "datetime"
+                },
+                "scraper_logic": {
+                    "type": "string"
+                },
+                "scraper_made_by": {
+                    "type": "string"
+                },
+                "scraper_priority": {
+                    "type": "string"
+                },
+                "next_step_in_product_flow": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "has_sku": {
+                    "type": "string"
+                },
+                "last_completed_at": {
+                    "type": "datetime"
+                },
+                "last_started_at": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ScraperMapping": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ScraperResult": {
+            "properties": {
+                "scraper_name": {
+                    "type": "string"
+                },
+                "total_urls": {
+                    "type": "string"
+                },
+                "existing_urls": {
+                    "type": "string"
+                },
+                "new_urls": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ScrappedFacebookUser": {
+            "properties": {
+                "url": {
+                    "type": "string"
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "bio": {
+                    "type": "string"
+                },
+                "keyword": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SearchQueue": {
+            "properties": {
+                "search_queues": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Service": {
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Setting": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "ShopifyHelper": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SimplyDutyCalculation": {
+            "properties": {
+                "hscode": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                },
+                "duty": {
+                    "type": "string"
+                },
+                "duty_rate": {
+                    "type": "float"
+                },
+                "duty_hscode": {
+                    "type": "string"
+                },
+                "duty_type": {
+                    "type": "string"
+                },
+                "insurance": {
+                    "type": "interger"
+                },
+                "total": {
+                    "type": "string"
+                },
+                "exchange_rate": {
+                    "type": "float"
+                },
+                "currency_type_origin": {
+                    "type": "string"
+                },
+                "currency_type_destination": {
+                    "type": "string"
+                },
+                "duty_minimis": {
+                    "type": "string"
+                },
+                "vat_minimis": {
+                    "type": "string"
+                },
+                "vat_rate": {
+                    "type": "float"
+                },
+                "vat": {
+                    "type": "string"
+                },
+                "composition": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SimplyDutyCategory": {
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "code": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SimplyDutyCountry": {
+            "properties": {
+                "country_code": {
+                    "type": "string"
+                },
+                "country_name": {
+                    "type": "string"
+                },
+                "default_duty": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SimplyDutyCurrency": {
+            "properties": {
+                "currency": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SiteCroppedImages": {
+            "properties": {
+                "website_id": {
+                    "type": "insteger"
+                },
+                "product_id": {
+                    "type": "insteger"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SiteDevelopment": {
+            "properties": {
+                "site_development_category_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "brand_id": {
+                    "type": "interger"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "developer_id": {
+                    "type": "integer"
+                },
+                "designer_id": {
+                    "type": "integer"
+                },
+                "website_id": {
+                    "type": "integer"
+                },
+                "html_designer": {
+                    "type": "string"
+                },
+                "artwork_status": {
+                    "type": "string"
+                },
+                "tester_id": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SiteDevelopmentArtowrkHistory": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SiteDevelopmentCategory": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SiteDevelopmentHiddenCategory": {
+            "properties": {
+                "category_id": {
+                    "type": "integer"
+                },
+                "store_website_id": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "datetime"
+                },
+                "updated_at": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SiteDevelopmentStatus": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "datetime"
+                },
+                "updated_at": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SitejabberQA": {
+            "properties": {
+                "sitejabber_q_a_s": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Size": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "magento_id": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Sizes": {
+            "properties": {
+                "32": {
+                    "type": "string"
+                },
+                "34": {
+                    "type": "string"
+                },
+                "36": {
+                    "type": "string"
+                },
+                "38": {
+                    "type": "string"
+                },
+                "40": {
+                    "type": "string"
+                },
+                "42": {
+                    "type": "string"
+                },
+                "44": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SkuColorReferences": {
+            "properties": {
+                "brand_id": {
+                    "type": "integer"
+                },
+                "color_name": {
+                    "type": "string"
+                },
+                "color_code": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SkuFormat": {
+            "properties": {
+                "brand_id": {
+                    "type": "integer"
+                },
+                "category_id": {
+                    "type": "integer"
+                },
+                "sku_format": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SkuFormatHistory": {
+            "properties": {
+                "sku_format_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "old_sku_format": {
+                    "type": "string"
+                },
+                "sku_format": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Social": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SocialStrategy": {
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "social_strategy_subject_id": {
+                    "type": "integer"
+                },
+                "execution_id": {
+                    "type": "integer"
+                },
+                "content_id": {
+                    "type": "integer"
+                },
+                "website_id": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SocialStrategyRemark": {
+            "properties": {
+                "remarks": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "social_strategy_id": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SocialStrategySubject": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SocialTags": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Sop": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Stage": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Status": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StatusChange": {
+            "properties": {
+                "model_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "model_type": {
+                    "type": "string"
+                },
+                "from_status": {
+                    "type": "string"
+                },
+                "to_status": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Stock": {
+            "properties": {
+                "courier": {
+                    "type": "string"
+                },
+                "package_from": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "datetime"
+                },
+                "awb": {
+                    "type": "string"
+                },
+                "l_dimension": {
+                    "type": "string"
+                },
+                "h_dimension": {
+                    "type": "string"
+                },
+                "w_dimension": {
+                    "type": "string"
+                },
+                "weight": {
+                    "type": "string"
+                },
+                "pcs": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreDevelopmentRemark": {
+            "properties": {
+                "remarks": {
+                    "type": "string"
+                },
+                "store_development_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreMasterStatus": {
+            "properties": {
+                "value": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "store_website_id": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreSocialAccount": {
+            "properties": {
+                "store_website_id": {
+                    "type": "integer"
+                },
+                "platform": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreSocialContent": {
+            "properties": {
+                "store_social_content_category_id": {
+                    "type": "integer"
+                },
+                "store_website_id": {
+                    "type": "integer"
+                },
+                "store_social_content_status_id": {
+                    "type": "integer"
+                },
+                "creator_id": {
+                    "type": "integer"
+                },
+                "publisher_id": {
+                    "type": "integer"
+                },
+                "request_date": {
+                    "type": "datetime"
+                },
+                "due_date": {
+                    "type": "datetime"
+                },
+                "publish_date": {
+                    "type": "datetime"
+                },
+                "platform": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreSocialContentCategory": {
+            "properties": {
+                "title": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreSocialContentHistory": {
+            "properties": {
+                "store_social_content_id": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreSocialContentMilestone": {
+            "properties": {
+                "store_social_content_id": {
+                    "type": "integer"
+                },
+                "task_id": {
+                    "type": "integer"
+                },
+                "ono_of_content": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreSocialContentRemark": {
+            "properties": {
+                "store_social_content_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "remarks": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreSocialContentReview": {
+            "properties": {
+                "file_id": {
+                    "type": "integer"
+                },
+                "review": {
+                    "type": "string"
+                },
+                "review_by": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreSocialContentStatus": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreWebsite": {
+            "properties": {
+                "title": {
+                    "type": "string"
+                },
+                "remote_software": {
+                    "type": "string"
+                },
+                "website": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "is_published": {
+                    "type": "boolean"
+                },
+                "deleted_at": {
+                    "type": "datetime"
+                },
+                "created_at": {
+                    "type": "datetime"
+                },
+                "updated_at": {
+                    "type": "datetime"
+                },
+                "magento_url": {
+                    "type": "string"
+                },
+                "magento_username": {
+                    "type": "string"
+                },
+                "magento_password": {
+                    "type": "string"
+                },
+                "api_token": {
+                    "type": "string"
+                },
+                "cropper_color": {
+                    "type": "string"
+                },
+                "cropping_size": {
+                    "type": "string"
+                },
+                "instagram": {
+                    "type": "string"
+                },
+                "instagram_remarks": {
+                    "type": "string"
+                },
+                "facebook": {
+                    "type": "string"
+                },
+                "facebook_remarks": {
+                    "type": "string"
+                },
+                "server_ip": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "staging_username": {
+                    "type": "string"
+                },
+                "staging_password": {
+                    "type": "string"
+                },
+                "mysql_username": {
+                    "type": "string"
+                },
+                "mysql_password": {
+                    "type": "string"
+                },
+                "mysql_staging_username": {
+                    "type": "string"
+                },
+                "mysql_staging_password": {
+                    "type": "string"
+                },
+                "website_source": {
+                    "type": "string"
+                },
+                "push_web_key": {
+                    "type": "string"
+                },
+                "push_web_id": {
+                    "type": "integer"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "is_price_override": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreWebsiteAnalytic": {
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "store_website_analytics": {
+                    "type": "string"
+                },
+                "website": {
+                    "type": "string"
+                },
+                "account_id": {
+                    "type": "integer"
+                },
+                "view_id": {
+                    "type": "integer"
+                },
+                "store_website_id": {
+                    "type": "integer"
+                },
+                "google_service_account_json": {
+                    "type": "text"
+                },
+                "created_at": {
+                    "type": "datetime"
+                },
+                "updated_at": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreWebsiteBrand": {
+            "properties": {
+                "brand_id": {
+                    "type": "integer"
+                },
+                "markup": {
+                    "type": "string"
+                },
+                "store_website_id": {
+                    "type": "integer"
+                },
+                "magento_value": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "datetime"
+                },
+                "updated_at": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreWebsiteBrandHistory": {
+            "properties": {
+                "brand_id": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "store_website_id": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "datetime"
+                },
+                "updated_at": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreWebsiteCategory": {
+            "properties": {
+                "category_id": {
+                    "type": "integer"
+                },
+                "remote_id": {
+                    "type": "integer"
+                },
+                "category_name": {
+                    "type": "string"
+                },
+                "store_website_id": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "datetime"
+                },
+                "updated_at": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreWebsiteCategorySeo": {
+            "properties": {
+                "category_id": {
+                    "type": "integer"
+                },
+                "language_id": {
+                    "type": "integer"
+                },
+                "meta_title": {
+                    "type": "string"
+                },
+                "meta_description": {
+                    "type": "string"
+                },
+                "meta_keyword": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "datetime"
+                },
+                "updated_at": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreWebsiteColor": {
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "store_website_id": {
+                    "type": "integer"
+                },
+                "store_color": {
+                    "type": "string"
+                },
+                "erp_color": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreWebsiteGoal": {
+            "properties": {
+                "store_website_id": {
+                    "type": "integer"
+                },
+                "goal": {
+                    "type": "string"
+                },
+                "solution": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "datetime"
+                },
+                "updated_at": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreWebsiteGoalRemark": {
+            "properties": {
+                "store_website_id": {
+                    "type": "integer"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "datetime"
+                },
+                "updated_at": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreWebsiteOrder": {
+            "properties": {
+                "status_id": {
+                    "type": "integer"
+                },
+                "order_id": {
+                    "type": "integer"
+                },
+                "website_id": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreWebsitePage": {
+            "properties": {
+                "title": {
+                    "type": "string"
+                },
+                "meta_title": {
+                    "type": "string"
+                },
+                "meta_keywords": {
+                    "type": "string"
+                },
+                "meta_description": {
+                    "type": "string"
+                },
+                "content_heading": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "layout": {
+                    "type": "string"
+                },
+                "url_key": {
+                    "type": "string"
+                },
+                "active": {
+                    "type": "string"
+                },
+                "stores": {
+                    "type": "string"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "platform_id": {
+                    "type": "integer"
+                },
+                "store_website_id": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreWebsitePageHistory": {
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "result": {
+                    "type": "string"
+                },
+                "result_type": {
+                    "type": "string"
+                },
+                "store_website_page_id": {
+                    "type": "integer"
+                },
+                "updated_by": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "datetime"
+                },
+                "updated_at": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreWebsiteProduct": {
+            "properties": {
+                "store_website_id": {
+                    "type": "integer"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "platform_id": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreWebsiteProductAttribute": {
+            "properties": {
+                "price": {
+                    "type": "float"
+                },
+                "discount": {
+                    "type": "float"
+                },
+                "discount_type": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "store_website_id": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "datetime"
+                },
+                "updated_at": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreWebsiteSize": {
+            "properties": {
+                "size_id": {
+                    "type": "integer"
+                },
+                "store_website_id": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "StoreWebsiteTwilioNumber": {
+            "properties": {
+                "store_website_twilio_numbers": {
+                    "type": "string"
+                },
+                "store_website_id": {
+                    "type": "integer"
+                },
+                "twilio_active_number_id": {
+                    "type": "integer"
+                },
+                "message_available": {
+                    "type": "string"
+                },
+                "message_not_available": {
+                    "type": "string"
+                },
+                "message_busy": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Store_order_status": {
+            "properties": {
+                "order_status_id": {
+                    "type": "integer"
+                },
+                "store_website_id": {
+                    "type": "integer"
+                },
+                "store_master_status_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SuggestedProduct": {
+            "properties": {
+                "brands": {
+                    "type": "string"
+                },
+                "categories": {
+                    "type": "string"
+                },
+                "keyword": {
+                    "type": "string"
+                },
+                "color": {
+                    "type": "string"
+                },
+                "supplier": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "string"
+                },
+                "customer_id": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "float"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SuggestedProductList": {
+            "properties": {
+                "suggested_products_id": {
+                    "type": "integer"
+                },
+                "customer_id": {
+                    "type": "integer"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "chat_message_id": {
+                    "type": "integer"
+                },
+                "remove_attachment": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Suggestion": {
+            "properties": {
+                "customer_id": {
+                    "type": "integer"
+                },
+                "chat_message_id": {
+                    "type": "integer"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "string"
+                },
+                "supplier": {
+                    "type": "string"
+                },
+                "number": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SuggestionProduct": {
+            "properties": {
+                "suggestion_id": {
+                    "type": "integer"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "datetime"
+                },
+                "updated_at": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Supplier": {
+            "properties": {
+                "is_updated": {
+                    "type": "boolean"
+                },
+                "supplier": {
+                    "type": "string"
+                },
+                "size_system_id": {
+                    "type": "integer"
+                },
+                "address": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "default_phone": {
+                    "type": "string"
+                },
+                "whatsapp_number": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "default_email": {
+                    "type": "string"
+                },
+                "social_handle": {
+                    "type": "string"
+                },
+                "instagram_handle": {
+                    "type": "string"
+                },
+                "website": {
+                    "type": "string"
+                },
+                "gst": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "supplier_category_id": {
+                    "type": "integer"
+                },
+                "supplier_sub_category_id": {
+                    "type": "integer"
+                },
+                "scrapper": {
+                    "type": "string"
+                },
+                "supplier_status_id": {
+                    "type": "integer"
+                },
+                "is_blocked": {
+                    "type": "boolean"
+                },
+                "supplier_price_range_id": {
+                    "type": "integer"
+                },
+                "est_delivery_time": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SupplierBrandCount": {
+            "properties": {
+                "supplier_id": {
+                    "type": "integer"
+                },
+                "brand_id": {
+                    "type": "integer"
+                },
+                "cnt": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "category_id": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SupplierBrandCountHistory": {
+            "properties": {
+                "supplier_brand_count_id": {
+                    "type": "integer"
+                },
+                "supplier_id": {
+                    "type": "integer"
+                },
+                "brand_id": {
+                    "type": "integer"
+                },
+                "cnt": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "category_id": {
+                    "type": "integer"
+                },
+                "supplier_brand_count_histories": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SupplierCategory": {
+            "properties": {
+                "supplier_category": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "timestamps": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SupplierCategoryCount": {
+            "properties": {
+                "supplier_id": {
+                    "type": "integer"
+                },
+                "cnt": {
+                    "type": "string"
+                },
+                "category_id": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SupplierDiscountInfo": {
+            "properties": {
+                "supplier_id": {
+                    "type": "integer"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "discount": {
+                    "type": "float"
+                },
+                "fixed_price": {
+                    "type": "float"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SupplierInventory": {
+            "properties": {
+                "supplier_inventory": {
+                    "type": "string"
+                },
+                "supplier": {
+                    "type": "string"
+                },
+                "sku": {
+                    "type": "string"
+                },
+                "inventory": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SupplierPriceRange": {
+            "properties": {
+                "supplier_price_range": {
+                    "type": "string"
+                },
+                "timestamps": {
+                    "type": "datetime"
+                },
+                "price_from": {
+                    "type": "string"
+                },
+                "price_to": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SupplierSize": {
+            "properties": {
+                "supplier_size": {
+                    "type": "string"
+                },
+                "timestamps": {
+                    "type": "datetime"
+                },
+                "size": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SupplierStatus": {
+            "properties": {
+                "supplier_status": {
+                    "type": "string"
+                },
+                "timestamps": {
+                    "type": "datetime"
+                },
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SupplierSubCategory": {
+            "properties": {
+                "supplier_subcategory": {
+                    "type": "string"
+                },
+                "timestamps": {
+                    "type": "datetime"
+                },
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SystemSize": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SystemSizeManager": {
+            "properties": {
+                "erp_size": {
+                    "type": "string"
+                },
+                "category_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "SystemSizeRelation": {
+            "properties": {
+                "system_size": {
+                    "type": "string"
+                },
+                "system_size_manager_id": {
+                    "type": "integer"
+                },
+                "size": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Tag": {
+            "properties": {
+                "book_tags": {
+                    "type": "string"
+                },
+                "tag": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "TargetLocation": {
+            "properties": {
+                "region_data": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "TargetedAccounts": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Task": {
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "task_details": {
+                    "type": "string"
+                },
+                "task_subject": {
+                    "type": "string"
+                },
+                "completion_date": {
+                    "type": "datetime"
+                },
+                "assign_from": {
+                    "type": "datetime"
+                },
+                "assign_to": {
+                    "type": "datetime"
+                },
+                "is_statutory": {
+                    "type": "boolean"
+                },
+                "sending_time": {
+                    "type": "string"
+                },
+                "recurring_type": {
+                    "type": "string"
+                },
+                "statutory_id": {
+                    "type": "integer"
+                },
+                "model_type": {
+                    "type": "string"
+                },
+                "model_id": {
+                    "type": "integer"
+                },
+                "general_category_id": {
+                    "type": "integer"
+                },
+                "cost": {
+                    "type": "string"
+                },
+                "is_milestone": {
+                    "type": "boolean"
+                },
+                "no_of_milestone": {
+                    "type": "string"
+                },
+                "milestone_completed": {
+                    "type": "string"
+                },
+                "customer_id": {
+                    "type": "integer"
+                },
+                "hubstaff_task_id": {
+                    "type": "integer"
+                },
+                "master_user_id": {
+                    "type": "integer"
+                },
+                "lead_hubstaff_task_id": {
+                    "type": "integer"
+                },
+                "due_date": {
+                    "type": "datetime"
+                },
+                "site_developement_id": {
+                    "type": "integer"
+                },
+                "priority_no": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "TaskAttachment": {
+            "properties": {
+                "task_id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "TaskCategory": {
+            "properties": {
+                "title": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "integer"
+                },
+                "is_approved": {
+                    "type": "boolean"
+                },
+                "is_active": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "TaskStatus": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "TaskUserHistory": {
+            "properties": {
+                "model": {
+                    "type": "string"
+                },
+                "model_id": {
+                    "type": "integer"
+                },
+                "old_id": {
+                    "type": "integer"
+                },
+                "new_id": {
+                    "type": "integer"
+                },
+                "user_type": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "integer"
+                },
+                "master_user_hubstaff_task_id": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "TasksHistory": {
+            "properties": {
+                "tasks_history": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Team": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Template": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "no_of_images": {
+                    "type": "string"
+                },
+                "auto_generate_product": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "TicketStatuses": {
+            "properties": {
+                "ticket_statuses": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Tickets": {
+            "properties": {
+                "tickets": {
+                    "type": "string"
+                },
+                "customer_id": {
+                    "type": "integer"
+                },
+                "ticket_id": {
+                    "type": "integer"
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "assigned_to": {
+                    "type": "integer"
+                },
+                "source_of_ticket": {
+                    "type": "integer"
+                },
+                "status_id": {
+                    "type": "integer"
+                },
+                "date": {
+                    "type": "datetime"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "phone_no": {
+                    "type": "string"
+                },
+                "type_of_inquiry": {
+                    "type": "string"
+                },
+                "order_no": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "notify_on": {
+                    "type": "string"
+                },
+                "amount": {
+                    "type": "float"
+                },
+                "sku": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "TranslatedProduct": {
+            "properties": {
+                "product_id": {
+                    "type": "integer"
+                },
+                "language_id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "short_description": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "TranslationLanguage": {
+            "properties": {
+                "locale": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Translations": {
+            "properties": {
+                "text": {
+                    "type": "string"
+                },
+                "text_original": {
+                    "type": "string"
+                },
+                "from": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "datetime"
+                },
+                "updated_at": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "TwilioActiveNumber": {
+            "properties": {
+                "twilio_credential_id": {
+                    "type": "integer"
+                },
+                "sid": {
+                    "type": "integer"
+                },
+                "account_sid": {
+                    "type": "integer"
+                },
+                "friendly_name": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "voice_url": {
+                    "type": "string"
+                },
+                "date_created": {
+                    "type": "string"
+                },
+                "date_updated": {
+                    "type": "datetime"
+                },
+                "sms_url": {
+                    "type": "string"
+                },
+                "voice_receive_mode": {
+                    "type": "string"
+                },
+                "api_version": {
+                    "type": "string"
+                },
+                "voice_application_sid": {
+                    "type": "integer"
+                },
+                "sms_application_sid": {
+                    "type": "integer"
+                },
+                "trunk_sid": {
+                    "type": "integer"
+                },
+                "emergency_address_sid": {
+                    "type": "integer"
+                },
+                "address_sid": {
+                    "type": "integer"
+                },
+                "identity_sid": {
+                    "type": "integer"
+                },
+                "bundle_sid": {
+                    "type": "integer"
+                },
+                "uri": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "TwilioCallForwarding": {
+            "properties": {
+                "twilio_call_forwarding": {
+                    "type": "string"
+                },
+                "twilio_number_sid": {
+                    "type": "integer"
+                },
+                "twilio_number": {
+                    "type": "string"
+                },
+                "forwarding_on": {
+                    "type": "string"
+                },
+                "twilio_active_number_id": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "TwilioCredential": {
+            "properties": {
+                "twilio_credentials": {
+                    "type": "string"
+                },
+                "account_id": {
+                    "type": "integer"
+                },
+                "twilio_email": {
+                    "type": "string"
+                },
+                "auth_token": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "UnknownSize": {
+            "properties": {
+                "size": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "User": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "responsible_user": {
+                    "type": "string"
+                },
+                "agent_role": {
+                    "type": "string"
+                },
+                "whatsapp_number": {
+                    "type": "string"
+                },
+                "amount_assigned": {
+                    "type": "string"
+                },
+                "auth_token_hubstaff": {
+                    "type": "string"
+                },
+                "payment_frequency": {
+                    "type": "string"
+                },
+                "fixed_price_user_or_job": {
+                    "type": "string"
+                },
+                "approve_login": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "UserActions": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "UserAvaibility": {
+            "properties": {
+                "user_id": {
+                    "type": "integer"
+                },
+                "from": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "UserLog": {
+            "properties": {
+                "user_id": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "user_name": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "UserLogin": {
+            "properties": {
+                "user_id": {
+                    "type": "integer"
+                },
+                "login_at": {
+                    "type": "string"
+                },
+                "logout_at": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "UserProduct": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "UserProductFeedback": {
+            "properties": {
+                "content": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "UserRate": {
+            "properties": {
+                "user_id": {
+                    "type": "integer"
+                },
+                "start_date": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Vendor": {
+            "properties": {
+                "category_id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "address": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "default_phone": {
+                    "type": "string"
+                },
+                "whatsapp_number": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "social_handle": {
+                    "type": "string"
+                },
+                "website": {
+                    "type": "string"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "gst": {
+                    "type": "string"
+                },
+                "account_name": {
+                    "type": "string"
+                },
+                "account_iban": {
+                    "type": "string"
+                },
+                "is_blocked": {
+                    "type": "boolean"
+                },
+                "frequency": {
+                    "type": "string"
+                },
+                "reminder_last_reply": {
+                    "type": "string"
+                },
+                "reminder_message": {
+                    "type": "string"
+                },
+                "frequency_of_payment": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "bank_name": {
+                    "type": "string"
+                },
+                "bank_address": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "staifsc_codetus": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "VendorCategory": {
+            "properties": {
+                "title": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "VendorPayment": {
+            "properties": {
+                "vendor_id": {
+                    "type": "integer"
+                },
+                "payment_date": {
+                    "type": "datetime"
+                },
+                "paid_date": {
+                    "type": "datetime"
+                },
+                "payable_amount": {
+                    "type": "float"
+                },
+                "paid_amount": {
+                    "type": "float"
+                },
+                "service_provided": {
+                    "type": "string"
+                },
+                "work_hour": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "other": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "updated_by": {
+                    "type": "integer"
+                },
+                "currency": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "VendorProduct": {
+            "properties": {
+                "vendor_id": {
+                    "type": "integer"
+                },
+                "date_of_order": {
+                    "type": "datetime"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "qty": {
+                    "type": "float"
+                },
+                "price": {
+                    "type": "float"
+                },
+                "payment_terms": {
+                    "type": "string"
+                },
+                "recurring_type": {
+                    "type": "string"
+                },
+                "delivery_date": {
+                    "type": "datetime"
+                },
+                "received_by": {
+                    "type": "integer"
+                },
+                "approved_by": {
+                    "type": "integer"
+                },
+                "payment_details": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "VisitorLog": {
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Voucher": {
+            "properties": {
+                "user_id": {
+                    "type": "integer"
+                },
+                "delivery_approval_id": {
+                    "type": "integer"
+                },
+                "category_id": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "travel_type": {
+                    "type": "string"
+                },
+                "recurring_type": {
+                    "type": "string"
+                },
+                "amount": {
+                    "type": "float"
+                },
+                "paid": {
+                    "type": "float"
+                },
+                "date": {
+                    "type": "datetime"
+                },
+                "reject_reason": {
+                    "type": "string"
+                },
+                "resubmit_count": {
+                    "type": "integer"
+                },
+                "reject_count": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "VoucherCategory": {
+            "properties": {
+                "title": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "WatsonAccount": {
+            "properties": {
+                "store_website_id": {
+                    "type": "integer"
+                },
+                "work_space_id": {
+                    "type": "integer"
+                },
+                "assistant_id": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "api_key": {
+                    "type": "string"
+                },
+                "watson_push": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "WatsonWorkspace": {
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "element_id": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "watson_workspace": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "datetime"
+                },
+                "deleted_at": {
+                    "type": "datetime"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Waybill": {
+            "properties": {
+                "order_id": {
+                    "type": "integer"
+                },
+                "customer_id": {
+                    "type": "integer"
+                },
+                "waybills": {
+                    "type": "string"
+                },
+                "box_length": {
+                    "type": "string"
+                },
+                "box_width": {
+                    "type": "string"
+                },
+                "box_height": {
+                    "type": "string"
+                },
+                "volume_weight": {
+                    "type": "string"
+                },
+                "package_slip": {
+                    "type": "string"
+                },
+                "pickup_date": {
+                    "type": "datetime"
+                },
+                "from_customer_id": {
+                    "type": "integer"
+                },
+                "from_customer_name": {
+                    "type": "string"
+                },
+                "from_city": {
+                    "type": "string"
+                },
+                "from_country_code": {
+                    "type": "string"
+                },
+                "from_customer_phone": {
+                    "type": "string"
+                },
+                "from_customer_address_1": {
+                    "type": "string"
+                },
+                "from_customer_address_2": {
+                    "type": "string"
+                },
+                "from_customer_pincode": {
+                    "type": "string"
+                },
+                "from_company_name": {
+                    "type": "string"
+                },
+                "to_customer_id": {
+                    "type": "integer"
+                },
+                "to_customer_name": {
+                    "type": "string"
+                },
+                "to_city": {
+                    "type": "string"
+                },
+                "to_country_code": {
+                    "type": "string"
+                },
+                "to_customer_phone": {
+                    "type": "string"
+                },
+                "to_customer_address_1": {
+                    "type": "string"
+                },
+                "to_customer_address_2": {
+                    "type": "string"
+                },
+                "to_customer_pincode": {
+                    "type": "string"
+                },
+                "to_company_name": {
+                    "type": "string"
+                },
+                "cost_of_shipment": {
+                    "type": "string"
+                },
+                "duty_cost": {
+                    "type": "string"
+                },
+                "pickuprequest": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Waybillinvoice": {
+            "properties": {
+                "waybill_invoices": {
+                    "type": "string"
+                },
+                "line_type": {
+                    "type": "string"
+                },
+                "billing_source": {
+                    "type": "string"
+                },
+                "original_invoice_number": {
+                    "type": "string"
+                },
+                "invoice_number": {
+                    "type": "string"
+                },
+                "invoice_identifier": {
+                    "type": "string"
+                },
+                "invoice_type": {
+                    "type": "string"
+                },
+                "invoice_date": {
+                    "type": "datetime"
+                },
+                "payment_terms": {
+                    "type": "string"
+                },
+                "due_date": {
+                    "type": "datetime"
+                },
+                "billing_account": {
+                    "type": "string"
+                },
+                "billing_account_name": {
+                    "type": "string"
+                },
+                "billing_account_name_additional": {
+                    "type": "string"
+                },
+                "billing_postcode": {
+                    "type": "string"
+                },
+                "billing_city": {
+                    "type": "string"
+                },
+                "billing_state_province": {
+                    "type": "string"
+                },
+                "billing_country_code": {
+                    "type": "string"
+                },
+                "billing_contact": {
+                    "type": "integer"
+                },
+                "shipment_number": {
+                    "type": "string"
+                },
+                "shipment_date": {
+                    "type": "datetime"
+                },
+                "product_name": {
+                    "type": "string"
+                },
+                "pieces": {
+                    "type": "string"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "orig_name": {
+                    "type": "string"
+                },
+                "orig_country_name": {
+                    "type": "string"
+                },
+                "senders_name": {
+                    "type": "string"
+                },
+                "invoice_amount": {
+                    "type": "string"
+                },
+                "invoice_currency": {
+                    "type": "string"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Website": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "code": {
+                    "type": "string"
+                },
+                "sort_order": {
+                    "type": "string"
+                },
+                "platform_id": {
+                    "type": "integer"
+                },
+                "order_status_id": {
+                    "type": "integer"
+                },
+                "is_finished": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "WebsiteProduct": {
+            "properties": {
+                "store_website_id": {
+                    "type": "integer"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "is_finished": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "WebsiteStore": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "code": {
+                    "type": "string"
+                },
+                "root_category": {
+                    "type": "string"
+                },
+                "platform_id": {
+                    "type": "integer"
+                },
+                "website_id": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "WebsiteStoreView": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "code": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "platform_id": {
+                    "type": "integer"
+                },
+                "website_store_id": {
+                    "type": "integer"
+                },
+                "sort_order": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "Wetransfer": {
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "supplier": {
+                    "type": "string"
+                },
+                "is_processed": {
+                    "type": "float"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "WhatsAppGroup": {
+            "properties": {
+                "task_id": {
+                    "type": "integer"
+                },
+                "group_id": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "WhatsAppGroupNumber": {
+            "properties": {
+                "user_number": {
+                    "type": "string"
+                },
+                "group_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "TaskTypes": {
+            "properties": {
+                "task_types": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "integer"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "User"
+            }
+        },
+        "waybillTrackHistories": {
+            "properties": {
+                "waybill_track_histories": {
+                    "type": "string"
+                },
+                "waybill_id": {
+                    "type": "integer"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "dat": {
+                    "type": "string"
+                },
+                "order_status_id": {
+                    "type": "integer"
                 }
             },
             "type": "object",
