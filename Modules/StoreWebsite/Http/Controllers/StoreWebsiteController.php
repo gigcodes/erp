@@ -428,5 +428,48 @@ class StoreWebsiteController extends Controller
         return response()->json(["code" => 200 , "message" => 'Successful']);
     }
 
+	 public function googleKeywordsSearch( Request $request )
+    {    
+        $title    = $request->title;
+        $language = $request->lan;
+
+        // dd( $request->all() );
+
+        try {
+            // create & initialize a curl session
+            $curl = curl_init();
+
+            // set our url with curl_setopt()
+            curl_setopt($curl, CURLOPT_URL, "API_URL");
+
+            // return the transfer as a string, also with setopt()
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+
+            // curl_exec() executes the started curl session
+            // $output contains the output string
+            $output = curl_exec($curl);
+            $output = json_decode( $output );
+
+            return response()->json([
+                "status"  => true,
+                "code"    => 200,
+                "data"    => json_encode( $output ),
+                "message" => 'Successful'
+            ]);
+
+         } catch (\Throwable $th) {
+            return response()->json([
+                "status"  => false,
+                "code"    => 200,
+                "message" => $th->getMessage()
+            ]);
+        }
+
+        return response()->json([
+            "status"  => false,
+            "code"    => 200,
+            "message" => 'Something went wrong!'
+        ]);
+    }
    
 }
