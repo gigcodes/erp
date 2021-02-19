@@ -2443,11 +2443,14 @@ Route::prefix('digital-marketing')->middleware('auth')->group(function () {
     Route::get('/', 'DigitalMarketingController@index')->name('digital-marketing.index');
     Route::get('/records', 'DigitalMarketingController@records')->name('digital-marketing.records');
     Route::post('/save', 'DigitalMarketingController@save')->name('digital-marketing.save');
+    Route::post('/saveImages', 'DigitalMarketingController@saveImages')->name('digital-marketing.saveimages');
     Route::prefix('{id}')->group(function () {
         Route::get('/edit', 'DigitalMarketingController@edit')->name("digital-marketing.edit");
         Route::get('/components', 'DigitalMarketingController@components')->name("digital-marketing.components");
         Route::post('/components', 'DigitalMarketingController@componentStore')->name("digital-marketing.components.save");
         Route::get('/delete', 'DigitalMarketingController@delete')->name("digital-marketing.delete");
+        Route::get('/files', 'DigitalMarketingController@files')->name("digital-marketing.files");
+        Route::get('/files-solution', 'DigitalMarketingController@filesSolution')->name("digital-marketing.filessolution");
 
         Route::prefix('solution')->group(function () {
             Route::get('/', 'DigitalMarketingController@solution')->name("digital-marketing.solutions");
