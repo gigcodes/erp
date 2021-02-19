@@ -133,7 +133,7 @@ class TwilioController extends FindByNumberController
         $number = $request->get("From");
         //$number = '919748940238';
 
-        Log::info('Enter in Incoming Call Section ');
+        Log::channel('customerDnd')->info('Enter in Incoming Call Section ');
         $response = new VoiceResponse();
 
         list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
@@ -177,7 +177,7 @@ class TwilioController extends FindByNumberController
      */
     public function ivr(Request $request)
     {
-        Log::info('Showing user profile for IVR: ');
+        Log::channel('customerDnd')->info('Showing user profile for IVR: ');
 
         $number = $request->get("From");
         list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
@@ -215,7 +215,7 @@ class TwilioController extends FindByNumberController
 
                 $clients = $this->getConnectedClients();
 
-                Log::info('Client for callings: ' . implode(',', $clients));
+                Log::channel('customerDnd')->info('Client for callings: ' . implode(',', $clients));
                 /** @var Helpers $client */
                 foreach ($clients as $client) {
                     $dial->client($client);
@@ -252,23 +252,23 @@ class TwilioController extends FindByNumberController
     {
 
         $response = new Twiml();
-        Log::info(' TIME CHECKING : 2');
+        Log::channel('customerDnd')->info(' TIME CHECKING : 2');
 
         $digits = trim($request->get("Digits"));
-        Log::info(' TIME CHECKING : 3');
+        Log::channel('customerDnd')->info(' TIME CHECKING : 3');
 
         $clients = [];
 
         $number = $request->get("From");
-        Log::info(' TIME CHECKING : 4');
+        Log::channel('customerDnd')->info(' TIME CHECKING : 4');
 
         // list($context, $object) = $this->findLeadOrOrderByNumber(str_replace("+", "", $number));
         $recordurl = \Config::get("app.url") . "/twilio/storerecording";
-        // Log::info('Context: '.$context);
-        Log::info(' TIME CHECKING : 5');
+        // Log::channel('customerDnd')->info('Context: '.$context);
+        Log::channel('customerDnd')->info(' TIME CHECKING : 5');
 
         if ($digits === "0") {
-            Log::info(' Enterd into Leave a message section');
+            Log::channel('customerDnd')->info(' Enterd into Leave a message section');
             $response->record(
                 ['maxLength' => '20',
                     'method' => 'GET',
@@ -303,10 +303,10 @@ class TwilioController extends FindByNumberController
      */
     public function outgoingCall(Request $request)
     {
-        Log::info('Call Status: = ' . $request->get("CallStatus"));
+        Log::channel('customerDnd')->info('Call Status: = ' . $request->get("CallStatus"));
 
         $number = $request->get("PhoneNumber");
-        Log::info('Call SID: ' . $request->get("CallSid"));
+        Log::channel('customerDnd')->info('Call SID: ' . $request->get("CallSid"));
         $context = $request->get("context");
         $id = $request->get("internalId");
 
@@ -317,7 +317,7 @@ class TwilioController extends FindByNumberController
         }
 
         $actionurl = \Config::get("app.url") . "/twilio/handleOutgoingDialCallStatus" . "?phone_number=$number";
-        Log::info('Outgoing call function Enter ' . $id);
+        Log::channel('customerDnd')->info('Outgoing call function Enter ' . $id);
         $response = new Twiml();
         $response->dial($number, [
             'callerId' => $callFrom,
@@ -326,7 +326,7 @@ class TwilioController extends FindByNumberController
             'action' => $actionurl
         ]);
         $recordurl = \Config::get("app.url") . "/twilio/storetranscript";
-        Log::info('Trasncript Call back url ' . $recordurl);
+        Log::channel('customerDnd')->info('Trasncript Call back url ' . $recordurl);
         $response->record(['transcribeCallback' => $recordurl]);
 
         return \Response::make((string)$response, '200')->header('Content-Type', 'text/xml');
@@ -435,9 +435,9 @@ class TwilioController extends FindByNumberController
      */
     public function storetranscript(Request $request)
     {
-        Log::info('---------------- Enter in Function for Trasncript--------------------- ' . $request->get("CallStatus"));
+        Log::channel('customerDnd')->info('---------------- Enter in Function for Trasncript--------------------- ' . $request->get("CallStatus"));
         $sid = $request->get("CallSid");
-        Log::info('TranscriptionText ' . $request->input('TranscriptionText'));
+        Log::channel('customerDnd')->info('TranscriptionText ' . $request->input('TranscriptionText'));
 
         $call_status = $request->get("CallStatus");
         if ($call_status == 'completed') {
@@ -607,7 +607,7 @@ class TwilioController extends FindByNumberController
 
         $clients = $this->getConnectedClients($role);
 
-        Log::info('Client for callings: ' . implode(',', $clients));
+        Log::channel('customerDnd')->info('Client for callings: ' . implode(',', $clients));
         /** @var Helpers $client */
         foreach ($clients as $client) {
             $dial->client($client);
@@ -650,11 +650,11 @@ class TwilioController extends FindByNumberController
         $response = new Twiml();
         $callStatus = $request->input('DialCallStatus');
         $recordurl = \Config::get("app.url") . "/twilio/storerecording";
-        Log::info('Current Call Status ' . $callStatus);
+        Log::channel('customerDnd')->info('Current Call Status ' . $callStatus);
 
         if ($callStatus === 'completed') {
             $recordurl = \Config::get("app.url") . "/twilio/storetranscript";
-            Log::info('Trasncript Call back url ' . $recordurl);
+            Log::channel('customerDnd')->info('Trasncript Call back url ' . $recordurl);
             $response->record(['transcribeCallback' => $recordurl]);
         } else {
             $params = [
@@ -664,8 +664,8 @@ class TwilioController extends FindByNumberController
             ];
 
             CallBusyMessage::create($params);
-            Log::info(' Missed Call saved');
-            Log::info('-----SID----- ' . $request->input('CallSid'));
+            Log::channel('customerDnd')->info(' Missed Call saved');
+            Log::channel('customerDnd')->info('-----SID----- ' . $request->input('CallSid'));
 
             $this->createIncomingGather($response, "Please dial 0 for leave message");
         }
@@ -697,8 +697,8 @@ class TwilioController extends FindByNumberController
     {
         $response = new Twiml();
         $callStatus = $request->input('DialCallStatus');
-        Log::info('Current Outgoing Call Status ' . $callStatus);
-        Log::info($request->all());
+        Log::channel('customerDnd')->info('Current Outgoing Call Status ' . $callStatus);
+        Log::channel('customerDnd')->info($request->all());
 
         if ($callStatus == 'busy' || $callStatus == 'no-answer') {
             if ($customer = Customer::where('phone', $request->phone_number)->first()) {
@@ -749,14 +749,14 @@ class TwilioController extends FindByNumberController
             CallBusyMessage::where('caller_sid', $request->input('CallSid'))
                 ->first()
                 ->update($params);
-            Log::info('update call busy recording table');
+            Log::channel('customerDnd')->info('update call busy recording table');
         } else {
 
-            Log::info('Recording URL' . $request->input('RecordingUrl'));
-            Log::info('Caller NAME ' . $request->input('From'));
-            Log::info('-----SID----- ' . $request->input('CallSid'));
+            Log::channel('customerDnd')->info('Recording URL' . $request->input('RecordingUrl'));
+            Log::channel('customerDnd')->info('Caller NAME ' . $request->input('From'));
+            Log::channel('customerDnd')->info('-----SID----- ' . $request->input('CallSid'));
             CallBusyMessage::create($params);
-            Log::info('insert new call busy recording table');
+            Log::channel('customerDnd')->info('insert new call busy recording table');
         }
     }
 
@@ -968,12 +968,12 @@ class TwilioController extends FindByNumberController
 
     public function runWebhook($sid)
     {
-        Log::info('Webhook called successfully');
+        Log::channel('customerDnd')->info('Webhook called successfully');
         $twiml = new VoiceResponse();
         //get forwarded no. of this twilio_sid
         $forwarding = TwilioCallForwarding::where('twilio_number_sid','=',$sid)->first();
-        Log::info('forwarding number details '.$forwarding->forwarding_on);
-        Log::info('number dialled');
+        Log::channel('customerDnd')->info('forwarding number details '.$forwarding->forwarding_on);
+        Log::channel('customerDnd')->info('number dialled');
         $twiml->say("Please wait , we are connecting your call");
         $twiml->dial($forwarding->forwarding_on, ['record' => 'record-from-ringing-dual']);
         $twiml->hangup();

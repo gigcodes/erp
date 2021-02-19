@@ -70,7 +70,7 @@ class BrandReferenceMergeAndDelete extends Command
                                     $p->brand      = $brand->id;
                                     $p->last_brand = $lastBrandId;
                                     $p->save();
-                                    \Log::info("{$brand->id} updated with product" . $p->sku);
+                                    \Log::channel('productUpdates')->info("{$brand->id} updated with product" . $p->sku);
                                 }
                             }
                             $similarBrand->delete();
@@ -101,7 +101,7 @@ class BrandReferenceMergeAndDelete extends Command
     $p->brand      = $brandId;
     $p->last_brand = $lastBrand;
     $p->save();
-    \Log::info("{$brandId} updated with product" . $p->sku);
+    \Log::channel('productUpdates')->info("{$brandId} updated with product" . $p->sku);
     }
     }
     $similarBrand->delete();

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelper;
 use App\Brand; 
+use App\StoreWebsiteBrandHistory;
 
 class BrandController extends Controller
 {
@@ -121,37 +122,90 @@ class BrandController extends Controller
     public function pushToStore(Request $request)
     {
         if ($request->brand != null && $request->store != null) {
-            $brandStore = \App\StoreWebsiteBrand::where("brand_id", $request->brand)->where("store_website_id", $request->store)->first();
-            $website = \App\StoreWebsite::find($request->store);
-            if($website){
-                if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                    $brand = \App\Brand::find($request->brand);
-                    if (!$brandStore) {
-                        $magentoBrandId = MagentoHelper::addBrand($brand,$website);
-                    }else{
-                        $bID = $brandStore->magento_value;
-                        if($bID){
-                            MagentoHelper::deleteBrand($bID,$website);
+            try
+            {
+                $brandStore = \App\StoreWebsiteBrand::where("brand_id", $request->brand)->where("store_website_id", $request->store)->first();
+                $website = \App\StoreWebsite::find($request->store);
+                if($website){
+                    if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                        $brand = \App\Brand::find($request->brand);
+                        if (!$brandStore) {
+                            $magentoBrandId = MagentoHelper::addBrand($brand,$website);
+                            if($magentoBrandId) {
+                                $brandStore = new \App\StoreWebsiteBrand;
+                                $brandStore->brand_id = $request->brand;
+                                if(isset($magentoBrandId)){
+                                    $brandStore->magento_value = $magentoBrandId;
+                                }
+                                $brandStore->store_website_id = $request->store;
+                                $brandStore->save();
+                                StoreWebsiteBrandHistory::create([
+                                    'brand_id' => $request->brand,
+                                    'store_website_id' => $request->store,
+                                    'type' => "assign",
+                                    'message' => "{$website->title} assigned to {$brand->name} brand."
+                                ]);
+                                
+                                return response()->json(["code" => 200 , "message" =>  "Brand is pushed to store successfully."]);
+                            }
+                            else
+                            {
+                                StoreWebsiteBrandHistory::create([
+                                    'brand_id' => $request->brand,
+                                    'store_website_id' => $request->store,
+                                    'type' => "error",
+                                    'message' => "{$website->title} assigned to {$brand->name} brand failed."
+                                ]);
+                                return response()->json(["code" => 500 , "message" =>  "Brand is not pushed to store,please check history log."]);
+                            }
+                        }else{
+                            $bID = $brandStore->magento_value;
+                            if($bID){
+                                $status = MagentoHelper::deleteBrand($bID,$website);
+                                if($status) {
+                                    $brandStore->delete();
+                                    StoreWebsiteBrandHistory::create([
+                                        'brand_id' => $request->brand,
+                                        'store_website_id' => $request->store,
+                                        'type' => "remove",
+                                        'message' => "{$brand->name} removed from {$website->title} store."
+                                    ]);
+                                    return response()->json(["code" => 200 , "message" => "Brand is removed from store successfully."]);
+                                }
+                                else
+                                {
+                                    return response()->json(["code" => 500 , "message" => "Brand is not removed from store,please check history log."]);
+                                }
+                            }
                         }
-                    }
-                }        
+                    }        
 
+                }
+
+                // if ($request->active == null || $request->active == "false") {
+                //     if ($brandStore) {
+                //         $brandStore->delete();
+                //     }
+                // } else {
+                //     if (!$brandStore) {
+                //         $brandStore = new \App\StoreWebsiteBrand;
+                //     }
+                //     $brandStore->brand_id = $request->brand;
+                //     if(isset($magentoBrandId)){
+                //         $brandStore->magento_value = $magentoBrandId;
+                //     }
+                //     $brandStore->store_website_id = $request->store;
+                //     $brandStore->save();
+                // }
             }
-
-            if ($request->active == null || $request->active == "false") {
-                if ($brandStore) {
-                    $brandStore->delete();
-                }
-            } else {
-                if (!$brandStore) {
-                    $brandStore = new \App\StoreWebsiteBrand;
-                }
-                $brandStore->brand_id = $request->brand;
-                if(isset($magentoBrandId)){
-                    $brandStore->magento_value = $magentoBrandId;
-                }
-                $brandStore->store_website_id = $request->store;
-                $brandStore->save();
+            catch(\Exception $e) {
+                StoreWebsiteBrandHistory::create([
+                    'brand_id' => $request->brand,
+                    'store_website_id' => $request->store,
+                    'type' => "error",
+                    'message' => $e->getMessages()
+                ]);
+                return response()->json(["code" => 200, "data" => []]);
             }
         }
 
@@ -177,6 +231,14 @@ class BrandController extends Controller
             return response()->json('Cannot call artisan command',200); 
         } 
 
+    }
+
+    public function history(Request $request){
+        if ($request->brand != null && $request->store != null) {
+            $StoreWebsiteBrandHistories = StoreWebsiteBrandHistory::where("brand_id", $request->brand)->where("store_website_id", $request->store)->get();
+            return view("storewebsite::brand.history", compact(['StoreWebsiteBrandHistories']));
+        }
+        return response()->json(["code" => 200, "data" => []]);
     }
 
 }

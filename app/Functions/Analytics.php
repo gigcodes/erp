@@ -4,10 +4,10 @@
 require_once __DIR__ . '/../../vendor/autoload.php';
 $data      = [];
 $analytics = initializeAnalytics();
-if (!empty($analytics)) {
-    $response = getReport($analytics, $request = '');
-    $data     = printResults($response);
-}
+// if (!empty($analytics)) {
+//     $response = getReport($analytics, $request = '');
+//     $data     = printResults($response);
+// }
 
 /**
  * Initializes an Analytics Reporting API V4 service object.
@@ -43,9 +43,24 @@ function getReport($analytics, $request)
 {
     // Replace with your view ID, for example XXXX.
     if (isset($request['view_id'])) {
-        $VIEW_ID = (string) $request['view_id'];
+        $view_id = (string) $request['view_id'];
     } else {
-        $VIEW_ID = env('ANALYTICS_VIEW_ID');
+        $view_id = env('ANALYTICS_VIEW_ID');
+    }
+
+    if(!empty($request)){
+        $analytics = '';
+        if(isset($request['google_service_account_json']) && $request['google_service_account_json'] != ''){
+            $websiteKeyFile = base_path('resources/assets/analytics_files/'.$request['google_service_account_json']);
+        }else{
+            $websiteKeyFile = storage_path('app/analytics/sololuxu-7674c35e7be5.json');
+        }
+        if (file_exists($websiteKeyFile)) {
+            $client = new Google_Client();
+            $client->setAuthConfig($websiteKeyFile);
+            $client->setScopes(['https://www.googleapis.com/auth/analytics.readonly']);
+            $analytics = new Google_Service_AnalyticsReporting($client);
+        }
     }
 
     // Create the DateRange object.
@@ -107,7 +122,7 @@ function getReport($analytics, $request)
 
     // Create the ReportRequest object.
     $request = new Google_Service_AnalyticsReporting_ReportRequest();
-    $request->setViewId($VIEW_ID);
+    $request->setViewId($view_id);
     $request->setDateRanges($dateRange);
     $request->setDimensions(array($operatingSystem, $user, $minute, $pagePath, $country, $city, $socialNetwork, $date, $mobileDeviceInfo));
     $request->setMetrics(array($sessions, $pageviews, $bounceRate, $avgSessionDuration, $timeOnPage, $uniquePageviews, $entrances, $exitRate, $avgTimeOnPage, $pageValue));

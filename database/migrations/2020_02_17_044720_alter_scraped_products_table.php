@@ -19,6 +19,7 @@ class AlterScrapedProductsTable extends Migration
             $table->integer('validated')->nullable()->after('category');
             $table->text('validation_result')->nullable()->after('validated');
             $table->text('raw_data')->nullable()->after('validation_result');
+            $table->integer('cron_executed')->after('raw_data')->default(0);
         });
     }
 

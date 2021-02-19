@@ -135,7 +135,7 @@ class ImageBarcodeGenerator extends Command
                     $barcodeMedia->attachMedia($media, config('constants.media_barcode_tag'));
 
                 } catch (\Exception $e) {
-                    \Log::info($e->getMessage() . " || Product " . $product->id . " having issue in image barcode and image stored on : " . $media->getAbsolutePath());
+                    \Log::channel('productUpdates')->info($e->getMessage() . " || Product " . $product->id . " having issue in image barcode and image stored on : " . $media->getAbsolutePath());
                 }
 
             }

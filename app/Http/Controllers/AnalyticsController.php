@@ -148,14 +148,28 @@ class AnalyticsController extends Controller
     }
 
     public function cronShowData(){
-        \Log::info("Google Analytics Started running ...");
-        $analyticsDataArr = [];
+        \Log::channel('scraper')->info("Google Analytics Started running ...");
+        $analyticsDataArr = $ERPlogArray = [];
         include(app_path() . '/Functions/Analytics.php');
         $data = StoreWebsiteAnalytic::all()->toArray();
         foreach ($data as $value) {
+
             $response   = getReport($analytics, $value);
             $resultData = printResults($response);
+
             if(!empty($resultData)) {
+
+                $ERPlogArray = [
+                    'model_id' => $value['id'],
+                    'url'      => 'https://www.googleapis.com/auth/analytics.readonly',
+                    'model'    => StoreWebsiteAnalytic::class,
+                    'type'     => 'success',
+                    'request'  => $value,
+                    'response' => $resultData,
+                ];
+
+                storeERPLog($ERPlogArray);
+
                 foreach ($resultData as $new_item) {
                      $analyticsDataArr = [
                             "operatingSystem" => $new_item['operatingSystem'],
@@ -178,6 +192,6 @@ class AnalyticsController extends Controller
                 }
             }
         }
-        \Log::info("Google Analytics ended running ...");
+        \Log::channel('scraper')->info("Google Analytics ended running ...");
     }
 }

@@ -155,7 +155,7 @@ class BuyBackController extends Controller
                 }
 
             }catch(\Exception $e) {
-                \Log::info("Sending mail issue at the buybackcontroller #158 ->".$e->getMessage());
+                \Log::channel('customer')->info("Sending mail issue at the buybackcontroller #158 ->".$e->getMessage());
             }
             return response()->json(['status' => 'success', 'message' => ucwords($request->type).' request created successfully'], 200);
         }else{

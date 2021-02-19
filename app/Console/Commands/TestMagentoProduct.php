@@ -81,7 +81,7 @@ class TestMagentoProduct extends Command
                         foreach($products as $product) {
                             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
                             if(count($websiteArrays) == 0){
-                                \Log::info("Product started ".$product->id." No website found");
+                                \Log::channel('productUpdates')->info("Product started ".$product->id." No website found");
                                 $msg = 'No website found for  Brand: '. $product->brand. ' and Category: '. $product->category;
                                 ProductPushErrorLog::log($product->id, $msg, 'error');
                                 LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
@@ -90,7 +90,7 @@ class TestMagentoProduct extends Command
                                 foreach ($websiteArrays as $websiteArray) {
                                     $website = \App\StoreWebsite::find($websiteArray);
                                     if($website){
-                                        \Log::info("Product started website found For website".$website->website);
+                                        \Log::channel('productUpdates')->info("Product started website found For website".$website->website);
                                         LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id);
                                         //currently we have 3 queues assigned for this task.
                                         if($i > 3) {

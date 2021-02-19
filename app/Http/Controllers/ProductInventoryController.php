@@ -22,6 +22,7 @@ use App\ColorReference;
 use Illuminate\Support\Facades\Validator;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use \App\Jobs\UpdateFromSizeManager;
+use DB;
 
 class ProductInventoryController extends Controller
 {
@@ -998,7 +999,27 @@ class ProductInventoryController extends Controller
 	public function inventoryList(Request $request)
     {
     	$filter_data = $request->input();
-        $inventory_data = \App\Product::getProducts($filter_data);
+		$inventory_data = \App\Product::getProducts($filter_data);
+
+		$query = DB::table('products as p')
+				->selectRaw('
+				   sum(CASE WHEN p.category = ""
+			           OR p.category IS NULL THEN 1 ELSE 0 END) AS missing_category,
+			       sum(CASE WHEN p.color = ""
+			           OR p.color IS NULL THEN 1 ELSE 0 END) AS missing_color,
+			       sum(CASE WHEN p.composition = ""
+			           OR p.composition IS NULL THEN 1 ELSE 0 END) AS missing_composition,
+			       sum(CASE WHEN p.name = ""
+			           OR p.name IS NULL THEN 1 ELSE 0 END) AS missing_name,
+			       sum(CASE WHEN p.short_description = ""
+			           OR p.short_description IS NULL THEN 1 ELSE 0 END) AS missing_short_description,
+			       `p`.`supplier`
+				')
+				->where('p.supplier','<>','');
+				$query = $query->groupBy('p.supplier')->havingRaw("missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ");
+
+		$reportData = $query->get();
+		//dd($inventory_data);
         $inventory_data_count = $inventory_data->total();
         $status_list = \App\Helpers\StatusHelper::getStatus();
         $supplier_list = \App\Supplier::pluck('supplier','id')->toArray();
@@ -1021,7 +1042,31 @@ class ProductInventoryController extends Controller
         $products_categories = Category::attr(['name' => 'product_categories[]','data-placeholder' => 'Select a Category','class' => 'form-control select-multiple2', 'multiple' => true])->selected(request('product_categories',[]))->renderAsDropdown();
         $products_sku        = \App\Product::getPruductsSku();
         if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more", compact('inventory_data'));
-        return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku','status_list','inventory_data_count','supplier_list'));
+        return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku','status_list','inventory_data_count','supplier_list','reportData'));
+    }
+
+    public function downloadReport() {
+    	
+		$query = DB::table('products as p')
+				->selectRaw('
+				   sum(CASE WHEN p.category = ""
+			           OR p.category IS NULL THEN 1 ELSE 0 END) AS missing_category,
+			       sum(CASE WHEN p.color = ""
+			           OR p.color IS NULL THEN 1 ELSE 0 END) AS missing_color,
+			       sum(CASE WHEN p.composition = ""
+			           OR p.composition IS NULL THEN 1 ELSE 0 END) AS missing_composition,
+			       sum(CASE WHEN p.name = ""
+			           OR p.name IS NULL THEN 1 ELSE 0 END) AS missing_name,
+			       sum(CASE WHEN p.short_description = ""
+			           OR p.short_description IS NULL THEN 1 ELSE 0 END) AS missing_short_description,
+			       `p`.`supplier`
+				')
+				->where('p.supplier','<>','');
+				$query = $query->groupBy('p.supplier')->havingRaw("missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ");
+
+		$reportData = $query->get();
+
+    	return \Excel::download(new \App\Exports\ReportExport($reportData), 'export.xls');
     }
   
   public function inventoryHistory($id) {
@@ -1037,6 +1082,11 @@ class ProductInventoryController extends Controller
 			}
 		}
 		return response()->json(['data' => $inventory_history]);;
+	}
+	
+	public function getSuppliers($id) {
+		$suppliers   =  Product::with(['suppliers_info','suppliers_info.supplier'])->find($id);
+		return response()->json(['data' => $suppliers->suppliers_info]);;
 	}
   
 	public function getProductImages($id) {
@@ -1150,5 +1200,31 @@ class ProductInventoryController extends Controller
 
 		return response()->json(["code" => 200 , "data" => [], "message" => "Your request has been send to the jobs"]);
 
+	}
+
+	public function updateStatus(Request $request) 
+	{
+		$product_ids 	= $request->get("product_ids");
+		$product_status = $request->get("product_status");
+		
+		$messages = [];
+		$errorMessages = [];
+		if(!empty($product_status) && !empty($product_ids)) {
+
+			$products = \App\Product::whereIn("id",$product_ids)->get();
+			if(!$products->isEmpty()) {
+					foreach($products as $product) {
+						if( $product->status_id != $product_status ){
+							$product->status_id = $product_status;
+							$product->save();
+							$messages[] = "$product->name updated successfully";
+						}
+					}
+			}else{
+				$messages[] = 'Something went wrong. Please try again later.';
+			}
+		}
+
+		return response()->json(["code" => 200 , "data" => [],"message" => implode("</br>", $messages),"error_messages" => implode("</br>", $errorMessages)]);
 	}
 }

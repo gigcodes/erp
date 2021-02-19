@@ -86,7 +86,7 @@ class BrandMergeWithProduct extends Command
                     }
 
                     if (!empty($brandId)) {
-                        \Log::info("{$brandId} updated with " . $reference);
+                        \Log::channel('productUpdates')->info("{$brandId} updated with " . $reference);
 
                         $success = Brand::where("id", $brandId)->update(['references' => $reference]);
 
@@ -97,7 +97,7 @@ class BrandMergeWithProduct extends Command
                                 $p->brand      = $brandId;
                                 $p->last_brand = $lastBrand;
                                 $p->save();
-                                \Log::info("{$brandId} updated with product" . $p->sku);
+                                \Log::channel('productUpdates')->info("{$brandId} updated with product" . $p->sku);
                             }
                         }
                     }

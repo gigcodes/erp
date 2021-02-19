@@ -44,7 +44,7 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
         Route::post('/reply/add', 'QuestionController@addReply')->name("chatbot.question.reply.add");
         Route::post('/reply/update', 'QuestionController@updateReply')->name("chatbot.question.reply.update");
         Route::post('/online-update/{id}', 'QuestionController@onlineUpdate')->name("chatbot.question.online-update");
-
+        Route::post('question-error-log','QuestionController@showLogById')->name('chatbot.question.error_log');
         Route::prefix('annotation')->group(function () {
             Route::post('/save', 'QuestionController@saveAnnotation')->name("chatbot.question.annotation.save");
             Route::get('/delete', 'QuestionController@deleteAnnotation')->name("chatbot.question.annotation.delete");

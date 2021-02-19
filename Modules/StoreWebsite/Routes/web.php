@@ -15,6 +15,8 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::get('/', 'StoreWebsiteController@index')->name("store-website.index");
     Route::get('/records', 'StoreWebsiteController@records')->name("store-website.records");
     Route::post('/save', 'StoreWebsiteController@save')->name("store-website.save");
+    Route::post('/save-user-in-magento', 'StoreWebsiteController@saveUserInMagento')->name("store-website.save-user-in-magento");
+    Route::post('/delete-user-in-magento', 'StoreWebsiteController@deleteUserInMagento')->name("store-website.delete-user-in-magento");
 
     Route::prefix('{id}')->group(function () {
         Route::get('/edit', 'StoreWebsiteController@edit')->name("store-website.edit");
@@ -75,6 +77,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('records', 'BrandController@records')->name("store-website.brand.records");
         Route::post('push-to-store', 'BrandController@pushToStore')->name("store-website.brand.push-to-store");
         Route::post('refresh-min-max-price', 'BrandController@refreshMinMaxPrice')->name("store-website.refresh-min-max-price");
+        Route::get('history','BrandController@history')->name("store-website.brand.history");
     });
 
     Route::prefix('price-override')->group(function () {
@@ -127,6 +130,16 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/push', 'WebsiteStoreController@push')->name("store-website.website-stores.push");
     });
 
+    //Site Attributes
+    Route::prefix('site-attributes')->group(function () {
+        Route::get('/', 'SiteAttributesControllers@index')->name("store-website.site-attributes.index");
+        Route::post('save', 'SiteAttributesControllers@store')->name("store-website.site-attributes-views.save");
+        Route::get('list', 'SiteAttributesControllers@list')->name("store-website.site-attributes-views.list");
+        Route::get('/records', 'SiteAttributesControllers@records')->name("store-website.site-attributes-views.records");
+        Route::get('/{id}/delete', 'SiteAttributesControllers@delete')->name("store-website.site-attributes-views.delete");
+        Route::get('/{id}/edit', 'SiteAttributesControllers@edit')->name("store-website.site-attributes-views.edit");
+    });
+
     Route::prefix('website-store-views')->group(function () {
         Route::get('/', 'WebsiteStoreViewController@index')->name("store-website.website-store-views.index");
         Route::get('/records', 'WebsiteStoreViewController@records')->name("store-website.website-store-views.records");
@@ -147,10 +160,23 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/get-stores', 'PageController@getStores')->name("store-website.page.getStores");
         Route::get('/{id}/load-page', 'PageController@loadPage')->name("store-website.page.loadPage");
         Route::get('/{id}/history', 'PageController@pageHistory')->name("store-website.page.history");
+        Route::get('/{id}/activities', 'PageController@pageActivities')->name('store_website_page.activities');
         Route::get('/{id}/translate-for-other-langauge', 'PageController@translateForOtherLanguage')->name("store-website.page.translate-for-other-langauge");
         Route::get('/{id}/push-website-in-live', 'PageController@pushWebsiteInLive')->name("store-website.page.push-website-in-live");
         Route::get('/{id}/pull-website-in-live', 'PageController@pullWebsiteInLive')->name("store-website.page.pull-website-in-live");
         Route::get('/histories', 'PageController@histories')->name("store-website.page.histories");
+        Route::put('/store-platform-id', 'PageController@store_platform_id')->name('store_website_page.store_platform_id');
+    });
+
+    Route::prefix('category-seo')->group(function () {
+        Route::get('/', 'CategorySeoController@index')->name("store-website.category-seo.index");
+        Route::get('/records', 'CategorySeoController@records')->name("store-website.category-seo.records");
+        Route::post('save', 'CategorySeoController@store')->name("store-website.category-seo.save");
+        Route::get('/{id}/edit', 'CategorySeoController@edit')->name("store-website.page.edit");
+        Route::get('/{id}/delete', 'CategorySeoController@destroy')->name("store-website.page.delete");
+        Route::get('/{id}/translate-for-other-langauge', 'CategorySeoController@translateForOtherLanguage')->name("store-website.page.translate-for-other-langauge");
+        Route::get('/{id}/push', 'CategorySeoController@push')->name("store-website.page.push");
+        Route::get('/{id}/push-website-in-live', 'CategorySeoController@pushWebsiteInLive')->name("store-website.page.push-website-in-live");
     });
 
     Route::prefix('product-attribute')->group(function () {

@@ -21,6 +21,14 @@
                     <option value="saturday">Saturday</option>
                  </select>
 			</div>
+         <div class="form-group">
+            <strong>Available Day (eg. 6) <small> From Week </small> </strong>
+            <input type="number" step=0.1 class="form-control" name="availableDay">
+			</div>
+         <div class="form-group">
+            <strong>Available Minute (eg. 480) <small> From Day </small> </strong>
+            <input type="number" step=0.1 class="form-control" name="availableMinute">
+			</div>
             <div class="form-group">
                   <strong>Available From (eg. 10) <small>24 Hours format</small> </strong>
                   <input type="number" step=0.1 class="form-control" name="from">

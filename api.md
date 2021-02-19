@@ -21,7 +21,7 @@ This API uses `POST` request to communicate and HTTP [response codes](https://en
 **Request:**
 
 ```json
-POST https://erp.amourint.com/api/ticket/create
+POST https://erp.theluxuryunlimited.com/api/ticket/create
 Accept: application/json
 Content-Type: application/json
 {
@@ -72,7 +72,7 @@ Content-Type: application/json
 **Request:**
 
 ```json
-POST https://erp.amourint.com/api/friend/referral/create
+POST https://erp.theluxuryunlimited.com/api/friend/referral/create
 Accept: application/json
 Content-Type: application/json
 {
@@ -118,7 +118,7 @@ Content-Type: application/json
 **Request:**
 
 ```json
-POST https://erp.amourint.com/api/giftcards/add
+POST https://erp.theluxuryunlimited.com/api/giftcards/add
 Accept: application/json
 Content-Type: application/json
 {   "sender_name" : "sender", //required, length maxminum 30
@@ -160,7 +160,7 @@ Content-Type: application/json
 **Request:**
 
 ```json
-GET https://erp.amourint.com/api/giftcards/check-giftcard-coupon-amount
+GET https://erp.theluxuryunlimited.com/api/giftcards/check-giftcard-coupon-amount
 Accept: application/json
 Content-Type: application/json
 {   "coupon_code" : "A1A22A111FFF333", //required, length maxminum 30, existing in gift_cards
@@ -194,7 +194,7 @@ Content-Type: application/json
 **Request:**
 
 ```json
-GET https://erp.amourint.com/api/customer/order-details?email=solanki7492@gmail.com&website=www.veralusso.com&order_no=000000001
+GET https://erp.theluxuryunlimited.com/api/customer/order-details?email=solanki7492@gmail.com&website=www.veralusso.com&order_no=000000001
 Accept: application/json
 Content-Type: application/json
 'Authorization: Bearer (Requested_website_token)'
@@ -278,7 +278,7 @@ Content-Type: application/json
 **Request:**
 
 ```json
-GET https://erp.amourint.com/api/orders/products
+GET https://erp.theluxuryunlimited.com/api/orders/products
 Accept: application/json
 Content-Type: application/json
 {
@@ -335,7 +335,7 @@ Content-Type: application/json
 **Request:**
 
 ```json
-POST https://erp.amourint.com/api/return-exchange-buyback/create
+POST https://erp.theluxuryunlimited.com/api/return-exchange-buyback/create
 Accept: application/json
 Content-Type: application/json
 {
@@ -371,7 +371,7 @@ Content-Type: application/json
 **Request:**
 
 ```json
-POST https://erp.amourint.com/api/price_comparision/details
+POST https://erp.theluxuryunlimited.com/api/price_comparision/details
 Accept: application/json
 Content-Type: application/json
 {
@@ -410,7 +410,7 @@ Content-Type: application/json
 **Request:**
 
 ```json
-POST https://erp.amourint.com/api/affiliate/add
+POST https://erp.theluxuryunlimited.com/api/affiliate/add
 Accept: application/json
 Content-Type: application/json
 {
@@ -457,7 +457,7 @@ Content-Type: application/json
 **Request:**
 
 ```json
-POST https://erp.amourint.com/api/magento/customer-reference
+POST https://erp.theluxuryunlimited.com/api/magento/customer-reference
 Accept: application/json
 Content-Type: application/json
 {
@@ -493,7 +493,7 @@ Content-Type: application/json
 **Request:**
 
 ```json
-POST https://erp.amourint.com/api/ticket/send
+POST https://erp.theluxuryunlimited.com/api/ticket/send
 Accept: application/json
 Content-Type: application/json
 {
@@ -580,7 +580,7 @@ Content-Type: application/json
 **Request:**
 
 ```json
-POST https://erp.amourint.com/api/notification/create
+POST https://erp.theluxuryunlimited.com/api/notification/create
 Accept: application/json
 Content-Type: application/json
 {
@@ -613,7 +613,7 @@ Content-Type: application/json
 **Request:**
 
 ```json
-POST https://erp.amourint.com/api/influencer/add
+POST https://erp.theluxuryunlimited.com/api/influencer/add
 Accept: application/json
 Content-Type: application/json
 {
@@ -659,5 +659,50 @@ Content-Type: application/json
 {
     "status": "failed",
     "message": "unable to add influencer !"
+}
+```
+## Newsletter Api
+```json
+POST https://erp.theluxuryunlimited.com/api/mailinglist/add
+Accept: application/json
+Content-Type: application/json
+{
+    "website" : "www.veralusso.com", //existing website
+    "email":"Solo@theluxuryunlimited.com"
+}
+```
+
+## Store data into the laravel logs
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/laravel-logs/save
+Accept: application/json
+Content-Type: application/json
+{
+    "message": "error-message",
+    "website": "Farfetch",  
+    "url": "https:\/\/www.farfetch.com\/mt\/shopping\/kids\/young-versace-crystal-logo-t-shirt-item-15339323.aspx?q=YC000346YA00019A1008"
+}
+```
+
+**Successful Response:**
+
+```json
+Content-Type: application/json
+{
+    "status": "success",
+    "message": "Log data Saved"
+}
+```
+
+**Failed Response:**
+
+```json
+Content-Type: application/json
+
+{
+    "status": "failed",
+    "message": "{message}"
 }
 ```

@@ -49,7 +49,7 @@ class CheckLogins extends Command
                 'start_time' => Carbon::now(),
             ]);
 
-            Log::info(Carbon::now() . " begin checking users logins");
+            \Log::channel('customer')->info(Carbon::now() . " begin checking users logins");
             $users = User::all();
 
             foreach ($users as $user) {
@@ -72,7 +72,7 @@ class CheckLogins extends Command
                 }
             }
 
-            Log::info(Carbon::now() . " end of checking users logins");
+            \Log::channel('customer')->info(Carbon::now() . " end of checking users logins");
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {

@@ -8,6 +8,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use seo2websites\MagentoHelper\MagentoHelper;
+use App\StoreWebsitePage;
 
 class PushPageToMagento implements ShouldQueue
 {
@@ -41,7 +42,6 @@ class PushPageToMagento implements ShouldQueue
 
         if ($website) {
             if ($website->website_source) {
-
 
                 // assign the stores  column
                 $fetchStores = \App\WebsiteStoreView::where('website_store_views.name', $page->name)
@@ -86,7 +86,6 @@ class PushPageToMagento implements ShouldQueue
                         }
                     }
                 }
-
             }
         }
     }
