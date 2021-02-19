@@ -2683,6 +2683,8 @@ Route::prefix('system')->middleware('auth')->group(static function () {
     Route::get('/size/managerdelete', 'SystemSizeController@managerdelete')->name('system.size.managerdelete');
 });
 
+Route::get('/scrapper-phyhon', 'scrapperPhyhon@index')->name('scrapper.phyhon.index');
+
 // DEV MANISH
 Route::get('google-keyword-search', 'GoogleAddWord\googleAddsController@index')->name('google-keyword-search');
 

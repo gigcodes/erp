@@ -126,7 +126,8 @@ use App\Console\Commands\AssetsManagerPaymentCron;
 use App\Console\Commands\SendEmailNewsletter;
 use App\Console\Commands\DeleteStoreWebsiteCategory;
 use App\Console\Commands\RunGoogleAnalytics;
-
+use App\Console\Commands\scrappersImages;
+use App\Console\Commands\scrappersImagesDelete;
 
 class Kernel extends ConsoleKernel
 {
@@ -248,7 +249,10 @@ class Kernel extends ConsoleKernel
         AssetsManagerPaymentCron::class,
         SendEmailNewsletter::class,
         DeleteStoreWebsiteCategory::class,
-        RunGoogleAnalytics::class
+        RunGoogleAnalytics::class,
+		RunGoogleAnalytics::class,
+        scrappersImages::class,
+        scrappersImagesDelete::class
     ];
 
     /**
@@ -535,6 +539,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('influencers:startstop')->hourly();
         //cron for price check api daily basis
         $schedule->command("pricedrop:check")->daily();
+		// Cron for scrapper images.
+		$schedule->command("scrappersImages")->daily();
+        $schedule->command("scrappersImagesDelete")->daily();
     }
 
     /**
