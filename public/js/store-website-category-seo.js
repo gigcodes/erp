@@ -224,3 +224,56 @@ var page = {
 }
 
 $.extend(page, common);
+
+$(document).on('change', '#meta_title', function () {
+    getGoogleKeyWord($('#meta_title').val());
+});
+
+$(document).on('click', '#extra-keyword-search-btn', function () {
+    getGoogleKeyWord($('#extra-keyword-search').val());
+});
+
+$(document).on('click', '.suggestList > li', function () {
+
+    if ($(this).hasClass('badge-green')) {
+        $('#meta_keywords').val($('#meta_keywords').val().replace("," + $(this).text(), ""));
+        $(this).removeClass('badge-green').find('i').remove()
+    } else {
+        $('#meta_keywords').val($('#meta_keywords').val() + ',' + $(this).text());
+        $(this).addClass('badge-green').append('<i class="fa fa-remove pl-2"></i>')
+    }
+});
+
+function getGoogleKeyWord(title) {
+
+    $(document).find('.suggestList').empty();
+    $(document).find('.suggestList').removeClass('width-fix');
+    var lan = $('.website-language-change').val();
+
+    $.ajax({
+       
+        type: 'get',
+        url: '/google-keyword-search',
+        data: { keyword: title, language: lan, google_search: 'true' },
+
+        beforeSend: function () {
+            $("#loading-image").show();
+        },
+        success: function (response) {
+            if (response.length > 0) {
+                $(document).find('#extra-keyword-search-btn').removeClass('hide');
+                $(document).find('#extra-keyword-search').removeClass('hide');
+                $(document).find('.suggestList').addClass('width-fix');
+                $.each(response, function (index, data) {
+                    $(document).find('.suggestList').append('<li class="badge badge-primary">' + data.keyword + '</i>');
+                });
+            } else {
+                $(document).find('#extra-keyword-search-btn,#extra-keyword-search').hide();
+            }
+
+        },
+        complete: function () {
+            $("#loading-image").hide();
+        },
+    });
+}

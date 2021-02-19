@@ -42,18 +42,21 @@ class scrappersImages extends Command
      * @return mixed
      */
     public function handle()
-    {
-        $queuesList = Website::get()->toArray();
+    {       
+        // dd($img_name);
+        $this->downloadImages();
+        // $queuesList = Website::get()->toArray();
 
-        if (!file_exists( public_path('scrappersImages') )) {
-            mkdir( public_path('scrappersImages'), 0777, true );
-        }
+        // if (!file_exists( public_path('scrappersImages') )) {
+        //     mkdir( public_path('scrappersImages'), 0777, true );
+        // }
 
-        if ( !empty( $queuesList ) ) {
-            foreach ($queuesList as $list) {
-                $file  = $this->downloadImages( $list['name'] );
-            }
-        }
+        // if ( !empty( $queuesList ) ) {
+        //     foreach ($queuesList as $list) {
+        //         echo $list['name'];
+        //         $file  = $this->downloadImages( $list['name'] );
+        //     }
+        // }
 
         $this->output->write('Cron complated', true);
     }
@@ -72,7 +75,7 @@ class scrappersImages extends Command
             $curl = curl_init();
 
             // set our url with curl_setopt()
-            curl_setopt($curl, CURLOPT_URL, "http://45.32.148.193:8100/get-images");
+            curl_setopt($curl, CURLOPT_URL, env('SCRAPER_IMAGES_URL'));
 
             // return the transfer as a string, also with setopt()
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
@@ -80,24 +83,26 @@ class scrappersImages extends Command
             // curl_exec() executes the started curl session
             // $output contains the output string
             $output = curl_exec($curl);
-            
             $output = json_decode( $output );
-            // die;
+            
             if (  isset( $output->status ) && $output->status == true ){
 
                 if (!file_exists( public_path('scrappersImages') )) {
                     mkdir( public_path('scrappersImages'), 0777, true );
                 }
                 if( !empty( $output->response->images ) ){
-                    foreach ( $output->response->images as $image ) {
+                    foreach ( $output->response->images as $key => $image ) {
                         if ( !empty( $image ) ) {
-                            $file_name = uniqid().trim( basename($image) );
+
+                            $img_name = basename( $image );
+                            $file_name = uniqid().trim( $img_name );
+
                             if ( $this->saveBase64Image( $file_name,  $image ) ) {
 
                                 $newImage = array(
-                                    'website_id' => 756,
+                                    'website_id' => $this->getCountry( $img_name ),
                                     'img_name'   => $file_name,
-                                    'img_url'    => $file_name,
+                                    'img_url'    => $img_name,
                                 );
                                 scraperImags::insert( $newImage );
                             }
@@ -151,11 +156,24 @@ class scrappersImages extends Command
                 file_put_contents($filePath, $imageData);
                 return true;
             }
-            //set name of the image file
             return true;
         } catch (\Throwable $th) {
             $this->output->write( $th->getMessage() , true );
             return false;
         }
+    }
+
+    public function getCountry( $image_link = null )
+    {
+        $search_text = '_';
+        $array = explode( '-', $image_link );
+        if ( is_array( $array ) && $image_link !== null ) {
+            array_filter($array, function($el) use ($search_text) {
+                if (strpos($el, $search_text)) {
+                    return $el;
+                }
+            });
+        }
+        return false;
     }
 }
