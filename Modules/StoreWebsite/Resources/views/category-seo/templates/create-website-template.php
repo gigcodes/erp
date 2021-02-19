@@ -44,6 +44,17 @@
                   <div class="form-group col-md-6">
                   <label for="meta_keywords">Meta Keywords</label>
                   <input type="text" name="meta_keyword" value="{{if data}}{{:data.meta_keyword}}{{/if}}" class="form-control" id="meta_keywords" placeholder="Enter Keywords">
+				  		<div class="form-group ">
+							<div class="justify-content-end pt-4 input-group">
+								<input type="text" value="" class="hide form-control  w-50" id="extra-keyword-search">
+								<div class="input-group-append">
+									<button type="button" class="hide btn btn-primary input-group-text" id="extra-keyword-search-btn"> <l class="fa fa-search"></i> </button>
+								</div>
+							</div>
+							<div class="row pt-3">
+								<ul class="suggestList pl-4"></ul>
+							</div>
+					   </div>
                 </div>
               </div>
               <div class="row">
@@ -53,7 +64,7 @@
                 </div>
                 <div class="form-group col-md-6">
                     <label for="language">Language</label>
-                    <select name="language_id" class="form-control">
+                    <select name="language_id" class="form-control website-language-change">
                       <option value="">-- Select --</option>
                         <?php foreach($languages as $k => $language) { ?>
                           <option value="<?php echo $k; ?>"><?php echo $language; ?></option>

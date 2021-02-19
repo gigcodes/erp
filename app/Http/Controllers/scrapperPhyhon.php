@@ -57,6 +57,7 @@ use App\ProductStatusHistory;
 use App\Status;
 use App\ProductSupplier;
 use App\Website;
+use App\WebsiteStore;
 use App\scraperImags;
 
 
@@ -79,7 +80,7 @@ class scrapperPhyhon extends Controller
      */
     public function index(Request $request)
     {
-        $websiteList = Website::with('scrapperImage')->latest();
+        $websiteList = WebsiteStore::with('scrapperImage')->latest();
         $websiteListRow = $websiteList->paginate(Setting::get('pagination'));
         $websiteList = $websiteList->get()->toArray();
         // dd( $websiteList[0]['scrapper_image'] );
