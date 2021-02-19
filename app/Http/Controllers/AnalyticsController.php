@@ -154,11 +154,9 @@ class AnalyticsController extends Controller
 
         include(app_path() . '/Functions/Analytics.php');
         $data = StoreWebsiteAnalytic::all()->toArray();
-        \Log::channel('daily')->info("Data  : ".json_encode($data));
         foreach ($data as $value) {
 
             $response   = getReport($analytics, $value);
-            \Log::channel('daily')->info("Loop  : ".json_encode($response));
             $resultData = printResults($response);
 
             if(!empty($resultData)) {
@@ -196,6 +194,5 @@ class AnalyticsController extends Controller
                 }
             }
         }
-        \Log::channel('daily')->info("Google Analytics ended running ...");
     }
 }
