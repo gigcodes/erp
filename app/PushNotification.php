@@ -1,7 +1,9 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use App\Helpers;
 use App\Leads;
@@ -11,6 +13,19 @@ use App\StatutoryTask;
 
 class PushNotification extends Model
 {
+
+	 /**
+     * @var string
+     * @SWG\Property(property="type",type="string")
+     * @SWG\Property(property="message",type="string")
+     * @SWG\Property(property="role",type="string")
+     * @SWG\Property(property="user_id",type="integer")
+     * @SWG\Property(property="sent_to",type="string")
+     * @SWG\Property(property="model_type",type="string")
+     * @SWG\Property(property="model_id",type="interger")
+     * @SWG\Property(property="message_id",type="interger")
+     * @SWG\Property(property="reminder",type="string")
+     */
 	protected $fillable = [
 		"type",
 		"message",

@@ -1,14 +1,36 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use App\ReturnExchangeHistory;
 use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 class ReturnExchange extends Model
 {
-
+     /**
+     * @var string
+     * @SWG\Property(property="customer_id",type="integer")
+     * @SWG\Property(property="type",type="string")
+     * @SWG\Property(property="reason_for_refund",type="string")
+     * @SWG\Property(property="refund_amount",type="float")
+     * @SWG\Property(property="status",type="string")
+     * @SWG\Property(property="pickup_address",type="string")
+     * @SWG\Property(property="refund_amount_mode",type="string")
+     * @SWG\Property(property="chq_number",type="string")
+     * @SWG\Property(property="reawbmarks",type="string")
+     * @SWG\Property(property="payment",type="string")
+     * @SWG\Property(property="remarks",type="string")
+     * @SWG\Property(property="date_of_refund",type="datetime")
+     * @SWG\Property(property="date_of_issue",type="datetime")
+     * @SWG\Property(property="dispatch_date",type="datetime")
+     * @SWG\Property(property="date_of_request",type="datetime")
+     * @SWG\Property(property="details",type="string")
+     * @SWG\Property(property="credited",type="string")
+     * @SWG\Property(property="est_completion_date",type="datetime")
+     */
     use Mediable;
     use SoftDeletes;
     protected $fillable = [

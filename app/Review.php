@@ -1,11 +1,24 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 
 class Review extends Model
 {
+  /**
+     * @var string
+     * @SWG\Property(property="account_id",type="integer")
+     * @SWG\Property(property="customer_id",type="integer")
+     * @SWG\Property(property="posted_date",type="datetime")
+     * @SWG\Property(property="review_link",type="string")
+     * @SWG\Property(property="review",type="string")
+     * @SWG\Property(property="serial_number",type="string")
+     * @SWG\Property(property="platform",type="string")
+     * @SWG\Property(property="title",type="string")
+     */
   protected $fillable = [
     'account_id', 'customer_id', 'posted_date', 'review_link', 'review', 'serial_number', 'platform', 'title'
   ];
