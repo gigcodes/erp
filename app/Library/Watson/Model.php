@@ -170,10 +170,12 @@ class Model
                     if (!$mentions->isEmpty()) {
                         $sendMentions = [];
                         foreach ($mentions as $key => $mRaw) {
-                            $sendMentions[] = [
-                                "entity" => $mRaw->chatbotKeyword->keyword,
-                                "location" => [$mRaw->start_char_range, $mRaw->end_char_range],
-                            ];
+                            if( $mRaw->chatbotKeyword) {
+                                $sendMentions[] = [
+                                    "entity" => $mRaw->chatbotKeyword->keyword,
+                                    "location" => [$mRaw->start_char_range, $mRaw->end_char_range],
+                                ];
+                            }
                         }
                         if (!empty($sendMentions)) {
                             $storeParams["examples"][$k]["mentions"] = $sendMentions;
