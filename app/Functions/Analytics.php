@@ -4,10 +4,10 @@
 require_once __DIR__ . '/../../vendor/autoload.php';
 $data      = [];
 $analytics = initializeAnalytics();
-\Log::channel('scraper')->info("analytics  : ".json_encode($analytics));
+\Log::channel('daily')->info("analytics  : ".json_encode($analytics));
 if (!empty($analytics)) {
     $response = getReport($analytics, $request = '');
-    \Log::channel('scraper')->info("response  : ".json_encode($response));
+    \Log::channel('daily')->info("response  : ".json_encode($response));
     $data     = printResults($response);
 }
 
@@ -131,7 +131,7 @@ function getReport($analytics, $request)
 
     $body = new Google_Service_AnalyticsReporting_GetReportsRequest();
     $body->setReportRequests(array($request));
-    \Log::channel('scraper')->info("get report response  : ".json_encode($analytics->reports->batchGet($body)));
+    \Log::channel('daily')->info("get report response  : ".json_encode($analytics->reports->batchGet($body)));
     return $analytics->reports->batchGet($body);
 }
 
