@@ -66,7 +66,10 @@
           </li>
           <li class="nav-item">
             <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('bin','both')">Trash</a>
-        </li>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('draft','both')">Draft</a>
+          </li>
       </ul>
       <div class="tab-content" id="myTabContent">
           <div class="tab-pane fade show active" id="read" role="tabpanel" aria-labelledby="read-tab">
@@ -147,6 +150,8 @@
             <th>Subject</th>
             <th>Body</th>
             <th>Status</th>
+            <th>Draft</th>
+            <th>Error Message</th>
             <th>Category</th>
             <th>Action</th>
           </tr>

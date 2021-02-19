@@ -46,6 +46,8 @@ class EmailController extends Controller
         if($type == "bin"){
             $trash_query = true;
             $query = $query->where('status',"bin");
+        }elseif($type == "draft"){
+            $query = $query->where('is_draft',1);
         }else{
             $query = $query->where('type',$type);
         }

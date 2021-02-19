@@ -21,6 +21,8 @@
 					@endif
 				@endforeach
 			</td>
+            <td>{{ ($email->is_draft == 1) ? "Yes" : "No" }}</td>
+            <td>{!! wordwrap($email->error_message,15,"<br>\n") !!}</td>
 			<td>
 				
                 <a title="Resend" class="btn-image resend-email-btn" data-type="resend" data-id="{{ $email->id }}" >
