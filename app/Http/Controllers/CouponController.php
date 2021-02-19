@@ -390,53 +390,42 @@ class CouponController extends Controller
             "name" => $request->name,
             "store_labels" => $store_lables,
             "description" => $request->description,
-            "website_ids" => [implode(',',$request->website_ids)],
-            "customer_group_ids" => [implode(',',$request->customer_groups)],
+            "website_ids" => $request->website_ids,
+            "customer_group_ids" => $request->customer_groups,
             "from_date" => $request->start,
             "to_date" => $request->expiration,
             "uses_per_customer" => $request->uses_per_coustomer,
             "is_active" => $request->active == "1" ? true : false,
             "condition" => [
-                "condition_type" => "Magento\\SalesRule\\Model\\Rule\\Condition\\Combine",
+                "condition_type" => "",
                 "conditions" => [
                     [
-                        "condition_type" => "Magento\\SalesRule\\Model\\Rule\\Condition\\Address",
-                        "operator" => ">=",
-                        "attribute_name" => "base_subtotal",
-                        "value" => "200"
+                        "condition_type" => "",
+                        "operator" => "",
+                        "attribute_name" => "",
+                        "value" => ""
                     ]
                 ],
-                "aggregator_type" => "all",
+                "aggregator_type" => "",
                 "operator" => null,
-                "value" => "1"
+                "value" => ""
             ],
             "action_condition" => [
-                "condition_type" => "Magento\\SalesRule\\Model\\Rule\\Condition\\Product\\Combine",
+                "condition_type" => "",
                 "conditions" => [
                     [
-                        "condition_type" => "Magento\\SalesRule\\Model\\Rule\\Condition\\Product\\Combine",
+                        "condition_type" => "",
                         "conditions" => [
-                            [
-                                "condition_type" => "Magento\\SalesRule\\Model\\Rule\\Condition\\Product",
-                                "operator" => "==",
-                                "attribute_name" => "category_ids",
-                                "value" => "6"
-                            ],
-                            [
-                                "condition_type" => "Magento\\SalesRule\\Model\\Rule\\Condition\\Product",
-                                "operator" => "==",
-                                "attribute_name" => "sale",
-                                "value" => "1"
-                            ]
+                            
                         ],
-                        "aggregator_type" => "all",
+                        "aggregator_type" => "",
                         "operator" => null,
-                        "value" => "0"
+                        "value" => ""
                     ]
                 ],
-                "aggregator_type" => "all",
+                "aggregator_type" => "",
                 "operator" => null,
-                "value" => "1"
+                "value" => ""
             ],
             "stop_rules_processing"  => false,
             "is_advanced" => true,
