@@ -108,4 +108,10 @@ class StoreWebsiteAnalyticsController extends Controller
         return redirect()->to('/store-website-analytics/index')->with('success','Record deleted successfully.');
     }
 
+    public function report($id = null) 
+    {
+        $reports = \App\ErpLog::where('model',\App\StoreWebsiteAnalytic::class)->where("model_id",$id)->get();
+        return view("store-website-analytics.reports",compact('reports'));
+    }
+
 }
