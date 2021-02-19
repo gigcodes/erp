@@ -68,7 +68,8 @@ function getReport($analytics, $request)
     // Create the DateRange object.
     $dateRange = new Google_Service_AnalyticsReporting_DateRange();
     $dateRange->setStartDate(!empty($request) && !empty($request['start_date']) ? $request['start_date'] : "2DaysAgo");
-    $dateRange->setEndDate(!empty($request) && !empty($request['end_date']) ? $request['end_date'] : "1DaysAgo");
+    //$dateRange->setEndDate(!empty($request) && !empty($request['end_date']) ? $request['end_date'] : "1DaysAgo");
+    $dateRange->setEndDate(!empty($request) && !empty($request['end_date']) ? $request['end_date'] : date('Y-m-d'));
 
     // Create the Metric objects.
     $sessions = new Google_Service_AnalyticsReporting_Metric();
