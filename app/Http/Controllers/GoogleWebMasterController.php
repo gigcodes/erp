@@ -21,6 +21,7 @@ class GoogleWebMasterController extends Controller
      public function googleLogin(Request $request)  {
 
             $google_redirect_url = route('googlewebmaster.get-access-token');
+			
 
             $gClient = new \Google_Client();
 
@@ -67,7 +68,8 @@ class GoogleWebMasterController extends Controller
 				    "authorization: Bearer ".$gClient->getAccessToken()['access_token']
 				  ),
 				));
-				$response = curl_exec($curl);
+				echo $response = curl_exec($curl);
+				die;
 				$err = curl_error($curl);
 				curl_close($curl);
 				if ($err) {
