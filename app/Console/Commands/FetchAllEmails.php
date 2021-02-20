@@ -253,7 +253,7 @@ class FetchAllEmails extends Command
                         }
                         $cutomer = \App\customers::where( 'email' , $email->getFrom()[0]->mail )->get();
                         $this->whatappSend( $cutomer , $fragment->getContent() );
-                        $this->sendwatson();
+                        $this->sendwatson( $cutomer , $fragment->getContent() );
                         //}
                     }
                 }
