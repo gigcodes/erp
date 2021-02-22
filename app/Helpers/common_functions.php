@@ -278,7 +278,7 @@ function storeERPLog($erpData)
     if(!empty($erpData)) {
 
         $erpData['request']  = json_encode($erpData['request']);
-        $erpData['response'] = json_encode($erpData['request']);
+        $erpData['response'] = json_encode($erpData['response']);
         ErpLog::create($erpData);
     }
 
