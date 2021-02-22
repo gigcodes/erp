@@ -97,7 +97,7 @@ class GoogleTranslateController extends Controller
                         $response[] = $translationString;
                         
                     } catch (\Exception $e) {
-                        \Log::error($e);
+                        \Log::channel('errorlog')->error($e);
                     }
                 }
             }

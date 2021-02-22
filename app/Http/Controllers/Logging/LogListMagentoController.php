@@ -102,15 +102,29 @@ class LogListMagentoController extends Controller
             'sw.magento_url as website_url'
         );
         $logListMagentos = $logListMagentos->paginate(25);
-
+        //dd($logListMagentos);
         foreach ($logListMagentos as $key => $item) {
+            if($request->sync_status){
+               if($item->sync_status != $request->sync_status)
+               {
+                    unset($logListMagentos[$key]);
+                    continue;
+               }
+               
+            }
             if ($item->hasMedia(config('constants.media_tags'))) {
                 $logListMagentos[$key]['image_url'] = $item->getMedia(config('constants.media_tags'))->first()->getUrl();
             } else {
                 $logListMagentos[$key]['image_url'] = '';
             }
             $logListMagentos[$key]['category_home'] = $item->expandCategory();
+            if($item->log_list_magento_id){
+                $logListMagentos[$key]['total_error'] = \App\ProductPushErrorLog::where('log_list_magento_id',$item->log_list_magento_id)->where('response_status','error')->count();
+                $logListMagentos[$key]['total_success'] = \App\ProductPushErrorLog::where('log_list_magento_id',$item->log_list_magento_id)->where('response_status','success')->count();
+            }
+            
         }
+        //dd($logListMagentos);
         // For ajax
         if ($request->ajax()) {
             return response()->json([

@@ -78,7 +78,15 @@
             </div>
         </div>
     </div>
-
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
+                <strong>Send Email&nbsp;:&nbsp;</strong>
+                <span><input type="radio" name="send_email" value="yes" checked />Yes</span>
+                <span><input type="radio" name="send_email" value="no" />No</span>
+            </div>
+        </div>
+    </div>
     <div class="row">
         <div class="col">
             <div class="form-group">
@@ -87,6 +95,7 @@
             </div>
         </div>
     </div>
+
     <div class="row">
         <div class="col">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

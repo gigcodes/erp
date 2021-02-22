@@ -73,7 +73,7 @@ class ChangeSizeErpWise extends Command
                                 $p->status_id = \App\Helpers\StatusHelper::$unknownSize;
                             }
                             $p->save();
-                            \Log::info("#{$p->id} update with the size {$p->size} to size_eu {$p->size_eu}");
+                            \Log::channel('productUpdates')->info("#{$p->id} update with the size {$p->size} to size_eu {$p->size_eu}");
                             /*if(!empty($euSize)) {
                                 $product->size_eu = implode(',', $euSize);
                             }*/

@@ -99,7 +99,7 @@ class Model
             }
 
 //            if ($result->getStatusCode() != 200) {
-//                \Log::info(print_r($result, true));
+//                \Log::channel('chatapi')->info(print_r($result, true));
 //                return $result->getContent();
 //            }
 
@@ -170,10 +170,12 @@ class Model
                     if (!$mentions->isEmpty()) {
                         $sendMentions = [];
                         foreach ($mentions as $key => $mRaw) {
-                            $sendMentions[] = [
-                                "entity" => $mRaw->chatbotKeyword->keyword,
-                                "location" => [$mRaw->start_char_range, $mRaw->end_char_range],
-                            ];
+                            if( $mRaw->chatbotKeyword) {
+                                $sendMentions[] = [
+                                    "entity" => $mRaw->chatbotKeyword->keyword,
+                                    "location" => [$mRaw->start_char_range, $mRaw->end_char_range],
+                                ];
+                            }
                         }
                         if (!empty($sendMentions)) {
                             $storeParams["examples"][$k]["mentions"] = $sendMentions;
@@ -216,7 +218,7 @@ class Model
             }
 
 //            if ($result->getStatusCode() != 200) {
-//                \Log::info(print_r($result, true));
+//                \Log::channel('chatapi')->info(print_r($result, true));
 //                return $result->getContent();
 //            }
         }
@@ -404,7 +406,7 @@ class Model
             }
 
 //            if ($result->getStatusCode() != 200) {
-//                \Log::info(print_r($result, true));
+//                \Log::channel('chatapi')->info(print_r($result, true));
 //            }
         }
 
@@ -494,7 +496,7 @@ class Model
             }
 
 //            if ($result->getStatusCode() != 200) {
-//                \Log::info(print_r($result, true));
+//                \Log::channel('chatapi')->info(print_r($result, true));
 //                return $result->getContent();
 //            }
         }
@@ -575,7 +577,7 @@ class Model
             // if response is valid then check ahead
             if ($chatResponse->isValid()) {
                 $result = $chatResponse->assignAction();
-                \Log::info(print_r($result, true));
+                \Log::channel('chatapi')->info(print_r($result, true));
                 if (!empty($result)) {
                     if (!empty($result["action"])) {
                         // assign params

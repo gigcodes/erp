@@ -871,29 +871,34 @@ class OrderController extends Controller {
                 if ($order_new->order_type == 'offline') {
                     if(!empty($order_new->customer) && !empty($order_new->customer->email)) {
                         //Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
-                        try {
-                            $emailClass =  (new OrderConfirmation($order_new))->build();
+                        $emailClass =  (new OrderConfirmation($order_new))->build();
+                        $params = [
+                            'model_id'          => $order_new->customer->id,
+                            'model_type'        => Customer::class,
+                            'from'              => $emailClass->fromMailer,
+                            'to'                => $order_new->customer->email,
+                            'subject'           => $emailClass->subject,
+                            'message'           => $emailClass->render(),
+                            'template'          => 'order-confirmation',
+                            'additional_data'   => $order_new->id,
+                            'is_draft'          => 1
+                        ];
+                        $emailObject = Email::create($params);
+                        try {   
                             \MultiMail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
-                            $params = [
-                                'model_id'          => $order_new->customer->id,
-                                'model_type'        => Customer::class,
-                                'from'              => $emailClass->fromMailer,
-                                'to'                => $order_new->customer->email,
-                                'subject'           => $emailClass->subject,
-                                'message'           => $emailClass->render(),
-                                'template'          => 'order-confirmation',
-                                'additional_data'   => $order_new->id
-                            ];
-                            Email::create($params);
                             CommunicationHistory::create([
                                 'model_id'      => $order_new->id,
                                 'model_type'    => Order::class,
                                 'type'          => 'offline-confirmation',
                                 'method'        => 'email'
                             ]);
+                            $emailObject->is_draft = 0;
                         }catch(\Exception $e) {
+                            $emailObject->is_draft = 1;
+                            $emailObject->error_message = $e->getMessage();
                             \Log::info("Sending mail issue at the ordercontroller #2215 ->".$e->getMessage());
                         }
+                        $emailObject->save();
                     }
                 }
             }
@@ -2250,10 +2255,7 @@ public function createProductOnMagento(Request $request, $id){
                     try {
                         // send order canellation email
                         if(strtolower($statuss->status) == "cancel") {
-                            
-                            \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderCancellationMail($order));
                             $view = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
-
                             $params = [
                                 'model_id'          => $order->customer->id,
                                 'model_type'        => Customer::class,
@@ -2262,19 +2264,31 @@ public function createProductOnMagento(Request $request, $id){
                                 'subject'           => $view->subject,
                                 'message'           => $view->render(),
                                 'template'          => 'order-cancellation-update',
-                                'additional_data'   => $order->id
+                                'additional_data'   => $order->id,
+                                'is_draft'          => 1
                             ];
-                            Email::create($params);
-                            CommunicationHistory::create([
-                                'model_id'      => $order->id,
-                                'model_type'    => Order::class,
-                                'type'          => 'order-cancellation-update',
-                                'method'        => 'email'
-                            ]);
+
+                            $emailObject = Email::create($params);
+
+                            try {
+                                \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderCancellationMail($order));
+                                CommunicationHistory::create([
+                                    'model_id'      => $order->id,
+                                    'model_type'    => Order::class,
+                                    'type'          => 'order-cancellation-update',
+                                    'method'        => 'email'
+                                ]);
+                                $emailObject->is_draft = 0;
+                            } catch (\Exception $e) {
+                                $emailObject->is_draft = 1;
+                                $emailObject->error_message = $e->getMessage();
+                            }
+
+                            $emailObject->save();
 
 
                         }else{
-                            \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderStatusChangeMail($order));
+                            
                             $view = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
                             $params = [
                                 'model_id'          => $order->customer->id,
@@ -2286,13 +2300,24 @@ public function createProductOnMagento(Request $request, $id){
                                 'template'          => 'order-status-update',
                                 'additional_data'   => $order->id
                             ];
-                            Email::create($params);
-                            CommunicationHistory::create([
-                                'model_id'      => $order->id,
-                                'model_type'    => Order::class,
-                                'type'          => 'order-status-update',
-                                'method'        => 'email'
-                            ]);
+
+                            $emailObject = Email::create($params);
+
+                            try {
+                                \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderStatusChangeMail($order));
+                                CommunicationHistory::create([
+                                    'model_id'      => $order->id,
+                                    'model_type'    => Order::class,
+                                    'type'          => 'order-status-update',
+                                    'method'        => 'email'
+                                ]);
+                                $emailObject->is_draft = 0;
+                            } catch (\Exception $e) {
+                                $emailObject->is_draft = 1;
+                                $emailObject->error_message = $e->getMessage();
+                            }
+
+                            $emailObject->save();
                         }
 
                     }catch(\Exception $e) {

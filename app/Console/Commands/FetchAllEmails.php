@@ -144,7 +144,7 @@ class FetchAllEmails extends Command
                         }
 
                         $email_subject = $email->getSubject();
-                        \Log::info("Subject  => ".$email_subject);
+                        \Log::channel('customer')->info("Subject  => ".$email_subject);
 
                         //if (!$latest_email_date || $email->getDate()->timestamp > $latest_email_date->timestamp) {
                         $attachments_array = [];
@@ -158,9 +158,11 @@ class FetchAllEmails extends Command
                             $attachments_array[] = $path;
 
                             /*start 3215 attachment fetch from DHL mail */
-                            \Log::info("Match Start  => ".$email_subject);
-                            if (strpos(strtolower($email_subject), "your copy invoice") !== false) {
-                                \Log::info("Match Found  => ".$email_subject);
+                            \Log::channel('customer')->info("Match Start  => ".$email_subject);
+
+                            $findFromEmail = explode('@', $fromThis);
+                            if (strpos(strtolower($email_subject), "your copy invoice") !== false && isset($findFromEmail[1]) && (strtolower($findFromEmail[1]) == 'dhl.com')) {
+                                \Log::channel('customer')->info("Match Found  => ".$email_subject);
                                 $this->getEmailAttachedFileData($attachment->name);
                             }
                             /*end 3215 attachment fetch from DHL mail */
@@ -248,7 +250,7 @@ class FetchAllEmails extends Command
 
                 $report->update(['end_time' => Carbon::now()]);
             } catch (\Exception $e) {
-                \Log::info($e->getMessage());
+                \Log::channel('customer')->info($e->getMessage());
                 $historyParam = [
                     'email_address_id'        => $emailAddress->id,
                     'is_success'              => 0,
@@ -310,88 +312,93 @@ class FetchAllEmails extends Command
             if ($rowincrement > $skiprowupto) {
                 //echo '<pre>'.print_r($data = fgetcsv($file, 4000, ","),true).'</pre>';
                 if (isset($data[0]) && !empty($data[0])) {
-                    $due_date              = date('Y-m-d', strtotime($data[9]));
-                    $attachedFileDataArray = array(
-                        "line_type"                       => $data[0],
-                        "billing_source"                  => $data[1],
-                        "original_invoice_number"         => $data[2],
-                        "invoice_number"                  => $data[3],
-                        "invoice_identifier"              => $data[5],
-                        "invoice_type"                    => $data[6],
-                        "invoice_currency"                => $data[69],
-                        "invoice_amount"                  => $data[70],
-                        "invoice_type"                    => $data[6],
-                        "invoice_date"                    => $data[7],
-                        "payment_terms"                   => $data[8],
-                        "due_date"                        => $due_date,
-                        "billing_account"                 => $data[11],
-                        "billing_account_name"            => $data[12],
-                        "billing_account_name_additional" => $data[13],
-                        "billing_address_1"               => $data[14],
-                        "billing_postcode"                => $data[17],
-                        "billing_city"                    => $data[18],
-                        "billing_state_province"          => $data[19],
-                        "billing_country_code"            => $data[20],
-                        "billing_contact"                 => $data[21],
-                        "shipment_number"                 => $data[23],
-                        "shipment_date"                   => $data[24],
-                        "product"                         => $data[30],
-                        "product_name"                    => $data[31],
-                        "pieces"                          => $data[32],
-                        "origin"                          => $data[33],
-                        "orig_name"                       => $data[34],
-                        "orig_country_code"               => $data[35],
-                        "orig_country_name"               => $data[36],
-                        "senders_name"                    => $data[37],
-                        "senders_city"                    => $data[42],
-                        'created_at'                      => \Carbon\Carbon::now(),
-                        'updated_at'                      => \Carbon\Carbon::now(),
-                    );
-                    if (!empty($attachedFileDataArray)) {
-                        $attachresponse = \App\Waybillinvoice::create($attachedFileDataArray);
+                    try {
+                        $due_date              = date('Y-m-d', strtotime($data[9]));
+                        $attachedFileDataArray = array(
+                            "line_type"                       => $data[0],
+                            "billing_source"                  => $data[1],
+                            "original_invoice_number"         => $data[2],
+                            "invoice_number"                  => $data[3],
+                            "invoice_identifier"              => $data[5],
+                            "invoice_type"                    => $data[6],
+                            "invoice_currency"                => $data[69],
+                            "invoice_amount"                  => $data[70],
+                            "invoice_type"                    => $data[6],
+                            "invoice_date"                    => $data[7],
+                            "payment_terms"                   => $data[8],
+                            "due_date"                        => $due_date,
+                            "billing_account"                 => $data[11],
+                            "billing_account_name"            => $data[12],
+                            "billing_account_name_additional" => $data[13],
+                            "billing_address_1"               => $data[14],
+                            "billing_postcode"                => $data[17],
+                            "billing_city"                    => $data[18],
+                            "billing_state_province"          => $data[19],
+                            "billing_country_code"            => $data[20],
+                            "billing_contact"                 => $data[21],
+                            "shipment_number"                 => $data[23],
+                            "shipment_date"                   => $data[24],
+                            "product"                         => $data[30],
+                            "product_name"                    => $data[31],
+                            "pieces"                          => $data[32],
+                            "origin"                          => $data[33],
+                            "orig_name"                       => $data[34],
+                            "orig_country_code"               => $data[35],
+                            "orig_country_name"               => $data[36],
+                            "senders_name"                    => $data[37],
+                            "senders_city"                    => $data[42],
+                            'created_at'                      => \Carbon\Carbon::now(),
+                            'updated_at'                      => \Carbon\Carbon::now(),
+                        );
+                        if (!empty($attachedFileDataArray)) {
+                            $attachresponse = \App\Waybillinvoice::create($attachedFileDataArray);
 
-                        // check that way bill exist not then create
-                        $wayBill = \App\Waybill::where("awb", $attachresponse->shipment_number)->first();
-                        if (!$wayBill) {
-                            $wayBill      = new \App\Waybill;
-                            $wayBill->awb = $attachresponse->shipment_number;
+                            // check that way bill exist not then create
+                            $wayBill = \App\Waybill::where("awb", $attachresponse->shipment_number)->first();
+                            if (!$wayBill) {
+                                $wayBill      = new \App\Waybill;
+                                $wayBill->awb = $attachresponse->shipment_number;
 
-                            $wayBill->from_customer_name      = $data[45];
-                            $wayBill->from_city               = $data[42];
-                            $wayBill->from_country_code       = $data[44];
-                            $wayBill->from_customer_address_1 = $data[38];
-                            $wayBill->from_customer_address_2 = $data[39];
-                            $wayBill->from_customer_pincode   = $data[41];
-                            $wayBill->from_company_name       = $data[39];
+                                $wayBill->from_customer_name      = $data[45];
+                                $wayBill->from_city               = $data[42];
+                                $wayBill->from_country_code       = $data[44];
+                                $wayBill->from_customer_address_1 = $data[38];
+                                $wayBill->from_customer_address_2 = $data[39];
+                                $wayBill->from_customer_pincode   = $data[41];
+                                $wayBill->from_company_name       = $data[39];
 
-                            $wayBill->to_customer_name      = $data[50];
-                            $wayBill->to_city               = $data[55];
-                            $wayBill->to_country_code       = $data[57];
-                            $wayBill->to_customer_phone     = "";
-                            $wayBill->to_customer_address_1 = $data[51];
-                            $wayBill->to_customer_address_2 = $data[52];
-                            $wayBill->to_customer_pincode   = $data[54];
-                            $wayBill->to_company_name       = "";
+                                $wayBill->to_customer_name      = $data[50];
+                                $wayBill->to_city               = $data[55];
+                                $wayBill->to_country_code       = $data[57];
+                                $wayBill->to_customer_phone     = "";
+                                $wayBill->to_customer_address_1 = $data[51];
+                                $wayBill->to_customer_address_2 = $data[52];
+                                $wayBill->to_customer_pincode   = $data[54];
+                                $wayBill->to_company_name       = "";
 
-                            $wayBill->actual_weight = $data[68];
-                            $wayBill->volume_weight = $data[66];
+                                $wayBill->actual_weight = $data[68];
+                                $wayBill->volume_weight = $data[66];
 
-                            $wayBill->cost_of_shipment = $data[70];
-                            $wayBill->package_slip     = $attachresponse->shipment_number;
-                            $wayBill->pickup_date      = date("Y-m-d", strtotime($data[24]));
-                            $wayBill->save();
+                                $wayBill->cost_of_shipment = $data[70];
+                                $wayBill->package_slip     = $attachresponse->shipment_number;
+                                $wayBill->pickup_date      = date("Y-m-d", strtotime($data[24]));
+                                $wayBill->save();
+                            }
+
+                            $cash_flow = new CashFlow();
+                            $cash_flow->fill([
+                                'date'                => $attachresponse->due_date ? $attachresponse->due_date : null,
+                                'type'                => 'pending',
+                                'description'         => 'Waybill invoice details',
+                                'cash_flow_able_id'   => $attachresponse->id,
+                                'cash_flow_able_type' => \App\Waybillinvoice::class,
+                            ])->save();
+
                         }
-
-                        $cash_flow = new CashFlow();
-                        $cash_flow->fill([
-                            'date'                => $attachresponse->due_date ? $attachresponse->due_date : null,
-                            'type'                => 'pending',
-                            'description'         => 'Waybill invoice details',
-                            'cash_flow_able_id'   => $attachresponse->id,
-                            'cash_flow_able_type' => \App\Waybillinvoice::class,
-                        ])->save();
-
+                    }catch(\Exception $e) {
+                        \Log::error("Error from the dhl invoice : ".$e->getMessage());
                     }
+                    
                 }
             }
             $rowincrement++;

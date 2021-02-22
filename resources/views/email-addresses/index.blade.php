@@ -27,6 +27,7 @@
             <th>Port</th>
             <th>Encryption</th>
             <th>Store Website</th>
+            <th>Status</th>
             <!--th>Username</th-->
             <!--th>Password</th-->
             <th>Action</th>
@@ -64,6 +65,7 @@
 			  <td>
                   @if($server->website){{ $server->website->title }} @endif
               </td>
+              <td>@if($server->is_success == 1) {{ 'Success' }} @elseif(isset($server->is_success)) {{'Error'}} @else {{'-'}} @endif</td>
               <td>
                   <button type="button" class="btn btn-image edit-email-addresses d-inline" data-toggle="modal" data-target="#emailAddressEditModal" data-email-addresses="{{ json_encode($server) }}"><img src="/images/edit.png" /></button>
                   <button type="button" class="btn btn-image view-email-history d-inline" data-id="{{ $server->id }}"><img width="2px;" src="/images/view.png"/></button>

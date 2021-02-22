@@ -27,17 +27,17 @@ $metaData = '';
     @elseif (!\Auth::guest())
         <link rel="shortcut icon" type="image/png" href="/generate-favicon?title={{$title}}" />
     @endif
-	<title>{{$title}}</title>
+    <title>{{$title}}</title>
     <!-- CSRF Token -->
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
-	
-	@if(isset($metaData->page_description) && $metaData->page_description!='')
-		<meta name="description" content="{{ $metaData->page_description }}">
-	@else
-		<meta name="description" content="{{ config('app.name') }}">
-	@endif
-	
+    
+    @if(isset($metaData->page_description) && $metaData->page_description!='')
+        <meta name="description" content="{{ $metaData->page_description }}">
+    @else
+        <meta name="description" content="{{ config('app.name') }}">
+    @endif
+    
 
     {{-- <title>{{ config('app.name', 'ERP for Sololuxury') }}</title> --}}
 
@@ -797,6 +797,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-template') }}">Mailinglist Templates</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-emails') }}">Mailinglist Emails</a>
+                                            <a class="dropdown-item" href="/mail-templates/mailables">Mailables</a>
                                             <a class="dropdown-item" href="{{ route('emailleads') }}">Email Leads</a>
                                         </li>
                                     </ul>
@@ -1320,6 +1321,9 @@ $metaData = '';
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('manage-task-category.index') }}">Manage Task Category</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('erp-log') }}">ERP Log</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1374,6 +1378,7 @@ $metaData = '';
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.color.list') }}">Store Color</a>
                                         <a class="dropdown-item" href="{{ route('size.index') }}">Size</a>
+                                        <a class="dropdown-item" href="{{ route('system.size') }}">System Size</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('landing-page.index') }}">Landing Page</a>
@@ -1410,6 +1415,15 @@ $metaData = '';
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.product-attribute.index') }}">Product Attribute</a>
+                                    </li>
+									<li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('scrapper.phyhon.index') }}">Site Scrapper Phyhon</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.site-attributes.index') }}">Site Attributes</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.category-seo.index') }}">Category seo</a>
                                     </li>
                                 </ul>
                             </li>
@@ -1461,7 +1475,7 @@ $metaData = '';
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('charity') }}">Charity</a>
                                         </li>
-									</ul>
+                                    </ul>
                                 </li>
                                 @if(auth()->user()->isAdmin())
                                 <li class="nav-item dropdown">
@@ -1471,7 +1485,7 @@ $metaData = '';
                                 <li class="nav-item dropdown">
                                     <a href="{{ route('watson-accounts') }}">Watson Account Management</a>
                                 </li>
-								
+                                
                                     <li class="nav-item dropdown">
                                         <a href="{{ route('twilio-call-management') }}">Call Management</a>
                                     </li>
@@ -2152,6 +2166,17 @@ $metaData = '';
 
     @endif
 
+    @php
+
+        $url = strtolower(str_replace(array('https://', 'http://'),array('', ''),config('app.url')));
+        $url = str_replace('/','',$url);
+        $site_account_id = App\StoreWebsiteAnalytic::where('website',$url)->first();
+        $account_id = "";
+        if(!empty($site_account_id)){
+            $account_id = $site_account_id->account_id;
+        }
+    @endphp
+
 
     <!-- Scripts -->
 
@@ -2452,7 +2477,7 @@ $metaData = '';
     </script>
     @if ( !empty($_SERVER['HTTP_HOST']) && !empty($_SERVER['REMOTE_ADDR'])  && $_SERVER['REMOTE_ADDR'] != "127.0.0.1" && !stristr($_SERVER['HTTP_HOST'], '.mac') )
     <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-147736165-1"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $account_id }}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
 
@@ -2461,7 +2486,8 @@ $metaData = '';
         }
 
         gtag('js', new Date());
-        gtag('config', 'UA-171553493-1');
+        //gtag('config', 'UA-171553493-1');
+        gtag('config', '{{ $account_id }}');
     </script>
     @endif
     <script>

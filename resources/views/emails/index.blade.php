@@ -66,7 +66,10 @@
           </li>
           <li class="nav-item">
             <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('bin','both')">Trash</a>
-        </li>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('draft','both')">Draft</a>
+          </li>
       </ul>
       <div class="tab-content" id="myTabContent">
           <div class="tab-pane fade show active" id="read" role="tabpanel" aria-labelledby="read-tab">
@@ -147,6 +150,8 @@
             <th>Subject</th>
             <th>Body</th>
             <th>Status</th>
+            <th>Draft</th>
+            <th>Error Message</th>
             <th>Category</th>
             <th>Action</th>
           </tr>
@@ -367,6 +372,28 @@
 						<button type="submit" class="btn btn-secondary">Store</button>
 					</div>
 				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+{{-- Showing file status models --}}
+<div id="showFilesStatusModel" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Files status</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="Status">Files status :</label>
+					<div id="filesStatus" class="form-group">  </div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -792,6 +819,40 @@
     function excelImporter(id) {
         $('#excel_import_email_id').val(id)
         $('#excelImporter').modal('toggle');
+    }
+    
+    function showFilesStatus(id) {
+		
+        if( id ){
+			$.ajax({
+				headers: {
+					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				},
+				data : {id},
+				url: '/email/'+id+'/get-file-status',
+				type: 'post',
+
+				beforeSend: function () {
+						$("#loading-image").show();
+					},
+				}).done( function(response) {
+					if (response.status === true) {
+						$("#filesStatus").html(response.mail_status);
+						$('#showFilesStatusModel').modal('toggle');
+					}else{
+						alert('Something went wrong')
+					}
+					
+					$("#loading-image").hide();
+				}).fail(function(errObj) {
+					$("#loading-image").hide();
+					alert('Something went wrong')
+				});
+		}else{
+			alert('Something went wrong')
+		}
+
+        // $('#excelImporter').modal('toggle');
     }
 
     function importExcel() {

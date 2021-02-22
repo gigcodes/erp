@@ -1,24 +1,48 @@
 @php $imageCropperRole = Auth::user()->hasRole('ImageCropers'); @endphp
 <table class="table table-bordered table-striped" style="table-layout:fixed;">
         @foreach ($products as $key => $product)
-        <thead>
+        @php 
+            $anyCropExist = \App\SiteCroppedImages::where('product_id', $product->id)->pluck('website_id')->toArray();
+            $websiteList = $product->getWebsites();
+            $gridImage = \App\Category::getCroppingGridImageByCategoryId($product->category);
+        @endphp
+        <thead productid="{{ $product->id }}">
             <tr>
-                <th>#{{ $product->id }} [{{$product->sku}}] {{$product->name}}</th>
+                <th>#{{ $product->id }} [{{$product->sku}}] {{$product->name}}
+                <div class="row">
+                        <div class="col-md-12">
+                            <button type="button" value="reject" id="reject-all-cropping{{$product->id}}" data-product_id="{{$product->id}}" class="btn btn-xs btn-secondary pull-right reject-all-cropping">
+                                @if($anyCropExist)
+                                    Reject All - Re Crop
+                                @else 
+                                    All Rejected - Re Crop
+                                @endif
+                            </button>
+                         </div>   
+                    </div>
+                </th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td>
-                    @php 
-                        $anyCropExist = \App\SiteCroppedImages::where('product_id', $product->id)->pluck('website_id')->toArray();
-                        $websiteList = $product->getWebsites();
-                        $gridImage = \App\Category::getCroppingGridImageByCategoryId($product->category);
-                    @endphp
+                    
                     <div class="row"> 
                             @if(!$websiteList->isEmpty())
                                 @foreach($websiteList as $index => $site)
-                                    <div class="col-md-12">
-                                            <h5 style="text-decoration: underline; width: 100%;">{{ $site->title }}</h5>
+                                    <div class="col-md-12" productid="{{ $product->id }}">
+                                            <h5 style="text-decoration: underline; width: 100%;">{{ $site->title }} {{ $site->id }}</h5>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <button type="button" value="reject" id="reject-product-cropping{{$site->id}}{{$product->id}}" data-product_id="{{$product->id}}" data-site_id="{{$site->id}}" class="btn btn-xs btn-secondary pull-right reject-product-cropping">
+                                                        @if($anyCropExist)
+                                                            Reject All - Re Crop for this website
+                                                        @else 
+                                                            All Rejected - Re Crop for this website
+                                                        @endif
+                                                    </button>
+                                                </div>   
+                                            </div>
                                             @php
                                                 $tag        = 'gallery_'.$site->cropper_color;
                                                 $testing    = false;
@@ -65,6 +89,7 @@
                                                        </div>
                                                    @endif
                                                 @endforeach
+
                                             @else
                                                 <span>There is no images for {{ $site->title }}</span>
                                             @endif
@@ -73,17 +98,6 @@
                             @else
                                 <div class="col-md-12">Product is not assigned to any store</div>
                             @endif
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <button type="button" value="reject" id="reject-all-cropping{{$product->id}}" data-product_id="{{$product->id}}" class="btn btn-xs btn-secondary pull-right reject-all-cropping">
-                                @if($anyCropExist)
-                                    Reject All - Re Crop
-                                @else 
-                                    All Rejected - Re Crop
-                                @endif
-                            </button>
-                         </div>   
                     </div>
                 </td>
             </tr>

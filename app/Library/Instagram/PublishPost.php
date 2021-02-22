@@ -50,7 +50,7 @@ class PublishPost
             //$instagram->setProxy($account->proxy);
         }else{
 
-            Log::error('Something went wrong: Proxy Not Set For Account '.$account->last_name);
+            Log::channel('customer')->error('Something went wrong: Proxy Not Set For Account '.$account->last_name);
 
             $post->status  = 2;
             $post->comment = 'Something went wrong: Proxy Not Set For Account '.$account->last_name;
@@ -66,7 +66,7 @@ class PublishPost
 
         } catch (IncorrectPasswordException $e) {
             dd($e->getMessage());
-            Log::error('The password you entered is incorrect. Please try again. ' . $e->getMessage());
+            Log::channel('customer')->error('The password you entered is incorrect. Please try again. ' . $e->getMessage());
 
             $post->status  = 2;
             $post->comment = 'The password you entered is incorrect. Please try again. ' . $e->getMessage();
@@ -76,7 +76,7 @@ class PublishPost
 
         } catch (InvalidUserException $e) {
             dd($e->getMessage());
-            Log::error('The username you entered doesn\'t appear to belong to an account. Please check your username and try again. ' . $e->getMessage());
+            Log::channel('customer')->error('The username you entered doesn\'t appear to belong to an account. Please check your username and try again. ' . $e->getMessage());
 
             $post->status  = 2;
             $post->comment = 'The username you entered doesn\'t appear to belong to an account. Please check your username and try again. ' . $e->getMessage();
@@ -86,7 +86,7 @@ class PublishPost
 
         } catch (SentryBlockException $e) {
             dd($e->getMessage());
-            Log::error('Your account has been banned from Instagram API for spam behaviour or otherwise abusing. ' . $e->getMessage());
+            Log::channel('customer')->error('Your account has been banned from Instagram API for spam behaviour or otherwise abusing. ' . $e->getMessage());
 
             $post->status  = 2;
             $post->comment = 'Your account has been banned from Instagram API for spam behaviour or otherwise abusing. ' . $e->getMessage();
@@ -96,7 +96,7 @@ class PublishPost
 
         } catch (AccountDisabledException $e) {
             dd($e->getMessage());
-            Log::error('Your account has been disabled for violating Instagram terms. ' . $e->getMessage());
+            Log::channel('customer')->error('Your account has been disabled for violating Instagram terms. ' . $e->getMessage());
 
             $post->status  = 2;
             $post->comment = 'Your account has been disabled for violating Instagram terms. ' . $e->getMessage();
@@ -106,7 +106,7 @@ class PublishPost
 
         } catch (FeedbackRequiredException $e) {
             dd($e->getMessage());
-            Log::error('Feedback required. It looks like you were misusing this feature by going too fast. ' . $e->getMessage());
+            Log::channel('customer')->error('Feedback required. It looks like you were misusing this feature by going too fast. ' . $e->getMessage());
 
             $post->status  = 2;
             $post->comment = 'Feedback required. It looks like you were misusing this feature by going too fast. ' . $e->getMessage();
@@ -116,7 +116,7 @@ class PublishPost
 
         } catch (CheckpointRequiredException $e) {
             dd($e->getMessage());
-            Log::error('Your account is subject to verification checkpoint. Please go to instagram.com and pass checkpoint. ' . $e->getMessage());
+            Log::channel('customer')->error('Your account is subject to verification checkpoint. Please go to instagram.com and pass checkpoint. ' . $e->getMessage());
 
             $post->status  = 2;
             $post->comment = 'Your account is subject to verification checkpoint. Please go to instagram.com and pass checkpoint. ' . $e->getMessage();
@@ -126,7 +126,7 @@ class PublishPost
 
         } catch (ChallengeRequiredException $e) {
             dd($e->getMessage());
-            Log::error('Challenge required. Please re-add your account to confirm it. ' . $e->getMessage());
+            Log::channel('customer')->error('Challenge required. Please re-add your account to confirm it. ' . $e->getMessage());
 
             $post->status  = 2;
             $post->comment = 'Challenge required. Please re-add your account to confirm it. ' . $e->getMessage();
@@ -136,7 +136,7 @@ class PublishPost
 
         } catch (ConsentRequiredException $e) {
             dd($e->getMessage());
-            Log::error('You should verify and agree terms using your mobile device. ' . $e->getMessage());
+            Log::channel('customer')->error('You should verify and agree terms using your mobile device. ' . $e->getMessage());
 
             $post->status  = 2;
             $post->comment = 'You should verify and agree terms using your mobile device. ' . $e->getMessage();
@@ -146,7 +146,7 @@ class PublishPost
 
         } catch (ServerMessageThrower $e) {
             dd($e->getMessage());
-            Log::error('Something went wrong: ' . $e->getMessage());
+            Log::channel('customer')->error('Something went wrong: ' . $e->getMessage());
 
             $post->status  = 2;
             $post->comment = 'Something went wrong: ' . $e->getMessage();
@@ -156,7 +156,7 @@ class PublishPost
 
         } catch (\Exception $e) {
             dd($e->getMessage());
-            Log::error('Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
+            Log::channel('customer')->error('Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
 
             $post->status  = 2;
             $post->comment = 'Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine();
@@ -214,7 +214,7 @@ class PublishPost
 
                 } catch (InstagramException $e) {
 
-                    Log::error('Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
+                    Log::channel('customer')->error('Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
 
                     $post->status  = 2;
                     $post->comment = 'Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine();
@@ -243,7 +243,7 @@ class PublishPost
 
                 } catch (InstagramException $e) {
 
-                    Log::error('Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
+                    Log::channel('customer')->error('Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
 
                     $post->status  = 2;
                     $post->comment = 'Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine();
@@ -348,7 +348,7 @@ class PublishPost
 
         } catch (InstagramException $e) {
 
-            Log::error('Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
+            Log::channel('customer')->error('Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
 
             $post->status  = 2;
             $post->comment = 'Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine();

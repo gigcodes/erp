@@ -354,6 +354,7 @@
                     </div>
                 </div>
             </form>
+            <input type="button" value="Auto push product - {{$auto_push_product == 0 ? 'Not Active' : 'Active'}}" class="btn btn-{{$auto_push_product == 0 ? 'secondary' : 'primary'}} active autopushproduct" auto_push_value="{{$auto_push_product}}">
 
         </div>
     </div>
@@ -511,6 +512,32 @@
                 success: function () {
                     $(self).val('');
                     toastr['success']('Message sent successfully', 'Success')
+                }
+            });
+        });
+       
+        $(document).on('click','.autopushproduct',function(){
+            $.ajax({
+                url: "{{ url('products') }}/changeautopushvalue",
+                type: 'POST',
+                data: {
+                    auto_push_value: $(this).attr("auto_push_value"),
+                    _token: "{{csrf_token()}}",
+                },
+                success: function (data) {
+                    $(self).val('');
+                    toastr['success']('value changed successfully', 'Success')
+                    console.log(data.data)
+                    $(".autopushproduct").attr("auto_push_value",data.data);
+                    if(data.data == 0){
+                        $(".autopushproduct").removeClass("btn-primary").addClass("btn-secondary");
+                        $(".autopushproduct").val("Auto push product - Not Active")
+                        $(".fa-upload").removeClass("hide");
+                    }else{
+                        $(".autopushproduct").removeClass("btn-secondary").addClass("btn-primary");
+                        $(".autopushproduct").val("Auto push product - Active")
+                        $(".fa-upload").addClass("hide");
+                    }
                 }
             });
         });
@@ -1781,15 +1808,50 @@
        
     </script>
     <script>
-    var i=1;
+    var i=0;
         var scroll = true;
+        var old_product;
         function start_scroll_down() { 
             if(scroll){
                 console.log("in scroll")
+                let product_id = $(".infinite-scroll-data table tbody .col-md-12").eq(i-1).attr("productid");
+                console.log(product_id)
+              if($(".autopushproduct").attr("auto_push_value") == "1" && product_id != undefined && old_product != product_id){
+                old_product = product_id
+              //  alert("auto update");
+                var ajaxes = [];
+                var id = product_id;
+                url = "{{ url('products') }}/" + id + '/listMagento';
+                ajaxes.push($.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                    },
+                    beforeSend: function () {
+                        // $(thiss).text('Loading...');
+                        // $(thiss).html('<i class="fa fa-spinner" aria-hidden="true"></i>');
+                    }
+                }).done(function (response) {
+                    toastr['success']('Request Send successfully', 'Success')
+                }).fail(function (response) {
+                    console.log(response);
+                    toastr['error']('Internal server error', 'Failure')
+                   
+                    //alert('Could not update product on magento');
+                }));
+
+            // }
+                $.when.apply($, ajaxes)
+                    .done(function () {
+                        //location.reload();
+                    });
+              }
+                //check if 
                  // scroll =  setInterval(function() {
            // $(".infinite-scroll-data table thead").each(function(i, e) {
             $("html, body").animate({
-                scrollTop: $(".infinite-scroll-data table thead").eq(i).offset().top
+                scrollTop: $(".infinite-scroll-data table tbody .col-md-12").eq(i).offset().top
                 }, 500).delay(500); // First value is a speed of scroll, and second time break
           //  });
           i++;
@@ -1814,7 +1876,7 @@
             $(".start-again").attr("disabled","disabled")
             $(".pause").attr("disabled",false)
             $("html, body").animate({
-                scrollTop: $(".infinite-scroll-data table thead").eq(i).offset().top
+                scrollTop: $(".infinite-scroll-data table tbody .col-md-12").eq(i).offset().top
                 }, 500).delay(500); // First value is a speed of scroll, and second time break
           //  });
           i++;

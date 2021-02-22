@@ -141,43 +141,65 @@ class AnalyticsController extends Controller
         $pages = AnalyticsCustomerBehaviour::select('ID', 'pages')->pluck('pages', 'ID')->toArray();
         if (!empty($request[ 'page' ])) {
             $data = AnalyticsCustomerBehaviour::where('pages', $request[ 'page' ])->get()->toArray();
-        } else {
+        } else { 
             include(app_path() . '/Functions/Analytics.php');
         }
         return View('analytics.customer-behaviour', compact('data', 'pages'));
     }
 
     public function cronShowData(){
-        \Log::info("Google Analytics Started running ...");
+
+        \Log::channel('daily')->info("Google Analytics Started running ...");
         $analyticsDataArr = [];
+
         include(app_path() . '/Functions/Analytics.php');
         $data = StoreWebsiteAnalytic::all()->toArray();
         foreach ($data as $value) {
-            $response   = getReport($analytics, $value);
-            $resultData = printResults($response);
-            if(!empty($resultData)) {
-                foreach ($resultData as $new_item) {
-                     $analyticsDataArr = [
-                            "operatingSystem" => $new_item['operatingSystem'],
-                            "user_type" => $new_item['user_type'],
-                            "time" => $new_item['time'],
-                            "page_path" => $value['website'].$new_item['page_path'],
-                            "country" => $new_item['country'],
-                            "city" => $new_item['city'],
-                            "social_network" => $new_item['social_network'],
-                            "date" => $new_item['date'],
-                            "device_info" => $new_item['device_info'],
-                            "sessions" => $new_item['sessions'],
-                            "pageviews" => $new_item['pageviews'],
-                            "bounceRate" => $new_item['bounceRate'],
-                            "avgSessionDuration" => $new_item['avgSessionDuration'],
-                            "timeOnPage" => $new_item['timeOnPage'],
 
-                      ];
-                     Analytics::insert($analyticsDataArr);
+            $ERPlogArray = [
+                'model_id' => $value['id'],
+                'url'      => 'https://www.googleapis.com/auth/analytics.readonly',
+                'model'    => StoreWebsiteAnalytic::class,
+                'type'     => 'success',
+                'request'  => $value,
+            ];
+
+            try {
+                
+                $response   = getReport($analytics, $value);
+                $resultData = printResults($response);
+
+                if(!empty($resultData)) {
+                    foreach ($resultData as $new_item) {
+                         $analyticsDataArr = [
+                                "operatingSystem" => $new_item['operatingSystem'],
+                                "user_type" => $new_item['user_type'],
+                                "time" => $new_item['time'],
+                                "page_path" => $value['website'].$new_item['page_path'],
+                                "country" => $new_item['country'],
+                                "city" => $new_item['city'],
+                                "social_network" => $new_item['social_network'],
+                                "date" => $new_item['date'],
+                                "device_info" => $new_item['device_info'],
+                                "sessions" => $new_item['sessions'],
+                                "pageviews" => $new_item['pageviews'],
+                                "bounceRate" => $new_item['bounceRate'],
+                                "avgSessionDuration" => $new_item['avgSessionDuration'],
+                                "timeOnPage" => $new_item['timeOnPage'],
+
+                          ];
+                         Analytics::insert($analyticsDataArr);
+                    }
                 }
+
+                $ERPlogArray['request'] = $value;
+                $ERPlogArray['response'] = $resultData;
+
+            }catch(\Exception  $e) {
+                $ERPlogArray['type']    = 'error';
+                $ERPlogArray['response'] = $e->getMessage();
             }
+            storeERPLog($ERPlogArray);
         }
-        \Log::info("Google Analytics ended running ...");
     }
 }

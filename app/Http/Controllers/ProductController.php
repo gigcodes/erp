@@ -68,7 +68,7 @@ use App\ProductPushErrorLog;
 use App\ProductStatusHistory;
 use App\Status;
 use App\ProductSupplier;
-
+use Qoraiche\MailEclipse\MailEclipse;
 
 class ProductController extends Controller
 {
@@ -122,6 +122,13 @@ class ProductController extends Controller
 
     public function approvedListing(Request $request,$pageType = "")
     {
+        
+        if(!Setting::has('auto_push_product')){
+            $auto_push_product = Setting::add('auto_push_product',0,'int');
+        }else{
+            $auto_push_product = Setting::get('auto_push_product');
+        }
+       // dd(Setting::get('auto_push_product'));
         $cropped = $request->cropped;
         $colors = (new Colors)->all();
         $categories = Category::all();
@@ -392,7 +399,8 @@ class ProductController extends Controller
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
             'store_websites' => StoreWebsite::all(),
-            'pageType' => $pageType
+            'pageType' => $pageType,
+            'auto_push_product' => $auto_push_product
             //'store_website_count' => StoreWebsite::count(),
         ]);
     }
@@ -2510,8 +2518,8 @@ class ProductController extends Controller
         if (!empty($all_product_ids)) {
             $suppliersGroups = \App\Product::leftJoin('product_suppliers', 'product_id', '=', 'products.id')
                 ->where('products.id', $all_product_ids)
-                ->groupBy("supplier_id")
-                ->select([\DB::raw("count(products.id) as total_product"), "supplier_id"])
+                ->groupBy("product_suppliers.supplier_id")
+                ->select([\DB::raw("count(products.id) as total_product"), "product_suppliers.supplier_id"])
                 ->pluck("total_product", "supplier_id")
                 ->toArray();
             $suppliersIds = array_values(array_filter(array_keys($suppliersGroups)));
@@ -2663,6 +2671,14 @@ class ProductController extends Controller
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         //\Log::info(print_r(\DB::getQueryLog(),true));
 
+        $mailEclipseTpl = mailEclipse::getTemplates()->where('template_dynamic',FALSE);;
+        $rViewMail      = [];
+        if (!empty($mailEclipseTpl)) {
+            foreach ($mailEclipseTpl as $mTpl) {
+                $rViewMail[$mTpl->template_slug] = $mTpl->template_name . " [" . $mTpl->template_description . "]";
+            }
+        }
+
         return view('partials.image-grid', compact(
             'products',
             'products_count',
@@ -2686,7 +2702,8 @@ class ProductController extends Controller
             'countSuppliers',
             'customerId',
             'categoryArray',
-            'term'
+            'term',
+            'rViewMail'
         ));
     }
 
@@ -4230,6 +4247,17 @@ class ProductController extends Controller
         }
 
         return response()->json(["code" => 500, "data" => [], "message" => "Required field is missing"]);
+    }
+
+    public function changeAutoPushValue(Request $request)
+    {
+        if(Setting::get('auto_push_product') == 0){
+            $val = 1;
+        }else{
+            $val = 0;
+        }
+        $settings = Setting::set('auto_push_product', $val, 'int');
+        return response()->json(["code" => 200, "data" => $settings, "message" => "Status changed"]);
     }
 
     public function pushProduct()
