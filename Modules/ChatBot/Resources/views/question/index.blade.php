@@ -217,7 +217,7 @@
             },
             error: function (error) {
 				console.log(error);
-               toastr['error']('Could not change module!');
+               toastr['error']('Could not send this request please refresh browser if the page is idel for while!');
             }
         });
 	});
