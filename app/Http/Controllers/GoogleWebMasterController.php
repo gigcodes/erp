@@ -68,8 +68,7 @@ class GoogleWebMasterController extends Controller
 				    "authorization: Bearer ".$gClient->getAccessToken()['access_token']
 				  ),
 				));
-				echo $response = curl_exec($curl);
-				die;
+				$response = curl_exec($curl);
 				$err = curl_error($curl);
 				curl_close($curl);
 				if ($err) {
