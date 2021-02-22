@@ -40,7 +40,7 @@ class MessageController extends Controller
         $pendingApprovalMsg = $pendingApprovalMsg->where(function($q) {
             $q->where("chat_messages.message","!=", "");
         })->where("chat_messages.customer_id", ">", 0)
-            ->select(["chat_messages.*", "cm1.id as chat_id", "cr.question","cm1.message as answer", "c.name as customer_name","cr.reply_from"])
+            ->select(["chat_messages.*", "cm1.id as chat_id", "cr.question","cm1.message as answer", "c.name as customer_name","cr.reply_from","cm1.approved"])
             ->orderBy("chat_messages.id","desc")
             ->paginate(20);
             
