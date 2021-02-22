@@ -93,7 +93,7 @@ class ResponsePurify
         }
 
         // send the order status from here
-        $orderStatus = $this->isNeedToSendOrderStatus();
+        $orderStatus = $this->isNeedToSendOrderStatus($text);
         if(!empty($orderStatus)) {
            return ["action" => "send_text_only", "reply_text" => $orderStatus["text"]];
         }
@@ -190,7 +190,7 @@ class ResponsePurify
         return $return;
     }
 
-    private function isNeedToSendOrderStatus()
+    private function isNeedToSendOrderStatus($text = "")
     {
         // is order status need to be send?
         $intentsList = ["Order_status_find"];
@@ -200,7 +200,7 @@ class ResponsePurify
                 $customer  = $this->customer;
                 $lastOrder = $customer->latestOrder();
                 if(!empty($lastOrder)) {
-                    return ["text" => str_replace(["#{order_id}","#{order_status}"], [$lastOrder->order_id,$lastOrder->order_status], \App\Order::ORDER_STATUS_TEMPLATE)];
+                    return ["text" => str_replace(["#{order_id}","#{order_status}"], [$lastOrder->order_id,$lastOrder->order_status], $text)];
                 }
             }
         }
