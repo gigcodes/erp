@@ -200,7 +200,7 @@ class ResponsePurify
                 $customer  = $this->customer;
                 $lastOrder = $customer->latestOrder();
                 if(!empty($lastOrder)) {
-                    if($latestOrder->status) {
+                    if($lastOrder->status) {
                         return ["text" => str_replace(["#{order_id}","#{order_status}"], [$lastOrder->order_id,$lastOrder->status->status], $text)];
                     }
                 }
