@@ -250,10 +250,20 @@ class FetchAllEmails extends Command
                                 ];
                                 Email::create($params);
                             }
+<<<<<<< HEAD
                         }
                         $cutomer = \App\customers::where( 'email' , $email->getFrom()[0]->mail )->get();
                         $this->whatappSend( $cutomer , $fragment->getContent() );
                         $this->sendwatson( $cutomer , $fragment->getContent() );
+=======
+                        }
+                        $customer = \App\customers::where( 'email' , $email->getFrom()[0]->mail )->get();
+
+                        if ( !empty( $customer ) ) {
+                            \App\Helpers\MessageHelper::whatsAppSend( $customer , $fragment->getContent() );
+                            \App\Helpers\MessageHelper::sendwatson( $customer , $fragment->getContent() );
+                        }
+>>>>>>> ead390a43585036a737ba2d553e6df414e5eddc5
                         //}
                     }
                 }
@@ -418,6 +428,7 @@ class FetchAllEmails extends Command
         fclose($file);
     }
 
+<<<<<<< HEAD
     private function whatappSend( $customer = null, $message = null )
     {
         if ($customer) {
@@ -669,4 +680,7 @@ class FetchAllEmails extends Command
             }
         }
     }
+=======
+    
+>>>>>>> ead390a43585036a737ba2d553e6df414e5eddc5
 }
