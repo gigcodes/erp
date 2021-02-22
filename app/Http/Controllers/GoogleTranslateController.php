@@ -14,88 +14,94 @@ use Illuminate\Http\Request;
 
 class GoogleTranslateController extends Controller
 {
-    public static function translateProductDetails($product)
+    public static function translateProductDetails($product,$logid=null)
     {
-        $measurement = ProductHelper::getMeasurements($product);
-        $isDefaultAvailable = Product_translation::where('locale','en')->where('product_id',$product->id)->first();
-        $languages = Language::where("status",1)->pluck('locale')->toArray();
-        if(!$isDefaultAvailable) {
-            $product_translation = new Product_translation();
-            $product_translation->title = html_entity_decode($product->name);
-            $product_translation->description = $product->short_description;
-            $product_translation->product_id = $product->id;
-            $product_translation->locale = 'en';
-            $product_translation->composition = $product->composition;
-            $product_translation->color = $product->color;
-            $product_translation->size = $product->size;
-            $product_translation->country_of_manufacture = $product->made_in;
-            $product_translation->dimension = $measurement;
-            $product_translation->save();
-        }else{
-            $msg = 'Default translation data not exists';
+        try {
+            $measurement = ProductHelper::getMeasurements($product);
+            $isDefaultAvailable = Product_translation::where('locale','en')->where('product_id',$product->id)->first();
+            $languages = Language::where("status",1)->pluck('locale')->toArray();
+            if(!$isDefaultAvailable) {
+                $product_translation = new Product_translation();
+                $product_translation->title = html_entity_decode($product->name);
+                $product_translation->description = $product->short_description;
+                $product_translation->product_id = $product->id;
+                $product_translation->locale = 'en';
+                $product_translation->composition = $product->composition;
+                $product_translation->color = $product->color;
+                $product_translation->size = $product->size;
+                $product_translation->country_of_manufacture = $product->made_in;
+                $product_translation->dimension = $measurement;
+                $product_translation->save();
+            }else{
+                $msg = 'Default translation data not exists';
 
-            $logId = LogListMagento::log($product->id, $msg, 'info');
-            ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-        }
-        if(count($languages) > 0){
-            foreach($languages as $language) {
-                $isLocaleAvailable = Product_translation::where('locale',$language)->where('product_id',$product->id)->first();
-    
-                if(!$isLocaleAvailable) { //if product translation not available
-                    $title = $description = $composition = $color = $size = $country_of_manufacture = $dimension = '';
-                    $product_translation = Product_translation::where('locale',$language)->where('product_id',$product->id)->first();
-                    if (empty($product_translation)) { //check if id existing or not
-                        $product_translation= new Product_translation; //if id not existing create new object for insert else update
-                    }
-                    $googleTranslate = new GoogleTranslate();
-                    $productNames = splitTextIntoSentences($product->name);
-                    $productShortDescription =  splitTextIntoSentences($product->short_description);
-                    //check in table is field is empty and then translate
-                    if($product_translation->title == ''){
-                        $title = self::translateProducts($googleTranslate, $language, $productNames);
-                        $product_translation->title = $title;
-                    }
-                    if($product_translation->description == ''){
-                        $description = self::translateProducts($googleTranslate, $language, $productShortDescription);
-                        $product_translation->description = $description;
-                    }
-                    if($product_translation->composition == ''){
-                        $composition = self::translateProducts($googleTranslate, $language, [$product->composition]);
-                        $product_translation->composition = $composition;
-                    }
-                    if($product_translation->color == ''){
-                        $color = self::translateProducts($googleTranslate, $language, [$product->color]);
-                        $product_translation->color = $color;
-                    }
-                    /*if(!$checkdata || $checkdata->size==''){
-                        $size = self::translateProducts($googleTranslate, $language, [$product->size]);
-                        $product_translation->size = $size;
-                    }*/
-                    if($product_translation->country_of_manufacture == ''){
-                        $country_of_manufacture = self::translateProducts($googleTranslate, $language, [$product->made_in]);
-                        $product_translation->country_of_manufacture = $country_of_manufacture;
-                    }
-                    if($product_translation->dimension == ''){
-                        $dimension = self::translateProducts($googleTranslate, $language, [$measurement]);
-                        $product_translation->dimension = $dimension;
-                    }
-                    $product_translation->product_id = $product->id;
-                    $product_translation->locale = $language;
-                    $product_translation->save();
-                }else{
-                    $msg = 'Languages data '.$language.' not exists';
-
-                    $logId = LogListMagento::log($product->id, $msg, 'info');
-                    ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-                }
+            // $logId = LogListMagento::log($product->id, $msg, 'info');
+                ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logid);
             }
-        }else{
-            $msg = 'Languages data not exists';
-
-            $logId = LogListMagento::log($product->id, $msg, 'info');
-            ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-        }
+            if(count($languages) > 0){
+                foreach($languages as $language) {
+                    $isLocaleAvailable = Product_translation::where('locale',$language)->where('product_id',$product->id)->first();
         
+                    if(!$isLocaleAvailable) { //if product translation not available
+                        $title = $description = $composition = $color = $size = $country_of_manufacture = $dimension = '';
+                        $product_translation = Product_translation::where('locale',$language)->where('product_id',$product->id)->first();
+                        if (empty($product_translation)) { //check if id existing or not
+                            $product_translation= new Product_translation; //if id not existing create new object for insert else update
+                        }
+                        $googleTranslate = new GoogleTranslate();
+                        $productNames = splitTextIntoSentences($product->name);
+                        $productShortDescription =  splitTextIntoSentences($product->short_description);
+                        //check in table is field is empty and then translate
+                        if($product_translation->title == ''){
+                            $title = self::translateProducts($googleTranslate, $language, $productNames);
+                            $product_translation->title = $title;
+                        }
+                        if($product_translation->description == ''){
+                            $description = self::translateProducts($googleTranslate, $language, $productShortDescription);
+                            $product_translation->description = $description;
+                        }
+                        if($product_translation->composition == ''){
+                            $composition = self::translateProducts($googleTranslate, $language, [$product->composition]);
+                            $product_translation->composition = $composition;
+                        }
+                        if($product_translation->color == ''){
+                            $color = self::translateProducts($googleTranslate, $language, [$product->color]);
+                            $product_translation->color = $color;
+                        }
+                        /*if(!$checkdata || $checkdata->size==''){
+                            $size = self::translateProducts($googleTranslate, $language, [$product->size]);
+                            $product_translation->size = $size;
+                        }*/
+                        if($product_translation->country_of_manufacture == ''){
+                            $country_of_manufacture = self::translateProducts($googleTranslate, $language, [$product->made_in]);
+                            $product_translation->country_of_manufacture = $country_of_manufacture;
+                        }
+                        if($product_translation->dimension == ''){
+                            $dimension = self::translateProducts($googleTranslate, $language, [$measurement]);
+                            $product_translation->dimension = $dimension;
+                        }
+                        $product_translation->product_id = $product->id;
+                        $product_translation->locale = $language;
+                        $product_translation->save();
+                    }else{
+                        $msg = 'Languages data '.$language.' not exists';
+
+                    //    $logId = LogListMagento::log($product->id, $msg, 'info');
+                        ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logid);
+                    }
+                }
+            }else{
+                $msg = 'Languages data not exists';
+
+                //$logId = LogListMagento::log($product->id, $msg, 'info');
+                ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logid);
+            }
+        } catch (\Exception $e) {
+            $msg = 'Internal server error';
+
+            //$logId = LogListMagento::log($product->id, $msg, 'info');
+            ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logid);
+        }
     }
 
     public static function translateProducts(GoogleTranslate $googleTranslate,$language,$names = [],$glue=''){
