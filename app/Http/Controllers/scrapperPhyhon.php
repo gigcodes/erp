@@ -80,11 +80,120 @@ class scrapperPhyhon extends Controller
      */
     public function index(Request $request)
     {
-        $websiteList = WebsiteStore::with('scrapperImage')->latest();
-        $websiteListRow = $websiteList->paginate(Setting::get('pagination'));
-        $websiteList = $websiteList->get()->toArray();
+         $query=$request->search;
+
+         $websites=new Website;
+         if($request->website)
+         {
+           $websites= $websites->where('id',$request->website);
+         }
+
+         if($request->store)
+         {
+            $websites=$websites->WhereHas('stores', function ($query) use ($request) {
+
+                         $query->where('id', 'like', $request->store);
+
+                        });     
+         }
+
+
+         if($request->search)
+         {
+            $search='%'.$request->search.'%';
+
+            
+
+           $websites= $websites->where('name','like',$search);
+
+
+
+           $websites= $websites->orWhereHas('stores', function ($query) use ($search) {
+
+                         $query->where('name', 'like', $search);
+
+                        });     
+
+
+            //$websites=$websites->paginate(Setting::get('pagination'));
+
+         }
+
+         
+             $websites=$websites->paginate(Setting::get('pagination'));
+         
+
+         $allWebsites=Website::select('name','id')->get();
+
+       //  echo '<pre>';print_r($websites->toArray());die;
+
+       
+       // $websiteList = WebsiteStore::with('scrapperImage')->latest();
+       //  $websiteListRow = $websiteList->paginate(Setting::get('pagination'));
+       // $websiteList = $websiteList->get()->toArray();
         // dd( $websiteList[0]['scrapper_image'] );
-        return view('scrapper-phyhon.list', compact('websiteList','websiteListRow'));
+
+      //  echo '<pre>';print_r($websites->toArray());die;
+        return view('scrapper-phyhon.list', compact('websites','query','allWebsites','request'));
+    }
+
+    public function setDefaultStore(int $website=0,int $store=0,$checked=0)
+    {
+        if($website && $store)
+        {
+           try {
+
+            if($checked)
+            {
+
+              WebsiteStore::where('website_id',$website)->update(['is_default'=>0]);
+
+              
+            }
+
+
+           $store=WebsiteStore::find($store);
+
+           $store->is_default=$checked;
+
+           $store->save();
+
+           $response=array('status'=>1,'message'=>'The store state is changed.');
+               
+           } catch (Exception $e) {
+
+           $response=array('status'=>0,'message'=>$e->getMessage());
+            
+               
+           }
+
+           return $response;
+
+        }
+    }
+
+    public function websiteStoreList(int $website=0)
+    {
+        try {
+
+            if($website)
+            {
+                $stores=WebsiteStore::where('website_id',$website)->select('name','id')->get();
+
+                $response=array('status'=>1,'list'=>$stores);
+            }
+
+            
+
+
+            
+        } catch (Exception $e) {
+
+            $response=array('status'=>0,'message'=>$e->getMessage());
+            
+        }
+
+        return $response;
     }
 
 }
