@@ -62,6 +62,8 @@ Route::prefix('googlewebmaster')->group(static function () {
     
     Route::get('get-access-token','GoogleWebMasterController@googleLogin')->name('googlewebmaster.get-access-token') ;
     Route::get('/index', 'GoogleWebMasterController@index')->name('googlewebmaster.index');
+
+    Route::get('update/sites/data','GoogleWebMasterController@updateSitesData')->name('update.sites.data');
    
 });
 

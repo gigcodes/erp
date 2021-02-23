@@ -21,10 +21,14 @@
 
     <div class="row">
         <div class="col-md-12">
+          @php if(isset($details)) {echo '<pre>';print_r($details);} @endphp
             <table id="table" class="table table-striped table-bordered">
                 <thead>
                 
                       <span><a class="btn btn-secondary pull-right m-2" href="{{route('googlewebmaster.get-access-token')}}"> Refresh Record</a></span>
+                      
+
+
                     <tr>
                         <th>S.N</th>
                         <th>Site URL</th>
