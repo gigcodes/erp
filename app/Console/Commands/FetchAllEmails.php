@@ -11,6 +11,10 @@ use App\Supplier;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Webklex\IMAP\Client;
+use EmailReplyParser\Parser\EmailParser;
+use App\ChatMessagesQuickData;
+use App\ChatMessage;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @author Sukhwinder <sukhwinder@sifars.com>
@@ -219,29 +223,40 @@ class FetchAllEmails extends Command
                         ];
                         EmailRunHistories::create($historyParam);
 
-                        /*if ($type['type'] == 'incoming') {
-                        $message = trim($content);
-                        $reply = \App\WatsonAccount::getReply($message);
-                        if ($reply) {
-                        $params = [
-                        'model_id' => $model_id,
-                        'model_type' => $model_type,
-                        'origin_id' => $origin_id,
-                        'reference_id' => $reference_id,
-                        'type' => 'outgoing',
-                        'seen' => $email->getFlags()['seen'],
-                        'from' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                        'to' => $email->getFrom()[0]->mail,
-                        'subject' => $email->getSubject(),
-                        'message' => $reply,
-                        'template' => 'customer-simple',
-                        'additional_data' => json_encode(['attachment' => []]),
-                        'created_at' => $email->getDate(),
-                        'approve_mail' => 1,
-                        ];
-                        Email::create($params);
+                        if ($type['type'] == 'incoming') {
+                            $message = trim($content);
+
+                            $reply    = \App\WatsonAccount::getReply($message);
+
+                            $reply    = (new EmailParser())->parse($reply);
+                            $fragment = current($reply->getFragments());
+                            
+                            if ($reply) {
+                                $params = [
+                                    'model_id' => $model_id,
+                                    'model_type' => $model_type,
+                                    'origin_id' => $origin_id,
+                                    'reference_id' => $reference_id,
+                                    'type' => 'outgoing',
+                                    'seen' => $email->getFlags()['seen'],
+                                    'from' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                    'to' => $email->getFrom()[0]->mail,
+                                    'subject' => $email->getSubject(),
+                                    'message' => $fragment->getContent(),
+                                    'template' => 'customer-simple',
+                                    'additional_data' => json_encode(['attachment' => []]),
+                                    'created_at' => $email->getDate(),
+                                    'approve_mail' => 1,
+                                ];
+                                Email::create($params);
+                            }
                         }
-                        }*/
+                        $customer = \App\customers::where( 'email' , $email->getFrom()[0]->mail )->get();
+
+                        if ( !empty( $customer ) ) {
+                            \App\Helpers\MessageHelper::whatsAppSend( $customer , $fragment->getContent() );
+                            \App\Helpers\MessageHelper::sendwatson( $customer , $fragment->getContent() );
+                        }
                         //}
                     }
                 }
@@ -405,4 +420,5 @@ class FetchAllEmails extends Command
         }
         fclose($file);
     }
+    
 }
