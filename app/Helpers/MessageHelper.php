@@ -246,7 +246,7 @@ class MessageHelper
      */
     public static function sendwatson($customer = null, $message = null, $sendMsg = null, $messageModel = null,$params = [])
     {
-
+        $isReplied = 0;
         if ((preg_match("/price/i", $message) || preg_match("/you photo/i", $message) || preg_match("/pp/i", $message) || preg_match("/how much/i", $message) || preg_match("/cost/i", $message) || preg_match("/rate/i", $message))) {
             if ($customer) {
 
@@ -331,74 +331,73 @@ class MessageHelper
                     'assigned_from' => 6,
                 ]);
             }
+        }
 
-            if (!empty($message)) {
+        if (!empty($message)) {
+            $replies = \App\ChatbotQuestion::join('chatbot_question_examples', 'chatbot_questions.id', 'chatbot_question_examples.chatbot_question_id')
+                ->join('chatbot_questions_reply', 'chatbot_questions.id', 'chatbot_questions_reply.chatbot_question_id')
+                ->where('chatbot_questions_reply.store_website_id', ($customer->store_website_id) ? $customer->store_website_id : 1)
+                ->select('chatbot_questions.value', 'chatbot_questions.keyword_or_question', 'chatbot_questions.erp_or_watson', 'chatbot_questions.auto_approve', 'chatbot_question_examples.question', 'chatbot_questions_reply.suggested_reply')
+                ->where('chatbot_questions.erp_or_watson', 'erp')
+                ->get();
 
-                $replies = \App\ChatbotQuestion::join('chatbot_question_examples', 'chatbot_questions.id', 'chatbot_question_examples.chatbot_question_id')
-                    ->join('chatbot_questions_reply', 'chatbot_questions.id', 'chatbot_questions_reply.chatbot_question_id')
-                    ->where('chatbot_questions_reply.store_website_id', ($customer->store_website_id) ? $customer->store_website_id : 1)
-                    ->select('chatbot_questions.value', 'chatbot_questions.keyword_or_question', 'chatbot_questions.erp_or_watson', 'chatbot_questions.auto_approve', 'chatbot_question_examples.question', 'chatbot_questions_reply.suggested_reply')
-                    ->where('chatbot_questions.erp_or_watson', 'erp')
-                    ->get();
+            
 
-                $isReplied = 0;
+            if ($messageModel) {
+                $chatbotReply = \App\ChatbotReply::create([
+                    "question"        => $message,
+                    "replied_chat_id" => $messageModel->id,
+                ]);
 
-                if ($messageModel) {
-                    $chatbotReply = \App\ChatbotReply::create([
-                        "question"        => $message,
-                        "replied_chat_id" => $messageModel->id,
-                    ]);
+                foreach ($replies as $reply) {
+                    if ($message != '' && $customer) {
+                        $keyword = $reply->question;
+                        if (($keyword == $message || strpos(strtolower(trim($keyword)), strtolower(trim($message))) !== false) && $reply->suggested_reply) {
+                            /*if($reply->auto_approve) {
+                            $status = 2;
+                            }
+                            else {
+                            $status = 8;
+                            }*/
+                            $status                     = ChatMessage::CHAT_AUTO_WATSON_REPLY;
+                            $temp_params                = $params;
+                            $temp_params['message']     = $reply->suggested_reply;
+                            $temp_params['media_url']   = null;
+                            $temp_params['status']      = $status;
+                            $temp_params['question_id'] = $reply->id;
 
-                    foreach ($replies as $reply) {
-                        if ($message != '' && $customer) {
-                            $keyword = $reply->question;
-                            if (($keyword == $message || strpos(strtolower(trim($keyword)), strtolower(trim($message))) !== false) && $reply->suggested_reply) {
-                                /*if($reply->auto_approve) {
-                                $status = 2;
-                                }
-                                else {
-                                $status = 8;
-                                }*/
-                                $status                     = ChatMessage::CHAT_AUTO_WATSON_REPLY;
-                                $temp_params                = $params;
-                                $temp_params['message']     = $reply->suggested_reply;
-                                $temp_params['media_url']   = null;
-                                $temp_params['status']      = $status;
-                                $temp_params['question_id'] = $reply->id;
+                            // Create new message
+                            $message = ChatMessage::create($temp_params);
 
-                                // Create new message
-                                $message = ChatMessage::create($temp_params);
+                            if ($message->status == ChatMessage::CHAT_AUTO_WATSON_REPLY) {
+                                $chatbotReply->chat_id    = $message->id;
+                                $chatbotReply->answer     = $reply->suggested_reply;
+                                $chatbotReply->reply      = '{"output":{"database":[{"response_type":"text","text":"' . $reply->suggested_reply . '"}]}}';
+                                $chatbotReply->reply_from = 'erp';
+                                $chatbotReply->save();
+                            }
 
-                                if ($message->status == ChatMessage::CHAT_AUTO_WATSON_REPLY) {
-                                    $chatbotReply->chat_id    = $message->id;
-                                    $chatbotReply->answer     = $reply->suggested_reply;
-                                    $chatbotReply->reply      = '{"output":{"database":[{"response_type":"text","text":"' . $reply->suggested_reply . '"}]}}';
-                                    $chatbotReply->reply_from = 'erp';
-                                    $chatbotReply->save();
-                                }
-
-                                // Send message if all required data is set
-                                if ($temp_params['message'] || $temp_params['media_url']) {
-                                    if ($status == 2) {
-                                        $sendResult = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone, isset($instanceNumber) ? $instanceNumber : null, $temp_params['message'], $temp_params['media_url']);
-                                        if ($sendResult) {
-                                            $message->unique_id = $sendResult['id'] ?? '';
-                                            $message->save();
-                                        }
+                            // Send message if all required data is set
+                            if ($temp_params['message'] || $temp_params['media_url']) {
+                                if ($status == 2) {
+                                    $sendResult = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone, isset($instanceNumber) ? $instanceNumber : null, $temp_params['message'], $temp_params['media_url']);
+                                    if ($sendResult) {
+                                        $message->unique_id = $sendResult['id'] ?? '';
+                                        $message->save();
                                     }
-                                    $isReplied = 1;
-                                    break;
                                 }
+                                $isReplied = 1;
+                                break;
                             }
                         }
                     }
                 }
+            }
 
-                // assigned the first storewebsite to default erp customer
-                $customer->store_website_id = ($customer->store_website_id > 0) ? $customer->store_website_id : 1;
-                if (!$isReplied && $customer->store_website_id) {
-                    WatsonManager::sendMessage($customer, $message, false, null, $messageModel);
-                }
+            // assigned the first storewebsite to default erp customer
+            $customer->store_website_id = ($customer->store_website_id > 0) ? $customer->store_website_id : 1;
+            if (!$isReplied && $customer->store_website_id) {
+                WatsonManager::sendMessage($customer, $message, false, null, $messageModel);
             }
         }
     }

@@ -251,12 +251,12 @@ class FetchAllEmails extends Command
                                 Email::create($params);
                             }
                         }
-                        $customer = \App\customers::where( 'email' , $email->getFrom()[0]->mail )->get();
+                        /*$customer = \App\customers::where( 'email' , $email->getFrom()[0]->mail )->get();
 
                         if ( !empty( $customer ) ) {
                             \App\Helpers\MessageHelper::whatsAppSend( $customer , $fragment->getContent() );
                             \App\Helpers\MessageHelper::sendwatson( $customer , $fragment->getContent() );
-                        }
+                        }*/
                         //}
                     }
                 }
