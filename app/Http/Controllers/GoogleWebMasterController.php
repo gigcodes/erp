@@ -21,6 +21,7 @@ class GoogleWebMasterController extends Controller
      public function googleLogin(Request $request)  {
 
             $google_redirect_url = route('googlewebmaster.get-access-token');
+			
 
             $gClient = new \Google_Client();
 
