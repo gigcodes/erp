@@ -1508,9 +1508,7 @@ class WhatsAppController extends FindByNumberController
                 $to = $config[0]['number'];
             }
             if ($customer) {
-
-                \App\Helpers\MessageHelper::whatsAppSend( $cutomer, $params['message'], true );
-                
+                \App\Helpers\MessageHelper::whatsAppSend( $cutomer, $customer['message'], true );
             }
             // Is this message from a customer?
             if ($customer && $isCustomerNumber) {
@@ -1609,7 +1607,7 @@ class WhatsAppController extends FindByNumberController
                 if ($params['customer_id'] != '1000' && $params['customer_id'] != '976' && array_key_exists('message', $params) && (preg_match("/price/i", $params['message']) || preg_match("/you photo/i", $params['message']) || preg_match("/pp/i", $params['message']) || preg_match("/how much/i", $params['message']) || preg_match("/cost/i", $params['message']) || preg_match("/rate/i", $params['message']))) {
                     if ($customer = Customer::find($params['customer_id'])) {
                         
-                        \App\Helpers\MessageHelper::sendwatson( $cutomer, $params['message'], true );
+                        \App\Helpers\MessageHelper::sendwatson( $customer, $params['message'], true );
                         
                     }
                 }
