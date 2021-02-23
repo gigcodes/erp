@@ -502,6 +502,8 @@ class DialogController extends Controller
     {
 //        dd('jhkj');
         $parentId = $request->get("parent_id", 0);
+        $keyword = $request->get("search", NULL);
+
         $chatDialog = ChatbotDialog::leftJoin("chatbot_dialog_responses as cdr", "cdr.chatbot_dialog_id", "chatbot_dialogs.id")
             ->select("chatbot_dialogs.*", \DB::raw("count(cdr.chatbot_dialog_id) as `total_response`"), "cdr.value as dialog_response")
             // ->where("chatbot_dialogs.response_type", "standard")
@@ -510,6 +512,12 @@ class DialogController extends Controller
             ->orderBy("chatbot_dialogs.previous_sibling", "asc");
 
         $chatDialog = $chatDialog->where("parent_id", $parentId);
+
+        if(!empty($keyword)) {
+            $chatDialog = $chatDialog->where(function($q) use($keyword) {
+                $q->orWhere("cdr.value","like","%".$keyword."%")->orWhere("chatbot_dialogs.name","like","%".$keyword."%");
+            });
+        }
 
         $chatDialog      = $chatDialog->get();
         // $chatDialogArray = array_column($chatDialog->toArray(), null, 'previous_sibling');
