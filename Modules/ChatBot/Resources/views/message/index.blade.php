@@ -250,5 +250,43 @@
 
         });
 
+        $(document).on('click', '.send-message1', function () {
+            var thiss = $(this);
+            var data = new FormData();
+            var customer_id = $(this).data('customer-id');
+
+            var message = thiss.closest(".cls_textarea_subbox").find("textarea").val();
+            data.append("customer_id", customer_id);
+            data.append("message", message);
+            data.append("status", 1);
+
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        url: BASE_URL+'/whatsapp/sendMessage/customer',
+                        type: 'POST',
+                        "dataType": 'json',           // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function () {
+                            $(thiss).attr('disabled', true);
+
+                        }
+                    }).done(function (response) {
+                        $(thiss).attr('disabled', false);
+                        thiss.closest(".cls_textarea_subbox").find("textarea").val("");
+                        toastr['success']("Message sent successfully", 'success');
+
+                    }).fail(function (errObj) {
+                       
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+        });
+
     </script>
 @endsection

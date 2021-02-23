@@ -49,7 +49,7 @@ class QuestionController extends Controller
 
         $chatQuestions = $chatQuestions->groupBy("chatbot_questions.id")
             ->orderBy("chatbot_questions.id", "desc")
-            ->paginate(10)->appends(request()->except(['page','_token']));
+            ->paginate(24)->appends(request()->except(['page','_token']));
 
         $allCategory = ChatbotCategory::all();
         $allCategoryList = [];

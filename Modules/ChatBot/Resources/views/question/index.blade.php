@@ -97,7 +97,10 @@
 				      <td><?php echo $chatQuestion->id; ?></td>
 				      <td><?php echo $chatQuestion->value; ?></td>
 				      <td><?php echo $chatQuestion->keyword_or_question; ?></td>
-					  <td><?php echo $chatQuestion->questions; ?></td>
+                      <?php
+                        $listOfQuestions = explode(",", $chatQuestion->questions);
+                      ?>
+					  <td><?php echo implode("</br>",$listOfQuestions); ?></td>
                       <td><?php echo $chatQuestion->erp_or_watson; ?></td>
                       <td>
 					  @if(request('store_website_id'))

@@ -2194,7 +2194,7 @@ class WhatsAppController extends FindByNumberController
         // $params['status'] = 1;
 
         if ($context == 'customer') {
-            $data['customer_id'] = $request->customer_id;
+            $data['customers_id'] = $request->customer_id;
             $module_id = $request->customer_id;
             //update if the customer message is going to send then update all old message to read
             \App\ChatMessage::updatedUnreadMessage($request->customer_id, $data["status"]);
