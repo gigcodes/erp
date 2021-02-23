@@ -19,6 +19,7 @@ use \App\ChatbotKeywordValue;
 use App\WatsonAccount;
 use App\WatsonWorkspace;
 use App\ChatbotErrorLog;
+use App\ChatMessage;
 class Model
 {
 
