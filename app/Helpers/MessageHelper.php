@@ -244,10 +244,10 @@ class MessageHelper
      * @param $message [ string ]
      * @return mixed
      */
-    public static function sendwatson($customer = null, $message = null, $sendMsg = null, $messageModel = null)
+    public static function sendwatson($customer = null, $message = null, $sendMsg = null, $messageModel = null,$params = [])
     {
 
-        if (array_key_exists('message', $message) && (preg_match("/price/i", $message) || preg_match("/you photo/i", $message) || preg_match("/pp/i", $message) || preg_match("/how much/i", $message) || preg_match("/cost/i", $message) || preg_match("/rate/i", $message))) {
+        if ((preg_match("/price/i", $message) || preg_match("/you photo/i", $message) || preg_match("/pp/i", $message) || preg_match("/how much/i", $message) || preg_match("/cost/i", $message) || preg_match("/rate/i", $message))) {
             if ($customer) {
 
                 // send price from meessage queue
@@ -350,7 +350,7 @@ class MessageHelper
                     ]);
 
                     foreach ($replies as $reply) {
-                        if ($message != '' && $customer && array_key_exists('message', $params)) {
+                        if ($message != '' && $customer) {
                             $keyword = $reply->question;
                             if (($keyword == $message || strpos(strtolower(trim($keyword)), strtolower(trim($message))) !== false) && $reply->suggested_reply) {
                                 /*if($reply->auto_approve) {
