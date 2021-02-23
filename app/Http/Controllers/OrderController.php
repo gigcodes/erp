@@ -277,7 +277,6 @@ class OrderController extends Controller {
            ->orWhere('sales_person',Helpers::getUserIdByName($term))
            ->orWhere('received_by',Helpers::getUserIdByName($term))
            ->orWhere('client_name','like','%'.$term.'%')
-           ->orWhere('city','like','%'.$term.'%')
            ->orWhere('order_status_id',(new \App\ReadOnly\OrderStatus())->getIDCaseInsensitive($term));
         }
         if ($order_status[0] != '') {
