@@ -753,8 +753,8 @@ class CouponController extends Controller
             $local_rules->apply_to_shipping = $request->apply_to_shipping;
             $local_rules->simple_free_shipping  = 0;
             if($local_rules->save()){
+                WebsiteStoreViewValue::where('rule_id',$request->rule_id)->delete();
                 foreach($request->store_labels as $key => $label){
-                    WebsiteStoreViewValue::where('rule_id',$request->rule_id)->delete();
                     $store_view_value = new WebsiteStoreViewValue();
                     $store_view_value->rule_id = $local_rules->id;
                     $store_view_value->store_view_id = $key;
