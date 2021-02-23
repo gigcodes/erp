@@ -137,7 +137,7 @@ class MessageHelper
      * @param $message  [ string ]
      * @return mixed
      */
-    public function whatsAppSend( $customer = null, $message = null, $sendMsg = null )
+    public static function whatsAppSend( $customer = null, $message = null, $sendMsg = null )
     {
         if ($customer) {
             // $exp_mesaages = explode(" ", $message);
@@ -242,7 +242,7 @@ class MessageHelper
      * @param $message [ string ]
      * @return mixed
      */
-    public function sendwatson( $customer = null, $message = null, $sendMsg = null ){
+    public static function sendwatson( $customer = null, $message = null, $sendMsg = null ){
 
         if ( array_key_exists('message', $message) && (preg_match("/price/i", $message) || preg_match("/you photo/i",$message) || preg_match("/pp/i", $message) || preg_match("/how much/i", $message) || preg_match("/cost/i", $message) || preg_match("/rate/i", $message))) {
             if ($customer = Customer::find( $customer )) {
