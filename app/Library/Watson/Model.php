@@ -578,7 +578,7 @@ class Model
             // if response is valid then check ahead
             if ($chatResponse->isValid()) {
                 $result = $chatResponse->assignAction();
-                
+                \Log::channel('chatapi')->info("##CHAT_ACTION## ".json_encode($result));
                 if (!empty($result)) {
                     if (!empty($result["action"])) {
                         // assign params
