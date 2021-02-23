@@ -1606,7 +1606,7 @@ class WhatsAppController extends FindByNumberController
                 // Auto Instruction
                 if ($params['customer_id'] != '1000' && $params['customer_id'] != '976') {
                     if ($customer = Customer::find($params['customer_id'])) {
-                        \App\Helpers\MessageHelper::sendwatson( $customer, $params['message'], true, $message);
+                        \App\Helpers\MessageHelper::sendwatson( $customer, $params['message'], true, $message , $params);
                     }
                 }
                 //Auto reply
