@@ -35,7 +35,7 @@
                     <textarea rows="1" class="form-control quick-message-field cls_quick_message" data-customer-id="{{ $pam->customer_id }}" name="message" placeholder="Message"></textarea>
                 </div>
                 <div class="col-md-1 cls_remove_allpadding">
-                    <button class="btn btn-sm btn-image send-message1" data-customer-id="{{ $pam->customer_id }}"><img src="http://pravin.sololux/images/filled-sent.png"></button>
+                    <button class="btn btn-sm btn-image send-message1" data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
                 </div>
             </div>
         </td>
