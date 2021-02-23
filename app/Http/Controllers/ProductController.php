@@ -69,6 +69,7 @@ use App\ProductStatusHistory;
 use App\Status;
 use App\ProductSupplier;
 use Qoraiche\MailEclipse\MailEclipse;
+use Illuminate\Support\Facades\Artisan;
 
 class ProductController extends Controller
 {
@@ -3165,7 +3166,10 @@ class ProductController extends Controller
             $product->save();
         }
 
-
+        $exitCode = Artisan::call('RejectDuplicateImages', [
+            'media_id' => $request->get('media_id'), 'product_id' => $request->get('product_id')
+        ]);
+        
         return response()->json([
             'status' => 'success'
         ]);
