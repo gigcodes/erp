@@ -2242,6 +2242,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'checkout'], function () {
     Route::post('/rule-details','CouponController@getCouponCodeRuleById')->name('rule_details');
     Route::post('/sales-rules-update','CouponController@updateRules')->name('salesrules.update');
     Route::post('/generate-code','CouponController@generateCouponCode')->name('generateCode');
+    Route::post('/getWebsiteByStore','CouponController@getWebsiteByStore')->name('getWebsiteByStore');
 });
 
 Route::get('keywordassign', 'KeywordassignController@index')->name('keywordassign.index');
