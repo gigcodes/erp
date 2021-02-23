@@ -183,7 +183,7 @@ class WhatsAppController extends FindByNumberController
                 $message = ChatMessage::create($params);
 
                 if ($params['message']) {
-                    (new KeywordsChecker())->assignCustomerAndKeywordForNewMessage($params['message'], $customer);
+                    (new \App\KeywordsChecker())->assignCustomerAndKeywordForNewMessage($params['message'], $customer);
                 }
 
                 $model_type = 'customers';
@@ -1508,7 +1508,7 @@ class WhatsAppController extends FindByNumberController
                 $to = $config[0]['number'];
             }
             if ($customer) {
-                \App\Helpers\MessageHelper::whatsAppSend( $customer, $customer['message'], true );
+                \App\Helpers\MessageHelper::whatsAppSend( $customer, $customer['message'], true , $message);
             }
             // Is this message from a customer?
             if ($customer && $isCustomerNumber) {
@@ -1604,11 +1604,9 @@ class WhatsAppController extends FindByNumberController
                 }
 
                 // Auto Instruction
-                if ($params['customer_id'] != '1000' && $params['customer_id'] != '976' && array_key_exists('message', $params) && (preg_match("/price/i", $params['message']) || preg_match("/you photo/i", $params['message']) || preg_match("/pp/i", $params['message']) || preg_match("/how much/i", $params['message']) || preg_match("/cost/i", $params['message']) || preg_match("/rate/i", $params['message']))) {
+                if ($params['customer_id'] != '1000' && $params['customer_id'] != '976') {
                     if ($customer = Customer::find($params['customer_id'])) {
-                        
-                        \App\Helpers\MessageHelper::sendwatson( $customer, $params['message'], true );
-                        
+                        \App\Helpers\MessageHelper::sendwatson( $customer, $params['message'], true, $message);
                     }
                 }
                 //Auto reply
