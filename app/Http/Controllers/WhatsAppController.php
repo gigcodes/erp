@@ -1353,6 +1353,9 @@ class WhatsAppController extends FindByNumberController
                 ]);
 
                 // this is for testing only please do not proceed with the below line
+                
+                WatsonManager::sendMessage($customer,$params['message'],false , null , $message);
+                die;
             }
 
             // Is there a user linked to this number?
