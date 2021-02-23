@@ -2686,6 +2686,8 @@ Route::prefix('system')->middleware('auth')->group(static function () {
 // DEV MANISH
 Route::get('google-keyword-search', 'GoogleAddWord\googleAddsController@index')->name('google-keyword-search');
 
+Route::resource('google-traslation-settings', 'GoogleTraslationSettingsController');
+
 // DEV MANISH
 //System size
 Route::group(['middleware' => 'auth', 'admin'], function () {
