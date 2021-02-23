@@ -85,6 +85,7 @@
 			      <th class="th-sm" style="width:13%">Intent / entity</th>
 			      <th class="th-sm" style="width:5%">Type</th>
 			      <th class="th-sm" style="width:30%">User Intent / entity</th>
+                  <th class="th-sm" style="width:10%">Erp/Watson</th>
                   <th class="th-sm" style="width:30%">Suggested Response</th>
 			      <th class="th-sm" style="width:9%">Category</th>
 			      <th class="th-sm" style="width:8%">Action</th>
@@ -97,6 +98,7 @@
 				      <td><?php echo $chatQuestion->value; ?></td>
 				      <td><?php echo $chatQuestion->keyword_or_question; ?></td>
 					  <td><?php echo $chatQuestion->questions; ?></td>
+                      <td><?php echo $chatQuestion->erp_or_watson; ?></td>
                       <td>
 					  @if(request('store_website_id'))
 					  <?php 
