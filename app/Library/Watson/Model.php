@@ -574,10 +574,11 @@ class Model
                 }
             }
             $chatResponse = new ResponsePurify($result, $customer);
+            \Log::channel('chatapi')->info(json_encode($chatResponse));
             // if response is valid then check ahead
             if ($chatResponse->isValid()) {
                 $result = $chatResponse->assignAction();
-                \Log::channel('chatapi')->info(print_r($result, true));
+                
                 if (!empty($result)) {
                     if (!empty($result["action"])) {
                         // assign params

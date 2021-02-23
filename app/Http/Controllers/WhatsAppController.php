@@ -1304,6 +1304,9 @@ class WhatsAppController extends FindByNumberController
             $params['dubbizle_id'] = $dubbizleId;
             $params['customer_id'] = $customerId;
 
+            
+
+
             if (!empty($user) || !empty($contact) || !empty($supplier) || !empty($vendor) || !empty($dubbizle) || !empty($customer)) {
 
                 // check that if message comes from customer,supplier,vendor
@@ -1328,6 +1331,8 @@ class WhatsAppController extends FindByNumberController
                     }
                 }
                 $message = ChatMessage::create($params);
+
+
             } else {
                 // create a customer here
                 $customer = Customer::create([
@@ -1346,6 +1351,10 @@ class WhatsAppController extends FindByNumberController
                     'last_unread_message_at' => Carbon::now(),
                     'last_unread_message_id' => $message->id,
                 ]);
+
+                // this is for testing only please do not proceed with the below line
+                WatsonManager::sendMessage($customer,$params['message'],false , null , $message);
+                die;
             }
 
             // Is there a user linked to this number?

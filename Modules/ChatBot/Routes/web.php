@@ -39,6 +39,8 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
         Route::get('/search', 'QuestionController@search')->name("chatbot.question.search");
         Route::get('/category', 'QuestionController@getCategories')->name("chatbot.question.category");
         Route::get('/search-category', 'QuestionController@searchCategory')->name("chatbot.question.search-category");
+        Route::get('/search-suggestion', 'QuestionController@searchSuggestion')->name("chatbot.question.search-suggetion");
+        Route::post('/search-suggestion-delete', 'QuestionController@searchSuggestionDelete')->name("chatbot.question.search-suggetion-delete");
         Route::post('/change-category', 'QuestionController@changeCategory')->name("chatbot.question.change-category");
         Route::get('/keyword/search', 'QuestionController@searchKeyword')->name("chatbot.question.keyword.search");
         Route::post('/reply/add', 'QuestionController@addReply')->name("chatbot.question.reply.add");

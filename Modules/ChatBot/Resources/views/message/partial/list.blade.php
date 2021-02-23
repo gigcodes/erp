@@ -6,8 +6,8 @@
         <th width="15%">User input</th>
         <th width="15%">Bot Replied</th>
         <th width="15%">From</th>
-        <th width="15%">Created</th>
         <th width="30%">Images</th>
+        <th width="15%">Created</th>
         <th width="5%">Action</th>
     </tr>
     </thead>
