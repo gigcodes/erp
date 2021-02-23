@@ -97,7 +97,7 @@
                                         <div class="form-group row {{ $class }}">
                                             <label for="start" class="col-sm-3 col-form-label">Coupon Code</label>
                                             <div class="col-sm-8">
-                                                <input type="text" class="form-control" name="code_edit" placeholder="Code" id="coupon_code_edit" value="" {{ $result->use_auto_generation ? "disabled" : "" }} />
+                                                <input type="text" class="form-control" name="code_edit" placeholder="Code" id="coupon_code_edit" value="{{ $result->coupon_code }}" {{ $result->use_auto_generation ? "disabled" : "" }} />
                                                 @if ($errors->has('code'))
                                                 <div class="alert alert-danger">{{$errors->first('code')}}</div>
                                                 @endif
@@ -171,7 +171,7 @@
                                         <div class="form-group row">
                                             <label for="start" class="col-sm-3 col-form-label">Priority</label>
                                             <div class="col-sm-8">
-                                                <input type="text" class="form-control" name="priority_edit" placeholder="" id="" />
+                                                <input type="text" class="form-control" name="priority_edit" placeholder="" id="" value="{{ $result->priority }}" />
                                                 @if ($errors->has('priority'))
                                                 <div class="alert alert-danger">{{$errors->first('priority')}}</div>
                                                 @endif
@@ -231,7 +231,7 @@
                                                             <input type="text" class="form-control" name="store_labels[{{$view->id}}]" placeholder="" value="{{ isset($web_arr[$view->id]) ? $web_arr[$view->id] : "" }}" />
                                                         </div>
                                                     </div>
-                                                    @endforeach                  
+                                                    @endforeach
                                                 </div>
                                             </div>
                                             @endforeach
@@ -316,6 +316,37 @@
 
                                         
                                         <button type="button" class="btn btn-primary generate-code" style="margin-left:50%;">Generate</button>
+
+                                        <div class="" style="margin-top:10px;"> 
+                                                <h3>Coupon Codes</h3>
+                                                <hr>
+                                            <div class="table-responsive">
+                                                <table class="table table-striped table-bordered" style="width: 99%" id="coupon_table1">
+                                                    <thead>
+                                                        <tr>
+                                                            <th width="15%">ID</th>
+                                                            <th>Code</th>
+                                                            <th>Created</th>
+                                                            <th>Expiration Date</th>
+                                                            <th>uses</th>
+                                                            <th>Times Used</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach($codes as $code)
+                                                                <tr>
+                                                                    <td>{{ $code->id }}</td>
+                                                                    <td>{{ $code->code }}</td>
+                                                                    <td>{{ $code->start }}</td>
+                                                                    <td>{{ $code->expiration }}</td>
+                                                                    <td>{{ $code->uses }}</td>
+                                                                    <td>{{ $code->usage_count }}</td>
+                                                                </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -323,12 +354,12 @@
                             <div class="panel panel-default">
                                 <div class="panel-heading" role="tab" id="headingFour">
                                     <h4 class="panel-title">
-                                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
-                                    Actions
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion1" href="#collapseFour4" aria-expanded="false" aria-controls="collapseFour4">
+                                        Actions
                                     </a>
                                     </h4>
                                 </div>
-                                <div id="collapseFour" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingFour">
+                                <div id="collapseFour4" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
                                     <div class="panel-body">
                                             <div class="form-group row">
                                                 <label for="start" class="col-sm-3 col-form-label ">Apply</label>

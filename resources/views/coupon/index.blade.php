@@ -696,7 +696,7 @@ form label.required:after{
                     <tr data-id="{{ $rule_list->id }}" data-coupon-type="{{ $rule_list->coupon_type }}" onClick="displayCouponCodeModal(this);">
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $rule_list->name }}</td>
-                            <td>{{ $rule_list->code }}</td>
+                            <td>{{ $rule_list->coupon_code }}</td>
                             <td>{{ $rule_list->website_ids }}</td>
                             <td>{{ $rule_list->from_date }}</td>
                             <td>{{ $rule_list->to_date }}</td>
@@ -709,21 +709,16 @@ form label.required:after{
 </div>
 <hr>
 
-<div class="row">
+<div class="row" style="display:none;">
     <div class="table-responsive">
         <table class="table table-striped table-bordered" style="width: 99%" id="coupon_table">
             <thead>
                 <tr>
                     <th width="15%">Code</th>
-                    <th width="20%">Description</th>
-                    <th>Expiration</th>
-                    <th>Discount</th>
-                    <th>Minimum Order Amount</th>
-                    <th>Maximum Usage</th>
-                    <th>Usage</th>
-                    <th>Initial Amount</th>
-                    <th>Email</th>
-                    <th width="10%">Actions</th>
+                    <th width="20%">Created</th>
+                    <th>Expiration Date</th>
+                    <th>Uses</th>
+                    <th>Times Used</th>
                 </tr>
             </thead>
         </table>
@@ -754,14 +749,14 @@ form label.required:after{
         $('#expiration').datetimepicker({
             format: 'YYYY-MM-DD HH:mm'
         });
-        $('#coupon_table').DataTable({
-            "processing": true,
-            "serverSide": true,
-            "ajax": {
-                url: '/checkout/coupons/load',
-                type: 'GET'
-            }
-        });
+        // $('#coupon_table').DataTable({
+        //     "processing": true,
+        //     "serverSide": true,
+        //     "ajax": {
+        //         url: '/checkout/coupons/load',
+        //         type: 'GET'
+        //     }
+        // });
         $('.dataTables_length').addClass('bs-select');
 
         $('input#report-date').daterangepicker();
@@ -1168,6 +1163,7 @@ form label.required:after{
                     if(response.status == "success"){
                         $('.edit-modal-section').html("");
                         $('.edit-modal-section').append(response.data.html);
+                        $(document).find('#coupon_table1').dataTable();
                         if(coupon_type == "NO_COUPON"){
                             $(document).find('.hide_div_edit').hide();
                         }else{
@@ -1258,6 +1254,7 @@ form label.required:after{
                 dash : $('#dash_edit').val()
             },
             success : function (response){
+                $(this).attr('disabled',false);
                 if(response.type == "error"){
                     alert("Something went wrong!");
                 }

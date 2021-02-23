@@ -56,11 +56,11 @@ class CouponController extends Controller
         $primaryKey = 'id';
         $columns = array(
             array('db' => 'id', 'dt' => $this->DATA_COLUMN_KEY),
-            array('db' => 'discount_fixed', 'dt' => -1),
-            array('db' => 'discount_percentage', 'dt' => -1),
-            array('db' => 'start', 'dt' => -1),
+            ///array('db' => 'discount_fixed', 'dt' => -1),
+            //array('db' => 'discount_percentage', 'dt' => -1),
+            array('db' => 'start', 'dt' => 1),
             array('db' => 'code', 'dt' => 0),
-            array('db' => 'description',  'dt' => 1),
+            //array('db' => 'description',  'dt' => 1),
             array('db' => 'expiration',   'dt' => 2),
             array(
                 'db'        => 'currency',
@@ -70,20 +70,21 @@ class CouponController extends Controller
                     if ($row['currency']) {
                         $discount .= $row['currency'] . ' ';
                     }
-                    if ($row['discount_fixed']) {
-                        $discount .= $row['discount_fixed'] . ' fixed plus ';
-                    }
-                    if ($row['discount_percentage']) {
-                        $discount .= $row['discount_percentage'] . '% discount';
-                    }
+                    // if ($row['discount_fixed']) {
+                    //     $discount .= $row['discount_fixed'] . ' fixed plus ';
+                    // }
+                    // if ($row['discount_percentage']) {
+                    //     $discount .= $row['discount_percentage'] . '% discount';
+                    // }
                     return $discount;
                 }
             ),
-            array('db' => 'minimum_order_amount',   'dt' => 4),
-            array('db' => 'maximum_usage',   'dt' => 5),
-            array('db' => 'usage_count',   'dt' => 6),
-            array('db' => 'initial_amount',   'dt' => 7),
-            array('db' => 'email',   'dt' => 8),
+            //array('db' => 'minimum_order_amount',   'dt' => 4),
+            //array('db' => 'maximum_usage',   'dt' => 5),
+            array('db' => 'uses',   'dt' => 3),
+            array('db' => 'usage_count',   'dt' => 4),
+            //array('db' => 'initial_amount',   'dt' => 7),
+            //array('db' => 'email',   'dt' => 8),
             array(
                 'db' => 'id',
                 'dt' => 9,
@@ -91,7 +92,7 @@ class CouponController extends Controller
 
                     $id = $row['id'];
                     $code = $row['code'];
-                    $description = $row['description'];
+                    //$description = $row['description'];
                     $start = date('Y-m-d H:i', strtotime($row['start']));
                     if ($row['expiration']) {
                         $expiration = date('Y-m-d H:i', strtotime($row['expiration']));
@@ -99,43 +100,35 @@ class CouponController extends Controller
                         $expiration = '';
                     }
                     $currency = $row['currency'];
-                    $discountFixed = $row['discount_fixed'];
-                    $discountPercentage = $row['discount_percentage'];
-                    $minimumOrderAmount = $row['minimum_order_amount'];
-                    $maximumUsage = $row['maximum_usage'];
-                    $initialAmount = $row['initial_amount'];
-                    $email = $row['email'];
+                    //$discountFixed = $row['discount_fixed'];
+                    //$discountPercentage = $row['discount_percentage'];
+                    //$minimumOrderAmount = $row['minimum_order_amount'];
+                    //$maximumUsage = $row['maximum_usage'];
+                    //$initialAmount = $row['initial_amount'];
+                    //$email = $row['email'];
 
                     $functionCall = "(
                         '$id',
                         '$code',
-                        '$description',
                         '$start',
-                        '$expiration',
-                        '$currency',
-                        '$discountFixed',
-                        '$discountPercentage',
-                        '$minimumOrderAmount',
-                        '$maximumUsage',
-                        '$initialAmount',
-                        '$email'
+                        '$expiration'
                     )";
 
-                    return '<button title="edit" onclick="editCoupon' . $functionCall . '" class="btn btn-default">
-                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                    </button>
+                    // return '<button title="edit" onclick="editCoupon' . $functionCall . '" class="btn btn-default">
+                    //     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                    // </button>
 
-                    <button title="copy" onclick="copyCoupon' . $functionCall . '" class="btn btn-default">
-                        <span class="glyphicon glyphicon-duplicate" aria-hidden="true"></span>
-                    </button>
+                    // <button title="copy" onclick="copyCoupon' . $functionCall . '" class="btn btn-default">
+                    //     <span class="glyphicon glyphicon-duplicate" aria-hidden="true"></span>
+                    // </button>
 
-                    <button title="report" onclick="showReport' . $functionCall . '" class="btn btn-default">
-                        <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
-                    </button>
+                    // <button title="report" onclick="showReport' . $functionCall . '" class="btn btn-default">
+                    //     <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+                    // </button>
 
-                    <button title="delete" onclick="deleteCoupon' . $functionCall . '" class="btn btn-default">
-                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                    </button>';
+                    // <button title="delete" onclick="deleteCoupon' . $functionCall . '" class="btn btn-default">
+                    //     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    // </button>';
                 }
             )
         );
@@ -483,6 +476,7 @@ class CouponController extends Controller
             $local_rules->website_ids = implode(',',$request->website_ids);
             $local_rules->customer_group_ids = implode(',',$request->customer_groups);
             $local_rules->coupon_type = $request->coupon_type;
+            $local_rules->coupon_code = $request->code;
             $local_rules->use_auto_generation = isset($request->use_auto_generation) ? 1 : 0;
             $local_rules->uses_per_coupon = $request->uses_per_coupon;
             $local_rules->uses_per_coustomer = $request->uses_per_coustomer;
@@ -551,12 +545,13 @@ class CouponController extends Controller
         // curl_close($ch); // Close the connection
 
         $result = CouponCodeRules::with(['store_labels'])->where('id',$request->rule_id)->first();
+        $codes = Coupon::where('rule_id',$result->magento_rule_id)->orderBy('created_at','desc')->get();
         $web_ids = explode(',',$result->website_ids);
         if(isset($result->id)){
             $websites = Website::all();
             $website_stores = WebsiteStore::with('storeView')->get();
             $store_websites = StoreWebsite::all();
-            $returnHTML = view('coupon.editModal')->with('result', $result)->with('websites',$websites)->with('website_stores',$website_stores)->with('web_ids',$web_ids)->with('store_websites',$store_websites)->render();
+            $returnHTML = view('coupon.editModal')->with('result', $result)->with('websites',$websites)->with('website_stores',$website_stores)->with('web_ids',$web_ids)->with('store_websites',$store_websites)->with('codes',$codes)->render();
             return response()->json(['status' => 'success','data' => ['html' => $returnHTML],'message' => "Rule details"],200);
         }else{
             return response()->json(['status' => 'error','data' => $result,'message' => 'Something went wrong!'],200);
@@ -584,6 +579,8 @@ class CouponController extends Controller
 
 
     public function generateCouponCode(Request $request){
+
+        $rule_id = CouponCodeRules::where('id',$request->rule_id)->first();
         $format = "alphanum";
 
         if($request->format == 1){
@@ -600,7 +597,7 @@ class CouponController extends Controller
 
        $parameters = [
             "couponSpec" => [
-                "rule_id"  => $request->rule_id,
+                "rule_id"  => $rule_id->magento_rule_id,
                 "format" => $format,
                 "quantity" => $request->qty,
                 "length" => $request->length,
@@ -625,11 +622,26 @@ class CouponController extends Controller
         if(isset($result->message)){
             return response()->json(['type' => 'error','message' => $result->message,'data' => $result],200);
         }
+
+        
+        foreach($result as $re){
+            $coupon = new Coupon();
+            $coupon->start = date('Y-m-d H:i:s');
+            $coupon->magento_id = 0;
+            $coupon->rule_id = $rule_id->magento_rule_id;
+            $coupon->code = $re;
+            $coupon->usage_count = $rule_id->times_used;
+            $coupon->minimum_order_amount = 0;
+            $coupon->discount_fixed = 0.0;
+            $coupon->discount_percentage = 0.0;
+            $coupon->uses = $rule_id->uses_per_coupon;
+            $coupon->save();
+        }
+    
         return response()->json(['type' => "success",'data' => $result,'message' => "Added successfully"],200);
     }
 
     public function updateRules(Request $request){
-        //dd($request->all());
         $store_lables = [];
         foreach($request->store_labels as $key => $lables){
             array_push($store_lables,['store_id' => $key,'store_label' => $lables,'extension_attributes' => '{}']);
@@ -646,7 +658,7 @@ class CouponController extends Controller
             "from_date" => $request->start_edit,
             "to_date" => $request->expiration_edit,
             "uses_per_customer" => $request->uses_per_coustomer_edit,
-            "is_active" => $request->active_edit == "1" ? true : false,
+            "is_active" => $request->active_edit == 1 ? true : false,
             "condition" => [
                 "condition_type" => "",
                 "conditions" => [
@@ -678,19 +690,6 @@ class CouponController extends Controller
                 "operator" => null,
                 "value" => ""
             ],
-            // "stop_rules_processing"  => false,
-            // "is_advanced" => true,
-            // "sort_order" => 0,
-            // "simple_action" => "by_percent",
-            // "discount_amount" => 0,
-            // "discount_step" => 0,
-            // "apply_to_shipping" => false,
-            // "times_used" => 6,
-            // "is_rss" => $request->rss,
-            // "coupon_type" => $request->coupon_type_edit,// or "coupon_type" => "SPECIFIC_COUPON",
-            // "use_auto_generation" => isset($request->auto_generate_edit) ? true : false, // use true if want to generate multiple codes for same rule
-            // "uses_per_coupon" => $request->uses_per_coupon_edit,
-            // "simple_free_shipping" => "0"
             "stop_rules_processing"  => $request->stop_rules_processing,
             "is_advanced" => true,
             "sort_order" => 0,
@@ -700,7 +699,7 @@ class CouponController extends Controller
             "discount_qty" => $request->discount_qty,
             "apply_to_shipping" => $request->apply_to_shipping,
             "times_used" => 6,
-            "is_rss" => $request->rss,
+            "is_rss" => isset($request->rss_edit) ? true : false ,
             "coupon_type" => $request->coupon_type_edit,// or "coupon_type" => "SPECIFIC_COUPON",
             "use_auto_generation" => isset($request->auto_generate_edit) ? true : false, // use true if want to generate multiple codes for same rule
             "uses_per_coupon" => $request->uses_per_coupon_edit,
@@ -741,7 +740,8 @@ class CouponController extends Controller
             $local_rules->uses_per_coupon = $request->uses_per_coupon_edit;
             $local_rules->uses_per_coustomer = $request->uses_per_coustomer_edit;
             $local_rules->store_website_id = $request->store_website_id_edit;
-            $local_rules->is_rss = isset($request->rss) ? $request->rss : 0;
+            $local_rules->is_rss = isset($request->rss_edit) ? 1 : 0;
+            $local_rules->coupon_code = $request->code_edit;
             $local_rules->priority = $request->priority_edit;
             $local_rules->from_date = !empty($request->start_edit) ? $request->start_edit : date('dd-mm-YY H:i:s');
             $local_rules->to_date = !empty($request->expiration_edit) ? $request->expiration_edit : date('dd-mm-YY H:i:s');
