@@ -75,9 +75,9 @@ class GoogleTraslationSettingsController extends Controller
      * @param  \App\googleTraslationSettings  $googleTraslationSettings
      * @return \Illuminate\Http\Response
      */
-    public function edit(googleTraslationSettings $googleTraslationSettings)
-    {   
-        $data = $googleTraslationSettings->first();
+    public function edit($id,googleTraslationSettings $googleTraslationSettings)
+    {
+        $data = googleTraslationSettings::where('id',$id)->first();
         return view('googleTraslationSettings.edit',compact('data'));
     }
 
