@@ -80,7 +80,7 @@
             <div class="">
 
                 <!--roletype-->
-                <h2 class="page-heading">Scrapper phyhon list<span id="products_count"></span> </h2>
+                <h2 class="page-heading">Scrapper python list<span id="products_count"></span> </h2>
 
                 <!--pending products count-->
 
@@ -89,14 +89,66 @@
             
             </div>
         </div>
+
+
     </div>
 
     @include('partials.flash_messages')
     
     <div>
+
+       
     </div>
 
+        <form method="get" action="{{route('scrapper.phyhon.index')}}">
 
+     <div class="form-group">
+                        <div class="row">
+                            
+                            <div class="col-md-3">
+                                <input name="search" type="text" class="form-control" value="{{$query}}"  placeholder="search" id="search">
+                            </div>
+                            <div class="col-md-3">
+                               <select class="form-control select-multiple" id="web-select" tabindex="-1" aria-hidden="true" name="website" onchange="showStores(this)">
+                                    <option value="">Select Website</option>
+
+                                    @foreach($allWebsites as $websiteRow)
+
+                                    @if(isset($request->website) && $websiteRow->id==$request->website)
+
+                                     <option value="{{$websiteRow->id}}" selected="selected">{{$websiteRow->name}}</option>
+
+
+                                    @else
+
+                                     <option value="{{$websiteRow->id}}">{{$websiteRow->name}}</option>
+
+
+                                    @endif
+
+                                   
+                                         @endforeach
+                                        </select>
+                            </div>
+
+                             <div class="col-md-3">
+                               <select class="form-control select-multiple" id="store-select" tabindex="-1" aria-hidden="true" name="store">
+                                    <option value="">Select Store</option>
+
+                                   
+                                        </select>
+                            </div>
+                            <div class="col-md-1">
+                               <button type="submit" class="btn btn-image" ><img src="/images/filter.png"></button>
+                            </div>
+                            <div class="col-md-1">
+                                <button type="button" onclick="resetForm(this)" class="btn btn-image" id=""><img src="/images/resend2.png"></button>    
+                            </div>
+                        </div>
+
+                    </div>
+
+</form>
     <div class="col-md-12 margin-tb">
         <div class="table-responsive">
             <table class="table table-bordered" style="table-layout:fixed;">
@@ -474,6 +526,31 @@
             // });
             
             var expand = $('.expand-'+suggestedproductid);
+            $(expand).toggleClass('hidden');
+
+            //to hide image area
+            $(expand).each(function(){
+
+                var imageArea=$(this).find('.show-scrape-images').attr('data-suggestedproductid');
+
+                $('.expand-images-'+imageArea).addClass('hidden');
+
+
+            })
+           
+
+        });
+
+
+        // function to show scrape images
+         $(document).on('click', '.show-scrape-images', function (e) {     
+            console.log('load images');
+            e.preventDefault();
+           
+            var suggestedproductid = $(this).data('suggestedproductid');
+            
+            
+            var expand = $('.expand-images-'+suggestedproductid);
             $(expand).toggleClass('hidden');
 
         });
@@ -1116,6 +1193,97 @@
                 console.log(response);
             });
         });
+
+        function resetForm(selector)
+        {
+            
+           $(selector).closest('form').find('[name="search"]').val('');
+
+           $(selector).closest('form').submit();
+        }
+
+        function setStoreAsDefault(selector)
+        {
+            var website=$(selector).attr('data-website-id');
+            var store=$(selector).attr('data-store-id');
+            var checked=0;
+            var thisSelector=$(selector);
+
+            if($(selector).prop('checked')==true)
+            {
+                var checked=1;
+            }
+
+            $('.expand-'+website).each(function(){
+
+                console.log($(this).find('.defaultInput'));
+
+                $(this).find('.defaultInput').prop('checked',false);
+            })
+            
+
+            if(checked)
+            {
+                $(selector).prop('checked',true);
+            }
+
+            
+
+            $.get('{{route("set.default.store")}}'+'/'+website+'/'+store+'/'+checked,function(res)
+            {
+                if(res.status==1)
+                {
+                   toastr['success'](res.message, 'success');
+                }
+                else
+                {
+                    toastr['error'](res.message, 'error');
+                }
+
+
+            })
+
+        }
+
+        $(document).ready(function()
+        {
+            $('[name="website"]').trigger('change');
+        })
+
+        function showStores(selector)
+        {
+            var website=$(selector).val();
+            $('[name="store"]').find('option').eq(1).not().remove();
+
+
+            if(website)
+            {
+                $.get('{{route("website.store.list")}}'+'/'+website,function(res)
+                {
+                   if(res.status && res.list.length)
+                   {
+                      $.each(res.list,function(k,v){
+
+                        //console.log(k,v);
+                        var selected='';
+
+                        if(v.id=='{{$request->store??0}}')
+                        {
+                            selected='selected'
+                        }
+
+                        $('[name="store"]').append('<option value="'+v.id+'" '+selected+'>'+v.name+'</option>');
+
+                      })
+                     
+                   }
+                   else
+                   {
+                     $('[name="store"]').find('option').eq(1).not().remove();
+                   }
+                })
+            }
+        }
         
 </script>
 

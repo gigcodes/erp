@@ -62,6 +62,8 @@ Route::prefix('googlewebmaster')->group(static function () {
     
     Route::get('get-access-token','GoogleWebMasterController@googleLogin')->name('googlewebmaster.get-access-token') ;
     Route::get('/index', 'GoogleWebMasterController@index')->name('googlewebmaster.index');
+
+    Route::get('update/sites/data','GoogleWebMasterController@updateSitesData')->name('update.sites.data');
    
 });
 
@@ -2694,7 +2696,14 @@ Route::prefix('system')->middleware('auth')->group(static function () {
     Route::get('/size/managerdelete', 'SystemSizeController@managerdelete')->name('system.size.managerdelete');
 });
 
-Route::get('/scrapper-phyhon', 'scrapperPhyhon@index')->name('scrapper.phyhon.index');
+Route::get('/scrapper-python', 'scrapperPhyhon@index')->name('scrapper.phyhon.index');
+
+Route::get('/set/default/store/{website?}/{store?}/{checked?}', 'scrapperPhyhon@setDefaultStore')->name('set.default.store');
+
+
+
+Route::get('/get/website/stores/{website?}', 'scrapperPhyhon@websiteStoreList')->name('website.store.list');
+
 
 // DEV MANISH
 Route::get('google-keyword-search', 'GoogleAddWord\googleAddsController@index')->name('google-keyword-search');

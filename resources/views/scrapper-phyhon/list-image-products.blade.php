@@ -1,9 +1,10 @@
-<div class="customer-count customer-list-{{$list['id']}} customer-{{$list['id']}}" style="padding: 0px 10px;">   
+<div class="customer-count customer-list-{{$list->id}} customer-{{$list->id}}" style="padding: 0px 10px;">   
         @php
             $oldDate = null;
             $count   = 0;
+            
         @endphp
-        @foreach($list['scrapper_image'] as $image)
+        @foreach($store->scrapperImage->toArray() as $image)
                 <?php
                     if ( date( 'Y-m-d' ,strtotime($image['created_at'])) !== $oldDate ) { 
                         $count = 0;
@@ -12,11 +13,12 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <br>
-                                <h5 class="product-attach-date" style="margin: 5px 0px;">{{$image['created_at']}}</h5> 
+                                <h5 class="product-attach-date" style="margin: 5px 0px;">{{$image['created_at']}} || Number Of Images:{{count($store->scrapperImage)}}</h5> 
+
                                 <hr style="margin: 5px 0px;">
                             </div>
                         </div> 
-                        
+
                     <?php } ?>
                     
                 @if ($image['img_name'] )
