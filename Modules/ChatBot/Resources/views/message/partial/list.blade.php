@@ -45,16 +45,21 @@
         <td class="images-layout">
             <form class="remove-images-form" action="{{ route('chatbot.messages.remove-images') }}" method="post">
                 {{ csrf_field() }}
-                @if($pam->hasMedia(config('constants.media_tags')))
-                    @foreach($pam->getMedia(config('constants.media_tags')) as $medias)
-                        <div class="panel-img-shorts">
-                            <input type="checkbox" name="delete_images[]"
-                                   value="{{ $medias->pivot->mediable_id.'_'.$medias->id }}" class="remove-img"
-                                   data-media-id="{{ $medias->id }}"
-                                   data-mediable-id="{{ $medias->pivot->mediable_id }}">
-                            <img width="50px" heigh="50px" src="{{ $medias->getUrl() }}">
-                        </div>
-                    @endforeach
+                @php
+                    $botMessage = \App\ChatMessage::find($pam->chat_id);
+                @endphp
+                @if(isset($botMessage))
+                    @if($botMessage->hasMedia(config('constants.media_tags')))
+                        @foreach($botMessage->getMedia(config('constants.media_tags')) as $medias)
+                            <div class="panel-img-shorts">
+                                <input type="checkbox" name="delete_images[]"
+                                       value="{{ $medias->pivot->mediable_id.'_'.$medias->id }}" class="remove-img"
+                                       data-media-id="{{ $medias->id }}"
+                                       data-mediable-id="{{ $medias->pivot->mediable_id }}">
+                                <img width="30px" heigh="30px" src="{{ $medias->getUrl() }}">
+                            </div>
+                        @endforeach
+                    @endif
                 @endif
             </form>
         </td>
