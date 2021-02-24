@@ -36,7 +36,9 @@ class GoogleTranslateController extends Controller
                 $msg = 'Default translation data not exists';
 
             // $logId = LogListMagento::log($product->id, $msg, 'info');
-                ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logid);
+                if(!empty($logid)) {
+                    ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logid);
+                }
             }
             if(count($languages) > 0){
                 foreach($languages as $language) {
@@ -87,20 +89,26 @@ class GoogleTranslateController extends Controller
                         $msg = 'Languages data '.$language.' not exists';
 
                     //    $logId = LogListMagento::log($product->id, $msg, 'info');
-                        ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logid);
+                        if(!empty($logid)) {
+                            ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logid);
+                        }
                     }
                 }
             }else{
                 $msg = 'Languages data not exists';
 
                 //$logId = LogListMagento::log($product->id, $msg, 'info');
-                ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logid);
+                if(!empty($logid)) {
+                    ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logid);
+                }
             }
         } catch (\Exception $e) {
             $msg = 'Internal server error';
 
             //$logId = LogListMagento::log($product->id, $msg, 'info');
-            ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logid);
+            if(!empty($logid)) {
+                ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logid);
+            }
         }
     }
 
