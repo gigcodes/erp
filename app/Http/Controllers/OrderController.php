@@ -3137,7 +3137,8 @@ public function updateCustomerInvoiceAddress(Request $request){
 
         $token = $request->bearerToken();
         if((!$email || trim($email) == '') && empty($order_no)) {
-            return response()->json(['message' => 'Email is absent in your request','status' => 400]);
+            $message = $this->generate_erp_response("customer.order.success",0, $default = "Email is absent in your request");
+            return response()->json(['message' => $message,'status' => 400]);
         }
 
         if((!$order_no || trim($order_no) == '') && empty($email)) {
@@ -3225,7 +3226,8 @@ public function updateCustomerInvoiceAddress(Request $request){
         }
         $orders = $orders->toArray();
         // $orders = json_encode($orders);
-        return response()->json(['message' => 'Orders Fetched successfully','status' => 200, 'data' => $orders]);
+        $message = $this->generate_erp_response("customer.order.success",$store_website->id, $default = "Orders Fetched successfully");
+        return response()->json(['message' => $message,'status' => 200, 'data' => $orders]);
 
     }
     public function addNewReply(request $request){

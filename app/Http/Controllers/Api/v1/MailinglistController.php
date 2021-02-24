@@ -48,7 +48,8 @@ class MailinglistController extends Controller
 
         // Step 2
         if (!$store_website) {
-           return response()->json(["code" => 200, "message" => "Store website not found"]);
+            $message = $this->generate_erp_response("newsletter.success", 0, $default = "Store website not found");
+           return response()->json(["code" => 200, "message" => $message]);
         }
         // Step 3
         $customer = $this->get_customer($request->get("email") , $store_website->id );
@@ -67,7 +68,8 @@ class MailinglistController extends Controller
         }
 
         // return response()->json(["code" => 200, "message" => "Done", "data" => $request->all()]);
-        return response()->json(["code" => 200, "message" => "Done" ]);
+        $message = $this->generate_erp_response("newsletter.success", $store_website->id, $default = "Successfully added");
+        return response()->json(["code" => 200, "message" => $message ]);
     }
 
 

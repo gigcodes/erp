@@ -76,14 +76,18 @@ class GiftCardController extends Controller
                 $mailData['sender_email'] = $success->sender_email;
                 $mailData['coupon'] =  $success->gift_card_coupon_code;
                 $this->sendMail($mailData);
+
+                $message = $this->generate_erp_response("giftcard.success", $storeweb->id, $default = "gift card added successfully");
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'gift card added successfully',
+                    'message' => $message,
                 ], 200);
             }
-            return response()->json(['status' => 'failed', 'message' => 'Unable to add gift card at the moment. Please try later !'], 500);
+            $message = $this->generate_erp_response("giftcard.failed", $storeweb->id, $default = "Unable to add gift card at the moment. Please try later !");
+            return response()->json(['status' => 'failed', 'message' => $message], 500);
         }
-        return response()->json(['status' => 'failed', 'message' => 'Unable to add gift card at the moment. Please try later !'], 500);
+        $message = $this->generate_erp_response("giftcard.failed", $storeweb->id, $default = "Unable to add gift card at the moment. Please try later !");
+        return response()->json(['status' => 'failed', 'message' => $message], 500);
     }
 
     /**
@@ -145,11 +149,14 @@ class GiftCardController extends Controller
         }
         $couponData = GiftCard::select('gift_card_amount', 'gift_card_coupon_code', 'updated_at')->where('gift_card_coupon_code', $request->coupon_code)->first();
         if(!$couponData){
-            return response()->json(['status' => 'failed', 'message' => 'coupon does not exists in record !'], 500);
+            $message = $this->generate_erp_response("giftcard.failed", 0, $default = "coupon does not exists in record !");
+            return response()->json(['status' => 'failed', 'message' => $message], 500);
         }
+
+        $message = $this->generate_erp_response("giftcard.success", 0, $default = "gift card amount fetched successfully");
         return response()->json([
             'status' => 'success',
-            'message' => 'gift card amount fetched successfully',
+            'message' => $message,
             'data' => $couponData,
         ], 200);
     }

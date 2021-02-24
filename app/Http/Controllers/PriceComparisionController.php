@@ -240,6 +240,7 @@ class PriceComparisionController extends Controller
                         ]);
 
                     }else{
+                        $message = $this->generate_erp_response("price_compare.success",0, $default = '');
                         return response()->json([
                             'status' => 'success',
                             'results' => $outputArray,
@@ -249,10 +250,12 @@ class PriceComparisionController extends Controller
                     
 
             }else{
+
+                $message = $this->generate_erp_response("price_compare.failed",0, $default = 'No Category Found');
                 //if not category found response
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'No Category Found',
+                    'message' => $message,
                 ]);
             }
         }else{

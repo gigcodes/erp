@@ -86,6 +86,7 @@ class BuyBackController extends Controller
 
             $success = ReturnExchange::create($return_exchanges_data);
             if (!$success) {
+                $message = $this->generate_erp_response("exchange.failed",$storeWebsite->id, $default = 'Unable to create '.ucwords($request->type).' request!');
                 return response()->json(['status' => 'failed', 'message' => 'Unable to create '.ucwords($request->type).' request!'], 500);
             }
             ReturnExchangeProduct::create($return_exchange_products_data);
@@ -182,7 +183,9 @@ class BuyBackController extends Controller
                 }
                 $emailObject->save();
             }
-            return response()->json(['status' => 'success', 'message' => ucwords($request->type).' request created successfully'], 200);
+
+            $message = $this->generate_erp_response("exchange.success",$storeWebsite->id, $default = ucwords($request->type).' request created successfully');
+            return response()->json(['status' => 'success', 'message' => $message], 200);
         }else{
             return response()->json(['status' => 'failed', 'message' => 'Please check website is not exist'], 404);
         }
@@ -251,7 +254,8 @@ class BuyBackController extends Controller
             ->first();
 
             if (!$checkCustomer) {
-                return response()->json(['status' => 'failed', 'message' => 'Customer not found with this email !'], 404);
+                $message = $this->generate_erp_response("buyback.failed",$storeWebsite->id, $default = "Customer not found with this email !");
+                return response()->json(['status' => 'failed', 'message' => $message], 404);
             }
 
             $customer_id = $checkCustomer->id;
@@ -275,7 +279,6 @@ class BuyBackController extends Controller
                 $responseData[$getCustomerOrder->order_id][] = $getCustomerOrder;
             }
         }
-
 
         return response()->json(['status' => 'success', 'orders' => $responseData], 200);
     }
