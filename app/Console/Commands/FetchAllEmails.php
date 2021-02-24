@@ -251,12 +251,12 @@ class FetchAllEmails extends Command
                                 Email::create($params);
                             }
                         }
-                        /*$customer = \App\customers::where( 'email' , $email->getFrom()[0]->mail )->get();
+                        $customer = \App\Customer::where( 'email' , $email->getFrom()[0]->mail )->get();
 
                         if ( !empty( $customer ) ) {
-                            \App\Helpers\MessageHelper::whatsAppSend( $customer , $fragment->getContent() );
-                            \App\Helpers\MessageHelper::sendwatson( $customer , $fragment->getContent() );
-                        }*/
+                            \App\Helpers\MessageHelper::whatsAppSend( $customer , $fragment->getContent(), null , null, $isEmail = true );
+                            \App\Helpers\MessageHelper::sendwatson( $customer , $fragment->getContent() , null , null , null, $isEmail = true );
+                        }
                         //}
                     }
                 }
@@ -265,6 +265,7 @@ class FetchAllEmails extends Command
 
                 $report->update(['end_time' => Carbon::now()]);
             } catch (\Exception $e) {
+
                 \Log::channel('customer')->info($e->getMessage());
                 $historyParam = [
                     'email_address_id'        => $emailAddress->id,
