@@ -16,7 +16,7 @@ class CreateGoogleSearchAnalyticsTable extends Migration
         Schema::create('google_search_analytics', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('site_id')->nullable();
-            $table->double('clicks', 8, 2)->nullable();
+            $table->double('clicks', 16, 2)->nullable();
             $table->double('impressions', 8, 2)->nullable();
             $table->double('ctr', 8, 2)->nullable();
             $table->double('position', 8, 2)->nullable();
@@ -25,6 +25,7 @@ class CreateGoogleSearchAnalyticsTable extends Migration
             $table->string('page')->nullable();
             $table->string('query')->nullable();
             $table->string('search_apperiance')->nullable();
+          
 
             $table->foreign('site_id')
           ->references('id')->on('sites')

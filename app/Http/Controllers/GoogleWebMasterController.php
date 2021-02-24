@@ -7,6 +7,7 @@ use App\GoogleWebMasters;
 use App\Http\Controllers\Controller;
 use App\Site;
 use App\GoogleSearchAnalytics;
+use App\Setting;
 
 
 
@@ -21,10 +22,55 @@ class GoogleWebMasterController extends Controller
 	public $googleToken='';
 	public $curl_errors_array=array();
 
-	public function index() {
+	public function index(Request $request) {
+
+
 
 		$getSites =  GoogleWebMasters::all();
-		return view('google-web-master/index', compact('getSites'));
+
+        $sites=Site::select('id','site_url')->get();
+
+        $SearchAnalytics=new GoogleSearchAnalytics;
+
+        $devices=$SearchAnalytics->select('device')->where('device','!=',null)->groupBy('device')->orderBy('device','asc')->get();
+
+        $countries=$SearchAnalytics->select('country')->where('country','!=',null)->groupBy('country')->orderBy('country','asc')->get();
+
+        if($request->site)
+        {
+           $SearchAnalytics=$SearchAnalytics->where('site_id',$request->site);
+        }
+
+         if($request->device)
+        {
+           $SearchAnalytics=$SearchAnalytics->where('device',$request->device);
+        }
+
+         if($request->country)
+        {
+           $SearchAnalytics=$SearchAnalytics->where('country',$request->country);
+        }
+
+        if($request->start_date)
+        {
+
+           $SearchAnalytics=$SearchAnalytics->where('date','>=',$request->start_date);
+          
+        }
+        if($request->end_date)
+        {
+
+           $SearchAnalytics=$SearchAnalytics->where('date','<=',$request->end_date);
+          
+        }
+
+        $sitesData=$SearchAnalytics->paginate(Setting::get('pagination'));
+
+
+
+       // echo '<pre>';print_r($sites[0]->site->site_url);die;
+
+		return view('google-web-master/index', compact('getSites','sitesData','sites','request','devices','countries'));
 		}
 
 
@@ -66,6 +112,8 @@ class GoogleWebMasterController extends Controller
             if ($gClient->getAccessToken())
             {
 
+                $details=$this->updateSitesData($request);
+
             	$curl = curl_init();
 				curl_setopt_array($curl, array(
 				CURLOPT_URL => "https://www.googleapis.com/webmasters/v3/sites",
@@ -81,10 +129,31 @@ class GoogleWebMasterController extends Controller
 				));
 				$response = curl_exec($curl);
 				$err = curl_error($curl);
+
+                if (curl_errno($curl)) {
+
+                  $error_msg = curl_error($curl);
+
+                           }
+              //echo '<pre>';print_r($response);die;
+
+            if (isset($error_msg)) {
+               $this->curl_errors_array[]=array('key'=>'sites','error'=>$error_msg,'type'=>'sites');
+             }
+
+                 $check_error_response=json_decode($response);
+
+                            
+
 				curl_close($curl);
-				if ($err) {
-				  echo "cURL Error #:" . $err;
-				} else {
+
+				if(isset($check_error_response->error->message) || $err)
+                            {
+
+
+                                $this->curl_errors_array[]=array('key'=>'sites','error'=>$check_error_response->error->message,'type'=>'sites');
+                                echo $this->curl_errors_array[0]['error'];
+                            }else {
 					if(is_array( json_decode( $response)->siteEntry ) ){
 						foreach(json_decode( $response)->siteEntry as $key=> $site) {
 							// Create ot update site url
@@ -119,11 +188,11 @@ class GoogleWebMasterController extends Controller
 							}
 						}
 					}else{
-						 return redirect()->route('googlewebmaster.index');  
+						 return redirect()->route('googlewebmaster.index')->with('details',$details);  
 					}
 				}
                          
-             return redirect()->route('googlewebmaster.index');          
+             return redirect()->route('googlewebmaster.index')->with('success',$details['success'])->with('error',$details['error_message']);          
             } else
             {
                 //For Guest user, get google login url
@@ -204,7 +273,9 @@ class GoogleWebMasterController extends Controller
 
         	}
 
-        	return array('status'=>1,'sitesUpdated'=>$this->sitesUpdated,'sitesCreated'=>$this->sitesCreated,'searchAnalyticsCreated'=>$this->searchAnalyticsCreated,'errors_found'=>count($this->curl_errors_array));
+           
+
+        	return array('status'=>1,'sitesUpdated'=>$this->sitesUpdated,'sitesCreated'=>$this->sitesCreated,'searchAnalyticsCreated'=>$this->searchAnalyticsCreated,'success'=>$this->sitesUpdated. ' of sites are updated.','error'=>count($this->curl_errors_array).' error found in this request.','error_message'=>$this->curl_errors_array[0]['error']);
         }
 
 
@@ -288,7 +359,7 @@ class GoogleWebMasterController extends Controller
         {
         	$params['startDate']='2000-01-01';
         	$params['endDate']=date("Y-m-d");
-        	$params['dimensions']=['country','device','page','query'];
+        	$params['dimensions']=['country','device','page','query','date'];
 
 
         		
@@ -316,6 +387,8 @@ class GoogleWebMasterController extends Controller
              		$record["device"]=$row->keys[1];
              		$record["page"]=$row->keys[2];
              		$record["query"]=$row->keys[3];
+                    $record["date"]=$row->keys[4];
+
 
              		$rowData=new GoogleSearchAnalytics;
 
