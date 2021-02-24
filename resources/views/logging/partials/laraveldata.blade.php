@@ -12,5 +12,8 @@
                     </td>
                     <td>{{ $log->website }}</td>
                     <td>{{ \Carbon\Carbon::parse($log->log_created)->format('d-m-y H:i:s')  }}</td>
+                    <td>{{  $log->module_name  }}</td>
+                    <td>{{  $log->controller_name  }}</td>
+                    <td>{{  $log->action  }}</td>
                 </tr>
 @endforeach

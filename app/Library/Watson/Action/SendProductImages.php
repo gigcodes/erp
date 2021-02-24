@@ -49,19 +49,19 @@
  		$images = [];
  		$ids 	= [];
  		// Removed more options from here as we don't need product for now
- 		// $this->products = $products = \App\Product::attachProductChat([$this->brand->id],[$this->category->id],[]);
+ 		$this->products = $products = \App\Product::attachProductChat([$this->brand->id],[$this->category->id],[]);
 
- 		// if($products) {
- 		// 	foreach($products as $product) {
- 		// 		$ids[] = $product->id;
- 		// 		if($product->hasMedia(config("constants.attach_image_tag"))){
- 		// 			$media = $product->getMedia(config("constants.attach_image_tag"))->first();
- 		// 			if ($media) {
- 		// 				$this->mediaIds[] = $images[] = $media->id;
- 		// 			}	
- 		// 		}
- 		// 	}
- 		// }
+ 		if($products) {
+ 			foreach($products as $product) {
+ 				$ids[] = $product->id;
+ 				if($product->hasMedia(config("constants.attach_image_tag"))){
+ 					$media = $product->getMedia(config("constants.attach_image_tag"))->first();
+ 					if ($media) {
+ 						$this->mediaIds[] = $images[] = $media->id;
+ 					}	
+ 				}
+ 			}
+ 		}
 
  		return [
  			"media_ids" => $images , 

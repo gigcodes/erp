@@ -35,12 +35,21 @@ var page = {
             },
             beforeSend : function() {
                 $("#loading-image").show();
+            },
+            complete : function() {
+                $("#loading-image").hide();
             }
         }
-        this.sendAjax(_z, "afterPush");
+        this.sendAjax(_z, "doneAjax");
+
     },
-    afterPush :function(response) {
+    doneAjax :function(response) {
         $("#loading-image").hide();
+        if(response.code == 200) {
+            toastr["success"](response.message,"");
+        }else {
+            toastr["error"](response.message,"");
+        }
     }
 }
 

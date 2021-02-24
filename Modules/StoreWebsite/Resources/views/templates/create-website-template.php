@@ -11,7 +11,7 @@
 		   <div class="modal-body">
 		      <div class="form-row">
 		         {{if data}}
-		         	<input type="hidden" name="id" value="{{:data.id}}"/>
+		         	<input type="hidden" name="id" id="store_website_id" value="{{:data.id}}"/>
 		         {{/if}}
 		         <div class="form-group col-md-6">
 		            <label for="title">Title</label>
@@ -104,13 +104,106 @@
 		         <label for="server_ip">Server IP</label>
 		         <input type="text" name="server_ip" value="{{if data}}{{:data.server_ip}}{{/if}}" class="form-control" id="server_ip" placeholder="Enter Server IP">
 		      </div>
-			  <div class="form-group">
-		         <label for="username">Username</label>
-		         <input type="text" name="username" value="{{if data}}{{:data.username}}{{/if}}" class="form-control" id="username" placeholder="Enter Username">
-		      </div>
-			  <div class="form-group">
-		         <label for="password">Password</label>
-		         <input type="password" name="password" value="{{if data}}{{:data.password}}{{/if}}" class="form-control" id="password" placeholder="Enter Password">
+		      <div class="MainMagentoUser">
+		      	{{if totaluser != 0}}
+		      	{{props userdata}}
+			      <div class="subMagentoUser" style="border:1px solid #ccc;padding: 15px;margin-bottom:5px">
+					  <div class="form-group">
+					  	<div class="row">
+					  		<div class="col-sm-6">
+				      	 	    <label for="username">Username</label>
+							    <input type="text" name="username" value="{{if prop}}{{:prop.username}}{{/if}}" class="form-control userName" id="username" placeholder="Enter Username" readonly>
+							</div>
+							<div class="col-sm-6">
+				      	 	    <label for="userEmail">Email</label>
+							    <input type="email" name="userEmail" value="{{if prop}}{{:prop.email}}{{/if}}" class="form-control userEmail" id="userEmail" placeholder="Enter Email">
+							</div>
+						</div>
+				      </div>
+				      <div class="form-group">
+					  	<div class="row">
+					  		<div class="col-sm-6">
+				      	 	    <label for="firstName">First Name</label>
+							    <input type="text" name="firstName" value="{{if prop}}{{:prop.first_name}}{{/if}}" class="form-control firstName" id="firstName" placeholder="Enter First Name">
+							</div>
+							<div class="col-sm-6">
+				      	 	    <label for="lastName">Last Name</label>
+							    <input type="text" name="lastName" value="{{if prop}}{{:prop.last_name}}{{/if}}" class="form-control lastName" id="lastName" placeholder="Enter Last Name">
+							</div>
+						</div>
+				      </div>
+					  <div class="form-group">
+					  	<div class="row">
+					         <label class="col-sm-12" for="password">Password</label>
+					         <div class="col-sm-9 sub-pass">
+					         	<input type="password" name="password" value="{{if prop}}{{:prop.password}}{{/if}}" class="form-control user-password" id="password" placeholder="Enter Password" style="float:left;width:87%">
+					         	<span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password" style="margin-top:10px;margin-left:-25px;cursor:pointer"></span>
+					         	<button type="button" data-id="{{>prop.id}}" class="btn btn-password-history" style="margin-left:4px">
+					        		<i title="View History" class="fa fa-file-text" aria-hidden="true"></i>
+					        	</button>
+					         </div>
+					         <div class="col-sm-3">
+						        <button type="button" data-id="{{>prop.id}}" class="btn btn-edit-magento-user" style="border:1px solid">
+					        		<i class="fa fa-check" aria-hidden="true"></i>
+					        	</button>
+					        	<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-magento-user" style="border:1px solid">
+					        		<i class="fa fa-trash" aria-hidden="true"></i>
+					        	</button>
+					         </div>
+					     </div>
+				      </div>
+			  	  </div>
+			  	  {{/props}} 
+			  	  {{else}}
+			  	  <div class="subMagentoUser" style="border:1px solid #ccc;padding: 15px;margin-bottom:5px">
+					  <div class="form-group">
+					  	<div class="row">
+					  		<div class="col-sm-6">
+				      	 	    <label for="username">Username</label>
+							    <input type="text" name="username" value="" class="form-control userName" id="username" placeholder="Enter Username">
+							</div>
+							<div class="col-sm-6">
+				      	 	    <label for="userEmail">Email</label>
+							    <input type="email" name="userEmail" value="" class="form-control userEmail" id="userEmail" placeholder="Enter Email">
+							</div>
+						</div>
+				      </div>
+				      <div class="form-group">
+					  	<div class="row">
+					  		<div class="col-sm-6">
+				      	 	    <label for="firstName">First Name</label>
+							    <input type="text" name="firstName" value="" class="form-control firstName" id="firstName" placeholder="Enter First Name">
+							</div>
+							<div class="col-sm-6">
+				      	 	    <label for="lastName">Last Name</label>
+							    <input type="text" name="lastName" value="" class="form-control lastName" id="lastName" placeholder="Enter Last Name">
+							</div>
+						</div>
+				      </div>
+					  <div class="form-group">
+					  	<div class="row">
+					         <label class="col-sm-12" for="password">Password</label>
+					         <div class="col-sm-9 sub-pass">
+					         	<input type="password" name="password" value="" class="form-control user-password" id="password" placeholder="Enter Password" style="float:left;width:90%">
+					         	<span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password" style="margin-top:10px;margin-left:-25px;cursor:pointer"></span>
+					         </div>
+					         <div class="col-sm-3">
+						        <button type="button" data-id="" class="btn btn-edit-magento-user" style="border:1px solid">
+					        		<i class="fa fa-check" aria-hidden="true"></i>
+					        	</button>
+					        	<button type="button" data-id="" class="btn btn-delete-magento-user" style="border:1px solid">
+					        		<i class="fa fa-trash" aria-hidden="true"></i>
+					        	</button>
+					         </div>
+					     </div>
+				      </div>
+			  	  </div>
+			  	  {{/if}}   
+			  </div>
+		      <div class="form-group" style="text-align:right">
+	      	  	<button type="button" data-id="" class="btn btn-add-magento-user" style="border:1px solid">
+	        		<i class="fa fa-plus" aria-hidden="true"></i>
+	        	</button>
 		      </div>
 			  <div class="form-group">
 		         <label for="staging_username">Staging Username</label>

@@ -5,6 +5,7 @@
               <tr>
                 <th>Id</th>
                 <th>Category</th>
+                <th>Store</th>
                 <th>Meta Title</th>
                 <th>Meta Keyword</th>
                 <th>Meta Description</th>
@@ -17,7 +18,8 @@
                 {{props data}}
                   <tr>
                     <td><input type="checkbox" class="groups" name="groups[]" value="{{:prop.id}}">&nbsp;{{:prop.id}}</td>
-                    <td>{{:prop.title}}</td>
+                    <td>{{:prop.category}}</td>
+                    <td>{{:prop.store_name}}</td>
                     <td>{{:prop.meta_title}}</td>
                     <td>{{:prop.meta_keyword}}</td>
                     <td>{{:prop.meta_description}}</td>

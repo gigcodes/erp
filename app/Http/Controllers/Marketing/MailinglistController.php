@@ -33,7 +33,7 @@ class MailinglistController extends Controller
      */
     public function create(Request $request)
     {
-        $website_id = $request->websites_id;
+        $website_id = $request->website_id;
         //FInd Service 
         $service = Service::find($request->service_id);
 
@@ -257,7 +257,7 @@ class MailinglistController extends Controller
             }
 
         }
-        $customers = $customers->select('email', 'id', 'name', 'do_not_disturb')->paginate(20);
+        $customers = $customers->select('email', 'id', 'name', 'do_not_disturb','source')->paginate(20);
         $list = Mailinglist::where('remote_id', $id)->with('listCustomers')->first();
 
         $contacts = $list->listCustomers->pluck('id')->toArray();
@@ -266,6 +266,35 @@ class MailinglistController extends Controller
 
         return view('marketing.mailinglist.show', compact('customers', 'id', 'contacts', 'list', 'countDNDCustomers'));
     }
+
+
+    /**
+     * @param $id
+     * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function edit($id, Request $request)
+    {
+        $services = Service::all();
+        $websites = StoreWebsite::select('id','title')->orderBy('id','desc')->get();
+        $list = Mailinglist::where('remote_id',$id)->first();
+        return view('marketing.mailinglist.edit', compact('list','services','websites'));
+    }
+
+    /**
+     * @param $id
+     * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function update($id, Request $request)
+    {
+        $mailing_list = Mailinglist::find($id);
+        $mailing_list->website_id = $request->website_id;
+        $mailing_list->service_id = $request->service_id;
+        $mailing_list->name = $request->name;
+        $mailing_list->email = $request->email;
+        $mailing_list->save();
+        return response()->json(true);
+    }
+
 
     /**
      * @param $id
@@ -511,10 +540,10 @@ class MailinglistController extends Controller
         
 
             if (isset($res->message)) {
-                return redirect()->back()->withErrors($res->message);
+                return redirect()->back()->with('error',$res->message);
             } else {
                 Mailinglist::where('remote_id', $id)->delete();
-                return redirect()->back()->with('message', 'Removed successfully.');
+                return redirect()->back()->with('success', 'Removed successfully.');
             }
         }
     }
@@ -630,5 +659,17 @@ class MailinglistController extends Controller
 
             return response()->json(['status' => 'success']);
         }
+    }
+
+    /**
+     * @param $id
+     * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function updateCustomerSource($id, Request $request)
+    {
+        $customer = Customer::find($id);
+        $customer->source = $request->source;
+        $customer->save();
+        return response()->json(true);
     }
 }

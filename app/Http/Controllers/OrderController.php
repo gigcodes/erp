@@ -1161,12 +1161,45 @@ public function update( Request $request, Order $order ) {
       ]);
     }
 
-    // if ($order->auto_emailed == 0) {
-    if (!$order->is_sent_offline_confirmation()) {
-      if ($order->order_type == 'offline') {
-
+    if($request->hdn_order_mail_status == "1") {
+      $id_order_inc = $order->id;
+      $order_new = Order::find($id_order_inc);
+      if (!$order_new->is_sent_offline_confirmation()) {
+          if ($order_new->order_type == 'offline') {
+              if(!empty($order_new->customer) && !empty($order_new->customer->email)) {
+                  //Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
+                  $emailClass =  (new OrderConfirmation($order_new))->build();
+                  $params = [
+                      'model_id'          => $order_new->customer->id,
+                      'model_type'        => Customer::class,
+                      'from'              => $emailClass->fromMailer,
+                      'to'                => $order_new->customer->email,
+                      'subject'           => $emailClass->subject,
+                      'message'           => $emailClass->render(),
+                      'template'          => 'order-confirmation',
+                      'additional_data'   => $order_new->id,
+                      'is_draft'          => 1
+                  ];
+                  $emailObject = Email::create($params);
+                  try {   
+                      \MultiMail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
+                      CommunicationHistory::create([
+                          'model_id'      => $order_new->id,
+                          'model_type'    => Order::class,
+                          'type'          => 'offline-confirmation',
+                          'method'        => 'email'
+                      ]);
+                      $emailObject->is_draft = 0;
+                  }catch(\Exception $e) {
+                      $emailObject->is_draft = 1;
+                      $emailObject->error_message = $e->getMessage();
+                      \Log::info("Sending mail issue at the ordercontroller #2215 ->".$e->getMessage());
+                  }
+                  $emailObject->save();
+              }
+          }
       }
-    }
+  }
 
     if ($order->order_status_id == \App\Helpers\OrderHelper::$refundToBeProcessed) {
       if ($order->payment_mode == 'paytm') {
@@ -2247,125 +2280,130 @@ public function update( Request $request, Order $order ) {
               $history->save();
               if(isset($request->sendmessage) && $request->sendmessage=='1'){
                 //Sending Mail on changing of order status
-                try {
-                  // send order canellation email
-                  if(strtolower($statuss->status) == "cancel") {
+                    try {
+                        // send order canellation email
+                        if(strtolower($statuss->status) == "cancel") {
+                            $view = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
+                            $params = [
+                                'model_id'          => $order->customer->id,
+                                'model_type'        => Customer::class,
+                                'from'              => $view->fromMailer,
+                                'to'                => $order->customer->email,
+                                'subject'           => $view->subject,
+                                'message'           => $view->render(),
+                                'template'          => 'order-cancellation-update',
+                                'additional_data'   => $order->id,
+                                'is_draft'          => 1
+                            ];
 
-                    \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderCancellationMail($order));
-                    $view = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
+                            $emailObject = Email::create($params);
 
-                    $params = [
-                      'model_id'          => $order->customer->id,
-                      'model_type'        => Customer::class,
-                      'from'              => $view->fromMailer,
-                      'to'                => $order->customer->email,
-                      'subject'           => $view->subject,
-                      'message'           => $view->render(),
-                      'template'          => 'order-cancellation-update',
-                      'additional_data'   => $order->id
-                    ];
-                    Email::create($params);
-                    CommunicationHistory::create([
-                      'model_id'      => $order->id,
-                      'model_type'    => Order::class,
-                      'type'          => 'order-cancellation-update',
-                      'method'        => 'email'
-                    ]);
+                            try {
+                                \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderCancellationMail($order));
+                                CommunicationHistory::create([
+                                    'model_id'      => $order->id,
+                                    'model_type'    => Order::class,
+                                    'type'          => 'order-cancellation-update',
+                                    'method'        => 'email'
+                                ]);
+                                $emailObject->is_draft = 0;
+                            } catch (\Exception $e) {
+                                $emailObject->is_draft = 1;
+                                $emailObject->error_message = $e->getMessage();
+                            }
+
+                            $emailObject->save();
 
 
-                  }else{
-                    \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderStatusChangeMail($order));
-                    $view = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
-                    $params = [
-                      'model_id'          => $order->customer->id,
-                      'model_type'        => Customer::class,
-                      'from'              => $view->fromMailer,
-                      'to'                => $order->customer->email,
-                      'subject'           => $view->subject,
-                      'message'           => $view->render(),
-                      'template'          => 'order-status-update',
-                      'additional_data'   => $order->id
-                    ];
-                    Email::create($params);
-                    CommunicationHistory::create([
-                      'model_id'      => $order->id,
-                      'model_type'    => Order::class,
-                      'type'          => 'order-status-update',
-                      'method'        => 'email'
-                    ]);
-                  }
+                        }else{
+                            
+                            $view = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+                            $params = [
+                                'model_id'          => $order->customer->id,
+                                'model_type'        => Customer::class,
+                                'from'              => $view->fromMailer,
+                                'to'                => $order->customer->email,
+                                'subject'           => $view->subject,
+                                'message'           => $view->render(),
+                                'template'          => 'order-status-update',
+                                'additional_data'   => $order->id
+                            ];
 
-                }catch(\Exception $e) {
-                  \Log::info("Sending mail issue at the ordercontroller #2215 ->".$e->getMessage());
+                            $emailObject = Email::create($params);
+
+                            try {
+                                \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderStatusChangeMail($order));
+                                CommunicationHistory::create([
+                                    'model_id'      => $order->id,
+                                    'model_type'    => Order::class,
+                                    'type'          => 'order-status-update',
+                                    'method'        => 'email'
+                                ]);
+                                $emailObject->is_draft = 0;
+                            } catch (\Exception $e) {
+                                $emailObject->is_draft = 1;
+                                $emailObject->error_message = $e->getMessage();
+                            }
+
+                            $emailObject->save();
+                        }
+
+                    }catch(\Exception $e) {
+                        \Log::info("Sending mail issue at the ordercontroller #2215 ->".$e->getMessage());
+                    }
+
+
+                }else{
+                  \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderStatusChangeMail($order));
+                  $view = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+                  $params = [
+                    'model_id'          => $order->customer->id,
+                    'model_type'        => Customer::class,
+                    'from'              => $view->fromMailer,
+                    'to'                => $order->customer->email,
+                    'subject'           => $view->subject,
+                    'message'           => $view->render(),
+                    'template'          => 'order-status-update',
+                    'additional_data'   => $order->id
+                  ];
+                  Email::create($params);
+                  CommunicationHistory::create([
+                    'model_id'      => $order->id,
+                    'model_type'    => Order::class,
+                    'type'          => 'order-status-update',
+                    'method'        => 'email'
+                  ]);
                 }
 
-                /*$mailingListCategory = MailinglistTemplateCategory::where('title','Order Status Change')->first();
-                if($mailingListCategory){
-                if($order->storeWebsiteOrder) {
-                $templateData = MailinglistTemplate::where('category_id', $mailingListCategory->id )->where("store_website_id",$order->storeWebsiteOrder->website_id)->first();
-              }else{
-              $templateData = MailinglistTemplate::where("name",'Order Status Change')->first();
+                // }catch(\Exception $e) {
+                //   \Log::info("Sending mail issue at the ordercontroller #2215 ->".$e->getMessage());
+                // }
+              }
+              //Sending Mail on changing of order status
+              if(isset($request->sendmessage) && $request->sendmessage=='1'){
+                //sending order message to the customer
+                UpdateOrderStatusMessageTpl::dispatch($order->id, request('message',null))->onQueue("customer_message");
+              }
+              $storeWebsiteOrder = StoreWebsiteOrder::where('order_id',$order->id)->first();
+              if($storeWebsiteOrder) {
+                $website = StoreWebsite::find($storeWebsiteOrder->website_id);
+                if($website) {
+                  $store_order_status = Store_order_status::where('order_status_id',$status)->where('store_website_id',$storeWebsiteOrder->website_id)->first();
+                  if($store_order_status) {
+                    $magento_status = StoreMasterStatus::find($store_order_status->store_master_status_id);
+                    if($magento_status) {
+                      $magentoHelper = new MagentoHelperv2;
+                      $result = $magentoHelper->changeOrderStatus($order,$website,$magento_status->value);
+                    }
+                  }
+                }
+                $storeWebsiteOrder->update(['order_id',$status]);
+              }
             }
-            // @todo put the function to send mail from specific store emails
-            if($templateData) {
-            $arrToReplace = ['{FIRST_NAME}','{ORDER_STATUS}'];
-            $valToReplace = [$order->customer->name,$statuss->status];
-            $bodyText = str_replace($arrToReplace,$valToReplace,$templateData->static_template);
+          return response()->json('Sucess',200);
 
-            $storeEmailAddress = EmailAddress::where('store_website_id',$order->customer->store_website_id)->first();
-            if($storeEmailAddress) {
-            $emailData['subject'] = $templateData->subject;
-            $emailData['static_template'] = $bodyText;
-            $emailData['from'] = $storeEmailAddress->from_address;
-            Mail::to($order->customer->email)->send(new OrderStatusMail($emailData));
-          }
+
         }
-      }*/
-    }
-    //Sending Mail on changing of order status
-    if(isset($request->sendmessage) && $request->sendmessage=='1'){
-      //sending order message to the customer
-      UpdateOrderStatusMessageTpl::dispatch($order->id, request('message',null))->onQueue("customer_message");
-    }
-    $storeWebsiteOrder = StoreWebsiteOrder::where('order_id',$order->id)->first();
-    if($storeWebsiteOrder) {
-      $website = StoreWebsite::find($storeWebsiteOrder->website_id);
-      if($website) {
-        $store_order_status = Store_order_status::where('order_status_id',$status)->where('store_website_id',$storeWebsiteOrder->website_id)->first();
-        if($store_order_status) {
-          $magento_status = StoreMasterStatus::find($store_order_status->store_master_status_id);
-          if($magento_status) {
-            $magentoHelper = new MagentoHelperv2;
-            $result = $magentoHelper->changeOrderStatus($order,$website,$magento_status->value);
-          }
-        }
-      }
-      $storeWebsiteOrder->update(['order_id',$status]);
-    }
-    // if(!empty($statuss)) {
-    //  if($statuss->magento_status != null){
-    //      $options   = array(
-    //          'trace'              => true,
-    //          'connection_timeout' => 120,
-    //          'wsdl_cache'         => WSDL_CACHE_NONE,
-    //      );
-    //      $size = '';
-    //      $proxy     = new \SoapClient( config( 'magentoapi.url' ), $options );
-    //      $sessionId = $proxy->login( config( 'magentoapi.user' ), config( 'magentoapi.password' ) );
-
-    //      $orderlist = $proxy->salesOrderAddComment( $sessionId, $order->order_id , $statuss->magento_status);
-    //  }
-    // }
-  }
-}
-
-
-
-
-return response()->json('Sucess',200);
-
-
-}
 
 public function sendInvoice(Request $request, $id)
 {

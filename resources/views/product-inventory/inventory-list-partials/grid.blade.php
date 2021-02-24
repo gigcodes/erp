@@ -16,6 +16,8 @@
     <td>{{ $data['category_name'] }}</td>
     <td>{{ $data['brand_name'] }}</td>
     <td>{{ $data['supplier'] }}</td>
+    <td>{{ $data['color'] }}</td>
+    <td>{{ $data['composition'] }}</td>
     <td>{{ $data['size_system'] }}</td>
     <td>{{ $data['size'] }}</td>
     <td>{{ $data['size_eu'] }}</td>

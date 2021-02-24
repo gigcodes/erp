@@ -163,6 +163,7 @@
                 <th style="">Customer ID</th>
                 <th style="">Customer Name</th>
                 <th style="">Email</th>
+                <th style="">Source</th>
                 <th>
                     <select class="form-control search" id="dnd">
                         <option>Select DND Users</option>
@@ -182,6 +183,7 @@
                 </th>
                 <th></th>
                 <th></th>
+                <th></th>
             </tr>
             @foreach($customers as $value)
                 <tr>
@@ -190,6 +192,13 @@
                     <td>{{$value["id"]}}</td>
                     <td>{{$value["name"]}}</td>
                     <td>{{$value["email"]}}</td>
+                    <td>
+                        <select class="form-control update_source" data-href="{!! route('mailingList.customer.source',$value['id']) !!}">
+                            <option>Select Source Users</option>
+                            @foreach(App\Customer::ListSource() as $key => $val)
+                                <option value="{!! $key !!}" {!! $value["source"] == $key ?  'selected' : '' !!}>{!! $val !!}</option>
+                            @endforeach
+                        </select></td>
                     <td>
                         <label class="switch" style="margin: 0px">
                             @if($value->do_not_disturb == 1)
@@ -297,6 +306,26 @@
                 });
                 // alert('Customer Updated');
             }
+        });
+
+        $(".update_source").change(function () {
+                var _this = $(this);
+                $.ajax({
+                    url: jQuery(_this).data('href'),
+                    dataType: "json",
+                    method: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        source: jQuery(_this).val(),
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });
         });
         //select all checkboxes
         $("#select_all").change(function () {  //"select all" change

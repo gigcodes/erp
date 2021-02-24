@@ -26,7 +26,7 @@ class LiveChatController extends Controller
     //Webhook
     public function incoming(Request $request)
     {
-        \Log::info($request->getContent());
+        \Log::channel('chatapi')->info($request->getContent());
         $receivedJson = json_decode($request->getContent());
 
         if (isset($receivedJson->event_type)) {
@@ -1242,34 +1242,36 @@ if(isset($request->messageId)){
                 )
             );
 
-             try {
+            $view = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
+            $params = [
+                'model_id'   => $customer->id,
+                'model_type' => \App\Customer::class,
+                'from'       => $view->fromMailer,
+                'to'         => $customer->email,
+                'subject'    => $view->subject,
+                'message'    => $view->render(),
+                'template'   => 'issue-credit',
+                'additional_data' => '',
+                'is_draft'   => 1
+            ];
+
+            \App\CommunicationHistory::create([
+                'model_id' => $customer->id,
+                'model_type' => \App\Customer::class,
+                'type' => 'issue-credit',
+                'method' => 'email'
+            ]);
+
+            $emailObject = \App\Email::create($params);
+
+            try {
                 \MultiMail::to($customer->email)->send(new \App\Mails\Manual\SendIssueCredit($customer));
-
-                $view = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
-
-                \App\CommunicationHistory::create([
-                    'model_id' => $customer->id,
-                    'model_type' => \App\Customer::class,
-                    'type' => 'issue-credit',
-                    'method' => 'email'
-                ]);
-
-                $params = [
-                    'model_id'   => $customer->id,
-                    'model_type' => \App\Customer::class,
-                    'from'       => $view->fromMailer,
-                    'to'         => $customer->email,
-                    'subject'    => $view->subject,
-                    'message'    => $view->render(),
-                    'template'   => 'issue-credit',
-                    'additional_data' => ''
-                ];
-
-                \App\Email::create($params);
-
+                $emailObject->is_draft = 0;
             }catch(\Exception $e) {
-                \Log::info("Sending mail issue at the livechatcontroller #1271 ->".$e->getMessage());
+                $emailObject->error_message = $e->getMessage();
             }
+
+            $emailObject->save();
 
         }
         return response()->json(['credit updated successfully', 'code' => 200, 'status' => 'success']);

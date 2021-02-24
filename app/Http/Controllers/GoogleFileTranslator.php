@@ -169,7 +169,7 @@ class GoogleFileTranslator extends Controller
                         $data[] = htmlspecialchars_decode($translationString,ENT_QUOTES);
                         
                     } catch (\Exception $e) {
-                        \Log::error($e);
+                        \Log::channel('errorlog')->error($e);
                     }
                 }
                 $newCsvData[] = $data;
