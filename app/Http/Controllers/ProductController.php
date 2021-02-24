@@ -1698,6 +1698,7 @@ class ProductController extends Controller
                         $msg = 'No website found for  Brand: '. $product->brand. ' and Category: '. $product->category;
                         $logId = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
                         ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+                        $this->updateLogUserId($logId);
                     }else{
                         $i = 1;
                         foreach ($websiteArrays as $websiteArray) {
@@ -1716,6 +1717,7 @@ class ProductController extends Controller
 
                                 $logId = LogListMagento::log($product->id, $msg, 'info');
                                 ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+                                $this->updateLogUserId($logId);
                             }
                         }
                     }
@@ -1754,6 +1756,7 @@ class ProductController extends Controller
 
                         $logId = LogListMagento::log($product->id, $msg, 'info');
                         ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+                        $this->updateLogUserId($logId);
                     }
                     if(count($languages) > 0){
                         foreach ($languages as $language) {
@@ -1774,11 +1777,13 @@ class ProductController extends Controller
                                     
                                     $logId = LogListMagento::log($product->id, $msg, 'info');
                                     ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+                                    $this->updateLogUserId($logId);
                                 }
                             }else{
                                 $msg = 'Locale data not exists';
                                 $logId = LogListMagento::log($product->id, $msg, 'info');
                                 ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+                                $this->updateLogUserId($logId);
                             }
                         }
                     }else{
@@ -1786,6 +1791,7 @@ class ProductController extends Controller
                         
                         $logId = LogListMagento::log($product->id, $msg, 'info');
                         ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+                        $this->updateLogUserId($logId);
                     }
                     
                     // Update the product so it doesn't show up in final listing
@@ -1803,7 +1809,7 @@ class ProductController extends Controller
 
             $logId = LogListMagento::log($product->id, $msg, 'info');
             ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-    
+            $this->updateLogUserId($logId);
             // Return error response by default
             return response()->json([
                 'result' => 'productNotFound',
@@ -1815,7 +1821,7 @@ class ProductController extends Controller
 
             $logId = LogListMagento::log($id, $msg, 'info');
             ProductPushErrorLog::log("",$id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-           
+            $this->updateLogUserId($logId);
             // Return error response by default
             return response()->json([
                 'result' => 'productNotFound',
@@ -1823,6 +1829,16 @@ class ProductController extends Controller
             ]);
         }
         
+    }
+
+    public function updateLogUserId($logId)
+    {
+        $updateLogUser = LogListMagento::find($logId->id);
+        if($updateLogUser)
+        {
+            $updateLogUser->user_id = Auth::id();
+            $updateLogUser->save();
+        }
     }
 
     public function unlistMagento(Request $request, $id)
