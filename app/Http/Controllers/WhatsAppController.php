@@ -3599,15 +3599,30 @@ class WhatsAppController extends FindByNumberController
             // Check the message is email message
             if( $message->is_email == 1 ){
                 
-                $botReply          = \App\ChatbotReply::where( 'chat_id', $message->id)->get();
-                $storeEmailAddress = EmailAddress::whereNotNull('store_website_id')->where( 'store_website_id', $customer->store_website_id )->first();
-                $from_address      = env('MAIL_FROM_ADDRESS');
-
-                if( !empty( $storeEmailAddress ) && !empty( $storeEmailAddress->from_address )  ){
-                    $from_address = $storeEmailAddress->from_address;
-                }
-
                 if( !empty( $customer ) ){
+
+                    $botReply          = \App\ChatbotReply::where( 'chat_id', $message->id)->get();
+                    $storeEmailAddress = EmailAddress::whereNotNull('store_website_id')->where( 'store_website_id', $customer->store_website_id )->first();
+                    $from_address      = env('MAIL_FROM_ADDRESS');
+
+                    $subject = null;
+                    $message_body = $message->message;
+
+                    if( !empty( $storeEmailAddress ) && !empty( $storeEmailAddress->from_address )  ){
+                        $from_address = $storeEmailAddress->from_address;
+                    }
+                    
+                    $template = \App\MailinglistTemplate::getBotEmailTemplate( $customer->store_website_id );
+
+                    if( empty( $template ) ){
+                        $template = \App\MailinglistTemplate::getBotEmailTemplate();
+                    }
+                    
+                    if( $template ){
+                        $subject      = $template->subject;
+                        $message_body = str_replace( array("{{customer_name}}","{{content}}"),array( $customer->name,  $message ),$template->static_template );
+                    }
+
                     $email_params = [
                         'model_id'        => null,
                         'model_type'      => null,
@@ -3617,8 +3632,8 @@ class WhatsAppController extends FindByNumberController
                         'seen'            => 0,
                         'from'            => $from_address ?? '',
                         'to'              => $customer->email,
-                        'subject'         => isset( $botReply[0]->question ) ? $botReply[0]->question : null,
-                        'message'         => $message->message,
+                        'subject'         => $subject,
+                        'message'         => $message_body,
                         'template'        => 'customer-simple',
                         'additional_data' => null,
                         'created_at'      => Carbon::now(),
@@ -3628,6 +3643,7 @@ class WhatsAppController extends FindByNumberController
                     $message->update([
                         'approved' => 1,
                         'is_queue' => 0,
+                        'is_draft' => 0,
                         'status' => 2,
                         'created_at' => Carbon::now()
                     ]);
