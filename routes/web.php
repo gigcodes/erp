@@ -2699,6 +2699,8 @@ Route::get('/scrapper-phyhon', 'scrapperPhyhon@index')->name('scrapper.phyhon.in
 // DEV MANISH
 Route::get('google-keyword-search', 'GoogleAddWord\googleAddsController@index')->name('google-keyword-search');
 
+Route::resource('google-traslation-settings', 'GoogleTraslationSettingsController');
+
 // DEV MANISH
 //System size
 Route::group(['middleware' => 'auth', 'admin'], function () {

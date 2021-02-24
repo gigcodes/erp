@@ -10,6 +10,7 @@ namespace App;
 
 
 use Google\Cloud\Translate\V2\TranslateClient;
+use App\googleTraslationSettings;
 
 class GoogleTranslate
 {
@@ -21,15 +22,25 @@ class GoogleTranslate
     }
 
     public function translate($target, $text) {
+        $file = googleTraslationSettings::select('account_json')
+        ->where('status','1')
+        ->orderBy('id')
+        ->first();
 
         // on production site it will return the original text
         if(env("IS_SITE","local") != "production") {
             return $text;
         }
 
-        $translate = new TranslateClient([
-            'keyFile' => json_decode(file_get_contents($this->path), true)
-        ]);
+        if (!empty($file)) {
+            $translate = new TranslateClient([
+                'keyFile' => json_decode($file->account_json)
+            ]);
+        }else{
+            $translate = new TranslateClient([
+                'keyFile' => json_decode(file_get_contents($this->path), true)
+            ]);
+        }
         
         $result = $translate->translate($text, [
             'target' => $target
