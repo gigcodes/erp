@@ -56,10 +56,12 @@ trait hubstaffTrait
             );
 
             $responseJson = json_decode($response->getBody()->getContents());
+            $token_life=time()+(int)$responseJson->expires_in;
             $tokens       = [
                 'access_token'  => $responseJson->access_token,
                 'refresh_token' => $responseJson->refresh_token,
                 'expires_in'    => $responseJson->expires_in,
+                'token_life'    => $token_life,
             ];
 
             return Storage::disk('local')->put($this->HUBSTAFF_TOKEN_FILE_NAME, json_encode($tokens));
