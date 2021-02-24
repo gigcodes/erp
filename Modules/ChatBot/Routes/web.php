@@ -116,6 +116,7 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
         Route::post('/remove-images', 'MessageController@removeImages')->name("chatbot.messages.remove-images");
         Route::get('/attach-images', 'MessageController@attachImages')->name("chatbot.messages.attach-images");
         Route::post('/forward-images', 'MessageController@forwardToCustomer')->name("chatbot.messages.forward-images");
+        Route::get('/resend-to-bot', 'MessageController@resendToBot')->name("chatbot.messages.resend-to-bot");
     });
 
     Route::prefix('rest/dialog')->group(function () {
