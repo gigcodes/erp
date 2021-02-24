@@ -1,3 +1,5 @@
+<div style="margin-bottom:10px;"><a class="btn btn-danger" href="{{ route('delete-rules',['id' => $result->id]) }}">Delete</a></div>
+
 <div class="panel-group" id="accordion1" role="tablist" aria-multiselectable="true">
                             <div class="panel panel-default">
                             <div class="panel-heading" role="tab" id="headingOne">
@@ -330,6 +332,7 @@
                                                             <th>Expiration Date</th>
                                                             <th>uses</th>
                                                             <th>Times Used</th>
+                                                            <th>Actions</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -341,6 +344,7 @@
                                                                     <td>{{ $code->expiration }}</td>
                                                                     <td>{{ $code->uses }}</td>
                                                                     <td>{{ $code->usage_count }}</td>
+                                                                    <td><a class="btn btn-danger" onclick="deleteCoupon(this);" data-id="{{ $code->id }}">Delete</a></td>
                                                                 </tr>
                                                         @endforeach
                                                     </tbody>

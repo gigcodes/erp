@@ -1293,5 +1293,27 @@ form label.required:after{
             }
         });
     }
+
+    function deleteCoupon(ele){
+        let code_id = $(ele).attr('data-id');
+        $.ajax({
+            url : "{{ route('deleteCouponByCode') }}",
+            type : "POST",
+            data : {
+                id : code_id,
+            },
+            success : function (response){
+                if(response.type == "success"){
+                    alert("Coupon successfully removed");
+                    location.reload();
+                }else{
+                    alert("Someting went wrong");
+                }
+            },
+            error : function (response){
+
+            }
+        });
+    }
 </script>
 @endsection

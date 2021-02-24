@@ -560,7 +560,9 @@ class CouponController extends Controller
 
     public function deleteCouponCodeRuleById($id){
         $authorization = "Authorization: Bearer u75tnrg0z2ls8c4yubonwquupncvhqie";
-        $url = "https://sololuxury.com/rest/V1/salesRules/salesRules/".$id;
+
+        $rule_lists = CouponCodeRules::where('id',$id)->first();
+        $url = "https://sololuxury.com/rest/V1/salesRules/salesRules/".$rule_lists->magento_rule_id;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json' , $authorization ));
         curl_setopt($ch, CURLOPT_URL,$url);
@@ -568,13 +570,9 @@ class CouponController extends Controller
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);
         $result = json_decode($response);
-        return $response;
-        curl_close($ch); // Close the connection
-        if(isset($result->rule_id)){
-            return response()->json(['status' => 'success','data' => $result,'message' => "Rule deleted successfully"],200);
-        }else{
-            return response()->json(['status' => 'error','data' => $result,'message' => 'Something went wrong!'],200);
-        }
+        $coupon = Coupon::where('rule_id',$rule_lists->magento_rule_id)->delete();
+        $rule_lists = CouponCodeRules::where('id',$id)->delete();
+        return redirect()->route('coupons.index');
     }
 
 
@@ -720,7 +718,7 @@ class CouponController extends Controller
         $response = curl_exec($ch);
         $result = json_decode($response);
         curl_close($ch); // Close the connection
-        if(isset($result->code)){
+        if(isset($result->code) || isset($result->message)){
             return response()->json(['type' => 'error','message' => $result->message,'data' => $result],200);
         }
 
@@ -771,5 +769,30 @@ class CouponController extends Controller
         $websites = Website::where('store_website_id',$store_id)->get();
         $returnHTML = view('coupon.wepsiteDrpDwn')->with('websites',$websites)->render();
         return response()->json(['type' => "success",'data' => $returnHTML,'message' => ""],200);
+    }
+
+    public function deleteCouponByCode(Request $request){
+
+        $coupon = Coupon::where('id',$request->id)->first();
+
+        $authorization = "Authorization: Bearer u75tnrg0z2ls8c4yubonwquupncvhqie";
+        $parameters =  ["codes" => array($coupon->code),"ignoreInvalidCoupons" => true];
+        $url = "https://sololuxury.com/rest/V1/coupons/deleteByCodes";
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json' , $authorization ));
+        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
+        $response = curl_exec($ch);
+        $result = json_decode($response);
+        $coupon = Coupon::where('id',$request->id)->delete();
+        curl_close($ch); // Close the connection
+        // if(isset($result->missing_items) && !empty($result->missing_items)){
+        //     return response()->json(['type' => 'error','message' => $result->message,'data' => $result],200);
+        // }
+        return response()->json(['type' => "success",'data' => [],'message' => "Coupon deleted successfully"],200);
     }
 }
