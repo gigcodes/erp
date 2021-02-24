@@ -206,9 +206,7 @@ class MessageHelper
                             'status'            => 2,
                             'task_id'           => $taskid,
                             'message'           => $task_info[0]->task_details,
-                            'quoted_message_id' => $quoted_message_id,
-                            'is_email'          => ( $isEmail == 1 ) ? 1 : 0,
-                            'is_draft'          => ( $isEmail == 1 ) ? 1 : 0,
+                            'quoted_message_id' => $quoted_message_id
                         ];
 
                         if ($sendMsg === true) {
