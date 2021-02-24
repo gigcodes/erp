@@ -43,14 +43,17 @@
         </td>
         <td class="boat-replied">{{ $pam->reply_from }}</td>
         <td class="images-layout">
-            @php
-                $botMessage = \App\ChatMessage::find($pam->chat_id);
-            @endphp
-            @if(isset($botMessage))
-                @if($botMessage->hasMedia(config('constants.media_tags')))
-                    {{ count($botMessage->getMedia(config('constants.media_tags')) }}
+            <form class="remove-images-form" action="{{ route('chatbot.messages.remove-images') }}" method="post">
+                {{ csrf_field() }}
+                @php
+                    $botMessage = \App\ChatMessage::find($pam->chat_id);
+                @endphp
+                @if(isset($botMessage))
+                    @if($botMessage->hasMedia(config('constants.media_tags')))
+                        {{ $botMessage->getMedia(config('constants.media_tags'))->count() }}
+                    @endif
                 @endif
-            @endif
+            </form>
         </td>
         <td>{{ $pam->created_at }}</td>
         <td>
