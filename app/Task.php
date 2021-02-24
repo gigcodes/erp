@@ -156,4 +156,13 @@ class Task extends Model {
         ->selectRaw('task_id, SUM(tracked) as tracked')
         ->groupBy('task_id');
     }
+
+    public function taskStatus()
+    {
+    	return $this->hasOne(
+            'App\taskStatus',
+            'id',
+            'status'
+        );
+    }
 }

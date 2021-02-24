@@ -258,7 +258,7 @@ class Order extends Model
 
     public function status()
     {
-        return $this->hasOne();
+        return $this->hasOne(\App\OrderStatus::class, 'id','order_status_id');
     }
 
 

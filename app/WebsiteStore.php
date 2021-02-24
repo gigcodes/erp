@@ -35,4 +35,9 @@ class WebsiteStore extends Model
     {
         return $this->hasMany(\App\WebsiteStoreView::class, 'website_store_id','id');
     }
+	
+	 public function scrapperImage()
+    {
+        return $this->hasMany(\App\scraperImags::class, 'website_id', 'code');
+    }
 }

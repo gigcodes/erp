@@ -16,4 +16,9 @@ class Activity extends Model
      * @SWG\Property(property="description",type="text")
      */
     protected $fillable = ['subject_id','subject_type','causer_id','description'];
+
+    public function causer()
+    {
+        return $this->belongsTo('App\User');
+    }
 }

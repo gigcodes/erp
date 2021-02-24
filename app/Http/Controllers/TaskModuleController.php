@@ -12,6 +12,7 @@ use App\Helpers;
 use App\User;
 use App\Task;
 use App\TaskCategory;
+use App\TaskStatus;
 use App\Contact;
 use App\Setting;
 use App\Remark;
@@ -35,6 +36,7 @@ use Storage;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\Helpers\HubstaffTrait;
 
+
 class TaskModuleController extends Controller {
 
 	use hubstaffTrait;
@@ -56,6 +58,7 @@ class TaskModuleController extends Controller {
 			$type = $request->input( 'type' );
 		}
 		$activeCategories = TaskCategory::where('is_active',1)->pluck('id')->all();
+
 		$categoryWhereClause = '';
 		$category = '';
 		$request->category = $request->category ? $request->category : 1;
@@ -139,7 +142,7 @@ class TaskModuleController extends Controller {
 				  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
 			  ) as chat_messages  ON chat_messages.task_id = tasks.id
 			) AS tasks
-			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$isCompleteWhereClose.' AND (assign_from = ' . $userid . ' OR master_user_id = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.'; ');
+			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$isCompleteWhereClose.' AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.'; ');
 
 
 			foreach ($data['task']['pending'] as $task) {
@@ -200,7 +203,7 @@ class TaskModuleController extends Controller {
 					FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
                  ) AS chat_messages ON chat_messages.task_id = tasks.id
                 ) AS tasks
-                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL AND (assign_from = ' . $userid . ' OR master_user_id = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.';');
+                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.';');
 				
 
 				foreach ($data['task']['completed'] as $task) {
@@ -263,7 +266,7 @@ class TaskModuleController extends Controller {
 	                 ) AS chat_messages ON chat_messages.task_id = tasks.id
 
 	               ) AS tasks
-				   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR master_user_id = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $orderByClause .' limit '.$paginate.' offset '.$offSet.';');
+				   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $orderByClause .' limit '.$paginate.' offset '.$offSet.';');
 				   
 				   foreach ($data['task']['statutory_not_completed'] as $task) {
 					array_push($assign_to_arr, $task->assign_to);
@@ -595,28 +598,30 @@ class TaskModuleController extends Controller {
 			$title = 'Task & Activity';
 		}
 
-	
+	    $task_statuses=TaskStatus::all();
+
+
 
 		if ($request->ajax()) {
 			if($type == 'pending') {
-				return view( 'task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
+				return view( 'task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses'));
 			}
 			else if( $type == 'statutory_not_completed') {
-				return view( 'task-module.partials.statutory-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
+				return view( 'task-module.partials.statutory-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses'));
 			}
 			else if( $type == 'completed') {
-				return view( 'task-module.partials.completed-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
+				return view( 'task-module.partials.completed-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses'));
 			}
 			else {
-				return view( 'task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
+				return view( 'task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses'));
 			}
 		}
 
 		if($request->is_statutory_query == 3) {
-			return view( 'task-module.discussion-tasks', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
+			return view( 'task-module.discussion-tasks', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses'));
 		}
 		else {
-			return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
+			return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses'));
 		}
 	}
 
@@ -990,7 +995,7 @@ class TaskModuleController extends Controller {
 				  $task->save();
 			  }
 
-
+			$task_statuses=TaskStatus::all();  
 
 			if ($request->ajax()) {
 				$hasRender = request("has_render", false);
@@ -1011,7 +1016,7 @@ class TaskModuleController extends Controller {
 						$mode = "task-module.partials.pending-row";
 					}
 
-					$view = (string)view($mode,compact('task','priority','users'));
+					$view = (string)view($mode,compact('task','priority','users','task_statuses'));
 					return response()->json(["code" => 200, "statutory" => $task->is_statutory , "raw" => $view]);	
 
 				}
@@ -1026,7 +1031,20 @@ class TaskModuleController extends Controller {
 	private function createHubstaffTask(string $taskSummary, ?int $hubstaffUserId, int $projectId, bool $shouldRetry = true)
     {
         $tokens = $this->getTokens();
+       // echo '<pre>';print_r($tokens);
+
+        if(time() > $tokens->token_life)
+        {
+        	$this->refreshTokens();
+
+            $tokens = $this->getTokens();
+        }
+
+       
+
         $url = 'https://api.hubstaff.com/v2/projects/' . $projectId . '/tasks';
+
+        
         $httpClient = new Client();
         try {
 
@@ -1052,9 +1070,13 @@ class TaskModuleController extends Controller {
                 ]
             );
             $parsedResponse = json_decode($response->getBody()->getContents());
+
+         
             return $parsedResponse->task->id;
+
         } catch (ClientException $e) {
         	if($e->getCode() == 401) {
+
         		$this->refreshTokens();
                 if ($shouldRetry) {
                     return $this->createHubstaffTask(
@@ -1064,8 +1086,13 @@ class TaskModuleController extends Controller {
                         false
                     );
                 }
+                else
+                {
+
+                }
         	}
         }
+       
         return false;
 	}
 
@@ -2198,6 +2225,9 @@ class TaskModuleController extends Controller {
 				  $task->save();
 			  }
 			  if ($hubstaffTaskId) {
+
+			  	 
+
 				  $hubtask = new HubstaffTask();
 				  $hubtask->hubstaff_task_id = $hubstaffTaskId;
 				  $hubtask->project_id = $hubstaff_project_id;
@@ -2209,6 +2239,8 @@ class TaskModuleController extends Controller {
 
 		if ($request->ajax() && $request->from == 'task-page') {
 			$hasRender = request("has_render", false);
+
+			$task_statuses=TaskStatus::all();
 			
 			if(!empty($hasRender)) {
 				
@@ -2225,7 +2257,7 @@ class TaskModuleController extends Controller {
 					$mode = "task-module.partials.pending-row";
 				}
 
-				$view = (string)view($mode,compact('task','priority','users'));
+				$view = (string)view($mode,compact('task','priority','users','task_statuses'));
 				return response()->json(["code" => 200, "statutory" => $task->is_statutory , "raw" => $view]);	
 
 			}
@@ -2498,6 +2530,9 @@ class TaskModuleController extends Controller {
 				],500);
 			}
 			if ($hubstaffTaskId) {
+
+				
+
 				$task = new HubstaffTask();
 				$task->hubstaff_task_id = $hubstaffTaskId;
 				$task->project_id = $hubstaff_project_id;
@@ -2582,4 +2617,55 @@ class TaskModuleController extends Controller {
 	
 			return response()->json(["message" => "Sorry required fields is missing like id , userid"],500);
 		}
+
+   /* update task status 
+    */
+
+   public function updateStatus(Request $request)
+   {
+   	    try {
+
+   	    	$task=Task::find($request->task_id);
+
+   	    	$task->status=$request->status;
+
+   	    	$task->save();
+
+   	    	return response()->json([
+                'status' => 'success', 'message' =>'The task status updated.'
+            ],200);
+
+
+   	    	
+   	    } catch (Exception $e) {
+
+   	    	return response()->json([
+                'status' => 'error', 'message' =>'The task status not updated.'
+            ],500);
+   	    	
+   	    }
+   }
+
+   /* create new task status */
+
+   public function createStatus(Request $request)
+   {
+   	  $this->validate($request,['task_status'=>'required']);
+
+   	  try {
+
+   	  	TaskStatus::create(['name'=>$request->task_status]);
+
+   	  	return redirect()->back()->with( 'success', 'The task status created successfully.' );
+   	  	
+   	  } catch (Exception $e) {
+   	  	
+   	  	return redirect()->back()->with('error',$e->getMessage());
+   	  }
+
+
+
+   }
+
+   
 }

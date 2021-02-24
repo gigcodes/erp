@@ -51,7 +51,8 @@ class ReturnExchange extends Model
         'dispatch_date',
         'date_of_request',
         'credited',
-        'est_completion_date'
+        'est_completion_date',
+        'send_email'
     ];
 	
     const STATUS = [

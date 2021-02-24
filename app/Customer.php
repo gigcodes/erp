@@ -89,6 +89,11 @@ class Customer extends Model
         return $this->hasMany('App\Order')->orderBy('created_at', 'DESC')->first();
     }
 
+    public function latestRefund()
+    {
+        return $this->hasMany('App\ReturnExchange')->orderBy('created_at', 'DESC')->first();
+    }
+
     public function suggestion()
     {
         return $this->hasOne('App\Suggestion');
@@ -308,5 +313,12 @@ class Customer extends Model
     public function return_exchanges()
     {
         return $this->hasMany(ReturnExchange::class, 'customer_id');
+    }
+
+    public static function ListSource(){
+        return array(
+            'instagram' => "Instagram",
+            'default' => "Default"
+        );
     }
 }

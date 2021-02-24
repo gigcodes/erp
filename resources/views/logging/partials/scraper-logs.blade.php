@@ -8,6 +8,10 @@
         <td>{{ $log->original_sku }}</td>
         <td>{{ $log->title }}</td>
         <td>{{ $log->validation_result }}</td>
+        <td>{{ $log->size }}</td>
+        <td>{{ $log->composition }}</td>
+        <td>{{ $log->country }}</td>
+        <td>{{ $log->supplier }}</td>
         <td>{{ $log->created_at }}</td>
     </tr>
 @endforeach

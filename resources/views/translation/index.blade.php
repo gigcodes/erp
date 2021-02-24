@@ -19,6 +19,68 @@
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
     </div>
+
+    <div id="addGooleSetting" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content ">
+                <form class="add_translation_language" action="{{ route('google-traslation-settings.store') }}" method="POST">
+                    @csrf
+                    <div class="modal-header">
+                        <h4 class="modal-title">Add Goole Translation Setting</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                         <!-- email , account_json , status, last_note , created_at -->
+                        <div class="form-group">
+                            <strong>Email:</strong>
+                            <input type="text" name="email" class="form-control" value="{{ old('email') }}">
+
+                            @if ($errors->has('email'))
+                            <div class="alert alert-danger">{{$errors->first('email')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Account JSON:</strong>
+                            <textarea class="form-control" name="account_json" required>
+                            </textarea>
+                            @if ($errors->has('account_json'))
+                            <div class="alert alert-danger">{{$errors->first('account_json')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Status:</strong>
+                            <select name="status" class="form-control">
+                                <option value="1">Enable</option>
+                                <option value="0">Disable</option>
+                            </select>
+                            <!-- <input type="text" name="status" class="form-control" value="{{ old('status') }}" required> -->
+
+                            @if ($errors->has('status'))
+                            <div class="alert alert-danger">{{$errors->first('status')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Last Note:</strong>
+                            <input type="text" name="last_note" class="form-control" value="{{ old('last_note') }}" required>
+
+                            @if ($errors->has('last_note'))
+                            <div class="alert alert-danger">{{$errors->first('last_note')}}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-secondary">Store</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Translation Listing (<span id="translation_count">{{ $data->total() }}</span>)</h2>
@@ -40,6 +102,9 @@
                     </div>
             </div>
             <div class="pull-right">
+                <button type="button" class="btn btn-secondary" data-target="#addGooleSetting" data-toggle="modal">
+                    Add New Setting
+                </button>
                 <a class="btn btn-secondary" href="{{ route('translation.add') }}">+</a>
             </div>
         </div>

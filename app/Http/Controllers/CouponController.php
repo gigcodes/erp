@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\CreateCouponRequest;
 use App\Coupon;
+use App\Website;
+use App\WebsiteStore;
 use App\Helpers\SSP;
 use App\Order;
 use Carbon\Carbon;
@@ -24,7 +26,17 @@ class CouponController extends Controller
     public function index(Request $request)
     {
         $coupons = Coupon::orderBy('id', 'DESC')->get();
-        return view('coupon.index', compact('coupons'));
+        $websites = Website::all();
+        $website_stores = WebsiteStore::with('storeView')->get();
+        
+        $url = "https://sololuxury.com/rest/V1/salesRulesList/";
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        $rule_lists = json_decode($response);
+        curl_close($ch); // Close the connection
+        return view('coupon.index', compact('coupons','websites','website_stores','rule_lists'));
     }
 
     public function loadData()
@@ -361,5 +373,284 @@ class CouponController extends Controller
         return response(
             json_encode($response)
         );
+    }
+
+
+    public function addRules(Request $request){
+
+        
+        $store_lables = [];
+        foreach($request->store_labels as $key => $lables){
+            array_push($store_lables,['store_id' => $key,'store_label' => $lables,'extension_attributes' => '{}']);
+        }
+
+        $authorization = "Authorization: Bearer u75tnrg0z2ls8c4yubonwquupncvhqie";
+        $parameters = [];
+        $parameters['rule'] = [
+            "name" => $request->name,
+            "store_labels" => $store_lables,
+            "description" => $request->description,
+            "website_ids" => [implode(',',$request->website_ids)],
+            "customer_group_ids" => [implode(',',$request->customer_groups)],
+            "from_date" => $request->start,
+            "to_date" => $request->expiration,
+            "uses_per_customer" => $request->uses_per_coustomer,
+            "is_active" => $request->active == "1" ? true : false,
+            "condition" => [
+                "condition_type" => "Magento\\SalesRule\\Model\\Rule\\Condition\\Combine",
+                "conditions" => [
+                    [
+                        "condition_type" => "Magento\\SalesRule\\Model\\Rule\\Condition\\Address",
+                        "operator" => ">=",
+                        "attribute_name" => "base_subtotal",
+                        "value" => "200"
+                    ]
+                ],
+                "aggregator_type" => "all",
+                "operator" => null,
+                "value" => "1"
+            ],
+            "action_condition" => [
+                "condition_type" => "Magento\\SalesRule\\Model\\Rule\\Condition\\Product\\Combine",
+                "conditions" => [
+                    [
+                        "condition_type" => "Magento\\SalesRule\\Model\\Rule\\Condition\\Product\\Combine",
+                        "conditions" => [
+                            [
+                                "condition_type" => "Magento\\SalesRule\\Model\\Rule\\Condition\\Product",
+                                "operator" => "==",
+                                "attribute_name" => "category_ids",
+                                "value" => "6"
+                            ],
+                            [
+                                "condition_type" => "Magento\\SalesRule\\Model\\Rule\\Condition\\Product",
+                                "operator" => "==",
+                                "attribute_name" => "sale",
+                                "value" => "1"
+                            ]
+                        ],
+                        "aggregator_type" => "all",
+                        "operator" => null,
+                        "value" => "0"
+                    ]
+                ],
+                "aggregator_type" => "all",
+                "operator" => null,
+                "value" => "1"
+            ],
+            "stop_rules_processing"  => false,
+            "is_advanced" => true,
+            "sort_order" => 0,
+            "simple_action" => "by_percent",
+            "discount_amount" => 0,
+            "discount_step" => 0,
+            "apply_to_shipping" => false,
+            "times_used" => 6,
+            "is_rss" => $request->rss,
+            "coupon_type" => $request->coupon_type,// or "coupon_type" => "SPECIFIC_COUPON",
+            "use_auto_generation" => isset($request->use_auto_generation) ? true : false, // use true if want to generate multiple codes for same rule
+            "uses_per_coupon" => $request->uses_per_coupon,
+            "simple_free_shipping" => "0"
+        ];
+
+        //print_r(json_encode($parameters));die;
+        $url = "https://sololuxury.com/rest/V1/salesRules/";
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json' , $authorization ));
+        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
+        $response = curl_exec($ch);
+        $result = json_decode($response);
+        curl_close($ch); // Close the connection
+        
+        if(isset($result->code)){
+            return response()->json(['type' => 'error','message' => $result->message,'data' => $result],200);
+        }
+        return response()->json(['type' => "success",'data' => $result,'message' => "Added successfully"],200);
+        //dd($this->getCouponCodeRuleById(2));
+    }
+
+
+    public function getCouponCodeRuleById(Request $request){
+        $authorization = "Authorization: Bearer u75tnrg0z2ls8c4yubonwquupncvhqie";
+        $url = "https://sololuxury.com/rest/V1/salesRules/".$request->rule_id;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json' , $authorization ));
+        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        $result = json_decode($response);
+        curl_close($ch); // Close the connection
+        if(isset($result->rule_id)){
+            $websites = Website::all();
+            $website_stores = WebsiteStore::with('storeView')->get();
+            $returnHTML = view('coupon.editModal')->with('result', $result)->with('websites',$websites)->with('website_stores',$website_stores)->render();
+            return response()->json(['status' => 'success','data' => ['html' => $returnHTML],'message' => "Rule details"],200);
+        }else{
+            return response()->json(['status' => 'error','data' => $result,'message' => 'Something went wrong!'],200);
+        }
+    }
+
+    public function deleteCouponCodeRuleById($id){
+        $authorization = "Authorization: Bearer u75tnrg0z2ls8c4yubonwquupncvhqie";
+        $url = "https://sololuxury.com/rest/V1/salesRules/salesRules/".$id;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json' , $authorization ));
+        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        $result = json_decode($response);
+        return $response;
+        curl_close($ch); // Close the connection
+        if(isset($result->rule_id)){
+            return response()->json(['status' => 'success','data' => $result,'message' => "Rule deleted successfully"],200);
+        }else{
+            return response()->json(['status' => 'error','data' => $result,'message' => 'Something went wrong!'],200);
+        }
+    }
+
+
+    public function generateCouponCode(Request $request){
+        $format = "alphanum";
+
+        if($request->format == 1){
+            $format = "alphanum";
+        }
+
+        if($request->format == 2){
+            $format = "alpha";
+        }
+
+        if($request->format == 3){
+            $format = "num";
+        }
+
+       $parameters = [
+            "couponSpec" => [
+                "rule_id"  => $request->rule_id,
+                "format" => $format,
+                "quantity" => $request->qty,
+                "length" => $request->length,
+                "prefix" => $request->prefix,
+                "suffix" => $request->suffix,
+                "delimiter_at_every" => $request->dash,
+                "delimiter" => "-"
+            ]
+        ];
+
+        $authorization = "Authorization: Bearer u75tnrg0z2ls8c4yubonwquupncvhqie";
+        $url = "https://sololuxury.com/rest/V1/coupons/generate";
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json' , $authorization ));
+        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
+        $response = curl_exec($ch);
+        $result = json_decode($response);
+        curl_close($ch); // Close the connection
+        if(isset($result->message)){
+            return response()->json(['type' => 'error','message' => $result->message,'data' => $result],200);
+        }
+        return response()->json(['type' => "success",'data' => $result,'message' => "Added successfully"],200);
+    }
+
+    public function updateRules(Request $request){
+        //dd($request->all());
+        $store_lables = [];
+        foreach($request->store_labels as $key => $lables){
+            array_push($store_lables,['store_id' => $key,'store_label' => $lables,'extension_attributes' => '{}']);
+        }
+
+        $authorization = "Authorization: Bearer u75tnrg0z2ls8c4yubonwquupncvhqie";
+        $parameters = [];
+        $parameters['rule'] = [
+            "name" => $request->name_edit,
+            "store_labels" => $store_lables,
+            "description" => $request->description_edit,
+            "website_ids" => [implode(',',array_unique($request->website_ids_edit))],
+            "customer_group_ids" => [implode(',',$request->customer_groups_edit)],
+            "from_date" => $request->start_edit,
+            "to_date" => $request->expiration_edit,
+            "uses_per_customer" => $request->uses_per_coustomer_edit,
+            "is_active" => $request->active_edit == "1" ? true : false,
+            "condition" => [
+                "condition_type" => "Magento\\SalesRule\\Model\\Rule\\Condition\\Combine",
+                "conditions" => [
+                    [
+                        "condition_type" => "Magento\\SalesRule\\Model\\Rule\\Condition\\Address",
+                        "operator" => ">=",
+                        "attribute_name" => "base_subtotal",
+                        "value" => "200"
+                    ]
+                ],
+                "aggregator_type" => "all",
+                "operator" => null,
+                "value" => "1"
+            ],
+            "action_condition" => [
+                "condition_type" => "Magento\\SalesRule\\Model\\Rule\\Condition\\Product\\Combine",
+                "conditions" => [
+                    [
+                        "condition_type" => "Magento\\SalesRule\\Model\\Rule\\Condition\\Product\\Combine",
+                        "conditions" => [
+                            [
+                                "condition_type" => "Magento\\SalesRule\\Model\\Rule\\Condition\\Product",
+                                "operator" => "==",
+                                "attribute_name" => "category_ids",
+                                "value" => "6"
+                            ],
+                            [
+                                "condition_type" => "Magento\\SalesRule\\Model\\Rule\\Condition\\Product",
+                                "operator" => "==",
+                                "attribute_name" => "sale",
+                                "value" => "1"
+                            ]
+                        ],
+                        "aggregator_type" => "all",
+                        "operator" => null,
+                        "value" => "0"
+                    ]
+                ],
+                "aggregator_type" => "all",
+                "operator" => null,
+                "value" => "1"
+            ],
+            "stop_rules_processing"  => false,
+            "is_advanced" => true,
+            "sort_order" => 0,
+            "simple_action" => "by_percent",
+            "discount_amount" => 0,
+            "discount_step" => 0,
+            "apply_to_shipping" => false,
+            "times_used" => 6,
+            "is_rss" => $request->rss,
+            "coupon_type" => $request->coupon_type_edit,// or "coupon_type" => "SPECIFIC_COUPON",
+            "use_auto_generation" => isset($request->auto_generate_edit) ? true : false, // use true if want to generate multiple codes for same rule
+            "uses_per_coupon" => $request->uses_per_coupon_edit,
+            "simple_free_shipping" => "0"
+        ];
+        //dd($parameters);
+
+        $url = "https://sololuxury.com/rest/V1/salesRules/".$request->rule_id;
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json' , $authorization ));
+        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
+        $response = curl_exec($ch);
+        $result = json_decode($response);
+        curl_close($ch); // Close the connection
+        
+        if(isset($result->code)){
+            return response()->json(['type' => 'error','message' => $result->message,'data' => $result],200);
+        }
+        return response()->json(['type' => "success",'data' => $result,'message' => "Data updated successfully"],200);
     }
 }

@@ -15,5 +15,5 @@ class Wetransfer extends Model
       * @SWG\Property(property="supplier",type="string")
       * @SWG\Property(property="is_processed",type="float")
      */
-    public $fillable = [ 'type','url', 'supplier','is_processed'];
+    public $fillable = [ 'type','url', 'supplier','is_processed', 'files_list', 'files_count'];
 }

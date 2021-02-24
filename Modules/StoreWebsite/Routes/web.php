@@ -15,6 +15,11 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::get('/', 'StoreWebsiteController@index')->name("store-website.index");
     Route::get('/records', 'StoreWebsiteController@records')->name("store-website.records");
     Route::post('/save', 'StoreWebsiteController@save')->name("store-website.save");
+    Route::post('/save-user-in-magento', 'StoreWebsiteController@saveUserInMagento')->name("store-website.save-user-in-magento");
+    Route::post('/delete-user-in-magento', 'StoreWebsiteController@deleteUserInMagento')->name("store-website.delete-user-in-magento");
+    Route::post('/user-password-history', 'StoreWebsiteController@userPasswordHistory')->name("store-website.user-password-history");
+
+	Route::post('/get-google-keywords', 'StoreWebsiteController@googleKeywordsSearch')->name("store-website.google.keyword.search");
 
     Route::prefix('{id}')->group(function () {
         Route::get('/edit', 'StoreWebsiteController@edit')->name("store-website.edit");
@@ -126,6 +131,16 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/edit', 'WebsiteStoreController@edit')->name("store-website.website-stores.edit");
         Route::get('/{id}/delete', 'WebsiteStoreController@delete')->name("store-website.website-stores.delete");
         Route::get('/{id}/push', 'WebsiteStoreController@push')->name("store-website.website-stores.push");
+    });
+
+    //Site Attributes
+    Route::prefix('site-attributes')->group(function () {
+        Route::get('/', 'SiteAttributesControllers@index')->name("store-website.site-attributes.index");
+        Route::post('save', 'SiteAttributesControllers@store')->name("store-website.site-attributes-views.save");
+        Route::get('list', 'SiteAttributesControllers@list')->name("store-website.site-attributes-views.list");
+        Route::get('/records', 'SiteAttributesControllers@records')->name("store-website.site-attributes-views.records");
+        Route::get('/{id}/delete', 'SiteAttributesControllers@delete')->name("store-website.site-attributes-views.delete");
+        Route::get('/{id}/edit', 'SiteAttributesControllers@edit')->name("store-website.site-attributes-views.edit");
     });
 
     Route::prefix('website-store-views')->group(function () {

@@ -445,6 +445,9 @@
     @include('task-module.partials.modal-reminder')
 
     @if(auth()->user()->isAdmin())
+
+    @include('task-module.partials.modal-task-status')
+
         <!-- <div class="row" style="margin-bottom:10px;">
             <div class="col-md-2">
                 <a class="btn btn-secondary" data-toggle="collapse" href="#openFilterCount" role="button" aria-expanded="false" aria-controls="openFilterCount">
@@ -490,6 +493,13 @@
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_categories_button">Categories</button></li>&nbsp;
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_complete_button">Complete Tasks</button></li>&nbsp;
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_delete_button">Delete Tasks</button></li>&nbsp;
+
+            @if(auth()->user()->isAdmin())
+
+            <li><button type="button" class="btn btn-xs btn-secondary my-3" data-toggle='modal' data-target='#taskStatusModal' id="">Create Status</button></li>&nbsp;
+
+
+            @endif
         </ul>
         <div class="tab-content ">
             <!-- Pending task div start -->
@@ -504,7 +514,8 @@
                                 <th width="8%">Date</th>
                                 <th width="6%" class="category">Category</th>
                                 <th width="10%">Task Subject</th>
-                                <th width="13%">Assign To</th>
+                                <th width="4%">Assign To</th>
+                                <th width="9%">Status</th>
                                 <th width="10%">Tracked time</th>
                                 <th width="33%">Communication</th>
                                 <th width="18%">Action&nbsp;
@@ -516,6 +527,11 @@
                             <tbody class="pending-row-render-view infinite-scroll-pending-inner">
                             @if(count($data['task']['pending']) >0)
                             @foreach($data['task']['pending'] as $task)
+                            @php $task->due_date='';
+                                 $task->lead_hubstaff_task_id=0;
+                                 $task->master_user_id=0;
+                                 $task->status=1;
+                                @endphp
                                 <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} {{ !$task->due_date ? 'no-due-date' : '' }} {{ $task->due_date && (date('Y-m-d H:i') > $task->due_date && !$task->is_completed) ? 'over-due-date' : '' }} {{ $task->is_statutory == 3 ? 'row-highlight' : '' }}" id="task_{{ $task->id }}">
                                     <td class="p-2">
                                         @if(auth()->user()->isAdmin())
@@ -664,6 +680,27 @@
                                         </div>
                                     </td>
                                     <td>
+
+                                        
+
+                                            
+                                            <select id="master_user_id" class="form-control change-task-status select2" data-id="{{$task->id}}" name="master_user_id" id="user_{{$task->id}}">
+                                                <option value="">Select...</option>
+                                                <?php $masterUser = isset($task->master_user_id) ? $task->master_user_id : 0; ?>
+                                                @foreach($task_statuses as $index => $status)
+                                                    @if( $status->id == $task->status )
+                                                        <option value="{{$status->id}}" selected>{{ $status->name }}</option>
+                                                    @else
+                                                        <option value="{{$status->id}}">{{ $status->name }}</option>
+                                                    @endif
+                                                @endforeach
+                                            </select>
+                                           
+                                               
+                                         
+
+                                    </td>
+                                    <td>
                                         @if (isset($special_task->timeSpent) && $special_task->timeSpent->task_id > 0)
                                             {{ formatDuration($special_task->timeSpent->tracked) }}
                                             <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$task->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
@@ -686,6 +723,7 @@
                                             @endif
                                         </div>
                                     </td>
+                                    
                                     <td class="table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
                                         @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
                                             <div class="d-flex">
@@ -3153,6 +3191,32 @@ $(document).on("click",".btn-save-documents",function(e){
 		});
 
 	});
+
+        // on status change
+
+        $(document).on('change', '.change-task-status', function () {
+         
+            let id = $(this).attr('data-id');  
+            let status=$(this).val();
+
+            $.ajax({
+              url: "{{route('task.change.status')}}",
+              type: "POST",
+             headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            dataType:"json",
+            data: { 'task_id' : id , 'status': status},
+                success: function (response) {
+                    toastr["success"](response.message, "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
+                }
+            });
+
+        });
 
     </script>
 @endsection

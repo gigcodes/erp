@@ -15,8 +15,8 @@ class AddMasterUserIdToTasksTable extends Migration
     {
         Schema::table('tasks', function (Blueprint $table) {
            
-            //$table->integer('master_user_id')->nullable();
-           // $table->integer('lead_hubstaff_task_id')->nullable();
+            $table->integer('master_user_id')->after('site_developement_id')->nullable();
+           $table->integer('lead_hubstaff_task_id')->after('site_developement_id')->nullable();
         });
     }
 

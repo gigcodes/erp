@@ -8,8 +8,8 @@ use App\Product;
 use App\Setting;
 use App\CategorySegment;
 use App\ScrapedProducts;
-use \App\StoreWebsiteBrand;
 use App\Activity;
+use \App\StoreWebsiteBrand;
 use Illuminate\Http\Request;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Auth;
@@ -461,5 +461,10 @@ class BrandController extends Controller
                 ['brand_id' => $request->brand_id, 'category_segment_id' => $request->category_segment_id, 'amount' => $request->amount, 'amount_type' => 'percentage', 'created_at' => now(), 'updated_at' => now()]
             ]);
         }
+    }
+
+    public function activites(Request $request, $id) {
+        $activites = Activity::where('subject_id',$id)->where('subject_type','Brand')->get();
+        return view()->make('brand.activities', compact('activites'));
     }
 }

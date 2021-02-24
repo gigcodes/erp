@@ -19,6 +19,7 @@ use \App\ChatbotKeywordValue;
 use App\WatsonAccount;
 use App\WatsonWorkspace;
 use App\ChatbotErrorLog;
+use App\ChatMessage;
 class Model
 {
 
@@ -170,10 +171,12 @@ class Model
                     if (!$mentions->isEmpty()) {
                         $sendMentions = [];
                         foreach ($mentions as $key => $mRaw) {
-                            $sendMentions[] = [
-                                "entity" => $mRaw->chatbotKeyword->keyword,
-                                "location" => [$mRaw->start_char_range, $mRaw->end_char_range],
-                            ];
+                            if( $mRaw->chatbotKeyword) {
+                                $sendMentions[] = [
+                                    "entity" => $mRaw->chatbotKeyword->keyword,
+                                    "location" => [$mRaw->start_char_range, $mRaw->end_char_range],
+                                ];
+                            }
                         }
                         if (!empty($sendMentions)) {
                             $storeParams["examples"][$k]["mentions"] = $sendMentions;
@@ -572,10 +575,11 @@ class Model
                 }
             }
             $chatResponse = new ResponsePurify($result, $customer);
+            \Log::channel('chatapi')->info(json_encode($chatResponse));
             // if response is valid then check ahead
             if ($chatResponse->isValid()) {
                 $result = $chatResponse->assignAction();
-                \Log::channel('chatapi')->info(print_r($result, true));
+                \Log::channel('chatapi')->info("##CHAT_ACTION## ".json_encode($result));
                 if (!empty($result)) {
                     if (!empty($result["action"])) {
                         // assign params
