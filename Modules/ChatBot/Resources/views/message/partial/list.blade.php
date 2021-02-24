@@ -12,11 +12,12 @@
     <tr>
         <th width="5%">#</th>
         <th width="5%">Name</th>
+        <th width="5%">Website</th>
         <th width="10%">User input</th>
-        <th width="20%">Bot Replied</th>
-        <th width="20%">Message Box</th>
+        <th width="15%">Bot Replied</th>
+        <th width="15%">Message Box</th>
         <th width="10%">From</th>
-        <th width="20%">Images</th>
+        <th width="10%">Images</th>
         <th width="10%">Created</th>
         <th width="10%">Action</th>
     </tr>
@@ -27,6 +28,7 @@
     <tr>
         <td>{{ $pam->customer_id }}[{{ $pam->chat_id }}]</td>
         <td>{{ $pam->customer_name }}</td>
+        <td>{{ $pam->website_title }}</td>
         <td class="user-input">{{ $pam->question }}</td>
         <td class="boat-replied">{{ $pam->answer }}</td>
         <td class="message-input">
@@ -71,6 +73,9 @@
                     <img width="15px" title="Attach More Images" height="15px" src="/images/customer-suggestion.png">
                 </a>
             @endif
+            <a href="javascript:;" class="resend-to-bot" data-id="{{ $pam->id }}">
+                <img width="15px" title="Resend to bot" height="15px" src="/images/icons-refresh.png">
+            </a>
             <!-- <span class="check-all" data-id="{{ $pam->chat_id }}">
               <i class="fa fa-indent" aria-hidden="true"></i>
             </span> -->
@@ -149,4 +154,27 @@
             }
         });
     });
+
+    $(document).on("click",".resend-to-bot",function () {
+        let chatID = $(this).data("id");
+        $.ajax({
+            type: "GET",
+            url: "/chatbot/messages/resend-to-bot",
+            data: {
+                chat_id : chatID
+            },
+            dataType : "json",
+            success: function (response) {
+                if(response.code == 200) {
+                    toastr['success'](response.messages);
+                }else{
+                    toastr['error'](response.messages);
+                }
+            },
+            error: function () {
+                toastr['error']('Message not sent successfully!');
+            }
+        });
+    });
+
 </script>

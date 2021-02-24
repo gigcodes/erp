@@ -40,6 +40,7 @@
                     <option value="Incorrect Category">Incorrect Category</option>
                     <option value="Only One Image Available">Only One Image Available</option>
                     <option value="Image incorrect">Image incorrect</option>
+                    <option value="Auto rejected">Image incorrect</option>
                 </select>
             </div>
                 <br>
