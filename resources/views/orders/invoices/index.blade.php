@@ -6,14 +6,14 @@
 <a style="color:white;" title="Add invoice" class="btn btn-secondary add-invoice-btn pd-5 pull-right" data-id='q'>
   + Add New
 </a>
-<a style="color:white;" id="addInvoiceWithoutOrderBtn" title="+ Add New Invoice without Order" data-toggle="modal" data-target="#addInvoiceWithoutOrder" class="btn btn-warning pull-right">
+<a style="color:white;" title="+ Add New Invoice without Order" data-toggle="modal" data-target="#invoicewithoutordermoder890" class="btn btn-warning pull-right addInvoiceWithoutOrderBtn">
   + Add New Invoice without Order
 </a>
-<br>
+  <br>
 <div class="table-responsive" style="margin-top:20px;">
-      <table class="table table-bordered" style="border: 1px solid #ddd;">
+  <table class="table table-bordered" style="border: 1px solid #ddd;">
         <thead>
-          <tr>
+        <tr>
             <th>Date</th>
             <th>Invoice Number</th>
             <th>Customer Name</th>
@@ -36,8 +36,8 @@
                 foreach ($ord->order_product as $item):
                   $final_price +=$item->product_price;
              endforeach;
-             endforeach; 
-              @endphp 
+             endforeach;
+              @endphp
               {{ $final_price}}
              </td>
               <td>
@@ -46,7 +46,7 @@
               </a>
                 <a title="Edit Invoice" data-toggle="modal" data-target="#editInvoice" class="btn btn-image edit-invoice-btn" href="{{ route('order.edit.invoice',$invoice->id) }}">
                     <i class="fa fa-edit"></i>
-                </a> 
+                </a>
                   </a>
                     <a title="Update Invoice Addresses"
                     data-address="{{$invoice->orders[0]->customer->address}}"
@@ -55,13 +55,13 @@
                     data-pincode="{{$invoice->orders[0]->customer->pincode}}"
                    data-codex="{{$invoice->orders[0]->customer->id}}"
                      data-toggle="modal" data-target="#updateInvoiceAddresses" class="btn btn-image UpdateInvoiceAddresses456">
-                   <i class="fa fa-address-card-o"></i> 
+                   <i class="fa fa-address-card-o"></i>
                     </a>
                 <a title="View Invoice" class="btn btn-image" href="{{ route('order.view.invoice',$invoice->id) }}">
                     <img title="View Invoice" src="/images/view.png" />
                 </a>
                     <a title="Download Invoice" class="btn btn-image" href="{{ route('order.download.invoice',$invoice->id) }}">
-                   <i class="fa fa-download"></i> 
+                   <i class="fa fa-download"></i>
                 </a>
               </td>
             </tr>
@@ -80,7 +80,7 @@
           <div class="form-group" style="width:100%;">
           <label for="">Search :</label>
           <select name="term" type="text" class="form-control" placeholder="Search" id="order-search" data-allow-clear="true">
-                          <?php 
+                          <?php
                               if (request()->get('term')) {
                                   echo '<option value="'.request()->get('term').'" selected>'.request()->get('term').'</option>';
                               }
@@ -90,7 +90,7 @@
           </div>
       </div>
       <div id="add-invoice-content" style="min-height:200px;">
-        
+
         </div>
       </div>
     </div>
@@ -123,14 +123,15 @@
               <strong>Pincode:</strong>
               <input id="pincode45" name="pincode" class="form-control"/>
             </div>
-           <button type="submit" name="update_details" class="btn btn-primary btn-sm">Update Address</button> 
+           <button type="submit" name="update_details" class="btn btn-primary btn-sm">Update Address</button>
           </form>
         </div>
       </div>
       </div>
     </div>
 </div>
-<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
+
+    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
 </div>
 @include("partials.modals.edit-invoice-modal")
 @include("partials.modals.invoice-without-order-model")
@@ -153,7 +154,7 @@
            }else{
              toastr['error'](response.message);
            }
-           $("#loading-image").hide(); 
+           $("#loading-image").hide();
         }).fail(function(errObj) {
            $("#loading-image").hide();
         });
@@ -167,7 +168,7 @@
           url: "/order/"+$this.data("id")+"/edit-invoice",
           type: "get"
         }).done(function(response) {
-           $("#edit-invoice-content").html(response); 
+           $("#edit-invoice-content").html(response);
         }).fail(function(errObj) {
           // $("#editInvoice").hide();
         });
@@ -179,12 +180,20 @@
     });
 
 //Invoice without order --START
-    // $(document).on("click","#addInvoiceWithoutOrderBtn",function(e){
-    //   console.log("Hello")
-    //    e.preventDefault();
-    
-    // });
 
+    $(document).on("click",".addInvoiceWithoutOrderBtn",function(e){
+
+       e.preventDefault();
+       var $this = $(this);
+       $.ajax({
+          url: "/invoice/without-order/",
+          type: "get"
+        }).done(function(response) {
+           $("#invoice-without-order-content").html(response);
+        }).fail(function(errObj) {
+          // $("#editInvoice").hide();
+        });
+    });
 //Invoice without order --END
     $('#order-search').select2({
             tags: true,
@@ -237,7 +246,7 @@
               url: "/order/"+$this.val()+"/add-invoice",
               type: "get"
             }).done(function(response) {
-              $("#add-invoice-content").html(response); 
+              $("#add-invoice-content").html(response);
             }).fail(function(errObj) {
               toastr['error'](errObj.responseJSON.message);
             });

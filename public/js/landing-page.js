@@ -25,6 +25,16 @@
             page.createRecord();
         });
 
+        page.config.bodyView.on("click",".btn-push-icon-mangto",function(e) {
+            e.preventDefault();
+            page.pushMagentoProduct($(this));
+        });
+
+        page.config.bodyView.on("click",".btn-stock-status-magnto",function(e) {
+            e.preventDefault();
+            page.pushStockStatusMangto($(this));
+        });
+
         page.config.bodyView.on("click",".btn-push-icon",function(e) {
             e.preventDefault();
             page.pushShopifyProduct($(this));
@@ -270,7 +280,17 @@
     },
     saveSite : function(response) {
         if(response.code  == 200) {
-            toastr["success"]("Product pushed successfully");
+            toastr["success"]("Product added successfully");
+            page.loadFirst();
+            $(".common-modal").modal("hide");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.message,"");
+        }
+    },
+    saveMagentoStatus : function(response) {
+        if(response.code  == 200) {
+            toastr["success"]("Status Change successfully!");
             page.loadFirst();
             $(".common-modal").modal("hide");
         }else {
@@ -288,6 +308,28 @@
         }
         this.sendAjax(_z, "saveSite");
     },
+    pushMagentoProduct : function(ele) {
+       var _z = {
+            url: this.config.baseUrl + "/landing-page/"+ele.data("id")+"/push-to-magento",
+            method: "GET",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveSite");
+    },
+    pushStockStatusMangto : function(ele) {
+        var _z = {
+            url: this.config.baseUrl + "/landing-page/"+ele.data("id")+"/push-to-magento-status",
+            method: "GET",
+            data : {stock_status : ele.data("value")},
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveMagentoStatus");
+    },
+
     pushStockStatus : function(ele) {
         var _z = {
             url: this.config.baseUrl + "/landing-page/"+ele.data("id")+"/push-to-shopify",

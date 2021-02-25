@@ -93,7 +93,13 @@ class ResponsePurify
         }
 
         // send the order status from here
-        $orderStatus = $this->isNeedToSendOrderStatus();
+        $orderStatus = $this->isNeedToSendOrderStatus($text);
+        if(!empty($orderStatus)) {
+           return ["action" => "send_text_only", "reply_text" => $orderStatus["text"]];
+        }
+
+        // is need to refund status
+        $refundStatus = $this->isNeedToRefundStatus($text);
         if(!empty($orderStatus)) {
            return ["action" => "send_text_only", "reply_text" => $orderStatus["text"]];
         }
@@ -190,7 +196,7 @@ class ResponsePurify
         return $return;
     }
 
-    private function isNeedToSendOrderStatus()
+    private function isNeedToSendOrderStatus($text = "")
     {
         // is order status need to be send?
         $intentsList = ["Order_status_find"];
@@ -200,7 +206,28 @@ class ResponsePurify
                 $customer  = $this->customer;
                 $lastOrder = $customer->latestOrder();
                 if(!empty($lastOrder)) {
-                    return ["text" => str_replace(["#{order_id}","#{order_status}"], [$lastOrder->order_id,$lastOrder->order_status], \App\Order::ORDER_STATUS_TEMPLATE)];
+                    if($lastOrder->status) {
+                        return ["text" => str_replace(["#{order_id}","#{order_status}"], [$lastOrder->order_id,$lastOrder->status->status], $text)];
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private function isNeedToRefundStatus($text = "")
+    {
+        // is order status need to be send?
+        $intentsList = ["Refund_status_find"];
+        foreach ($intentsList as $intents) {
+            if (in_array($intents, array_keys($this->intents))) {
+                // check the last order of customer and send the message status
+                $customer  = $this->customer;
+                $latestRefund = $customer->latestRefund();
+                if(!empty($latestRefund)) {
+                    if($latestRefund->returnExchangeStatus) {
+                        return ["text" => str_replace(["#{id}","#{status}"], [$latestRefund->id,$latestRefund->returnExchangeStatus->status_name], $text)];
+                    }
                 }
             }
         }

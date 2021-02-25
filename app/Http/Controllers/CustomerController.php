@@ -1830,34 +1830,37 @@ class CustomerController extends Controller
         $customer = Customer::find($request->customer_id);
 
         //Mail::to($customer->email)->send(new IssueCredit($customer));
+        $view = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
+        $params = [
+            'model_id'   => $customer->id,
+            'model_type' => Customer::class,
+            'from'       => $view->fromMailer,
+            'to'         => $customer->email,
+            'subject'    => $view->subject,
+            'message'    => $view->render(),
+            'template'   => 'issue-credit',
+            'additional_data' => '',
+            'is_draft'   => 1
+        ];
+
+        $emailObject = Email::create($params);
+
+        CommunicationHistory::create([
+            'model_id' => $customer->id,
+            'model_type' => Customer::class,
+            'type' => 'issue-credit',
+            'method' => 'email'
+        ]);
+
         try {
-            \MultiMail::to($customer->email)->send(new \App\Mails\Manual\SendIssueCredit($customer));
-
-            $view = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
-
-            CommunicationHistory::create([
-                'model_id' => $customer->id,
-                'model_type' => Customer::class,
-                'type' => 'issue-credit',
-                'method' => 'email'
-            ]);
-
-            $params = [
-                'model_id'   => $customer->id,
-                'model_type' => Customer::class,
-                'from'       => $view->fromMailer,
-                'to'         => $customer->email,
-                'subject'    => $view->subject,
-                'message'    => $view->render(),
-                'template'   => 'issue-credit',
-                'additional_data' => ''
-            ];
-
-            Email::create($params);
-
+           \MultiMail::to($customer->email)->send(new \App\Mails\Manual\SendIssueCredit($customer));
+           $emailObject->is_draft = 0;
         }catch(\Exception $e) {
-            \Log::info("Sending mail issue at the customercontroller #1836 ->".$e->getMessage());
-        }
+           $emailObject->is_draft = 1;
+           $emailObject->error_message = $e->getMessage();
+        } 
+
+        $emailObject->save();
 
 
         $message = "Dear $customer->name, this is to confirm that an amount of Rs. $customer->credit - is credited with us against your previous order. You can use this credit note for reference on your next purchase. Thanks & Regards, Solo Luxury Team";

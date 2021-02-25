@@ -886,6 +886,29 @@
              }
          });
         }
+
+
+        $(document).on("click",".btn-template-status",function(e) {
+            
+            e.preventDefault();
+            
+            if(image_array.length <= 0) {
+                alert("Please select products first ");
+            return false;
+            }
+
+            if(tpl <= 0) {
+                alert("Please select template first");
+            return false;
+            }
+
+            $('#input_product_ids').val(image_array)
+            var tpl = $('#form_mail_tpl').val();
+            $('#product-mail').attr('action', "{{ route('viewTemplate','') }}/"+tpl);
+            $('#product-mail').submit();
+            return true;
+        });
+
     </script>
 
 @endsection
@@ -903,6 +926,8 @@
         var card = $(this).closest(".product-list-card");
             card.find(".attach-photo").attr("data-image",imageID);
     });
+
+    
 </script>
 
 @endsection

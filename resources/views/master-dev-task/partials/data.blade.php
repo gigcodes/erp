@@ -109,7 +109,21 @@
               </table>
             </td>
           </tr>
-			
+			     <tr>
+            <td>Jobs</td>
+            <td colspan="6">
+              <table style="width: 100%;">
+                  <tr>
+                    <th>Last 3 hours</th>
+                    <th>Last 24 hours</th>
+                  </tr>
+                  <tr>
+                      <td>{{ isset($last3HrsJobs) ? $last3HrsJobs->cnt : 0 }}</td>
+                      <td>{{ isset($last24HrsJobs) ? $last24HrsJobs->cnt : 0 }}</td>
+                  </tr>
+              </table>
+            </td>
+          </tr>
 			<tr>
 				<td>Project Directory Size Management</td>
 				<td colspan="6">

@@ -170,11 +170,17 @@ class BrandController extends Controller
                                         'type' => "remove",
                                         'message' => "{$brand->name} removed from {$website->title} store."
                                     ]);
-                                    return response()->json("Brand is remooved from store successfully.",200);
+                                    return response()->json(["code" => 200 , "message" => "Brand is removed from store successfully."]);
                                 }
                                 else
                                 {
-                                    return response()->json("Brand is not removed from store,please check history log.",200);
+                                    StoreWebsiteBrandHistory::create([
+                                        'brand_id' => $request->brand,
+                                        'store_website_id' => $request->store,
+                                        'type' => "error",
+                                        'message' => "{$brand->name} is not removed from {$website->title} store."
+                                    ]);
+                                    return response()->json(["code" => 500 , "message" => "Brand is not removed from store,please check history log."]);
                                 }
                             }
                         }

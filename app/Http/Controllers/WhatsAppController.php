@@ -83,6 +83,8 @@ use GuzzleHttp\RequestOptions;
 use App\Hubstaff\HubstaffMember;
 use App\Helpers\HubstaffTrait;
 use Tickets;
+use App\Email;
+use App\EmailAddress;
 
 class WhatsAppController extends FindByNumberController
 {
@@ -183,7 +185,7 @@ class WhatsAppController extends FindByNumberController
                 $message = ChatMessage::create($params);
 
                 if ($params['message']) {
-                    (new KeywordsChecker())->assignCustomerAndKeywordForNewMessage($params['message'], $customer);
+                    (new \App\KeywordsChecker())->assignCustomerAndKeywordForNewMessage($params['message'], $customer);
                 }
 
                 $model_type = 'customers';
@@ -1304,6 +1306,9 @@ class WhatsAppController extends FindByNumberController
             $params['dubbizle_id'] = $dubbizleId;
             $params['customer_id'] = $customerId;
 
+            
+
+
             if (!empty($user) || !empty($contact) || !empty($supplier) || !empty($vendor) || !empty($dubbizle) || !empty($customer)) {
 
                 // check that if message comes from customer,supplier,vendor
@@ -1328,6 +1333,8 @@ class WhatsAppController extends FindByNumberController
                     }
                 }
                 $message = ChatMessage::create($params);
+
+
             } else {
                 // create a customer here
                 $customer = Customer::create([
@@ -1346,6 +1353,10 @@ class WhatsAppController extends FindByNumberController
                     'last_unread_message_at' => Carbon::now(),
                     'last_unread_message_id' => $message->id,
                 ]);
+
+                // this is for testing only please do not proceed with the below line
+                // WatsonManager::sendMessage($customer,$params['message'],false , null , $message);
+                // die;
             }
 
             // Is there a user linked to this number?
@@ -1499,92 +1510,7 @@ class WhatsAppController extends FindByNumberController
                 $to = $config[0]['number'];
             }
             if ($customer) {
-                $exp_mesaages = explode(" ", $params['message']);
-                for ($i = 0; $i < count($exp_mesaages); $i++) {
-                    $keywordassign = DB::table('keywordassigns')->select('*')
-                        ->whereRaw('FIND_IN_SET(?,keyword)', [strtolower($exp_mesaages[$i])])
-                        ->get();
-                    if (count($keywordassign) > 0) {
-                        break;
-                    }
-                }
-
-                if (count($keywordassign) > 0) {
-                    $task_array = array(
-                        "category" => 42,
-                        "is_statutory" => 0,
-                        "task_subject" => "#" . $customer->id . "-" . $keywordassign[0]->task_description,
-                        "task_details" => $keywordassign[0]->task_description,
-                        "assign_from" => \App\User::USER_ADMIN_ID,
-                        "assign_to" => $keywordassign[0]->assign_to,
-                        "customer_id" => $customer->id,
-                        "created_at" => date("Y-m-d H:i:s"),
-                        "updated_at" => date("Y-m-d H:i:s")
-                    );
-                    DB::table('tasks')->insert($task_array);
-                    $taskid = DB::getPdo()->lastInsertId();
-                    $task_users_array = array(
-                        "task_id" => $taskid,
-                        "user_id" => $keywordassign[0]->assign_to,
-                        "type" => "App\User"
-                    );
-                    DB::table('task_users')->insert($task_users_array);
-
-                    // check that match if this the assign to is auto user 
-                    // then send price and deal
-                    \Log::channel('whatsapp')->channel('whatsapp')->info("Price Lead section started for customer id : " . $customer->id);
-                    if ($keywordassign[0]->assign_to == self::AUTO_LEAD_SEND_PRICE) {
-                        \Log::channel('whatsapp')->info("Auto section started for customer id : " . $customer->id);
-                        if (!empty($parentMessage)) {
-                            \Log::channel('whatsapp')->info("Auto section parent message found started for customer id : " . $customer->id);
-                            $parentMessage->sendLeadPrice($customer);
-                        }
-                    }
-
-                    //START CODE Task message to send message in whatsapp
-
-                    $task_info = DB::table('tasks')
-                        ->select('*')
-                        ->where('id', '=', $taskid)
-                        ->get();
-
-                    $users_info = DB::table('users')
-                        ->select('*')
-                        ->where('id', '=', $task_info[0]->assign_to)
-                        ->get();
-
-                    if (count($users_info) > 0) {
-                        if ($users_info[0]->phone != "") {
-                            $params_task = [
-                                'number' => NULL,
-                                'user_id' => $users_info[0]->id,
-                                'approved' => 1,
-                                'status' => 2,
-                                'task_id' => $taskid,
-                                'message' => $task_info[0]->task_details,
-                                'quoted_message_id' => $quoted_message_id
-                            ];
-                            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($users_info[0]->phone, $users_info[0]->whatsapp_number, $task_info[0]->task_details);
-
-                            $chat_message = ChatMessage::create($params_task);
-                            ChatMessagesQuickData::updateOrCreate([
-                                'model' => \App\Task::class,
-                                'model_id' => $taskid
-                            ], [
-                                'last_communicated_message' => $task_info[0]->task_details,
-                                'last_communicated_message_at' => $chat_message->created_at,
-                                'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
-                            ]);
-
-                            $myRequest = new Request();
-                            $myRequest->setMethod('POST');
-                            $myRequest->request->add(['messageId' => $chat_message->id]);
-
-                            app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
-                        }
-                    }
-                    //END CODE Task message to send message in whatsapp
-                }
+                \App\Helpers\MessageHelper::whatsAppSend( $customer, $customer['message'], true , $message);
             }
             // Is this message from a customer?
             if ($customer && $isCustomerNumber) {
@@ -1680,170 +1606,14 @@ class WhatsAppController extends FindByNumberController
                 }
 
                 // Auto Instruction
-                if ($params['customer_id'] != '1000' && $params['customer_id'] != '976' && array_key_exists('message', $params) && (preg_match("/price/i", $params['message']) || preg_match("/you photo/i", $params['message']) || preg_match("/pp/i", $params['message']) || preg_match("/how much/i", $params['message']) || preg_match("/cost/i", $params['message']) || preg_match("/rate/i", $params['message']))) {
+                if ($params['customer_id'] != '1000' && $params['customer_id'] != '976') {
                     if ($customer = Customer::find($params['customer_id'])) {
-
-                        // send price from meessage queue
-                        $messageSentLast = \App\MessageQueue::where("customer_id", $customer->id)->where("sent", 1)->orderBy("sending_time", "desc")->first();
-                        // if message found then start
-                        $selected_products = [];
-                        if ($messageSentLast) {
-                            $mqProducts = $messageSentLast->getImagesWithProducts();
-                            if (!empty($mqProducts)) {
-                                foreach ($mqProducts as $mq) {
-                                    if (!empty($mq["products"])) {
-                                        foreach ($mq["products"] as $productId) {
-                                            $selected_products[] = $productId;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        // check the last message send for price
-                        $lastChatMessage = \App\ChatMessage::getLastImgProductId($customer->id);
-                        if ($lastChatMessage) {
-                            if ($lastChatMessage->hasMedia(config('constants.attach_image_tag'))) {
-                                $lastImg = $lastChatMessage->getMedia(config('constants.attach_image_tag'))->sortByDesc('id')->first();
-                                if ($lastImg) {
-                                    $mediable = \DB::table("mediables")->where("media_id", $lastImg->id)->where('mediable_type', Product::class)->first();
-                                    if (!empty($mediable)) {
-                                        $product = Product::find($mediable->mediable_id);
-                                        if (!empty($product)) {
-                                            $priceO = ($product->price_inr_special > 0) ? $product->price_inr_special : $product->price_inr;
-                                            $selected_products[] = $product->id;
-                                            $temp_img_params = $params;
-                                            $temp_img_params['message'] = "Price : " . $priceO;
-                                            $temp_img_params['media_url'] = null;
-                                            $temp_img_params['status'] = 2;
-                                            // Create new message
-                                            ChatMessage::create($temp_img_params);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        if (!empty($selected_products) && $messageSentLast) {
-                            foreach ($selected_products as $pid) {
-                                $product = \App\Product::where("id", $pid)->first();
-                                $quick_lead = \App\ErpLeads::create([
-                                    'customer_id' => $customer->id,
-                                    //'rating' => 1,
-                                    'lead_status_id' => 3,
-                                    //'assigned_user' => 6,
-                                    'product_id' => $pid,
-                                    'brand_id' => $product ? $product->brand : null,
-                                    'category_id' => $product ? $product->category : null,
-                                    'brand_segment' => $product && $product->brands ? $product->brands->brand_segment : null,
-                                    'color' => $customer->color,
-                                    'size' => $customer->size,
-                                    'created_at' => Carbon::now()
-                                ]);
-                            }
-
-                            $requestData = new Request();
-                            $requestData->setMethod('POST');
-                            $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products]);
-
-                            app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
-
-                            CommunicationHistory::create([
-                                'model_id' => $messageSentLast->id,
-                                'model_type' => \App\MessageQueue::class,
-                                'type' => 'broadcast-prices',
-                                'method' => 'whatsapp'
-                            ]);
-                        }
-
-                        Instruction::create([
-                            'customer_id' => $customer->id,
-                            'instruction' => 'Please send the prices',
-                            'category_id' => 1,
-                            'assigned_to' => 7,
-                            'assigned_from' => 6
-                        ]);
+                        \App\Helpers\MessageHelper::sendwatson( $customer, $params['message'], true, $message , $params);
                     }
                 }
                 //Auto reply
                 if (isset($customer->id) && $customer->id > 0) {
 
-                    // start to check with watson api directly
-//                    if(!empty($params['message'])) {
-//                        if ($customer && $params[ 'message' ] != '') {
-//                            WatsonManager::sendMessage($customer,$params['message']);
-//                        }
-//                    }
-                    if (!empty($params['message'])) {
-
-                        $replies = ChatbotQuestion::join('chatbot_question_examples', 'chatbot_questions.id', 'chatbot_question_examples.chatbot_question_id')
-                            ->join('chatbot_questions_reply', 'chatbot_questions.id', 'chatbot_questions_reply.chatbot_question_id')
-                            ->where('chatbot_questions_reply.store_website_id', ($customer->store_website_id) ? $customer->store_website_id : 1)
-                            ->select('chatbot_questions.value','chatbot_questions.keyword_or_question','chatbot_questions.erp_or_watson','chatbot_questions.auto_approve','chatbot_question_examples.question','chatbot_questions_reply.suggested_reply')
-                            ->where('chatbot_questions.erp_or_watson', 'erp')
-                            ->get();
-
-                        $isReplied = 0;
-
-
-                        $chatbotReply = \App\ChatbotReply::create([
-                            "question" => $params['message'],
-                            "replied_chat_id" => $message->id
-                        ]);
-
-                        \Log::channel('whatsapp')->info("reached step 3 here");
-
-                        foreach ($replies as $reply) {
-                            if($params['message'] != '' && $customer && array_key_exists('message', $params)){
-                                $keyword = $reply->question;
-                                if(($keyword == $params['message'] || strpos(strtolower(trim($keyword)), strtolower(trim($params['message']))) !== false) && $reply->suggested_reply) {
-                                    /*if($reply->auto_approve) {
-                                        $status = 2;
-                                    }
-                                    else {
-                                        $status = 8; 
-                                    }*/
-                                    $status = ChatMessage::CHAT_AUTO_WATSON_REPLY;
-                                    $temp_params = $params;
-                                    $temp_params['message'] = $reply->suggested_reply;
-                                    $temp_params['media_url'] = null;
-                                    $temp_params['status'] = $status;
-                                    $temp_params['question_id'] = $reply->id;
-
-                                    // Create new message
-                                    $message = ChatMessage::create($temp_params);
-
-                                    if ($message->status == ChatMessage::CHAT_AUTO_WATSON_REPLY) {
-                                        $chatbotReply->chat_id = $message->id;
-                                        $chatbotReply->answer = $reply->suggested_reply;
-                                        $chatbotReply->reply = '{"output":{"database":[{"response_type":"text","text":"'.$reply->suggested_reply.'"}]}}';
-                                        $chatbotReply->reply_from = 'erp';
-                                        $chatbotReply->save();
-                                    }
-
-                                    // Send message if all required data is set
-                                    if ($temp_params['message'] || $temp_params['media_url']) {
-                                        if($status == 2) {
-                                            $sendResult = $this->sendWithThirdApi($customer->phone, isset($instanceNumber) ? $instanceNumber : null, $temp_params['message'], $temp_params['media_url']);
-                                            if ($sendResult) {
-                                                $message->unique_id = $sendResult['id'] ?? '';
-                                                $message->save();
-                                            }
-                                        }
-                                        $isReplied = 1;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-
-                        // assigned the first storewebsite to default erp customer
-                        $customer->store_website_id = ($customer->store_website_id > 0) ? $customer->store_website_id : 1;
-                        if(!$isReplied && $customer->store_website_id) {
-                            WatsonManager::sendMessage($customer,$params['message'],false , null , $message);
-                        }
-                    }
                     // Auto Replies
                     // $auto_replies = AutoReply::where('is_active', 1)->get();
 //                    $auto_replies = ChatbotQuestion::join('chatbot_question_examples', 'chatbot_questions.id', 'chatbot_question_examples.chatbot_question_id')->where('erp_or_watson', 'erp')->select('chatbot_questions.*', 'chatbot_question_examples.question')->get();
@@ -3825,6 +3595,67 @@ class WhatsAppController extends FindByNumberController
         if ($context == "customer") {
             // check the customer message
             $customer = \App\Customer::find($message->customer_id);
+
+            // Check the message is email message
+            if( $message->is_email == 1 ){
+                
+                if( !empty( $customer ) ){
+
+                    $botReply          = \App\ChatbotReply::where( 'chat_id', $message->id)->get();
+                    $storeEmailAddress = EmailAddress::whereNotNull('store_website_id')->where( 'store_website_id', $customer->store_website_id )->first();
+                    $from_address      = env('MAIL_FROM_ADDRESS');
+
+                    $subject = null;
+                    $message_body = $message->message;
+
+                    if( !empty( $storeEmailAddress ) && !empty( $storeEmailAddress->from_address )  ){
+                        $from_address = $storeEmailAddress->from_address;
+                    }
+                    
+                    $template = \App\MailinglistTemplate::getBotEmailTemplate( $customer->store_website_id );
+
+                    if( empty( $template ) ){
+                        $template = \App\MailinglistTemplate::getBotEmailTemplate();
+                    }
+                    
+                    if( $template ){
+                        $subject      = $template->subject;
+                        $message_body = str_replace( array("{{customer_name}}","{{content}}"),array( $customer->name,  $message_body ),$template->static_template );
+                    }
+
+                    $email_params = [
+                        'model_id'        => null,
+                        'model_type'      => null,
+                        'origin_id'       => null,
+                        'reference_id'    => null,
+                        'type'            => 'outgoing',
+                        'seen'            => 0,
+                        'from'            => $from_address ?? '',
+                        'to'              => $customer->email,
+                        'subject'         => $subject,
+                        'message'         => $message_body,
+                        'template'        => 'customer-simple',
+                        'additional_data' => null,
+                        'is_draft'        => 1,
+                        'created_at'      => Carbon::now(),
+                    ];
+                    Email::create($email_params);
+                    
+                    $message->update([
+                        'approved' => 1,
+                        'is_queue' => 0,
+                        'is_draft' => 0,
+                        'status' => 2,
+                        'created_at' => Carbon::now()
+                    ]);
+                }
+
+                return response()->json([
+                    'data' => []
+                ], 200);
+            }
+            
+
             if ($customer && $customer->hasDND()) {
                 $message->update([
                     'approved' => 1,

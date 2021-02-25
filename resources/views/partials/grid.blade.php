@@ -171,6 +171,8 @@
                 </form>
 
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#updateBulkProductModal" id="bulk-update-btn">Update Products</button>
+				<br>
+				<br>
             </div>
         </div>
     </div>
@@ -322,6 +324,7 @@
       }
 
       console.log(select_products_edit_array);
+	  
     });
 
     $(document).on('click', '#linkProductsSubmit', function(e) {
@@ -846,6 +849,8 @@
                 }
             });
        });
+
+       
 
        
   </script>

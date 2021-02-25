@@ -8,6 +8,17 @@
     .preview-category input.form-control {
       width: auto;
     }
+    .suggestList li {
+        display: inline-block;
+        margin-right: 10px;
+        cursor: pointer;
+    }
+     .width-fix {
+        height: 220px;
+        display: inline-block;
+        overflow: auto;
+        
+    }
 </style>
 <link href="//cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
 <div class="row" id="common-page-layout">

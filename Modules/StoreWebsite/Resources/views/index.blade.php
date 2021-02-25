@@ -60,6 +60,35 @@
 
 @include("storewebsite::templates.list-template")
 @include("storewebsite::templates.create-website-template")
+
+<div id="userPasswordHistory" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Password History</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+      <div class="modal-body">
+        <div class="table-responsive mt-3">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>User Name</th>
+                <th>Old Password</th>
+                <th>New Password</th>
+              </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+          </table>
+        </div>
+      </div>    
+			</div>
+		</div>
+	</div>
+</div>
 <script type="text/javascript" src="{{ asset('/js/jsrender.min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('/js/jquery.validate.min.js') }}"></script>
 <script src="{{ asset('/js/jquery-ui.js') }}"></script>

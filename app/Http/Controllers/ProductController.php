@@ -68,7 +68,8 @@ use App\ProductPushErrorLog;
 use App\ProductStatusHistory;
 use App\Status;
 use App\ProductSupplier;
-
+use Qoraiche\MailEclipse\MailEclipse;
+use Illuminate\Support\Facades\Artisan;
 
 class ProductController extends Controller
 {
@@ -122,6 +123,13 @@ class ProductController extends Controller
 
     public function approvedListing(Request $request,$pageType = "")
     {
+        
+        if(!Setting::has('auto_push_product')){
+            $auto_push_product = Setting::add('auto_push_product',0,'int');
+        }else{
+            $auto_push_product = Setting::get('auto_push_product');
+        }
+       // dd(Setting::get('auto_push_product'));
         $cropped = $request->cropped;
         $colors = (new Colors)->all();
         $categories = Category::all();
@@ -392,7 +400,8 @@ class ProductController extends Controller
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
             'store_websites' => StoreWebsite::all(),
-            'pageType' => $pageType
+            'pageType' => $pageType,
+            'auto_push_product' => $auto_push_product
             //'store_website_count' => StoreWebsite::count(),
         ]);
     }
@@ -1690,6 +1699,7 @@ class ProductController extends Controller
                         $msg = 'No website found for  Brand: '. $product->brand. ' and Category: '. $product->category;
                         $logId = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
                         ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+                        $this->updateLogUserId($logId);
                     }else{
                         $i = 1;
                         foreach ($websiteArrays as $websiteArray) {
@@ -1708,6 +1718,7 @@ class ProductController extends Controller
 
                                 $logId = LogListMagento::log($product->id, $msg, 'info');
                                 ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+                                $this->updateLogUserId($logId);
                             }
                         }
                     }
@@ -1746,6 +1757,7 @@ class ProductController extends Controller
 
                         $logId = LogListMagento::log($product->id, $msg, 'info');
                         ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+                        $this->updateLogUserId($logId);
                     }
                     if(count($languages) > 0){
                         foreach ($languages as $language) {
@@ -1766,11 +1778,13 @@ class ProductController extends Controller
                                     
                                     $logId = LogListMagento::log($product->id, $msg, 'info');
                                     ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+                                    $this->updateLogUserId($logId);
                                 }
                             }else{
                                 $msg = 'Locale data not exists';
                                 $logId = LogListMagento::log($product->id, $msg, 'info');
                                 ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+                                $this->updateLogUserId($logId);
                             }
                         }
                     }else{
@@ -1778,6 +1792,7 @@ class ProductController extends Controller
                         
                         $logId = LogListMagento::log($product->id, $msg, 'info');
                         ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+                        $this->updateLogUserId($logId);
                     }
                     
                     // Update the product so it doesn't show up in final listing
@@ -1795,7 +1810,7 @@ class ProductController extends Controller
 
             $logId = LogListMagento::log($product->id, $msg, 'info');
             ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-    
+            $this->updateLogUserId($logId);
             // Return error response by default
             return response()->json([
                 'result' => 'productNotFound',
@@ -1807,7 +1822,7 @@ class ProductController extends Controller
 
             $logId = LogListMagento::log($id, $msg, 'info');
             ProductPushErrorLog::log("",$id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-           
+            $this->updateLogUserId($logId);
             // Return error response by default
             return response()->json([
                 'result' => 'productNotFound',
@@ -1815,6 +1830,16 @@ class ProductController extends Controller
             ]);
         }
         
+    }
+
+    public function updateLogUserId($logId)
+    {
+        $updateLogUser = LogListMagento::find($logId->id);
+        if($updateLogUser)
+        {
+            $updateLogUser->user_id = Auth::id();
+            $updateLogUser->save();
+        }
     }
 
     public function unlistMagento(Request $request, $id)
@@ -2510,8 +2535,8 @@ class ProductController extends Controller
         if (!empty($all_product_ids)) {
             $suppliersGroups = \App\Product::leftJoin('product_suppliers', 'product_id', '=', 'products.id')
                 ->where('products.id', $all_product_ids)
-                ->groupBy("supplier_id")
-                ->select([\DB::raw("count(products.id) as total_product"), "supplier_id"])
+                ->groupBy("product_suppliers.supplier_id")
+                ->select([\DB::raw("count(products.id) as total_product"), "product_suppliers.supplier_id"])
                 ->pluck("total_product", "supplier_id")
                 ->toArray();
             $suppliersIds = array_values(array_filter(array_keys($suppliersGroups)));
@@ -2663,6 +2688,14 @@ class ProductController extends Controller
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         //\Log::info(print_r(\DB::getQueryLog(),true));
 
+        $mailEclipseTpl = mailEclipse::getTemplates()->where('template_dynamic',FALSE);;
+        $rViewMail      = [];
+        if (!empty($mailEclipseTpl)) {
+            foreach ($mailEclipseTpl as $mTpl) {
+                $rViewMail[$mTpl->template_slug] = $mTpl->template_name . " [" . $mTpl->template_description . "]";
+            }
+        }
+
         return view('partials.image-grid', compact(
             'products',
             'products_count',
@@ -2686,7 +2719,8 @@ class ProductController extends Controller
             'countSuppliers',
             'customerId',
             'categoryArray',
-            'term'
+            'term',
+            'rViewMail'
         ));
     }
 
@@ -3148,7 +3182,10 @@ class ProductController extends Controller
             $product->save();
         }
 
-
+        $exitCode = Artisan::call('RejectDuplicateImages', [
+            'media_id' => $request->get('media_id'), 'product_id' => $request->get('product_id')
+        ]);
+        
         return response()->json([
             'status' => 'success'
         ]);
@@ -4230,6 +4267,17 @@ class ProductController extends Controller
         }
 
         return response()->json(["code" => 500, "data" => [], "message" => "Required field is missing"]);
+    }
+
+    public function changeAutoPushValue(Request $request)
+    {
+        if(Setting::get('auto_push_product') == 0){
+            $val = 1;
+        }else{
+            $val = 0;
+        }
+        $settings = Setting::set('auto_push_product', $val, 'int');
+        return response()->json(["code" => 200, "data" => $settings, "message" => "Status changed"]);
     }
 
     public function pushProduct()
