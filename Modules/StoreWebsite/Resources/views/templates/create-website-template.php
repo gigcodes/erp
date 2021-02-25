@@ -136,11 +136,7 @@
 					  	<div class="row">
 					         <label class="col-sm-12" for="password">Password</label>
 					         <div class="col-sm-9 sub-pass">
-					         	<input type="password" name="password" value="{{if prop}}{{:prop.password}}{{/if}}" class="form-control user-password" id="password" placeholder="Enter Password" style="float:left;width:87%">
-					         	<span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password" style="margin-top:10px;margin-left:-25px;cursor:pointer"></span>
-					         	<button type="button" data-id="{{>prop.id}}" class="btn btn-password-history" style="margin-left:4px">
-					        		<i title="View History" class="fa fa-file-text" aria-hidden="true"></i>
-					        	</button>
+					         	<input type="password" name="password" value="{{if prop}}{{:prop.password}}{{/if}}" class="form-control user-password" id="password" placeholder="Enter Password">
 					         </div>
 					         <div class="col-sm-3">
 						        <button type="button" data-id="{{>prop.id}}" class="btn btn-edit-magento-user" style="border:1px solid">
@@ -184,8 +180,7 @@
 					  	<div class="row">
 					         <label class="col-sm-12" for="password">Password</label>
 					         <div class="col-sm-9 sub-pass">
-					         	<input type="password" name="password" value="" class="form-control user-password" id="password" placeholder="Enter Password" style="float:left;width:90%">
-					         	<span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password" style="margin-top:10px;margin-left:-25px;cursor:pointer"></span>
+					         	<input type="password" name="password" value="" class="form-control user-password" id="password" placeholder="Enter Password">
 					         </div>
 					         <div class="col-sm-3">
 						        <button type="button" data-id="" class="btn btn-edit-magento-user" style="border:1px solid">
