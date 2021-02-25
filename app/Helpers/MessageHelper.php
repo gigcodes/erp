@@ -139,7 +139,7 @@ class MessageHelper
      * @param $message  [ string ]
      * @return mixed
      */
-    public static function whatsAppSend($customer = null, $message = null, $sendMsg = null, $messageModel = null)
+    public static function whatsAppSend($customer = null, $message = null, $sendMsg = null, $messageModel = null, $isEmail = null)
     {
         if ($customer) {
             // $exp_mesaages = explode(" ", $message);
@@ -206,7 +206,7 @@ class MessageHelper
                             'status'            => 2,
                             'task_id'           => $taskid,
                             'message'           => $task_info[0]->task_details,
-                            'quoted_message_id' => $quoted_message_id,
+                            'quoted_message_id' => $quoted_message_id
                         ];
 
                         if ($sendMsg === true) {
@@ -244,7 +244,7 @@ class MessageHelper
      * @param $message [ string ]
      * @return mixed
      */
-    public static function sendwatson($customer = null, $message = null, $sendMsg = null, $messageModel = null,$params = [])
+    public static function sendwatson($customer = null, $message = null, $sendMsg = null, $messageModel = null,$params = [], $isEmail = null)
     {
         $isReplied = 0;
         if ((preg_match("/price/i", $message) || preg_match("/you photo/i", $message) || preg_match("/pp/i", $message) || preg_match("/how much/i", $message) || preg_match("/cost/i", $message) || preg_match("/rate/i", $message))) {
@@ -283,6 +283,8 @@ class MessageHelper
                                     $temp_img_params['message']   = "Price : " . $priceO;
                                     $temp_img_params['media_url'] = null;
                                     $temp_img_params['status']    = 2;
+                                    $temp_img_params['is_email']    = ( $isEmail == 1 ) ? 1 : 0;
+                                    $temp_img_params['is_draft']    = ( $isEmail == 1 ) ? 1 : 0;
                                     // Create new message
                                     \App\ChatMessage::create($temp_img_params);
                                 }
