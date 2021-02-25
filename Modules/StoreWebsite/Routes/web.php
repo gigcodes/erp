@@ -13,16 +13,17 @@
 
 Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::get('/', 'StoreWebsiteController@index')->name("store-website.index");
+    Route::get('/cancellation', 'StoreWebsiteController@cancellation')->name("store-website.cancellation");
     Route::get('/records', 'StoreWebsiteController@records')->name("store-website.records");
     Route::post('/save', 'StoreWebsiteController@save')->name("store-website.save");
+    Route::post('/save-cancellation', 'StoreWebsiteController@saveCancellation')->name("store-website.save-cancellation");
+    
     Route::post('/save-user-in-magento', 'StoreWebsiteController@saveUserInMagento')->name("store-website.save-user-in-magento");
     Route::post('/delete-user-in-magento', 'StoreWebsiteController@deleteUserInMagento')->name("store-website.delete-user-in-magento");
-    Route::post('/user-password-history', 'StoreWebsiteController@userPasswordHistory')->name("store-website.user-password-history");
-
-	Route::post('/get-google-keywords', 'StoreWebsiteController@googleKeywordsSearch')->name("store-website.google.keyword.search");
 
     Route::prefix('{id}')->group(function () {
         Route::get('/edit', 'StoreWebsiteController@edit')->name("store-website.edit");
+        Route::get('/edit-cancellation', 'StoreWebsiteController@editCancellation')->name("store-website.edit-cancellation");
         Route::get('/delete', 'StoreWebsiteController@delete')->name("store-website.delete");
         Route::get('/child-categories', 'CategoryController@getChildCategories')->name("store-website.child-categories");
         Route::post('/submit-social-remarks', 'StoreWebsiteController@updateSocialRemarks')->name("store-website.update.social-remarks");
