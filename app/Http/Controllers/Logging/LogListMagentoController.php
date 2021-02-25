@@ -82,6 +82,9 @@ class LogListMagentoController extends Controller
     if (!empty($request->category)) {
       $logListMagentos->where('categories.title', 'LIKE', '%' . $request->category . '%');
     }
+    // if (!empty($request->select_date)) {
+    //   $logListMagentos->whereDate('categories.title', 'LIKE', '%' . $request->category . '%');
+    // }
 
     if (!empty($request->status)) {
       if($request->status == 'available'){
@@ -104,6 +107,7 @@ class LogListMagentoController extends Controller
           'sw.magento_url as website_url',
           'log_list_magentos.user_id as log_user_id'
       );
+      $total_count = $logListMagentos->count();
       $logListMagentos = $logListMagentos->paginate(25);
       //dd($logListMagentos);
       foreach ($logListMagentos as $key => $item) {
@@ -115,6 +119,7 @@ class LogListMagentoController extends Controller
               }
               
           }
+          
           if($request->user){
             if($item->log_user_id != $request->user)
             {
@@ -144,13 +149,13 @@ class LogListMagentoController extends Controller
       // For ajax
       if ($request->ajax()) {
           return response()->json([
-              'tbody' => view('logging.partials.listmagento_data', compact('logListMagentos'))->render(),
+              'tbody' => view('logging.partials.listmagento_data', compact('logListMagentos','total_count'))->render(),
               'links' => (string) $logListMagentos->render()
           ], 200);
       }
       $filters = $request->all();
     // Show results
-    return view('logging.listmagento', compact('logListMagentos', 'filters', 'users'))
+    return view('logging.listmagento', compact('logListMagentos', 'filters', 'users','total_count'))
     ->with('success', \Request::Session()->get("success"))
     ->with('brands', $this->get_brands())
     ->with('categories', $this->get_categories());
