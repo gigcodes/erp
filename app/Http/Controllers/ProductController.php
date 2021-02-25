@@ -2288,6 +2288,8 @@ class ProductController extends Controller
         $products = (new Product())->newQuery()->latest();
         $products->where("has_mediables", 1);
 
+
+
         if (isset($request->brand[0])) {
             if ($request->brand[0] != null) {
                 $products = $products->whereIn('brand', $request->brand);
@@ -2678,6 +2680,7 @@ class ProductController extends Controller
                 $rViewMail[$mTpl->template_slug] = $mTpl->template_name . " [" . $mTpl->template_description . "]";
             }
         }
+           echo '<pre>';print_r($products->toArray());die;
 
         return view('partials.image-grid', compact(
             'products',
@@ -2701,7 +2704,7 @@ class ProductController extends Controller
             'countCategory',
             'countSuppliers',
             'customerId',
-            'categoryArray',
+           // 'categoryArray',
             'term',
             'rViewMail'
         ));

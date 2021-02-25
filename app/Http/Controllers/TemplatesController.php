@@ -13,6 +13,9 @@ use App\Brand;
 use App\ProductTemplate;
 use Plank\Mediable\Media;
 use Illuminate\Support\Str;
+use App\Helpers\GuzzleHelper;
+
+
 use DB;
 
 class TemplatesController extends Controller
@@ -24,7 +27,9 @@ class TemplatesController extends Controller
      */
     public function index()
     {
-        return view("template.index");
+        $templates=collect(self::bearBannerTemplates());
+
+        return view("template.index",compact('templates'));
     }
 
     public function response()
@@ -39,6 +44,57 @@ class TemplatesController extends Controller
             "result"     => $records,
             "pagination" => (string) $records->links(),
         ]);
+    }
+
+    public function BearBannerList()
+    {
+        $records = \App\Template::orderBy("id", "desc")->paginate(Setting::get('pagination'));
+        foreach($records as &$item) {
+            $media = $item->lastMedia(config('constants.media_tags'));
+            $item->image = ($media) ? $media->getUrl() : "";
+        }
+        return response()->json([
+            "code"       => 1,
+            "result"     => $records,
+            "pagination" => (string) $records->links(),
+        ]);
+    }
+
+    static function bearBannerTemplates()
+    {
+        $url=env('BANNER_API_LINK').'/templates';
+
+        $api_key=env('BANNER_API_KEY');
+
+        //echo $api_key;die;
+
+        $headers=   [
+                        'Authorization' => 'Bearer ' . $api_key,
+                        'Content-Type' => 'application/json'
+                    ];
+
+       $response=GuzzleHelper::get($url,$headers);
+
+       return $response;
+    }
+
+
+    public function viewTemplate()
+    {
+       $url=env('BANNER_API_LINK').'/templates/3g8zka5Yz6rDEJXBYm';
+
+        $api_key=env('BANNER_API_KEY');
+
+        //echo $api_key;die;
+
+        $headers=   [
+                        'Authorization' => 'Bearer ' . $api_key,
+                        'Content-Type' => 'application/json'
+                    ];
+
+       $response=GuzzleHelper::get($url,$headers);
+
+       echo '<pre>';print_r($response);
     }
 
     /**

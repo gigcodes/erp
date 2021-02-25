@@ -82,7 +82,11 @@
 	</div>
 </div>
 <div id="display-area"></div>
-@include("template.partials.list-template")
+{{-- @include("template.partials.list-template") --}}
+
+@include("template.partials.list-banner-template")
+
+
 @include("template.partials.create-form-template")
 @include("template.partials.edit-form-template")
 @include("partials.modals.large-image-modal")
@@ -91,8 +95,15 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript" src="js/common-helper.js"></script>
 <script type="text/javascript" src="js/template.js"></script>
+<script type="text/javascript" src="js/banner-template.js"></script>
+
 <script type="text/javascript">
 	template.init({
+		bodyView : $("#product-template-page"),
+		baseUrl : "<?php echo url("/"); ?>"
+	});
+
+	BannerBeartemplate.init({
 		bodyView : $("#product-template-page"),
 		baseUrl : "<?php echo url("/"); ?>"
 	});
