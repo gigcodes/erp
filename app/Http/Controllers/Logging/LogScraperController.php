@@ -24,7 +24,7 @@ class LogScraperController extends Controller
             list($from,$to) = explode(" - ", $customrange);
         }
 
-        $scraperLogs = DB::table('scraped_products');
+        $scraperLogs = DB::table('scraped_products')->where('validated', 0);
 
         if (!empty($request->id)) {
             $scraperLogs = $scraperLogs->where('id', '=' ,$request->id);
