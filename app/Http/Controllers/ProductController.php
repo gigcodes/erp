@@ -323,6 +323,7 @@ class ProductController extends Controller
         if (!auth()->user()->isAdmin()) {
             $newProducts = $newProducts->whereNull("pvu.product_id");
         }
+        $newProducts = $newProducts->where('isUploaded',0);
 
         $newProducts = $newProducts->select(["products.*"])->paginate(20);
         if (!auth()->user()->isAdmin()) {

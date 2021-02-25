@@ -27,7 +27,7 @@
   </div>
   <div class="row">
     <div class="col-lg-12 margin-tb">
-      <h2 class="page-heading">Log List Magento ({{ sizeof($logListMagentos) }})</h2>
+      <h2 class="page-heading">Log List Magento ({{ $total_count }})</h2>
       <div class="pull-right">
         <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
       </div>
@@ -41,6 +41,11 @@
       <div class="panel-body p-0">
         <form action="{{ route('list.magento.logging') }}" method="GET">
           <div class="row p-3">
+          <div class="col-md-3">
+                <label for="select_date">Date</label>
+                <input type="text" name="select_date" class="form-control datepicker" id="select_date" placeholder="Enter Date" value="{{isset($request->select_date) ? $request->select_date : ''}}">
+             
+            </div>
             <div class="col-md-2">
               <label for="product_id">Product ID</label>
               <input type="text" class="form-control" id="product_id" name="product_id" value="{{ old('queue') }}">
@@ -326,11 +331,21 @@
 @endsection
 
 @section('scripts')
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script>
+        $("#select_date").datepicker({
+	  	format: 'yyyy-mm-dd'
+	});
+    </script>
   <script type="text/javascript">
   var product = []
   if (localStorage.getItem("luxury-product-data-asin") !== null) {
      var data = JSON.parse(localStorage.getItem('luxury-product-data-asin'));
      product = data
+     $.each(product,function(i,e){
+      console.log(e)
+      $(".selectProductCheckbox_class[value='"+e.sku+"']").attr("checked",true);
+     });
   }
 
   $('#magento_list_tbl_895 tbody').on('click', 'tr', function () {
