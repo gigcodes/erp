@@ -38,11 +38,19 @@
               </div>
               <div class="form-row">
                   <div class="form-group col-md-6">
-                    <label for="meta_title">Meta Title</label>
-                    <input type="text" name="meta_title" value="{{if data}}{{:data.meta_title}}{{/if}}" class="form-control" id="meta_title" placeholder="Enter Meta title">
+                    <div class="input-group">
+						<div class="d-flex justify-content-between">
+							<label for="meta_title">Meta Title</label>
+							<button type="button" class="btn btn-primary btn-sm" id="keyword-search-btn"> <l class="fa fa-search"></i> </button>
+						</div>
+						<input type="text" name="meta_title" value="{{if data}}{{:data.meta_title}}{{/if}}" class="form-control" id="meta_title" placeholder="Enter Meta title">
+					</div>
                   </div>
                   <div class="form-group col-md-6">
-                  <label for="meta_keywords">Meta Keywords</label>
+					<div class="d-flex justify-content-between">
+						<label for="meta_keywords">Meta Keywords</label>
+						<span id="meta_keywords_count">  </span>
+					</div>
                   <input type="text" name="meta_keyword" value="{{if data}}{{:data.meta_keyword}}{{/if}}" class="form-control" id="meta_keywords" placeholder="Enter Keywords">
 				  		<div class="form-group ">
 							<div class="justify-content-end pt-4 input-group">
@@ -59,7 +67,10 @@
               </div>
               <div class="row">
                 <div class="form-group col-md-6">
-                  <label for="meta_description">Meta Description</label>
+					<div class="d-flex justify-content-between">
+						<label for="meta_description">Meta Description</label>
+						<span id="meta_desc_count"></span>
+					</div>
                   <textarea name="meta_description" class="form-control" placeholder="Enter meta description">{{if data}}{{:data.meta_description}}{{/if}}</textarea>
                 </div>
                 <div class="form-group col-md-6">

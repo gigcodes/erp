@@ -148,6 +148,9 @@ var page = {
             $('input[name="meta_keyword"]').trigger('change');
             $('textarea[name="meta_description"]').trigger('change');
 
+            $('input[name="meta_keyword"]').trigger('change');
+            $('textarea[name="meta_description"]').trigger('change');
+
             $('#google_translate_element').summernote();
 
         //new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
@@ -236,15 +239,34 @@ $(document).on('click', '#extra-keyword-search-btn', function () {
     getGoogleKeyWord($('#extra-keyword-search').val());
 });
 
-$(document).on('click', '.suggestList > li', function () {
+$(document).on('click', '#keyword-search-btn', function () {
+    getGoogleKeyWord($('#meta_title').val());
+});
 
-    if ($(this).hasClass('badge-green')) {
-        $('#meta_keywords').val($('#meta_keywords').val().replace("," + $(this).text(), ""));
-        $(this).removeClass('badge-green').find('i').remove()
-    } else {
-        $('#meta_keywords').val($('#meta_keywords').val() + ',' + $(this).text());
-        $(this).addClass('badge-green').append('<i class="fa fa-remove pl-2"></i>')
+$(document).on('click', '.suggestList > li', function () {
+    var keywords = $(this).data('keyword');
+
+    if ( keywords ) {
+        if ($(this).hasClass('badge-green')) {
+            $('#meta_keywords').val($('#meta_keywords').val().replace("," + keywords, ""));
+            $(this).removeClass('badge-green').find('i').remove()
+        } else {
+            $('#meta_keywords').val($('#meta_keywords').val() + ',' + keywords);
+            $(this).addClass('badge-green').append('<i class="fa fa-remove pl-2"></i>')
+        }
     }
+
+    $('input[name="meta_keyword"]').trigger('change');
+
+});
+
+
+$(document).on('change , keyup', 'input[name="meta_keyword"]', function () {
+    $('#meta_keywords_count').text( 'Length: '+ $(this).val().length);
+});
+
+$(document).on('change , keyup', 'textarea[name="meta_description"]', function () {
+    $('#meta_desc_count').text('Length: ' + $(this).val().length);
 });
 
 function getGoogleKeyWord(title) {
@@ -267,8 +289,9 @@ function getGoogleKeyWord(title) {
                 $(document).find('#extra-keyword-search-btn').removeClass('hide');
                 $(document).find('#extra-keyword-search').removeClass('hide');
                 $(document).find('.suggestList').addClass('width-fix');
+                $(document).find('.suggestList').append('<li class="badge badge-primary w-100" > keywords - searchVolume - competition </i>');
                 $.each(response, function (index, data) {
-                    $(document).find('.suggestList').append('<li class="badge badge-primary">' + data.keyword + '</i>');
+                    $(document).find('.suggestList').append('<li class="badge badge-primary" data-keyword="' + data.keyword + '" >' + data.keyword + ' - ' + data.searchVolume + ' - ' + data.competition + '</i>');
                 });
             } else {
                 $(document).find('#extra-keyword-search-btn,#extra-keyword-search').hide();
