@@ -1740,64 +1740,6 @@ class ProductController extends Controller
                     // Update the product so it doesn't show up in final listing
                     $product->isUploaded = 1;
                     $product->save();
-                    //return json_encode([$product]);
-                    //translate product title and description
-    //                $languages = ['hi','ar'];
-                    $languages = Language::pluck('locale')->where("status",1)->toArray();
-                    $isDefaultAvailable = Product_translation::whereIN('locale', $languages)->where('product_id', $product->id)->first();
-                    if (!$isDefaultAvailable) {
-                        $product_translation = new Product_translation;
-                        $product_translation->title = isset($product->name) ? $product->name : "";
-                        $product_translation->description = isset($product->short_description) ? $product->short_description : "";
-                        $product_translation->product_id = $product->id;
-                        $product_translation->locale = 'en';
-                        $product_translation->save();
-                    }else{
-                        $msg = 'Product translation data not exists';
-
-                        $logId = LogListMagento::log($product->id, $msg, 'info');
-                        ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-                        $this->updateLogUserId($logId);
-                    }
-                    if(count($languages) > 0){
-                        foreach ($languages as $language) {
-                            $isLocaleAvailable = Product_translation::where('locale', $language)->where('product_id', $product->id)->first();
-                            if (!$isLocaleAvailable) {
-                                $product_translation = new Product_translation;
-                                $googleTranslate = new GoogleTranslate();
-                                $title = $googleTranslate->translate($language, $product->name);
-                                $description = $googleTranslate->translate($language, $product->short_description);
-                                if ($title && $description) {
-                                    $product_translation->title = $title;
-                                    $product_translation->description = $description;
-                                    $product_translation->product_id = $product->id;
-                                    $product_translation->locale = $language;
-                                    $product_translation->save();
-                                }else{
-                                    $msg = 'Title and description are not available';
-                                    
-                                    $logId = LogListMagento::log($product->id, $msg, 'info');
-                                    ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-                                    $this->updateLogUserId($logId);
-                                }
-                            }else{
-                                $msg = 'Locale data not exists';
-                                $logId = LogListMagento::log($product->id, $msg, 'info');
-                                ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-                                $this->updateLogUserId($logId);
-                            }
-                        }
-                    }else{
-                        $msg = 'Languages data not exists';
-                        
-                        $logId = LogListMagento::log($product->id, $msg, 'info');
-                        ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-                        $this->updateLogUserId($logId);
-                    }
-                    
-                    // Update the product so it doesn't show up in final listing
-                    $product->isUploaded = 1;
-                    $product->save();
                     // Return response
                     return response()->json([
                         'result' => 'queuedForDispatch',
