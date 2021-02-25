@@ -1455,7 +1455,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/add/pricernage', 'SupplierController@addPriceRange')->name('supplier/add/pricernage');
     Route::post('supplier/change/pricerange', 'SupplierController@changePriceRange')->name('supplier/change/pricerange');
 
-
+    // API Response
+    Route::get('api-response','ApiResponseMessageController@index')->name('api-response-message');
+    Route::post('api-response','ApiResponseMessageController@store')->name('api-response-message.store');
+    Route::post('/getEditModal','ApiResponseMessageController@getEditModal')->name('getEditModal');
+    Route::post('/api-response-message-update','ApiResponseMessageController@update')->name('api-response-message.updateResponse');
+    Route::get('/api-response-message-dalete/{id}','ApiResponseMessageController@destroy')->name('api-response-message.responseDelete');
 
     Route::resource('assets-manager', 'AssetsManagerController');
     Route::post('assets-manager/add-note/{id}', 'AssetsManagerController@addNote');

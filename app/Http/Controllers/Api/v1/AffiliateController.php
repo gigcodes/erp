@@ -80,14 +80,16 @@ class AffiliateController extends Controller
         $affiliates->source                    = isset($request->source) ? $request->source : '';
 
         if ($affiliates->save()) {
+            $message = $this->generate_erp_response("affiliates.success",($storeweb) ? $storeweb->id : null, $default = ucwords($affiliates->type).' added successfully !');
             return response()->json([
                 'status'  => 'success',
-                'message' => ucwords($affiliates->type).' added successfully !',
+                'message' => $message,
             ], 200);
         }
+        $message = $this->generate_erp_response("affiliates.failed",($storeweb) ? $storeweb->id : null, $default = 'Unable to add '.ucwords($affiliates->type)."!");
         return response()->json([
             'status'  => 'failed',
-            'message' => 'Unable to add '.ucwords($affiliates->type)."!",
+            'message' => $message,
         ], 500);
     }
 

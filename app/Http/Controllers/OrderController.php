@@ -3156,30 +3156,32 @@ public function submitInvoice(Request $request) {
           if($estimated_delivery_histories->save()){
             $oldOrderDelData->update(['estimated_delivery_date'=>$newdeldate]);
             return response()->json(["code" => 200 , "data" => [], "message" => "Delivery Date Updated Successfully"]);
-          }
-          return response()->json(["code" => 500 , "data" => [], "message" => "Something went wrong"]);
         }
-        public function viewEstDelDateHistory(request $request){
-          $orderid = $request->input('order_id');
-          $estimated_delivery_histories = \App\EstimatedDeliveryHistory::select('estimated_delivery_histories.*','users.name')
-          ->where('order_id',$orderid)
-          ->where('estimated_delivery_histories.field','estimated_delivery_date')
-          ->leftJoin('users','users.id','estimated_delivery_histories.updated_by')
-          ->orderByDesc('estimated_delivery_histories.created_at')
-          ->get();
-          $html = view('partials.modals.estimated-delivery-date-histories')->with('estimated_delivery_histories', $estimated_delivery_histories)->render();
-          return response()->json(["code" => 200 , "html" => $html, "message" => "Something went wrong"]);
-        }
+        return response()->json(["code" => 500 , "data" => [], "message" => "Something went wrong"]);
+    }
+    public function viewEstDelDateHistory(request $request){
+        $orderid = $request->input('order_id');
+        $estimated_delivery_histories = \App\EstimatedDeliveryHistory::select('estimated_delivery_histories.*','users.name')
+        ->where('order_id',$orderid)
+        ->where('estimated_delivery_histories.field','estimated_delivery_date')
+        ->leftJoin('users','users.id','estimated_delivery_histories.updated_by')
+        ->orderByDesc('estimated_delivery_histories.created_at')
+        ->get();
+        $html = view('partials.modals.estimated-delivery-date-histories')->with('estimated_delivery_histories', $estimated_delivery_histories)->render(); 
+        return response()->json(["code" => 200 , "html" => $html, "message" => "Something went wrong"]);
+    }
 
-        public function customerOrderDetails(Request $request) {
-          $token = $request->token;
-          $email = $request->email;
-          $order_no = $request->order_no;
-          $store_url = $request->website;
-          $token = $request->bearerToken();
-          if((!$email || trim($email) == '') && empty($order_no)) {
-            return response()->json(['message' => 'Email is absent in your request','status' => 400]);
-          }
+    public function customerOrderDetails(Request $request) {
+        $token = $request->token;
+        $email = $request->email;
+        $order_no = $request->order_no;
+        $store_url = $request->website;
+
+        $token = $request->bearerToken();
+        if((!$email || trim($email) == '') && empty($order_no)) {
+            $message = $this->generate_erp_response("customer.order.success",0, $default = "Email is absent in your request");
+            return response()->json(['message' => $message,'status' => 400]);
+        }
 
           if((!$order_no || trim($order_no) == '') && empty($email)) {
             return response()->json(['message' => 'Order reference no is absent in your request','status' => 400]);
@@ -3263,23 +3265,24 @@ public function submitInvoice(Request $request) {
             }
 
             $order->status_histories = array_reverse($return_histories);
-          }
-          $orders = $orders->toArray();
-          // $orders = json_encode($orders);
-          return response()->json(['message' => 'Orders Fetched successfully','status' => 200, 'data' => $orders]);
-
         }
-        public function addNewReply(request $request){
-          if($request->reply){
-            $replyData = [];
-            $html = '';
-            $replyData['reply'] = $request->reply;
-            $replyData['model'] = 'Order';
-            $replyData['category_id'] = 1;
-            $success = Reply::create($replyData);
-            if($success){
-              $replies = Reply::where('model','Order')->get();
-              if($replies){
+        $orders = $orders->toArray();
+        // $orders = json_encode($orders);
+        $message = $this->generate_erp_response("customer.order.success",$store_website->id, $default = "Orders Fetched successfully");
+        return response()->json(['message' => $message,'status' => 200, 'data' => $orders]);
+
+    }
+    public function addNewReply(request $request){
+        if($request->reply){
+        $replyData = [];
+        $html = '';
+        $replyData['reply'] = $request->reply;
+        $replyData['model'] = 'Order';
+        $replyData['category_id'] = 1;
+        $success = Reply::create($replyData);
+        if($success){
+            $replies = Reply::where('model','Order')->get();
+            if($replies){
                 $html .="<option value=''>Select Order Status</option>";
                 foreach($replies as $reply){
                   $html .= '<option value="'.$reply->id.'">'.$reply->reply.'</option>';
