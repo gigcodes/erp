@@ -1033,12 +1033,7 @@ class TaskModuleController extends Controller {
         $tokens = $this->getTokens();
        // echo '<pre>';print_r($tokens);
 
-        if(time() > $tokens->token_life)
-        {
-        	$this->refreshTokens();
-
-            $tokens = $this->getTokens();
-        }
+        
 
        
 
