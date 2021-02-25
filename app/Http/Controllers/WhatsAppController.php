@@ -3620,7 +3620,7 @@ class WhatsAppController extends FindByNumberController
                     
                     if( $template ){
                         $subject      = $template->subject;
-                        $message_body = str_replace( array("{{customer_name}}","{{content}}"),array( $customer->name,  $message ),$template->static_template );
+                        $message_body = str_replace( array("{{customer_name}}","{{content}}"),array( $customer->name,  $message_body ),$template->static_template );
                     }
 
                     $email_params = [
@@ -3636,6 +3636,7 @@ class WhatsAppController extends FindByNumberController
                         'message'         => $message_body,
                         'template'        => 'customer-simple',
                         'additional_data' => null,
+                        'is_draft'        => 1,
                         'created_at'      => Carbon::now(),
                     ];
                     Email::create($email_params);
