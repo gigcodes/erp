@@ -658,7 +658,7 @@ class ScrapController extends Controller
             $scrapedProduct->is_price_updated = 0;
             $scrapedProduct->is_enriched = 0;
             $scrapedProduct->can_be_deleted = 0;
-            $scrapedProduct->validated = 0;
+            $scrapedProduct->validated = 1;
             $scrapedProduct->save();
         }
         
@@ -669,7 +669,7 @@ class ScrapController extends Controller
         if ($product == null) {
            // $scrapedProduct->validated = 1;
             if($scrapedProduct) {
-               $scrapedProduct->validated = 1;
+               $scrapedProduct->validated = 0;
                $scrapedProduct->validation_result = 'Error processing your request (#1)';
                $scrapedProduct->save();
             }
@@ -690,7 +690,7 @@ class ScrapController extends Controller
             //$scrapedProduct->validated = 1;
             
             if($scrapedProduct) {
-               $scrapedProduct->validated = 1;
+               $scrapedProduct->validated = 0;
                $scrapedProduct->validation_result = 'Product processed for unable to scrap';
                $scrapedProduct->save();
             }
@@ -868,7 +868,7 @@ class ScrapController extends Controller
         }
         //
         if($scrapedProduct) {
-           $scrapedProduct->validated = 1;
+           $scrapedProduct->validated = 0;
            $scrapedProduct->validation_result = 'Error processing your request (#99)';
            $scrapedProduct->save();
         }
