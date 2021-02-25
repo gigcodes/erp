@@ -131,8 +131,9 @@ var page = {
     },
 
     editRecord : function(ele) {
+        var value = $(ele).closest('tr').children('td:eq(1)').text();
         var _z = {
-            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/category-seo/"+ele.data("id")+"/edit",
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/category-seo/" + ele.data("id") + "/edit?category="+value,
             method: "get",
         }
         this.sendAjax(_z, 'editResult');
@@ -144,6 +145,8 @@ var page = {
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
+            $('input[name="meta_keyword"]').trigger('change');
+            $('textarea[name="meta_description"]').trigger('change');
 
             $('#google_translate_element').summernote();
 
@@ -277,3 +280,39 @@ function getGoogleKeyWord(title) {
         },
     });
 }
+
+$(document).on("click", ".btn-history-list", function (e) {
+    console.log($(this).data());
+    // e.preventDefault();
+    var product_id = $(this).data("id");
+    $.ajax({
+        url: '/store-website/category-seo/'+ product_id + '/history',
+        type: 'get',
+        dataType: 'json',
+        beforeSend: function () {
+            $("#loading-image").show();
+        },
+        success: function (result) {
+            console.log(result);
+            $("#loading-image").hide();
+
+            if (result.code == 200) {
+                var t = '';
+                $.each(result.data, function (k, v) {
+                    t += `<tr><td>` + v.id + `</td>`;
+                    t += `<td>` + v.old_keywords + `</td>`;
+                    t += `<td>` + v.new_keywords + `</td>`;
+                    t += `<td>` + v.old_description + `</td>`;
+                    t += `<td>` + v.new_description + `</td>`;
+                    t += `<td>` + v.user_name + `</td>`;
+                    t += `<td>` + v.created_at + `</td></tr>`;
+                });
+            }
+            $("#category-history-modal").find(".show-list-records").html(t);
+            $("#category-history-modal").modal("show");
+        },
+        error: function () {
+            $("#loading-image").hide();
+        }
+    });
+});
