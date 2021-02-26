@@ -62,6 +62,8 @@ Route::prefix('googlewebmaster')->group(static function () {
     
     Route::get('get-access-token','GoogleWebMasterController@googleLogin')->name('googlewebmaster.get-access-token') ;
     Route::get('/index', 'GoogleWebMasterController@index')->name('googlewebmaster.index');
+
+    Route::get('update/sites/data','GoogleWebMasterController@updateSitesData')->name('update.sites.data');
    
 });
 
@@ -93,6 +95,9 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('live-scraper-logs', 'LaravelLogController@scraperLiveLogs')->name('logging.live.scraper-logs');
     Route::get('live-laravel-logs/downloads', 'LaravelLogController@liveLogDownloads')->name('logging.live.downloads');
     Route::get('live-magento-logs/downloads', 'LaravelLogController@liveMagentoDownloads')->name('logging.live.magento.downloads');
+    //TODO::Magento Product API call Route
+    Route::get('magento-product-api-call', 'Logging\LogListMagentoController@showMagentoProductAPICall')->name('logging.magento.product.api.call');
+    Route::post('magento-product-skus-ajax', 'Logging\LogListMagentoController@getMagentoProductAPIAjaxCall')->name('logging.magento.product.api.ajax.call');
 });
 
 Route::prefix('category-messages')->group(function () {
@@ -208,7 +213,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('product/update-listing-remark', 'ProductController@updateProductListingStats');
     Route::post('product/crop_rejected_status', 'ProductController@crop_rejected_status');
     Route::post('product/all_crop_rejected_status', 'ProductController@all_crop_rejected_status');
-    
+
     // Added Mass Action
     Route::get('product/delete-product', 'ProductController@deleteProduct')->name('products.mass.delete');
     Route::get('products/approveProduct', 'ProductController@approveProduct')->name('products.mass.approve');;
@@ -279,11 +284,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('push-in-shopify', 'NewProductInventoryController@pushInShopify')->name('product-inventory.push-in-shopify');
         });
     });
-    
+
     Route::post('facebook-posts/save', 'FacebookPostController@store')->name('facebook-posts/save');
     Route::get('facebook-posts/create', 'FacebookPostController@create')->name('facebook-posts.create');
     Route::resource('facebook-posts', 'FacebookPostController');
-    
+
 
     Route::post('facebook-posts/save', 'FacebookPostController@store')->name('facebook-posts/save');
     Route::get('facebook-posts/create', 'FacebookPostController@create')->name('facebook-posts.create');
@@ -366,7 +371,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('category/update-field', 'CategoryController@updateField');
     Route::post('category/reference', 'CategoryController@saveReference');
     Route::post('category/save-form', 'CategoryController@saveForm')->name("category.save.form");
-    //new category reference 
+    //new category reference
 
     Route::get('category/new-references', 'CategoryController@newCategoryReferenceIndex');
 
@@ -557,11 +562,15 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/change-status', 'OrderController@statusChange');
 
 
-    Route::get('order/invoices', 'OrderController@viewAllInvoices'); 
+    Route::get('order/invoices', 'OrderController@viewAllInvoices');
 
     Route::get('order/{id}/edit-invoice', 'OrderController@editInvoice')->name('order.edit.invoice');
     Route::post('order/edit-invoice', 'OrderController@submitEdit')->name('order.submitEdit.invoice');
+    //TODO::invoice wthout order
+    Route::get('invoice/without-order', 'OrderController@createInvoiceWithoutOrderNumber')->name('invoice.without.order');
     Route::get('order/order-search', 'OrderController@searchOrderForInvoice')->name('order.search.invoice');
+    Route::get('customers/customer-search', 'OrderController@getCustomers')->name('customer.search');
+    Route::get('customers/product-search', 'OrderController@getSearchedProducts')->name('product.search');
     Route::get('order/{id}/add-invoice', 'OrderController@addInvoice')->name('order.add.invoice');
     Route::post('order/submit-invoice', 'OrderController@submitInvoice')->name('order.submit.invoice');
 
@@ -938,10 +947,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Master Plan
     Route::get('mastercontrol/clearAlert', 'MasterControlController@clearAlert')->name('mastercontrol.clear.alert');
     Route::resource('mastercontrol', 'MasterControlController');
-    
-    
-    
-    
+
+
+
+
     Route::post('purchase-product/change-status/{id}', 'PurchaseProductController@changeStatus');
     Route::post('purchase-product/submit-status', 'PurchaseProductController@createStatus');
     Route::get('purchase-product/send-products/{type}/{supplier_id}', 'PurchaseProductController@sendProducts');
@@ -953,7 +962,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('purchase-product/supplier-details/{order_id}', 'PurchaseProductController@getSupplierDetails');
     Route::get('purchase-product/customer-details/{type}/{order_id}', 'PurchaseProductController@getCustomerDetails');
     Route::resource('purchase-product', 'PurchaseProductController');
-    
+
     // Cash Vouchers
     Route::get('/voucher/payment/request', 'VoucherController@paymentRequest')->name("voucher.payment.request");
     Route::post('/voucher/payment/request', 'VoucherController@createPaymentRequest')->name('voucher.payment.request-submit');
@@ -1446,7 +1455,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/add/pricernage', 'SupplierController@addPriceRange')->name('supplier/add/pricernage');
     Route::post('supplier/change/pricerange', 'SupplierController@changePriceRange')->name('supplier/change/pricerange');
 
-
+    // API Response
+    Route::get('api-response','ApiResponseMessageController@index')->name('api-response-message');
+    Route::post('api-response','ApiResponseMessageController@store')->name('api-response-message.store');
+    Route::post('/getEditModal','ApiResponseMessageController@getEditModal')->name('getEditModal');
+    Route::post('/api-response-message-update','ApiResponseMessageController@update')->name('api-response-message.updateResponse');
+    Route::get('/api-response-message-dalete/{id}','ApiResponseMessageController@destroy')->name('api-response-message.responseDelete');
 
     Route::resource('assets-manager', 'AssetsManagerController');
     Route::post('assets-manager/add-note/{id}', 'AssetsManagerController@addNote');
@@ -1728,14 +1742,14 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::get('post', 'InstagramPostsController@viewPost')->name('post.index');
     Route::get('post/edit', 'InstagramPostsController@editPost')->name('post.edit');
     Route::post('post/create','InstagramPostsController@createPost')->name('post.store');
-    
+
 
      Route::get('users', 'InstagramPostsController@users')->name('instagram.users');
      Route::post('users/save', 'InstagramController@addUserForPost')->name('instagram.users.add');
      Route::get('users/{id}', 'InstagramPostsController@userPost')->name('instagram.users.post');
 
 
-     //direct message new 
+     //direct message new
      Route::get('direct', 'DirectMessageController@index')->name('direct.index');
      Route::post('direct/send', 'DirectMessageController@sendMessage')->name('direct.send');
      Route::post('direct/sendImage', 'DirectMessageController@sendImage')->name('direct.send.file');
@@ -2420,7 +2434,7 @@ Route::prefix( 'google-campaigns')->middleware('auth')->group(function () {
     Route::post('/ads-account/create', 'GoogleAdsAccountController@createGoogleAdsAccount')->name('googleadsaccount.createAdsAccount');
     Route::get('/ads-account/update/{id}', 'GoogleAdsAccountController@editeGoogleAdsAccountPage')->name('googleadsaccount.updatePage');
     Route::post('/ads-account/update', 'GoogleAdsAccountController@updateGoogleAdsAccount')->name('googleadsaccount.updateAdsAccount');
-    
+
     Route::prefix('{id}')->group(function () {
         Route::prefix('adgroups')->group(function () {
             Route::get('/', 'GoogleAdGroupController@index')->name('adgroup.index');
@@ -2446,11 +2460,14 @@ Route::prefix('digital-marketing')->middleware('auth')->group(function () {
     Route::get('/', 'DigitalMarketingController@index')->name('digital-marketing.index');
     Route::get('/records', 'DigitalMarketingController@records')->name('digital-marketing.records');
     Route::post('/save', 'DigitalMarketingController@save')->name('digital-marketing.save');
+    Route::post('/saveImages', 'DigitalMarketingController@saveImages')->name('digital-marketing.saveimages');
     Route::prefix('{id}')->group(function () {
         Route::get('/edit', 'DigitalMarketingController@edit')->name("digital-marketing.edit");
         Route::get('/components', 'DigitalMarketingController@components')->name("digital-marketing.components");
         Route::post('/components', 'DigitalMarketingController@componentStore')->name("digital-marketing.components.save");
         Route::get('/delete', 'DigitalMarketingController@delete')->name("digital-marketing.delete");
+        Route::get('/files', 'DigitalMarketingController@files')->name("digital-marketing.files");
+        Route::get('/files-solution', 'DigitalMarketingController@filesSolution')->name("digital-marketing.filessolution");
 
         Route::prefix('solution')->group(function () {
             Route::get('/', 'DigitalMarketingController@solution')->name("digital-marketing.solutions");
@@ -2563,7 +2580,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('missing-brands/multi-reference', 'MissingBrandController@multiReference')->name('missing-brands.multi-reference');
     Route::post('missing-brands/automatic-merge', 'MissingBrandController@automaticMerge')->name('missing-brands.automatic-merge');
 
-    
+
 });
 Route::post('message-queue/approve/approved', '\Modules\MessageQueue\Http\Controllers\MessageQueueController@approved');
 
@@ -2673,13 +2690,13 @@ Route::prefix('pushfcmnotification')->middleware('auth')->group(static function 
 });
 
 
-//System size 
+//System size
 Route::prefix('system')->middleware('auth')->group(static function () {
     Route::get('/size', 'SystemSizeController@index')->name('system.size');
     Route::get('/size/store', 'SystemSizeController@store')->name('system.size.store');
     Route::get('/size/update', 'SystemSizeController@update')->name('system.size.update');
     Route::get('/size/delete', 'SystemSizeController@delete')->name('system.size.delete');
-    
+
     Route::get('/size/managercheckexistvalue', 'SystemSizeController@managercheckexistvalue')->name('system.size.managercheckexistvalue');
     Route::post('/size/managerstore', 'SystemSizeController@managerstore')->name('system.size.managerstore');
     Route::get('/size/manageredit', 'SystemSizeController@manageredit')->name('system.size.manageredit');
@@ -2687,10 +2704,19 @@ Route::prefix('system')->middleware('auth')->group(static function () {
     Route::get('/size/managerdelete', 'SystemSizeController@managerdelete')->name('system.size.managerdelete');
 });
 
-Route::get('/scrapper-phyhon', 'scrapperPhyhon@index')->name('scrapper.phyhon.index');
+Route::get('/scrapper-python', 'scrapperPhyhon@index')->name('scrapper.phyhon.index');
+
+Route::get('/set/default/store/{website?}/{store?}/{checked?}', 'scrapperPhyhon@setDefaultStore')->name('set.default.store');
+
+
+
+Route::get('/get/website/stores/{website?}', 'scrapperPhyhon@websiteStoreList')->name('website.store.list');
+
 
 // DEV MANISH
 Route::get('google-keyword-search', 'GoogleAddWord\googleAddsController@index')->name('google-keyword-search');
+
+Route::resource('google-traslation-settings', 'GoogleTraslationSettingsController');
 
 // DEV MANISH
 //System size

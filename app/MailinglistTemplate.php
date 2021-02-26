@@ -160,4 +160,16 @@ class MailinglistTemplate extends Model
 
         return false;
     }
+
+    public static function getBotEmailTemplate($store = null)
+    {   
+        $category = \App\MailinglistTemplateCategory::where('title', 'botMail')->first();
+
+        if ($category) {
+            // get the template for that cateogry and store website
+            return self::getTemplate($category, $store);
+        }
+
+        return false;
+    }
 }

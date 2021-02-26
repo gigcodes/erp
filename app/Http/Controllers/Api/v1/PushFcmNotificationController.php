@@ -25,8 +25,10 @@ class PushFcmNotificationController extends Controller
         ];
         $insert = FcmToken::create($token_data);
         if(!$insert){
-            return response()->json(['status' => 'failed', 'message' => 'Unable to create notification !'], 500);    
+            $message = $this->generate_erp_response("notification.failed",$storeweb->id, $default = 'Unable to create notification !');
+            return response()->json(['status' => 'failed', 'message' => $message], 500);    
         }
-        return response()->json(['status' => 'success', 'message' => 'Notification created successfully !'], 200);
+        $message = $this->generate_erp_response("notification.success",$storeweb->id, $default = 'Notification created successfully !');
+        return response()->json(['status' => 'success', 'message' => $message], 200);
     }
 }

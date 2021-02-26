@@ -71,6 +71,42 @@
 		bodyView : $("#common-page-layout"),
 		baseUrl : "<?php echo url("/"); ?>"
 	});
+
+	$(document).ready(function(){
+
+	$(document).on("change",".upload_file",function(){
+		//alert(0);
+		 var fd = new FormData();
+		 var files = $(this)[0].files;
+		 var fileArray = []
+		console.log(files)
+		// // Check file selected or not
+		 if(files.length > 0 ){
+
+			$.each(files,function(i,e){
+				console.log(e)
+				fd.append('file[]',e);
+			})
+			fd.append('id',$(this).data("id"))
+			fd.append('_token',"{{ csrf_token() }}");
+			fd.append('type',"marketing")
+			console.log(fd)
+			$.ajax({
+				url: '{{route("digital-marketing.saveimages")}}',
+				type: 'post',
+				data: fd,
+				contentType: false,
+				processData: false,
+				success: function(response){
+					console.log(response)
+					toastr['success'](response.msg, 'Success');
+				},
+			});
+		 }else{
+		 alert("Please select a file.");
+		 }
+	});
+});
 </script>
 
 @endsection

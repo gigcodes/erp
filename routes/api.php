@@ -202,3 +202,6 @@ Route::get('missing-brand/save','MissingBrandController@saveMissingBrand');
 
 //Store data into the laravel_logs
 Route::post('laravel-logs/save','LaravelLogController@saveNewLogData');
+
+//check for order cancellation
+Route::post('order/check-cancellation','\App\Http\Controllers\Api\v1\ProductController@checkCancellation');

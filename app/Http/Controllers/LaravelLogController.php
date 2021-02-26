@@ -320,19 +320,24 @@ class LaravelLogController extends Controller
         $action = $request->action;
     	
         if($url==''){
-            return response()->json(['status' => 'failed', 'message' => 'URL is required'], 400);
+            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'URL is required');
+            return response()->json(['status' => 'failed', 'message' => $message], 400);
         }
         if($message==''){
-            return response()->json(['status' => 'failed', 'message' => 'Message is required'], 400);
+            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'Message is required');
+            return response()->json(['status' => 'failed', 'message' => $message], 400);
         }
         if($module_name==''){
-            return response()->json(['status' => 'failed', 'message' => 'Module name is required'], 400);
+            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'Module name is required');
+            return response()->json(['status' => 'failed', 'message' => $message], 400);
         }
         if($controller_name==''){
-            return response()->json(['status' => 'failed', 'message' => 'Controller name is required'], 400);
+            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'Controller name is required');
+            return response()->json(['status' => 'failed', 'message' => $message], 400);
         }
         if($action==''){
-            return response()->json(['status' => 'failed', 'message' => 'action is required'], 400);
+            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'action is required');
+            return response()->json(['status' => 'failed', 'message' => $message], 400);
         }
         $laravelLog = new LaravelLog();
         $laravelLog->filename=$url;
@@ -342,7 +347,8 @@ class LaravelLogController extends Controller
         $laravelLog->controller_name=$controller_name;
         $laravelLog->action=$action;
         $laravelLog->save();
-		 return response()->json(['status' => 'success', 'message' => 'Log data Saved'], 200);
+        $message = $this->generate_erp_response("laravel.log.success",0, $default = 'Log data Saved');
+		return response()->json(['status' => 'success', 'message' => $message], 200);
     }
     
     public function getDirContents($dir, $results = array()) {

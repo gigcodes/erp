@@ -49,7 +49,7 @@ class QuestionController extends Controller
 
         $chatQuestions = $chatQuestions->groupBy("chatbot_questions.id")
             ->orderBy("chatbot_questions.id", "desc")
-            ->paginate(10)->appends(request()->except(['page','_token']));
+            ->paginate(24)->appends(request()->except(['page','_token']));
 
         $allCategory = ChatbotCategory::all();
         $allCategoryList = [];
@@ -894,5 +894,42 @@ class QuestionController extends Controller
         // }
         return response()->json(['code' => 200,'data' => $chatbotQuestion],200);
     }
+
+    public function searchSuggestion(Request $request)
+    {
+           $listOfQuestions = ChatbotQuestionExample::join("chatbot_questions as cq","cq.id","chatbot_question_examples.chatbot_question_id")
+           ->where("question", "LIKE" , "%".$request->q."%")
+           ->where("cq.keyword_or_question", $request->type)
+           ->select(["chatbot_question_examples.*","cq.value", "cq.erp_or_watson"])
+           ->limit(10)
+           ->get()->toArray();
+
+           return response()->json(["code" => 200 , "data" => $listOfQuestions]);
+    }
+
+    public function searchSuggestionDelete(Request $request)
+    {
+        $id = $request->id;
+        $type = $request->type;
+
+        $cbValue = ChatbotQuestionExample::where("id", $id)->first();
+        if ($cbValue) {
+            $questionModal = $cbValue->questionModal; 
+            $cbValue->delete();
+            if($questionModal) {
+                if($questionModal->keyword_or_question == 'intent' && $questionModal->erp_or_watson == 'watson') {
+                   WatsonManager::pushQuestion($id, $questionModal->value);
+                }
+                if($questionModal->keyword_or_question == 'entity' && $questionModal->erp_or_watson == 'watson') {
+                    WatsonManager::pushQuestion($id, $questionModal->value);
+                }
+            }
+
+            return response()->json(["code" => 200 , "data" => [], "message" => "Example delete successfully"]);
+        }
+
+        return response()->json(["code" => 500 , "data" => [], "message" => "Record does not exist in the database"]);
+    }
     
 }
+

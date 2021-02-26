@@ -35,7 +35,10 @@
 			        	|<button type="button" data-id="{{>prop.id}}" class="btn btn-save-usp"><i class="fa fa-save" aria-hidden="true"></i></button>
 			        	|<a href="/digital-marketing/{{>prop.digital_marketing_platform_id}}/solution/{{>prop.id}}/research">
 			        		<button type="button" data-id="{{>prop.id}}" class="btn"><i class="fa fa-cubes" aria-hidden="true"></i></button>
-			        	</a>
+			        	</a> | 
+						<label for="upload_file{{>prop.id}}" data-id="{{>prop.id}}" class="fa fa-upload"></label>
+						<input type="file" multiple data-id="{{>prop.id}}" class="upload_file_solution hide" name="upload_file{{>prop.id}}" id="upload_file{{>prop.id}}">
+						<a href="javascript:;" class="get_Files_solution" data-id="{{>prop.id}}">Show Files</a>
 			        </td>
 			      </tr>
 			    {{/props}}  
@@ -230,6 +233,33 @@
 					    	</div>
 					  	</div>
 					</form>
+				</div>
+			</div>
+		</div>
+	</div>			
+</script>
+<script type="text/x-jsrender" id="template-files-components">
+	<div class="modal-content">
+	   <div class="modal-header">
+	      <h5 class="modal-title">Uploaded Files</h5>
+	      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	      	<span aria-hidden="true">&times;</span>
+	      </button>
+	   </div>
+	   <div class="modal-body">
+			<div class="row">
+				<div class="col-lg-12">
+					 <table class="table table-bordered">
+						<thead>
+							<tr>
+								<td>File Link</td>
+								<td>Upload Date</td>
+								<td>Upload By</td>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
 				</div>
 			</div>
 		</div>
