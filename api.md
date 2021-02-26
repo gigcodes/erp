@@ -706,3 +706,38 @@ Content-Type: application/json
     "message": "{message}"
 }
 ```
+## Return response status for order ID if its returnable or cancelable
+**Request:**
+
+```json
+GET https://erp.theluxuryunlimited.com/api/orders/check-cancellation
+Accept: application/json
+Content-Type: application/json
+{
+    "website" : "www.brands-labels.com",
+    "order_id" : "000000012"
+}
+```
+
+**Successful Response:**
+```json
+{
+    "code": 200,
+    "message": "Success",
+    "data": {
+        "order_id": "000000001",
+        "website": "www.veralusso.com",
+        "iscanceled": false,
+        "isrefund": true
+    }
+}
+```
+
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "message": "data not found.",
+    "data": []
+}
+```

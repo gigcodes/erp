@@ -58,28 +58,29 @@ class ProductController extends Controller
                     if($order_product !=  null) {
                     //$getCustomerOrderData = $getCustomerOrderData->where("swo.platform_order_id",$request->order_id);
                         $result_input = $request->input();
-                        $result_input["isreturned"] = true;
+                        $result_input["iscanceled"] = true;
+                        $result_input["isrefund"] = true;
                         if($ProductCancellationPolicie){
                             $order_product->purchase_status;
-                            if($order_product->purchase_status == "Cancel"){
+                            //if($order_product->purchase_status == "Cancel"){
                                 $created = new Carbon($order_product->created_at);
                                 $now = Carbon::now();
                                 $difference = ($created->diff($now)->days < 1)
                                     ? 'today'
                                     : $created->diffInDays($now);
                                 if($difference > $ProductCancellationPolicie->days_cancelation){
-                                    $result_input["isreturned"] = false;
+                                    $result_input["iscanceled"] = false;
                                 }
-                            }else if($order_product->purchase_status == "Refund to be processed"){
+                            //}else if($order_product->purchase_status == "Refund to be processed"){
                                 $created = new Carbon($order_product->shipment_date);
                                 $now = Carbon::now();
                                 $difference = ($created->diff($now)->days < 1)
                                     ? 'today'
                                     : $created->diffInDays($now);
                                 if($difference > $ProductCancellationPolicie->days_refund){
-                                    $result_input["isreturned"] = false;
+                                    $result_input["isrefund"] = false;
                                 }
-                            }
+                           // }
                         }
                         return response()->json(["code" => 200, "message" => "Success", "data" => $result_input]);
                     }else{
