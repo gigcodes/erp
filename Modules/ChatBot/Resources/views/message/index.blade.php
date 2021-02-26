@@ -258,7 +258,7 @@
             var message = thiss.closest(".cls_textarea_subbox").find("textarea").val();
             data.append("customer_id", customer_id);
             data.append("message", message);
-            data.append("status", 1);
+            data.append("status", 0);
 
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
