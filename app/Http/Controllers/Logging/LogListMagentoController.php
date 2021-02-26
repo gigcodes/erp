@@ -260,10 +260,49 @@ class LogListMagentoController extends Controller
           'japanese'=>'No',
           'korean'=>'No',
           'russian'=>'No',
-          'chinese'=>'No'
+          'chinese'=>'No',
+          'success' => true
         ];
 
       }
+    }
+    if(!$value->success){
+      $websites[]=\App\StoreWebsite::where('id',$value->store_website_id)->value('title');
+      $product_name = \App\Product::with('product_category','brands')->where('sku',$value->skuid)->first();
+      //dd($product_name);
+      if(isset($product_name) && $product_name->product_category != null){
+       // print_r($product_name->product_category);
+        if($product_name->product_category){
+         // foreach($product_name->product_category as $cat){
+            $category_names[] = $product_name->product_category->title;
+        //  }
+        }
+      }
+      $brand = isset($product_name->brands) ? $product_name->brands->name : "";
+      $prepared_products_data[$value->skuid] = [
+        'store_website_id' => $value->store_website_id,
+          'magento_id'=>"",
+          'sku'=>$value->skuid,
+          'product_name'=> $product_name != null ? $product_name->name : "",
+          'media_gallery_entries'=>"",
+          'websites'=>$websites,
+          'category_names'=>$category_names,
+          'size'=>$product_name != null ? $product_name->size : "",
+          'brands'=>$brand,
+          'composition'=>$product_name != null ? $product_name->composition : "",
+          'dimensions'=> $product_name != null ? $product_name->lmeasurement.",".$product_name->hmeasurement.",".$product_name->dmeasurement : "",
+          'english'=>'Yes',
+          'arabic'=>'Yes',
+          'german'=>'Yes',
+          'spanish'=>'No',
+          'french'=>'No',
+          'italian'=>'No',
+          'japanese'=>'No',
+          'korean'=>'No',
+          'russian'=>'No',
+          'chinese'=>'No',
+          'success' => false
+      ];
     }
 
       $category_names =[];
@@ -299,41 +338,50 @@ class LogListMagentoController extends Controller
           //   ]
           // ]);
           // $response = $req->getBody()->getContents();
+          if(isset($result->id)){
+            $result->success = true;
+          }else{
+            $result->success = false;
+          }
+          $result->skuid = $sku->sku;
           $result->store_website_id = $sku->websiteid;
           $products []= $result;
           
         } catch (\Exception $e) {
         }
       }
+     // dd($products);
       if(!empty($products)){
 
         $data =collect($this->processProductAPIResponce($products));
-        //print_r($data);
+       // dd($data);
          foreach ($data as $value) {
-          $StoreWebsiteProductCheck = \App\StoreWebsiteProductCheck::where('website_id',$value['store_website_id'])->first();
-          $addItem =  ['website_id' => $value['store_website_id'],
-          'website' => implode(",",$value['websites']),
-          'sku' => $value['sku'],
-          'size' => $value['size'],
-          'brands' => $value['brands'],
-          'dimensions' => $value['dimensions'],
-          'composition' => $value['composition'],
-          //'images' => $value->composition,
-          'english'=>'Yes',
-          'arabic'=>'Yes',
-          'german'=>'Yes',
-          'spanish'=>'No',
-          'french'=>'No',
-          'italian'=>'No',
-          'japanese'=>'No',
-          'korean'=>'No',
-          'russian'=>'No',
-          'chinese'=>'No'];
-          if($StoreWebsiteProductCheck == null){
-            $StoreWebsiteProductCheck = \App\StoreWebsiteProductCheck::create($addItem);
-          }else{
-            $StoreWebsiteProductCheck->where('website_id',$value['store_website_id'])->update($addItem);
-          }
+           if($value["success"]){
+            $StoreWebsiteProductCheck = \App\StoreWebsiteProductCheck::where('website_id',$value['store_website_id'])->first();
+            $addItem =  ['website_id' => $value['store_website_id'],
+            'website' => implode(",",$value['websites']),
+            'sku' => $value['sku'],
+            'size' => $value['size'],
+            'brands' => $value['brands'],
+            'dimensions' => $value['dimensions'],
+            'composition' => $value['composition'],
+            //'images' => $value->composition,
+            'english'=>'Yes',
+            'arabic'=>'Yes',
+            'german'=>'Yes',
+            'spanish'=>'No',
+            'french'=>'No',
+            'italian'=>'No',
+            'japanese'=>'No',
+            'korean'=>'No',
+            'russian'=>'No',
+            'chinese'=>'No'];
+            if($StoreWebsiteProductCheck == null){
+              $StoreWebsiteProductCheck = \App\StoreWebsiteProductCheck::create($addItem);
+            }else{
+              $StoreWebsiteProductCheck->where('website_id',$value['store_website_id'])->update($addItem);
+            }
+           }
          }
         if(!empty($data)){
           return DataTables::collection($data)->toJson();
