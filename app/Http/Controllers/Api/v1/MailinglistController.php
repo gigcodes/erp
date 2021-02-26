@@ -44,7 +44,7 @@ class MailinglistController extends Controller
    **/ 
     public function add(Request $request) {
         // Step1
-        $store_website = StoreWebsite::Where('website'  , 'LIKE', '%'.$request->website.'%' )->first();
+        $store_website = StoreWebsite::Where('website'  , $request->website )->first();
 
         // Step 2
         if (!$store_website) {
