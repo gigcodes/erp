@@ -128,6 +128,7 @@ use App\Console\Commands\DeleteStoreWebsiteCategory;
 use App\Console\Commands\RunGoogleAnalytics;
 use App\Console\Commands\scrappersImages;
 use App\Console\Commands\scrappersImagesDelete;
+use App\Console\Commands\InstagramHandler;
 
 class Kernel extends ConsoleKernel
 {
@@ -252,7 +253,8 @@ class Kernel extends ConsoleKernel
         RunGoogleAnalytics::class,
 		RunGoogleAnalytics::class,
         scrappersImages::class,
-        scrappersImagesDelete::class
+        scrappersImagesDelete::class,
+        InstagramHandler::class
     ];
 
     /**
@@ -542,6 +544,8 @@ class Kernel extends ConsoleKernel
 		// Cron for scrapper images.
 		$schedule->command("scrappersImages")->daily();
         $schedule->command("scrappersImagesDelete")->daily();
+        //cron for instagram handler daily basis
+        $schedule->command("instagram:handler")->daily();
     }
 
     /**
