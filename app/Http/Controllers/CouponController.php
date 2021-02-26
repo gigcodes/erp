@@ -382,12 +382,14 @@ class CouponController extends Controller
 
     public function addRules(Request $request){
 
+        $store_website = StoreWebsite::where('id',$request->store_website_id)->first();
         $store_lables = [];
         foreach($request->store_labels as $key => $lables){
             array_push($store_lables,['store_id' => $key,'store_label' => $lables,'extension_attributes' => '{}']);
         }
 
-        $authorization = "Authorization: Bearer u75tnrg0z2ls8c4yubonwquupncvhqie";
+
+        $authorization = "Authorization: Bearer ".$store_website->api_token;
         $parameters = [];
         $parameters['rule'] = [
             "name" => $request->name,
@@ -448,7 +450,7 @@ class CouponController extends Controller
         ];
     
 
-        $url = "https://sololuxury.com/rest/V1/salesRules/";
+        $url = $store_website->magento_url."/rest/V1/salesRules/";
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json' , $authorization ));
         curl_setopt($ch, CURLOPT_URL,$url);
@@ -464,7 +466,7 @@ class CouponController extends Controller
 
 
         if($request->coupon_type == "SPECIFIC_COUPON" && !isset($request->use_auto_generation)){
-            $this->geteratePrimaryCouponCode($request->code,$result->rule_id,$request->uses_per_coustomer,$request->expiration);
+            $this->geteratePrimaryCouponCode($request->code,$result->rule_id,$request->uses_per_coustomer,$request->expiration,'',$store_website);
         }
 
             $local_rules = new CouponCodeRules();
@@ -505,8 +507,9 @@ class CouponController extends Controller
     }
 
 
-    public function geteratePrimaryCouponCode($code,$magento_rule_id,$uses_per_customer,$end_date,$laravel_rule_id = ""){
-        $authorization = "Authorization: Bearer u75tnrg0z2ls8c4yubonwquupncvhqie";
+    public function geteratePrimaryCouponCode($code,$magento_rule_id,$uses_per_customer,$end_date,$laravel_rule_id = "",$store_website_id){
+
+        $authorization = "Authorization: Bearer ".$store_website_id->api_token;
         $parameters = [];
         $parameters['coupon'] = [
             "code" => $code,
@@ -521,7 +524,7 @@ class CouponController extends Controller
             "extension_attributes" => json_encode('{}'),
         ];
 
-        $url = "https://sololuxury.com/rest/default/V1/coupons";
+        $url = $store_website_id->magento_url."/rest/default/V1/coupons";
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json' , $authorization ));
         curl_setopt($ch, CURLOPT_URL,$url);
@@ -548,7 +551,7 @@ class CouponController extends Controller
         $codes = Coupon::where('rule_id',$result->magento_rule_id)->orderBy('created_at','desc')->get();
         $web_ids = explode(',',$result->website_ids);
         if(isset($result->id)){
-            $websites = Website::all();
+            $websites = Website::where('store_website_id',$result->store_website_id)->get();
             $website_stores = WebsiteStore::with('storeView')->get();
             $store_websites = StoreWebsite::all();
             $returnHTML = view('coupon.editModal')->with('result', $result)->with('websites',$websites)->with('website_stores',$website_stores)->with('web_ids',$web_ids)->with('store_websites',$store_websites)->with('codes',$codes)->render();
@@ -559,10 +562,10 @@ class CouponController extends Controller
     }
 
     public function deleteCouponCodeRuleById($id){
-        $authorization = "Authorization: Bearer u75tnrg0z2ls8c4yubonwquupncvhqie";
-
         $rule_lists = CouponCodeRules::where('id',$id)->first();
-        $url = "https://sololuxury.com/rest/V1/salesRules/salesRules/".$rule_lists->magento_rule_id;
+        $store_website = StoreWebsite::where('id',$rule_lists->store_website_id)->first();
+        $authorization = "Authorization: Bearer ".$store_website->api_token;
+        $url = $store_website->magento_url."/rest/V1/salesRules/salesRules/".$rule_lists->magento_rule_id;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json' , $authorization ));
         curl_setopt($ch, CURLOPT_URL,$url);
@@ -606,8 +609,9 @@ class CouponController extends Controller
             ]
         ];
 
-        $authorization = "Authorization: Bearer u75tnrg0z2ls8c4yubonwquupncvhqie";
-        $url = "https://sololuxury.com/rest/V1/coupons/generate";
+        $store_website = StoreWebsite::where('id',$rule_id->store_website_id)->first();
+        $authorization = "Authorization: Bearer ".$store_website->api_token;
+        $url = $store_website->magento_url."/rest/V1/coupons/generate";
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json' , $authorization ));
         curl_setopt($ch, CURLOPT_URL,$url);
@@ -645,7 +649,9 @@ class CouponController extends Controller
             array_push($store_lables,['store_id' => $key,'store_label' => $lables,'extension_attributes' => '{}']);
         }
 
-        $authorization = "Authorization: Bearer u75tnrg0z2ls8c4yubonwquupncvhqie";
+        $local_rules =  CouponCodeRules::where('id',$request->rule_id)->first();
+        $store_website = StoreWebsite::where('id',$local_rules->store_website_id)->first();
+        $authorization = "Authorization: Bearer ".$store_website->api_token;
         $parameters = [];
         $parameters['rule'] = [
             "name" => $request->name_edit,
@@ -704,9 +710,8 @@ class CouponController extends Controller
             "simple_free_shipping" => "0",
         ];
 
-        $local_rules =  CouponCodeRules::where('id',$request->rule_id)->first();
 
-        $url = "https://sololuxury.com/rest/V1/salesRules/".$local_rules->magento_rule_id;
+        $url = $store_website->magento_url."/rest/V1/salesRules/".$local_rules->magento_rule_id;
         
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json' , $authorization ));
@@ -723,7 +728,7 @@ class CouponController extends Controller
         }
 
         if($request->coupon_type == "SPECIFIC_COUPON" && !isset($request->use_auto_generation)){
-            $this->geteratePrimaryCouponCode($request->code,$result->rule_id,$request->uses_per_coustomer,$request->expiration);
+            $this->geteratePrimaryCouponCode($request->code,$result->rule_id,$request->uses_per_coustomer,$request->expiration,$store_website);
         }
 
             
@@ -774,10 +779,12 @@ class CouponController extends Controller
     public function deleteCouponByCode(Request $request){
 
         $coupon = Coupon::where('id',$request->id)->first();
+        $local_rules =  CouponCodeRules::where('id',$coupon->rule_id)->first();
+        $store_website = StoreWebsite::where('id',$local_rules->store_website_id)->first();
 
-        $authorization = "Authorization: Bearer u75tnrg0z2ls8c4yubonwquupncvhqie";
+        $authorization = "Authorization: Bearer ".$store_website->api_token;
         $parameters =  ["codes" => array($coupon->code),"ignoreInvalidCoupons" => true];
-        $url = "https://sololuxury.com/rest/V1/coupons/deleteByCodes";
+        $url = $store_website->magento_url."/rest/V1/coupons/deleteByCodes";
         
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json' , $authorization ));

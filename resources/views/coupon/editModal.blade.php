@@ -255,7 +255,7 @@
                                         <div class="form-group row">
                                             <label for="code" class="col-sm-3 col-form-label">Coupon Qty</label>
                                             <div class="col-sm-8">
-                                                <input type="text" class="form-control" name="coupon_qty" placeholder="" value="{{old('coupon_qty')}}" id="coupon_qty_edit" />
+                                                <input type="text" class="form-control" name="coupon_qty" placeholder="" value="{{old('coupon_qty')}}" id="coupon_qty_edit"  />
                                                 @if ($errors->has('coupon_qty'))
                                                 <div class="alert alert-danger">{{$errors->first('coupon_qty')}}</div>
                                                 @endif
@@ -264,7 +264,7 @@
                                         <div class="form-group row">
                                             <label for="description" class="col-sm-3 col-form-label">Code Length</label>
                                             <div class="col-sm-8">
-                                                <input type="text" class="form-control" name="code_length" placeholder="" value="{{old('code_length')}}" id="coupon_length_edit" />
+                                                <input type="text" class="form-control" name="code_length" placeholder="" value="{{old('code_length')}}" id="coupon_length_edit"   />
                                                 <div class="">Excluding prefix, suffix and separators.</div>
                                                 @if ($errors->has('code_length'))
                                                 <div class="alert alert-danger">{{$errors->first('code_length')}}</div>
@@ -275,7 +275,7 @@
                                         <div class="form-group row">
                                             <label for="start" class="col-sm-3 col-form-label">Code Format</label>
                                             <div class="col-sm-8">
-                                                    <select class="form-control select select2" name="format" id="format_edit">
+                                                    <select class="form-control select select2" name="format" id="format_edit"  >
                                                             <option value="1">Alphanumeric</option>
                                                             <option value="2">Alphabetical</option>
                                                             <option value="3">Numeric</option>
@@ -286,7 +286,7 @@
                                         <div class="form-group row">
                                             <label for="start" class="col-sm-3 col-form-label">Code Prefix</label>
                                             <div class="col-sm-8">
-                                                <input type="text" class="form-control" name="prefix" placeholder="" value="{{old('prefix')}}" id="prefix_edit" />
+                                                <input type="text" class="form-control" name="prefix" placeholder="" value="{{old('prefix')}}" id="prefix_edit"   />
                                                 
                                                 @if ($errors->has('prefix'))
                                                 <div class="alert alert-danger">{{$errors->first('prefix')}}</div>
@@ -297,7 +297,7 @@
                                         <div class="form-group row">
                                             <label for="start" class="col-sm-3 col-form-label">Code Suffix</label>
                                             <div class="col-sm-8">
-                                                <input type="text" class="form-control" name="suffix" placeholder="" value="{{old('suffix')}}" id="suffix_edit" />
+                                                <input type="text" class="form-control" name="suffix" placeholder="" value="{{old('suffix')}}" id="suffix_edit"  />
                                                 
                                                 @if ($errors->has('suffix'))
                                                 <div class="alert alert-danger">{{$errors->first('suffix')}}</div>
@@ -308,7 +308,7 @@
                                         <div class="form-group row">
                                             <label for="start" class="col-sm-3 col-form-label">Dash Every X Characters</label>
                                             <div class="col-sm-8">
-                                                <input type="text" class="form-control" name="dash" placeholder="" value="{{old('dash')}}" id="dash_edit" />
+                                                <input type="text" class="form-control" name="dash" placeholder="" value="{{old('dash')}}" id="dash_edit"  />
                                                 
                                                 @if ($errors->has('dash'))
                                                 <div class="alert alert-danger">{{$errors->first('dash')}}</div>
@@ -317,7 +317,7 @@
                                         </div>
 
                                         
-                                        <button type="button" class="btn btn-primary generate-code" style="margin-left:50%;">Generate</button>
+                                        <button type="button" class="btn btn-primary generate-code" style="margin-left:50%;" {{ $result->use_auto_generation ? "" : "disabled" }}>Generate</button>
 
                                         <div class="" style="margin-top:10px;"> 
                                                 <h3>Coupon Codes</h3>
