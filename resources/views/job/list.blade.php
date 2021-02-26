@@ -18,19 +18,19 @@
                     <form action="{{ route('jobs.list') }}" method="GET">
                         <div class="col-md-3">
                             <label for="start_date">Queue Type</label>
-                            <input type="text" class="form-control" id="queue" name="queue" value="{{ old('queue') }}">
+                            <?php echo Form::select('queue',["" => "-- Select Queue--"] + $listQueues,request('queue'),["class" => "form-control"]); ?>
                         </div>
                         <div class="col-md-3">
                             <label for="start_date">Payload</label>
-                            <input type="text" class="form-control" id="payload" name="payload" value="{{ old('payload') }}">
+                            <input type="text" class="form-control" id="payload" name="payload" value="{{ request('payload') }}">
                         </div>
                         <div class="col-md-3">
                             <label for="start_date">Reserved Date</label>
-                            <input type="date" class="form-control" id="reserved_date" name="reserved_date" value="{{ old('reserved_date') ? date('m/d/Y',strtotime(old('reserved_date'))) : null }}">
+                            <input type="date" class="form-control" id="reserved_date" name="reserved_date" value="{{ request('reserved_date') ? date('m/d/Y',strtotime(old('reserved_date'))) : null }}">
                         </div>
                         <div class="col-md-3">
                             <label for="end_date">Available Date</label>
-                            <input type="date" class="form-control" id="available_date" name="available_date" value="{{ old('available_date') ? date('m/d/Y',strtotime(old('available_date'))) : null }}">
+                            <input type="date" class="form-control" id="available_date" name="available_date" value="{{ request ('available_date') ? date('m/d/Y',strtotime(old('available_date'))) : null }}">
                         </div>
                         <button class="btn btn-light" id="submit">
                             <span class="fa fa-filter"></span> Filter Results
