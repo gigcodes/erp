@@ -152,7 +152,9 @@ class MailinglistController extends Controller
                 $customer = Customer::where('email', $email)->first();
                 $mailinglist = Mailinglist::find($id);
                 \DB::table('list_contacts')->where('customer_id', $customer->id)->delete();
-                $mailinglist->listCustomers()->attach($customer->id);
+                if(!empty($mailinglist)){
+                    $mailinglist->listCustomers()->attach($customer->id);
+                }
 
                 return response()->json(['status' => 'success']);
             }
