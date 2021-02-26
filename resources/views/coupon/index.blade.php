@@ -1126,20 +1126,20 @@ form label.required:after{
 
         if(selected_val == "NO_COUPON"){
             $('.hide_div_edit').hide();
-            $('#coupon_qty_edit').attr("disabled", true);
-            $('#coupon_length_edit').attr("disabled", true);
-            $('#format_edit').attr("disabled", true);
-            $('#prefix_edit').attr("disabled", true);
-            $('#suffix_edit').attr("disabled", true);
-            $('#dash_edit').attr("disabled", true);
+            $(document).find('#coupon_qty_edit').attr("disabled", true);
+            $(document).find('#coupon_length_edit').attr("disabled", true);
+            $(document).find('#format_edit').attr("disabled", true);
+            $(document).find('#prefix_edit').attr("disabled", true);
+            $(document).find('#suffix_edit').attr("disabled", true);
+            $(document).find('#dash_edit').attr("disabled", true);
         }else{
             $('.hide_div_edit').show();
-            $('#coupon_qty_edit').attr("disabled", false);
-            $('#coupon_length_edit').attr("disabled", false);
-            $('#format_edit').attr("disabled", false);
-            $('#prefix_edit').attr("disabled", false);
-            $('#suffix_edit').attr("disabled", false);
-            $('#dash_edit').attr("disabled", false);
+            $(document).find('#coupon_qty_edit').attr("disabled", false);
+            $(document).find('#coupon_length_edit').attr("disabled", false);
+            $(document).find('#format_edit').attr("disabled", false);
+            $(document).find('#prefix_edit').attr("disabled", false);
+            $(document).find('#suffix_edit').attr("disabled", false);
+            $(document).find('#dash_edit').attr("disabled", false);
         }
     })
 
@@ -1188,12 +1188,13 @@ form label.required:after{
                         }
 
                         if(coupon_type == "SPECIFIC_COUPON" && $(document).find('#disable_coupon_code_edit').val() == "on"){
-                            $(document).find('#coupon_qty_edit').attr("disabled", true);
-                            $(document).find('#coupon_length_edit').attr("disabled", true);
-                            $(document).find('#format_edit').attr("disabled", true);
-                            $(document).find('#prefix_edit').attr("disabled", true);
-                            $(document).find('#suffix_edit').attr("disabled", true);
-                            $(document).find('#dash_edit').attr("disabled", true);
+
+                            $(document).find('#coupon_qty_edit').attr("disabled", false);
+                            $(document).find('#coupon_length_edit').attr("disabled", false);
+                            $(document).find('#format_edit').attr("disabled", false);
+                            $(document).find('#prefix_edit').attr("disabled", false);
+                            $(document).find('#suffix_edit').attr("disabled", false);
+                            $(document).find('#dash_edit').attr("disabled", false);
                         }
 
                         $('#couponEditModal').modal("show");
