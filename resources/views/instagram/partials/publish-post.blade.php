@@ -1,5 +1,5 @@
 <div id="add-vendor-info-modal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" style="width: 1000px;">
 		<div class="modal-content">
 			<div id="myDiv">
 			   	<img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
