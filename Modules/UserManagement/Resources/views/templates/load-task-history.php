@@ -35,8 +35,11 @@
 					  {{else}}
 					  #DEVTASK-{{:prop.task_id}} => {{:prop.subject}}
 					  {{/if}}
-
-					 
+                      {{if prop.has_flag == '1'}}
+                          <button type="button" class="btn btn-image pd-5" data-id="10241"><img src="/images/flagged.png" style="cursor: nwse-resize; width: 0px;"></button>
+                      {{else}}
+                            <button type="button" class="btn btn-image pd-5" data-id="10241"><img src="/images/unflagged.png" style="cursor: nwse-resize; width: 0px;"></button>
+                      {{/if}}
 					  </td>
 					<td>
 						<div class="show_hide_description">Show Description</div>
@@ -72,8 +75,6 @@
 					  {{else}}
 					  <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="{{:prop.task_id}}" title="Load messages"><img src="/images/chat.png" alt="" style="cursor: nwse-resize;"></button>
 					  {{/if}}
-                        
-                                                 
                     <!-- </div> -->
 					  	
 					  </td>
