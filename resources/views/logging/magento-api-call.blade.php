@@ -63,6 +63,7 @@
               <th>Korean</th>
               <th>Russian</th>
               <th>Chinese</th>
+              <th>Status</th>
               </thead>
             </table>
             <div class="text-center">
@@ -200,6 +201,11 @@
             mRender: function (data, type, row)
             {
               return row.chinese
+            }
+          },{
+            mRender: function (data, type, row)
+            {
+              return row.success ? "Success" : "Product not found in Website."
             }
           }
         ]
