@@ -48,7 +48,7 @@ class BuyBackController extends Controller
             'order_id' => 'required|exists:order_products,order_id',
             'product_sku' => 'required|exists:order_products,sku',
             'website' => 'required',
-            'type' => 'required|in:refund,exchange,buyback,return'
+            'type' => 'required|in:refund,exchange,buyback,return,cancellation'
         ]);
 
         if ($validator->fails()) {
@@ -164,6 +164,35 @@ class BuyBackController extends Controller
                     'subject'           => $view->subject,
                     'message'           => $view->render(),
                     'template'          => 'exchange-request',
+                    'additional_data'   => $success->id,
+                    'is_draft'          => 1,
+                ];
+                $emailObject = \App\Email::create($params);
+
+                try {
+                    \App\CommunicationHistory::create([
+                        'model_id'      => $success->id,
+                        'model_type'    => \App\ReturnExchange::class,
+                        'type'          => 'exchange-request',
+                        'method'        => 'email'
+                    ]);
+                    \MultiMail::to($success->customer->email)->send(new \App\Mails\Manual\InitializeExchangeRequest($success));
+                    $emailObject->is_draft = 0;
+                }catch(\Exception $e) {
+                    $emailObject->error_message = $e->getMessage();
+                }
+                $emailObject->save();
+            }else if ($request->type == "cancellation") {
+                
+                $view = (new \App\Mails\Manual\InitializeExchangeRequest($success))->build();
+                $params = [
+                    'model_id'          => $success->id,
+                    'model_type'        => \App\ReturnExchange::class,
+                    'from'              => $view->fromMailer,
+                    'to'                => $success->customer->email,
+                    'subject'           => $view->subject,
+                    'message'           => $view->render(),
+                    'template'          => 'cancellation',
                     'additional_data'   => $success->id,
                     'is_draft'          => 1,
                 ];
