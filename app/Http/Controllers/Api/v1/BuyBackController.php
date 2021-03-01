@@ -202,10 +202,10 @@ class BuyBackController extends Controller
                     \App\CommunicationHistory::create([
                         'model_id'      => $success->id,
                         'model_type'    => \App\ReturnExchange::class,
-                        'type'          => 'exchange-request',
+                        'type'          => 'cancellation',
                         'method'        => 'email'
                     ]);
-                    \MultiMail::to($success->customer->email)->send(new \App\Mails\Manual\InitializeExchangeRequest($success));
+                    \MultiMail::to($success->customer->email)->send(new \App\Mails\Manual\InitializeCancelRequest($success));
                     $emailObject->is_draft = 0;
                 }catch(\Exception $e) {
                     $emailObject->error_message = $e->getMessage();
