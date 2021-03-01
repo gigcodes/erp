@@ -202,3 +202,8 @@ Route::get('missing-brand/save','MissingBrandController@saveMissingBrand');
 
 //Store data into the laravel_logs
 Route::post('laravel-logs/save','LaravelLogController@saveNewLogData');
+
+//BearBanner webhooks
+
+Route::post('templates/create/webhook','TemplatesController@createWebhook');
+Route::post('product/templates/update/webhook','ProductTemplatesController@updateWebhook')->name('api.product.update.webhook');

@@ -69,5 +69,36 @@ class GuzzleHelper
             
         }
     }
+
+    static function patch(string $url,array $body,array $headers)
+    {
+        
+        $httpClient = new Client();
+        try {
+
+            $response = $httpClient->patch(
+
+                $url,
+
+                    [
+
+                    RequestOptions::HEADERS =>$headers,
+
+                    RequestOptions::BODY => json_encode($body)
+                ]
+            );
+            $parsedResponse = json_decode($response->getBody()->getContents());
+
+
+
+            return $parsedResponse;
+
+        } catch (ClientException $e) {
+
+            return $e->getMessage();
+            
+        }
+    }
+
  
 }
