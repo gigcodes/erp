@@ -49,56 +49,60 @@ class GoogleTranslateController extends Controller
         
                     if(!$isLocaleAvailable) { //if product translation not available
                         $title = $description = $composition = $color = $size = $country_of_manufacture = $dimension = '';
-                        $product_translation = Product_translation::where('locale',$language)->where('product_id',$product->id)->first();
-                        if (empty($product_translation)) { //check if id existing or not
-                            $product_translation= new Product_translation; //if id not existing create new object for insert else update
-                        }
-                        $googleTranslate = new GoogleTranslate();
-                        $productNames = splitTextIntoSentences($product->name);
-                        $productShortDescription =  splitTextIntoSentences($product->short_description);
-                        //check in table is field is empty and then translate
-                        if($product_translation->title == ''){
-                            $title = self::translateProducts($googleTranslate, $language, $productNames);
-                            $product_translation->title = $title;
-                        }
-                        if($product_translation->description == ''){
-                            $description = self::translateProducts($googleTranslate, $language, $productShortDescription);
-                            $product_translation->description = $description;
-                        }
-                        if($product_translation->composition == ''){
-                            $composition = self::translateProducts($googleTranslate, $language, [$product->composition]);
-                            $product_translation->composition = $composition;
-                        }
-                        if($product_translation->color == ''){
-                            $color = self::translateProducts($googleTranslate, $language, [$product->color]);
-                            $product_translation->color = $color;
-                        }
-                        /*if(!$checkdata || $checkdata->size==''){
-                            $size = self::translateProducts($googleTranslate, $language, [$product->size]);
-                            $product_translation->size = $size;
-                        }*/
-                        if($product_translation->country_of_manufacture == ''){
-                            $country_of_manufacture = self::translateProducts($googleTranslate, $language, [$product->made_in]);
-                            $product_translation->country_of_manufacture = $country_of_manufacture;
-                        }
-                        if($product_translation->dimension == ''){
-                            $dimension = self::translateProducts($googleTranslate, $language, [$measurement]);
-                            $product_translation->dimension = $dimension;
-                        }
-                        $product_translation->product_id = $product->id;
-                        $product_translation->locale = $language;
-                        $product_translation->save();
-                    }else{
-                        $msg = 'Languages data '.$language.' not exists';
+                        try {
 
-                    //    $logId = LogListMagento::log($product->id, $msg, 'info');
-                        
-                        if(!empty($logid)) {
-                            $logModel = LogListMagento::find($logid);
-                            if($logModel) {
-                                ProductPushErrorLog::log("",$product->id, $msg, 'error',$logModel->store_website_id,"","",$logModel->id);
+                            $product_translation = Product_translation::where('locale',$language)->where('product_id',$product->id)->first();
+                            if (empty($product_translation)) { //check if id existing or not
+                                $product_translation= new Product_translation; //if id not existing create new object for insert else update
                             }
+                            $googleTranslate = new GoogleTranslate();
+                            $productNames = splitTextIntoSentences($product->name);
+                            $productShortDescription =  splitTextIntoSentences($product->short_description);
+                            //check in table is field is empty and then translate
+                            if($product_translation->title == ''){
+                                $title = self::translateProducts($googleTranslate, $language, $productNames);
+                                $product_translation->title = $title;
+                            }
+                            if($product_translation->description == ''){
+                                $description = self::translateProducts($googleTranslate, $language, $productShortDescription);
+                                $product_translation->description = $description;
+                            }
+                            if($product_translation->composition == ''){
+                                $composition = self::translateProducts($googleTranslate, $language, [$product->composition]);
+                                $product_translation->composition = $composition;
+                            }
+                            if($product_translation->color == ''){
+                                $color = self::translateProducts($googleTranslate, $language, [$product->color]);
+                                $product_translation->color = $color;
+                            }
+                            /*if(!$checkdata || $checkdata->size==''){
+                                $size = self::translateProducts($googleTranslate, $language, [$product->size]);
+                                $product_translation->size = $size;
+                            }*/
+                            if($product_translation->country_of_manufacture == ''){
+                                $country_of_manufacture = self::translateProducts($googleTranslate, $language, [$product->made_in]);
+                                $product_translation->country_of_manufacture = $country_of_manufacture;
+                            }
+                            if($product_translation->dimension == ''){
+                                $dimension = self::translateProducts($googleTranslate, $language, [$measurement]);
+                                $product_translation->dimension = $dimension;
+                            }
+                            $product_translation->product_id = $product->id;
+                            $product_translation->locale = $language;
+                            $product_translation->save();
+
+                         } catch (\Exception $e) {
+                            
+                            $msg = $language." => ".$e->getMessage();
+                            if(!empty($logid)) {
+                                $logModel = LogListMagento::find($logid);
+                                if($logModel) {
+                                    ProductPushErrorLog::log("",$product->id, $msg, 'error',$logModel->store_website_id,"","",$logModel->id);
+                                }
+                            }
+
                         }
+
                     }
                 }
             }else{
