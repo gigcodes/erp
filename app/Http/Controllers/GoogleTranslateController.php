@@ -36,8 +36,11 @@ class GoogleTranslateController extends Controller
                 $msg = 'Default translation data not exists';
 
             // $logId = LogListMagento::log($product->id, $msg, 'info');
-                if(!empty($logid) && !empty($logId)) {
-                    ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logid);
+                if(!empty($logid)) {
+                    $logModel = LogListMagento::find($logid);
+                    if($logModel) {
+                        ProductPushErrorLog::log("",$product->id, $msg, 'error',$logModel->store_website_id,"","",$logModel->id);
+                    }
                 }
             }
             if(count($languages) > 0){
@@ -89,25 +92,32 @@ class GoogleTranslateController extends Controller
                         $msg = 'Languages data '.$language.' not exists';
 
                     //    $logId = LogListMagento::log($product->id, $msg, 'info');
-                        if(!empty($logid) && !empty($logId)) {
-                            ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logid);
+                        
+                        if(!empty($logid)) {
+                            $logModel = LogListMagento::find($logid);
+                            if($logModel) {
+                                ProductPushErrorLog::log("",$product->id, $msg, 'error',$logModel->store_website_id,"","",$logModel->id);
+                            }
                         }
                     }
                 }
             }else{
                 $msg = 'Languages data not exists';
-
-                //$logId = LogListMagento::log($product->id, $msg, 'info');
-                if(!empty($logid) && !empty($logId)) {
-                    ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logid);
+                if(!empty($logid)) {
+                    $logModel = LogListMagento::find($logid);
+                    if($logModel) {
+                        ProductPushErrorLog::log("",$product->id, $msg, 'error',$logModel->store_website_id,"","",$logModel->id);
+                    }
                 }
+
             }
         } catch (\Exception $e) {
             $msg = 'Internal server error';
-
-            //$logId = LogListMagento::log($product->id, $msg, 'info');
-            if(!empty($logid) && !empty($logId)) {
-                ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logid);
+            if(!empty($logid)) {
+                $logModel = LogListMagento::find($logid);
+                if($logModel) {
+                    ProductPushErrorLog::log("",$product->id, $msg, 'error',$logModel->store_website_id,"","",$logModel->id);
+                }
             }
         }
     }
