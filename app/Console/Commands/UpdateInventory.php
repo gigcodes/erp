@@ -56,8 +56,12 @@ class UpdateInventory extends Command
             // find all product first
             $products = \App\Supplier::join("scrapers as sc", "sc.supplier_id", "suppliers.id")
                 ->join("scraped_products as sp", "sp.website", "sc.scraper_name")
+                ->where(function($q) {
+                    $q->whereDate("last_cron_check","!=",date("Y-m-d"))->orWhereNull('last_cron_check');
+                })
+                ->limit(500)
                 ->where("suppliers.supplier_status_id", 1)
-                ->select("sp.last_inventory_at", "sp.sku", "sc.inventory_lifetime","sp.product_id","suppliers.id as supplier_id")->get()->groupBy("sku")->toArray();
+                ->select("sp.last_inventory_at", "sp.sku", "sc.inventory_lifetime","sp.product_id","suppliers.id as supplier_id","sp.id as sproduct_id")->get()->groupBy("sku")->toArray();
                 
             if (!empty($products)) {  
                 $zeroStock=[];
@@ -114,6 +118,10 @@ class UpdateInventory extends Command
                     if (!$hasInventory) {
                         \DB::statement("update `products` set `stock` = 0, `updated_at` = '" . date("Y-m-d H:i:s") . "' where `sku` = '" . $sku . "' and `products`.`deleted_at` is null");
                     }
+
+                    dump("Scraped Product updated : ".$records['sproduct_id']);
+
+                    \DB::statement("update `scraped_products` set `last_cron_check` = now() where `id` = '" . $records['sproduct_id'] . "'");
                   
                 } 
                 if(!empty($zeroStock)){
