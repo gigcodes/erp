@@ -22,6 +22,12 @@
 </div>
 <div class="row">
     <div class="col-lg-12 margin-tb" style="margin-bottom: 10px;">
+      <div class="pull-left">
+            <div class="form-inline">
+                <input type="text" name="search" class="form-control search-query-value"  placeholder="Type for search">
+                <button type="button" class="btn btn-secondary ml-3 btn-search-query">Search</button>
+            </div>
+        </div>
         <div class="pull-right">
             <div class="form-inline">
                 <button type="button" class="btn btn-secondary ml-3"><a href="{{route('chatbot.dialog.local-error-log')}}" style="text-decoration:none;color:white;">Error log</a> </button>

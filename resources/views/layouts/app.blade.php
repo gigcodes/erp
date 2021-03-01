@@ -1425,6 +1425,12 @@ $metaData = '';
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.category-seo.index') }}">Category seo</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.cancellation') }}">Cancellation Policy</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('logging.magento.product.api.call') }}">Magento API call</a>
+                                    </li>
                                 </ul>
                             </li>
                         @endif
@@ -1553,6 +1559,11 @@ $metaData = '';
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('email-addresses.index') }}">Email Addresses</a>
                                 </li>
+
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('api-response-message') }}">Api Response Messages</a>
+                                </li>
+
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('services') }}">Services</a>
                                 </li>
@@ -2051,6 +2062,7 @@ $metaData = '';
                                     </li>
 
                                     @endforeach
+
 
                                 </ul>
                             </div>

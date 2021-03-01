@@ -110,7 +110,7 @@ class StoreWebsiteAnalyticsController extends Controller
 
     public function report($id = null) 
     {
-        $reports = \App\ErpLog::where('model',\App\StoreWebsiteAnalytic::class)->where("model_id",$id)->get();
+        $reports = \App\ErpLog::where('model',\App\StoreWebsiteAnalytic::class)->orderBy("id","desc")->where("model_id",$id)->get();
         return view("store-website-analytics.reports",compact('reports'));
     }
 

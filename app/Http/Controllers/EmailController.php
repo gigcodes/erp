@@ -16,6 +16,7 @@ use App\Mails\Manual\ReplyToEmail;
 use App\Mails\Manual\ForwardEmail;
 use Illuminate\Support\Facades\Validator;
 use App\Wetransfer;
+use Carbon\Carbon;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
 
 class EmailController extends Controller
@@ -116,6 +117,7 @@ class EmailController extends Controller
         //Get Cron Email Histroy
 		$reports = CronJobReport::where('cron_job_reports.signature','fetch:all_emails')
         ->join('cron_jobs', 'cron_job_reports.signature', 'cron_jobs.signature')
+        ->whereDate('cron_job_reports.created_at','>=',Carbon::now()->subDays(10))
         ->select(['cron_job_reports.*','cron_jobs.last_error'])->paginate(15);
 
         $emails = $query->paginate(30)->appends(request()->except(['page']));

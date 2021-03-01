@@ -13,6 +13,5 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/storewebsite', function (Request $request) {
-    return $request->user();
-});
+//Giving All Brands with Reference
+Route::get('colors','ColorController@colorReference');

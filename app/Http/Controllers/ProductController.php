@@ -69,6 +69,7 @@ use App\ProductStatusHistory;
 use App\Status;
 use App\ProductSupplier;
 use Qoraiche\MailEclipse\MailEclipse;
+use Illuminate\Support\Facades\Artisan;
 
 class ProductController extends Controller
 {
@@ -322,6 +323,7 @@ class ProductController extends Controller
         if (!auth()->user()->isAdmin()) {
             $newProducts = $newProducts->whereNull("pvu.product_id");
         }
+        $newProducts = $newProducts->where('isUploaded',0);
 
         $newProducts = $newProducts->select(["products.*"])->paginate(20);
         if (!auth()->user()->isAdmin()) {
@@ -1698,6 +1700,7 @@ class ProductController extends Controller
                         $msg = 'No website found for  Brand: '. $product->brand. ' and Category: '. $product->category;
                         $logId = LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
                         ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+                        $this->updateLogUserId($logId);
                     }else{
                         $i = 1;
                         foreach ($websiteArrays as $websiteArray) {
@@ -1716,6 +1719,7 @@ class ProductController extends Controller
 
                                 $logId = LogListMagento::log($product->id, $msg, 'info');
                                 ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+                                $this->updateLogUserId($logId);
                             }
                         }
                     }
@@ -1737,60 +1741,6 @@ class ProductController extends Controller
                     // Update the product so it doesn't show up in final listing
                     $product->isUploaded = 1;
                     $product->save();
-                    //return json_encode([$product]);
-                    //translate product title and description
-    //                $languages = ['hi','ar'];
-                    $languages = Language::pluck('locale')->where("status",1)->toArray();
-                    $isDefaultAvailable = Product_translation::whereIN('locale', $languages)->where('product_id', $product->id)->first();
-                    if (!$isDefaultAvailable) {
-                        $product_translation = new Product_translation;
-                        $product_translation->title = isset($product->name) ? $product->name : "";
-                        $product_translation->description = isset($product->short_description) ? $product->short_description : "";
-                        $product_translation->product_id = $product->id;
-                        $product_translation->locale = 'en';
-                        $product_translation->save();
-                    }else{
-                        $msg = 'Product translation data not exists';
-
-                        $logId = LogListMagento::log($product->id, $msg, 'info');
-                        ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-                    }
-                    if(count($languages) > 0){
-                        foreach ($languages as $language) {
-                            $isLocaleAvailable = Product_translation::where('locale', $language)->where('product_id', $product->id)->first();
-                            if (!$isLocaleAvailable) {
-                                $product_translation = new Product_translation;
-                                $googleTranslate = new GoogleTranslate();
-                                $title = $googleTranslate->translate($language, $product->name);
-                                $description = $googleTranslate->translate($language, $product->short_description);
-                                if ($title && $description) {
-                                    $product_translation->title = $title;
-                                    $product_translation->description = $description;
-                                    $product_translation->product_id = $product->id;
-                                    $product_translation->locale = $language;
-                                    $product_translation->save();
-                                }else{
-                                    $msg = 'Title and description are not available';
-                                    
-                                    $logId = LogListMagento::log($product->id, $msg, 'info');
-                                    ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-                                }
-                            }else{
-                                $msg = 'Locale data not exists';
-                                $logId = LogListMagento::log($product->id, $msg, 'info');
-                                ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-                            }
-                        }
-                    }else{
-                        $msg = 'Languages data not exists';
-                        
-                        $logId = LogListMagento::log($product->id, $msg, 'info');
-                        ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-                    }
-                    
-                    // Update the product so it doesn't show up in final listing
-                    $product->isUploaded = 1;
-                    $product->save();
                     // Return response
                     return response()->json([
                         'result' => 'queuedForDispatch',
@@ -1803,7 +1753,7 @@ class ProductController extends Controller
 
             $logId = LogListMagento::log($product->id, $msg, 'info');
             ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-    
+            $this->updateLogUserId($logId);
             // Return error response by default
             return response()->json([
                 'result' => 'productNotFound',
@@ -1815,7 +1765,7 @@ class ProductController extends Controller
 
             $logId = LogListMagento::log($id, $msg, 'info');
             ProductPushErrorLog::log("",$id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-           
+            $this->updateLogUserId($logId);
             // Return error response by default
             return response()->json([
                 'result' => 'productNotFound',
@@ -1823,6 +1773,16 @@ class ProductController extends Controller
             ]);
         }
         
+    }
+
+    public function updateLogUserId($logId)
+    {
+        $updateLogUser = LogListMagento::find($logId->id);
+        if($updateLogUser)
+        {
+            $updateLogUser->user_id = Auth::id();
+            $updateLogUser->save();
+        }
     }
 
     public function unlistMagento(Request $request, $id)
@@ -3168,7 +3128,10 @@ class ProductController extends Controller
             $product->save();
         }
 
-
+        $exitCode = Artisan::call('RejectDuplicateImages', [
+            'media_id' => $request->get('media_id'), 'product_id' => $request->get('product_id')
+        ]);
+        
         return response()->json([
             'status' => 'success'
         ]);

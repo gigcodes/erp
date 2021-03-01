@@ -269,6 +269,10 @@ return [
         'DotenvEditor' => Brotzka\DotenvEditor\DotenvEditorFacade::class,
      //    'FCM'      => LaravelFCM\Facades\FCM::class,
 	    // 'FCMGroup' => LaravelFCM\Facades\FCMGroup::class, // Optional
+        'UnsplashSearch' => shweshi\LaravelUnsplashWrapper\Facades\UnsplashSearchFacade::class,
+        'UnsplashUsers' => shweshi\LaravelUnsplashWrapper\Facades\UnsplashUsersFacade::class,
+        'UnsplashPhotos' => shweshi\LaravelUnsplashWrapper\Facades\UnsplashPhotosFacade::class,
+        'UnsplashCollections' => shweshi\LaravelUnsplashWrapper\Facades\UnsplashCollectionsFacade::class,
     ],
 
 ];

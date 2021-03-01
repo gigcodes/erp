@@ -322,6 +322,8 @@ Content-Type: application/json
 }
 ```
 
+
+key : buyback.failed
 **Failed Response:**
 ```json
 Content-Type: application/json
@@ -348,6 +350,8 @@ Content-Type: application/json
 ```
 For type expected value will be "return","exchange","buyback","refund"
 
+
+key : exchange.success
 **Successful Response:**
 ```json
 Content-Type: application/json
@@ -357,6 +361,7 @@ Content-Type: application/json
 }
 ```
 
+exchange.failed
 **Failed Response:**
 ```json
 Content-Type: application/json
@@ -378,6 +383,9 @@ Content-Type: application/json
     "sku" : "565655VT0406512FW2019",
     "country" : "IN"
 }
+
+
+key : price_compare.success
 ```
 **Successful Response:**
 ```json
@@ -395,6 +403,7 @@ Content-Type: application/json
 }
 ```
 
+key : price_compare.failed
 **Failed Response:**
 ```json
 Content-Type: application/json
@@ -431,6 +440,8 @@ Content-Type: application/json
 }
 ```
 
+
+key : affiliates.success
 **Successful Response:**
 ```json
 HTTP/1.1 200
@@ -441,6 +452,7 @@ Content-Type: application/json
 }
 ```
 
+key : affiliates.failed
 **Failed Response:**
 ```json
 HTTP/1.1 500
@@ -469,6 +481,8 @@ Content-Type: application/json
     "wedding_anniversery": "2020-10-23"//optional
 }
 ```
+
+key : customer_reference.success
 **Successful Response:**
 ```json
 Content-Type: application/json
@@ -478,6 +492,7 @@ Content-Type: application/json
 }
 ```
 
+key : customer_reference.403
 **Failed Response:**
 ```json
 Content-Type: application/json
@@ -567,6 +582,7 @@ Content-Type: application/json
 }
 ```
 
+key : ticket.send.failed
 **Failed Response:**
 ```json
 Content-Type: application/json
@@ -588,6 +604,8 @@ Content-Type: application/json
     "token" : "sdsad2e232dsdsd", //required 
 }
 ```
+
+key : notification.success
 **Successful Response:**
 ```json
 HTTP/1.1 200
@@ -597,6 +615,7 @@ HTTP/1.1 200
 }
 ```
 
+key : notification.failed
 **Failed Response:**
 ```json
 HTTP/1.1 500
@@ -642,6 +661,7 @@ Content-Type: application/json
 }
 ```
 
+key : same as affiliate because it call same API
 **Successful Response:**
 ```json
 HTTP/1.1 200
@@ -652,6 +672,7 @@ Content-Type: application/json
 }
 ```
 
+key : same as affiliate because it call same API
 **Failed Response:**
 ```json
 HTTP/1.1 500
@@ -661,6 +682,8 @@ Content-Type: application/json
     "message": "unable to add influencer !"
 }
 ```
+
+key : newsletter.success
 ## Newsletter Api
 ```json
 POST https://erp.theluxuryunlimited.com/api/mailinglist/add
@@ -686,6 +709,8 @@ Content-Type: application/json
 }
 ```
 
+
+key : laravel.log.success
 **Successful Response:**
 
 ```json
@@ -696,6 +721,8 @@ Content-Type: application/json
 }
 ```
 
+
+key : laravel.log.failed
 **Failed Response:**
 
 ```json
@@ -704,5 +731,40 @@ Content-Type: application/json
 {
     "status": "failed",
     "message": "{message}"
+}
+```
+## Return response status for order ID if its returnable or cancelable
+**Request:**
+
+```json
+GET https://erp.theluxuryunlimited.com/api/orders/check-cancellation
+Accept: application/json
+Content-Type: application/json
+{
+    "website" : "www.brands-labels.com",
+    "order_id" : "000000012"
+}
+```
+
+**Successful Response:**
+```json
+{
+    "code": 200,
+    "message": "Success",
+    "data": {
+        "order_id": "000000001",
+        "website": "www.veralusso.com",
+        "iscanceled": false,
+        "isrefund": true
+    }
+}
+```
+
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "message": "data not found.",
+    "data": []
 }
 ```

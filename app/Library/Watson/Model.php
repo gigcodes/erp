@@ -19,6 +19,7 @@ use \App\ChatbotKeywordValue;
 use App\WatsonAccount;
 use App\WatsonWorkspace;
 use App\ChatbotErrorLog;
+use App\ChatMessage;
 class Model
 {
 
@@ -567,17 +568,18 @@ class Model
         if (!empty($customer->chat_session_id)) {
             // now sending message to the watson
             $result = self::sendMessageCustomer($customer, $assistantID, $assistant, $inputText, $contextReset);
-            if (!empty($result->code) && $result->code == 404 && $result->error == "Invalid Session") {
+            if (!empty($result->code) && ($result->code == 403 || $result->code == 404) ) {
                 $customer = self::createSession($customer, $assistant, $assistantID);
                 if ($customer) {
                     $result = self::sendMessageCustomer($customer, $assistantID, $assistant, $inputText, $contextReset);
                 }
             }
             $chatResponse = new ResponsePurify($result, $customer);
+            \Log::channel('chatapi')->info(json_encode($chatResponse));
             // if response is valid then check ahead
             if ($chatResponse->isValid()) {
                 $result = $chatResponse->assignAction();
-                \Log::channel('chatapi')->info(print_r($result, true));
+                \Log::channel('chatapi')->info("##CHAT_ACTION## ".json_encode($result));
                 if (!empty($result)) {
                     if (!empty($result["action"])) {
                         // assign params
@@ -630,6 +632,7 @@ class Model
                                         "number" => null,
                                         "message_application_id" => $message_application_id,
                                         "is_chatbot" => isset($params["is_chatbot"]) ? $params["is_chatbot"] : 0,
+                                        'is_email' => (!empty($messageModel)) ? $messageModel->is_email : 0
                                     ];
 
                                     $chatMessage = ChatMessage::create($insertParams);

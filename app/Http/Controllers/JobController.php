@@ -18,21 +18,22 @@ class JobController extends Controller
                 'exists'=>'Sorry! no results found for this queue'
             ]
         );
+
         if($validator->fails()){
-            return \Redirect::Back()
-                    ->withInput($request->all())
-                    ->withErrors($validator);
+            return \Redirect::Back()->withInput($request->all())->withErrors($validator);
         }
 
-        $jobs=\App\Job::whereNotNull('id');
+        $jobs = \App\Job::whereNotNull('id');
         
-        $filters=$request->except('page');
+        $filters = $request->except('page');
         if($request->queue!=''){
             $jobs->where('queue','=',$request->queue);
         }
+
         if($request->payload!=''){
-        $jobs->Where('payload', 'LIKE', '%'.$request->payload.'%');
+            $jobs->Where('payload', 'LIKE', '%'.$request->payload.'%');
         }
+
         if($request->reserved_date!=''){
             $reserved_start=\Carbon\Carbon::Parse($request->reserved_date)->startOfDay()->getTimeStamp();
             $reserved_end=\Carbon\Carbon::Parse($request->reserved_date)->endOfDay()->getTimeStamp();
@@ -40,16 +41,22 @@ class JobController extends Controller
             $jobs->where('reserved_at','>=',$reserved_start)
                     ->where('reserved_at','<',$reserved_end);
         }
+
         if($request->available_date!=''){
             $available_start=\Carbon\Carbon::Parse($request->available_date)->startOfDay()->getTimeStamp();
             $available_end=\Carbon\Carbon::Parse($request->available_date)->endOfDay()->getTimeStamp();
             $jobs->where('available_at','>=',$request->available_start);
             $jobs->where('available_at','<=',$request->available_end);
         }
-        $checkbox =$jobs->pluck('id');
-        $jobs=$jobs->paginate();
+
+        $checkbox = $jobs->pluck('id');
+        $jobs = $jobs->paginate();
         $count = $jobs->count();
-        return view('job.list',compact('jobs','filters','count','checkbox'))
+        $listQueues = \App\Job::JOBS_LIST;
+
+
+
+        return view('job.list',compact('jobs','filters','count','checkbox','listQueues'))
                             ->withInput($request->all());
     }
 

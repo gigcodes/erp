@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Product;
+use App\StoreWebsiteOrder;
+use App\Order;
+use App\ProductCancellationPolicie;
+use \Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -35,5 +39,61 @@ class ProductController extends Controller
         }
 
         return response()->json(["code" => 500, "message" => "Product not found in records", "data" => []]);
+    }
+
+    public function checkCancellation(Request $request)
+    {
+        if($request->website){
+            $storeWebsite = \App\StoreWebsite::where("website","like",$request->website)->first();
+           // $get
+            if($storeWebsite) {
+                $getStoreWebsiteOrder = StoreWebsiteOrder::where('website_id',$storeWebsite->id)->where('platform_order_id',$request->order_id)->first();
+                $ProductCancellationPolicie = ProductCancellationPolicie::where('store_website_id',$storeWebsite->id)->first();
+                if($getStoreWebsiteOrder){
+                    //check order status
+                    $getOrder = Order::with('order_product')->where('id',$getStoreWebsiteOrder->order_id)->first();
+                    $order_product = $getOrder->order_product[0];
+                   // print_r($order_product->toArray());
+                   // $getOrderProduct = 
+                    if($order_product !=  null) {
+                    //$getCustomerOrderData = $getCustomerOrderData->where("swo.platform_order_id",$request->order_id);
+                        $result_input = $request->input();
+                        $result_input["iscanceled"] = true;
+                        $result_input["isrefund"] = true;
+                        if($ProductCancellationPolicie){
+                            $order_product->purchase_status;
+                            //if($order_product->purchase_status == "Cancel"){
+                                $created = new Carbon($order_product->created_at);
+                                $now = Carbon::now();
+                                $difference = ($created->diff($now)->days < 1)
+                                    ? 'today'
+                                    : $created->diffInDays($now);
+                                if($difference > $ProductCancellationPolicie->days_cancelation){
+                                    $result_input["iscanceled"] = false;
+                                }
+                            //}else if($order_product->purchase_status == "Refund to be processed"){
+                                $created = new Carbon($order_product->shipment_date);
+                                $now = Carbon::now();
+                                $difference = ($created->diff($now)->days < 1)
+                                    ? 'today'
+                                    : $created->diffInDays($now);
+                                if($difference > $ProductCancellationPolicie->days_refund){
+                                    $result_input["isrefund"] = false;
+                                }
+                           // }
+                        }
+                        return response()->json(["code" => 200, "message" => "Success", "data" => $result_input]);
+                    }else{
+                        return response()->json(["code" => 500, "message" => "data not found.", "data" => []]); 
+                    }
+                }else{
+                    return response()->json(["code" => 500, "message" => "data not found.", "data" => []]);  
+                }
+            }else{
+                return response()->json(["code" => 500, "message" => "data not found.", "data" => []]); 
+            }
+           
+        }
+        return response()->json(["code" => 500, "message" => "website is missing.", "data" => []]);
     }
 }

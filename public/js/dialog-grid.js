@@ -319,11 +319,15 @@ var updateBoxEvent = function(parentId) {
         $(child_nodes).remove();
         return;
     }
+
+    let search = $(".search-query-value").val();
+
     $.ajax({
         type: "get",
         url: "/chatbot/rest/dialog/status",
         data: {
-            "parent_id": parent_id
+            "parent_id": parent_id,
+            "search" : search
         },
         dataType: "json",
         success: function(response) {
@@ -962,25 +966,30 @@ $(document).on("click", ".update-response", function(e) {
     var id = $(this).data('id');
     var responseData = $('#response-'+id).val();
     $.ajax({
-    headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    },
-    type: "post",
-    url: '/chatbot/dialog/submit-reponse/'+id,
-    dataType: "json",
-    data: {
-        responseData:responseData
-    },
-    success: function(response) {
-        if(response.code == 200) {
-            toastr['success'](response.message);
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        type: "post",
+        url: '/chatbot/dialog/submit-reponse/'+id,
+        dataType: "json",
+        data: {
+            responseData:responseData
+        },
+        success: function(response) {
+            if(response.code == 200) {
+                toastr['success'](response.message);
+            }
+            else {
+                toastr['error'](response.message);
+            }
+        },
+        error: function() {
+            toastr['error']('Can not store intent name please review!');
         }
-        else {
-            toastr['error'](response.message);
-        }
-    },
-    error: function() {
-        toastr['error']('Can not store intent name please review!');
-    }
+    });
 });
+
+$(document).on("click", ".btn-search-query", function(e) {
+    e.preventDefault();
+    updateBoxEvent(0);
 });

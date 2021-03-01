@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\CronJob;
 use App\CronJobReport;
+use Carbon\Carbon;
 
 class CronController extends Controller
 {
@@ -72,6 +73,7 @@ class CronController extends Controller
 	public function getCronHistory(Request $request){
 		$reports = CronJobReport::where('cron_job_reports.signature','fetch:all_emails')
         ->join('cron_jobs', 'cron_job_reports.signature', 'cron_jobs.signature')
+        ->whereDate('cron_job_reports.created_at','>=',Carbon::now()->subDays(10))
         ->select(['cron_job_reports.*','cron_jobs.last_error'])->skip(($request->id - 1) *  15)->take(15)->get();
 		$history = '';
 		if(sizeof($reports) > 0) {
