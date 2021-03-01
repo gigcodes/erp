@@ -36,7 +36,7 @@ class GoogleTranslateController extends Controller
                 $msg = 'Default translation data not exists';
 
             // $logId = LogListMagento::log($product->id, $msg, 'info');
-                if(!empty($logid)) {
+                if(!empty($logid) && !empty($logId)) {
                     ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logid);
                 }
             }
@@ -89,7 +89,7 @@ class GoogleTranslateController extends Controller
                         $msg = 'Languages data '.$language.' not exists';
 
                     //    $logId = LogListMagento::log($product->id, $msg, 'info');
-                        if(!empty($logid)) {
+                        if(!empty($logid) && !empty($logId)) {
                             ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logid);
                         }
                     }
@@ -98,7 +98,7 @@ class GoogleTranslateController extends Controller
                 $msg = 'Languages data not exists';
 
                 //$logId = LogListMagento::log($product->id, $msg, 'info');
-                if(!empty($logid)) {
+                if(!empty($logid) && !empty($logId)) {
                     ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logid);
                 }
             }
@@ -106,7 +106,7 @@ class GoogleTranslateController extends Controller
             $msg = 'Internal server error';
 
             //$logId = LogListMagento::log($product->id, $msg, 'info');
-            if(!empty($logid)) {
+            if(!empty($logid) && !empty($logId)) {
                 ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logid);
             }
         }
