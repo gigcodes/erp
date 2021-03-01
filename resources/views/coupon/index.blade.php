@@ -1132,6 +1132,7 @@ form label.required:after{
             $(document).find('#prefix_edit').attr("disabled", true);
             $(document).find('#suffix_edit').attr("disabled", true);
             $(document).find('#dash_edit').attr("disabled", true);
+            $(document).find('.generate-code').attr("disabled", true);
         }else{
             $('.hide_div_edit').show();
             $(document).find('#coupon_qty_edit').attr("disabled", false);
@@ -1140,6 +1141,7 @@ form label.required:after{
             $(document).find('#prefix_edit').attr("disabled", false);
             $(document).find('#suffix_edit').attr("disabled", false);
             $(document).find('#dash_edit').attr("disabled", false);
+            $(document).find('.generate-code').attr("disabled", false);
         }
     })
 
@@ -1178,6 +1180,7 @@ form label.required:after{
                             $(document).find('#prefix_edit').attr("disabled", true);
                             $(document).find('#suffix_edit').attr("disabled", true);
                             $(document).find('#dash_edit').attr("disabled", true);
+                            $(document).find('.generate-code').attr("disabled", true);
                         }else{
                             $(document).find('#coupon_qty_edit').attr("disabled", false);
                             $(document).find('#coupon_length_edit').attr("disabled", false);
@@ -1185,6 +1188,7 @@ form label.required:after{
                             $(document).find('#prefix_edit').attr("disabled", false);
                             $(document).find('#suffix_edit').attr("disabled", false);
                             $(document).find('#dash_edit').attr("disabled", false);
+                            $(document).find('.generate-code').attr("disabled", false);
                         }
 
                         if(coupon_type == "SPECIFIC_COUPON" && $(document).find('#disable_coupon_code_edit').val() == "on"){
@@ -1195,6 +1199,7 @@ form label.required:after{
                             $(document).find('#prefix_edit').attr("disabled", false);
                             $(document).find('#suffix_edit').attr("disabled", false);
                             $(document).find('#dash_edit').attr("disabled", false);
+                            $(document).find('.generate-code').attr("disabled", false);
                         }
 
                         $('#couponEditModal').modal("show");

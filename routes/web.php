@@ -604,6 +604,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('email/status', 'EmailController@status');
     Route::post('email/update_email', 'EmailController@updateEmail');
 
+    Route::post('bluckAction','EmailController@bluckAction')->name('bluckAction');
+    Route::any('syncroniseEmail','EmailController@syncroniseEmail')->name('syncroniseEmail');
+
 
     Route::get('email-remark', 'EmailController@getRemark')->name('email.getremark');
     Route::post('email-remark', 'EmailController@addRemark')->name('email.addRemark');
