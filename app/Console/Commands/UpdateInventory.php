@@ -69,6 +69,7 @@ class UpdateInventory extends Command
                     
                     $hasInventory = false;
                     $today = date('Y-m-d');
+                    $productId = null;
                     
                     foreach ($skuRecords as $records) {
                         
@@ -97,6 +98,7 @@ class UpdateInventory extends Command
                                 $history->prev_in_stock  = $prev_in_stock;
                                 $history->save();
                             }
+                            $productId = $records["product_id"];
                         }
                         
                         if (is_null($records["last_inventory_at"]) || strtotime($records["last_inventory_at"]) < strtotime('-' . $inventoryLifeTime . ' days')) {
@@ -114,15 +116,14 @@ class UpdateInventory extends Command
                         }
                   
                         $hasInventory = true;
-                    }
-                    if (!$hasInventory) {
-                        \DB::statement("update `products` set `stock` = 0, `updated_at` = '" . date("Y-m-d H:i:s") . "' where `sku` = '" . $sku . "' and `products`.`deleted_at` is null");
-                    }
 
-                    dump("Scraped Product updated : ".$records['sproduct_id']);
-
-                    \DB::statement("update `scraped_products` set `last_cron_check` = now() where `id` = '" . $records['sproduct_id'] . "'");
-                  
+                        dump("Scraped Product updated : ".$records['sproduct_id']);
+                        \DB::statement("update `scraped_products` set `last_cron_check` = now() where `id` = '" . $records['sproduct_id'] . "'");
+                    }
+                    
+                    if (!$hasInventory && !empty($productId)) {
+                        \DB::statement("update `products` set `stock` = 0, `updated_at` = '" . date("Y-m-d H:i:s") . "' where `id` = '" . $productId . "' and `products`.`deleted_at` is null");
+                    }
                 } 
                 if(!empty($zeroStock)){
                     if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
