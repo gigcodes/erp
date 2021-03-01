@@ -687,28 +687,16 @@ class EmailController extends Controller
 
         foreach ($emailAddresses as $emailAddress) {
             try {
-                // $imap = new Client([
-                //     'host'          => $emailAddress->host,
-                //     'port'          => 993,
-                //     'encryption'    => "ssl",
-                //     'validate_cert' => true,
-                //     'username'      => $emailAddress->username,
-                //     'password'      => $emailAddress->password,
-                //     'protocol'      => 'imap',
-                // ]);
-
-                // $imap->connect();
-
                 $imap = new Client([
-                    'host'          => "smtp.gmail.com",
+                    'host'          => $emailAddress->host,
                     'port'          => 993,
                     'encryption'    => "ssl",
                     'validate_cert' => true,
-                    'username'      => "tsophia476@gmail.com",
-                    'password'      => "tsophia@987654",
+                    'username'      => $emailAddress->username,
+                    'password'      => $emailAddress->password,
                     'protocol'      => 'imap',
                 ]);
-        
+
                 $imap->connect();
 
                 $types = [
