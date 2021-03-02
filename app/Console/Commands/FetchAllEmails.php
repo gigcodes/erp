@@ -58,6 +58,7 @@ class FetchAllEmails extends Command
             'start_time' => Carbon::now(),
         ]);
 
+        $emailAddresses = EmailAddress::orderBy('id', 'asc')->get();
 
         foreach ($emailAddresses as $emailAddress) {
             try {
