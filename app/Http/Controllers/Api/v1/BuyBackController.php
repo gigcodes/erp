@@ -86,6 +86,7 @@ class BuyBackController extends Controller
                         ->first();
 
                     if (!isset($getCustomerOrderData) || empty($getCustomerOrderData)) {
+                        continue;
                         return response()->json(['status' => 'failed', 'message' => 'No order found for the customer!'], 404);
                     }
                     
