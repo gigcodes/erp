@@ -58,7 +58,6 @@ class FetchAllEmails extends Command
             'start_time' => Carbon::now(),
         ]);
 
-        $emailAddresses = EmailAddress::orderBy('id', 'asc')->get();
 
         foreach ($emailAddresses as $emailAddress) {
             try {
@@ -138,6 +137,7 @@ class FetchAllEmails extends Command
 
                         // check if email has already been received
 
+                        $textContent = $email->getTextBody();
                         if ($email->hasHTMLBody()) {
                             $content = $email->getHTMLBody();
                         } else {
@@ -216,7 +216,7 @@ class FetchAllEmails extends Command
 
                         if ($type['type'] == 'incoming') {
 
-                            $message = trim($content);
+                            $message = trim($textContent);
 
                             $reply = (new EmailParser())->parse($message) ;
 
@@ -234,7 +234,7 @@ class FetchAllEmails extends Command
                                     // store the main message
                                     $params = [
                                         'number'      => $customer->phone,
-                                        'message'     => $fragment->getContent(),
+                                        'message'     => $reply,
                                         'media_url'   => null,
                                         'approved'    => 0,
                                         'status'      => 0,
@@ -248,8 +248,8 @@ class FetchAllEmails extends Command
                                         'is_email'    => 1
                                     ];
                                     $messageModel = \App\ChatMessage::create($params);
-                                    \App\Helpers\MessageHelper::whatsAppSend($customer, $fragment->getContent(), null, null, $isEmail = true);
-                                    \App\Helpers\MessageHelper::sendwatson($customer, $fragment->getContent(), null, $messageModel, $params , $isEmail = true);
+                                    \App\Helpers\MessageHelper::whatsAppSend($customer, $reply, null, null, $isEmail = true);
+                                    \App\Helpers\MessageHelper::sendwatson($customer, $reply, null, $messageModel, $params , $isEmail = true);
                                 }
                             }
                         }
