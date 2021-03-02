@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Wetransfer;
 use App\EmailAddress;
 use App\EmailRunHistories;
+use Carbon\Carbon;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
 
 class EmailController extends Controller
@@ -119,6 +120,7 @@ class EmailController extends Controller
         //Get Cron Email Histroy
 		$reports = CronJobReport::where('cron_job_reports.signature','fetch:all_emails')
         ->join('cron_jobs', 'cron_job_reports.signature', 'cron_jobs.signature')
+        ->whereDate('cron_job_reports.created_at','>=',Carbon::now()->subDays(10))
         ->select(['cron_job_reports.*','cron_jobs.last_error'])->paginate(15);
 
         $emails = $query->paginate(30)->appends(request()->except(['page']));
@@ -870,7 +872,8 @@ class EmailController extends Controller
                     'is_success'       => 1,
                 ];
 
-                EmailRunHistories::create($historyParam);
+                
+              ::create($historyParam);
                 $report->update(['end_time' => Carbon::now()]);
                 session()->flash('success', 'Emails added successfully');
                 return redirect('/email');

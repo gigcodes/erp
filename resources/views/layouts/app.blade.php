@@ -1428,6 +1428,9 @@ $metaData = '';
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.cancellation') }}">Cancellation Policy</a>
                                     </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('logging.magento.product.api.call') }}">Magento API call</a>
+                                    </li>
                                 </ul>
                             </li>
                         @endif
@@ -2496,7 +2499,6 @@ $metaData = '';
 
         gtag('js', new Date());
         //gtag('config', 'UA-171553493-1');
-        gtag('config', '{{ $account_id }}');
     </script>
     @endif
     <script>
