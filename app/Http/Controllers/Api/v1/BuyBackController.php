@@ -75,6 +75,8 @@ class BuyBackController extends Controller
                 $skus[] = $request->product_sku;
             }
 
+            $isSuccess = false;
+
             if(!empty($skus)) {
                 foreach($skus as $sk) {
                     $getCustomerOrderData = StoreWebsiteOrder::Where('platform_order_id', $request->order_id)
@@ -110,6 +112,8 @@ class BuyBackController extends Controller
                         $message = $this->generate_erp_response("exchange.failed",$storeWebsite->id, $default = 'Unable to create '.ucwords($request->type).' request!');
                         return response()->json(['status' => 'failed', 'message' => 'Unable to create '.ucwords($request->type).' request!'], 500);
                     }
+
+                    $isSuccess = true;
                     ReturnExchangeProduct::create($return_exchange_products_data);
 
                     // send emails 
@@ -236,8 +240,16 @@ class BuyBackController extends Controller
                 }
             }
 
-            $message = $this->generate_erp_response("exchange.success",$storeWebsite->id, $default = ucwords($request->type).' request created successfully');
-            return response()->json(['status' => 'success', 'message' => $message], 200);
+            if($isSuccess) {
+
+                $message = $this->generate_erp_response("exchange.success",$storeWebsite->id, $default = ucwords($request->type).' request created successfully');
+                return response()->json(['status' => 'success', 'message' => $message], 200);
+
+            }else{
+                return response()->json(['status' => 'failed', 'message' => 'No order found for the customer!'], 404);
+            }
+
+
         }else{
             return response()->json(['status' => 'failed', 'message' => 'Please check website is not exist'], 404);
         }
