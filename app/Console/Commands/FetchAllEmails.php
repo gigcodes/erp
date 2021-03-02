@@ -58,7 +58,6 @@ class FetchAllEmails extends Command
             'start_time' => Carbon::now(),
         ]);
 
-        $emailAddresses = EmailAddress::orderBy('id', 'asc')->get();
 
         foreach ($emailAddresses as $emailAddress) {
             try {
@@ -248,8 +247,8 @@ class FetchAllEmails extends Command
                                         'is_email'    => 1
                                     ];
                                     $messageModel = \App\ChatMessage::create($params);
-                                    \App\Helpers\MessageHelper::whatsAppSend($customer, $fragment->getContent(), null, null, $isEmail = true);
-                                    \App\Helpers\MessageHelper::sendwatson($customer, $fragment->getContent(), null, $messageModel, $params , $isEmail = true);
+                                    \App\Helpers\MessageHelper::whatsAppSend($customer, $reply, null, null, $isEmail = true);
+                                    \App\Helpers\MessageHelper::sendwatson($customer, $reply, null, $messageModel, $params , $isEmail = true);
                                 }
                             }
                         }
