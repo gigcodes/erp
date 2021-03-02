@@ -12,13 +12,20 @@
 			<td data-toggle="modal" data-target="#viewMail"  onclick="opnMsg({{$email}})" style="cursor: pointer;">{{ substr($email->subject, 0,  10) }} {{strlen($email->subject) > 10 ? '...' : '' }}</td>
 			<td>{{ substr($email->message, 0,  10) }} {{strlen($email->message) > 10 ? '...' : '' }}</td>
             <td>
-				@if($email->status == 'bin')
-                        Deleted
-                @elseif($email->seen == 0)
-                        Opened
-                @else
-                        Delivered
-                @endif
+            @if($email->status != 'bin')
+                <select class="status">
+                    <option  value="" >Please select</option> 
+                    @foreach($email_status as $status)
+                            @if($status->id == (int)$email->status)
+                                <option  value="{{ $status->id }}" data-id="{{$email->id}}"   selected>{{ $status->email_status }}</option> 
+                            @else
+                                <option  value="{{ $status->id }}" data-id="{{$email->id}}" >{{$status->email_status }}</option> 
+                            @endif
+                    @endforeach
+                </select>
+            @else
+                Deleted
+            @endif
 			</td>
 
 			<td>

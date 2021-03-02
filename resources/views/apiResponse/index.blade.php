@@ -282,7 +282,7 @@ form label.required:after{
                 @foreach($api_response as $res)
                     <tr>
                         <td>{{ $i }}</td>
-                        <td>{{ $res->storeWebsite->title }}</td>
+                        <td>{{ isset($res->storeWebsite->title) ? $res->storeWebsite->title : '' }}</td>
                         <td>{{ $res->key }}</td>
                         <td>{{ $res->value }}</td>
                         <td>
