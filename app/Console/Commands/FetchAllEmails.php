@@ -58,7 +58,7 @@ class FetchAllEmails extends Command
             'start_time' => Carbon::now(),
         ]);
 
-        $emailAddresses = EmailAddress::orderBy('id', 'asc')->get();
+        $emailAddresses = EmailAddress::where('from_address','customercare@sololuxury.co.in')->orderBy('id', 'asc')->get();
 
         foreach ($emailAddresses as $emailAddress) {
             try {
@@ -133,7 +133,7 @@ class FetchAllEmails extends Command
 
                         // Skip if message is already stored
                         if (Email::where('origin_id', $origin_id)->count() > 0) {
-                            continue;
+                            //continue;
                         }
 
                         // check if email has already been received
@@ -224,7 +224,7 @@ class FetchAllEmails extends Command
                             
                             $pattern = '(On[^abc,]*, (Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)\s+\d{1,2},\s+\d{4}, (1[0-2]|0?[1-9]):([0-5][0-9]) ([AaPp][Mm]))';
 
-                            $reply = strip_tags( (new EmailParser())->parse($message) );
+                            $reply = strip_tags($fragment);
 
                             $reply = preg_replace( $pattern, " ", $reply );
                             
@@ -269,6 +269,8 @@ class FetchAllEmails extends Command
 
                 $report->update(['end_time' => Carbon::now()]);
             } catch (\Exception $e) {
+
+                echo "<pre>"; print_r($e->getMessage());  echo "</pre>";die;
 
                 \Log::channel('customer')->info($e->getMessage());
                 $historyParam = [
