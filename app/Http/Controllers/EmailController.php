@@ -676,7 +676,10 @@ class EmailController extends Controller
     public function syncroniseEmail()
     {
 
-        
+        \Artisan::call("fetch:all_emails");
+        session()->flash('success', 'Emails added successfully');
+        return redirect('/email');
+        exit;
 
         $report = CronJobReport::create([
             'signature'  => "fetch:all_emails",
