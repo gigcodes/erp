@@ -203,5 +203,14 @@ Route::get('missing-brand/save','MissingBrandController@saveMissingBrand');
 //Store data into the laravel_logs
 Route::post('laravel-logs/save','LaravelLogController@saveNewLogData');
 
+
+
+
+Route::post('templates/create/webhook','TemplatesController@createWebhook');
+Route::post('product/templates/update/webhook','ProductTemplatesController@updateWebhook')->name('api.product.update.webhook');
+
 //check for order cancellation
 Route::post('order/check-cancellation','\App\Http\Controllers\Api\v1\ProductController@checkCancellation');
+
+
+

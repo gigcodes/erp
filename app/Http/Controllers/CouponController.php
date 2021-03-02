@@ -480,8 +480,10 @@ class CouponController extends Controller
             $local_rules->coupon_type = $request->coupon_type;
             $local_rules->coupon_code = $request->code;
             $local_rules->use_auto_generation = isset($request->use_auto_generation) ? 1 : 0;
+
             $local_rules->uses_per_coupon = !empty($request->uses_per_coupon) ? $request->uses_per_coupon : 0;
             $local_rules->uses_per_coustomer = !empty($request->uses_per_coustomer) ? $request->uses_per_coustomer : 0;
+
             $local_rules->store_website_id = $request->store_website_id;
             $local_rules->is_rss = isset($request->rss) ? $request->rss : 0;
             $local_rules->priority = $request->priority;
@@ -740,8 +742,10 @@ class CouponController extends Controller
             $local_rules->customer_group_ids = implode(',',array_unique($request->customer_groups_edit));
             $local_rules->coupon_type = $request->coupon_type_edit;
             $local_rules->use_auto_generation = isset($request->auto_generate_edit) ? 1 : 0;
+
             $local_rules->uses_per_coupon = !empty($request->uses_per_coupon_edit) ? $request->uses_per_coupon_edit : 0;
             $local_rules->uses_per_coustomer = !empty($request->uses_per_coustomer_edit) ? $request->uses_per_coustomer_edit : 0;
+
             $local_rules->store_website_id = $request->store_website_id_edit;
             $local_rules->is_rss = isset($request->rss_edit) ? 1 : 0;
             $local_rules->coupon_code = $request->code_edit;

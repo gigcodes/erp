@@ -82,7 +82,11 @@
 	</div>
 </div>
 <div id="display-area"></div>
-@include("template.partials.list-template")
+ @include("template.partials.list-template") 
+
+
+
+
 @include("template.partials.create-form-template")
 @include("template.partials.edit-form-template")
 @include("partials.modals.large-image-modal")
@@ -91,24 +95,70 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript" src="js/common-helper.js"></script>
 <script type="text/javascript" src="js/template.js"></script>
+
+
 <script type="text/javascript">
 	template.init({
 		bodyView : $("#product-template-page"),
 		baseUrl : "<?php echo url("/"); ?>"
 	});
 
+	
+
 	function bigImg(img){
-        $('#large-image').attr('src',img);
-        $('#imageExpand').modal('show');
+
+        $('#image_crop').attr('src',img);
+        $('#largeImageModal').modal('show');
     }
 
     function normalImg(){
-        $('#imageExpand').modal('hide');
+        $('#largeImageModal').modal('hide');
     }
 	
-	function editTemplate(id,name,image,numberImage,checkbox){
+	function editTemplate(id,name,image,numberImage,checkbox,uid){
 		$('#id').val(id);
     	$('#name').val(name);
+    	var templateRow={};
+    	$('.special').html('');
+    	$.each(templatesData.data,(function(k,v)
+    	{
+    		if(v.uid==uid)
+    		{
+    			templateRow=v;
+    		}
+    	})
+    	)
+
+    	if(templateRow.modifications.length)
+    	{
+    		$.each(templateRow.modifications,function(k,v)
+    		{ 
+    			
+
+
+                  
+
+                    //console.log(v);
+
+    			if(v.tag !=='image_url')
+    			{
+    				$('.special').append('<div class="form-group row"> <label for="'+v.tag+'" class="col-sm-3 col-form-label">'+v.tag+'</label><div class="col-sm-6"> <input type="text" name="modifications_array['+v.row_index+']['+v.tag+']" class="form-control" id="'+v.tag+v.row_index+'" value="'+v.value+'"></div></div>');
+    			}
+
+    			else
+    			{
+                    $('.special').append('<div class="form-group row"><label for="'+v.tag+'" class="col-sm-3 col-form-label">'+v.tag+'</label><div class="col-sm-3 imgUp"><div class="imagePreview imageBearBanner" id="" style="background-image:url("'+v.value+ '")"></div> <label class="btn btn-primary"> Upload<input type="file" name="files['+v.row_index+']['+v.tag+']" class="uploadFile img" value="Upload Photo" style="width: 0px;height: 0px;overflow: hidden;" id="uploadFile"> </label></div><input type="hidden" name="modifications_array['+v.row_index+'][image_url]" value=""</div>');
+    			}
+
+            
+
+    			
+    		$('.special').append('<hr>');
+
+
+    		})
+    	}
+
     	$('#imagePreview').css('background-image', 'url("' + image + '")');
 		if(checkbox == 1){
     		$('#auto').prop("checked", true);
@@ -134,6 +184,10 @@
                 alert('Please Check');
             });
     }
+
+    var templatesData=JSON.parse('{!!$templates->toJson()!!}');
+
+    console.log(templatesData);
 </script>
 
 @endsection
