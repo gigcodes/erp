@@ -31,7 +31,13 @@
         </a>
     </td>
     <td>{{ $ticket->assigned_to_name }}</td>
-    <td>{{ $ticket->type_of_inquiry }}</td>
+    <td class="row-ticket" data-content="Brand : {{ !empty($ticket->brand) ? $ticket->brand : 'N/A' }}<br>
+        Style : {{ !empty($ticket->style) ? $ticket->style : 'N/A' }}<br>
+        Keyword : {{ !empty($ticket->keyword) ? $ticket->keyword : 'N/A' }}<br> 
+        Url : <a target='__blank' href='{{ !empty($ticket->image) ? $ticket->image : 'javascript:;' }}'>Click Here</a><br>
+        ">
+        <a herf="javascript:;">{{ $ticket->type_of_inquiry }}</a>
+    </td>
     <td>{{ $ticket->country }}</td>
     <td>{{ substr($ticket->order_no,0,5) }}</td>
     <td>{{ $ticket->phone_no }}</td>

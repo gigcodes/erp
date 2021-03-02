@@ -37,9 +37,16 @@ Content-Type: application/json
     "phone_no" : "919876543210",
     "sku":"7768484226295",
     "amount":"415.00",
-    "notify_on":"phone"
+    "notify_on":"phone",
+    "brand":"Enter brand",
+    "style":"Enter style",
+    "keyword":"Enter keyword",
+    "image":"Enter image",
 }
 ```
+
+// please send type_of_inquirey:special_notes so we can understand this is special notes
+// also this is the required fields which we need to pass 'name','last_name','email','type_of_inquiry','subject','message'
 
 **Successful Response:**
 
