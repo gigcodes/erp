@@ -65,7 +65,7 @@ class BuyBackController extends Controller
         $storeWebsite = \App\StoreWebsite::where("website","like",$request->website)->first();
         $skus = [];
         if($storeWebsite) {
-            if($request->type != "cancellation") {
+            if($request->type == "cancellation") {
                 $storewebisteOrder = StoreWebsiteOrder::where('platform_order_id', $request->order_id)->where("website_id",$storeWebsite->id)->first();
                 if($storewebisteOrder) {
                     $skus = \App\OrderProduct::where("order_id",$storewebisteOrder->order_id)->get()->pluck("sku")->toArray();
