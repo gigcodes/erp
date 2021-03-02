@@ -224,7 +224,7 @@ class FetchAllEmails extends Command
                             
                             $pattern = '(On[^abc,]*, (Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)\s+\d{1,2},\s+\d{4}, (1[0-2]|0?[1-9]):([0-5][0-9]) ([AaPp][Mm]))';
 
-                            $reply = strip_tags( (new EmailParser())->parse($message) );
+                            $reply = strip_tags($fragment);
 
                             $reply = preg_replace( $pattern, " ", $reply );
                             
