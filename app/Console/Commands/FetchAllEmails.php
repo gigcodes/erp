@@ -137,6 +137,7 @@ class FetchAllEmails extends Command
 
                         // check if email has already been received
 
+                        $textContent = $email->getTextBody();
                         if ($email->hasHTMLBody()) {
                             $content = $email->getHTMLBody();
                         } else {
@@ -215,7 +216,7 @@ class FetchAllEmails extends Command
 
                         if ($type['type'] == 'incoming') {
 
-                            $message = trim($content);
+                            $message = trim($textContent);
 
                             $reply = (new EmailParser())->parse($message) ;
 
@@ -233,7 +234,7 @@ class FetchAllEmails extends Command
                                     // store the main message
                                     $params = [
                                         'number'      => $customer->phone,
-                                        'message'     => $fragment->getContent(),
+                                        'message'     => $reply,
                                         'media_url'   => null,
                                         'approved'    => 0,
                                         'status'      => 0,
