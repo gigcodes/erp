@@ -69,6 +69,7 @@ class BuyBackController extends Controller
                 $storewebisteOrder = StoreWebsiteOrder::where('platform_order_id', $request->order_id)->where("website_id",$storeWebsite->id)->first();
                 if($storewebisteOrder) {
                     $skus = \App\OrderProduct::where("order_id",$storewebisteOrder->order_id)->get()->pluck("sku")->toArray();
+                    \Log::info(print_r([$storeWebsite->id,$skus,$request->order_id],true));
                 }
             }else{
                 $skus[] = $request->product_sku;
