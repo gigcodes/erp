@@ -2499,7 +2499,6 @@ $metaData = '';
 
         gtag('js', new Date());
         //gtag('config', 'UA-171553493-1');
-        gtag('config', '{{ $account_id }}');
     </script>
     @endif
     <script>

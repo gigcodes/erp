@@ -332,7 +332,7 @@ Content-Type: application/json
     "message": "Customer not found with this email !"
 }
 ```
-## Create Buyback | Return | Exchange | Refund request API
+## Create Buyback | Return | Exchange | Cancellation | Refund request API
 
 **Request:**
 
@@ -348,7 +348,8 @@ Content-Type: application/json
     "type":"exchange"
 }
 ```
-For type expected value will be "return","exchange","buyback","refund"
+For type expected value will be "return","exchange","buyback","refund", "cancellation"
+
 
 
 key : exchange.success

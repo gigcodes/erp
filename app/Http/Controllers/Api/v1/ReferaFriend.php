@@ -244,9 +244,13 @@ class ReferaFriend extends Controller
     }
     public function sendMail($data=null)
     {
-        if($data){
-            $to = $data['referee_email'];
-            Mail::to($to)->send(new SendReferralMail($data));    
+        try{
+            if($data){
+                $to = $data['referee_email'];
+                Mail::to($to)->send(new SendReferralMail($data));    
+            }
+        }catch(\Exception $e){
+            \Log::error($e);
         }
         return true;
     }
