@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Wetransfer;
 use App\EmailAddress;
 use App\EmailRunHistories;
+use EmailReplyParser\Parser\EmailParser;
 use Carbon\Carbon;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
 
@@ -678,11 +679,6 @@ class EmailController extends Controller
     public function syncroniseEmail()
     {
 
-        \Artisan::call("fetch:all_emails");
-        session()->flash('success', 'Emails added successfully');
-        return redirect('/email');
-        exit;
-
         $report = CronJobReport::create([
             'signature'  => "fetch:all_emails",
             'start_time' => \Carbon\Carbon::now(),
@@ -716,6 +712,7 @@ class EmailController extends Controller
                         'type'       => 'outgoing',
                     ],
                 ];
+
 
                 $available_models = [
                     "supplier" => \App\Supplier::class, "vendor" => \App\Vendor::class,
@@ -873,7 +870,7 @@ class EmailController extends Controller
                 ];
 
                 
-              ::create($historyParam);
+                EmailRunHistories::create($historyParam);
                 $report->update(['end_time' => Carbon::now()]);
                 session()->flash('success', 'Emails added successfully');
                 return redirect('/email');
