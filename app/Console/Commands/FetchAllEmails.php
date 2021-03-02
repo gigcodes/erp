@@ -215,9 +215,19 @@ class FetchAllEmails extends Command
                         Email::create($params);
 
                         if ($type['type'] == 'incoming') {
+
                             $message = trim($content);
-                            $reply    = (new EmailParser())->parse($message);
+
+                            $reply = (new EmailParser())->parse($message) ;
+
                             $fragment = current($reply->getFragments());
+                            
+                            $pattern = '(On[^abc,]*, (Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)\s+\d{1,2},\s+\d{4}, (1[0-2]|0?[1-9]):([0-5][0-9]) ([AaPp][Mm]))';
+
+                            $reply = strip_tags( (new EmailParser())->parse($message) );
+
+                            $reply = preg_replace( $pattern, " ", $reply );
+                            
                             if ($reply) {
                                 $customer = \App\Customer::where('email', $from)->first();
                                 if (!empty($customer)) {
