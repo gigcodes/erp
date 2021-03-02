@@ -81,6 +81,10 @@ class ProductController extends Controller
                                     $result_input["isrefund"] = false;
                                 }
                            // }
+                            // if status is cancelled already then return false
+                            if($getOrder->status == 6) {
+                                $result_input["iscanceled"] = false;
+                            }
                         }
                         return response()->json(["code" => 200, "message" => "Success", "data" => $result_input]);
                     }else{
