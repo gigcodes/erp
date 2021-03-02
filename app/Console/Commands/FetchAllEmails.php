@@ -270,8 +270,6 @@ class FetchAllEmails extends Command
                 $report->update(['end_time' => Carbon::now()]);
             } catch (\Exception $e) {
 
-                echo "<pre>"; print_r($e->getMessage());  echo "</pre>";die;
-
                 \Log::channel('customer')->info($e->getMessage());
                 $historyParam = [
                     'email_address_id' => $emailAddress->id,
