@@ -35,7 +35,7 @@ class GoogleTranslateController extends Controller
             }else{
                 $msg = 'Default translation data not exists';
 
-            // $logId = LogListMagento::log($product->id, $msg, 'info');
+            
                 if(!empty($logid)) {
                     $logModel = LogListMagento::find($logid);
                     if($logModel) {
@@ -122,6 +122,7 @@ class GoogleTranslateController extends Controller
                 if($logModel) {
                     ProductPushErrorLog::log("",$product->id, $msg, 'error',$logModel->store_website_id,"","",$logModel->id);
                 }
+
             }
         }
     }

@@ -1484,8 +1484,20 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     });
 
     Route::prefix('templates')->middleware('auth')->group(function () {
+
         Route::get('/', 'TemplatesController@index')->name('templates');
+
         Route::get('response', 'TemplatesController@response');
+
+        //Route::get('bearbanner', 'TemplatesController@updateTemplatesFromBearBanner');
+
+        Route::get('fetch/bearbanner/templates', 'TemplatesController@updateTemplatesFromBearBanner')->name('fetch.bearbanner.templates');
+
+        Route::post('update/bearbanner/template', 'TemplatesController@updateBearBannerTemplate')->name('update.bearbanner.template');
+
+        
+
+        
         Route::post('create', 'TemplatesController@create');
         Route::post('edit', 'TemplatesController@edit');
         Route::get('destroy/{id}', 'TemplatesController@destroy');

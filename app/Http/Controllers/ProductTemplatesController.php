@@ -36,12 +36,20 @@ class ProductTemplatesController extends Controller
                 $productArr = \App\Product::select('id', 'name', 'sku', 'brand')->whereIn('id', $productIdsArr)->get();
             }
         }
-        $templateArr = \App\Template::all();
+
+        //echo '<pre>';print_r($templateArr->toArray());die;
 
         $texts = \App\ProductTemplate::where('text',"!=" ,"")->groupBy('text')->pluck('text','text')->toArray();
         $backgroundColors = \App\ProductTemplate::where('background_color',"!=" ,"")->groupBy('background_color')->pluck('background_color','background_color')->toArray();
 
-        return view("product-template.index", compact('templateArr', 'productArr', 'texts' , 'backgroundColors'));
+        $templateArr = \App\Template::all();
+
+        $templatesJSON=\App\Template::with('modifications')->get()->toArray();
+
+       // echo json_encode($templateArr);die;
+
+
+        return view("product-template.index", compact('templateArr', 'productArr', 'texts' , 'backgroundColors','templatesJSON'));
     }
 
     public function response()
@@ -70,9 +78,13 @@ class ProductTemplatesController extends Controller
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
+     * function is renamed from create to previous_create after implement bearbanner api
      */
-    public function create(Request $request)
+    public function previous_create(Request $request)
     {
+       
+
+
         $template = new \App\ProductTemplate;
         $params = request()->all();
         if(empty($params['product_id'])) {
@@ -104,6 +116,11 @@ class ProductTemplatesController extends Controller
 
         return response()->json(["code" => 1, "message" => "Product Template Created successfully!"]);
     }
+
+   
+
+
+
 
     /**
      * Remove the specified resource from storage.
@@ -322,5 +339,119 @@ class ProductTemplatesController extends Controller
             ->renderAsDropdown();
 
         return view('product-template.image',compact('templates','temps','category_selection'));
+    }
+
+
+     public function create(Request $request)
+    {
+
+        
+
+        $template = new \App\ProductTemplate;
+        $params = request()->all();
+        $imagesArray=[];
+        if(empty($params['product_id'])) {
+           $params['product_id'] = [];
+        }
+
+        $params['product_id'] = implode(',', (array)$params['product_id']);
+      
+
+        $template->fill($params);
+
+        if ($template->save()) {
+
+            
+
+            if (!empty($request->get('product_media_list')) && is_array($request->get('product_media_list'))) {
+                foreach ($request->get('product_media_list') as $mediaid) {
+                    $media = Media::find($mediaid);
+                   // $template->attachMedia($media, ['template-image']);
+                    $imagesArray[]=$media->getUrl();
+                }
+            }
+
+            if ($request->hasFile('files')) {
+                foreach ($request->file('files') as $image) {
+                    $media = MediaUploader::fromSource($image)->toDirectory('product-template-images')->upload();
+
+                   // $template->attachMedia($media,['template-image']);
+                    $imagesArray[]=$media->getUrl();
+                }
+            }
+
+            $this->makeBearBannerImage($request,$imagesArray,$template);
+        }
+
+        return response()->json(["code" => 1, "message" => "Product Template Created successfully!"]);
+    }
+
+
+    public function makeBearBannerImage($request,$imagesArray,$template)
+    {
+
+       // echo '<pre>';print_r(json_encode($request->modifications_array));die;
+
+        $modifications=$request->modifications_array;
+
+        
+
+                      if(count($imagesArray))
+                      {
+                         foreach ($imagesArray as $key => $image_url) {
+                          $key=$key+1;
+                            //$row=$image_url;
+                            array_push($modifications,array('name'=>'product_'.$key,'image_url'=>$image_url));
+
+                         }
+                      }
+
+                      
+
+                    //  return json_encode($modifications);
+
+      $body=array('template'=>$template,'modifications'=>$modifications,'webhook_url'=>route('api.product.update.webhook'),'metadata'=>$template->id);
+
+      //echo json_encode($body);
+
+      $url=env('BANNER_API_LINK').'/images';
+
+        $api_key=env('BANNER_API_KEY');
+
+        //echo $api_key;die;
+
+        $headers=   [
+                        'Authorization' => 'Bearer ' . $api_key,
+                        'Content-Type' => 'application/json'
+                    ];
+
+
+         $response=\App\Helpers\GuzzleHelper::post($url,$body,$headers);
+
+         return $response;
+
+        
+    }
+
+    public function updateWebhook(Request $request)
+    {
+         $header = $request->header('Authorization', 'default');
+
+        if($header=='Bearer '.env('BANNER_WEBHOOK_KEY'))
+        {
+             if($request->metadata)
+             {
+                $template=ProductTemplate::find($request->metadata);
+
+                $contents = file_get_contents($request->image_url_png);
+
+               $media= MediaUploader::fromString($contents)->useFilename('profile')->toDirectory('product-template-images')->upload();
+
+
+              $template->attachMedia($media,['template-image']);
+
+
+             }
+        }
     }
 }

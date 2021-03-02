@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Site;
 use App\GoogleSearchAnalytics;
 use App\Setting;
+use Spatie\Activitylog\Models\Activity;
 
 
 
@@ -29,6 +30,10 @@ class GoogleWebMasterController extends Controller
 		$getSites =  GoogleWebMasters::all();
 
         $sites=Site::select('id','site_url')->get();
+
+        $logs=Activity::where('log_name','v3_sites')->orWhere('log_name','v3_search_analytics')->latest()->get();
+
+     
 
         $SearchAnalytics=new GoogleSearchAnalytics;
 
@@ -70,7 +75,7 @@ class GoogleWebMasterController extends Controller
 
        // echo '<pre>';print_r($sites[0]->site->site_url);die;
 
-		return view('google-web-master/index', compact('getSites','sitesData','sites','request','devices','countries'));
+		return view('google-web-master/index', compact('getSites','sitesData','sites','request','devices','countries','logs'));
 		}
 
 
@@ -112,8 +117,9 @@ class GoogleWebMasterController extends Controller
         
             if ($gClient->getAccessToken())
             {
-
+               
                 $details=$this->updateSitesData($request);
+              
 
             	$curl = curl_init();
 				curl_setopt_array($curl, array(
@@ -140,6 +146,8 @@ class GoogleWebMasterController extends Controller
 
             if (isset($error_msg)) {
                $this->curl_errors_array[]=array('key'=>'sites','error'=>$error_msg,'type'=>'sites');
+
+               activity('v3_sites')->log($error_msg);
              }
 
                  $check_error_response=json_decode($response);
@@ -153,6 +161,8 @@ class GoogleWebMasterController extends Controller
 
 
                                 $this->curl_errors_array[]=array('key'=>'sites','error'=>$check_error_response->error->message,'type'=>'sites');
+                                activity('v3_sites')->log($check_error_response->error->message);
+
                                 echo $this->curl_errors_array[0]['error'];
                             }else {
 					if(is_array( json_decode( $response)->siteEntry ) ){
@@ -177,6 +187,9 @@ class GoogleWebMasterController extends Controller
 							$response1 = curl_exec($curl1);
 							$err = curl_error($curl1);
 							if ($err) {
+
+                   activity('v3_sites')->log($err);
+
 				  				echo "cURL Error #:" . $err;
 							} else {
 
@@ -189,7 +202,7 @@ class GoogleWebMasterController extends Controller
 							}
 						}
 					}else{
-						 return redirect()->route('googlewebmaster.index')->with('details',$details);  
+						 return redirect()->route('googlewebmaster.index')->with('success',$details['success'])->with('error',$details['error_message']);
 					}
 				}
                          
@@ -203,7 +216,7 @@ class GoogleWebMasterController extends Controller
         }
 
 
-        public function updateSitesData(Request $request)
+        public function updateSitesData($request)
         {
 
         	if(!(isset($request->session()->get('token')['access_token'])))
@@ -252,11 +265,15 @@ class GoogleWebMasterController extends Controller
 
             if (isset($error_msg)) {
                $this->curl_errors_array[]=array('key'=>$google_key,'error'=>$error_msg,'type'=>'site_list');
+
+               activity('v3_sites')->log($error_msg);
              }
 
 							if(isset($response->error->message))
 							{
 								 $this->curl_errors_array[]=array('key'=>$google_key,'error'=>$response->error->message,'type'=>'site_list');
+               activity('v3_sites')->log($response->error->message);
+
 							}
 
 
@@ -293,7 +310,9 @@ class GoogleWebMasterController extends Controller
         		 }
         		 else
         		 {
-        		 	$siteRow=Site::create(['site_url'=>$site->siteUrl,'permission_level'=>$site->permissionLevel])?$this->sitesCreated++:'';
+        		 	$siteRow=Site::create(['site_url'=>$site->siteUrl,'permission_level'=>$site->permissionLevel]);
+
+                    $this->sitesCreated++;
         		 }
 
         		 $this->SearchAnalytics($site->siteUrl,$siteRow->id);
@@ -438,6 +457,8 @@ class GoogleWebMasterController extends Controller
 							if(isset($response->error->message))
 							{
 								 $this->curl_errors_array[]=array('siteUrl'=>$siteUrl,'error'=>$response->error->message,'type'=>'search_analytics');
+
+                                 activity('v3_search_analytics')->log($response->error->message);
 							}
 
 					
@@ -450,6 +471,9 @@ class GoogleWebMasterController extends Controller
 
             if (isset($error_msg)) {
                $this->curl_errors_array[]=array('siteUrl'=>$siteUrl,'error'=>$error_msg,'type'=>'search_analytics');
+
+                                 activity('v3_search_analytics')->log($error_msg);
+
              }
                           
 							return $response;
