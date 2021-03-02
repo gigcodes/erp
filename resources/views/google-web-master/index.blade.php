@@ -252,6 +252,55 @@
         </div>
     </div>
 
+
+<div class="row">
+        <div class="col-md-12">
+            <h2 class="page-heading">Sites Logs</h2>
+        </div>
+
+        <div class="col-12">
+          <div class="pull-left"></div>
+
+          <div class="pull-right">
+            <div class="form-group">
+              &nbsp;
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+          
+            <table id="table" class="table table-striped table-bordered">
+                <thead>
+                
+                      
+         
+
+                    <tr>
+                        <th>S.N</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                      
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($logs as $key=> $log ) 
+                    <tr>
+                      <td>{{$log->id}}</td>
+                      <td>{{$log->log_name}}</td>
+                     
+                      <td>{{$log->description}}</td>
+                     
+                    </tr>
+
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     
 @endsection
 
