@@ -58,7 +58,7 @@ class FetchAllEmails extends Command
             'start_time' => Carbon::now(),
         ]);
 
-        $emailAddresses = EmailAddress::where('from_address','customercare@sololuxury.co.in')->orderBy('id', 'asc')->get();
+        $emailAddresses = EmailAddress::orderBy('id', 'asc')->get();
 
         foreach ($emailAddresses as $emailAddress) {
             try {
@@ -133,7 +133,7 @@ class FetchAllEmails extends Command
 
                         // Skip if message is already stored
                         if (Email::where('origin_id', $origin_id)->count() > 0) {
-                            //continue;
+                            continue;
                         }
 
                         // check if email has already been received
