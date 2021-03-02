@@ -134,7 +134,7 @@ class Model
 
     }
 
-    public static function pushQuestion($id, $oldValue = null)
+    public static function pushQuestion($id, $oldValue = null, $watson_account_id = null)
     {
         if (env("PUSH_WATSON", true) == false) {
             return true;
@@ -201,7 +201,11 @@ class Model
                 $question->workspace_id = $workSpaceId;
                 $question->save();
 
-                $wotson_account_ids = WatsonAccount::pluck('id')->toArray();
+                if( !empty($watson_account_id) ){
+                    $wotson_account_ids = WatsonAccount::where( 'id', $watson_account_id )->pluck('id')->toArray();
+                }else{
+                    $wotson_account_ids = WatsonAccount::pluck('id')->toArray();
+                }
 
                 foreach ($wotson_account_ids as $id) {
                     $data_to_insert[] = [
