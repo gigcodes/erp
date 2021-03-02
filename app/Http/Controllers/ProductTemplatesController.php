@@ -392,7 +392,14 @@ class ProductTemplatesController extends Controller
 
        // echo '<pre>';print_r(json_encode($request->modifications_array));die;
 
-        $modifications=$request->modifications_array;
+        $modifications=[];
+
+        if($request->modifications_array)
+        {
+           $modifications=$request->modifications_array;
+        }
+
+        
 
         
 
