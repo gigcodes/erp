@@ -113,7 +113,7 @@ class EmailController extends Controller
 		
 		
 		//Get All Category
-		$email_status = DB::table('email_status')->get();
+        $email_status = DB::table('email_status')->get();
 		
 		//Get All Status
         $email_categories = DB::table('email_category')->get();
@@ -667,14 +667,21 @@ class EmailController extends Controller
         $action_type = $request->action_type;
 
         if($action_type == "delete"){
+            session()->flash('success', 'Email has been moved to trash successfully');
             Email::whereIn('id',$ids)->update(['status' => 'bin']);
         }else{
+            session()->flash('success', 'Status has been updated successfully');
             Email::whereIn('id',$ids)->update(['status' => $status]);
         }
 
         return response()->json(['type' => 'success'],200);
     }
 
+    public function changeStatus(Request $request){
+        Email::where('id',$request->email_id)->update(['status' => $request->status_id]);
+        session()->flash('success', 'Status has been updated successfully');
+        return response()->json(['type' => 'success'],200);
+    }
 
     public function syncroniseEmail()
     {
