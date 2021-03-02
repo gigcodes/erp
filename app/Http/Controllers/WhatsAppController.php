@@ -2132,6 +2132,7 @@ class WhatsAppController extends FindByNumberController
                     }
                     return response()->json(['message' => null]);
                 } elseif ($context == 'issue') {
+
                     $sendTo = $request->get('sendTo', "to_developer");
                     $params['issue_id'] = $request->get('issue_id');
                     $issue = DeveloperTask::find($request->get('issue_id'));
@@ -2176,6 +2177,7 @@ class WhatsAppController extends FindByNumberController
                     }
                     $whatsapp = $number->whatsapp_number;
                     $number = $number->phone;
+                    
                     if ($request->type == 1) {
                         foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
                             $params['message'] = '#TASK-' . $issue->id . '-' . $issue->subject . '=>' . $image->getUrl();
