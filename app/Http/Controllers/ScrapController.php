@@ -632,9 +632,14 @@ class ScrapController extends Controller
         $website = isset($receivedJson->website) ? $receivedJson->website : "";
         $scrapedProduct = null;
         if(!empty($website)) {
-            $scrapedProduct = ScrapedProducts::where('website',isset($receivedJson->website) ? $receivedJson->website : "")->where('sku',isset($receivedJson->sku) ? $receivedJson->sku : "")->first();
+            $scrapedProduct = ScrapedProducts::where('website',$website)
+            ->where('sku',!empty($receivedJson->sku) ? $receivedJson->sku : $product->sku)
+            ->first();
+
             if($scrapedProduct == null || $scrapedProduct == ''){
                 $scrapedProduct = new ScrapedProducts();
+                $scrapedProduct->sku = !empty($receivedJson->sku) ? $receivedJson->sku : $product->sku;
+                $scrapedProduct->website = $website;
             }
 
             $scrapedProduct->has_sku = 1;
