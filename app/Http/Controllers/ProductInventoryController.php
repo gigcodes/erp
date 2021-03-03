@@ -1227,4 +1227,37 @@ class ProductInventoryController extends Controller
 
 		return response()->json(["code" => 200 , "data" => [],"message" => implode("</br>", $messages),"error_messages" => implode("</br>", $errorMessages)]);
 	}
+
+	public function supplierProductHistory()
+	{
+		//whereDate('created_at','>', Carbon::now()->subDays(7))->
+		$inventory=\App\InventoryStatusHistory::selectRaw('distinct product_id,supplier_id,id')->whereDate('created_at','>', Carbon::now()->subDays(7))->orderBy('supplier_id')->orderBy('in_stock','desc')->paginate(Setting::get('pagination'));
+
+		//echo '<pre>';print_r($inventory->toArray());die;
+       $allHistory=[];
+
+       //  $i==0;
+		foreach ($inventory as $key => $history) {
+
+			$row=array('id'=>$history->id,'product_name'=>$history->product->name,'supplier_name'=>$history->supplier->supplier);
+
+
+          $dates=\App\InventoryStatusHistory::whereDate('created_at','>', Carbon::now()->subDays(7))->where('supplier_id',$history->supplier_id)->where('product_id',$history->product_id)->get();
+
+          $row['dates']=$dates;
+
+          $allHistory[]=(object)$row;
+
+			
+		}
+
+
+
+
+		//echo '<pre>';print_r($allHistory);die;
+
+		return view('product-inventory.supplier-inventory-history',compact('allHistory','inventory'));
+
+
+	}
 }
