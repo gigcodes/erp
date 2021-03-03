@@ -2604,6 +2604,15 @@ class ProductController extends Controller
             $msg = $inserted.' Products attached successfully';
             return response()->json(['code' => 200, 'message' => $msg]);
         }
+
+        $mailEclipseTpl = mailEclipse::getTemplates()->where('template_dynamic',FALSE);;
+        $rViewMail      = [];
+        if (!empty($mailEclipseTpl)) {
+            foreach ($mailEclipseTpl as $mTpl) {
+                $rViewMail[$mTpl->template_slug] = $mTpl->template_name . " [" . $mTpl->template_description . "]";
+            }
+        }
+
         if ($request->ajax()) {
             $html = view('partials.image-load', [
                 'products' => $products,
@@ -2615,6 +2624,7 @@ class ProductController extends Controller
                 'countSuppliers' => $countSuppliers,
                 'customerId' => $customerId,
                 'categoryArray' => $categoryArray,
+                'rViewMail' => $rViewMail
             ])->render();
 
             if (!empty($from) && $from == "attach-image") {
@@ -2632,16 +2642,6 @@ class ProductController extends Controller
 
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         //\Log::info(print_r(\DB::getQueryLog(),true));
-
-        $mailEclipseTpl = mailEclipse::getTemplates()->where('template_dynamic',FALSE);;
-        $rViewMail      = [];
-        if (!empty($mailEclipseTpl)) {
-            foreach ($mailEclipseTpl as $mTpl) {
-                $rViewMail[$mTpl->template_slug] = $mTpl->template_name . " [" . $mTpl->template_description . "]";
-            }
-        }
-           echo '<pre>';print_r($products->toArray());die;
-
         return view('partials.image-grid', compact(
             'products',
             'products_count',

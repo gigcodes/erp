@@ -4,7 +4,8 @@
 	  <form action="/" method="get" id="product-mail">
 			
 			<div class="form-group mr-pd col-md-2">
-				{{ Form::select(null, ["-- Select email template --"] + $rViewMail, request('tpl'), ["class" => "form-control change-email-template", "required" => true, "id" => "form_mail_tpl"]) }}
+				@php $rViewMail = !empty($rViewMail) ? $rViewMail : []  @endphp
+        {{ Form::select(null, ["-- Select email template --"] + $rViewMail, request('tpl'), ["class" => "form-control change-email-template", "required" => true, "id" => "form_mail_tpl"]) }}
 			</div>
 			<input type="hidden" name="product_ids" id="input_product_ids">
 			<div class="form-group mr-pd col-md-2">    

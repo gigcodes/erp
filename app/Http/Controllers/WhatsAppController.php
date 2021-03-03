@@ -2044,6 +2044,17 @@ class WhatsAppController extends FindByNumberController
                     // }
                 }
 
+                // this will send message to the lead developer
+                if(!empty($task->master_user_id)) {
+                    $userMaster = User::find($task->master_user_id);
+                    if($userMaster) {
+                        $extraUser = $data;
+                        $extraUser['erp_user'] = $task->master_user_id;
+                        $extraUser['user_id']  = $task->master_user_id;
+                        $this->sendWithThirdApi($userMaster->phone, $userMaster->whatsapp_number, $data['message']);
+                    }
+                }
+
                 $params['approved'] = 1;
                 $params['status'] = 2;
                 $chat_message = ChatMessage::create($data);
