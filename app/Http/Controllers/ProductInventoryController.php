@@ -1228,15 +1228,34 @@ class ProductInventoryController extends Controller
 		return response()->json(["code" => 200 , "data" => [],"message" => implode("</br>", $messages),"error_messages" => implode("</br>", $errorMessages)]);
 	}
 
-	public function supplierProductHistory()
+	public function supplierProductHistory(Request $request)
 	{
-		//whereDate('created_at','>', Carbon::now()->subDays(7))->
-		$inventory=\App\InventoryStatusHistory::selectRaw('distinct product_id,supplier_id,id')->whereDate('created_at','>', Carbon::now()->subDays(7))->orderBy('supplier_id')->orderBy('in_stock','desc')->paginate(Setting::get('pagination'));
+		$suppliers=\App\Supplier::all();
 
-		//echo '<pre>';print_r($inventory->toArray());die;
+		$inventory=\App\InventoryStatusHistory::selectRaw('distinct product_id,supplier_id,id')->whereDate('created_at','>', Carbon::now()->subDays(7))->orderBy('supplier_id')->orderBy('in_stock','desc');
+		if($request->supplier)
+		{
+			$inventory=$inventory->where('supplier_id',$request->supplier);
+		}
+
+		if($request->search)
+		{
+			$inventory->where('product_id','like','%'.$request->search)->orWhereHas('product', function ($query) use($request) {
+
+           $query->where('name', 'like','%'.$request->search.'%');
+
+             });
+		}
+
+		$total_rows=$inventory->count();
+
+
+		$inventory=$inventory->paginate(Setting::get('pagination'));
+
+		
        $allHistory=[];
 
-       //  $i==0;
+    
 		foreach ($inventory as $key => $history) {
 
 			$row=array('id'=>$history->id,'product_name'=>$history->product->name,'supplier_name'=>$history->supplier->supplier);
@@ -1252,11 +1271,7 @@ class ProductInventoryController extends Controller
 		}
 
 
-
-
-		//echo '<pre>';print_r($allHistory);die;
-
-		return view('product-inventory.supplier-inventory-history',compact('allHistory','inventory'));
+		return view('product-inventory.supplier-inventory-history',compact('allHistory','inventory','total_rows','suppliers','request'));
 
 
 	}

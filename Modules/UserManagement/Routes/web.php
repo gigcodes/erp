@@ -12,7 +12,7 @@
 */
 
 
-Route::prefix('user-management')->group(function() {
+Route::prefix('user-management')->middleware('auth')->group(function() {
     Route::get('/', 'UserManagementController@index')->name("user-management.index");
     Route::get('/edit/{id}', 'UserManagementController@edit')->name("user-management.edit");
     Route::get('/role/{id}', 'UserManagementController@getRoles')->name("user-management.get-role");
