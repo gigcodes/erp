@@ -72,7 +72,7 @@
     </div>
 
     <div class="pull-left mt-3" style="margin-bottom:10px;margin-right:5px;">
-        <button type="button" class="btn btn-secondary bulk-dlt" onclick="bulkAction(this,'delete');">Bluk Delete</button>
+        <button type="button" class="btn btn-secondary bulk-dlt" onclick="bulkAction(this,'delete');">Bulk Delete</button>
     </div>
 	</div>   
   <div class="col-md-12">
@@ -171,7 +171,7 @@
       <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
         <thead>
           <tr>
-            <th>Bluck Action</th>
+            <th>Bulk Action</th>
             <th>Date</th>
             <th>Sender</th>
             <th>Receiver</th>
@@ -810,6 +810,29 @@
         });
     });
 
+
+    $(document).on('change','.status',function(e){
+        if($(this).val() != "" && ($('option:selected', this).attr('data-id') != "" || $('option:selected', this).attr('data-id') != undefined)){
+            $.ajax({
+                  headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                  },
+                  type : "POST",
+                  url : "{{ route('changeStatus') }}",
+                  data : {
+                    status_id : $('option:selected', this).val(),
+                    email_id : $('option:selected', this).attr('data-id')
+                  },
+                  success : function (response){
+                        location.reload();
+                  },
+                  error : function (response){
+
+                  }
+            })
+        }
+    });
+
     function opnMsg(email) {
       console.log(email);
       $('#emailSubject').html(email.subject);
@@ -941,6 +964,8 @@
       }
         
     }
+    
+
     </script>
 
 

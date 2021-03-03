@@ -610,6 +610,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('bluckAction','EmailController@bluckAction')->name('bluckAction');
     Route::any('syncroniseEmail','EmailController@syncroniseEmail')->name('syncroniseEmail');
+    Route::post('changeStatus','EmailController@changeStatus')->name('changeStatus');
 
 
     Route::get('email-remark', 'EmailController@getRemark')->name('email.getremark');

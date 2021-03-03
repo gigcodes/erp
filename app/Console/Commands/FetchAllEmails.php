@@ -138,6 +138,7 @@ class FetchAllEmails extends Command
 
                         // check if email has already been received
 
+                        $textContent = $email->getTextBody();
                         if ($email->hasHTMLBody()) {
                             $content = $email->getHTMLBody();
                         } else {
@@ -216,7 +217,7 @@ class FetchAllEmails extends Command
 
                         if ($type['type'] == 'incoming') {
 
-                            $message = trim($content);
+                            $message = trim($textContent);
 
                             $reply = (new EmailParser())->parse($message) ;
 
@@ -224,7 +225,7 @@ class FetchAllEmails extends Command
                             
                             $pattern = '(On[^abc,]*, (Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)\s+\d{1,2},\s+\d{4}, (1[0-2]|0?[1-9]):([0-5][0-9]) ([AaPp][Mm]))';
 
-                            $reply = strip_tags( (new EmailParser())->parse($message) );
+                            $reply = strip_tags($fragment);
 
                             $reply = preg_replace( $pattern, " ", $reply );
                             
@@ -234,7 +235,7 @@ class FetchAllEmails extends Command
                                     // store the main message
                                     $params = [
                                         'number'      => $customer->phone,
-                                        'message'     => $fragment->getContent(),
+                                        'message'     => $reply,
                                         'media_url'   => null,
                                         'approved'    => 0,
                                         'status'      => 0,
@@ -248,8 +249,8 @@ class FetchAllEmails extends Command
                                         'is_email'    => 1
                                     ];
                                     $messageModel = \App\ChatMessage::create($params);
-                                    \App\Helpers\MessageHelper::whatsAppSend($customer, $fragment->getContent(), null, null, $isEmail = true);
-                                    \App\Helpers\MessageHelper::sendwatson($customer, $fragment->getContent(), null, $messageModel, $params , $isEmail = true);
+                                    \App\Helpers\MessageHelper::whatsAppSend($customer, $reply, null, null, $isEmail = true);
+                                    \App\Helpers\MessageHelper::sendwatson($customer, $reply, null, $messageModel, $params , $isEmail = true);
                                 }
                             }
                         }
