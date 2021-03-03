@@ -2048,8 +2048,9 @@ class WhatsAppController extends FindByNumberController
                 if(!empty($task->master_user_id)) {
                     $userMaster = User::find($task->master_user_id);
                     if($userMaster) {
-                        $data['erp_user'] = $task->master_user_id;
-                        $data['user_id'] = $task->master_user_id;
+                        $extraUser = $data;
+                        $extraUser['erp_user'] = $task->master_user_id;
+                        $extraUser['user_id']  = $task->master_user_id;
                         $this->sendWithThirdApi($userMaster->phone, $userMaster->whatsapp_number, $data['message']);
                     }
                 }
