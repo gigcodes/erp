@@ -209,7 +209,7 @@ class BuyBackController extends Controller
                         $emailObject->save();
                     }else if ($request->type == "cancellation") {
                         
-                        $view = (new \App\Mails\Manual\InitializeExchangeRequest($success))->build();
+                        $view = (new \App\Mails\Manual\InitializeCancelRequest($success))->build();
                         $params = [
                             'model_id'          => $success->id,
                             'model_type'        => \App\ReturnExchange::class,
