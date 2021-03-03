@@ -212,5 +212,7 @@ Route::post('product/templates/update/webhook','ProductTemplatesController@updat
 //check for order cancellation
 Route::post('order/check-cancellation','\App\Http\Controllers\Api\v1\ProductController@checkCancellation');
 
+Route::post('magento/order-create','MagentoCustomerReferenceController@createOrder');
+
 
 
