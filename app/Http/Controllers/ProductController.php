@@ -2640,7 +2640,6 @@ class ProductController extends Controller
                 $rViewMail[$mTpl->template_slug] = $mTpl->template_name . " [" . $mTpl->template_description . "]";
             }
         }
-           echo '<pre>';print_r($products->toArray());die;
 
         return view('partials.image-grid', compact(
             'products',
