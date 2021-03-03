@@ -80,8 +80,9 @@
          
 
                     <tr>
-                        <th>S.N</th>
-                        <th>Supplier Name</th>
+                       
+                        <th>Supplier Name</th> 
+                        <th>Product Id</th>
                         <th>Product Name</th>
                         @for($i = 0;$i < 7; $i++)
 
@@ -94,9 +95,9 @@
                 <tbody>
                     @foreach ($allHistory as $key=> $row ) 
                     <tr>
-                      <td>{{$row->id}}</td>
+                      
                       <td>{{$row->supplier_name}}</td>
-                     
+                     <td>{{$row->product_id}}</td>
                       <td>{{$row->product_name}}</td>
 
                        @for($i=0;$i < 7;$i++)

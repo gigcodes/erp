@@ -340,6 +340,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('brand/{id}/activities', 'BrandController@activites')->name('brand.activities');
     Route::resource('brand', 'BrandController');
 
+   Route::put('brand/priority/{id}', 'BrandController@priority');
+
+
 
 
     Route::resource('reply', 'ReplyController');

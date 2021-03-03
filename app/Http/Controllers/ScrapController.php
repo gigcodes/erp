@@ -1467,9 +1467,17 @@ class ScrapController extends Controller
         ->leftJoin('brands', function($join) {
             $join->on('products.brand', '=', 'brands.id');
         })
+        ->leftJoin('suppliers', function($join) {
+            $join->on('products.supplier_id', '=', 'suppliers.id');
+        })
         ->latest("products.created_at")
+
         ->select(["products.id","products.sku","products.supplier","brands.name"])
+       
+        ->orderBy('brands.priority','asc')
+        ->orderBy('suppliers.priority','asc')
         ->limit(50)
+        
         ->get()
         ->toArray(); 
         
