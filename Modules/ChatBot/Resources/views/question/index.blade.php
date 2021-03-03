@@ -89,6 +89,7 @@
                   <th class="th-sm" style="width:10%">Erp/Watson</th>
                   <th class="th-sm" style="width:30%">Suggested Response</th>
 			      <th class="th-sm" style="width:9%">Category</th>
+			      <th class="th-sm" style="width:9%">Status</th>
 			      <th class="th-sm" style="width:8%">Action</th>
 			    </tr>
 			  </thead>
@@ -127,6 +128,7 @@
 						  @endforeach
 						</select>
 					  </td>
+				      <td class="{{ ( $chatQuestion->watson_status == 1 ) ? 'success' : null }}">{{ ( $chatQuestion->watson_status == 1 ) ? 'Success' : 'Error' }}</td>
 				      <td>
 							<a class="btn btn-image edit-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.edit",[$chatQuestion->id]); ?>"><img src="/images/edit.png"></a>
 							<a class="btn btn-image delete-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.delete",[$chatQuestion->id]); ?>"><img src="/images/delete.png"></a>
