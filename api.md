@@ -699,7 +699,8 @@ Accept: application/json
 Content-Type: application/json
 {
     "website" : "www.veralusso.com", //existing website
-    "email":"Solo@theluxuryunlimited.com"
+    "email":"Solo@theluxuryunlimited.com",
+    "store_name" : "store name or store code"
 }
 ```
 
