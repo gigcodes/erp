@@ -196,6 +196,7 @@ class Model
 
 //                ManageWatson::dispatch('intent',$question, $storeParams, 'update');
                 ManageWatson::dispatch($question->keyword_or_question, $question, $storeParams, 'update','value',false, $oldValue)->onQueue('watson_push');
+                ChatbotQuestion::where( 'id', $question->id )->update([ 'watson_status' => 'watson sended' ]);
             } else {
                 // $result                 = $watson->create($workSpaceId, $storeParams);
                 $question->workspace_id = $workSpaceId;
@@ -218,6 +219,7 @@ class Model
                 WatsonWorkspace::insert($data_to_insert);
 
 //                ManageWatson::dispatch('intent',$question, $storeParams, 'create');
+                ChatbotQuestion::where( 'id', $question->id )->update([ 'watson_status' => 'watson sended' ]);
                 ManageWatson::dispatch($question->keyword_or_question, $question, $storeParams, 'create', 'value',false, $oldValue)->onQueue('watson_push');
 
             }

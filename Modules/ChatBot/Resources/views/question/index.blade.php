@@ -128,7 +128,7 @@
 						  @endforeach
 						</select>
 					  </td>
-				      <td class="{{ ( $chatQuestion->watson_status == 1 ) ? 'success' : null }}">{{ ( $chatQuestion->watson_status == 1 ) ? 'Success' : 'Error' }}</td>
+				      <td class="{{ ( $chatQuestion->watson_status == 1 ) ? 'success' : null }}">{{ ( $chatQuestion->watson_status == '1' ) ? 'Success' : null }} {{ ( $chatQuestion->watson_status == 0 ) ? 'Error' : null }} {{ ( $chatQuestion->watson_status != 1 && $chatQuestion->watson_status != 0 ) ? $chatQuestion->watson_status : null }}</td>
 				      <td>
 							<a class="btn btn-image edit-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.edit",[$chatQuestion->id]); ?>"><img src="/images/edit.png"></a>
 							<a class="btn btn-image delete-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.delete",[$chatQuestion->id]); ?>"><img src="/images/delete.png"></a>

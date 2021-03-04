@@ -91,7 +91,6 @@ class QuestionController extends Controller
 
     public function save(Request $request)
     {
-        // dd(empty($params["question"]));
         $params          = $request->all();
         $params["value"] = str_replace(" ", "_", $params["value"]);
         $params["watson_account_id"] = $request->watson_account;
@@ -206,10 +205,16 @@ class QuestionController extends Controller
 
         if($request->erp_or_watson == 'watson') {
             if($request->keyword_or_question == 'intent' || $request->keyword_or_question == 'simple' || $request->keyword_or_question == 'priority-customer') {
+
+                ChatbotQuestion::where( 'id', $chatbotQuestion->id )->update([ 'watson_status' => 'Pending watson send' ]);
+
                 $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, null, $request->watson_account));
             }
 
             if($request->keyword_or_question == 'entity') {
+                
+                ChatbotQuestion::where( 'id', $chatbotQuestion->id )->update([ 'watson_status' => 'Pending watson send' ]);
+
                 $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, null, $request->watson_account));
             }
 
