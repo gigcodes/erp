@@ -72,7 +72,7 @@ class MailinglistController extends Controller
             $this->addToList($m->remote_id, $request->get("email"));
         }
 
-        $customer->newsletter = true;
+        $customer->newsletter = 1;
         $customer->save();
 
         // return response()->json(["code" => 200, "message" => "Done", "data" => $request->all()]);
