@@ -1227,4 +1227,53 @@ class ProductInventoryController extends Controller
 
 		return response()->json(["code" => 200 , "data" => [],"message" => implode("</br>", $messages),"error_messages" => implode("</br>", $errorMessages)]);
 	}
+
+	public function supplierProductHistory(Request $request)
+	{
+		$suppliers=\App\Supplier::all();
+
+		$inventory=\App\InventoryStatusHistory::selectRaw('distinct product_id,supplier_id')->whereDate('created_at','>', Carbon::now()->subDays(7))->orderBy('supplier_id')->orderBy('in_stock','desc');
+		if($request->supplier)
+		{
+			$inventory=$inventory->where('supplier_id',$request->supplier);
+		}
+
+		if($request->search)
+		{
+			$inventory->where('product_id','like','%'.$request->search)->orWhereHas('product', function ($query) use($request) {
+
+           $query->where('name', 'like','%'.$request->search.'%');
+
+             });
+		}
+       
+		$total_rows=$inventory->count();
+
+
+		$inventory=$inventory->paginate(Setting::get('pagination'));
+
+		
+       $allHistory=[];
+
+    
+		foreach ($inventory as $key => $history) {
+
+			$row=array('id'=>$history->id,'product_name'=>$history->product->name,'supplier_name'=>$history->supplier->supplier,'product_id'=>$history->product_id);
+
+
+          $dates=\App\InventoryStatusHistory::whereDate('created_at','>', Carbon::now()->subDays(7))->where('supplier_id',$history->supplier_id)->where('product_id',$history->product_id)->get();
+
+          $row['dates']=$dates;
+
+          $allHistory[]=(object)$row;
+
+			
+		}
+  
+  //echo '<pre>';print_r($inventory->toArray());die;
+
+		return view('product-inventory.supplier-inventory-history',compact('allHistory','inventory','total_rows','suppliers','request'));
+
+
+	}
 }

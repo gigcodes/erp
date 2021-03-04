@@ -92,6 +92,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                     <th width="150px">{{ $category_segment->name }}</th>
                 @endforeach
                 <th width="150px">Selling on</th>
+                <th>Priority</th>
                 <th width="150px">Action</th>
             </tr>
             @foreach ($brands as $key => $brand)
@@ -157,6 +158,16 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                             ["class" => "form-control select-multiple input-attach-brands", "multiple" => true, "data-brand-id" => $brand->id]
                         ); ?>
                     </div>
+                </td>
+               <td>
+                <div class="form-group">
+                    @php 
+                    $priority_array=[null=>'Priority',1=>'Critical',2=>'High',3=>'Medium',4=>'Low'];
+                    @endphp
+
+                      {!!Form::select('priority',$priority_array,$brand->priority??'',array('class'=>'form-control input-sm mb-3 priority','data-id'=>$brand->id))!!}
+                      
+                    </div>       
                 </td>
                 <td>
                     <a class="btn btn-image" href="{{ route('brand.edit',$brand->id) }}"><img src="/images/edit.png" /></a>
@@ -390,5 +401,24 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             });
         }
     });
+
+    $(document).on('change', '.priority', function () {
+            var $this = $(this);
+            var brand_id = $this.data("id");
+            var priority = $this.val();
+            $.ajax({
+                type: "PUT",
+                url: "/brand/priority/"+brand_id,
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    supplier_id : brand_id,
+                    priority: priority
+                }
+            }).done(function (response) {
+                 toastr['success'](response.message, 'success');
+            }).fail(function (response) {
+               toastr['error'](response.message, 'error');
+            });
+        });
 </script>
 @endsection
