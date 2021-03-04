@@ -1563,8 +1563,8 @@ Route::post('exotel/recordingCallback', 'ExotelController@recordingCallback');
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 
-Route::middleware('auth')->group(function()
-{
+//Route::middleware('auth')->group(function()
+//{
 
 
 Route::post('livechat/incoming', 'LiveChatController@incoming');
@@ -1622,7 +1622,7 @@ Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
 Route::get('message/resend', 'WhatsAppController@resendMessage2');
 Route::get('message/delete', 'WhatsAppController@delete');
 
-});
+//});
 
 
 Route::group(['middleware' => ['auth']], function () {
