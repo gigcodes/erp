@@ -244,6 +244,7 @@ class LogListMagentoController extends Controller
         if($v->attribute_code === "composition" ){
           $composition = $v->value;
         }
+
         $prepared_products_data[$value->sku]=[
           'store_website_id' => $value->store_website_id,
           'magento_id'=>$value->id,
@@ -256,16 +257,16 @@ class LogListMagentoController extends Controller
           'brands'=>$brands,
           'composition'=>$composition,
           'dimensions'=> $value->size ?? 0,
-          'english'=>'Yes',
-          'arabic'=>'Yes',
-          'german'=>'Yes',
-          'spanish'=>'No',
-          'french'=>'No',
-          'italian'=>'No',
-          'japanese'=>'No',
-          'korean'=>'No',
-          'russian'=>'No',
-          'chinese'=>'No',
+          'english'=>'',
+          'arabic'=>'',
+          'german'=>'',
+          'spanish'=>'',
+          'french'=>'',
+          'italian'=>'',
+          'japanese'=>'',
+          'korean'=>'',
+          'russian'=>'',
+          'chinese'=>'',
           'success' => true
         ];
 
@@ -296,19 +297,76 @@ class LogListMagentoController extends Controller
           'brands'=>$brand,
           'composition'=>$product_name != null ? $product_name->composition : "",
           'dimensions'=> $product_name != null ? $product_name->lmeasurement.",".$product_name->hmeasurement.",".$product_name->dmeasurement : "",
-          'english'=>'Yes',
-          'arabic'=>'Yes',
-          'german'=>'Yes',
-          'spanish'=>'No',
-          'french'=>'No',
-          'italian'=>'No',
-          'japanese'=>'No',
-          'korean'=>'No',
-          'russian'=>'No',
-          'chinese'=>'No',
+          'english'=>'',
+          'arabic'=>'',
+          'german'=>'',
+          'spanish'=>'',
+          'french'=>'',
+          'italian'=>'',
+          'japanese'=>'',
+          'korean'=>'',
+          'russian'=>'',
+          'chinese'=>'',
           'success' => false
       ];
     }
+
+        $lang_list = \App\StoreWebsite::with(['websites.stores.storeView'])->where('id',$value->store_website_id)->first();
+        $i = 0;
+        foreach($lang_list->websites as $web){
+            if($i == 1){
+              foreach($web->stores as $st){
+                foreach($st->storeView as $sw){
+
+                     $temp = strtolower($sw->name);
+                      switch ($temp) {
+                        case "english" :
+                            $prepared_products_data[$value->sku]['english'] = $temp == "english" ? "Yes" : "No";
+                            break;
+                        case "arabic":
+                            $prepared_products_data[$value->sku]['arabic'] = $temp == "arabic" ? "Yes" : "No";
+                            break;
+                        case "german":
+                            $prepared_products_data[$value->sku]['german'] = $temp == "german" ? "Yes" : "No";
+                            break;
+                        case "spanish":
+                            $prepared_products_data[$value->sku]['spanish'] = $temp == "spanish" ? "Yes" : "No";
+                            break;
+                        case "french":
+                            $prepared_products_data[$value->sku]['french'] = $temp == "french" ? "Yes" : "No";
+                            break;
+                        case "italian":
+                            $prepared_products_data[$value->sku]['italian'] = $temp == "italian" ? "Yes" : "No";
+                            break;
+                        case "japanese":
+                            $prepared_products_data[$value->sku]['japanese'] = $temp == "japanese" ? "Yes" : "No";
+                            break;
+                        case "korean":
+                            $prepared_products_data[$value->sku]['korean'] = $temp == "korean" ? "Yes" : "No";
+                            break;
+                        case "russian":
+                            $prepared_products_data[$value->sku]['russian'] = $temp == "russian" ? "Yes" : "No";
+                            break;
+                        case "chinese":
+                            $prepared_products_data[$value->sku]['chinese'] = $temp == "chinese" ? "Yes" : "No";
+                            break;
+                      }
+
+                  // $prepared_products_data[$value->sku]['english'] = strtolower($sw->name) == "english" ? "Yes" : "No";
+                  // $prepared_products_data[$value->sku]['arabic'] = strtolower($sw->name) == "arabic" ? "Yes" : "No";
+                  // $prepared_products_data[$value->sku]['german'] = strtolower($sw->name) == "german" ? "Yes" : "No";
+                  // $prepared_products_data[$value->sku]['spanish'] = strtolower($sw->name) == "spanish" ? "Yes" : "No";
+                  // $prepared_products_data[$value->sku]['french'] = strtolower($sw->name) == "french" ? "Yes" : "No";
+                  // $prepared_products_data[$value->sku]['italian'] = strtolower($sw->name) == "italian" ? "Yes" : "No";
+                  // $prepared_products_data[$value->sku]['japanese'] = strtolower($sw->name) == "japanese" ? "Yes" : "No";
+                  // $prepared_products_data[$value->sku]['korean'] = strtolower($sw->name) == "korean" ? "Yes" : "No";
+                  // $prepared_products_data[$value->sku]['russian'] = strtolower($sw->name) == "russian" ? "Yes" : "No";
+                  // $prepared_products_data[$value->sku]['chinese'] = strtolower($sw->name) == "chinese" ? "Yes" : "No";
+                }
+              }
+            }
+            $i++;
+        }
 
       $category_names =[];
       $websites=[];
@@ -371,16 +429,71 @@ class LogListMagentoController extends Controller
             'dimensions' => $value['dimensions'],
             'composition' => $value['composition'],
             //'images' => $value->composition,
-            'english'=>'Yes',
-            'arabic'=>'Yes',
-            'german'=>'Yes',
-            'spanish'=>'No',
-            'french'=>'No',
-            'italian'=>'No',
-            'japanese'=>'No',
-            'korean'=>'No',
-            'russian'=>'No',
-            'chinese'=>'No'];
+            'english'=>'',
+            'arabic'=>'',
+            'german'=>'',
+            'spanish'=>'',
+            'french'=>'',
+            'italian'=>'',
+            'japanese'=>'',
+            'korean'=>'',
+            'russian'=>'',
+            'chinese'=>''];
+
+            $lang_list = \App\StoreWebsite::with(['websites.stores.storeView'])->where('id',$value['store_website_id'])->first();
+            $i = 0;
+            foreach($lang_list->websites as $web){
+                if($i == 1){
+                  foreach($web->stores as $st){
+                    foreach($st->storeView as $sw){
+                      $temp = strtolower($sw->name);
+                      switch ($temp) {
+                        case "english" :
+                          $addItem['english'] = $temp == "english" ? "Yes" : "No";
+                          break;
+                          case "arabic":
+                            $addItem['arabic'] = $temp == "arabic" ? "Yes" : "No";
+                            break;
+                          case "german":
+                            $addItem['german'] = $temp == "german" ? "Yes" : "No";
+                            break;
+                          case "spanish":
+                              $addItem['spanish'] = $temp == "spanish" ? "Yes" : "No";
+                              break;
+                          case "french":
+                              $addItem['french'] = $temp == "french" ? "Yes" : "No";
+                              break;
+                          case "italian":
+                            $addItem['italian'] = $temp == "italian" ? "Yes" : "No";
+                            break;
+                          case "japanese":
+                            $addItem['japanese'] = $temp == "japanese" ? "Yes" : "No";
+                            break;
+                          case "korean":
+                            $addItem['korean'] = $temp == "korean" ? "Yes" : "No";
+                            break;
+                          case "russian":
+                            $addItem['russian'] = $temp == "russian" ? "Yes" : "No";
+                            break;
+                          case "chinese":
+                              $addItem['chinese'] = $temp == "chinese" ? "Yes" : "No";
+                              break;
+                      }
+                      
+                      // $addItem['german'] = strtolower($sw->name) == "german" ? "Yes" : "No";
+                      // $addItem['spanish'] = strtolower($sw->name) == "spanish" ? "Yes" : "No";
+                      // $addItem['french'] = strtolower($sw->name) == "french" ? "Yes" : "No";
+                      // $addItem['italian'] = strtolower($sw->name) == "italian" ? "Yes" : "No";
+                      // $addItem['japanese'] = strtolower($sw->name) == "japanese" ? "Yes" : "No";
+                      // $addItem['korean'] = strtolower($sw->name) == "korean" ? "Yes" : "No";
+                      // $addItem['russian'] = strtolower($sw->name) == "russian" ? "Yes" : "No";
+                      // $addItem['chinese'] = strtolower($sw->name) == "chinese" ? "Yes" : "No";
+                    }
+                  }
+                }
+                $i++;
+            }
+
             if($StoreWebsiteProductCheck == null){
               $StoreWebsiteProductCheck = \App\StoreWebsiteProductCheck::create($addItem);
             }else{
