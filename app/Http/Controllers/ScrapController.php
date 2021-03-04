@@ -1474,8 +1474,8 @@ class ScrapController extends Controller
 
         ->select(["products.id","products.sku","products.supplier","brands.name"])
        
-        ->orderBy('brands.priority','asc')
-        ->orderBy('suppliers.priority','asc')
+        ->orderBy('brands.priority','desc')
+        ->orderBy('suppliers.priority','desc')
         ->limit(50)
         
         ->get()
