@@ -719,11 +719,13 @@ class ProductHelper extends Model
                        $log = LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (CATEGORY WRONG SETUP)", 'emergency', $storeWebsiteId);
                     }
                     ProductPushErrorLog::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (CATEGORY WRONG SETUP)", 'error',$storeWebsiteId,null,null,$log->id);
+                    return false;
                 }else if(in_array($categoryparent->id, [1,2,3,146])) {
                     if(!$log) {
                        $log = LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (CATEGORY LEVEL WRONG SETUP)", 'emergency', $storeWebsiteId);
                     }
                     ProductPushErrorLog::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (CATEGORY LEVEL WRONG SETUP)", 'error',$storeWebsiteId,null,null,$log->id);
+                   return false; 
                 }
             }
         }
