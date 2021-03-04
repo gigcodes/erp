@@ -17,10 +17,11 @@ class MailinglistController extends Controller
     *@param $email
     *@param $store_website_id
     */ 
-    public function create_customer($email ,  $store_website_id) {
+    public function create_customer($email ,  $store_website_id, $storeName = null) {
         $customer = new Customer;
         $customer->email            = $email;
         $customer->store_website_id = $store_website_id;
+        $customer->store_name = $storeName ;
         $customer->save();
         return $customer;
     }
@@ -55,7 +56,7 @@ class MailinglistController extends Controller
         $customer = $this->get_customer($request->get("email") , $store_website->id );
 
         if (!$customer) {
-            $customer =  $this->create_customer( $request->get("email") , $store_website->id );
+            $customer =  $this->create_customer( $request->get("email") , $store_website->id, $request->get("store_name",null) );
         } 
 
         if($customer->newsletter == 1) {
