@@ -1306,6 +1306,9 @@ class WhatsAppController extends FindByNumberController
             $params['dubbizle_id'] = $dubbizleId;
             $params['customer_id'] = $customerId;
 
+            if( $vendor ){
+                $params['user_type'] = 1;
+            }
             
 
 
@@ -1446,6 +1449,9 @@ class WhatsAppController extends FindByNumberController
                         $message->save();
                     }
                 }
+                
+                $vendor->store_website_id = 1;
+                \App\Helpers\MessageHelper::sendwatson( $vendor, $params['message'], true , $message, null, null, $userType = 'vendor');
             }
 
             // check if the supplier message has been set then we need to send that message to erp user

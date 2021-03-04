@@ -27,7 +27,7 @@
     <?php foreach ($pendingApprovalMsg as $pam) {?>
     <tr>
         <td>{{ $pam->customer_id }}[{{ $pam->chat_id }}]</td>
-        <td>{{ $pam->customer_name }}</td>
+        <td>{{  ($pam->user_type == 1 ) ? $pam->vendors_name : $pam->customer_name }}</td>
         <td>{{ $pam->website_title }}</td>
         <td class="user-input">{{ $pam->question }}</td>
         <td class="boat-replied">{{ $pam->answer }}</td>
