@@ -419,5 +419,68 @@ class LaravelLogController extends Controller
         return $final_result;
     }
 
+
+    public function apiLogs(Request $request)
+    {
+        $logs= new \App\LogRequest;
+
+        //echo '<pre>';print_r($request->all());
+
+        if($request->id)
+        {
+            $logs=$logs->where('id',$request->id);
+        }
+
+        if($request->ip)
+        {
+            $logs=$logs->where('ip','like',$request->ip.'%');
+        }
+
+        if($request->method)
+        {
+            $logs=$logs->where('method','like',$request->method.'%');
+        }
+
+        if($request->status)
+        {
+            $logs=$logs->where('status_code','like',$request->status.'%');
+        }
+        if($request->url)
+        {
+            $logs=$logs->where('url','like','%'.$request->url.'%');
+        }
+
+        if($request->created_at)
+        {
+            $logs=$logs->whereDate('created_at',\Carbon\Carbon::createFromFormat('Y/m/d', $request->created_at)->format('Y-m-d'));
+        }
+
+        $count=$logs->count();
+
+
+
+        $logs=$logs->paginate(Setting::get('pagination'));
+
+      
+
+       // echo '<pre>';print_r($logs->toArray());die;
+
+        if($request->ajax())
+        {
+            //$request->render('logging.partials.apilogdata',compact('logs'));
+            $html= view('logging.partials.apilogdata', compact('logs'))->render();
+
+            if(count($logs))
+            {
+                return array('status'=>1,'html'=>$html,'count'=>$count,'logs'=>$logs);
+            }
+            else
+            {
+                return array('status'=>0,'html'=>'<tr id="noresult_tr"><td colspan="7">No More Records</td></tr>');
+            }
+        }
+        return view('logging.apilog',compact('logs','count'));
+    }
+
     
 }
