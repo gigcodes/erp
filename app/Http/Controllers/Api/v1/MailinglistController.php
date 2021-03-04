@@ -55,8 +55,13 @@ class MailinglistController extends Controller
         $customer = $this->get_customer($request->get("email") , $store_website->id );
 
         if (!$customer) {
-          $customer =  $this->create_customer( $request->get("email") , $store_website->id );
+            $customer =  $this->create_customer( $request->get("email") , $store_website->id );
         } 
+
+        if($customer->newsletter == 1) {
+            $message = $this->generate_erp_response("newsletter.already_subscribed", $store_website->id, $default = "You have already subscibed newsletter");
+            return response()->json(["code" => 500, "message" => $message ]);
+        }
 
 
         // Step4
@@ -66,6 +71,9 @@ class MailinglistController extends Controller
         foreach ($mailinglist as $key => $m) {
             $this->addToList($m->remote_id, $request->get("email"));
         }
+
+        $customer->newsletter = 1;
+        $customer->save();
 
         // return response()->json(["code" => 200, "message" => "Done", "data" => $request->all()]);
         $message = $this->generate_erp_response("newsletter.success", $store_website->id, $default = "Successfully added");
