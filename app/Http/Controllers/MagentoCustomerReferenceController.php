@@ -8,6 +8,7 @@ use App\Setting;
 use App\Customer;
 use App\StoreWebsite;
 use App\Helpers\InstantMessagingHelper;
+use App\Helpers\MagentoOrderHandleHelper;
 
 class MagentoCustomerReferenceController extends Controller
 {
@@ -22,13 +23,42 @@ class MagentoCustomerReferenceController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Create magento order
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
-        ///
+    public function createOrder( Request $request )
+    {   
+        $bodyContent = $request->getContent();
+
+        if( empty( $bodyContent )  ){
+            return response()->json([
+                'status'  => false,
+                'message' => 'Invalid data',
+            ]);
+        }
+
+        $order = json_decode( $bodyContent );
+
+        if( isset( $order->items[0]->website_id ) ){
+            $website = StoreWebsite::where( 'id', $order->items[0]->website_id )->first();   
+            
+            if( $website ){
+                $orderCreate = MagentoOrderHandleHelper::createOrder( $order, $website );
+                if( $orderCreate == true ){
+                    return response()->json([
+                        'status'  => true,
+                        'message' => 'Order create successfully',
+                    ]);
+                }
+            }
+        }
+
+        return response()->json([
+            'status'  => false,
+            'message' => 'Something went wrong, Please try again',
+        ]);
+
     }
 
     /**

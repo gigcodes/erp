@@ -134,7 +134,7 @@ class Model
 
     }
 
-    public static function pushQuestion($id, $oldValue = null)
+    public static function pushQuestion($id, $oldValue = null, $watson_account_id = null)
     {
         if (env("PUSH_WATSON", true) == false) {
             return true;
@@ -196,12 +196,17 @@ class Model
 
 //                ManageWatson::dispatch('intent',$question, $storeParams, 'update');
                 ManageWatson::dispatch($question->keyword_or_question, $question, $storeParams, 'update','value',false, $oldValue)->onQueue('watson_push');
+                ChatbotQuestion::where( 'id', $question->id )->update([ 'watson_status' => 'watson sended' ]);
             } else {
                 // $result                 = $watson->create($workSpaceId, $storeParams);
                 $question->workspace_id = $workSpaceId;
                 $question->save();
 
-                $wotson_account_ids = WatsonAccount::pluck('id')->toArray();
+                if( !empty($watson_account_id) ){
+                    $wotson_account_ids = WatsonAccount::where( 'id', $watson_account_id )->pluck('id')->toArray();
+                }else{
+                    $wotson_account_ids = WatsonAccount::pluck('id')->toArray();
+                }
 
                 foreach ($wotson_account_ids as $id) {
                     $data_to_insert[] = [
@@ -214,6 +219,7 @@ class Model
                 WatsonWorkspace::insert($data_to_insert);
 
 //                ManageWatson::dispatch('intent',$question, $storeParams, 'create');
+                ChatbotQuestion::where( 'id', $question->id )->update([ 'watson_status' => 'watson sended' ]);
                 ManageWatson::dispatch($question->keyword_or_question, $question, $storeParams, 'create', 'value',false, $oldValue)->onQueue('watson_push');
 
             }
