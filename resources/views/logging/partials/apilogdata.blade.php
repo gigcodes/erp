@@ -10,10 +10,7 @@
 
                     
 
-                        @php
-                        $log->url=$log->url.'/randeep/testing/url/new/one/test/id';
-
-                        @endphp
+                        
                      <td style="width: 30%" class="expand-row table-hover-cell">
                         <span class="td-mini-container">
                         {{ strlen( $log->url ) > 50 ? substr( $log->url , 0, 50).'...' :  $log->url }}

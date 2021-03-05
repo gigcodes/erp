@@ -106,9 +106,9 @@
         </div>
         <div class="modal-body">
             <label>Reponse</label>
-         <pre id="json"></pre>
+         <pre style="overflow:scroll;max-height:350px;" id="json"></pre>
          <label>Request</label>
-         <pre id="json_request"></pre>
+         <pre style="overflow:scroll;max-height:100px;" id="json_request"></pre>
 
          
         </div>
@@ -177,7 +177,7 @@
            var page_no=$('.currentPage').last().attr('data-page');
 
            page_no=parseInt(page_no)+1;
- console.log(page_no);
+ //console.log(page_no);
 
  var row= getFilterValues();
 
@@ -204,32 +204,13 @@
                 $logsRecords.push(v);
               })
               
-               //var y = $(window).scrollTop();  //your current y position on the page
-               //$(window).scrollTop(y+10);
+            
            }
               else
                 $('.tableLazy').append(res.html)
            })
 
-               // $("#content_data").empty().html(data.tbody);
-                
-                    
-
-               // })
-           // $.get('{{route("api-log-list")}}'+'?page='+page_no,function(res)
-           // {
-
-           //  $('#noresult_tr').remove();
-           //    //var res=JSON.parse(res);
-
-           //    if(res.status){
-           //    $('tbody').append(res.html);
-           //     //var y = $(window).scrollTop();  //your current y position on the page
-           //     //$(window).scrollTop(y+10);
-           // }
-           //    else
-           //      $('tbody').append(res.html)
-           // })
+             
           
     }
 
@@ -254,7 +235,7 @@
                 }).done(function (res) {
                     
                       $('#noresult_tr').remove();
-              //var res=JSON.parse(res);
+         
 
               if(res.status){
               $('.tableLazy').html(res.html);
@@ -262,8 +243,7 @@
 
                 $logsRecords=res.logs.data;
               
-               //var y = $(window).scrollTop();  //your current y position on the page
-               //$(window).scrollTop(y+10);
+              
            }
               else
                 $('.tableLazy').html(res.html)
@@ -299,6 +279,9 @@
                 {
                    console.log(v.id);
                     $('#api_response_modal').find('.modal-body').find('#json').html( JSON.stringify(JSON.parse(v.response), undefined, 2));
+
+                     
+
                      $('#api_response_modal').find('.modal-body').find('#json_request').html( JSON.stringify(JSON.parse(v.request), undefined, 2));
                 }
             })
