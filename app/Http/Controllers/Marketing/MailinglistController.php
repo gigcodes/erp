@@ -257,7 +257,7 @@ class MailinglistController extends Controller
             }
 
         }
-        $customers = $customers->select('email', 'id', 'name', 'do_not_disturb')->paginate(20);
+        $customers = $customers->select('email', 'id', 'name', 'do_not_disturb','source')->paginate(20);
         $list = Mailinglist::where('remote_id', $id)->with('listCustomers')->first();
 
         $contacts = $list->listCustomers->pluck('id')->toArray();
@@ -659,5 +659,17 @@ class MailinglistController extends Controller
 
             return response()->json(['status' => 'success']);
         }
+    }
+
+    /**
+     * @param $id
+     * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function updateCustomerSource($id, Request $request)
+    {
+        $customer = Customer::find($id);
+        $customer->source = $request->source;
+        $customer->save();
+        return response()->json(true);
     }
 }

@@ -16,9 +16,9 @@ use App\Setting;
 use App\User;
 use App\SocialStrategy;
 use App\StoreWebsiteUsers;
-use App\MagentoUserPasswordHistory;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use App\ProductCancellationPolicie;
 class StoreWebsiteController extends Controller
 {
     /**
@@ -30,6 +30,13 @@ class StoreWebsiteController extends Controller
         $title = "List | Store Website";
 
         return view('storewebsite::index', compact('title'));
+    }
+
+    public function cancellation()
+    {
+        $title = "Cancellation Policy | Store Website";
+
+        return view('storewebsite::cancellation', compact('title'));
     }
 
     /**
@@ -55,6 +62,27 @@ class StoreWebsiteController extends Controller
         return response()->json(["code" => 200, "data" => $records, "total" => count($records)]);
     }
 
+    
+    public function saveCancellation(Request $request)
+    {
+        $id = $request->get("id", 0);
+        $checkCacellation = ProductCancellationPolicie::find($id);
+        if($checkCacellation != null){
+            $checkCacellation->store_website_id = $request->store_website_id;
+            $checkCacellation->days_cancelation = $request->days_cancelation;
+            $checkCacellation->days_refund = $request->days_refund;
+            $checkCacellation->percentage = $request->percentage;
+            $checkCacellation->update();
+        }else{
+            $checkCacellation = new ProductCancellationPolicie();
+            $checkCacellation->store_website_id = $request->store_website_id;
+            $checkCacellation->days_cancelation = $request->days_cancelation;
+            $checkCacellation->days_refund = $request->days_refund;
+            $checkCacellation->percentage = $request->percentage;
+            $checkCacellation->save();
+        }
+        return response()->json(["code" => 200, "data" => $checkCacellation]);
+    }
     /**
      * records Page
      * @param  Request $request [description]
@@ -66,9 +94,6 @@ class StoreWebsiteController extends Controller
         $validator = Validator::make($post, [
             'title'   => 'required',
             'website' => 'required',
-            'magento_username' => 'required',
-            'magento_password' => 'required',
-            'api_token' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -167,19 +192,11 @@ class StoreWebsiteController extends Controller
         $storeWebsite = StoreWebsite::find($post['store_id']);
         if(!empty($post['store_website_userid'])) {
             $getUser = StoreWebsiteUsers::where('id',$post['store_website_userid'])->first();
-            $old_password = $getUser->password;
             $getUser->first_name = $post['firstName'];
             $getUser->last_name = $post['lastName'];
             $getUser->email = $post['userEmail'];
             $getUser->password = $post['password'];
             $getUser->save();
-
-            if($old_password != $post['password']) {
-                $history_param['store_website_userid'] = $post['store_website_userid'];
-                $history_param['old_password'] = $old_password;
-                $history_param['new_password'] = $post['password'];
-                MagentoUserPasswordHistory::create($history_param);
-            }
 
             $magentoHelper = new MagentoHelperv2();
             $result = $magentoHelper->updateMagentouser($storeWebsite, $post);
@@ -191,15 +208,8 @@ class StoreWebsiteController extends Controller
             $params['email'] = $post['userEmail'];
             $params['password'] = $post['password'];
             $params['store_website_id'] = $post['store_id'];
-            $response = StoreWebsiteUsers::create($params);
+            StoreWebsiteUsers::create($params);
 
-            if($response) {
-                $history_param['store_website_userid'] = $response->id;
-                $history_param['old_password'] = $post['password'];
-                $history_param['new_password'] = null;
-                MagentoUserPasswordHistory::create($history_param);
-            }
-            
             if($post['userEmail'] && $post['password']) {
                 $message = 'Email: '.$post['userEmail'].', Password is: ' . $post['password'];
                 $params['user_id'] = Auth::id();
@@ -227,33 +237,6 @@ class StoreWebsiteController extends Controller
         return response()->json(["code" => 200, "messages" => 'User Deleted Sucessfully']);
     }
 
-    public function userPasswordHistory(Request $request) {
-        $post = $request->all();
-        $getHistory = MagentoUserPasswordHistory::join("store_website_users as su","su.id","magento_user_password_history.store_website_userid")->where('store_website_userid',$post['store_website_userid'])
-        ->select(["magento_user_password_history.*","su.username"])
-        ->orderBy('magento_user_password_history.id','desc')
-        ->get();
-        $data = '';
-        if(sizeof($getHistory) > 0) {
-            foreach ($getHistory as $key => $value) {
-                $data .= '
-                        <tr>
-                            <td>'.$value->username.'</td>
-                            <td>'.$value->old_password.'</td>
-                            <td>'.$value->new_password.'</td>
-                        </tr>
-                ';
-            }
-        } else {
-            $data .= '
-                    <tr>
-                        <td colspan="3">No record</td>
-                    </tr>
-            ';
-        }
-        return response()->json(["code" => 200, "data" => $data]);
-    }
-
     /**
      * Edit Page
      * @param  Request $request [description]
@@ -269,6 +252,17 @@ class StoreWebsiteController extends Controller
         }
 
         return response()->json(["code" => 500, "error" => "Wrong site id!"]);
+    }
+
+    public function editCancellation(Request $request, $id)
+    {
+        $storeWebsite = ProductCancellationPolicie::where("store_website_id", $id)->first();
+       // $storewebsiteusers = StoreWebsiteUsers::where('store_website_id',$id)->where('is_deleted',0)->get();
+        if ($storeWebsite) {
+            return response()->json(["code" => 200, "data" => $storeWebsite]);
+        }
+
+        return response()->json(["code" => 200, "data" => ["store_website_id"=> $id]]);
     }
 
     /**

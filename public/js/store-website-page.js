@@ -179,7 +179,8 @@ var page = {
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
-
+            $('input[name="meta_keywords"]').trigger('change');
+            $('textarea[name="meta_description"]').trigger('change');
             $('#google_translate_element').summernote();
 
         //new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
@@ -446,3 +447,76 @@ var page = {
 }
 
 $.extend(page, common);
+
+$(document).on('change', '#title-page', function () {
+    getGoogleKeyWord($('#title-page').val());
+});
+
+$(document).on('click', '#extra-keyword-search-btn', function () {
+    getGoogleKeyWord($('#extra-keyword-search').val());
+});
+
+$(document).on('click', '#keyword-search-btn', function () {
+    getGoogleKeyWord($('#title-page').val());
+});
+
+$(document).on('click', '.suggestList > li', function () {
+
+    var keywords = $(this).data('keyword');
+    if (keywords ) {
+        if ($(this).hasClass('badge-green')) {
+            $('#meta_keywords').val($('#meta_keywords').val().replace("," + keywords, ""));
+            $(this).removeClass('badge-green').find('i').remove()
+            // $(this+' i').remove()
+        } else {
+            $('#meta_keywords').val($('#meta_keywords').val() + ',' + keywords);
+            $(this).addClass('badge-green').append('<i class="fa fa-remove pl-2"></i>')
+        }
+    }
+
+    $('input[name="meta_keywords"]').trigger('change');
+});
+
+$(document).on('change , keyup', 'input[name="meta_keywords"]', function () {
+    $('#meta_keywords_count').text( 'Length: '+ $( this ).val().length );
+});
+
+$(document).on('change , keyup', 'textarea[name="meta_description"]', function () {
+    $('#meta_desc_count').text( 'Length: '+ $(this).val().length );
+});
+
+function getGoogleKeyWord(title) {
+
+    $(document).find('.suggestList').empty();
+    $(document).find('.suggestList').removeClass('width-fix');
+    var lan = $('.website-language-change').val();
+
+    $.ajax({
+       
+        type: 'get',
+        url: '/google-keyword-search',
+        data: { keyword: title, language: lan, google_search: 'true' },
+
+        beforeSend: function () {
+            $("#loading-image").show();
+        },
+        success: function (response) {
+            if (response.length > 0) {
+                $(document).find('#extra-keyword-search-btn').removeClass('hide');
+                $(document).find('#extra-keyword-search').removeClass('hide');
+                $(document).find('.suggestList').addClass('width-fix');
+                $(document).find('.suggestList').append('<li class="badge badge-primary w-100" > keywords - searchVolume - competition </i>');
+                $.each(response, function (index, data) {
+                    $(document).find('.suggestList').append('<li class="badge badge-primary" data-keyword="' + data.keyword + '" >' + data.keyword + ' - ' + data.searchVolume + ' - ' + data.competition +'</i>');
+                });
+            } else {
+
+                $(document).find('#extra-keyword-search-btn,#extra-keyword-search').hide();
+            }
+
+        },
+        complete: function () {
+            $("#loading-image").hide();
+        },
+    });
+}

@@ -87,7 +87,13 @@
 						  	</div>
 						  	<div class="form-group form-group-extended">
 							    <!--<label for="action">Type:</label>-->
-							    <?php echo Form::select("type",["refund" => "Refund", "exchange" => "Exchange"],request("limti"),[
+							    <?php echo Form::select("type",[
+                                    "refund" => "Refund", 
+                                    "exchange" => "Exchange",
+                                    "buyback" => "Buyback",
+                                    "return" => "Return",
+                                    "cancellation" => "Cancellation"
+                                ],request("limti"),[
 							    	"class" => "form-control",//select2
 							    	"placeholder" => "-- Select Type --"
 							    ]) ?>

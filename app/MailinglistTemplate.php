@@ -102,6 +102,18 @@ class MailinglistTemplate extends Model
         return false;
     }
 
+    public static function getIntializeCancellation($store = null)
+    {
+        $category = \App\MailinglistTemplateCategory::where('title', 'Initialize Cancellation')->first();
+
+        if ($category) {
+            // get the template for that cateogry and store website
+            return self::getTemplate($category, $store);
+        }
+
+        return false;
+    }
+
     public static function getNewsletterTemplate($store = null)
     {
         $category = \App\MailinglistTemplateCategory::where('title', 'Newsletter')->first();
@@ -152,6 +164,18 @@ class MailinglistTemplate extends Model
     public static function template($name, $store = null)
     {   
         $category = \App\MailinglistTemplateCategory::where('title', $name)->first();
+
+        if ($category) {
+            // get the template for that cateogry and store website
+            return self::getTemplate($category, $store);
+        }
+
+        return false;
+    }
+
+    public static function getBotEmailTemplate($store = null)
+    {   
+        $category = \App\MailinglistTemplateCategory::where('title', 'botMail')->first();
 
         if ($category) {
             // get the template for that cateogry and store website

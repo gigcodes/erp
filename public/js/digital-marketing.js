@@ -46,6 +46,10 @@ var page = {
             page.addComponents($(this));
         });
 
+        page.config.bodyView.on("click",".get_Files",function(e) {
+            page.addFilesComponent($(this));
+        });
+
         $(".common-modal").on("click",".update-components-btn",function(e) {
             e.preventDefault();
             page.submitComponents($(this));
@@ -182,6 +186,33 @@ var page = {
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
         $(".select2-components-tags").select2({tags : true});
+    },
+    addFilesComponent: function(ele){
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/digital-marketing/"+ele.data("id")+"/files",
+            method: "get",
+        }
+        this.sendAjax(_z, 'afterResponsefilecomponents');
+    },
+    afterResponsefilecomponents: function(response){
+        console.log(response)
+        var createWebTemplate = $.templates("#template-files-components");
+        var tplHtml = createWebTemplate.render(response);
+        var tr="";
+        if(response.data.components.length > 0){
+            $.each(response.data.components,function(i,e){
+                tr += "<tr><td><a href='"+e.downloadUrl+"'>"+e.file_name+"</a></td><td>"+e.created_at+"</td><td>"+e.user+"</td></tr>";
+            })
+        }else{
+            tr = "<tr><td colspan=3 style='text-align:center'>No Data</td></tr>"
+        }
+       
+      $(".common-modal table tbody tr").remove()
+     // $(".common-modal table tbody").html(tr)
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.find(".modal-dialog tbody").html(tr);
+            common.modal("show");
     },
     submitComponents : function(ele) {
         var _z = {

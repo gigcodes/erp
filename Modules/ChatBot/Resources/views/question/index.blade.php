@@ -68,6 +68,7 @@
         </div>
         <div class="col-md-5">
             <div class="form-inline pull-right">
+                <button type="button" class="btn btn-secondary ml-3" id="repeat-bulk-option">Repeat</button>
                 <button type="button" class="btn btn-secondary ml-3" id="create-reply-btn">Dynamic Reply</button>
                 <button type="button" class="btn btn-secondary ml-3" id="create-task-btn">Dynamic Task</button>
                 <button type="button" class="btn btn-secondary ml-3" id="create-keyword-btn">Create</button>
@@ -85,18 +86,26 @@
 			      <th class="th-sm" style="width:13%">Intent / entity</th>
 			      <th class="th-sm" style="width:5%">Type</th>
 			      <th class="th-sm" style="width:30%">User Intent / entity</th>
+                  <th class="th-sm" style="width:10%">Erp/Watson</th>
                   <th class="th-sm" style="width:30%">Suggested Response</th>
 			      <th class="th-sm" style="width:9%">Category</th>
+			      <th class="th-sm" style="width:9%">Status</th>
 			      <th class="th-sm" style="width:8%">Action</th>
 			    </tr>
 			  </thead>
 			  <tbody>
 			    <?php foreach($chatQuestions as $chatQuestion) { ?>
 				    <tr>
-				      <td><?php echo $chatQuestion->id; ?></td>
+				      <td><?php echo $chatQuestion->id; ?> <br> 
+						<input type="checkbox" value="{{ $chatQuestion->id }}" class="chatbotQuestion_chkbox">
+					 </td>
 				      <td><?php echo $chatQuestion->value; ?></td>
 				      <td><?php echo $chatQuestion->keyword_or_question; ?></td>
-					  <td><?php echo $chatQuestion->questions; ?></td>
+                      <?php
+                        $listOfQuestions = explode(",", $chatQuestion->questions);
+                      ?>
+					  <td><?php echo implode("</br>",$listOfQuestions); ?></td>
+                      <td><?php echo $chatQuestion->erp_or_watson; ?></td>
                       <td>
 					  @if(request('store_website_id'))
 					  <?php 
@@ -119,10 +128,12 @@
 						  @endforeach
 						</select>
 					  </td>
+				      <td class="{{ ( $chatQuestion->watson_status == 1 ) ? 'success' : null }}">{{ ( $chatQuestion->watson_status == '1' ) ? 'Success' : null }} {{ ( $chatQuestion->watson_status == 0 ) ? 'Error' : null }} {{ ( $chatQuestion->watson_status != 1 && $chatQuestion->watson_status != 0 ) ? $chatQuestion->watson_status : null }}</td>
 				      <td>
 							<a class="btn btn-image edit-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.edit",[$chatQuestion->id]); ?>"><img src="/images/edit.png"></a>
 							<a class="btn btn-image delete-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.delete",[$chatQuestion->id]); ?>"><img src="/images/delete.png"></a>
 							<a class="btn btn-image show-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="javascript:void(0);"><img src="/images/details.png"></a>
+							<a class="btn btn-image repeat-button pd-3 fa fa-repeat" data-id="<?php echo $chatQuestion->id; ?>" href="javascript:void(0);"></a>
 						<!-- @if($chatQuestion->keyword_or_question == 'entity')
 						<a class="btn btn-image edit-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.keyword.edit",[$chatQuestion->id]); ?>"><img src="/images/edit.png"></a>
                         <a class="btn btn-image delete-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.keyword.delete",[$chatQuestion->id]); ?>"><img src="/images/delete.png"></a>
@@ -217,6 +228,60 @@
             },
             error: function (error) {
 				console.log(error);
+               toastr['error']('Could not send this request please refresh browser if the page is idel for while!');
+            }
+        });
+	});
+
+	$("#repeat-bulk-option").on("click",function(e) {
+		e.preventDefault();
+
+		var allVals = [];
+		$(".chatbotQuestion_chkbox:checked").each(function () {
+			allVals.push($(this).val());
+		});
+
+		if (allVals.length <= 0) {
+			toastr['error']('Please select row.');
+			return false;
+		}
+		
+		$.ajax({
+			type: 'POST',
+            url: 'question/repeat-watson',
+            data: { id : allVals, _token: "{{csrf_token()}}" },
+            dataType : "json",
+            success: function (response) {
+				if(response.code == 200) {
+					toastr['success'](response.message);
+				}else{
+					toastr['error'](response.message);
+				} 
+            },
+            error: function () {
+               toastr['error']('Could not change module!');
+            }
+        });
+	});
+
+	$(".repeat-button").on("click",function(e) {
+		e.preventDefault();
+		var allVals = [];
+		allVals.push( $(this).data("id") );
+
+		$.ajax({
+			type: 'POST',
+            url: 'question/repeat-watson',
+            data: { id : allVals, _token: "{{csrf_token()}}" },
+            dataType : "json",
+            success: function (response) {
+				if(response.code == 200) {
+					toastr['success'](response.message);
+				}else{
+					toastr['error'](response.message);
+				} 
+            },
+            error: function () {
                toastr['error']('Could not change module!');
             }
         });

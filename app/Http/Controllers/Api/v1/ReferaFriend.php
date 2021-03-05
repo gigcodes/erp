@@ -66,10 +66,11 @@ class ReferaFriend extends Controller
         //$uuid = isset($customer->id)?md5($customer->id):'';
         $uuid = md5(Str::random(15));
         if(!$uuid){
+            $message = $this->generate_erp_response("ticket.failed", $storeweb->id, $default = 'Referrer does not exist in records');
             return response()->json(
                 [
                     'status' => 'failed',
-                    'message' => 'Referrer does not exist in records',
+                    'message' => $message,
                 ],
                 404
             );
@@ -86,16 +87,18 @@ class ReferaFriend extends Controller
             $refferal_data['store_website_id'] = $storeweb->id;
             return $this->createCoupon($refferal_data);
         }
-        return response()->json(['status' => 'failed', 'message' => 'Unable to create referral at the moment. Please try later !'], 500);
+        $message = $this->generate_erp_response("ticket.failed", $storeweb->id, $default = 'Unable to create referral at the moment. Please try later !');
+        return response()->json(['status' => 'failed', 'message' => $message], 500);
     }
     public function createCoupon($data = null)
     {
 
         if (!isset($data) || $data == '') {
+            $message = $this->generate_erp_response("coupon.failed", $data['store_website_id'], $default = 'Unable to create coupon');
             return response()->json(
                 [
                     'status' => 'failed',
-                    'message' => 'Unable to create coupon',
+                    'message' => $message,
                 ],
                 500
             );
@@ -241,9 +244,13 @@ class ReferaFriend extends Controller
     }
     public function sendMail($data=null)
     {
-        if($data){
-            $to = $data['referee_email'];
-            Mail::to($to)->send(new SendReferralMail($data));    
+        try{
+            if($data){
+                $to = $data['referee_email'];
+                Mail::to($to)->send(new SendReferralMail($data));    
+            }
+        }catch(\Exception $e){
+            \Log::error($e);
         }
         return true;
     }

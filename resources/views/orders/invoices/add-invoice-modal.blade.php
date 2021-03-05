@@ -5,7 +5,7 @@
       <div class="row">
         <div class="form-group">
                     <select name="term" type="text" class="form-control" placeholder="Search" id="customer-search" data-allow-clear="true">
-                        <?php 
+                        <?php
                             if (request()->get('term')) {
                                 echo '<option value="'.request()->get('term').'" selected>'.request()->get('term').'</option>';
                             }
@@ -13,8 +13,8 @@
                     </select>
           </div>
         </div>
-        <div id="add-invoice-content">
-        
+        <div class="add-invoice-content">
+
         </div>
       </div>
     </div>

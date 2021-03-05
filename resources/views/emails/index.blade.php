@@ -45,13 +45,35 @@
 	<p>{{ $message }}</p>
 </div>
 @endif
+
+@if ($message = Session::get('danger'))
+<div class="alert alert-danger">
+	<p>{{ $message }}</p>
+</div>
+@endif
 <div class="row">
 	<div class="col-lg-12 margin-tb">
 		<div class="pull-right mt-3">
 			<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#statusModel">Create Status</button>
       <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#getCronEmailModal">Cron Email</button>
 			<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createEmailCategorytModal">Create Category</button>
+      <a href="{{ route('syncroniseEmail')}}" class="btn btn-secondary">Synchronise Emails</a>
 		</div>
+
+    <div class="pull-left mt-3" style="margin-bottom:10px;margin-right:5px;">
+        <select class="form-control" name="" id="bluck_status" onchange="bulkAction(this,'status');">
+            <option value="">Change Status</option>
+            <?php
+            foreach ($email_status as $status) { ?>
+              <option value="<?php echo $status->id;?>" <?php if($status->id == Request::get('status')) echo "selected"; ?>><?php echo $status->email_status;?></option>
+            <?php } 
+            ?>
+          </select>
+    </div>
+
+    <div class="pull-left mt-3" style="margin-bottom:10px;margin-right:5px;">
+        <button type="button" class="btn btn-secondary bulk-dlt" onclick="bulkAction(this,'delete');">Bulk Delete</button>
+    </div>
 	</div>   
   <div class="col-md-12">
       <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -66,7 +88,10 @@
           </li>
           <li class="nav-item">
             <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('bin','both')">Trash</a>
-        </li>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('draft','both')">Draft</a>
+          </li>
       </ul>
       <div class="tab-content" id="myTabContent">
           <div class="tab-pane fade show active" id="read" role="tabpanel" aria-labelledby="read-tab">
@@ -99,14 +124,20 @@
         </div-->
 		
 		<div class="form-group px-2">
-          <input id="sender" name="sender" type="text" class="form-control"
-                 value="<?php if(Request::get('sender')) echo Request::get('sender'); ?>"
-                 placeholder="Search by Sender">
+            <select class="form-control" name="sender" id="sender">
+                <option value="">Select Sender</option>
+                @foreach($sender_drpdwn as $sender)
+                    <option value="{{ $sender['from'] }}" {{ (Request::get('sender') && strcmp(Request::get('sender'),$sender['from']) == 0) ? "selected" : ""}}>{{ $sender['from'] }}</option>
+                @endforeach
+            </select>
         </div>
 		<div class="form-group px-2">
-          <input id="receiver" name="receiver" type="text" class="form-control"
-                 value="<?php if(Request::get('receiver')) echo Request::get('receiver'); ?>"
-                 placeholder="Search by Receiver">
+            <select class="form-control" name="receiver" id="receiver">
+                <option value="">Select Receiver</option>
+                @foreach($receiver_drpdwn as $sender)
+                    <option value="{{ $sender['to'] }}" {{ (Request::get('to') && strcmp(Request::get('receiver'),$sender['to']) == 0) ? "selected" : ""}}>{{ $sender['to'] }}</option>
+                @endforeach
+            </select>
         </div>
 		<div class="form-group px-2">
           <select class="form-control" name="status" id="email_status">
@@ -140,6 +171,7 @@
       <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
         <thead>
           <tr>
+            <th>Bulk Action</th>
             <th>Date</th>
             <th>Sender</th>
             <th>Receiver</th>
@@ -147,6 +179,8 @@
             <th>Subject</th>
             <th>Body</th>
             <th>Status</th>
+            <th>Draft</th>
+            <th>Error Message</th>
             <th>Category</th>
             <th>Action</th>
           </tr>
@@ -310,10 +344,10 @@
 		<!-- Modal content-->
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title">Update Email Status/Category</h4>
+				<h4 class="modal-title">Create Email Status</h4>
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 			</div>
-			<form action="{{ url('email/update_email') }}" method="POST">
+			<form action="{{ url('email/status') }}" method="POST">
 				@csrf
 				<div class="modal-body">
 					<div class="form-group">
@@ -367,6 +401,28 @@
 						<button type="submit" class="btn btn-secondary">Store</button>
 					</div>
 				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+{{-- Showing file status models --}}
+<div id="showFilesStatusModel" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Files status</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label for="Status">Files status :</label>
+					<div id="filesStatus" class="form-group">  </div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -754,6 +810,29 @@
         });
     });
 
+
+    $(document).on('change','.status',function(e){
+        if($(this).val() != "" && ($('option:selected', this).attr('data-id') != "" || $('option:selected', this).attr('data-id') != undefined)){
+            $.ajax({
+                  headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                  },
+                  type : "POST",
+                  url : "{{ route('changeStatus') }}",
+                  data : {
+                    status_id : $('option:selected', this).val(),
+                    email_id : $('option:selected', this).attr('data-id')
+                  },
+                  success : function (response){
+                        location.reload();
+                  },
+                  error : function (response){
+
+                  }
+            })
+        }
+    });
+
     function opnMsg(email) {
       console.log(email);
       $('#emailSubject').html(email.subject);
@@ -793,6 +872,40 @@
         $('#excel_import_email_id').val(id)
         $('#excelImporter').modal('toggle');
     }
+    
+    function showFilesStatus(id) {
+		
+        if( id ){
+			$.ajax({
+				headers: {
+					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				},
+				data : {id},
+				url: '/email/'+id+'/get-file-status',
+				type: 'post',
+
+				beforeSend: function () {
+						$("#loading-image").show();
+					},
+				}).done( function(response) {
+					if (response.status === true) {
+						$("#filesStatus").html(response.mail_status);
+						$('#showFilesStatusModel').modal('toggle');
+					}else{
+						alert('Something went wrong')
+					}
+					
+					$("#loading-image").hide();
+				}).fail(function(errObj) {
+					$("#loading-image").hide();
+					alert('Something went wrong')
+				});
+		}else{
+			alert('Something went wrong')
+		}
+
+        // $('#excelImporter').modal('toggle');
+    }
 
     function importExcel() {
         id = $('#excel_import_email_id').val()
@@ -819,8 +932,40 @@
           alert('Please Select Supplier')
           
         }
+    }
+
+    function bulkAction(ele,type){
+      let action_type = type;
+      var val = [];
+      $(':checkbox:checked').each(function(i){
+        val[i] = $(this).val();
+      });
+      
+      if(val.length > 0){
+          $.ajax({
+            headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            type : "POST",
+            url : "{{ route('bluckAction') }}",
+            data : {
+                action_type : action_type,
+                ids : val,
+                status : $('#bluck_status').val()
+            },
+            success : function (response){
+                  location.reload();
+            },
+            error : function (response){
+
+            }
+          })
+          
+      }
         
     }
+    
+
     </script>
 
 

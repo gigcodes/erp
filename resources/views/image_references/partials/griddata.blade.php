@@ -3,7 +3,7 @@
 
                             <td><input type="checkbox" name="issue" value="{{ $product->id }}" class="checkBox" data-id="{{ $product->product_id }}">
                                 {{ $product->id }}</td>
-                            <td>{{ $product->product_id }}</td>    
+                            <td>{{ $product->product_id  }} <br><b> {{ ( $product->product->status_id == 42 ) ? 'Auto reject' : null }}  </b></td>    
                             <td>@if($product->product) @if (isset($product->product->product_category)) {{ $product->product->product_category->title }} @endif @endif</td> 
                             <td>@if($product->product) {{ $product->product->supplier }} @endif</td> 
                             <td>@if($product->product)  @if ($product->product->brand) {{ $product->product->brands->name }} @endif @endif</td>    

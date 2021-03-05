@@ -8,6 +8,7 @@ use App\Setting;
 use App\Customer;
 use App\StoreWebsite;
 use App\Helpers\InstantMessagingHelper;
+use App\Helpers\MagentoOrderHandleHelper;
 
 class MagentoCustomerReferenceController extends Controller
 {
@@ -22,13 +23,42 @@ class MagentoCustomerReferenceController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Create magento order
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
-        ///
+    public function createOrder( Request $request )
+    {   
+        $bodyContent = $request->getContent();
+
+        if( empty( $bodyContent )  ){
+            return response()->json([
+                'status'  => false,
+                'message' => 'Invalid data',
+            ]);
+        }
+
+        $order = json_decode( $bodyContent );
+
+        if( isset( $order->items[0]->website_id ) ){
+            $website = StoreWebsite::where( 'id', $order->items[0]->website_id )->first();   
+            
+            if( $website ){
+                $orderCreate = MagentoOrderHandleHelper::createOrder( $order, $website );
+                if( $orderCreate == true ){
+                    return response()->json([
+                        'status'  => true,
+                        'message' => 'Order create successfully',
+                    ]);
+                }
+            }
+        }
+
+        return response()->json([
+            'status'  => false,
+            'message' => 'Something went wrong, Please try again',
+        ]);
+
     }
 
     /**
@@ -41,7 +71,8 @@ class MagentoCustomerReferenceController extends Controller
     {
        
         if (empty($request->name)) {
-            return response()->json(['message' => 'Name is required'], 403);
+            $message = $this->generate_erp_response("customer_reference.403",0, $default = 'Name is required');
+            return response()->json(['message' => $message], 403);
         }
 
         // if (empty($request->phone)) {
@@ -49,11 +80,13 @@ class MagentoCustomerReferenceController extends Controller
         // }
 
         if (empty($request->email)) {
-            return response()->json(['message' => 'Email is required'], 403);
+            $message = $this->generate_erp_response("customer_reference.403",0, $default = 'Email is required');
+            return response()->json(['message' => $message], 403);
         }
 
         if (empty($request->website)) {
-            return response()->json(['message' => 'website is required'], 403);
+            $message = $this->generate_erp_response("customer_reference.403",0, $default = 'website is required');
+            return response()->json(['message' => $message], 403);
         }
         
         // if (empty($request->social)) {
@@ -108,6 +141,7 @@ class MagentoCustomerReferenceController extends Controller
         }
         
 
+        $message = $this->generate_erp_response("customer_reference.success",$store_website_id, $default = 'Saved successfully !');
         return response()->json(['message' => 'Saved SucessFully'], 200);
 
     }

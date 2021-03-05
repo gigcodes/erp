@@ -38,12 +38,20 @@ var page = {
             page.editRecord($(this));
         });
 
+        page.config.bodyView.on("click",".btn-edit-cancellation-template",function(e) {
+            page.editCancellationRecord($(this));
+        });
+
         page.config.bodyView.on("click",".btn-attach-category",function(e) {
             page.attachCategory($(this).data("id"));
         });
 
         $(".common-modal").on("click",".submit-store-site",function() {
             page.submitFormSite($(this));
+        });
+
+        $(".common-modal").on("click",".submit-store-site-cancellation",function() {
+            page.submitFormSiteCancellation($(this));
         });
 
         $(".common-modal").on("click",".btn-edit-magento-user",function() {
@@ -56,14 +64,6 @@ var page = {
 
         $(".common-modal").on("click",".btn-delete-magento-user",function() {
             page.deleteMagentoUserForm($(this));
-        });
-
-        $(".common-modal").on("click",".toggle-password",function() {
-            page.showUserPassword($(this));
-        });
-
-        $(".common-modal").on("click",".btn-password-history",function() {
-            page.userPasswordHistory($(this));
         });
 
         $(".common-modal").on("click",".add-attached-category",function(e) {
@@ -201,7 +201,20 @@ var page = {
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
     },
-
+    editCancellationRecord : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/"+ele.data("id")+"/edit-cancellation",
+            method: "get",
+        }
+        this.sendAjax(_z, 'editCancellationResult');
+    },
+    editCancellationResult: function(response) {
+        var createWebTemplate = $.templates("#template-create-website-cancellation");
+        var tplHtml = createWebTemplate.render(response);
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
+    },
     submitFormSite : function(ele) {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/save",
@@ -212,6 +225,17 @@ var page = {
             }
         }
         this.sendAjax(_z, "saveSite");
+    },
+    submitFormSiteCancellation : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/save-cancellation",
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveSiteCancellation");
     },
 
     submitMagentoUserForm : function(ele) {
@@ -271,8 +295,7 @@ var page = {
                         '<div class="row">'+
                              '<label class="col-sm-12" for="password">Password</label>'+
                              '<div class="col-sm-9 sub-pass">'+
-                                '<input type="password" name="password" value="" class="form-control user-password" id="password" placeholder="Enter Password" style="float:left;width:90%">'+
-                                '<span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password" style="margin-top:10px;margin-left:-25px;cursor:pointer"></span>'+
+                                '<input type="password" name="password" value="" class="form-control user-password" id="password" placeholder="Enter Password">'+
                              '</div>'+
                              '<div class="col-sm-3">'+
                                 '<button type="button" data-id="" class="btn btn-edit-magento-user" style="border:1px solid">'+
@@ -307,45 +330,6 @@ var page = {
         ele.parents('.subMagentoUser').remove();
         this.sendAjax(_z, "saveSite");
     },
-
-    showUserPassword : function(ele) {
-      ele.toggleClass("fa-eye fa-eye-slash");
-      var input = ele.parent('.sub-pass').children('.user-password');
-      if (input.attr("type") == "password") {
-        input.attr("type", "text");
-      } else {
-        input.attr("type", "password");
-      }
-    },
-
-    userPasswordHistory : function(ele) {
-        var store_website_userid = ele.attr('data-id');
-        if(store_website_userid != '') {
-            var _z = {
-                url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/user-password-history",
-                method: "post",
-                data : {
-                    _token:$('meta[name="csrf-token"]').attr('content'),
-                    store_website_userid:store_website_userid,
-                },
-                beforeSend : function() {
-                    $("#loading-image").show();
-                }
-            }
-        }
-        this.sendAjax(_z, "showHistory");
-    },
-
-    showHistory : function(response) {
-        if(response.code  == 200) {
-            $("#loading-image").hide();
-            $('#userPasswordHistory table tbody').html(response.data);
-            $('#userPasswordHistory').modal('show');
-        }else {
-            $("#loading-image").hide();
-            toastr["error"](response.error,"");
-        }
-    },
     
     assignSelect2 : function () {
         var selectList = $("select.select-searchable");
@@ -361,6 +345,16 @@ var page = {
     saveSite : function(response) {
         if(response.code  == 200) {
             page.loadFirst();
+            $(".common-modal").modal("hide");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+    saveSiteCancellation : function(response) {
+        if(response.code  == 200) {
+            //page.loadFirst();
+            $("#loading-image").hide();
             $(".common-modal").modal("hide");
         }else {
             $("#loading-image").hide();

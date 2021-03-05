@@ -52,6 +52,15 @@
                     @endforeach
                 </select>
             </div>
+            <div class="form-group">
+                <label for="value">Select watson account</label>
+                <select name="watson_account" class="form-control" required>
+                    <option value="0">All account</option>
+                    @foreach($watson_accounts as $acc)
+                    	<option value="{{$acc->id}}" >{{ $acc->id }} - {{ $acc->storeWebsite->title }}</option>
+                    @endforeach
+                </select>
+            </div>
             <div id="repo-details">
             <div class="form-group" >
                         <label for="repository_id">Repository:</label>

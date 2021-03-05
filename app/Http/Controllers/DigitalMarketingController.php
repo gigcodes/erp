@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\DigitalMarketingPlatform;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\DigitalMarketingPlatformFile;
+use App\DigitalMarketingSolutionFile;
 
 class DigitalMarketingController extends Controller
 {
@@ -12,6 +14,7 @@ class DigitalMarketingController extends Controller
     {
         $title  = "Social-Digital Marketing";
         $status = \App\DigitalMarketingPlatform::STATUS;
+        $records = \App\DigitalMarketingPlatform::get();
 
         return view("digital-marketing.index", compact('records', 'title', 'status'));
     }
@@ -90,6 +93,26 @@ class DigitalMarketingController extends Controller
         return response()->json(["code" => 500, "error" => "Wrong digital marketing id!"]);
     }
 
+    public function saveImages(Request $request)
+    {
+        $files = $request->file('file');
+        $fileNameArray = array();
+        foreach($files as $key=>$file){
+           //echo $file->getClientOriginalName();
+           $fileName = time().$key.'.'.$file->extension();
+           $fileNameArray[] = $fileName;
+           //echo $request->id;
+           if($request->type == "marketing"){
+            $createFile = DigitalMarketingPlatformFile::create(['digital_marketing_platform_id'=>$request->id,'file_name'=>$fileName,"user_id"=>\Auth::id()]);
+           }else{
+            $createFile = DigitalMarketingSolutionFile::create(['digital_marketing_solution_id'=>$request->id,'file_name'=>$fileName,"user_id"=>\Auth::id()]);
+           }
+           
+           $file->move(public_path('digital_marketing'), $fileName);
+        }
+        return response()->json(["code" => 200, "msg" => "files uploaded successfully","data"=>$fileNameArray]);
+    }
+
     /**
      * delete Page
      * @param  Request $request [description]
@@ -117,7 +140,7 @@ class DigitalMarketingController extends Controller
     public function solution(Request $request, $id)
     {
         $title = "Social-Digital Marketing Solution";
-
+        $status = \App\DigitalMarketingPlatform::STATUS;
         return view("digital-marketing.solution.index", compact('title', 'status', 'id'));
 
     }
@@ -382,6 +405,32 @@ class DigitalMarketingController extends Controller
         $records = [];
         $records["id"] = $id;
         $records["components"] = \App\DigitalMarketingPlatformComponent::where("digital_marketing_platform_id",$id)->get()->pluck("name")->toArray();
+        
+        return response()->json(["code" => 200, "data" => $records]);
+    }
+
+    public function files(Request $request , $id) 
+    {
+        $records = [];
+        $records["id"] = $id;
+        $records["components"] = \App\DigitalMarketingPlatformFile::where("digital_marketing_platform_id",$id)->get()->transform(function($files){
+            $files->downloadUrl = env("APP_URL")."/digital_marketing/".$files->file_name;
+            $files->user = \App\User::find($files->user_id)->name;
+            return $files;
+        });
+        
+        return response()->json(["code" => 200, "data" => $records]);
+    }
+
+    public function filesSolution(Request $request , $id) 
+    {
+        $records = [];
+        $records["id"] = $id;
+        $records["components"] = \App\DigitalMarketingSolutionFile::where("digital_marketing_solution_id",$id)->get()->transform(function($files){
+            $files->downloadUrl = env("APP_URL")."/digital_marketing/".$files->file_name;
+            $files->user = \App\User::find($files->user_id)->name;
+            return $files;
+        });
         
         return response()->json(["code" => 200, "data" => $records]);
     }

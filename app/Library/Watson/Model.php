@@ -19,6 +19,7 @@ use \App\ChatbotKeywordValue;
 use App\WatsonAccount;
 use App\WatsonWorkspace;
 use App\ChatbotErrorLog;
+use App\ChatMessage;
 class Model
 {
 
@@ -133,7 +134,7 @@ class Model
 
     }
 
-    public static function pushQuestion($id, $oldValue = null)
+    public static function pushQuestion($id, $oldValue = null, $watson_account_id = null)
     {
         if (env("PUSH_WATSON", true) == false) {
             return true;
@@ -170,10 +171,12 @@ class Model
                     if (!$mentions->isEmpty()) {
                         $sendMentions = [];
                         foreach ($mentions as $key => $mRaw) {
-                            $sendMentions[] = [
-                                "entity" => $mRaw->chatbotKeyword->keyword,
-                                "location" => [$mRaw->start_char_range, $mRaw->end_char_range],
-                            ];
+                            if( $mRaw->chatbotKeyword) {
+                                $sendMentions[] = [
+                                    "entity" => $mRaw->chatbotKeyword->keyword,
+                                    "location" => [$mRaw->start_char_range, $mRaw->end_char_range],
+                                ];
+                            }
                         }
                         if (!empty($sendMentions)) {
                             $storeParams["examples"][$k]["mentions"] = $sendMentions;
@@ -193,12 +196,17 @@ class Model
 
 //                ManageWatson::dispatch('intent',$question, $storeParams, 'update');
                 ManageWatson::dispatch($question->keyword_or_question, $question, $storeParams, 'update','value',false, $oldValue)->onQueue('watson_push');
+                ChatbotQuestion::where( 'id', $question->id )->update([ 'watson_status' => 'watson sended' ]);
             } else {
                 // $result                 = $watson->create($workSpaceId, $storeParams);
                 $question->workspace_id = $workSpaceId;
                 $question->save();
 
-                $wotson_account_ids = WatsonAccount::pluck('id')->toArray();
+                if( !empty($watson_account_id) ){
+                    $wotson_account_ids = WatsonAccount::where( 'id', $watson_account_id )->pluck('id')->toArray();
+                }else{
+                    $wotson_account_ids = WatsonAccount::pluck('id')->toArray();
+                }
 
                 foreach ($wotson_account_ids as $id) {
                     $data_to_insert[] = [
@@ -211,6 +219,7 @@ class Model
                 WatsonWorkspace::insert($data_to_insert);
 
 //                ManageWatson::dispatch('intent',$question, $storeParams, 'create');
+                ChatbotQuestion::where( 'id', $question->id )->update([ 'watson_status' => 'watson sended' ]);
                 ManageWatson::dispatch($question->keyword_or_question, $question, $storeParams, 'create', 'value',false, $oldValue)->onQueue('watson_push');
 
             }
@@ -565,17 +574,18 @@ class Model
         if (!empty($customer->chat_session_id)) {
             // now sending message to the watson
             $result = self::sendMessageCustomer($customer, $assistantID, $assistant, $inputText, $contextReset);
-            if (!empty($result->code) && $result->code == 404 && $result->error == "Invalid Session") {
+            if (!empty($result->code) && ($result->code == 403 || $result->code == 404) ) {
                 $customer = self::createSession($customer, $assistant, $assistantID);
                 if ($customer) {
                     $result = self::sendMessageCustomer($customer, $assistantID, $assistant, $inputText, $contextReset);
                 }
             }
             $chatResponse = new ResponsePurify($result, $customer);
+            \Log::channel('chatapi')->info(json_encode($chatResponse));
             // if response is valid then check ahead
             if ($chatResponse->isValid()) {
                 $result = $chatResponse->assignAction();
-                \Log::channel('chatapi')->info(print_r($result, true));
+                \Log::channel('chatapi')->info("##CHAT_ACTION## ".json_encode($result));
                 if (!empty($result)) {
                     if (!empty($result["action"])) {
                         // assign params
@@ -628,6 +638,7 @@ class Model
                                         "number" => null,
                                         "message_application_id" => $message_application_id,
                                         "is_chatbot" => isset($params["is_chatbot"]) ? $params["is_chatbot"] : 0,
+                                        'is_email' => (!empty($messageModel)) ? $messageModel->is_email : 0
                                     ];
 
                                     $chatMessage = ChatMessage::create($insertParams);

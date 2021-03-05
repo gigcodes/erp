@@ -17,10 +17,11 @@ class MailinglistController extends Controller
     *@param $email
     *@param $store_website_id
     */ 
-    public function create_customer($email ,  $store_website_id) {
+    public function create_customer($email ,  $store_website_id, $storeName = null) {
         $customer = new Customer;
         $customer->email            = $email;
         $customer->store_website_id = $store_website_id;
+        $customer->store_name = $storeName ;
         $customer->save();
         return $customer;
     }
@@ -44,18 +45,24 @@ class MailinglistController extends Controller
    **/ 
     public function add(Request $request) {
         // Step1
-        $store_website = StoreWebsite::Where('website'  ,  $request->website )->first();
+        $store_website = StoreWebsite::Where('website'  , $request->website )->first();
 
         // Step 2
         if (!$store_website) {
-           return response()->json(["code" => 200, "message" => "Store website not found"]);
+            $message = $this->generate_erp_response("newsletter.success", 0, $default = "Store website not found");
+           return response()->json(["code" => 200, "message" => $message]);
         }
         // Step 3
         $customer = $this->get_customer($request->get("email") , $store_website->id );
 
         if (!$customer) {
-          $customer =  $this->create_customer( $request->get("email") , $store_website->id );
+            $customer =  $this->create_customer( $request->get("email") , $store_website->id, $request->get("store_name",null) );
         } 
+
+        if($customer->newsletter == 1) {
+            $message = $this->generate_erp_response("newsletter.already_subscribed", $store_website->id, $default = "You have already subscibed newsletter");
+            return response()->json(["code" => 500, "message" => $message ]);
+        }
 
 
         // Step4
@@ -66,8 +73,12 @@ class MailinglistController extends Controller
             $this->addToList($m->remote_id, $request->get("email"));
         }
 
+        $customer->newsletter = 1;
+        $customer->save();
+
         // return response()->json(["code" => 200, "message" => "Done", "data" => $request->all()]);
-        return response()->json(["code" => 200, "message" => "Done" ]);
+        $message = $this->generate_erp_response("newsletter.success", $store_website->id, $default = "Successfully added");
+        return response()->json(["code" => 200, "message" => $message ]);
     }
 
 
@@ -150,7 +161,9 @@ class MailinglistController extends Controller
                 $customer = Customer::where('email', $email)->first();
                 $mailinglist = Mailinglist::find($id);
                 \DB::table('list_contacts')->where('customer_id', $customer->id)->delete();
-                $mailinglist->listCustomers()->attach($customer->id);
+                if(!empty($mailinglist)){
+                    $mailinglist->listCustomers()->attach($customer->id);
+                }
 
                 return response()->json(['status' => 'success']);
             }

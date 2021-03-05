@@ -161,6 +161,15 @@ class CategorySeoController extends Controller
         $storewebsite_category_seo = StoreWebsiteCategorySeo::where("id", $id)->first();
 
         if ($storewebsite_category_seo) {
+            if( empty($storewebsite_category_seo->meta_title) ){
+                $request->category;
+                if( $request->category ){
+                    $category = explode( '>', $request->category );
+                    end($category);
+                    $storewebsite_category_seo->meta_title = prev( $category ).end($category) ;
+                }
+            }
+            
             return response()->json(["code" => 200, "data" => $storewebsite_category_seo]);
         }
 
@@ -256,5 +265,16 @@ class CategorySeoController extends Controller
         }
 
         return response()->json(["code" => 500, "message" => "Wrong site id!"]);
+    }
+
+    public function history($id)
+    {
+    	$histories = \App\StoreWebsiteCategorySeosHistories::leftJoin("users as u","u.id","store_website_category_seos_histories.user_id")
+    	->where("store_website_cate_seos_id",$id)
+    	->orderBy("store_website_category_seos_histories.created_at","desc")
+    	->select(["store_website_category_seos_histories.*","u.name as user_name"])
+    	->get();
+
+        return response()->json(["code" => 200 , "data" => $histories]);
     }
 }

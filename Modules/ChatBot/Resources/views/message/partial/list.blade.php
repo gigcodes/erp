@@ -1,14 +1,25 @@
+<style type="text/css">
+    .cls_remove_rightpadding {
+        padding-right: 0px !important;
+    }
+    .cls_remove_allpadding {
+        padding-left: 0px !important;
+        padding-right: 0px !important;
+    }
+</style>
 <table class="table table-bordered page-template-{{ $page }}">
     <thead>
     <tr>
-        <th width="2%">#</th>
-        <th width="2%">Name</th>
-        <th width="15%">User input</th>
+        <th width="5%">#</th>
+        <th width="5%">Name</th>
+        <th width="5%">Website</th>
+        <th width="10%">User input</th>
         <th width="15%">Bot Replied</th>
-        <th width="15%">From</th>
-        <th width="15%">Created</th>
-{{--        <th width="30%">Images</th>--}}
-        <th width="5%">Action</th>
+        <th width="15%">Message Box</th>
+        <th width="10%">From</th>
+        <th width="10%">Images</th>
+        <th width="10%">Created</th>
+        <th width="10%">Action</th>
     </tr>
     </thead>
     <tbody>
@@ -17,25 +28,33 @@
     <tr>
         <td>{{ $pam->customer_id }}[{{ $pam->chat_id }}]</td>
         <td>{{ $pam->customer_name }}</td>
+        <td>{{ $pam->website_title }}</td>
         <td class="user-input">{{ $pam->question }}</td>
         <td class="boat-replied">{{ $pam->answer }}</td>
+        <td class="message-input">
+            <div class="row cls_textarea_subbox">
+                <div class="col-md-9 cls_remove_rightpadding">
+                    <textarea rows="1" class="form-control quick-message-field cls_quick_message" data-customer-id="{{ $pam->customer_id }}" name="message" placeholder="Message"></textarea>
+                </div>
+                <div class="col-md-1 cls_remove_allpadding">
+                    <button class="btn btn-sm btn-image send-message1" data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
+                </div>
+            </div>
+        </td>
         <td class="boat-replied">{{ $pam->reply_from }}</td>
-{{--        <td class="images-layout">--}}
-{{--            <form class="remove-images-form" action="{{ route('chatbot.messages.remove-images') }}" method="post">--}}
-{{--                {{ csrf_field() }}--}}
-{{--                @if($pam->hasMedia(config('constants.media_tags')))--}}
-{{--                    @foreach($pam->getMedia(config('constants.media_tags')) as $medias)--}}
-{{--                        <div class="panel-img-shorts">--}}
-{{--                            <input type="checkbox" name="delete_images[]"--}}
-{{--                                   value="{{ $medias->pivot->mediable_id.'_'.$medias->id }}" class="remove-img"--}}
-{{--                                   data-media-id="{{ $medias->id }}"--}}
-{{--                                   data-mediable-id="{{ $medias->pivot->mediable_id }}">--}}
-{{--                            <img width="50px" heigh="50px" src="{{ $medias->getUrl() }}">--}}
-{{--                        </div>--}}
-{{--                    @endforeach--}}
-{{--                @endif--}}
-{{--            </form>--}}
-{{--        </td>--}}
+        <td class="images-layout">
+            <form class="remove-images-form" action="{{ route('chatbot.messages.remove-images') }}" method="post">
+                {{ csrf_field() }}
+                @php
+                    $botMessage = \App\ChatMessage::find($pam->chat_id);
+                @endphp
+                @if(isset($botMessage))
+                    @if($botMessage->hasMedia(config('constants.media_tags')))
+                        {{ $botMessage->getMedia(config('constants.media_tags'))->count() }}
+                    @endif
+                @endif
+            </form>
+        </td>
         <td>{{ $pam->created_at }}</td>
         <td>
             @if($pam->approved == 0)
@@ -43,22 +62,23 @@
                 <img width="15px" height="15px" src="/images/completed-green.png">
             </a>
             @endif
-{{--            <a href="javascript:;" class="delete-images" data-id="{{ $pam->chat_id }}">--}}
-{{--                <img width="15px" title="Remove Images" height="15px" src="/images/do-not-disturb.png">--}}
-{{--            </a>--}}
-{{--            @if($pam->suggestion_id)--}}
-{{--                <a href="javascript:;" class="add-more-images" data-id="{{ $pam->chat_id }}">--}}
-{{--                    <img width="15px" title="Attach More Images" height="15px" src="/images/customer-suggestion.png">--}}
-{{--                </a>--}}
-{{--            @endif--}}
+            <a href="javascript:;" class="delete-images" data-id="{{ $pam->chat_id }}">
+                <img width="15px" title="Remove Images" height="15px" src="/images/do-not-disturb.png">
+            </a>
+            @if($pam->suggestion_id)
+                <a href="javascript:;" class="add-more-images" data-id="{{ $pam->chat_id }}">
+                    <img width="15px" title="Attach More Images" height="15px" src="/images/customer-suggestion.png">
+                </a>
+            @endif
+            <a href="javascript:;" class="resend-to-bot" data-id="{{ $pam->id }}">
+                <img width="15px" title="Resend to bot" height="15px" src="/images/icons-refresh.png">
+            </a>
             <!-- <span class="check-all" data-id="{{ $pam->chat_id }}">
               <i class="fa fa-indent" aria-hidden="true"></i>
             </span> -->
-                @if($pam->chat_message_id !== $pam->chat_id)
             <a href="javascript:;" class="approve_message" data-id="{{ $pam->chat_id }}">
                 <i class="fa fa-plus" aria-hidden="true"></i>
             </a>
-                    @endif
         </td>
     </tr>
     <?php }?>
@@ -131,4 +151,27 @@
             }
         });
     });
+
+    $(document).on("click",".resend-to-bot",function () {
+        let chatID = $(this).data("id");
+        $.ajax({
+            type: "GET",
+            url: "/chatbot/messages/resend-to-bot",
+            data: {
+                chat_id : chatID
+            },
+            dataType : "json",
+            success: function (response) {
+                if(response.code == 200) {
+                    toastr['success'](response.messages);
+                }else{
+                    toastr['error'](response.messages);
+                }
+            },
+            error: function () {
+                toastr['error']('Message not sent successfully!');
+            }
+        });
+    });
+
 </script>

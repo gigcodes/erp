@@ -17,7 +17,7 @@ class LaravelLogController extends Controller
     public $channel_filter = [];
     public function index(Request $request)
     {
-        if ($request->filename || $request->log || $request->log_created || $request->created || $request->updated || $request->orderCreated || $request->orderUpdated) {
+        if ($request->filename || $request->log || $request->log_created || $request->created || $request->updated || $request->orderCreated || $request->orderUpdated || $request->modulename || $request->controllername || $request->action) {
 
             $query = LaravelLog::query();
 
@@ -27,6 +27,18 @@ class LaravelLogController extends Controller
 
             if (request('log') != null) {
                 $query->where('log', 'LIKE', "%{$request->log}%");
+            }
+
+            if (request('modulename') != null) {
+                $query->where('module_name', request('modulename'));
+            }
+
+            if (request('controllername') != null) {
+                $query->where('controller_name', request('controllername'));
+            }
+
+            if (request('action') != null) {
+                $query->where('action', request('action'));
             }
 
             if (request('log_created') != null) {
@@ -112,16 +124,30 @@ class LaravelLogController extends Controller
 						break;
 					}
 				}
-				if(preg_match("/".$defaultSearchTerm."/", $value))
-				{
-                    $str = $value;
-                    $temp1 = explode(".",$str);
-                    $temp2 = explode(" ",$temp1[0]);
-                    $type = $temp2[2];
-                    array_push($this->channel_filter,$type);
-                    
-					$errors[] = $value."===".str_replace('/', '', $filename);
-				}
+                if($request->get('search') && $request->get('search') != '') {
+                    //if(preg_match("/".$request->get('search')."/", $value) && preg_match("/".$defaultSearchTerm."/", $value)) {
+                    if(strpos($value, $request->get('search')) !== false && preg_match("/".$defaultSearchTerm."/", $value)) {
+                        $str = $value;
+                        $temp1 = explode(".",$str);
+                        $temp2 = explode(" ",$temp1[0]);
+                        $type = $temp2[2];
+                        array_push($this->channel_filter,$type);
+                        
+                        $errors[] = $value."===".str_replace('/', '', $filename);
+                    }
+                } else {
+                    if(preg_match("/".$defaultSearchTerm."/", $value))
+                    {
+                        $str = $value;
+                        $temp1 = explode(".",$str);
+                        $temp2 = explode(" ",$temp1[0]);
+                        $type = $temp2[2];
+                        array_push($this->channel_filter,$type);
+                        
+                        $errors[] = $value."===".str_replace('/', '', $filename);
+                    }
+                }
+				
             }
             //if(isset($_GET['channel']) && $_GET['channel'] == "local"){
                 $errors = array_reverse($errors);
@@ -289,19 +315,40 @@ class LaravelLogController extends Controller
         $url = $request->url;
         $message = $request->message;
         $website = $request->website;
+        $module_name = $request->module_name;
+        $controller_name = $request->controller_name;
+        $action = $request->action;
     	
         if($url==''){
-            return response()->json(['status' => 'failed', 'message' => 'URL is required'], 400);
+            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'URL is required');
+            return response()->json(['status' => 'failed', 'message' => $message], 400);
         }
         if($message==''){
-            return response()->json(['status' => 'failed', 'message' => 'Message is required'], 400);
+            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'Message is required');
+            return response()->json(['status' => 'failed', 'message' => $message], 400);
+        }
+        if($module_name==''){
+            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'Module name is required');
+            return response()->json(['status' => 'failed', 'message' => $message], 400);
+        }
+        if($controller_name==''){
+            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'Controller name is required');
+            return response()->json(['status' => 'failed', 'message' => $message], 400);
+        }
+        if($action==''){
+            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'action is required');
+            return response()->json(['status' => 'failed', 'message' => $message], 400);
         }
         $laravelLog = new LaravelLog();
         $laravelLog->filename=$url;
         $laravelLog->log=$message;
         $laravelLog->website=$website;
+        $laravelLog->module_name=$module_name;
+        $laravelLog->controller_name=$controller_name;
+        $laravelLog->action=$action;
         $laravelLog->save();
-		 return response()->json(['status' => 'success', 'message' => 'Log data Saved'], 200);
+        $message = $this->generate_erp_response("laravel.log.success",0, $default = 'Log data Saved');
+		return response()->json(['status' => 'success', 'message' => $message], 200);
     }
     
     public function getDirContents($dir, $results = array()) {

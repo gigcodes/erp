@@ -8,6 +8,18 @@
     .preview-category input.form-control {
       width: auto;
     }
+    .suggestList li {
+        display: inline-block;
+        margin-right: 10px;
+        cursor: pointer;
+        
+    }
+    .width-fix{
+        height: 220px;
+        display: inline-block;
+        overflow: auto;
+        
+    }
 </style>
 <link href="//cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
 <div class="row" id="common-page-layout">
@@ -97,6 +109,7 @@
 </div>
 @include("storewebsite::category-seo.templates.list-template")
 @include("storewebsite::category-seo.templates.create-website-template")
+@include('storewebsite::category-seo.history')
 <script src="//cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>

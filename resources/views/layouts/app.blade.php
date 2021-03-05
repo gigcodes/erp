@@ -519,6 +519,9 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ route('supplier.index') }}">Supplier List</a></a>
                                         </li>
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('supplier.product.history') }}">Supplier Product History</a></a>
+                                        </li>
+                                        <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('supplier/category/permission') }}">Supplier Category <br> Permission</a></a>
                                         </li>
                                     </ul>
@@ -1321,6 +1324,9 @@ $metaData = '';
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('manage-task-category.index') }}">Manage Task Category</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('erp-log') }}">ERP Log</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1413,11 +1419,20 @@ $metaData = '';
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.product-attribute.index') }}">Product Attribute</a>
                                     </li>
+									<li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('scrapper.phyhon.index') }}">Site Scrapper Phyhon</a>
+                                    </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.site-attributes.index') }}">Site Attributes</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.category-seo.index') }}">Category seo</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.cancellation') }}">Cancellation Policy</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('logging.magento.product.api.call') }}">Magento API call</a>
                                     </li>
                                 </ul>
                             </li>
@@ -1547,6 +1562,11 @@ $metaData = '';
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('email-addresses.index') }}">Email Addresses</a>
                                 </li>
+
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('api-response-message') }}">Api Response Messages</a>
+                                </li>
+
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('services') }}">Services</a>
                                 </li>
@@ -2046,6 +2066,7 @@ $metaData = '';
 
                                     @endforeach
 
+
                                 </ul>
                             </div>
                             <div class="card-footer"></div>
@@ -2159,6 +2180,17 @@ $metaData = '';
     </div>
 
     @endif
+
+    @php
+
+        $url = strtolower(str_replace(array('https://', 'http://'),array('', ''),config('app.url')));
+        $url = str_replace('/','',$url);
+        $site_account_id = App\StoreWebsiteAnalytic::where('website',$url)->first();
+        $account_id = "";
+        if(!empty($site_account_id)){
+            $account_id = $site_account_id->account_id;
+        }
+    @endphp
 
 
     <!-- Scripts -->
@@ -2460,7 +2492,7 @@ $metaData = '';
     </script>
     @if ( !empty($_SERVER['HTTP_HOST']) && !empty($_SERVER['REMOTE_ADDR'])  && $_SERVER['REMOTE_ADDR'] != "127.0.0.1" && !stristr($_SERVER['HTTP_HOST'], '.mac') )
     <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-147736165-1"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $account_id }}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
 
@@ -2469,7 +2501,7 @@ $metaData = '';
         }
 
         gtag('js', new Date());
-        gtag('config', 'UA-171553493-1');
+        //gtag('config', 'UA-171553493-1');
     </script>
     @endif
     <script>

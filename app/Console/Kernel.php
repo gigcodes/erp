@@ -126,7 +126,9 @@ use App\Console\Commands\AssetsManagerPaymentCron;
 use App\Console\Commands\SendEmailNewsletter;
 use App\Console\Commands\DeleteStoreWebsiteCategory;
 use App\Console\Commands\RunGoogleAnalytics;
-
+use App\Console\Commands\scrappersImages;
+use App\Console\Commands\scrappersImagesDelete;
+use App\Console\Commands\InstagramHandler;
 
 class Kernel extends ConsoleKernel
 {
@@ -248,7 +250,11 @@ class Kernel extends ConsoleKernel
         AssetsManagerPaymentCron::class,
         SendEmailNewsletter::class,
         DeleteStoreWebsiteCategory::class,
-        RunGoogleAnalytics::class
+        RunGoogleAnalytics::class,
+		RunGoogleAnalytics::class,
+        scrappersImages::class,
+        scrappersImagesDelete::class,
+        InstagramHandler::class
     ];
 
     /**
@@ -465,7 +471,7 @@ class Kernel extends ConsoleKernel
 
         // Github
         $schedule->command('live-chat:get-tickets')->everyFifteenMinutes();
-        $schedule->command('google-analytics:run')->daily();
+        $schedule->command('google-analytics:run')->everyFifteenMinutes();
         $schedule->command('newsletter:send')->daily();
         $schedule->command('delete:store-website-category')->daily();
         //$schedule->command('github:load_branch_state')->hourly();
@@ -535,6 +541,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('influencers:startstop')->hourly();
         //cron for price check api daily basis
         $schedule->command("pricedrop:check")->daily();
+		// Cron for scrapper images.
+		$schedule->command("scrappersImages")->daily();
+        $schedule->command("scrappersImagesDelete")->daily();
+        //cron for instagram handler daily basis
+        $schedule->command("instagram:handler")->daily();
     }
 
     /**
