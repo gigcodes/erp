@@ -2284,6 +2284,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::post('mailinglist-templates/store', 'MailinglistTemplateController@store')->name('mailingList-template.store');
     Route::post('mailinglist-templates/category/store', 'MailinglistTemplateCategoryController@store')->name('mailingList.category.store');
 
+
     Route::group(['prefix' => 'mailinglist-templates/{id}'], function () {
         Route::get('delete', 'MailinglistTemplateController@delete')->name('mailingList-template.delete');
     });
@@ -2812,9 +2813,13 @@ Route::get('google-keyword-search', 'GoogleAddWord\googleAddsController@index')-
 Route::resource('google-traslation-settings', 'GoogleTraslationSettingsController');
 });
 
+Route::post('displayContentModal','EmailContentHistoryController@displayModal')->name('displayContentModal');
+Route::post('add_content','EmailContentHistoryController@store')->name('add_content');
 
 // DEV MANISH
 //System size
 Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::any('/erp-log', 'ErpLogController@index')->name('erp-log');
 });
+
+
