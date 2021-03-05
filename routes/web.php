@@ -85,6 +85,10 @@ Route::prefix('product')->middleware('auth')->group(static function () {
 });
 
 Route::prefix('logging')->middleware('auth')->group(static function () {
+
+    Route::any('list/api/logs','LaravelLogController@apiLogs')->name('api-log-list');
+
+   // Route::post('filter/list/api/logs','LaravelLogController@apiLogs')->name('api-filter-logs')
     Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
     Route::post('list-magento/{id}', 'Logging\LogListMagentoController@updateMagentoStatus');
     Route::get('show-error-logs/{product_id}/{website_id?}', 'Logging\LogListMagentoController@showErrorLogs')->name('list.magento.show-error-logs');
