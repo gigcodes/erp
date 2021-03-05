@@ -74,8 +74,12 @@ class RejectDuplicateImages extends Command
 
                 // Get last image cropper
                 $lastImageCropper = $products->crop_approved_by;
+                $user = \App\User::find($lastImageCropper);
 
                 foreach ($data->differentWebsiteImages as $key ) {
+                    if(empty($key)) {
+                       continue; 
+                    }
 
                     $image = $key->newMedia->directory.'/'.$key->newMedia->filename.'.'.$key->newMedia->extension;
 
@@ -105,14 +109,17 @@ class RejectDuplicateImages extends Command
                         $products->crop_rejected_at       = Carbon::now()->toDateTimeString();
                         $products->save();
 
-                        if ((int)$lastImageCropper > 0) {
-                            $e             = new ListingHistory();
-                            $e->user_id    = $lastImageCropper;
-                            $e->product_id = $products->id;
-                            $e->content    = ['action' => 'CROP_APPROVAL_DENIED', 'page' => 'Approved Listing Page'];
-                            $e->action     = 'CROP_APPROVAL_DENIED';
-                            $e->save();
+                        if($user) {
+                            if ((int)$lastImageCropper > 0) {
+                                $e             = new ListingHistory();
+                                $e->user_id    = $lastImageCropper;
+                                $e->product_id = $products->id;
+                                $e->content    = ['action' => 'CROP_APPROVAL_DENIED', 'page' => 'Approved Listing Page'];
+                                $e->action     = 'CROP_APPROVAL_DENIED';
+                                $e->save();
+                            }
                         }
+
 
                         // Log crop rejected
                         $e             = new ListingHistory();
