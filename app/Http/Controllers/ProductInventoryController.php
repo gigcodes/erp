@@ -1255,7 +1255,7 @@ class ProductInventoryController extends Controller
     
 		foreach ($inventory as $key => $history) {
 
-			$row=array('id'=>$history->id,'product_name'=>$history->product->name,'supplier_name'=>$history->supplier->supplier,'product_id'=>$history->product_id);
+			$row=array('id'=>$history->id,'product_name'=>$history->product->name,'supplier_name'=>$history->supplier->supplier,'product_id'=>$history->product_id,'brand_name'=>$history->product->brands->name??'');
 
 
           $dates=\App\InventoryStatusHistory::whereDate('created_at','>', Carbon::now()->subDays(7))->where('supplier_id',$history->supplier_id)->where('product_id',$history->product_id)->get();
@@ -1301,7 +1301,12 @@ class ProductInventoryController extends Controller
 		foreach ($inventory as $key => $row) {
              $newRow=[];
 			$newRow['supplier_name']=$row->supplier->supplier;
-			$newRow['products']=\App\InventoryStatusHistory::select('product_id')->distinct()->whereDate('created_at','>', Carbon::now()->subDays(7))->where('supplier_id',$row->supplier_id)->where('in_stock','>',0)->count('product_id');
+			$products=\App\InventoryStatusHistory::select('product_id')->distinct()->whereDate('created_at','>', Carbon::now()->subDays(7))->where('supplier_id',$row->supplier_id)->where('in_stock','>',0)->pluck('product_id')->toArray();
+			
+			$newRow['brands']=\App\Product::whereIn('id',$products)->groupBy('brand')->count();
+			
+
+			$newRow['products']=count($products);
 			$newRow['supplier_id']=$row->supplier_id;
 
 			array_push($allHistory,$newRow);
@@ -1311,7 +1316,7 @@ class ProductInventoryController extends Controller
         usort($allHistory, function($a, $b) {
     return  $b['products']-$a['products'];
 });
-
+          
     
 		return view('product-inventory.supplier-product-history',compact('allHistory','inventory','total_rows','suppliers','request'));
 

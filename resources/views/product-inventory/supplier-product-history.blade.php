@@ -81,7 +81,9 @@
                        
                         <th>Supplier Name</th> 
                       
-                        <th>Product Name</th>
+                        <th>Products</th>
+
+                        <th> Brands </th>
 
                         <th>Summary</th>
                         
@@ -95,6 +97,9 @@
                       
                       <td>{{$row['supplier_name']}}</td>
                      <td>{{$row['products']}}</td>
+                     <td>{{$row['brands']}}</td>
+                     
+
                     
                      <td class="showSummary"><a target="_blank" href="{{route('supplier.product.summary',$row['supplier_id'])}}">Details</td>
                     </tr>
