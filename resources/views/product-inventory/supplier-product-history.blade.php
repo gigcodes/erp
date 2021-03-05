@@ -28,12 +28,31 @@
      <div class="form-group">
                         <div class="row">
                             
-                            <div class="col-md-2">
-                                <input name="search" type="text" class="form-control" value="{{$request->search??''}}"  placeholder="Search" id="search">
-                            </div>
+                            
                             
 
-                           
+                            <div class="col-md-3">
+                               <select class="form-control select-multiple" id="supplier-select" tabindex="-1" aria-hidden="true" name="supplier" onchange="//showStores(this)">
+                                    <option value="">Select Supplier</option>
+
+                                    @foreach($suppliers as $supplier)
+
+                                    @if(isset($request->supplier) && $supplier->id==$request->supplier)
+
+                                     <option value="{{$supplier->id}}" selected="selected">{{$supplier->supplier}}</option>
+
+
+                                    @else
+
+                                     <option value="{{$supplier->id}}">{{$supplier->supplier}}</option>
+
+
+                                    @endif
+
+                                   
+                                         @endforeach
+                                        </select>
+                            </div>
 
                             
                             <div class="col-md-1 d-flex justify-content-between">
@@ -61,12 +80,11 @@
                     <tr>
                        
                         <th>Supplier Name</th> 
-                        <th>Product Id</th>
+                      
                         <th>Product Name</th>
-                        @for($i = 0;$i < 7; $i++)
 
-                        <th>{{\Carbon\Carbon::now()->subDays($i)->toDateString()}}</th>
-                          @endfor
+                        <th>Summary</th>
+                        
                       
                       
                     </tr>
@@ -75,31 +93,10 @@
                     @foreach ($allHistory as $key=> $row ) 
                     <tr>
                       
-                      <td>{{$row->supplier_name}}</td>
-                     <td>{{$row->product_id}}</td>
-                      <td>{{$row->product_name}}</td>
-
-                       @for($i=0;$i < 7;$i++)
-
-
-
-                       @php
-
-                       $in_stock=' - ';
-
-                       foreach($row->dates as $value)
-                       {
-                          if($value->date===\Carbon\Carbon::now()->subDays($i)->toDateString())
-                          {
-                             $in_stock=$value->in_stock;
-                          }
-                       }
-
-                       @endphp
-
-                        <td>{{$in_stock}}</td>
-                          @endfor
-                     
+                      <td>{{$row['supplier_name']}}</td>
+                     <td>{{$row['products']}}</td>
+                    
+                     <td class="showSummary"><a target="_blank" href="{{route('supplier.product.summary',$row['supplier_id'])}}">Details</td>
                     </tr>
 
                     @endforeach

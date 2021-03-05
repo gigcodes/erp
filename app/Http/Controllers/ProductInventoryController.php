@@ -1228,15 +1228,12 @@ class ProductInventoryController extends Controller
 		return response()->json(["code" => 200 , "data" => [],"message" => implode("</br>", $messages),"error_messages" => implode("</br>", $errorMessages)]);
 	}
 
-	public function supplierProductHistory(Request $request)
+	public function supplierProductSummary(Request $request,int $supplier_id)
 	{
-		$suppliers=\App\Supplier::all();
+		
 
-		$inventory=\App\InventoryStatusHistory::selectRaw('distinct product_id,supplier_id')->whereDate('created_at','>', Carbon::now()->subDays(7))->orderBy('supplier_id')->orderBy('in_stock','desc');
-		if($request->supplier)
-		{
-			$inventory=$inventory->where('supplier_id',$request->supplier);
-		}
+		$inventory=\App\InventoryStatusHistory::whereDate('created_at','>', Carbon::now()->subDays(7))->where('supplier_id',$supplier_id)->orderBy('in_stock','desc');
+		
 
 		if($request->search)
 		{
@@ -1272,7 +1269,51 @@ class ProductInventoryController extends Controller
   
   //echo '<pre>';print_r($inventory->toArray());die;
 
-		return view('product-inventory.supplier-inventory-history',compact('allHistory','inventory','total_rows','suppliers','request'));
+		return view('product-inventory.supplier-inventory-history',compact('allHistory','inventory','total_rows','request'));
+
+
+	}
+
+	public function supplierProductHistory(Request $request)
+	{
+		$suppliers=\App\Supplier::all();
+
+
+
+		$inventory=\App\InventoryStatusHistory::whereDate('created_at','>', Carbon::now()->subDays(7))->where('in_stock','>',0)->groupBy('supplier_id');
+		if($request->supplier)
+		{
+			$inventory=$inventory->where('supplier_id',$request->supplier);
+		}
+
+
+
+		
+       
+		$total_rows=$inventory->count();
+
+
+		$inventory=$inventory->withCount('product_count')->orderBy('product_count_count','desc')->paginate(10);
+
+
+		$allHistory=[];
+
+		foreach ($inventory as $key => $row) {
+             $newRow=[];
+			$newRow['supplier_name']=$row->supplier->supplier;
+			$newRow['products']=\App\InventoryStatusHistory::select('product_id')->distinct()->whereDate('created_at','>', Carbon::now()->subDays(7))->where('supplier_id',$row->supplier_id)->where('in_stock','>',0)->count('product_id');
+			$newRow['supplier_id']=$row->supplier_id;
+
+			array_push($allHistory,$newRow);
+		}
+
+
+        usort($allHistory, function($a, $b) {
+    return  $b['products']-$a['products'];
+});
+
+    
+		return view('product-inventory.supplier-product-history',compact('allHistory','inventory','total_rows','suppliers','request'));
 
 
 	}

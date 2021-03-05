@@ -25,4 +25,11 @@ class InventoryStatusHistory extends Model
     {
     	return $this->belongsTo('App\Supplier','supplier_id','id');
     }
+
+    public function product_count()
+    {
+
+        //return self::select('product_id')->distinct()->get();
+        return $this->hasMany('App\InventoryStatusHistory','supplier_id','supplier_id');
+    }
 }

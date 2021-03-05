@@ -286,6 +286,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('product/history/by/supplier','ProductInventoryController@supplierProductHistory')->name('supplier.product.history');
 
+    Route::get('supplier/{supplier}/products/summary/','ProductInventoryController@supplierProductSummary')->name('supplier.product.summary');
+
 
     Route::get('productinventory/all-suppliers/{id}', 'ProductInventoryController@getSuppliers')->name('productinventory.all-suppliers');
     Route::resource('productinventory', 'ProductInventoryController');
