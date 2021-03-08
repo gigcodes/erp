@@ -165,6 +165,31 @@
     </div>
     <!-- Model Add Mailinglist category END -->
 
+
+    
+
+
+
+    <div class="modal fade template-modal" id="addcontent" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle1">Add Content</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body content_body">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if(Session::has('message'))
+        <p class="alert {{ Session::get('alert-class', 'alert-info') }}">{{ Session::get('message') }}</p>
+    @endif
+
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="passwords-table">
             <thead>
@@ -172,7 +197,7 @@
                 <!-- <th style="">ID</th> -->
                 <th style="">Name</th>
                 <th style="">Mail Tpl</th>
-                <th style="">Subject</th>
+                <th style="" width="8%">Subject</th>
                 <th style="">Static Template</th>
                 <th style="">Category</th>
                 <th style="">Store Website</th>
@@ -203,10 +228,15 @@
                         <a data-id="{{ $value['id'] }}" class="delete-template-act" href="javascript:;">
                             <i class="fa fa-trash"></i>
                         </a>
-                        | <a data-id="{{ $value['id'] }}" data-storage="{{ $value }}" class="edit-template-act"
-                             href="javascript:;">
-                            <i class="fa fa-edit"></i>
-                        </a>
+                    | <a data-id="{{ $value['id'] }}" data-storage="{{ $value }}" class="edit-template-act"
+                            href="javascript:;">
+                        <i class="fa fa-edit"></i>
+                    </a>
+
+                    | <a data-id="{{ $value['id'] }}"  class="add-content"
+                            href="javascript:;">
+                        <i class="fa fa-send"></i>
+                    </a>
                     </td>
                 </tr>
             @endforeach
@@ -408,6 +438,30 @@
 
             return false;
 
+        });
+
+
+        $('.add-content').on('click',function(){
+            let id = $(this).attr('data-id');
+
+            $.ajax({
+                url : "{{ route('displayContentModal') }}",
+                type : "POST",
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                data : {
+                    id : id
+                },
+                success : function (response){
+                    $('.content_body').html('');
+                    $('.content_body').append(response.html);
+                    $('#addcontent').modal('show');
+                },
+                error : function (response){
+
+                }
+            });
         });
 
     </script>

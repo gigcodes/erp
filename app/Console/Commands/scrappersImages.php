@@ -43,21 +43,7 @@ class scrappersImages extends Command
      */
     public function handle()
     {       
-        // dd($img_name);
         $this->downloadImages();
-        // $queuesList = Website::get()->toArray();
-
-        // if (!file_exists( public_path('scrappersImages') )) {
-        //     mkdir( public_path('scrappersImages'), 0777, true );
-        // }
-
-        // if ( !empty( $queuesList ) ) {
-        //     foreach ($queuesList as $list) {
-        //         echo $list['name'];
-        //         $file  = $this->downloadImages( $list['name'] );
-        //     }
-        // }
-
         $this->output->write('Cron complated', true);
     }
 
@@ -94,13 +80,13 @@ class scrappersImages extends Command
                     foreach ( $output->response->images as $key => $image ) {
                         if ( !empty( $image ) ) {
 
-                            $img_name = basename( $image );
+                            $img_name = basename( $image->link );
                             $file_name = uniqid().trim( $img_name );
 
-                            if ( $this->saveBase64Image( $file_name,  $image ) ) {
+                            if ( $this->saveBase64Image( $file_name,  $image->link ) ) {
 
                                 $newImage = array(
-                                    'website_id' => $this->getCountry( $img_name ),
+                                    'website_id' => $image->country,
                                     'img_name'   => $file_name,
                                     'img_url'    => $img_name,
                                 );
@@ -128,7 +114,7 @@ class scrappersImages extends Command
 
             $curl = curl_init();
             // set our url with curl_setopt()
-            curl_setopt($curl, CURLOPT_URL, "http://45.32.148.193:8100/get-images-url?".$base64Image);
+            curl_setopt($curl, CURLOPT_URL, env('SCRAPER_IMAGES_URL_BASE64').$base64Image);
 
             // return the transfer as a string, also with setopt()
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
@@ -163,17 +149,4 @@ class scrappersImages extends Command
         }
     }
 
-    public function getCountry( $image_link = null )
-    {
-        $search_text = '_';
-        $array = explode( '-', $image_link );
-        if ( is_array( $array ) && $image_link !== null ) {
-            array_filter($array, function($el) use ($search_text) {
-                if (strpos($el, $search_text)) {
-                    return $el;
-                }
-            });
-        }
-        return false;
-    }
 }
