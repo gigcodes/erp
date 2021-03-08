@@ -777,3 +777,282 @@ Content-Type: application/json
     "data": []
 }
 ```
+
+## Magento order create
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/magento/order-create
+Accept: application/json
+Content-Type: application/json
+{
+    "items": [
+        {
+            "website_id": 4,
+            "base_currency_code": "EUR",
+            "base_discount_amount": 0,
+            "base_grand_total": 495,
+            "base_discount_tax_compensation_amount": 0,
+            "base_shipping_amount": 0,
+            "base_shipping_discount_amount": 0,
+            "base_shipping_discount_tax_compensation_amnt": 0,
+            "base_shipping_incl_tax": 0,
+            "base_shipping_tax_amount": 0,
+            "base_subtotal": 495,
+            "base_subtotal_incl_tax": 495,
+            "base_tax_amount": 0,
+            "base_total_due": 495,
+            "base_to_global_rate": 1,
+            "base_to_order_rate": 4.4756,
+            "billing_address_id": 8,
+            "created_at": "2021-02-25 17:37:17",
+            "customer_email": "jamesadolf1970@iclodd.com",
+            "customer_firstname": "James",
+            "customer_group_id": 1,
+            "customer_id": 72,
+            "customer_is_guest": 0,
+            "customer_lastname": "Adolf",
+            "customer_note_notify": 1,
+            "discount_amount": 0,
+            "email_sent": 1,
+            "entity_id": 4,
+            "global_currency_code": "EUR",
+            "grand_total": 2220,
+            "discount_tax_compensation_amount": 0,
+            "increment_id": "206000000001",
+            "is_virtual": 0,
+            "order_currency_code": "AED",
+            "protect_code": "91531c793d0bbcef689c3a74d01c1522",
+            "quote_id": 13,
+            "remote_ip": "86.99.143.188",
+            "shipping_amount": 0,
+            "shipping_description": "Free Shipping - Free",
+            "shipping_discount_amount": 0,
+            "shipping_discount_tax_compensation_amount": 0,
+            "shipping_incl_tax": 0,
+            "shipping_tax_amount": 0,
+            "state": "new",
+            "status": "pending",
+            "store_currency_code": "EUR",
+            "store_id": 206,
+            "store_name": "UAE\nUAE\nEnglish",
+            "store_to_base_rate": 0,
+            "store_to_order_rate": 0,
+            "subtotal": 2220,
+            "subtotal_incl_tax": 2220,
+            "tax_amount": 0,
+            "total_due": 2220,
+            "total_item_count": 1,
+            "total_qty_ordered": 1,
+            "updated_at": "2021-02-25 17:37:20",
+            "weight": 0,
+            "x_forwarded_for": "86.99.143.188",
+            "items": [
+                {
+                    "amount_refunded": 0,
+                    "base_amount_refunded": 0,
+                    "base_discount_amount": 0,
+                    "base_discount_invoiced": 0,
+                    "base_discount_tax_compensation_amount": 0,
+                    "base_original_price": 495,
+                    "base_price": 495,
+                    "base_price_incl_tax": 495,
+                    "base_row_invoiced": 0,
+                    "base_row_total": 495,
+                    "base_row_total_incl_tax": 495,
+                    "base_tax_amount": 0,
+                    "base_tax_invoiced": 0,
+                    "created_at": "2021-02-25 17:37:17",
+                    "discount_amount": 0,
+                    "discount_invoiced": 0,
+                    "discount_percent": 0,
+                    "free_shipping": 0,
+                    "discount_tax_compensation_amount": 0,
+                    "is_qty_decimal": 0,
+                    "is_virtual": 0,
+                    "item_id": 4,
+                    "name": "SNEAKERS",
+                    "no_discount": 0,
+                    "order_id": 4,
+                    "original_price": 2220,
+                    "price": 2220,
+                    "price_incl_tax": 2220,
+                    "product_id": 7931,
+                    "product_type": "simple",
+                    "qty_canceled": 0,
+                    "qty_invoiced": 0,
+                    "qty_ordered": 1,
+                    "qty_refunded": 0,
+                    "qty_shipped": 0,
+                    "quote_item_id": 12,
+                    "row_invoiced": 0,
+                    "row_total": 2220,
+                    "row_total_incl_tax": 2220,
+                    "row_weight": 0,
+                    "sku": "CS1823AW478White",
+                    "store_id": 206,
+                    "tax_amount": 0,
+                    "tax_invoiced": 0,
+                    "tax_percent": 0,
+                    "updated_at": "2021-02-25 17:37:17",
+                    "weight": 0
+                }
+            ],
+            "billing_address": {
+                "address_type": "billing",
+                "city": "Dubai",
+                "country_id": "AE",
+                "customer_id": 72,
+                "email": "jamesadolf1970@iclodd.com",
+                "entity_id": 8,
+                "firstname": "james",
+                "lastname": "adolf",
+                "parent_id": 4,
+                "postcode": "13323",
+                "street": [
+                    "3759 No.232, Al-Narjis District"
+                ],
+                "telephone": "0508309192"
+            },
+            "payment": {
+                "account_status": null,
+                "additional_information": [
+                    "Cash On Delivery",
+                    ""
+                ],
+                "amount_ordered": 2220,
+                "base_amount_ordered": 495,
+                "base_shipping_amount": 0,
+                "cc_last4": null,
+                "entity_id": 4,
+                "method": "cashondelivery",
+                "parent_id": 4,
+                "shipping_amount": 0
+            },
+            "status_histories": [],
+            "extension_attributes": {
+                "shipping_assignments": [
+                    {
+                        "shipping": {
+                            "address": {
+                                "address_type": "shipping",
+                                "city": "Dubai",
+                                "country_id": "AE",
+                                "customer_id": 72,
+                                "email": "jamesadolf1970@iclodd.com",
+                                "entity_id": 7,
+                                "firstname": "james",
+                                "lastname": "adolf",
+                                "parent_id": 4,
+                                "postcode": "13323",
+                                "street": [
+                                    "3759 No.232, Al-Narjis District"
+                                ],
+                                "telephone": "0508309192"
+                            },
+                            "method": "freeshipping_freeshipping",
+                            "total": {
+                                "base_shipping_amount": 0,
+                                "base_shipping_discount_amount": 0,
+                                "base_shipping_discount_tax_compensation_amnt": 0,
+                                "base_shipping_incl_tax": 0,
+                                "base_shipping_tax_amount": 0,
+                                "shipping_amount": 0,
+                                "shipping_discount_amount": 0,
+                                "shipping_discount_tax_compensation_amount": 0,
+                                "shipping_incl_tax": 0,
+                                "shipping_tax_amount": 0
+                            }
+                        },
+                        "items": [
+                            {
+                                "amount_refunded": 0,
+                                "base_amount_refunded": 0,
+                                "base_discount_amount": 0,
+                                "base_discount_invoiced": 0,
+                                "base_discount_tax_compensation_amount": 0,
+                                "base_original_price": 495,
+                                "base_price": 495,
+                                "base_price_incl_tax": 495,
+                                "base_row_invoiced": 0,
+                                "base_row_total": 495,
+                                "base_row_total_incl_tax": 495,
+                                "base_tax_amount": 0,
+                                "base_tax_invoiced": 0,
+                                "created_at": "2021-02-25 17:37:17",
+                                "discount_amount": 0,
+                                "discount_invoiced": 0,
+                                "discount_percent": 0,
+                                "free_shipping": 0,
+                                "discount_tax_compensation_amount": 0,
+                                "is_qty_decimal": 0,
+                                "is_virtual": 0,
+                                "item_id": 4,
+                                "name": "SNEAKERS",
+                                "no_discount": 0,
+                                "order_id": 4,
+                                "original_price": 2220,
+                                "price": 2220,
+                                "price_incl_tax": 2220,
+                                "product_id": 7931,
+                                "product_type": "simple",
+                                "qty_canceled": 0,
+                                "qty_invoiced": 0,
+                                "qty_ordered": 1,
+                                "qty_refunded": 0,
+                                "qty_shipped": 0,
+                                "quote_item_id": 12,
+                                "row_invoiced": 0,
+                                "row_total": 2220,
+                                "row_total_incl_tax": 2220,
+                                "row_weight": 0,
+                                "sku": "CS1823AW478White",
+                                "store_id": 206,
+                                "tax_amount": 0,
+                                "tax_invoiced": 0,
+                                "tax_percent": 0,
+                                "updated_at": "2021-02-25 17:37:17",
+                                "weight": 0
+                            }
+                        ]
+                    }
+                ],
+                "payment_additional_info": [
+                    {
+                        "key": "method_title",
+                        "value": "Cash On Delivery"
+                    },
+                    {
+                        "key": "instructions",
+                        "value": ""
+                    }
+                ],
+                "applied_taxes": [],
+                "item_applied_taxes": []
+            }
+        }
+    ]
+}
+```
+
+**Successful Response:**
+
+```json
+Content-Type: application/json
+{
+    "status": true,
+    "message": "Order create successfully"
+}
+```
+
+**Failed Response:**
+
+```json
+Content-Type: application/json
+
+{
+    "status": false,
+    "message": "Something went wrong, Please try again"
+}
+```
