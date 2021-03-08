@@ -620,10 +620,10 @@ class Model
                                 self::sendMessageFromJob($customer, $account, $assistant, "image_has_been_found", true);
 
                                 if (!empty($brands) || !empty($category)) {
-                                    $suggestion = \App\Suggestion::create([
+                                    $suggestion = \App\SuggestedProduct::create([
                                         "customer_id" => $customer->id,
-                                        "brand" => json_encode($brands),
-                                        "category" => json_encode($category),
+                                        "brands" => json_encode($brands),
+                                        "categories" => json_encode($category),
                                         "number" => 30,
                                     ]);
 

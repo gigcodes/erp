@@ -5,6 +5,7 @@ namespace Modules\ChatBot\Http\Controllers;
 use App\ChatbotCategory;
 use App\ChatMessage;
 use App\Suggestion;
+use App\SuggestedProduct;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -116,7 +117,7 @@ class MessageController extends Controller
             if ($chatMessages) {
                 $chatsuggestion = $chatMessages->suggestion;
                 if ($chatsuggestion) {
-                    $data    = Suggestion::attachMoreProducts($chatsuggestion);
+                    $data    = SuggestedProduct::attachMoreProducts($chatsuggestion);
                     $code    = 500;
                     $message = "Sorry no images found!";
                     if (count($data) > 0) {

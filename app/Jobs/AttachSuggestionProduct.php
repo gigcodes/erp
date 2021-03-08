@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Suggestion;
+use App\SuggestedProduct;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -39,7 +40,7 @@ class AttachSuggestionProduct implements ShouldQueue
 
         if (!empty($suggestion)) {
             // check with customer
-            Suggestion::attachMoreProducts($suggestion);
+            SuggestedProduct::attachMoreProducts($suggestion);
         }
     }
 
