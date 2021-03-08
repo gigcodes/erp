@@ -24,13 +24,13 @@ class LogAfterRequest
       $url=$request->fullUrl();
       $ip=$request->ip();
 
-      $r=new LogRequest;
+      /*$r=new LogRequest;
       $r->ip=$ip;
       $r->url=$url;
       $r->status_code=$response->status();
       $r->method=$request->method();
       $r->request=json_encode($request->all());
       $r->response=json_encode($response->getData());
-      $r->save();
+      $r->save();*/
     }
 }
