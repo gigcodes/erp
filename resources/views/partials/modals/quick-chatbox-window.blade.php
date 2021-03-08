@@ -170,6 +170,7 @@
     </div>
 </div>
 
+<script src="https://cdn.livechatinc.com/accounts/accounts-sdk.min.js"></script>
 <script>
 $(document).on("click",".quick_approve_add_live",function() {
     var messageId = $(this).attr('id');
