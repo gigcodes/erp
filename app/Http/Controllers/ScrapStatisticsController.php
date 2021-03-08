@@ -234,7 +234,7 @@ class ScrapStatisticsController extends Controller
         
         $remarks = ScrapRemark::where('scraper_name', $name)->latest()->get();
         $download = $request->input('download');
-        return response()->json($remark, 200);
+        return response()->json($remarks, 200);
     }
 
     public function addRemark(Request $request)
