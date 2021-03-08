@@ -63,6 +63,7 @@
                         <th>Supplier Name</th> 
                         <th>Product Id</th>
                         <th>Product Name</th>
+                        <th>Brand Name</th>
                         @for($i = 0;$i < 7; $i++)
 
                         <th>{{\Carbon\Carbon::now()->subDays($i)->toDateString()}}</th>
@@ -78,6 +79,8 @@
                       <td>{{$row->supplier_name}}</td>
                      <td>{{$row->product_id}}</td>
                       <td>{{$row->product_name}}</td>
+                      <td>{{$row->brand_name}}</td>
+
 
                        @for($i=0;$i < 7;$i++)
 
