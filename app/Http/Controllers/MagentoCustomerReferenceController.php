@@ -32,9 +32,10 @@ class MagentoCustomerReferenceController extends Controller
         $bodyContent = $request->getContent();
 
         if( empty( $bodyContent )  ){
+            $message = $this->generate_erp_response("magento.order.failed.validation",0, $default = 'Invalid data',request('lang_code'));
             return response()->json([
                 'status'  => false,
-                'message' => 'Invalid data',
+                'message' => $message,
             ]);
         }
 
@@ -54,9 +55,10 @@ class MagentoCustomerReferenceController extends Controller
             }
         }
 
+        $message = $this->generate_erp_response("magento.order.failed",0, $default = 'Something went wrong, Please try again', request('lang_code'));
         return response()->json([
             'status'  => false,
-            'message' => 'Something went wrong, Please try again',
+            'message' => $message,
         ]);
 
     }
@@ -71,7 +73,7 @@ class MagentoCustomerReferenceController extends Controller
     {
        
         if (empty($request->name)) {
-            $message = $this->generate_erp_response("customer_reference.403",0, $default = 'Name is required');
+            $message = $this->generate_erp_response("customer_reference.403",0, $default = 'Name is required',request('lang_code'));
             return response()->json(['message' => $message], 403);
         }
 
@@ -80,12 +82,12 @@ class MagentoCustomerReferenceController extends Controller
         // }
 
         if (empty($request->email)) {
-            $message = $this->generate_erp_response("customer_reference.403",0, $default = 'Email is required');
+            $message = $this->generate_erp_response("customer_reference.403",0, $default = 'Email is required', request('lang_code'));
             return response()->json(['message' => $message], 403);
         }
 
         if (empty($request->website)) {
-            $message = $this->generate_erp_response("customer_reference.403",0, $default = 'website is required');
+            $message = $this->generate_erp_response("customer_reference.403",0, $default = 'website is required', request('lang_code'));
             return response()->json(['message' => $message], 403);
         }
         
@@ -128,7 +130,8 @@ class MagentoCustomerReferenceController extends Controller
         
         }
         else {
-            return response()->json(['message' => 'Account already exists with this email'], 403);
+            $message = $this->generate_erp_response("customer_reference.403",0, $default = 'Account already exists with this email', request('lang_code'));
+            return response()->json(['message' => $message], 403);
         }
         
         
@@ -141,7 +144,7 @@ class MagentoCustomerReferenceController extends Controller
         }
         
 
-        $message = $this->generate_erp_response("customer_reference.success",$store_website_id, $default = 'Saved successfully !');
+        $message = $this->generate_erp_response("customer_reference.success",$store_website_id, $default = 'Saved successfully !', request('lang_code'));
         return response()->json(['message' => 'Saved SucessFully'], 200);
 
     }
