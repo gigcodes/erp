@@ -129,7 +129,6 @@ use App\Console\Commands\RunGoogleAnalytics;
 use App\Console\Commands\scrappersImages;
 use App\Console\Commands\scrappersImagesDelete;
 use App\Console\Commands\InstagramHandler;
-use App\Console\Commands\ExchangeBuybackEmailSending;
 
 class Kernel extends ConsoleKernel
 {
@@ -256,7 +255,6 @@ class Kernel extends ConsoleKernel
         scrappersImages::class,
         scrappersImagesDelete::class,
         InstagramHandler::class,
-        ExchangeBuybackEmailSending::class
     ];
 
     /**
@@ -476,7 +474,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('google-analytics:run')->everyFifteenMinutes();
         $schedule->command('newsletter:send')->daily();
         $schedule->command('delete:store-website-category')->daily();
-        $schedule->command('ExchangeBuybackEmailSending')->everyMinute()->withoutOverlapping();
         //$schedule->command('github:load_branch_state')->hourly();
         // $schedule->command('checkScrapersLog')->dailyAt('8:00');
         // $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');

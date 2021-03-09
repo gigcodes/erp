@@ -139,8 +139,9 @@ class BuyBackController extends Controller
                                 'type'          => 'refund-request',
                                 'method'        => 'email'
                             ]);
-                            // \MultiMail::to($success->customer->email)->send(new \App\Mails\Manual\InitializeRefundRequest($success));
-                            // $emailObject->is_draft = 0;
+
+                            \App\Jobs\ExchangeBuybackEmailSending::dispatch( $success->customer->email, $success, $emailObject );
+
                         }catch(\Exception $e) {
                             $emailObject->error_message = $e->getMessage();
                         }
@@ -170,8 +171,7 @@ class BuyBackController extends Controller
                                 'type'          => 'return-request',
                                 'method'        => 'email'
                             ]);
-                            // \MultiMail::to($success->customer->email)->send(new \App\Mails\Manual\InitializeReturnRequest($success));
-                            // $emailObject->is_draft = 0;
+                           \App\Jobs\ExchangeBuybackEmailSending::dispatch( $success->customer->email, $success, $emailObject );
                         }catch(\Exception $e) {
                             $emailObject->error_message = $e->getMessage();
                         }
@@ -201,8 +201,7 @@ class BuyBackController extends Controller
                                 'type'          => 'exchange-request',
                                 'method'        => 'email'
                             ]);
-                            // \MultiMail::to($success->customer->email)->send(new \App\Mails\Manual\InitializeExchangeRequest($success));
-                            // $emailObject->is_draft = 0;
+                            \App\Jobs\ExchangeBuybackEmailSending::dispatch( $success->customer->email, $success, $emailObject );
                         }catch(\Exception $e) {
                             $emailObject->error_message = $e->getMessage();
                         }
@@ -230,8 +229,7 @@ class BuyBackController extends Controller
                                 'type'          => 'cancellation',
                                 'method'        => 'email'
                             ]);
-                            // \MultiMail::to($success->customer->email)->send(new \App\Mails\Manual\InitializeCancelRequest($success));
-                            // $emailObject->is_draft = 0;
+                            \App\Jobs\ExchangeBuybackEmailSending::dispatch( $success->customer->email, $success, $emailObject );
                         }catch(\Exception $e) {
                             $emailObject->error_message = $e->getMessage();
                         }
