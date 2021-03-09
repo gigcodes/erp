@@ -24,13 +24,18 @@ class LogAfterRequest
         $url = $request->fullUrl();
         $ip  = $request->ip();
 
-        $r              = new LogRequest;
-        $r->ip          = $ip;
-        $r->url         = $url;
-        $r->status_code = $response->status();
-        $r->method      = $request->method();
-        $r->request     = json_encode($request->all());
-        $r->response    = !empty($response) ? json_encode($response) : json_encode([]);
-        $r->save();
+        try {
+            $r              = new LogRequest;
+            $r->ip          = $ip;
+            $r->url         = $url;
+            $r->status_code = $response->status();
+            $r->method      = $request->method();
+            $r->request     = json_encode($request->all());
+            $r->response    = !empty($response) ? json_encode($response) : json_encode([]);
+            $r->save();
+        }catch(\Exception $e) {
+            \Log::info("Log after request has issue ".$e->getMessage());
+        }
+
     }
 }
