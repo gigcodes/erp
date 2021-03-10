@@ -15,7 +15,7 @@ class AlterAddColumnToSuggestedProductsTbl extends Migration
     {
         Schema::table('suggested_products', function (Blueprint $table) {
             $table->integer('number')->default(5)->nullable()->after('customer_id');
-            $table->string('chat_message_id')->nullable()->after('customer_id');
+            $table->integer('chat_message_id')->nullable()->after('customer_id');
         });
     }
 
