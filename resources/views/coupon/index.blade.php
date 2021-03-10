@@ -1092,20 +1092,23 @@ form label.required:after{
                 url : "{{ route('couponcode.store') }}",
                 type : "POST",
                 data : indexed_array,
+                beforeSend: function () {
+                  $("#loading-image-preview").show();
+                },
                 success : function (response){
-                    
+                    $("#loading-image-preview").hide();
                     if(response.type == "error"){
-                        alert("Something went wrong!");
-                    }
-                    if(response.type == "success"){
-                        location.reload();
-                        $('.hide_div').hide();
-                        $('#couponModal').modal('hide');
-                        $('#coupon-form').trigger("reset");
+                        toastr['error'](response.message, 'error'); 
+                        return false;
+                    }else if(response.type == "success"){
+                      toastr['success'](response.message, 'success'); 
+                      location.reload();
                     }
                 },
-                error : function (response){
-
+                error : function (xhr, status, error){
+                  $("#loading-image-preview").hide();
+                  var err = eval("(" + xhr.responseText + ")");
+                  toastr['error'](err, 'error'); 
                 }
             });
         }
@@ -1161,10 +1164,14 @@ form label.required:after{
                 data : {
                     rule_id : rule_id
                 },
+                beforeSend: function () {
+                  $("#loading-image-preview").show();
+                },
                 success : function (response){
-                    
+                    $("#loading-image-preview").hide();
                     if(response.status == "error"){
-                        alert("Something went wrong!");
+                        toastr['error'](response.message, 'error'); 
+                        return false;
                     }
                     if(response.status == "success"){
                         $('.edit-modal-section').html("");
@@ -1216,8 +1223,10 @@ form label.required:after{
                         
                     }
                 },
-                error : function (response){
-
+                error : function (xhr, status, error){
+                  $("#loading-image-preview").hide();
+                  var err = eval("(" + xhr.responseText + ")");
+                  toastr['error'](err, 'error'); 
                 }
         });
         
@@ -1245,10 +1254,14 @@ form label.required:after{
                 url : "{{ route('salesrules.update') }}",
                 type : "POST",
                 data : indexed_array,
+                beforeSend: function () {
+                  $("#loading-image-preview").show();
+                },
                 success : function (response){
-                    
+                    $("#loading-image-preview").hide();  
                     if(response.type == "error"){
-                        alert("Something went wrong!");
+                      toastr['error'](response.message, 'error'); 
+                      return false;
                     }
                     if(response.type == "success"){
                         alert("Rule updated successfully");
@@ -1256,8 +1269,10 @@ form label.required:after{
                         location.reload();
                     }
                 },
-                error : function (response){
-
+                error : function (xhr, status, error){
+                  $("#loading-image-preview").hide();
+                  var err = eval("(" + xhr.responseText + ")");
+                  toastr['error'](err, 'error'); 
                 }
             });
         }
@@ -1278,19 +1293,26 @@ form label.required:after{
                 suffix : $('#suffix_edit').val(),
                 dash : $('#dash_edit').val()
             },
-            success : function (response){
-                $(this).attr('disabled',false);
-                if(response.type == "error"){
-                    alert("Something went wrong!");
-                }
-                if(response.type == "success"){
-                    alert("Code generated successfully");
-                    $('#couponEditModal').modal('hide');
-                    location.reload();
-                }
+            beforeSend: function () {
+              $("#loading-image-preview").show();
             },
-            error : function (response){
-
+            success : function (response){
+              $("#loading-image-preview").hide();  
+              $(this).attr('disabled',false);
+              if(response.type == "error"){
+                toastr['error'](response.message, 'error'); 
+                return false;
+              }
+              if(response.type == "success"){
+                alert("Code generated successfully");
+                $('#couponEditModal').modal('hide');
+                location.reload();
+              }
+            },
+            error : function (xhr, status, error){
+              $("#loading-image-preview").hide();
+              var err = eval("(" + xhr.responseText + ")");
+              toastr['error'](err, 'error'); 
             }
         });
     });
@@ -1304,7 +1326,11 @@ form label.required:after{
             data : {
                 store_id : store_id,
             },
+            beforeSend: function () {
+              $("#loading-image-preview").show();
+            },
             success : function (response){
+              $("#loading-image-preview").hide();  
                 if(response.type == "success"){
                     $('.websites').html("");
                     $('.websites').append(response.data);
@@ -1313,8 +1339,10 @@ form label.required:after{
                     $('.websites_edit').append(response.data);
                 }
             },
-            error : function (response){
-
+            error : function (xhr, status, error){
+              $("#loading-image-preview").hide();
+              var err = eval("(" + xhr.responseText + ")");
+              toastr['error'](err, 'error'); 
             }
         });
     }
@@ -1327,6 +1355,9 @@ form label.required:after{
             data : {
                 id : code_id,
             },
+            beforeSend: function () {
+              $("#loading-image-preview").show();
+            },
             success : function (response){
                 if(response.type == "success"){
                     alert("Coupon successfully removed");
@@ -1335,8 +1366,10 @@ form label.required:after{
                     alert("Someting went wrong");
                 }
             },
-            error : function (response){
-
+            error : function (xhr, status, error){
+              $("#loading-image-preview").hide();
+              var err = eval("(" + xhr.responseText + ")");
+              toastr['error'](err, 'error'); 
             }
         });
     }
