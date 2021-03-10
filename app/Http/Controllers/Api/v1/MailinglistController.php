@@ -49,7 +49,7 @@ class MailinglistController extends Controller
 
         // Step 2
         if (!$store_website) {
-            $message = $this->generate_erp_response("newsletter.success", 0, $default = "Store website not found", request('lang_code'));
+            $message = $this->generate_erp_response("newsletter.failed", 0, $default = "Store website not found", request('lang_code'));
            return response()->json(["code" => 200, "message" => $message]);
         }
         // Step 3
@@ -60,7 +60,7 @@ class MailinglistController extends Controller
         } 
 
         if($customer->newsletter == 1) {
-            $message = $this->generate_erp_response("newsletter.already_subscribed", $store_website->id, $default = "You have already subscibed newsletter", request('lang_code'));
+            $message = $this->generate_erp_response("newsletter.failed.already_subscribed", $store_website->id, $default = "You have already subscibed newsletter", request('lang_code'));
             return response()->json(["code" => 500, "message" => $message ]);
         }
 

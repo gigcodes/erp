@@ -48,6 +48,8 @@ Content-Type: application/json
 // please send type_of_inquirey:special_notes so we can understand this is special notes
 // also this is the required fields which we need to pass 'name','last_name','email','type_of_inquiry','subject','message'
 
+key : ticket.success
+
 **Successful Response:**
 
 ```json
@@ -60,7 +62,7 @@ Content-Type: application/json
     "message": "Ticket #T20201009155741 created successfully"
 }
 ```
-
+Key : ticket.failed, ticket.failed.validation, ticket.failed.email_or_phone
 **Failed Response:**
 
 ```json
@@ -95,6 +97,8 @@ Content-Type: application/json
 }
 ```
 
+Key : refera.friend.success
+
 **Successful Response:**
 
 ```json
@@ -107,6 +111,8 @@ Content-Type: application/json
     "referee_email": "Singh.karamjit1689@gmail.com"
 }
 ```
+
+Key : refera.friend.failed, refera.friend.failed.validation, coupon.failed.refferal_program
 
 **Failed Response:**
 
@@ -140,6 +146,7 @@ Content-Type: application/json
     "website"  : "WWW.SOLOLUXURY.COM", //required, must be a website in store websites
 }
 ```
+Key : giftcard.success
 
 **Successful Response:**
 
@@ -150,6 +157,8 @@ Content-Type: application/json
     "message": "gift card added successfully",
 }
 ```
+
+Key : giftcard.failed, giftcard.failed.validation
 
 **Failed Response:**
 
@@ -173,6 +182,7 @@ Content-Type: application/json
 {   "coupon_code" : "A1A22A111FFF333", //required, length maxminum 30, existing in gift_cards
 }
 ```
+Key : giftcard.amount.success
 
 **Successful Response:**
 ```json
@@ -187,10 +197,12 @@ Content-Type: application/json
     }
 }
 ```
+Key : giftcard.amount.failed, giftcard.amount.failed.validation
 
 **Failed Response:**
 
 ```
+{
     "status" : "failed",
     "message" : "coupon does not exists in record !",
 }
@@ -206,6 +218,8 @@ Accept: application/json
 Content-Type: application/json
 'Authorization: Bearer (Requested_website_token)'
 ```
+Key : customer.order.success
+
 **Successful Response:**
 ```json
 Content-Type: application/json
@@ -271,6 +285,9 @@ Content-Type: application/json
     ]
 }
 ```
+
+Key : customer.order.failed, customer.order.failed.reference_no_absent, customer.order.failed.store_url_absent, customer.order.failed.store_not_found, customer.order.failed.token_missing, customer.order.failed.no_order_found
+
 **Failed Response:**
 
 ```json
@@ -330,7 +347,8 @@ Content-Type: application/json
 ```
 
 
-key : buyback.failed
+key : buyback.failed, buyback.failed.validation, buyback.failed.no_order_found
+
 **Failed Response:**
 ```json
 Content-Type: application/json
@@ -369,7 +387,8 @@ Content-Type: application/json
 }
 ```
 
-exchange.failed
+Key : exchange.failed, exchange.failed.validation, exchange.failed.no_order_found
+
 **Failed Response:**
 ```json
 Content-Type: application/json
@@ -411,7 +430,8 @@ Content-Type: application/json
 }
 ```
 
-key : price_compare.failed
+key : price_compare.failed, price_compare.failed.validation, price_compare.failed.no_price_comparision
+
 **Failed Response:**
 ```json
 Content-Type: application/json
@@ -450,6 +470,7 @@ Content-Type: application/json
 
 
 key : affiliates.success
+
 **Successful Response:**
 ```json
 HTTP/1.1 200
@@ -460,7 +481,8 @@ Content-Type: application/json
 }
 ```
 
-key : affiliates.failed
+key : affiliates.failed, affiliates.failed.validation
+
 **Failed Response:**
 ```json
 HTTP/1.1 500
@@ -510,7 +532,6 @@ Content-Type: application/json
 }
 ```
 
-```
 ## Tickets API
 
 **Request:**
@@ -590,7 +611,8 @@ Content-Type: application/json
 }
 ```
 
-key : ticket.send.failed
+key : ticket.send.failed, ticket.send.failed.validation, ticket.send.failed.ticket_or_email
+
 **Failed Response:**
 ```json
 Content-Type: application/json
@@ -623,7 +645,8 @@ HTTP/1.1 200
 }
 ```
 
-key : notification.failed
+key : notification.failed, notification.failed.validation
+
 **Failed Response:**
 ```json
 HTTP/1.1 500
@@ -704,6 +727,30 @@ Content-Type: application/json
 }
 ```
 
+key : newsletter.success
+**Successful Response:**
+
+```json
+Content-Type: application/json
+{
+    "code": 200,
+    "message": "Newsletter has been added succesfully SOLO LUXURY"
+}
+```
+
+
+key : newsletter.failed, newsletter.failed.already_subscribed
+
+**Failed Response:**
+
+```json
+Content-Type: application/json
+{
+    "code": 500,
+    "message": "You have already subscibed newsletter"
+}
+```
+
 ## Store data into the laravel logs
 **Request:**
 
@@ -755,6 +802,8 @@ Content-Type: application/json
 }
 ```
 
+Key : order.cancel.success
+
 **Successful Response:**
 ```json
 {
@@ -768,6 +817,7 @@ Content-Type: application/json
     }
 }
 ```
+Key : order.cancel.failed, order.cancel.failed.website_missing
 
 **Failed Response:**
 ```json
@@ -787,9 +837,8 @@ POST https://erp.theluxuryunlimited.com/api/magento/order-create
 Accept: application/json
 Content-Type: application/json
 {
-    "items": [
-        {
-            "website_id": 4,
+           
+            "website": "WWW.SOLOLUXURY.COM",
             "base_currency_code": "EUR",
             "base_discount_amount": 0,
             "base_grand_total": 495,
@@ -1031,10 +1080,11 @@ Content-Type: application/json
                 "applied_taxes": [],
                 "item_applied_taxes": []
             }
-        }
-    ]
+        
+    
 }
 ```
+Key : magento.order.success
 
 **Successful Response:**
 
@@ -1045,6 +1095,8 @@ Content-Type: application/json
     "message": "Order create successfully"
 }
 ```
+
+Key : magento.order.failed, magento.order.failed.validation
 
 **Failed Response:**
 

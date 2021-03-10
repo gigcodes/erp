@@ -47,9 +47,10 @@ class MagentoCustomerReferenceController extends Controller
             if( $website ){
                 $orderCreate = MagentoOrderHandleHelper::createOrder( $order, $website );
                 if( $orderCreate == true ){
+                    $message = $this->generate_erp_response("magento.order.success",0, $default = 'Order create successfully',request('lang_code'));
                     return response()->json([
                         'status'  => true,
-                        'message' => 'Order create successfully',
+                        'message' => $message,
                     ]);
                 }
             }
