@@ -30,18 +30,22 @@ class MagentoCustomerReferenceController extends Controller
     public function createOrder( Request $request )
     {   
         $bodyContent = $request->getContent();
-
+        
         if( empty( $bodyContent )  ){
             return response()->json([
                 'status'  => false,
                 'message' => 'Invalid data',
             ]);
         }
-
         $order = json_decode( $bodyContent );
+    
+        $newArray            = [];
+        $newArray['items'][] = $order;
+        $order            = json_decode(json_encode( $newArray) );
 
-        if( isset( $order->items[0]->website_id ) ){
-            $website = StoreWebsite::where( 'id', $order->items[0]->website_id )->first();   
+        if( isset( $order->items[0]->website ) ){
+
+            $website = StoreWebsite::where('website',$order->items[0]->website)->first();
             
             if( $website ){
                 $orderCreate = MagentoOrderHandleHelper::createOrder( $order, $website );

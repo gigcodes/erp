@@ -787,9 +787,8 @@ POST https://erp.theluxuryunlimited.com/api/magento/order-create
 Accept: application/json
 Content-Type: application/json
 {
-    "items": [
-        {
-            "website_id": 4,
+           
+            "website": "WWW.SOLOLUXURY.COM",
             "base_currency_code": "EUR",
             "base_discount_amount": 0,
             "base_grand_total": 495,
@@ -1031,8 +1030,6 @@ Content-Type: application/json
                 "applied_taxes": [],
                 "item_applied_taxes": []
             }
-        }
-    ]
 }
 ```
 
