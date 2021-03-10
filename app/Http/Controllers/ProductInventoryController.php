@@ -1227,4 +1227,90 @@ class ProductInventoryController extends Controller
 
 		return response()->json(["code" => 200 , "data" => [],"message" => implode("</br>", $messages),"error_messages" => implode("</br>", $errorMessages)]);
 	}
+
+	public function supplierProductSummary(Request $request,int $supplier_id)
+	{
+		
+
+		$inventory=\App\InventoryStatusHistory::whereDate('created_at','>', Carbon::now()->subDays(7))->where('supplier_id',$supplier_id)->orderBy('in_stock','desc');
+		
+
+		if($request->search)
+		{
+			$inventory->where('product_id','like','%'.$request->search)->orWhereHas('product', function ($query) use($request) {
+
+           $query->where('name', 'like','%'.$request->search.'%');
+
+             });
+		}
+       
+		$total_rows=$inventory->count();
+
+
+		$inventory=$inventory->paginate(Setting::get('pagination'));
+
+		
+       $allHistory=[];
+
+    
+		foreach ($inventory as $key => $history) {
+
+			$row=array('id'=>$history->id,'product_name'=>$history->product->name??'','supplier_name'=>$history->supplier->supplier??'','product_id'=>$history->product_id,'brand_name'=>$history->product->brands->name??'');
+
+
+          $dates=\App\InventoryStatusHistory::whereDate('created_at','>', Carbon::now()->subDays(7))->where('supplier_id',$history->supplier_id)->where('product_id',$history->product_id)->get();
+
+          $row['dates']=$dates;
+
+          $allHistory[]=(object)$row;
+
+			
+		}
+  
+
+		return view('product-inventory.supplier-inventory-history',compact('allHistory','inventory','total_rows','request'));
+
+
+	}
+
+	public function supplierProductHistory(Request $request)
+	{
+		$suppliers=\App\Supplier::all();
+
+
+
+		$inventory=\App\InventoryStatusHistory::select('supplier_id',DB::raw('count(distinct product_id)as product_count_count,GROUP_CONCAT(product_id) as brand_products'))->whereDate('created_at','>', Carbon::now()->subDays(7))->where('in_stock','>',0)->groupBy('supplier_id');
+		if($request->supplier)
+		{
+			$inventory=$inventory->where('supplier_id',$request->supplier);
+		}
+
+
+		$total_rows=$inventory->count();
+
+
+		$inventory=$inventory->orderBy('product_count_count','desc')->paginate(10);
+
+		$allHistory=[];
+
+		foreach ($inventory as $key => $row) {
+             $newRow=[];
+			$newRow['supplier_name']=$row->supplier->supplier;
+		
+			
+			$newRow['brands']=\App\Product::whereIn('id',explode(',',$row->brand_products))->groupBy('brand')->count();
+			
+
+			$newRow['products']=$row->product_count_count;
+			$newRow['supplier_id']=$row->supplier_id;
+
+			array_push($allHistory,$newRow);
+		}
+ 
+          
+    
+		return view('product-inventory.supplier-product-history',compact('allHistory','inventory','total_rows','suppliers','request'));
+
+
+	}
 }

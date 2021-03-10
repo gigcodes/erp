@@ -449,4 +449,15 @@ class BrandController extends Controller
         $activites = Activity::where('subject_id',$id)->where('subject_type','Brand')->get();
         return view()->make('brand.activities', compact('activites'));
     }
+
+    public function priority(Request $request)
+    {
+        $brand = Brand::find($request->id);
+      $brand->priority = $request->priority;
+      if($brand->save())
+      {
+        return response()->json(['message' => 'Brand priority updated'], 200);
+      }
+      
+    }
 }

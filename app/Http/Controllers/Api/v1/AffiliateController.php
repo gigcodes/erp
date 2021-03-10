@@ -41,10 +41,11 @@ class AffiliateController extends Controller
         $validator = Validator::make($request->all(), [
             'website' => 'required|exists:store_websites,website',
         ]);
-        if ($validator->fails()) {
-            return response()->json(['status' => 'failed', 'message' => 'please check validation errors !', 'errors' => $validator->errors()], 400);
-        }
         $storeweb                              = StoreWebsite::where('website', $request->website)->first();
+        if ($validator->fails()) {
+            $message = $this->generate_erp_response("affiliates.failed.validation",isset($storeweb) ? $storeweb->id : null, $default = 'please check validation errors !', request('lang_code') );
+            return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
+        }
         $affiliates                            = new Affiliates;
         $affiliates->store_website_id          = ($storeweb) ? $storeweb->id : null;
         $affiliates->first_name                = isset($request->first_name) ? $request->first_name : '';
@@ -80,13 +81,13 @@ class AffiliateController extends Controller
         $affiliates->source                    = isset($request->source) ? $request->source : '';
 
         if ($affiliates->save()) {
-            $message = $this->generate_erp_response("affiliates.success",($storeweb) ? $storeweb->id : null, $default = ucwords($affiliates->type).' added successfully !');
+            $message = $this->generate_erp_response("affiliates.success",($storeweb) ? $storeweb->id : null, $default = ucwords($affiliates->type).' added successfully !', request('lang_code'));
             return response()->json([
                 'status'  => 'success',
                 'message' => $message,
             ], 200);
         }
-        $message = $this->generate_erp_response("affiliates.failed",($storeweb) ? $storeweb->id : null, $default = 'Unable to add '.ucwords($affiliates->type)."!");
+        $message = $this->generate_erp_response("affiliates.failed",($storeweb) ? $storeweb->id : null, $default = 'Unable to add '.ucwords($affiliates->type)."!", request('lang_code'));
         return response()->json([
             'status'  => 'failed',
             'message' => $message,

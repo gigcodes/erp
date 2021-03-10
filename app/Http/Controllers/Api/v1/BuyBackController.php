@@ -58,7 +58,8 @@ class BuyBackController extends Controller
         $validator = Validator::make($request->all(), $validationsarr);
 
         if ($validator->fails()) {
-            return response()->json(['status' => 'failed', 'message' => 'Please check validation errors !', 'errors' => $validator->errors()], 400);
+            $message = $this->generate_erp_response("exchange.failed.validation",0, $default = 'Please check validation errors !', request('lang_code'));
+            return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
         }
 
 
@@ -89,7 +90,9 @@ class BuyBackController extends Controller
 
                     if (!isset($getCustomerOrderData) || empty($getCustomerOrderData)) {
                         continue;
-                        return response()->json(['status' => 'failed', 'message' => 'No order found for the customer!'], 404);
+
+                        $message = $this->generate_erp_response("exchange.failed.no_order_found",0, $default = 'No order found for the customer', request('lang_code'));
+                        return response()->json(['status' => 'failed', 'message' => $message], 404);
                     }
                     
                     $return_exchange_products_data = [
@@ -109,8 +112,8 @@ class BuyBackController extends Controller
 
                     $success = ReturnExchange::create($return_exchanges_data);
                     if (!$success) {
-                        $message = $this->generate_erp_response("exchange.failed",$storeWebsite->id, $default = 'Unable to create '.ucwords($request->type).' request!');
-                        return response()->json(['status' => 'failed', 'message' => 'Unable to create '.ucwords($request->type).' request!'], 500);
+                        $message = $this->generate_erp_response("exchange.failed",$storeWebsite->id, $default = 'Unable to create '.ucwords($request->type).' request!', request('lang_code'));
+                        return response()->json(['status' => 'failed', 'message' => $message], 500);
                     }
 
                     $isSuccess = true;
@@ -139,8 +142,9 @@ class BuyBackController extends Controller
                                 'type'          => 'refund-request',
                                 'method'        => 'email'
                             ]);
-                            \MultiMail::to($success->customer->email)->send(new \App\Mails\Manual\InitializeRefundRequest($success));
-                            $emailObject->is_draft = 0;
+
+                            \App\Jobs\ExchangeBuybackEmailSending::dispatch( $success->customer->email, $success, $emailObject );
+
                         }catch(\Exception $e) {
                             $emailObject->error_message = $e->getMessage();
                         }
@@ -170,8 +174,7 @@ class BuyBackController extends Controller
                                 'type'          => 'return-request',
                                 'method'        => 'email'
                             ]);
-                            \MultiMail::to($success->customer->email)->send(new \App\Mails\Manual\InitializeReturnRequest($success));
-                            $emailObject->is_draft = 0;
+                           \App\Jobs\ExchangeBuybackEmailSending::dispatch( $success->customer->email, $success, $emailObject );
                         }catch(\Exception $e) {
                             $emailObject->error_message = $e->getMessage();
                         }
@@ -201,8 +204,7 @@ class BuyBackController extends Controller
                                 'type'          => 'exchange-request',
                                 'method'        => 'email'
                             ]);
-                            \MultiMail::to($success->customer->email)->send(new \App\Mails\Manual\InitializeExchangeRequest($success));
-                            $emailObject->is_draft = 0;
+                            \App\Jobs\ExchangeBuybackEmailSending::dispatch( $success->customer->email, $success, $emailObject );
                         }catch(\Exception $e) {
                             $emailObject->error_message = $e->getMessage();
                         }
@@ -230,8 +232,7 @@ class BuyBackController extends Controller
                                 'type'          => 'cancellation',
                                 'method'        => 'email'
                             ]);
-                            \MultiMail::to($success->customer->email)->send(new \App\Mails\Manual\InitializeCancelRequest($success));
-                            $emailObject->is_draft = 0;
+                            \App\Jobs\ExchangeBuybackEmailSending::dispatch( $success->customer->email, $success, $emailObject );
                         }catch(\Exception $e) {
                             $emailObject->error_message = $e->getMessage();
                         }
@@ -242,11 +243,12 @@ class BuyBackController extends Controller
 
             if($isSuccess) {
 
-                $message = $this->generate_erp_response("exchange.success",$storeWebsite->id, $default = ucwords($request->type).' request created successfully');
+                $message = $this->generate_erp_response("exchange.success",$storeWebsite->id, $default = ucwords($request->type).' request created successfully', request('lang_code'));
                 return response()->json(['status' => 'success', 'message' => $message], 200);
 
             }else{
-                return response()->json(['status' => 'failed', 'message' => 'No order found for the customer!'], 404);
+                $message = $this->generate_erp_response("exchange.failed.no_order_found",$storeWebsite->id, $default = 'No order found for the customer', request('lang_code'));
+                return response()->json(['status' => 'failed', 'message' => $message], 404);
             }
 
 
@@ -306,7 +308,8 @@ class BuyBackController extends Controller
             'website' => 'required'
         ]);
         if ($validator->fails()) {
-            return response()->json(['status' => 'failed', 'message' => 'Please check validation errors !', 'errors' => $validator->errors()], 400);
+            $message = $this->generate_erp_response("buyback.failed.validation",0, $default = "Please check validation errors !", request('lang_code'));
+            return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
         }
 
         $responseData = [];
@@ -318,7 +321,7 @@ class BuyBackController extends Controller
             ->first();
 
             if (!$checkCustomer) {
-                $message = $this->generate_erp_response("buyback.failed",$storeWebsite->id, $default = "Customer not found with this email !");
+                $message = $this->generate_erp_response("buyback.failed",$storeWebsite->id, $default = "Customer not found with this email !", request('lang_code'));
                 return response()->json(['status' => 'failed', 'message' => $message], 404);
             }
 
@@ -336,7 +339,8 @@ class BuyBackController extends Controller
                 ->get()->makeHidden(['action']);
 
             if (count($getCustomerOrderData) == 0) {
-                return response()->json(['status' => 'failed', 'message' => 'No order found for the customer!'], 404);
+                $message = $this->generate_erp_response("buyback.failed.no_order_found",0, $default = "No order found for the customer!", request('lang_code'));
+                return response()->json(['status' => 'failed', 'message' => $message], 404);
             }
             $responseData = [];
             foreach($getCustomerOrderData as $getCustomerOrder){

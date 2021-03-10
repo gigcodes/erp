@@ -200,7 +200,9 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
 
 });
 
-Route::prefix('site-development')->group(function () {
+Route::middleware('auth')->group(function()
+{
+  Route::prefix('site-development')->group(function () {
     
     Route::get('/countdevtask/{id}', 'SiteDevelopmentController@taskCount');
     Route::get('/deletedevtask', 'SiteDevelopmentController@deletedevtask');
@@ -247,3 +249,5 @@ Route::prefix('country-group')->group(function () {
         Route::get('delete', 'CountryGroupController@delete')->name('store-website.country-group.delete');
     });
 });
+});
+

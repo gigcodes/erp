@@ -519,6 +519,9 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ route('supplier.index') }}">Supplier List</a></a>
                                         </li>
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('supplier.product.history') }}">Supplier Product History</a></a>
+                                        </li>
+                                        <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('supplier/category/permission') }}">Supplier Category <br> Permission</a></a>
                                         </li>
                                     </ul>
@@ -579,6 +582,10 @@ $metaData = '';
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('LaravelLogController@index') }}">Laravel Log</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('api-log-list') }}">Laravel API Log</a>
+                                        </li>
+                                       
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('LaravelLogController@liveLogs') }}">Live Laravel Log</a>
                                         </li>

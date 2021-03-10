@@ -17,10 +17,11 @@ class MailinglistController extends Controller
     *@param $email
     *@param $store_website_id
     */ 
-    public function create_customer($email ,  $store_website_id) {
+    public function create_customer($email ,  $store_website_id, $storeName = null) {
         $customer = new Customer;
         $customer->email            = $email;
         $customer->store_website_id = $store_website_id;
+        $customer->store_name = $storeName ;
         $customer->save();
         return $customer;
     }
@@ -48,15 +49,20 @@ class MailinglistController extends Controller
 
         // Step 2
         if (!$store_website) {
-            $message = $this->generate_erp_response("newsletter.success", 0, $default = "Store website not found");
+            $message = $this->generate_erp_response("newsletter.failed", 0, $default = "Store website not found", request('lang_code'));
            return response()->json(["code" => 200, "message" => $message]);
         }
         // Step 3
         $customer = $this->get_customer($request->get("email") , $store_website->id );
 
         if (!$customer) {
-          $customer =  $this->create_customer( $request->get("email") , $store_website->id );
+            $customer =  $this->create_customer( $request->get("email") , $store_website->id, $request->get("store_name",null) );
         } 
+
+        if($customer->newsletter == 1) {
+            $message = $this->generate_erp_response("newsletter.failed.already_subscribed", $store_website->id, $default = "You have already subscibed newsletter", request('lang_code'));
+            return response()->json(["code" => 500, "message" => $message ]);
+        }
 
 
         // Step4
@@ -67,8 +73,11 @@ class MailinglistController extends Controller
             $this->addToList($m->remote_id, $request->get("email"));
         }
 
+        $customer->newsletter = 1;
+        $customer->save();
+
         // return response()->json(["code" => 200, "message" => "Done", "data" => $request->all()]);
-        $message = $this->generate_erp_response("newsletter.success", $store_website->id, $default = "Successfully added");
+        $message = $this->generate_erp_response("newsletter.success", $store_website->id, $default = "Successfully added", request('lang_code'));
         return response()->json(["code" => 200, "message" => $message ]);
     }
 
