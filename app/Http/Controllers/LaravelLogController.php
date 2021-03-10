@@ -455,11 +455,11 @@ class LaravelLogController extends Controller
             $logs=$logs->whereDate('created_at',\Carbon\Carbon::createFromFormat('Y/m/d', $request->created_at)->format('Y-m-d'));
         }
 
-        $count=$logs->count();
+        $count= $logs->count();
 
 
 
-        $logs=$logs->paginate(Setting::get('pagination'));
+        $logs=$logs->orderBy("id","desc")->paginate(Setting::get('pagination'));
 
       
 
