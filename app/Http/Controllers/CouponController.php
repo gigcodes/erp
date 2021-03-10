@@ -545,7 +545,7 @@ class CouponController extends Controller
         $result   = json_decode($response);
         curl_close($ch); // Close the connection
 
-        \Log::channel('listMagento')->info('listMagento')->info(print_r([$url,$store_website_id->api_token,json_encode($parameters)],true));
+        \Log::channel('listMagento')->info(print_r([$url,$store_website_id->api_token,json_encode($parameters)],true));
 
         return $result;
     }
