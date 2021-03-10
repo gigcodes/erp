@@ -41,6 +41,8 @@ class InstagramPostsController extends Controller
         }
         // Paginate
         $posts = $posts->paginate(Setting::get('pagination'));
+
+     
         // Return view
         return view('social-media.instagram-posts.index', compact('posts'));
     }
@@ -48,6 +50,24 @@ class InstagramPostsController extends Controller
 
     public function post(Request $request)
     {
+
+       
+
+       $images = $request->get('images', false);
+
+
+        $productArr = null;
+        if ($images) {
+            $productIdsArr = \DB::table('mediables')
+                                ->whereIn('media_id', json_decode($images))
+                                ->where('mediable_type', 'App\Product')
+                                ->pluck('mediable_id')
+                                ->toArray();
+            
+            if (!empty($productIdsArr)) {
+                $productArr = \App\Product::select('id', 'name', 'sku', 'brand')->whereIn('id', $productIdsArr)->get();
+            }
+        }
         //$accounts = \App\Account::where('platform','instagram')->whereNotNull('proxy')->where('status',1)->get();
         $accounts = \App\Account::where('platform','instagram')->where('status',1)->get();
 
@@ -92,7 +112,29 @@ class InstagramPostsController extends Controller
                     }
             }
         }
-        return view('instagram.post.create' , compact('accounts','records','used_space','storage_limit', 'posts'))->with('i', ($request->input('page', 1) - 1) * 5);;   
+
+        $imagesHtml='';
+        if(isset($productArr) && count($productArr)):
+
+                                                foreach($productArr as $product):
+
+                                                
+
+                                                foreach($product->media as $media):
+
+                                            $imagesHtml.='<div class="media-file">    <label class="imagecheck m-1">        <input name="media[]" type="checkbox" value="{{$media->id}}" data-original="'.$media->getUrl().'" class="imagecheck-input">        <figure class="imagecheck-figure">            <img src="'.$media->getUrl().'" alt="'.$product->name.'" class="imagecheck-image" style="cursor: default;">        </figure>    </label><p style="font-size: 11px;"></p></div>';
+
+                                               
+
+                                                endforeach;
+                                                 
+
+                                                endforeach;
+
+                                                endif;
+
+       
+        return view('instagram.post.create' , compact('accounts','records','used_space','storage_limit', 'posts','imagesHtml'))->with('i', ($request->input('page', 1) - 1) * 5);;   
     }
 
     public function createPost(Request $request){
@@ -158,7 +200,9 @@ class InstagramPostsController extends Controller
         ];
         $newPost->ig = $ig;
 
-        if (new PublishPost($newPost)) {
+        if ($instaResponse=new PublishPost($newPost)) {
+
+           
             if($request->ajax()){
                 return response()->json('Your post has been published', 200);
             }else{
@@ -730,6 +774,8 @@ class InstagramPostsController extends Controller
         {
             $response = $this->getHastagifyApiToken();
 
+            
+
             if($response)
             {
                 $json = $this->getHashTashSuggestions($response, $word);
@@ -802,6 +848,7 @@ class InstagramPostsController extends Controller
                 return false;
             } else {
                 $response = json_decode($response);
+              
                 \Session()->put('hastagify', $response->access_token);
                 return $response->access_token;          
             } 

@@ -1782,6 +1782,8 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
 
     //Add Post
     Route::get('post/create', 'InstagramPostsController@post')->name('instagram.post');
+     Route::any('post/create/images', 'InstagramPostsController@post')->name('instagram.post.images');
+
     Route::get('post', 'InstagramPostsController@viewPost')->name('post.index');
     Route::get('post/edit', 'InstagramPostsController@editPost')->name('post.edit');
     Route::post('post/create','InstagramPostsController@createPost')->name('post.store');
@@ -1811,7 +1813,7 @@ Route::prefix('log-scraper-vs-ai')->middleware('auth')->group(function () {
 });
 
 Route::prefix('social-media')->middleware('auth')->group(function () {
-    Route::get('/instagram-posts/grid', 'InstagramPostsController@grid');
+    Route::get('/instagram-posts/grid','InstagramPostsController@grid');
     Route::get('/instagram-posts', 'InstagramPostsController@index');
 });
 

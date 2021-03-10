@@ -272,6 +272,14 @@
 
 <script>
 $(document).ready(function(){
+
+    @if(isset($imagesHtml) && $imagesHtml)
+      $('#add-vendor-info-modal').modal('show');
+      $('#add-vendor-info-modal').addClass('in');
+        $attachImages='{!!$imagesHtml!!}';
+      
+
+    @endif
    
      $(".btn-modal-hashtag").on("click",function(){
         var hashtag = $(this).data("hashtag");
@@ -479,13 +487,15 @@ $(document).ready(function(){
             }
         });
     }
+
+    
     $('.attachInstagramMedia').on('click', function()
     {
-        if($('#add-vendor-info-modal').hasClass('in')){
-        $('#add-vendor-info-modal').removeClass('in');
-        $('#instagramAttachmentMedia').modal('show');
-        $('#instagramAttachmentMedia').addClass('in');
-        }
+        // if($('#add-vendor-info-modal').hasClass('in')){
+        // $('#add-vendor-info-modal').removeClass('in');
+        // $('#instagramAttachmentMedia').modal('show');
+        // $('#instagramAttachmentMedia').addClass('in');
+        // }
     });
     $('#instagramAttachmentMedia').on('hidden.bs.modal', function () {
         if(!$('#add-vendor-info-modal').hasClass('in')){
@@ -505,7 +515,10 @@ $(document).ready(function(){
         var file_name = selectedMedia.data('file_name');
 
         $media_container = $('.media-manager .media-files-container');
-        $media_container.empty();
+
+         $media_container.empty();
+        
+       
         if(id !=''){
             $media_container.append(
 	                              '<div class="media-file">'
