@@ -31,8 +31,6 @@ class MagentoCustomerReferenceController extends Controller
     {   
         $bodyContent = $request->getContent();
 
-        \Log::info("Magento create order request called ");
-
         if( empty( $bodyContent )  ){
             $message = $this->generate_erp_response("magento.order.failed.validation",0, $default = 'Invalid data',request('lang_code'));
             return response()->json([
@@ -50,8 +48,6 @@ class MagentoCustomerReferenceController extends Controller
             $website = StoreWebsite::where('website',$order->items[0]->website)->first();
             if( $website ){
                 
-                \Log::info("website found ");
-
                 $orderCreate = MagentoOrderHandleHelper::createOrder( $order, $website );
                 if( $orderCreate == true ){
                     $message = $this->generate_erp_response("magento.order.success",0, $default = 'Order create successfully',request('lang_code'));
@@ -61,7 +57,7 @@ class MagentoCustomerReferenceController extends Controller
                     ]);
                 }
             }else{
-                \Log::info("Magento website not found");
+                \Log::error("Magento website not found");
             }
         }
 
