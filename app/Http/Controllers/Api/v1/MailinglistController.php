@@ -62,17 +62,16 @@ class MailinglistController extends Controller
     public function add(Request $request) {
         // Step1
         $store_website = StoreWebsite::Where('website'  , $request->website )->first();
-
         // Step 2
         if (!$store_website) {
-            $message = $this->generate_erp_response("newsletter.success", 0, $default = "Store website not found");
+            $message = $this->generate_erp_response("newsletter.failed", 0, $default = "Store website not found");
            return response()->json(["code" => 200, "message" => $message]);
         }
         // Step 3
         $customer = $this->get_customer($request->get("email") , $store_website->id );
 
-        if( $customer && $customer->newsletter == 1  && $customer->store_website_id ) {
-            $message = $this->generate_erp_response("newsletter.already_subscribed", $store_website->id, $default = "You have already subscibed newsletter");
+        if( $customer && $customer->newsletter == 1  && $customer->store_website_id == $store_website->id ) {
+            $message = $this->generate_erp_response("newsletter.failed.already_subscribed", $store_website->id, $default = "You have already subscibed newsletter");
             return response()->json(["code" => 500, "message" => $message ]);
         }
 
