@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 
-\InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
+
 
 use App\Account;
 use App\HashTag;
@@ -23,7 +23,10 @@ use App\InstagramUsersList;
 use App\Library\Instagram\PublishPost;
 use Plank\Mediable\Media;
 use App\StoreSocialContent;
-use App\InstagramLog;
+
+
+use App\InstagramPostLog;
+
 use UnsplashSearch;
 \InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
@@ -87,6 +90,9 @@ class InstagramPostsController extends Controller
         if($request->loc){
             $query = $query->where('location', 'LIKE','%'.$request->loc.'%');
         }
+        if($request->select_date){
+            $query = $query->whereDate('created_at',$request->select_date);
+        }
         $posts = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
 
 
@@ -142,7 +148,7 @@ class InstagramPostsController extends Controller
         //resizing media 
         
         $all = $request->all();
-
+        
         //dd($request->media);
         if($request->media)
         {
@@ -188,7 +194,7 @@ class InstagramPostsController extends Controller
         ];
         $post->ig       = json_encode($ig);
         //$post->location = $location;
-        //$post->hashtags = $hashtag;
+        $post->hashtags = $hashtag;
         $post->save();
         $newPost = Post::find($post->id);
 
@@ -200,9 +206,10 @@ class InstagramPostsController extends Controller
         ];
         $newPost->ig = $ig;
 
-        if ($instaResponse=new PublishPost($newPost)) {
+        
+        if (new PublishPost($newPost)) {
+            $this->createPostLog($newPost->id,"success",'Your post has been published');
 
-           
             if($request->ajax()){
                 return response()->json('Your post has been published', 200);
             }else{
@@ -211,6 +218,7 @@ class InstagramPostsController extends Controller
             }
 
         } else {
+            $this->createPostLog($newPost->id,"error",'Post failed to published');
             if($request->ajax()){
                 return response()->json('Post failed to published', 200);
             }else{
@@ -233,9 +241,11 @@ class InstagramPostsController extends Controller
         ];
         $post->ig = $ig;
         if (new PublishPost($post)) {
+            $this->createPostLog($newPost->id,"success",'Your post has been published');
             return redirect()->route('post.index')
                 ->with('success', __('Your post has been published'));
         } else {
+            $this->createPostLog($newPost->id,"error",'Post failed to published');
             return redirect()->route('post.index')
                 ->with('error', __('Post failed to published'));
         }
@@ -889,28 +899,36 @@ class InstagramPostsController extends Controller
 
     public function updateHashtagPost(Request $request)
     {
-        $post_id = $request->get('post_id');
-        $updateArr = [];
+        try {
+            $post_id = $request->get('post_id');
+            $updateArr = [];
 
 
-        if($request->get('account_id'))
-        {
-            $updateArr['account_id'] = $request->get('account_id');
+            if($request->get('account_id'))
+            {
+                $updateArr['account_id'] = $request->get('account_id');
+            }
+            if($request->get('comment'))
+            {
+                $updateArr['comment'] = $request->get('comment');
+            }
+            if($request->get('post_hashtags'))
+            {
+                $updateArr['hashtags'] = $request->get('post_hashtags');
+            }
+            if($request->get('type'))
+            {
+                $updateArr['type'] = $request->get('type');
+            }
+            Post::where('id', $post_id)->update($updateArr);
+            $this->createPostLog($post_id,"success","Data Updated Succesfully");
+            echo json_encode(array("message"=>"Data Updated Succesfully"));
+        } catch (\Exception $e) {
+            //throw $th;
+            $this->createPostLog($post_id,"error",$e->getMessage());
+            return response()->json(["message"=>"error while saving data"],500);
         }
-        if($request->get('comment'))
-        {
-            $updateArr['comment'] = $request->get('comment');
-        }
-        if($request->get('post_hashtags'))
-        {
-            $updateArr['hashtags'] = $request->get('post_hashtags');
-        }
-        if($request->get('type'))
-        {
-            $updateArr['type'] = $request->get('type');
-        }
-        Post::where('id', $post_id)->update($updateArr);
-        echo json_encode(array("message"=>"Data Updated Succesfully"));
+       
     }
 
     public function getImages()
@@ -1117,13 +1135,19 @@ class InstagramPostsController extends Controller
         }
     }
 
-    public function instagramLog($account_id,$title,$description)
+   
+
+
+    public function createPostLog($postId=null,$title=null,$message=null)
     {
-        $InstagramLog = new InstagramLog();
-        $InstagramLog->account_id = $account_id;
-        $InstagramLog->log_title = $title;
-        $InstagramLog->log_description = $description;
-        $InstagramLog->save();
+        $InstagramPostLog = new InstagramPostLog();
+        $InstagramPostLog->post_id = $postId;
+        $InstagramPostLog->log_title = $title; 
+        $InstagramPostLog->log_description = $message;
+        $InstagramPostLog->save();
+        return true;
     }
+
+    
 
 }
