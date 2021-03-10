@@ -54,7 +54,8 @@ class GiftCardController extends Controller
             'website' => 'required|exists:store_websites,website',
         ]);
         if ($validator->fails()) {
-            return response()->json(['status' => 'failed', 'message' => 'Please check validation errors !', 'errors' => $validator->errors()], 400);
+            $message = $this->generate_erp_response("giftcard.failed.validation", $storeweb->id, $default = "Please check validation errors !", request('lang_code'));
+            return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
         }
         $storeweb = StoreWebsite::where('website', $request->website)->first();
         $giftcardData = $couponData = [];
@@ -77,16 +78,16 @@ class GiftCardController extends Controller
                 $mailData['coupon'] =  $success->gift_card_coupon_code;
                 $this->sendMail($mailData);
 
-                $message = $this->generate_erp_response("giftcard.success", $storeweb->id, $default = "gift card added successfully");
+                $message = $this->generate_erp_response("giftcard.success", $storeweb->id, $default = "gift card added successfully", request('lang_code'));
                 return response()->json([
                     'status' => 'success',
                     'message' => $message,
                 ], 200);
             }
-            $message = $this->generate_erp_response("giftcard.failed", $storeweb->id, $default = "Unable to add gift card at the moment. Please try later !");
+            $message = $this->generate_erp_response("giftcard.failed", $storeweb->id, $default = "Unable to add gift card at the moment. Please try later !", request('lang_code'));
             return response()->json(['status' => 'failed', 'message' => $message], 500);
         }
-        $message = $this->generate_erp_response("giftcard.failed", $storeweb->id, $default = "Unable to add gift card at the moment. Please try later !");
+        $message = $this->generate_erp_response("giftcard.failed", $storeweb->id, $default = "Unable to add gift card at the moment. Please try later !", request('lang_code'));
         return response()->json(['status' => 'failed', 'message' => $message], 500);
     }
 
@@ -145,15 +146,16 @@ class GiftCardController extends Controller
             'coupon_code' => 'required|max:30|exists:gift_cards,gift_card_coupon_code',
         ]);
         if ($validator->fails()) {
-            return response()->json(['status' => 'failed', 'message' => 'Please check validation errors !', 'errors' => $validator->errors()], 400);
+            $message = $this->generate_erp_response("giftcard.amount.failed.validation", 0, $default = "Please check validation errors !", request('lang_code'));
+            return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
         }
         $couponData = GiftCard::select('gift_card_amount', 'gift_card_coupon_code', 'updated_at')->where('gift_card_coupon_code', $request->coupon_code)->first();
         if(!$couponData){
-            $message = $this->generate_erp_response("giftcard.failed", 0, $default = "coupon does not exists in record !");
+            $message = $this->generate_erp_response("giftcard.amount.failed", 0, $default = "coupon does not exists in record !", request('lang_code'));
             return response()->json(['status' => 'failed', 'message' => $message], 500);
         }
 
-        $message = $this->generate_erp_response("giftcard.success", 0, $default = "gift card amount fetched successfully");
+        $message = $this->generate_erp_response("giftcard.amount.success", 0, $default = "gift card amount fetched successfully", request('lang_code'));
         return response()->json([
             'status' => 'success',
             'message' => $message,
