@@ -92,7 +92,7 @@ function attach_customer_key()
 
 function get_server_last_log_file($screaperName = "", $serverId = "")
 {
-    $d = date('d', strtotime("-1 days"));
+    $d = date('j', strtotime("-1 days"));
     return "/scrap-logs/file-view/" . $screaperName . "-" . $d . ".log/" . $serverId;
 }
 

@@ -2081,6 +2081,7 @@ class WhatsAppController extends FindByNumberController
                     $params = [];
                     $params['message'] = $request->get('message', '');
                     $params['erp_user'] = $request->get('user_id', 0);
+                    $params['user_id'] = $request->get('user_id', 0);
                     $params['approved'] = 1;
                     $params['status'] = 2;
 

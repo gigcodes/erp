@@ -183,7 +183,7 @@ class StoreWebsiteController extends Controller
             return response()->json(["code" => 500, "error" => "Username already exist!"]);
         }
 
-        $uppercase = preg_match("/^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)$/", $post['password']);
+        $uppercase = preg_match('/^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9_@.\/#&+-]+)$/', $post['password']);
         if( !$uppercase || strlen( $post['password']) < 7)
         {
             return response()->json(["code" => 500, "error" => "Your password must be at least 7 characters.Your password must include both numeric and alphabetic characters."]);

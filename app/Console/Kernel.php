@@ -254,7 +254,7 @@ class Kernel extends ConsoleKernel
 		RunGoogleAnalytics::class,
         scrappersImages::class,
         scrappersImagesDelete::class,
-        InstagramHandler::class
+        InstagramHandler::class,
     ];
 
     /**

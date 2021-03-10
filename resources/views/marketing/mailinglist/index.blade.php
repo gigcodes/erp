@@ -42,7 +42,7 @@
             <p>{{ $message }}</p>
         </div>
     @endif
-    <div class="modal fade" id="AddMailingList" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
          aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -125,7 +125,7 @@
                     <!--td><?php //$value->service->name?></td-->
                     <td>{{$value['remote_id']}}</td>
                     <td>
-                        <a href="{{route('mailingList.single', $value['remote_id'])}}">
+                        <a href="{{route('mailingList.single', [ 'remoteID' => $value['remote_id'], 'store_id' => $value['website_id']])}}">
                             <i class="fa fa-list"></i>
                         </a> 
                         <a href="javascript:;" data-href="{{route('mailingList.edit', $value['remote_id'])}}" class="edit_maillist">

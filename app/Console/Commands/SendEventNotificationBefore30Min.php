@@ -48,13 +48,13 @@ class SendEventNotificationBefore30Min extends Command
 
             // get the events which has 24 hr left
             $events = UserEvent::havingRaw("TIMESTAMPDIFF(MINUTE,now() , start) >= 30 and TIMESTAMPDIFF(MINUTE, now(), start) <= 35")->get();
-            
+
             $userWise           = [];
             $vendorParticipants = [];
             if (!$events->isEmpty()) {
                 foreach ($events as $event) {
                     $userWise[$event->user_id][] = $event;
-                    $participants                = $event->participants;
+                    $participants                = $event->attendees;
                     if (!$participants->isEmpty()) {
                         foreach ($participants as $participant) {
                             if ($participant->object == \App\Vendor::class) {
@@ -82,10 +82,10 @@ class SendEventNotificationBefore30Min extends Command
                         $params['user_id'] = $user->id;
                         $params['message'] = implode("\n", $notification);
                         // send chat message
-                        $chat_message = ChatMessage::create($params);
+                        $chat_message = \App\ChatMessage::create($params);
                         // send
                         app('App\Http\Controllers\WhatsAppController')
-                            ->sendWithWhatsApp($user->phone, null, $params['message'], false, $chat_message->id);
+                            ->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], null, $chat_message->id);
                     }
                 }
             }
@@ -105,10 +105,10 @@ class SendEventNotificationBefore30Min extends Command
                         $params['vendor_id'] = $vendor->id;
                         $params['message']   = implode("\n", $notification);
                         // send chat message
-                        $chat_message = ChatMessage::create($params);
+                        $chat_message = \App\ChatMessage::create($params);
                         // send
                         app('App\Http\Controllers\WhatsAppController')
-                            ->sendWithWhatsApp($vendor->phone, $vendor->whatsapp_number, $params['message'], false, $chat_message->id);
+                            ->sendWithThirdApi($vendor->phone, $vendor->whatsapp_number, $params['message'], false, $chat_message->id);
 
                     }
                 }
