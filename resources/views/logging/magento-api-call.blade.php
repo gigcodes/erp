@@ -135,7 +135,7 @@
           },{
             mRender: function (data, type, row)
             {
-            return '<input type="text" style="width:90%" class="bulk_listing_codes_class" name="bulk_listing_codes" value=""/>'
+            return row.size_chart_url ? row.size_chart_url : "No"
             }
           },{
             mRender: function (data, type, row)
