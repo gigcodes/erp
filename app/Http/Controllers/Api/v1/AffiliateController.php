@@ -41,11 +41,11 @@ class AffiliateController extends Controller
         $validator = Validator::make($request->all(), [
             'website' => 'required|exists:store_websites,website',
         ]);
+        $storeweb                              = StoreWebsite::where('website', $request->website)->first();
         if ($validator->fails()) {
-            $message = $this->generate_erp_response("affiliates.failed.validation",($storeweb) ? $storeweb->id : null, $default = 'please check validation errors !', request('lang_code') );
+            $message = $this->generate_erp_response("affiliates.failed.validation",isset($storeweb) ? $storeweb->id : null, $default = 'please check validation errors !', request('lang_code') );
             return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
         }
-        $storeweb                              = StoreWebsite::where('website', $request->website)->first();
         $affiliates                            = new Affiliates;
         $affiliates->store_website_id          = ($storeweb) ? $storeweb->id : null;
         $affiliates->first_name                = isset($request->first_name) ? $request->first_name : '';
