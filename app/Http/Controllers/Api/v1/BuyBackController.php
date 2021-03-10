@@ -58,7 +58,7 @@ class BuyBackController extends Controller
         $validator = Validator::make($request->all(), $validationsarr);
 
         if ($validator->fails()) {
-            $message = $this->generate_erp_response("exchange.failed.validation",0, $default = 'Please check validation errors !', request('lang_code'));
+            $message = $this->generate_erp_response("$request->type.failed.validation",0, $default = 'Please check validation errors !', request('lang_code'));
             return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
         }
 
@@ -91,7 +91,7 @@ class BuyBackController extends Controller
                     if (!isset($getCustomerOrderData) || empty($getCustomerOrderData)) {
                         continue;
 
-                        $message = $this->generate_erp_response("exchange.failed.no_order_found",0, $default = 'No order found for the customer', request('lang_code'));
+                        $message = $this->generate_erp_response("$request->type.failed.no_order_found",0, $default = 'No order found for the customer', request('lang_code'));
                         return response()->json(['status' => 'failed', 'message' => $message], 404);
                     }
                     
@@ -112,7 +112,7 @@ class BuyBackController extends Controller
 
                     $success = ReturnExchange::create($return_exchanges_data);
                     if (!$success) {
-                        $message = $this->generate_erp_response("exchange.failed",$storeWebsite->id, $default = 'Unable to create '.ucwords($request->type).' request!', request('lang_code'));
+                        $message = $this->generate_erp_response("$request->type.failed",$storeWebsite->id, $default = 'Unable to create '.ucwords($request->type).' request!', request('lang_code'));
                         return response()->json(['status' => 'failed', 'message' => $message], 500);
                     }
 
@@ -245,11 +245,11 @@ class BuyBackController extends Controller
 
             if($isSuccess) {
 
-                $message = $this->generate_erp_response("exchange.success",$storeWebsite->id, $default = ucwords($request->type).' request created successfully', request('lang_code'));
+                $message = $this->generate_erp_response("$request->type.success",$storeWebsite->id, $default = ucwords($request->type).' request created successfully', request('lang_code'));
                 return response()->json(['status' => 'success', 'message' => $message], 200);
 
             }else{
-                $message = $this->generate_erp_response("exchange.failed.no_order_found",$storeWebsite->id, $default = 'No order found for the customer', request('lang_code'));
+                $message = $this->generate_erp_response("$request->type.failed.no_order_found",$storeWebsite->id, $default = 'No order found for the customer', request('lang_code'));
                 return response()->json(['status' => 'failed', 'message' => $message], 404);
             }
 

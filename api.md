@@ -376,8 +376,10 @@ Content-Type: application/json
 For type expected value will be "return","exchange","buyback","refund", "cancellation"
 
 
+Type : return, exchange, buyback, refund, cancellation
 
-key : exchange.success
+key : [type].success
+
 **Successful Response:**
 ```json
 Content-Type: application/json
@@ -387,7 +389,9 @@ Content-Type: application/json
 }
 ```
 
-Key : exchange.failed, exchange.failed.validation, exchange.failed.no_order_found
+Type : return, exchange, buyback, refund, cancellation
+
+Key : [type].failed, [type].failed.validation, [type].failed.no_order_found
 
 **Failed Response:**
 ```json
