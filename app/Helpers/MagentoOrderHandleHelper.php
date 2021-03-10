@@ -21,6 +21,7 @@ use App\Order;
 use App\ProductSizes;
 use App\Mails\Manual\OrderConfirmation;
 use App\Email;
+use Mail;
 use seo2websites\MagentoHelper\MagentoHelperv2 as MagentoHelper;
 
 class MagentoOrderHandleHelper extends Model

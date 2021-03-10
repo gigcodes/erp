@@ -65,7 +65,6 @@ class MagentoCustomerReferenceController extends Controller
             'status'  => false,
             'message' => $message,
         ]);
-
     }
 
     /**
