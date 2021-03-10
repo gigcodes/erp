@@ -235,6 +235,8 @@ class MagentoOrderHandleHelper extends Model
 
                     $customer = $orderSaved->customer;
 
+                    \Log::info("magento before mail send");
+
                     Mail::to($customer->email)->send(new OrderConfirmation($orderSaved));
                     $view   = (new OrderConfirmation($orderSaved))->render();
                     $params = [
@@ -274,11 +276,12 @@ class MagentoOrderHandleHelper extends Model
                         }
                     }
                 }
-                
+                \Log::info("return true ");
                 /**Ajay singh */
                 return true;
             }
         } catch (\Throwable $th) {
+            \Log::info("Magento order failed : reason => ".$th->getMessage());
             return false;
         }
         return false;
