@@ -320,23 +320,23 @@ class LaravelLogController extends Controller
         $action = $request->action;
     	
         if($url==''){
-            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'URL is required');
+            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'URL is required', request('lang_code'));
             return response()->json(['status' => 'failed', 'message' => $message], 400);
         }
         if($message==''){
-            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'Message is required');
+            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'Message is required', request('lang_code'));
             return response()->json(['status' => 'failed', 'message' => $message], 400);
         }
         if($module_name==''){
-            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'Module name is required');
+            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'Module name is required', request('lang_code'));
             return response()->json(['status' => 'failed', 'message' => $message], 400);
         }
         if($controller_name==''){
-            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'Controller name is required');
+            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'Controller name is required', request('lang_code'));
             return response()->json(['status' => 'failed', 'message' => $message], 400);
         }
         if($action==''){
-            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'action is required');
+            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'action is required', request('lang_code'));
             return response()->json(['status' => 'failed', 'message' => $message], 400);
         }
         $laravelLog = new LaravelLog();
@@ -347,7 +347,7 @@ class LaravelLogController extends Controller
         $laravelLog->controller_name=$controller_name;
         $laravelLog->action=$action;
         $laravelLog->save();
-        $message = $this->generate_erp_response("laravel.log.success",0, $default = 'Log data Saved');
+        $message = $this->generate_erp_response("laravel.log.success",0, $default = 'Log data Saved', request('lang_code'));
 		return response()->json(['status' => 'success', 'message' => $message], 200);
     }
     
@@ -455,11 +455,11 @@ class LaravelLogController extends Controller
             $logs=$logs->whereDate('created_at',\Carbon\Carbon::createFromFormat('Y/m/d', $request->created_at)->format('Y-m-d'));
         }
 
-        $count=$logs->count();
+        $count= $logs->count();
 
 
 
-        $logs=$logs->paginate(Setting::get('pagination'));
+        $logs=$logs->orderBy("id","desc")->paginate(Setting::get('pagination'));
 
       
 

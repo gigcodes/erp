@@ -17,17 +17,17 @@ class CreateLogRequestsTable extends Migration
 
             $table->increments('id');
 
-            $table->json("request");
+            $table->text("request")->nullable();
 
-            $table->json("response");
+            $table->text("response")->nullable();
 
-            $table->string("url", 1024);
+            $table->string("url", 1024)->nullable();
 
-            $table->string("ip", 16);
+            $table->string("ip")->nullable();
 
-            $table->string("method", 16);
+            $table->string("method")->nullable();
 
-            $table->integer('status_code');
+            $table->integer('status_code')->nullable();
             
             $table->timestamps();
         });

@@ -110,8 +110,7 @@ class CacheMasterControl extends Command
                         s.supplier_status_id=1 AND
                         sp.validated=1 AND
                         sp.website!='internal_scraper' AND
-                            
-                ";
+                        sp.last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)";
 
                 return DB::select($sqlScrapedProductsInStock);
             });

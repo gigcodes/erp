@@ -94,13 +94,13 @@ class TemplatesController extends Controller
 
          $body=array('name'=>$request->name,'tags'=>$tags);
 
-         //  echo '<pre>';print_r(json_encode($body));die;
+         
 
          $url=env('BANNER_API_LINK').'/templates/'.$template->uid;
 
         $api_key=env('BANNER_API_KEY');
 
-        //echo $api_key;die;
+  
 
         $headers=   [
                         'Authorization' => 'Bearer ' . $api_key,
@@ -109,7 +109,6 @@ class TemplatesController extends Controller
 
        $response=GuzzleHelper::patch($url,$body,$headers);
 
-       //  echo '<pre>';print_r($response);die;
 
         
 
@@ -139,7 +138,7 @@ class TemplatesController extends Controller
 
     }
 
-    public function updateTemplatesFromBearBanner()
+    public function updateTemplatesFromBearBanner(Request $request)
     {
 
         $templates=collect(self::bearBannerTemplates());
@@ -155,6 +154,12 @@ class TemplatesController extends Controller
 
                   $template=$existingTemplate;
 
+                  if($row->preview_url)
+                  {
+                     $media = $template->lastMedia(config('constants.media_tags'));
+                     $template->detachMedia($media);
+                  }
+
             }
             else
             {
@@ -162,12 +167,19 @@ class TemplatesController extends Controller
 
   
             }
-
-                $available_modifications=$row->available_modifications;
+                if($row->available_modifications)
+                {
+                   $available_modifications=$row->available_modifications;
+                }
+                else
+                {
+                  $available_modifications=[];
+                }
+               
 
                 if($row->preview_url)
                 {
-                    $contents = file_get_contents($row->preview_url);
+                    $contents = $this->getImageByCurl($row->preview_url);
 
                    $media=MediaUploader::fromString($contents)->useFilename('template-'.time())->toDirectory('template-images')->upload();
 
@@ -192,8 +204,13 @@ class TemplatesController extends Controller
            
 
        }
+           if($request->ajax())
+           {
+            return response()->json(["status" => 1, "message" => "Templates updated successfully!"]);
+           }
 
-       return response()->json(["status" => 1, "message" => "Templates updated successfully!"]);
+           return redirect()->back()->with('success','Templates are updated.');
+       
     }
 
 
@@ -399,5 +416,16 @@ class TemplatesController extends Controller
             return response()->json($responseData);
         }
         return response()->json(['status'=>'failed','message'=>'Product not found']);
+    }
+
+    public function getImageByCurl($url)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
     }
 }

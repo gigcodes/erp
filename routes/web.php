@@ -286,6 +286,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('product/history/by/supplier','ProductInventoryController@supplierProductHistory')->name('supplier.product.history');
 
+    Route::get('supplier/{supplier}/products/summary/','ProductInventoryController@supplierProductSummary')->name('supplier.product.summary');
+
 
     Route::get('productinventory/all-suppliers/{id}', 'ProductInventoryController@getSuppliers')->name('productinventory.all-suppliers');
     Route::resource('productinventory', 'ProductInventoryController');
@@ -2258,7 +2260,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('mailinglist/{id}', 'MailinglistController@show')->name('mailingList.single');
 
     Route::get('mailinglist/edit/{id}', 'MailinglistController@edit')->name('mailingList.edit');
-    Route::post('mailinglist/{id}', 'MailinglistController@update')->name('mailingList.update');
+    Route::post('mailinglist/update/{id}', 'MailinglistController@update')->name('mailingList.update');
 
     Route::get('mailinglist/add/{id}/{email}', 'MailinglistController@addToList')->name('mailingList.add_to_list');
     Route::get('mailinglist/delete/{id}/{email}', 'MailinglistController@delete')->name('mailingList.delete');
@@ -2287,6 +2289,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('mailinglist-ajax', 'MailinglistTemplateController@ajax');
     Route::post('mailinglist-templates/store', 'MailinglistTemplateController@store')->name('mailingList-template.store');
     Route::post('mailinglist-templates/category/store', 'MailinglistTemplateCategoryController@store')->name('mailingList.category.store');
+
 
     Route::group(['prefix' => 'mailinglist-templates/{id}'], function () {
         Route::get('delete', 'MailinglistTemplateController@delete')->name('mailingList-template.delete');
@@ -2816,9 +2819,13 @@ Route::get('google-keyword-search', 'GoogleAddWord\googleAddsController@index')-
 Route::resource('google-traslation-settings', 'GoogleTraslationSettingsController');
 });
 
+Route::post('displayContentModal','EmailContentHistoryController@displayModal')->name('displayContentModal');
+Route::post('add_content','EmailContentHistoryController@store')->name('add_content');
 
 // DEV MANISH
 //System size
 Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::any('/erp-log', 'ErpLogController@index')->name('erp-log');
 });
+
+
