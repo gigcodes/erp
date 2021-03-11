@@ -696,7 +696,8 @@ Content-Type: application/json
 }
 ```
 
-key : same as affiliate because it call same API
+key : influencer.success
+
 **Successful Response:**
 ```json
 HTTP/1.1 200
@@ -707,7 +708,8 @@ Content-Type: application/json
 }
 ```
 
-key : same as affiliate because it call same API
+key : influencer.failed.validation, influencer.failed
+
 **Failed Response:**
 ```json
 HTTP/1.1 500
