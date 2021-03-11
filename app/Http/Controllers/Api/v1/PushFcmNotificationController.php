@@ -15,7 +15,7 @@ class PushFcmNotificationController extends Controller
             'website'=>'exists:store_websites,website'
         ]);
         if ($validator->fails()) {
-            $message = $this->generate_erp_response("notification.failed.validation",$storeweb->id, $default = 'Please check validation errors !', request('lang_code'));
+            $message = $this->generate_erp_response("notification.failed.validation",0, $default = 'Please check validation errors !', request('lang_code'));
             return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
         }
         $storeweb = StoreWebsite::where('website', $request->website)->first();
