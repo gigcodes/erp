@@ -30,6 +30,7 @@ class RoutesController extends Controller
 			$query = $query->where('id', $request->id);
 		}
 		if($request->search){
+			$request->search = preg_replace('/[\s]+/', '/', $request->search);
 			$query = $query->where('url', 'LIKE','%'.$request->search.'%')->orWhere('page_title', 'LIKE', '%'.$request->search.'%')
                     ->orWhere('page_description', 'LIKE', '%'.$request->search.'%');
 		}

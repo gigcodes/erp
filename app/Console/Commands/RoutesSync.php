@@ -45,9 +45,13 @@ class RoutesSync extends Command
 			\Log::channel('errorlog')->info("Schedule Job Start : Routes Sync in DB ");
 			$method = 'GET';
 			$routes = \Route::getRoutes()->getRoutesByMethod();
-			$routesByGET = $routes[$method];
-			
-			foreach ($routesByGET as $route ){
+
+			$routesByGET  = $routes[$method];
+			$routesByPOST = $routes['POST'];
+            
+            $AllRoutes = array_merge( $routesByGET, $routesByPOST );
+
+			foreach ($AllRoutes as $route ){
 				if (Routes::where('url', '=', $route->uri)->count() > 0) 
 				{	
 					continue;
