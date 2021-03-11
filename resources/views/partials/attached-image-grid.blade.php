@@ -1005,7 +1005,7 @@
                 success: function(result){
                      $("#loading-image").hide();
                      console.log(result.url);
-                     location.reload();
+                     //location.reload();
                     //  window.location.href = result.url;
              }
          });

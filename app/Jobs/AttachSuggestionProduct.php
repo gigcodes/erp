@@ -22,7 +22,7 @@ class AttachSuggestionProduct implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(Suggestion $suggestion)
+    public function __construct(SuggestedProduct $suggestion)
     {
 
         $this->suggestion = $suggestion;

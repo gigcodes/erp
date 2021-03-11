@@ -25,7 +25,7 @@ class SuggestedProduct extends Model
 
     public function products()
     {
-        return $this->hasMany('App\Product', 'suggestion_products', 'suggestion_id', 'product_id');
+        return $this->hasMany('App\Product', 'suggested_product_lists', 'suggested_products_id', 'product_id');
     }
 
     public function suggestionProducts()
@@ -144,7 +144,7 @@ class SuggestedProduct extends Model
                                     $count++;
                                 }
 
-                                $product->suggestions()->attach($suggestion->id);
+                                $product->suggestions()->attach($suggestion->id,["customer_id" =>$customer->id]);
                             }
                         }
                     }
