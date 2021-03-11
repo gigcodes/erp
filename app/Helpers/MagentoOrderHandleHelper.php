@@ -21,6 +21,7 @@ use App\Order;
 use App\ProductSizes;
 use App\Mails\Manual\OrderConfirmation;
 use App\Email;
+use Mail;
 use seo2websites\MagentoHelper\MagentoHelperv2 as MagentoHelper;
 
 class MagentoOrderHandleHelper extends Model
@@ -234,7 +235,12 @@ class MagentoOrderHandleHelper extends Model
 
                     $customer = $orderSaved->customer;
 
-                    Mail::to($customer->email)->send(new OrderConfirmation($orderSaved));
+                    try{
+                        Mail::to($customer->email)->send(new OrderConfirmation($orderSaved));
+                    } catch (\Throwable $th) {
+                        \Log::error("Magento order mail sending failed : ".$th->getMessage());
+                    }
+
                     $view   = (new OrderConfirmation($orderSaved))->render();
                     $params = [
                         'model_id'        => $customer->id,
@@ -273,11 +279,11 @@ class MagentoOrderHandleHelper extends Model
                         }
                     }
                 }
-                
                 /**Ajay singh */
                 return true;
             }
         } catch (\Throwable $th) {
+            \Log::error("Magento order failed : reason => ".$th->getMessage());
             return false;
         }
         return false;

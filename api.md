@@ -1084,8 +1084,6 @@ Content-Type: application/json
                 "applied_taxes": [],
                 "item_applied_taxes": []
             }
-        
-    
 }
 ```
 Key : magento.order.success

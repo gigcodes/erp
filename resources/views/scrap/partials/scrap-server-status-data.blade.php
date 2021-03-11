@@ -19,7 +19,7 @@
                                 <td>{{ @$scrapper->last_started_at }}</td>
                                 <td>{{ @$scrapper->last_completed_at }}</td>
                                 <td>{{ @$scrapper->updated_at }}</td>
-                                <td>{{ @$interval->format('%H hours %i minutes %s seconds') }}</td>
+                                <td>{{ @$interval->format('%Y year %m month %d day %H hours %i minutes %s seconds') }}</td>
                                  
                                 <td>
                                     @if($scrapper->getScrapHistory->count() != 0)
