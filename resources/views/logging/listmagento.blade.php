@@ -31,7 +31,7 @@
       <div class="pull-right">
         <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
         <a href="/logging/magento-product-api-call" target="__blank">
-          <button type="button" class="btn btn-image"><img src="/images/resend2.png" /></button>
+          <button type="button" class="btn btn-image"><img src="/images/details.png" /></button>
         </a>
       </div>
   </div>
