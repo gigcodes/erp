@@ -30,9 +30,10 @@
       <h2 class="page-heading">Log List Magento ({{ $total_count }})</h2>
       <div class="pull-right">
         <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
+        <a href="/logging/magento-product-api-call" target="__blank">
+          <button type="button" class="btn btn-image"><img src="/images/resend2.png" /></button>
+        </a>
       </div>
-
-    </div>
   </div>
 
   <div class="col-md-12">
