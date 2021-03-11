@@ -615,7 +615,7 @@ class ScrapController extends Controller
         $brand = Brand::where('name', $receivedJson->brand)->first();
 
         // No brand found?
-        if (!$receivedJson->brand) {
+        if (!$brand) {
             // Check for reference
             $brand = Brand::where('references', 'LIKE', '%' . $receivedJson->brand . '%')->first();
 
@@ -626,6 +626,8 @@ class ScrapController extends Controller
                 ]);
             }
         }
+
+
 
         
         //add log in scraped product
