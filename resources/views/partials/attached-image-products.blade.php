@@ -93,9 +93,11 @@
             </a>
             <p>Category : 
                 <select class="form-control select-multiple-cat-list update-product" data-id={{ $product->id }}>
-                    @foreach($categoryArray as $category)
-                    <option value="{{ $category['id'] }}" @if($category['id'] == $product->category) selected @endif >{{ $category['value'] }}</option>
-                    @endforeach
+                    @if(!empty($categoryArray))
+                        @foreach($categoryArray as $category)
+                            <option value="{{ $category['id'] }}" @if($category['id'] == $product->category) selected @endif >{{ $category['value'] }}</option>
+                        @endforeach
+                    @endif
                 </select>
             </p>
             <a href="{{ route('products.show', $product->id) }}" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Supplier: </strong>{{ $product->supplier }} <strong>Status: </strong>{{ $product->purchase_status }}">
