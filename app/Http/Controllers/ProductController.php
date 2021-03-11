@@ -4718,7 +4718,6 @@ class ProductController extends Controller
             $term = $lastSuggestion->keyword;
             $limit = $lastSuggestion->total;
         }
-
         /* $remove_ids = \App\SuggestedProductList::where('customer_id',$customerId)->pluck('product_id as id'); */
 
         $remove_ids = \App\SuggestedProductList::where('suggested_products_id',$suggested_products_id)->pluck('product_id as id');
@@ -4753,6 +4752,9 @@ class ProductController extends Controller
                                 array_push($category_children, $child->id);
                             }
                         }
+
+                        array_push($category_children, $category);
+
                     } else {
                         array_push($category_children, $category);
                     }
@@ -4789,7 +4791,6 @@ class ProductController extends Controller
         
         // select fields..
         $products = $products->select(['products.id', 'name', 'short_description', 'color', 'sku', 'products.category', 'products.size', 'price_eur_special', 'price_inr_special', 'supplier', 'purchase_status', 'products.created_at']);
-
 
         $products = $products->paginate($limit);
 
@@ -4838,7 +4839,7 @@ class ProductController extends Controller
         if (empty($perPageLimit)) {
             $perPageLimit = Setting::get('pagination');
         }
-        $suggestedProducts = \App\SuggestedProduct::join('suggested_product_lists','suggested_products.customer_id','suggested_product_lists.customer_id')->where('chat_message_id','!=',NULL);
+        $suggestedProducts = \App\SuggestedProduct::join('suggested_product_lists','suggested_products.customer_id','suggested_product_lists.customer_id')->where('suggested_products.chat_message_id','!=',NULL);
         if($customerId) {
             $suggestedProducts = $suggestedProducts->where('suggested_products.customer_id',$customerId);
         }
