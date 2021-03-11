@@ -216,12 +216,17 @@ class LogListMagentoController extends Controller
         $size                   = '';
         $brands                 = '';
         $composition            = '';
+        $brand = "";
+        $dimensions = "N/A";
+        $size = "N/A";
         foreach ($products as $value) {
+            $websites[]   = \App\StoreWebsite::where('id', $value->store_website_id)->value('title');
             if (isset($value->extension_attributes)) {
                 foreach ($value->extension_attributes->website_ids as $vwi) {
                     $websites[] = \App\Website::where('platform_id', $vwi)->value('name');
                 }
             }
+            
             if (isset($value->custom_attributes)) {
                 foreach ($value->custom_attributes as $v) {
                     if ($v->attribute_code === "category_ids") {
@@ -232,15 +237,19 @@ class LogListMagentoController extends Controller
                         }
                     }
                     if ($v->attribute_code === "size_v2" || $v->attribute_code === "size") {
-                        $size = $v->value;
+                        $sizeM = \App\StoreWebsiteSize::join("sizes as s","s.id","store_website_sizes.size_id")->where("platform_id",$v->value)->where("store_website_id",$value->store_website_id)->select("s.*")->first();
+                        if($sizeM) {    
+                            $size = $sizeM->name;
+                        }
+
                     }
+
                     if ($v->attribute_code === "brands") {
                         $brandsModel = \App\StoreWebsiteBrand::join("brands as b","b.id","store_website_brands.brand_id")
                         ->where("magento_value",$v->value)
                         ->where("store_website_id",$value->store_website_id)
                         ->select("b.*")
                         ->first();
-                        $brand = "";
                         if($brandsModel) {
                             $brand = $brandsModel->name;
                         }
@@ -248,37 +257,39 @@ class LogListMagentoController extends Controller
                     if ($v->attribute_code === "composition") {
                         $composition = $v->value;
                     }
-
-                    $prepared_products_data[$value->sku] = [
-                        'store_website_id'      => $value->store_website_id,
-                        'magento_id'            => $value->id,
-                        'sku'                   => $value->sku,
-                        'product_name'          => $value->name,
-                        'media_gallery_entries' => $value->media_gallery_entries,
-                        'websites'              => array_filter($websites),
-                        'category_names'        => $category_names,
-                        'size'                  => $size,
-                        'brands'                => $brands,
-                        'composition'           => $composition,
-                        'dimensions'            => $value->size ?? 0,
-                        'english'               => !empty($value->english) ? $value->english : "No",
-                        'arabic'                => !empty($value->arabic) ? $value->arabic : "No",
-                        'german'                => !empty($value->german) ? $value->german : "No",
-                        'spanish'               => !empty($value->spanish) ? $value->spanish : "No",
-                        'french'                => !empty($value->french) ? $value->french : "No",
-                        'italian'               => !empty($value->italian) ? $value->italian : "No",
-                        'japanese'              => !empty($value->japanese) ? $value->japanese : "No",
-                        'korean'                => !empty($value->korean) ? $value->korean : "No",
-                        'russian'               => !empty($value->russian) ? $value->russian : "No",
-                        'chinese'               => !empty($value->chinese) ? $value->chinese : "No",
-                        'size_chart_url'        => !empty($value->size_chart_url) ? "Yes" : "No",
-                        'success'               => true,
-                    ];
+                    
+                    if ($v->attribute_code === "dimensions") {
+                        $dimensions = $v->value;
+                    }
 
                 }
             }
+            $prepared_products_data[$value->sku] = [
+                'store_website_id'      => $value->store_website_id,
+                'magento_id'            => $value->id,
+                'sku'                   => $value->sku,
+                'product_name'          => $value->name,
+                'media_gallery_entries' => $value->media_gallery_entries,
+                'websites'              => array_filter($websites),
+                'category_names'        => $category_names,
+                'size'                  => $size,
+                'brands'                => $brand,
+                'composition'           => $composition,
+                'dimensions'            => $dimensions,
+                'english'               => !empty($value->english) ? $value->english : "No",
+                'arabic'                => !empty($value->arabic) ? $value->arabic : "No",
+                'german'                => !empty($value->german) ? $value->german : "No",
+                'spanish'               => !empty($value->spanish) ? $value->spanish : "No",
+                'french'                => !empty($value->french) ? $value->french : "No",
+                'italian'               => !empty($value->italian) ? $value->italian : "No",
+                'japanese'              => !empty($value->japanese) ? $value->japanese : "No",
+                'korean'                => !empty($value->korean) ? $value->korean : "No",
+                'russian'               => !empty($value->russian) ? $value->russian : "No",
+                'chinese'               => !empty($value->chinese) ? $value->chinese : "No",
+                'size_chart_url'        => !empty($value->size_chart_url) ? "Yes" : "No",
+                'success'               => true,
+            ];
             if (!$value->success) {
-                $websites[]   = \App\StoreWebsite::where('id', $value->store_website_id)->value('title');
                 $product_name = \App\Product::with('product_category', 'brands')->where('sku', $value->skuid)->first();
                 //dd($product_name);
                 if (isset($product_name) && $product_name->product_category != null) {
@@ -360,18 +371,17 @@ class LogListMagentoController extends Controller
                         $result->success    = true;
                         $result->size_chart_url    = "";
 
+                        $englishDescription = "";
                         if(!empty($result->custom_attributes)) {
                           foreach($result->custom_attributes as $attributes) {
                              if($attributes->attribute_code == "size_chart_url") {
                                 $result->size_chart_url    = $attributes->value;
                              }
+                             if($attributes->attribute_code == "description") {
+                                $englishDescription = $attributes->value;
+                                $result->english = "Yes";
+                             }
                           }
-                        }
-
-                        $englishDescription = "";
-                        if (isset($result->custom_attributes[0]->value) && $result->custom_attributes[0]->attribute_code == "description") {
-                            $englishDescription = $result->custom_attributes[0]->value;
-                            $result->english = "Yes";
                         }
 
                         // check for all langauge request
@@ -387,13 +397,21 @@ class LogListMagentoController extends Controller
                             if ($firstStore) {
                                 $exresult = $magentoHelper->getProductBySku($sku->sku, $get_store_website, $firstStore->code);
                                 if (isset($exresult->id)) {
-                                    if (isset($exresult->custom_attributes[0]->value) && $exresult->custom_attributes[0]->attribute_code == "description") {
-                                        $description = $exresult->custom_attributes[0]->value;
-                                        if (trim($englishDescription) != trim($description)) {
-                                            $result->{$language} = "Yes";
-                                        } else {
-                                            $result->{$language} = "No";
-                                        }
+
+                                    $diffrentDescription = "";
+
+                                    if(!empty($exresult->custom_attributes)) {
+                                      foreach($exresult->custom_attributes as $attributes) {
+                                         if($attributes->attribute_code == "description") {
+                                            $diffrentDescription = $attributes->value;
+                                         }
+                                      }
+                                    }
+
+                                    if (trim(strip_tags(strtolower($englishDescription))) != trim(strip_tags(strtolower($diffrentDescription))) && !empty($diffrentDescription) ) {
+                                        $result->{$language} = "Yes";
+                                    } else {
+                                        $result->{$language} = "No";
                                     }
                                 }
                             }
