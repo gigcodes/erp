@@ -84,9 +84,11 @@
                         <th>Products</th>
 
                         <th> Brands </th>
-
+                        <?php foreach($columnData as $e) { ?>
+                            <th> <?php echo $e; ?> </th>
+                        <?php } ?> 
                         <th>Summary</th>
-                        
+                          
                       
                       
                     </tr>
@@ -94,19 +96,18 @@
                 <tbody>
                     @foreach ($allHistory as $key=> $row ) 
                     <tr>
-                      
-                      <td>{{$row['supplier_name']}}</td>
-                     <td>{{$row['products']}}</td>
-                     <td>{{$row['brands']}}</td>
-                     
-
-                    
-                     <td class="showSummary"><a target="_blank" href="{{route('supplier.product.summary',$row['supplier_id'])}}">Details</td>
+                       <td>{{$row['supplier_name']}}</td>
+                       <td>{{$row['products']}}</td>
+                       <td>{{$row['brands']}}</td>
+                       <?php foreach($columnData as $e) { ?>
+                           <td> <?php echo isset($row['dates'][$e]) ? $row['dates'][$e] : 0; ?> </td>
+                       <?php } ?> 
+                       <td class="showSummary"><a target="_blank" href="{{route('supplier.product.summary',$row['supplier_id'])}}">Details</td>
                     </tr>
 
                     @endforeach
                     <tr>
-                         <td colspan="10">
+                         <td colspan="11">
         {{ $inventory->appends(request()->except("page"))->links() }}
     </td>
                     </tr>
