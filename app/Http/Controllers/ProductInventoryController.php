@@ -1287,13 +1287,14 @@ class ProductInventoryController extends Controller
 		$total_rows = $inventory->count();
 		$inventory = $inventory->orderBy('product_count_count','desc')->paginate(10);
 		$allHistory = [];
-		$date = date('Y-m-d', strtotime(date("Y-m-d") . ' -7 day'));
+		$date = date('Y-m-d', strtotime(date("Y-m-d") . ' -6 day'));
 		$extraDates = $date;
 		$columnData = [];
 		for ($i=1; $i < 8 ; $i++) { 
 			$columnData[] = $extraDates;
 			$extraDates   = date('Y-m-d', strtotime($extraDates . ' +1 day'));
 		}
+
 
 		foreach ($inventory as $key => $row) {
             
@@ -1303,13 +1304,11 @@ class ProductInventoryController extends Controller
 			$newRow['products'] = $row->product_count_count;
 			$newRow['supplier_id'] = $row->supplier_id;
 
-			for ($i=1; $i < 8 ; $i++) { 
+			foreach ($columnData as $c) { 
 				# code...
-				$totalProduct = \App\InventoryStatusHistory::whereDate('created_at',$date)->where('supplier_id',$row->supplier_id)->select(\DB::raw("count(distinct product_id) as total_product"))->first();
+				$totalProduct = \App\InventoryStatusHistory::whereDate('created_at',$c)->where('supplier_id',$row->supplier_id)->select(\DB::raw("count(distinct product_id) as total_product"))->first();
 
-				$newRow['dates'][$date] = ($totalProduct) ? $totalProduct->total_product : 0;
-				$date = date('Y-m-d', strtotime($date . ' +1 day'));
-
+				$newRow['dates'][$c] = ($totalProduct) ? $totalProduct->total_product : 0;
 			}
 
 			array_push($allHistory,$newRow);
