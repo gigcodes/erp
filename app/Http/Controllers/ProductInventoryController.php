@@ -1305,8 +1305,7 @@ class ProductInventoryController extends Controller
 
 			for ($i=1; $i < 8 ; $i++) { 
 				# code...
-				$totalProduct = \App\InventoryStatusHistory::whereDate('created_at',$date)->where('supplier_id',$row->supplier_id)->groupBy('product_id')
-				->select(\DB::raw("count(distinct product_id) as total_product"))->first();
+				$totalProduct = \App\InventoryStatusHistory::whereDate('created_at',$date)->where('supplier_id',$row->supplier_id)->select(\DB::raw("count(distinct product_id) as total_product"))->first();
 
 				$newRow['dates'][$date] = ($totalProduct) ? $totalProduct->total_product : 0;
 				$date = date('Y-m-d', strtotime($date . ' +1 day'));
