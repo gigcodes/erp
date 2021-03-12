@@ -1112,3 +1112,30 @@ Content-Type: application/json
     "message": "Something went wrong, Please try again"
 }
 ```
+
+## Send screenshot from scraper
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/scrape/send-screenshot
+"website" : "www.brands-labels.com",
+"screenshot" : "insert-file-here"
+```
+
+**Successful Response:**
+```json
+{
+    "code": 200,
+    "data": [],
+    "message": "Screenshot saved successfully"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```
+
