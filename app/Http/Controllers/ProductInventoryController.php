@@ -1276,30 +1276,47 @@ class ProductInventoryController extends Controller
 	public function supplierProductHistory(Request $request)
 	{
 		$suppliers = \App\Supplier::all();
-		$inventory = \App\InventoryStatusHistory::select('supplier_id',DB::raw('count(distinct product_id)as product_count_count,GROUP_CONCAT(product_id) as brand_products'))->whereDate('created_at','>', Carbon::now()->subDays(7))
+		$inventory = \App\InventoryStatusHistory::select('created_at','supplier_id',DB::raw('count(distinct product_id) as product_count_count,GROUP_CONCAT(product_id) as brand_products'))->whereDate('created_at','>', Carbon::now()->subDays(7))
 			->where('in_stock','>',0)
 			->groupBy('supplier_id');
 
 		if($request->supplier) {
-			$inventory=$inventory->where('supplier_id',$request->supplier);
+			$inventory = $inventory->where('supplier_id',$request->supplier);
 		}
 
 		$total_rows = $inventory->count();
 		$inventory = $inventory->orderBy('product_count_count','desc')->paginate(10);
 		$allHistory = [];
+		$date = date('Y-m-d', strtotime(date("Y-m-d") . ' -7 day'));
+		$extraDates = $date;
+		$columnData = [];
+		for ($i=1; $i < 8 ; $i++) { 
+			$columnData[] = $extraDates;
+			$extraDates   = date('Y-m-d', strtotime($extraDates . ' +1 day'));
+		}
 
 		foreach ($inventory as $key => $row) {
             
             $newRow = [];
-			$newRow['supplier_name']=$row->supplier->supplier;
-			$newRow['brands']=\App\Product::whereIn('id',explode(',',$row->brand_products))->groupBy('brand')->count();
-			$newRow['products']=$row->product_count_count;
-			$newRow['supplier_id']=$row->supplier_id;
+			$newRow['supplier_name'] = $row->supplier->supplier;
+			$newRow['brands'] = \App\Product::whereIn('id',explode(',',$row->brand_products))->groupBy('brand')->count();
+			$newRow['products'] = $row->product_count_count;
+			$newRow['supplier_id'] = $row->supplier_id;
+
+			for ($i=1; $i < 8 ; $i++) { 
+				# code...
+				$totalProduct = \App\InventoryStatusHistory::whereDate('created_at',$date)->where('supplier_id',$row->supplier_id)->groupBy('product_id')
+				->select(\DB::raw("count(distinct product_id) as total_product"))->first();
+
+				$newRow['dates'][$date] = ($totalProduct) ? $totalProduct->total_product : 0;
+				$date = date('Y-m-d', strtotime($date . ' +1 day'));
+
+			}
 
 			array_push($allHistory,$newRow);
 		}
-    
-		return view('product-inventory.supplier-product-history',compact('allHistory','inventory','total_rows','suppliers','request'));
+
+		return view('product-inventory.supplier-product-history',compact('allHistory','inventory','total_rows','suppliers','request','columnData'));
 
 
 	}
