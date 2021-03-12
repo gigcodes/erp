@@ -462,15 +462,15 @@ class Category extends Model
                             //if case second
                             if ($case == 'second') {
                                 $parentCategory = StoreWebsiteCategory::where('store_website_id', $swi)
-                                    ->where('category_id', $category->parent->id)
+                                    ->where('category_id', $category->parentM->id)
                                     ->where('remote_id','>',0)
                                     ->first();
                                 //if parent remote null then send to magento first
                                 if (empty($parentCategory)) {
 
-                                    $data['id']       = $category->parent->id;
+                                    $data['id']       = $category->parentM->id;
                                     $data['level']    = 1;
-                                    $data['name']     = ucwords($category->parent->title);
+                                    $data['name']     = ucwords($category->parentM->title);
                                     $data['parentId'] = 0;
                                     $parentId         = 0;
 
@@ -478,13 +478,13 @@ class Category extends Model
 
                                     if ($parentCategoryDetails) {
                                         $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)
-                                            ->where('category_id', $category->parent->id)
+                                            ->where('category_id', $category->parentM->id)
                                             ->where('remote_id', $parentCategoryDetails)
                                             ->first();
 
                                         if (empty($checkIfExist)) {
                                             $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                            $storeWebsiteCategory->category_id      = $category->parent->id;
+                                            $storeWebsiteCategory->category_id      = $category->parentM->id;
                                             $storeWebsiteCategory->store_website_id = $swi;
                                             $storeWebsiteCategory->remote_id        = $parentCategoryDetails;
                                             $storeWebsiteCategory->save();
@@ -528,17 +528,17 @@ class Category extends Model
                                 if (empty($parentCategory)) {
 
                                     //check for grandparent
-                                    $grandCategory       = Category::find($category->parent->id);
+                                    $grandCategory       = Category::find($category->parentM->id);
                                     $grandCategoryDetail = StoreWebsiteCategory::where('store_website_id', $swi)
-                                        ->where('category_id', $grandCategory->parent->id)
+                                        ->where('category_id', $grandCategory->parentM->id)
                                         ->where('remote_id','>',0)
                                         ->first();
 
                                     if (empty($grandCategoryDetail)) {
 
-                                        $data['id']       = $grandCategory->parent->id;
+                                        $data['id']       = $grandCategory->parentM->id;
                                         $data['level']    = 1;
-                                        $data['name']     = ucwords($grandCategory->parent->title);
+                                        $data['name']     = ucwords($grandCategory->parentM->title);
                                         $data['parentId'] = 0;
                                         $parentId         = 0;
 
@@ -546,13 +546,13 @@ class Category extends Model
 
                                         if ($grandCategoryDetails) {
                                             $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)
-                                                ->where('category_id', $grandCategory->parent->id)
+                                                ->where('category_id', $grandCategory->parentM->id)
                                                 ->where('remote_id', $grandCategoryDetails)
                                                 ->first();
 
                                             if (empty($checkIfExist)) {
                                                 $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                                $storeWebsiteCategory->category_id      = $grandCategory->parent->id;
+                                                $storeWebsiteCategory->category_id      = $grandCategory->parentM->id;
                                                 $storeWebsiteCategory->store_website_id = $swi;
                                                 $storeWebsiteCategory->remote_id        = $grandCategoryDetails;
                                                 $storeWebsiteCategory->save();
@@ -568,27 +568,27 @@ class Category extends Model
                                     //Search for child category
 
                                     $childCategoryE = StoreWebsiteCategory::where('store_website_id', $swi)
-                                        ->where('category_id', $category->parent->id)
+                                        ->where('category_id', $category->parentM->id)
                                         ->where('remote_id','>',0)
                                         ->first();
 
                                     if(!$childCategoryE) {
-                                        $data['id']       = $category->parent->id;
+                                        $data['id']       = $category->parentM->id;
                                         $data['level']    = 2;
-                                        $data['name']     = ucwords($category->parent->title);
+                                        $data['name']     = ucwords($category->parentM->title);
                                         $data['parentId'] = $grandRemoteId;
                                         $parentId         = $grandRemoteId;
 
                                         $childCategoryDetails = MagentoHelper::createCategory($parentId, $data, $swi);
 
                                         $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)
-                                            ->where('category_id', $category->parent->id)
+                                            ->where('category_id', $category->parentM->id)
                                             ->where('remote_id', $childCategoryDetails)
                                             ->first();
 
                                         if (empty($checkIfExist)) {
                                             $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                            $storeWebsiteCategory->category_id      = $category->parent->id;
+                                            $storeWebsiteCategory->category_id      = $category->parentM->id;
                                             $storeWebsiteCategory->store_website_id = $swi;
                                             $storeWebsiteCategory->remote_id        = $childCategoryDetails;
                                             $storeWebsiteCategory->save();
@@ -630,7 +630,7 @@ class Category extends Model
                                 if (empty($main)) {
 
                                     //check for grandparent
-                                    $first = $category->parent->parent->parent->id;
+                                    $first = $category->parentM->parentM->parentM->id;
                                     
                                     $storewebsiteFirst = StoreWebsiteCategory::where('store_website_id', $swi)
                                         ->where('category_id', $first)
@@ -672,17 +672,17 @@ class Category extends Model
 
 
 
-                                    $grandCategory       = Category::find($category->parent->id);
+                                    $grandCategory       = Category::find($category->parentM->id);
                                     $grandCategoryDetail = StoreWebsiteCategory::where('store_website_id', $swi)
-                                        ->where('category_id', $grandCategory->parent->id)
+                                        ->where('category_id', $grandCategory->parentM->id)
                                         ->where('remote_id','>',0)
                                         ->first();
 
                                     if (empty($grandCategoryDetail)) {
 
-                                        $data['id']       = $grandCategory->parent->id;
+                                        $data['id']       = $grandCategory->parentM->id;
                                         $data['level']    = 2;
-                                        $data['name']     = ucwords($grandCategory->parent->title);
+                                        $data['name']     = ucwords($grandCategory->parentM->title);
                                         $data['parentId'] = $grandGrandRemoteId;
                                         $parentId         = $grandGrandRemoteId;
 
@@ -690,13 +690,13 @@ class Category extends Model
 
                                         if ($grandCategoryDetails) {
                                             $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)
-                                                ->where('category_id', $grandCategory->parent->id)
+                                                ->where('category_id', $grandCategory->parentM->id)
                                                 ->where('remote_id', $grandCategoryDetails)
                                                 ->first();
 
                                             if (empty($checkIfExist)) {
                                                 $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                                $storeWebsiteCategory->category_id      = $grandCategory->parent->id;
+                                                $storeWebsiteCategory->category_id      = $grandCategory->parentM->id;
                                                 $storeWebsiteCategory->store_website_id = $swi;
                                                 $storeWebsiteCategory->remote_id        = $grandCategoryDetails;
                                                 $storeWebsiteCategory->save();
@@ -712,27 +712,27 @@ class Category extends Model
                                     //Search for child category
 
                                     $childCategoryE = StoreWebsiteCategory::where('store_website_id', $swi)
-                                        ->where('category_id', $category->parent->id)
+                                        ->where('category_id', $category->parentM->id)
                                         ->where('remote_id','>',0)
                                         ->first();
 
                                     if(!$childCategoryE) {
-                                        $data['id']       = $category->parent->id;
+                                        $data['id']       = $category->parentM->id;
                                         $data['level']    = 3;
-                                        $data['name']     = ucwords($category->parent->title);
+                                        $data['name']     = ucwords($category->parentM->title);
                                         $data['parentId'] = $grandRemoteId;
                                         $parentId         = $grandRemoteId;
 
                                         $childCategoryDetails = MagentoHelper::createCategory($parentId, $data, $swi);
 
                                         $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)
-                                            ->where('category_id', $category->parent->id)
+                                            ->where('category_id', $category->parentM->id)
                                             ->where('remote_id', $childCategoryDetails)
                                             ->first();
 
                                         if (empty($checkIfExist)) {
                                             $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                            $storeWebsiteCategory->category_id      = $category->parent->id;
+                                            $storeWebsiteCategory->category_id      = $category->parentM->id;
                                             $storeWebsiteCategory->store_website_id = $swi;
                                             $storeWebsiteCategory->remote_id        = $childCategoryDetails;
                                             $storeWebsiteCategory->save();
