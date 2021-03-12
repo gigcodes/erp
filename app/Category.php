@@ -36,6 +36,11 @@ class Category extends Model
         return $this->hasOne( 'App\Category', 'id', 'parent_id' );
     }
 
+    public function parentM()
+    {
+        return $this->hasOne( 'App\Category', 'id', 'parent_id' );
+    }
+
     public static function isParent( $id )
     {
 
@@ -425,11 +430,11 @@ class Category extends Model
                         try {
                             if ($category->parent_id == 0) {
                                 $case = 'single';
-                            } elseif ($category->parent && $category->parent->parent_id == 0) {
+                            } elseif (!empty($category->parentM) && $category->parentM->parent_id == 0) {
                                 $case = 'second';
-                            } elseif ($category->parent && $category->parent->parent && $category->parent->parent->parent_id == 0) {
+                            } elseif (!empty($category->parentM) && !empty($category->parentM->parentM) && $category->parentM->parentM->parent_id == 0) {
                                 $case = 'third';
-                            } else {
+                            } elseif (!empty($category->parentM) && !empty($category->parentM->parentM) && !empty($category->parentM->parentM->parentM) && $category->parentM->parentM->parentM->parentM == 0) {
                                 $case = 'fourth';
                             }
 
