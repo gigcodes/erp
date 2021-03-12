@@ -434,7 +434,7 @@ class Category extends Model
                                 $case = 'second';
                             } elseif (!empty($category->parentM) && !empty($category->parentM->parentM) && $category->parentM->parentM->parent_id == 0) {
                                 $case = 'third';
-                            } elseif (!empty($category->parentM) && !empty($category->parentM->parentM) && !empty($category->parentM->parentM->parentM) && $category->parentM->parentM->parentM->parentM == 0) {
+                            } elseif (!empty($category->parentM) && !empty($category->parentM->parentM) && !empty($category->parentM->parentM->parentM) && $category->parentM->parentM->parentM->parent_id == 0) {
                                 $case = 'fourth';
                             }
 
