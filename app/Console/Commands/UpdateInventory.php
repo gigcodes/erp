@@ -73,6 +73,8 @@ class UpdateInventory extends Command
                     
                     foreach ($skuRecords as $records) {
                         
+                        \DB::statement("update `scraped_products` set `last_cron_check` = now() where `id` = '" . $records['sproduct_id'] . "'");
+
                         $inventoryLifeTime = isset($records["inventory_lifetime"]) && is_numeric($records["inventory_lifetime"])
                         ? $records["inventory_lifetime"]
                         : 0;
@@ -118,7 +120,7 @@ class UpdateInventory extends Command
                         $hasInventory = true;
 
                         dump("Scraped Product updated : ".$records['sproduct_id']);
-                        \DB::statement("update `scraped_products` set `last_cron_check` = now() where `id` = '" . $records['sproduct_id'] . "'");
+                        
                     }
                     
                     if (!$hasInventory && !empty($productId)) {
