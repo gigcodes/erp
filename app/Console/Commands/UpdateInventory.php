@@ -126,8 +126,12 @@ class UpdateInventory extends Command
                     }
                 } 
                 if(!empty($zeroStock)){
-                    if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                        MagentoHelper::callHelperForZeroStockQtyUpdate($zeroStock);
+                    try{
+                        if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                                MagentoHelper::callHelperForZeroStockQtyUpdate($zeroStock);
+                        }
+                    }catch(\Exception $e) {
+
                     }
                 }
                 
