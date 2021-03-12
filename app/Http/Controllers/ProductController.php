@@ -3096,7 +3096,7 @@ class ProductController extends Controller
 
             $productMediacount = ($productMediacount * $multi);
 
-            \Log::info(json_encode(["Media Crop",$product->id,$multi,$totalM,$productMediacount,$cropCount]));
+            //\Log::info(json_encode(["Media Crop",$product->id,$multi,$totalM,$productMediacount,$cropCount]));
 
             if ($productMediacount <= $cropCount) {
                 $product->cropped_at = Carbon::now()->toDateTimeString();
