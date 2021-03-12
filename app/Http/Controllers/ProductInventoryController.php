@@ -1278,7 +1278,7 @@ class ProductInventoryController extends Controller
 		$suppliers = \App\Supplier::all();
 		$inventory = \App\InventoryStatusHistory::select('supplier_id',DB::raw('count(distinct product_id)as product_count_count,GROUP_CONCAT(product_id) as brand_products'))->whereDate('created_at','>', Carbon::now()->subDays(7))
 			->where('in_stock','>',0)
-			->groupBy('supplier_ids');
+			->groupBy('supplier_id');
 
 		if($request->supplier) {
 			$inventory=$inventory->where('supplier_id',$request->supplier);
