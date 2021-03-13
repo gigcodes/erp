@@ -291,6 +291,10 @@
         } else if ($model_type == 'newsletters'){
             $action =  route('newsletters.save');
         }
+        else if($model_type=='instagram-post')
+        {
+            $action =route('instagram.post.images');
+        }
     @endphp
     <form action="{{ $action }}" data-model-type="{{$model_type}}" method="POST" id="attachImageForm">
         @csrf

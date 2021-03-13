@@ -65,7 +65,7 @@ class PublishPost
             $instagram->login($account->last_name, $account->password);
 
         } catch (IncorrectPasswordException $e) {
-            dd($e->getMessage());
+            
             Log::channel('customer')->error('The password you entered is incorrect. Please try again. ' . $e->getMessage());
 
             $post->status  = 2;
@@ -169,7 +169,7 @@ class PublishPost
         $metadata['caption'] = $post->caption;
         
         // Get media and prepare for publishing
-        $medias = Media::where('id',$post->ig['media'])->get();
+        $medias = Media::whereIn('id',$post->ig['media'])->get();
         
         // Size matters depending on post type
         switch ($post->type) {
@@ -300,7 +300,6 @@ class PublishPost
            
             // Save response to post
             if ($result->hasMedia()) {
-
                 // Get published media item
                 $media = $result->getMedia();
 
