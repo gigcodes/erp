@@ -42,6 +42,7 @@ Content-Type: application/json
     "style":"Enter style",
     "keyword":"Enter keyword",
     "image":"Enter image",
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
 
@@ -94,6 +95,7 @@ Content-Type: application/json
     "referee_email": "Singh.karamjit1689@gmail.com", //required,email,length maxminum 20
     "referee_phone": "9999999999", //length maxminum 20
     "website": "WWW.SOLOLUXURY.COM",//required, must be a website in store websites
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
 
@@ -108,7 +110,8 @@ Content-Type: application/json
     "message": "refferal created successfully",
     "referrer_code": "o4kx9LzcrbYCMFj",
     "referrer_email": "abc@example.com",
-    "referee_email": "Singh.karamjit1689@gmail.com"
+    "referee_email": "Singh.karamjit1689@gmail.com",
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
 
@@ -144,6 +147,7 @@ Content-Type: application/json
     "gift_card_message" : "test message", //length maxminum 200
     "expiry_date" : "2020-10-16", //required, date after yesterday
     "website"  : "WWW.SOLOLUXURY.COM", //required, must be a website in store websites
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
 Key : giftcard.success
@@ -179,7 +183,9 @@ Content-Type: application/json
 GET https://erp.theluxuryunlimited.com/api/giftcards/check-giftcard-coupon-amount
 Accept: application/json
 Content-Type: application/json
-{   "coupon_code" : "A1A22A111FFF333", //required, length maxminum 30, existing in gift_cards
+{   
+    "coupon_code" : "A1A22A111FFF333", //required, length maxminum 30, existing in gift_cards
+    "lang_code":"ae_ar", // Enter language code 
 }
 ```
 Key : giftcard.amount.success
@@ -308,7 +314,8 @@ Content-Type: application/json
 {
     "customer_email" : "firasath90@gmail.com",
     "website" : "www.brands-labels.com",
-    "order_id" : "000000012"
+    "order_id" : "000000012",
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
 
@@ -370,7 +377,8 @@ Content-Type: application/json
     "website" : "www.brands-labels.com",
     "order_id" : "000000012",
     "product_sku" : "Test01",
-    "type":"exchange"
+    "type":"exchange",
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
 For type expected value will be "return","exchange","buyback","refund", "cancellation"
@@ -412,7 +420,8 @@ Accept: application/json
 Content-Type: application/json
 {
     "sku" : "565655VT0406512FW2019",
-    "country" : "IN"
+    "country" : "IN",
+    "lang_code":"ae_ar", // Enter language code
 }
 
 
@@ -468,6 +477,7 @@ Content-Type: application/json
     "city":"Texas", //optional, string
     "postcode":"111111", //optional, string
     "country":"United States Of America", //optional, string
+    "lang_code":"ae_ar", // Enter language code
 
 }
 ```
@@ -512,7 +522,9 @@ Content-Type: application/json
     "phone": "918638973610", //optional
     "website": "WWW.SOLOLUXURY.COM",//required, must be a website in store websites
     "dob": "2020-10-23", //optional
-    "wedding_anniversery": "2020-10-23"//optional
+    "wedding_anniversery": "2020-10-23", //optional
+    "lang_code":"ae_ar", // Enter language code
+    
 }
 ```
 
@@ -548,7 +560,8 @@ Content-Type: application/json
     "website" : "live_chat",
     "email" : "bardam.yus@gmail.com", //optional if ticket_id is set 
     "ticket_id":"PWTCR", //optional if email is set
-    "per_page":"10" //optional, default is 15
+    "per_page":"10", //optional, default is 15
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
 **Successful Response:**
@@ -636,6 +649,7 @@ Content-Type: application/json
 {
     "website" : "WWW.SOLOLUXURY.COM", //required , exists in store websites
     "token" : "sdsad2e232dsdsd", //required 
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
 
@@ -692,7 +706,8 @@ Content-Type: application/json
     "website_name":"sololuxury", //optional, string
     "url":"url", //optional, string
     "country":"United States Of America", //optional, string
-    "type" :"influencer"
+    "type" :"influencer",
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
 
@@ -729,7 +744,8 @@ Content-Type: application/json
 {
     "website" : "www.veralusso.com", //existing website
     "email":"Solo@theluxuryunlimited.com",
-    "store_name" : "store name or store code"
+    "store_name" : "store name or store code",
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
 
@@ -767,7 +783,8 @@ Content-Type: application/json
 {
     "message": "error-message",
     "website": "Farfetch",  
-    "url": "https:\/\/www.farfetch.com\/mt\/shopping\/kids\/young-versace-crystal-logo-t-shirt-item-15339323.aspx?q=YC000346YA00019A1008"
+    "url": "https:\/\/www.farfetch.com\/mt\/shopping\/kids\/young-versace-crystal-logo-t-shirt-item-15339323.aspx?q=YC000346YA00019A1008",
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
 
@@ -804,7 +821,8 @@ Accept: application/json
 Content-Type: application/json
 {
     "website" : "www.brands-labels.com",
-    "order_id" : "000000012"
+    "order_id" : "000000012",
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
 
@@ -845,6 +863,7 @@ Content-Type: application/json
 {
            
             "website": "WWW.SOLOLUXURY.COM",
+            "lang_code":"ae_ar", // Enter language code
             "base_currency_code": "EUR",
             "base_discount_amount": 0,
             "base_grand_total": 495,
