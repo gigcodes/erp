@@ -19,7 +19,7 @@
             <div class="col-sm-6 col-lg-3">
                 <div class="card">
                     @if($media)
-                        <a href="https://www.instagram.com/p/{{ $detail->code }}" target="_blank">
+                        <a href="https://www.instagram.com/p/{{ $detail->code ?? null }}" target="_blank">
                             <img src="{{ $media->getUrl() }}" alt="{{ $post->caption }}" height="250px" width="250px">
                         </a>
                     @else

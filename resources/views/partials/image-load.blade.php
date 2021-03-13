@@ -124,7 +124,7 @@
           </a>
             <p>Category : 
                 <select class="form-control select-multiple-cat-list update-product" data-id={{ $product->id }}>
-                  @foreach($categoryArray as $category)
+                  @foreach($categoryArray ?? [] as $category)
                   <option value="{{ $category['id'] }}" @if($category['id'] == $product->category) selected @endif >{{ $category['value'] }}</option>
                   @endforeach
                 </select>

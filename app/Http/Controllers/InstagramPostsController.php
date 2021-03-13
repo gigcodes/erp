@@ -23,11 +23,9 @@ use App\InstagramUsersList;
 use App\Library\Instagram\PublishPost;
 use Plank\Mediable\Media;
 use App\StoreSocialContent;
-
-
 use App\InstagramPostLog;
-
 use UnsplashSearch;
+use App\Jobs\InstaSchedulePost;
 \InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 
@@ -128,7 +126,7 @@ class InstagramPostsController extends Controller
 
                                                 foreach($product->media as $media):
 
-                                            $imagesHtml.='<div class="media-file">    <label class="imagecheck m-1">        <input name="media[]" type="checkbox" value="{{$media->id}}" data-original="'.$media->getUrl().'" class="imagecheck-input">        <figure class="imagecheck-figure">            <img src="'.$media->getUrl().'" alt="'.$product->name.'" class="imagecheck-image" style="cursor: default;">        </figure>    </label><p style="font-size: 11px;"></p></div>';
+                                            $imagesHtml.='<div class="media-file">    <label class="imagecheck m-1">        <input name="media[]" type="checkbox" value="'.$media->id.'" data-original="'.$media->getUrl().'" class="imagecheck-input">        <figure class="imagecheck-figure">            <img src="'.$media->getUrl().'" alt="'.$product->name.'" class="imagecheck-image" style="cursor: default;">        </figure>    </label><p style="font-size: 11px;"></p></div>';
 
                                                
 
@@ -146,10 +144,8 @@ class InstagramPostsController extends Controller
     public function createPost(Request $request){
         
         //resizing media 
-        
         $all = $request->all();
         
-        //dd($request->media);
         if($request->media)
         {
             foreach ($request->media as $media) {
@@ -173,28 +169,29 @@ class InstagramPostsController extends Controller
         }
 
         if(empty($request->location)){
-            $location = 'blank';
+            $location = '';
         }else{
             $location = $request->location;
         }
         
         if(empty($request->hashtags)){
-            $hashtag = 'blank';
+            $hashtag = '';
         }else{
             $hashtag = $request->hashtags;
         }
-
+        
         $post = new Post();
         $post->account_id = $request->account;
         $post->type       = $request->type;
-        $post->caption    = $request->caption;
+        $post->caption    = $request->caption.' '.$hashtag;
         $ig         = [
             'media'    => $mediaPost,
-            'location' => '',
+            'location' => $location,
         ];
         $post->ig       = json_encode($ig);
-        //$post->location = $location;
+        $post->location = $location;
         $post->hashtags = $hashtag;
+        $post->scheduled_at = $request->scheduled_at;
         $post->save();
         $newPost = Post::find($post->id);
 
@@ -202,11 +199,19 @@ class InstagramPostsController extends Controller
 
         $ig         = [
             'media'    => $media['media'],
-            'location' => '',
+            'location' => $location,
+            'hashtag'  => $hashtag,
         ];
         $newPost->ig = $ig;
 
+        if( $request->scheduled === "1" ){
+            
+            $diff = strtotime($request->scheduled_at) - strtotime( now() );
+            InstaSchedulePost::dispatch( $newPost )->onQueue('InstaSchedulePost')->delay( $diff );
+            return redirect()->back()->with('message', __('Your post schedule has been saved'));
+        }
         
+        // Publish Post on instagram
         if (new PublishPost($newPost)) {
             $this->createPostLog($newPost->id,"success",'Your post has been published');
 
@@ -858,7 +863,7 @@ class InstagramPostsController extends Controller
                 return false;
             } else {
                 $response = json_decode($response);
-              
+                // dd($response);
                 \Session()->put('hastagify', $response->access_token);
                 return $response->access_token;          
             } 
@@ -872,7 +877,7 @@ class InstagramPostsController extends Controller
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-        CURLOPT_URL => "https://api.jsonbin.io/b/5fbe49764f12502c21d85d06",
+        CURLOPT_URL => "https://api.hashtagify.me/1.0/tag/".$word,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => "",
         CURLOPT_MAXREDIRS => 10,

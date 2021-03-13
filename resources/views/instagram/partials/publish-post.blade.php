@@ -9,6 +9,7 @@
                 <h2>Publish Post</h2>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
+			
             <div class="modal-body">
 				<form role="form" method="post" action="{{ route('post.store') }}" name="post-create" autocomplete="off" style="margin-top: 30px;">
 					@csrf

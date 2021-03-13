@@ -289,7 +289,8 @@ $(document).ready(function(){
       $('#add-vendor-info-modal').modal('show');
       $('#add-vendor-info-modal').addClass('in');
         $attachImages='{!!$imagesHtml!!}';
-      
+        console.log( $attachImages );
+      $('.media-files-container').prepend($attachImages);
 
     @endif
    
