@@ -26,7 +26,7 @@ class PublishPost
 {
     public function __construct(Post $post)
     {
-
+        // dd( $post );
         // Lookup for matching account
         $account = Account::withoutGlobalScopes()->find($post->account_id);
 
@@ -46,18 +46,18 @@ class PublishPost
         $instagram = new Instagram();
 
         // Set proxy if exists
-        if ($account->proxy) {
-            //$instagram->setProxy($account->proxy);
-        }else{
+        // if ($account->proxy) {
+        //     //$instagram->setProxy($account->proxy);
+        // }else{
 
-            Log::channel('customer')->error('Something went wrong: Proxy Not Set For Account '.$account->last_name);
+        //     Log::channel('customer')->error('Something went wrong: Proxy Not Set For Account '.$account->last_name);
 
-            $post->status  = 2;
-            $post->comment = 'Something went wrong: Proxy Not Set For Account '.$account->last_name;
-            $post->save();
+        //     $post->status  = 2;
+        //     $post->comment = 'Something went wrong: Proxy Not Set For Account '.$account->last_name;
+        //     $post->save();
 
-            return false;
-        }
+        //     return false;
+        // }
         
         // Login to Instagram
         try {
@@ -155,7 +155,8 @@ class PublishPost
             return false;
 
         } catch (\Exception $e) {
-            dd($e->getMessage());
+            dump( $e->getMessage() );
+            // dd($e->getMessage());
             Log::channel('customer')->error('Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
 
             $post->status  = 2;

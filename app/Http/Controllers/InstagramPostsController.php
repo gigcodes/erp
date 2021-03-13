@@ -874,7 +874,7 @@ class InstagramPostsController extends Controller
         $response = UnsplashSearch::photos('fashion',['page' => $number, 'order_by' => 'latest']);
         $content =  $response->getContents();
         $lists = json_decode($content);
-
+        
         foreach ($lists->results as $list) {
             $images[] = $list->urls->full;
         }
@@ -900,8 +900,9 @@ class InstagramPostsController extends Controller
     }
 
     public function postMultiple(Request $request)
-    {
-        try {
+    {   
+        
+        // try {
             if($request->account_id){
 
                 $account = \App\Account::find($request->account_id); 
@@ -931,16 +932,27 @@ class InstagramPostsController extends Controller
                     $post->account_id = $account->id;
                     $post->type       = 'post';
                     $post->caption    = isset($caption->caption) ? $caption->caption : "";
-                    $post->ig         = [
+
+                    $post->ig         = json_encode([
                         'media'    => $media,
                         'location' => '',
+                    ]);
+
+                    $post->save();
+                    $newPost = Post::find($post->id);
+                    $media   = json_decode($newPost->ig,true);
+                    $ig      = [
+                        'media'    => $media['media'],
+                        'location' => '',
                     ];
-    
+
+                    $newPost->ig = $ig;
+
                     $mediaFile = Media::where('id',$lastMedia->id)->first();
                     $image = self::resize_image_crop($mediaFile,640,640);
                         
     
-                    if (new PublishPost($post)) {
+                    if (new PublishPost($newPost)) {
                         sleep(10); 
                     } else {
                         sleep(30);
@@ -952,10 +964,10 @@ class InstagramPostsController extends Controller
                 $this->instagramLog($request->account_id,"error","account id missing");
                 return response()->json(['error'], 500);
             }
-        } catch (\Exception $e) {
-            $this->instagramLog($request->account_id,"error",$e->getMessage());
-            return response()->json([$e->getMessage()], 500);
-        }
+        // } catch (\Exception $e) {
+        //     $this->instagramLog($request->account_id,"error",$e->getMessage());
+        //     return response()->json([$e->getMessage()], 500);
+        // }
     }
 
     public function likeUserPost(Request $request)
@@ -977,7 +989,6 @@ class InstagramPostsController extends Controller
                     }
                     $getdata=$instagram->timeline->getUserFeed($value->pk);
                     $decode_data= json_decode($getdata);
-                    
                     $likePostCount = 0;
                     $likePostCountLast = rand(5,10);
 
@@ -992,8 +1003,8 @@ class InstagramPostsController extends Controller
                     }
                     $count++;
                 }
-                $this->instagramLog($request->account_id,"success","Post Added Succesfully");
-                return response()->json(['Post Added Succesfully'], 200);
+                $this->instagramLog($request->account_id,"success","Liked User Post Successfully");
+                return response()->json(['Liked User Post Successfully'], 200);
             }else{
                 $this->instagramLog($request->account_id,"error","account id missing");
                 return response()->json(['error'], 500);
@@ -1024,8 +1035,8 @@ class InstagramPostsController extends Controller
                             $getdata=$instagram->people->approveFriendship($getdata->pk);
                             $count++;
                         }
-                    $this->instagramLog($request->account_id,"success","Post Added Succesfully");
-                    return response()->json(['Post Added Succesfully'], 200);
+                    $this->instagramLog($request->account_id,"success","All request accepted Successfully");
+                    return response()->json(['All request accepted Successfully'], 200);
 
             }else{
                 $this->instagramLog($request->account_id,"error","account id missing");

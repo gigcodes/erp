@@ -331,7 +331,6 @@
                 $('#next_button').hide();
                 $('#submit_button').show();
                 
-                alert('selected')
             }).fail(function (jqXHR, ajaxOptions, thrownError) {
                 alert('No response from server');
             });
@@ -432,7 +431,7 @@
             },
         }).done(function (data) {
             $("#loading-image").hide();
-            alert('Liked User Post Successfully')
+            alert('All request accepted Successfully')
         }).fail(function (jqXHR, ajaxOptions, thrownError) {
             alert('No response from server');
         });
