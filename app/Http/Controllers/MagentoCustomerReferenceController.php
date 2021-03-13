@@ -30,9 +30,10 @@ class MagentoCustomerReferenceController extends Controller
     public function createOrder( Request $request )
     {   
         $bodyContent = $request->getContent();
-
+        $order       = json_decode( $bodyContent );
+        $lang_code   = $order->lang_code ?? null;
         if( empty( $bodyContent )  ){
-            $message = $this->generate_erp_response("magento.order.failed.validation",0, $default = 'Invalid data',request('lang_code'));
+            $message = $this->generate_erp_response("magento.order.failed.validation",0, $default = 'Invalid data',$lang_code);
             return response()->json([
                 'status'  => false,
                 'message' => $message,
@@ -50,7 +51,7 @@ class MagentoCustomerReferenceController extends Controller
                 
                 $orderCreate = MagentoOrderHandleHelper::createOrder( $order, $website );
                 if( $orderCreate == true ){
-                    $message = $this->generate_erp_response("magento.order.success",0, $default = 'Order create successfully',request('lang_code'));
+                    $message = $this->generate_erp_response("magento.order.success",0, $default = 'Order create successfully',$lang_code);
                     return response()->json([
                         'status'  => true,
                         'message' => $message,
@@ -61,7 +62,7 @@ class MagentoCustomerReferenceController extends Controller
             }
         }
 
-        $message = $this->generate_erp_response("magento.order.failed",0, $default = 'Something went wrong, Please try again', request('lang_code'));
+        $message = $this->generate_erp_response("magento.order.failed",0, $default = 'Something went wrong, Please try again', $lang_code);
         return response()->json([
             'status'  => false,
             'message' => $message,
