@@ -874,7 +874,7 @@ class InstagramPostsController extends Controller
         $response = UnsplashSearch::photos('fashion',['page' => $number, 'order_by' => 'latest']);
         $content =  $response->getContents();
         $lists = json_decode($content);
-        
+
         foreach ($lists->results as $list) {
             $images[] = $list->urls->full;
         }
@@ -902,7 +902,7 @@ class InstagramPostsController extends Controller
     public function postMultiple(Request $request)
     {   
         
-        // try {
+        try {
             if($request->account_id){
 
                 $account = \App\Account::find($request->account_id); 
@@ -964,10 +964,10 @@ class InstagramPostsController extends Controller
                 $this->instagramLog($request->account_id,"error","account id missing");
                 return response()->json(['error'], 500);
             }
-        // } catch (\Exception $e) {
-        //     $this->instagramLog($request->account_id,"error",$e->getMessage());
-        //     return response()->json([$e->getMessage()], 500);
-        // }
+        } catch (\Exception $e) {
+            $this->instagramLog($request->account_id,"error",$e->getMessage());
+            return response()->json([$e->getMessage()], 500);
+        }
     }
 
     public function likeUserPost(Request $request)

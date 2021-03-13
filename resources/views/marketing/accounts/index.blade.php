@@ -303,8 +303,10 @@
         $('.modal-body input:checked').each(function() {
             selected.push($(this).val());
         });
+
         if(selected.length == 0){
-            alert('Please select image')
+            alert('Please select image');
+            return false;
         }else{
             $.ajax({
             url: '/instagram/post/getCaptions',
