@@ -303,8 +303,10 @@
         $('.modal-body input:checked').each(function() {
             selected.push($(this).val());
         });
+
         if(selected.length == 0){
-            alert('Please select image')
+            alert('Please select image');
+            return false;
         }else{
             $.ajax({
             url: '/instagram/post/getCaptions',
@@ -331,7 +333,6 @@
                 $('#next_button').hide();
                 $('#submit_button').show();
                 
-                alert('selected')
             }).fail(function (jqXHR, ajaxOptions, thrownError) {
                 alert('No response from server');
             });
@@ -432,7 +433,7 @@
             },
         }).done(function (data) {
             $("#loading-image").hide();
-            alert('Liked User Post Successfully')
+            alert('All request accepted Successfully')
         }).fail(function (jqXHR, ajaxOptions, thrownError) {
             alert('No response from server');
         });
