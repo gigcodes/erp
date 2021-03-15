@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\StoreWebsite;
 use App\Mailinglist;
 use App\WebsiteStoreView;
+use App\Website;
 use App\Language;
 
 class MailinglistController extends Controller
@@ -24,14 +25,9 @@ class MailinglistController extends Controller
         $customer = new Customer;
 
         if( !empty( $store_website_id ) ){
-
-            $webStoreView = WebsiteStoreView::where( 'website_store_id', $store_website_id )->first();
-
-            if( isset( $webStoreView->name ) ){
-                $lang = Language::where('name', $webStoreView->name)->first();
-                if( isset($lang->locale) ){
-                    $customer->language = $lang->locale;
-                }
+            $website = Website::where( 'store_website_id', $store_website_id )->first();
+            if( isset( $website->code ) ){
+                $customer->language = $website->code;
             }
         }
 
