@@ -82,10 +82,11 @@ class ProductController extends Controller
                                 }
                            // }
                             // if status is cancelled already then return false
-                            if($getOrder->order_status_id == 11) {
-                                $result_input["iscanceled"] = false;
-                            }
                         }
+                        if($getOrder->order_status_id == 11) {
+                            $result_input["iscanceled"] = false;
+                        }
+                            
                         $message = $this->generate_erp_response("order.cancel.success", 0, $default = "Success", request('lang_code'));
                         return response()->json(["code" => 200, "message" => $message, "data" => $result_input]);
                     }else{
