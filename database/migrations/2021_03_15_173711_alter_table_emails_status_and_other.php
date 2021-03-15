@@ -15,7 +15,7 @@ class AlterTableEmailsStatusAndOther extends Migration
     {
         //
         Schema::table("emails",function(Blueprint $table) {
-
+            
         });
 
     }
