@@ -545,7 +545,7 @@ class Kernel extends ConsoleKernel
 		$schedule->command("scrappersImages")->daily();
         $schedule->command("scrappersImagesDelete")->daily();
         //cron for instagram handler daily basis
-        $schedule->command("instagram:handler")->daily();
+        $schedule->command("instagram:handler")->everyMinute()->withoutOverlapping();
     }
 
     /**
