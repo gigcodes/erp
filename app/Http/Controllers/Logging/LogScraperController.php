@@ -24,7 +24,7 @@ class LogScraperController extends Controller
             list($from,$to) = explode(" - ", $customrange);
         }
 
-        $scraperLogs = DB::table('scraped_products')->where('validated', 0);
+        $scraperLogs = DB::table('scraped_products');
 
         if (!empty($request->id)) {
             $scraperLogs = $scraperLogs->where('id', '=' ,$request->id);
@@ -60,6 +60,10 @@ class LogScraperController extends Controller
 
         if(!empty($from) && !empty($to)) {
             $scraperLogs = $scraperLogs->where('created_at',">=", $from)->where('created_at', "<=", $to);   
+        }
+
+        if(!empty($request->is_external_scraper)){
+            $scraperLogs = $scraperLogs->where('is_external_scraper', $request->is_external_scraper);
         }
 
         $logsByGroup  = clone($scraperLogs);

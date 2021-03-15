@@ -30,6 +30,7 @@ Route::post('mailinglist/add', 'Api\v1\MailinglistController@add');
 
 Route::get('scrape/queue', 'Products\ScrapeController@getUrlFromQueue');
 Route::get('scrape/process', 'Products\ScrapeController@processDataFromScraper');
+Route::post('scrape/send-screenshot', 'ScrapController@sendScreenshot');
 
 Route::get('messages/{thread}', 'InstagramController@getThread');
 Route::post('messages/{thread}', 'InstagramController@replyToThread');
@@ -202,3 +203,17 @@ Route::get('missing-brand/save','MissingBrandController@saveMissingBrand');
 
 //Store data into the laravel_logs
 Route::post('laravel-logs/save','LaravelLogController@saveNewLogData');
+
+
+
+
+Route::post('templates/create/webhook','TemplatesController@createWebhook');
+Route::post('product/templates/update/webhook','ProductTemplatesController@updateWebhook')->name('api.product.update.webhook');
+
+//check for order cancellation
+Route::post('order/check-cancellation','\App\Http\Controllers\Api\v1\ProductController@checkCancellation');
+
+Route::post('magento/order-create','MagentoCustomerReferenceController@createOrder');
+
+
+

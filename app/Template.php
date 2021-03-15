@@ -12,5 +12,13 @@ class Template extends Model
         'name',
         'no_of_images',
         'auto_generate_product',
+        'uid',
+        'available_modifications',
+        
     ];
+
+    public function modifications()
+    {
+    	return $this->hasMany('App\TemplateModification','template_id','id');
+    }
 }

@@ -109,6 +109,7 @@
 </div>
 @include("storewebsite::category-seo.templates.list-template")
 @include("storewebsite::category-seo.templates.create-website-template")
+@include('storewebsite::category-seo.history')
 <script src="//cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>

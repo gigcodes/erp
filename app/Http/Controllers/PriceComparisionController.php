@@ -151,11 +151,12 @@ class PriceComparisionController extends Controller
     public function sendDetails(Request $request)
     {
         //checking if we getting proper request 
+        $message = $this->generate_erp_response("price_compare.failed.validation",0, $default = 'Please Send Both SKU and Country', request('lang_code'));
         if(empty($request->sku) || empty($request->country)){
             
             return response()->json([
                 'status' => 'failed',
-                'message' => 'Please Send Both SKU and Country',
+                'message' => $message,
             ]);
         }
         $internationCountriesCount = 5;
@@ -234,12 +235,14 @@ class PriceComparisionController extends Controller
                     //checking when we dont have any output
                     if(count($outputArray) == 0){
 
+                        $message = $this->generate_erp_response("price_compare.failed.no_price_comparision",0, $default = 'No Price Comparision Found', request('lang_code'));
                         return response()->json([
                             'status' => 'failed',
-                            'message' => 'No Price Comparision Found',
+                            'message' => $message,
                         ]);
 
                     }else{
+                        $message = $this->generate_erp_response("price_compare.success",0, $default = '', request('lang_code'));
                         return response()->json([
                             'status' => 'success',
                             'results' => $outputArray,
@@ -249,10 +252,12 @@ class PriceComparisionController extends Controller
                     
 
             }else{
+
+                $message = $this->generate_erp_response("price_compare.failed",0, $default = 'No Category Found', request('lang_code'));
                 //if not category found response
                 return response()->json([
                     'status' => 'failed',
-                    'message' => 'No Category Found',
+                    'message' => $message,
                 ]);
             }
         }else{

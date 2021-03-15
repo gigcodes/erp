@@ -607,17 +607,85 @@ class ScrapController extends Controller
         // Log before validating
         //LogScraper::LogScrapeValidationUsingRequest($request);
         $receivedJson = json_decode($request->getContent());
-
-        
         
         // Find product
         $product = Product::find($receivedJson->id);
         
+        // Get brand
+        $brand = Brand::where('name', $receivedJson->brand)->first();
+
+        // No brand found?
+        if (!$brand) {
+            // Check for reference
+            $brand = Brand::where('references', 'LIKE', '%' . $receivedJson->brand . '%')->first();
+
+            if (!$brand) {
+                // if brand is not then create a brand
+                $brand = Brand::create([
+                    "name" => $receivedJson->brand
+                ]);
+            }
+        }
+
+
+
+        
+        //add log in scraped product
+        $website = isset($receivedJson->website) ? $receivedJson->website : "";
+        $scrapedProduct = null;
+        if(!empty($website)) {
+            $scrapedProduct = ScrapedProducts::where('website',$website)
+            ->where('sku',!empty($receivedJson->sku) ? $receivedJson->sku : $product->sku)
+            ->first();
+
+            if($scrapedProduct == null || $scrapedProduct == ''){
+                $scrapedProduct = new ScrapedProducts();
+                $scrapedProduct->sku = !empty($receivedJson->sku) ? $receivedJson->sku : $product->sku;
+                $scrapedProduct->website = $website;
+            }
+
+            $scrapedProduct->has_sku = 1;
+            $scrapedProduct->supplier = isset($receivedJson->supplier) ? $receivedJson->supplier : "";
+            $scrapedProduct->title = isset($receivedJson->title) ? $receivedJson->title : "";
+            $scrapedProduct->composition = isset($receivedJson->composition) ? $receivedJson->composition : "";
+            $scrapedProduct->color = isset($receivedJson->color) ? $receivedJson->color : "";
+            $scrapedProduct->brand_id = $brand->id;
+            $scrapedProduct->description = $brand->description;
+            $scrapedProduct->material_used = isset($receivedJson->composition) ? $receivedJson->composition : "";
+            $scrapedProduct->country = isset($receivedJson->country) ? $receivedJson->country : "";
+            $scrapedProduct->size = isset($receivedJson->sizes) ? implode(",",$receivedJson->sizes) : "";
+            $scrapedProduct->url = isset($receivedJson->url) ? $receivedJson->url : "";
+            $scrapedProduct->images = isset($receivedJson->images) ? serialize($receivedJson->images) : "";
+            $scrapedProduct->size_system = isset($receivedJson->size_system) ? $receivedJson->size_system : "";
+            $scrapedProduct->currency = isset($receivedJson->currency) ? $receivedJson->currency : "";
+            $scrapedProduct->price = isset($receivedJson->price) ? ($receivedJson->price) : "";
+
+            $scrapedProduct->is_property_updated = 0;
+            $scrapedProduct->is_external_scraper = 1;
+            $scrapedProduct->is_price_updated = 0;
+            $scrapedProduct->is_enriched = 0;
+            $scrapedProduct->can_be_deleted = 0;
+            $scrapedProduct->validated = 1;
+            $scrapedProduct->save();
+        }
+        
+
+        //dd($scrapedProduct);
+
         // Return false if no product is found
         if ($product == null) {
+           // $scrapedProduct->validated = 1;
+            if($scrapedProduct) {
+               $scrapedProduct->validated = 0;
+               $scrapedProduct->validation_result = 'Error processing your request (#1)';
+               $scrapedProduct->save();
+            }
+            
             return response()->json([
                 'status' => 'Error processing your request (#1)'
             ], 400);
+
+           
         }
 
         if(isset($receivedJson->status)){
@@ -626,6 +694,14 @@ class ScrapController extends Controller
             ScrapeQueues::where('done', 0)->where('product_id', $product->id)->update(['done' => 2]);
             $product->status_id = StatusHelper::$unableToScrape;
             $product->save();
+            //$scrapedProduct->validated = 1;
+            
+            if($scrapedProduct) {
+               $scrapedProduct->validated = 0;
+               $scrapedProduct->validation_result = 'Product processed for unable to scrap';
+               $scrapedProduct->save();
+            }
+
             return response()->json([
                 'status' => 'Product processed for unable to scrap'
             ]);
@@ -637,7 +713,6 @@ class ScrapController extends Controller
 
         $input = get_object_vars($receivedJson);
 
-        
         // Validate request
         $validator = Validator::make($input, [
             'id' => 'required',
@@ -649,6 +724,12 @@ class ScrapController extends Controller
 
         // Return an error if the validator fails
         if ($validator->fails()) {
+
+            if($scrapedProduct) {
+               $scrapedProduct->validation_result = json_encode($validator->messages());
+               $scrapedProduct->save();
+            }
+
             return response()->json($validator->messages(), 400);
         }
 
@@ -660,12 +741,12 @@ class ScrapController extends Controller
             // dd($receivedJson);
             // clear the request using for the new scraper
             $propertiesArray = [
-                "material_used" => $receivedJson->properties->material_used,
-                "color" => $receivedJson->properties->color,
-                "sizes" => $receivedJson->properties->sizes,
-                "category" => $receivedJson->properties->category,
-                "dimension" => $receivedJson->properties->dimension,
-                "country" => $receivedJson->properties->country
+                "material_used" => isset($receivedJson->properties->material_used) ? $receivedJson->properties->material_used : $receivedJson->composition ,
+                "color" => isset($receivedJson->properties->color) ? $receivedJson->properties->color : $receivedJson->color,
+                "sizes" => isset($receivedJson->properties->sizes) ? $receivedJson->properties->sizes : $receivedJson->sizes,
+                "category" => isset($receivedJson->properties->category) ? $receivedJson->properties->category : $receivedJson->category,
+                "dimension" => isset($receivedJson->properties->dimension) ? $receivedJson->properties->dimension : $receivedJson->dimensions,
+                "country" => isset($receivedJson->properties->country) ? $receivedJson->properties->country : $receivedJson->country
             ];
             
 
@@ -758,7 +839,7 @@ class ScrapController extends Controller
             $product->attachImagesToProduct($receivedJson->images);
 
 
-            if($receivedJson->website) {
+            if(isset($receivedJson->website)) {
                 $supplierModel = Supplier::leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($receivedJson) {
                     $query->where('supplier', '=', $receivedJson->website)->orWhere('sc.scraper_name', '=', $receivedJson->website);
                 })->first();
@@ -786,12 +867,19 @@ class ScrapController extends Controller
 
             // Update scrape_queues by product ID
             ScrapeQueues::where('done', 0)->where('product_id', $product->id)->update(['done' => 1]);
-
+            //$scrapedProduct->save();
             // Return response
             return response()->json([
                 'status' => 'Product processed'
             ]);
         }
+        //
+        if($scrapedProduct) {
+           $scrapedProduct->validated = 0;
+           $scrapedProduct->validation_result = 'Error processing your request (#99)';
+           $scrapedProduct->save();
+        }
+
 
         // Still here? Return error
         return response()->json([
@@ -1381,9 +1469,17 @@ class ScrapController extends Controller
         ->leftJoin('brands', function($join) {
             $join->on('products.brand', '=', 'brands.id');
         })
+        ->leftJoin('suppliers', function($join) {
+            $join->on('products.supplier_id', '=', 'suppliers.id');
+        })
         ->latest("products.created_at")
+
         ->select(["products.id","products.sku","products.supplier","brands.name"])
+       
+        ->orderBy('brands.priority','desc')
+        ->orderBy('suppliers.priority','desc')
         ->limit(50)
+        
         ->get()
         ->toArray(); 
         
@@ -1498,6 +1594,39 @@ class ScrapController extends Controller
         ]);
         app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
         return redirect()->back();
+    }
+
+    public function sendScreenshot(Request $request)
+    {
+        if(empty($request->website)) {
+            return response()->json(["code" => 500 , "data" => [], "message" => "website (scraper name) is required field"]);
+        }
+
+        if(!$request->hasFile('screenshot')) {
+            return response()->json(["code" => 500 , "data" => [], "message" => "Screenshot is required"]);
+        }
+
+        $scraper = \App\Scraper::where("scraper_name",$request->website)->first();
+
+        if(!$scraper) {
+           return response()->json(["code" => 500 , "data" => [], "message" => "website (scraper name) is is wrong"]);
+        }
+
+        $media = MediaUploader::fromSource($request->file('screenshot'))
+        ->toDirectory('scraper-screenshot/' . floor($scraper->id / config('constants.image_per_folder')))
+        ->upload();
+
+        $history = new \App\ScraperScreenshotHistory;
+        $history->fill([
+            "scraper_name" => $scraper->scraper_name,
+            "scraper_id" => $scraper->id,
+        ]);
+        $history->save();
+
+        $history->attachMedia($media, config('constants.media_screenshot_tag'));
+
+        return response()->json(["code" => 200 , "data" => [], "message" => "Screenshot saved successfully"]);
+
     }
 }
 

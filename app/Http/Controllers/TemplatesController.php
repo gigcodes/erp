@@ -12,7 +12,11 @@ use App\Category;
 use App\Brand;
 use App\ProductTemplate;
 use Plank\Mediable\Media;
+use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Str;
+use App\Helpers\GuzzleHelper;
+
+
 use DB;
 
 class TemplatesController extends Controller
@@ -24,7 +28,11 @@ class TemplatesController extends Controller
      */
     public function index()
     {
-        return view("template.index");
+        $templates = \App\Template::orderBy("id", "desc")->with('modifications:template_id,tag,value,row_index')->paginate(Setting::get('pagination'));
+
+     //   echo '<pre>';print_r($templates->toArray());die;
+
+        return view("template.index",compact('templates'));
     }
 
     public function response()
@@ -39,6 +47,182 @@ class TemplatesController extends Controller
             "result"     => $records,
             "pagination" => (string) $records->links(),
         ]);
+    }
+
+    public function updateBearBannerTemplate(Request $request)
+    {
+        
+      
+
+         $template = \App\Template::find($request->id);
+
+         $template->name=$request->name;
+
+         $template->save();
+
+         $tags=[];
+
+
+ 
+         // foreach ($request->modifications_array as $key => $row) {
+          
+         //    foreach ($row as $tag => $value) {
+               
+         //       if($tag !=='image_url')
+         //       {
+         //          $new_row[$tag]=$value;
+         //       }
+         //       else
+         //       { 
+
+
+         //             $image=$request->file('files')[$key]['image_url'];
+
+         //             $media = MediaUploader::fromSource($image)->toDirectory('template-images')->upload();
+
+
+         //             $new_row[$tag]=($media) ? $media->getUrl() : "";
+
+         //       }
+         //    }
+
+         //    $new_modification_array[]=$new_row;
+    
+         // }
+
+       
+
+         $body=array('name'=>$request->name,'tags'=>$tags);
+
+         
+
+         $url=env('BANNER_API_LINK').'/templates/'.$template->uid;
+
+        $api_key=env('BANNER_API_KEY');
+
+  
+
+        $headers=   [
+                        'Authorization' => 'Bearer ' . $api_key,
+                        'Content-Type' => 'application/json'
+                    ];
+
+       $response=GuzzleHelper::patch($url,$body,$headers);
+
+
+        
+
+        return redirect()->back()->with('success','The template is updated.');
+
+    }
+
+    static function bearBannerTemplates()
+    {
+        $url=env('BANNER_API_LINK').'/templates';
+
+        $api_key=env('BANNER_API_KEY');
+
+        
+
+        $headers=   [
+                        'Authorization' => 'Bearer ' . $api_key,
+                        'Content-Type' => 'application/json'
+                    ];
+
+       $response=GuzzleHelper::get($url,$headers);
+
+     
+
+       return $response;
+
+
+    }
+
+    public function updateTemplatesFromBearBanner(Request $request)
+    {
+
+        $templates=collect(self::bearBannerTemplates());
+
+        foreach ($templates as $key => $row) {
+            
+            $template=array('name'=>$row->name,'uid'=>$row->uid);
+
+            if($existingTemplate=Template::whereUid($row->uid)->first())
+            {
+                  $existingTemplate->update($template);
+                  $existingTemplate->modifications()->delete();
+
+                  $template=$existingTemplate;
+
+                  if($row->preview_url)
+                  {
+                     $media = $template->lastMedia(config('constants.media_tags'));
+                     $template->detachMedia($media);
+                  }
+
+            }
+            else
+            {
+                $template=Template::create($template);
+
+  
+            }
+                if($row->available_modifications)
+                {
+                   $available_modifications=$row->available_modifications;
+                }
+                else
+                {
+                  $available_modifications=[];
+                }
+               
+
+                if($row->preview_url)
+                {
+                    $contents = $this->getImageByCurl($row->preview_url);
+
+                   $media=MediaUploader::fromString($contents)->useFilename('template-'.time())->toDirectory('template-images')->upload();
+
+                   $template->attachMedia($media, config('constants.media_tags'));
+                }
+
+                
+
+
+             foreach ($available_modifications as $row_index => $tag) {
+                    foreach ($tag as $name => $value) {
+
+                       $modifications= array('tag'=>$name,'value'=>$value,'template_id'=>$template->id,'row_index'=>$row_index);
+
+                      
+                        $template->modifications()->create($modifications);
+                    }
+                   
+                }
+
+            
+           
+
+       }
+           if($request->ajax())
+           {
+            return response()->json(["status" => 1, "message" => "Templates updated successfully!"]);
+           }
+
+           return redirect()->back()->with('success','Templates are updated.');
+       
+    }
+
+
+    public function createWebhook(Request $request)
+    {
+        $header = $request->header('Authorization', 'default');
+
+        if($header=='Bearer '.env('BANNER_WEBHOOK_KEY'))
+        {
+             $this->updateTemplatesFromBearBanner();
+        }
+      
     }
 
     /**
@@ -86,7 +270,7 @@ class TemplatesController extends Controller
 
     public function edit(Request $request)
     {
-        $template = \App\Template::find($request->id);
+        $template = \App\Template::find(5);
         if($request->auto == 'on'){
            $template->auto_generate_product = 1;
         }else{
@@ -100,6 +284,8 @@ class TemplatesController extends Controller
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $image) {
                     $media = MediaUploader::fromSource($image)->toDirectory('template-images')->upload();
+
+                  //  print_r($media);die;
                     $template->attachMedia($media, config('constants.media_tags'));
                 }
             }
@@ -230,5 +416,16 @@ class TemplatesController extends Controller
             return response()->json($responseData);
         }
         return response()->json(['status'=>'failed','message'=>'Product not found']);
+    }
+
+    public function getImageByCurl($url)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
     }
 }

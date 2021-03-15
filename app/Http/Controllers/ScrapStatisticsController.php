@@ -79,6 +79,7 @@ class ScrapStatisticsController extends Controller
                 sc.scraper_logic,
                 sc.scraper_made_by,
                 sc.server_id,
+                sc.id as scraper_id, 
                 ls.website,
                 ls.ip_address,
                 COUNT(ls.id) AS total,
@@ -234,7 +235,7 @@ class ScrapStatisticsController extends Controller
         
         $remarks = ScrapRemark::where('scraper_name', $name)->latest()->get();
         $download = $request->input('download');
-        return response()->json($remark, 200);
+        return response()->json($remarks, 200);
     }
 
     public function addRemark(Request $request)
@@ -551,6 +552,13 @@ class ScrapStatisticsController extends Controller
         } catch (\Exception $e) {
             return new JsonResponse(['status' => 0, 'message' => $e->getMessage()]);
         }
+    }
+
+    public function getScreenShot(Request $request)
+    {
+        $screenshots = \App\ScraperScreenshotHistory::where("scraper_id",$request->id)->latest()->paginate(15); 
+
+        return view("scrap.partials.screenshot-history",compact('screenshots'));
     }
 
 

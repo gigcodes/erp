@@ -19,6 +19,7 @@ use App\Mails\Manual\IssueCredit;
 use Illuminate\Support\Facades\Mail;
 use App\Customer;
 use App\Suggestion;
+use App\SuggestedProduct;
 use App\Setting;
 use App\Leads;
 use App\ErpLeads;
@@ -1886,8 +1887,8 @@ class CustomerController extends Controller
         $params = [
             'customer_id' => $customer->id,
             'number' => $request->number,
-            'brand' => '',
-            'category' => '',
+            'brands' => '',
+            'categories' => '',
             'size' => '',
             'supplier' => ''
         ];
@@ -1895,7 +1896,7 @@ class CustomerController extends Controller
         if ($request->brand[ 0 ] != null) {
             $products = Product::whereIn('brand', $request->brand);
 
-            $params[ 'brand' ] = json_encode($request->brand);
+            $params[ 'brands' ] = json_encode($request->brand);
         }
 
         if ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
@@ -1908,7 +1909,7 @@ class CustomerController extends Controller
                 $products = Product::whereIn('category', $categorySelected);
             }
 
-            $params[ 'category' ] = json_encode($request->category);
+            $params[ 'categories' ] = json_encode($request->category);
         }
 
         if ($request->size[ 0 ] != null) {
@@ -1972,10 +1973,10 @@ class CustomerController extends Controller
         $products = $products->where('category', '!=', 1)->select(["products.*"])->latest()->take($request->number)->get();
 
         if ($customer->suggestion) {
-            $suggestion = Suggestion::find($customer->suggestion->id);
+            $suggestion = SuggestedProduct::find($customer->suggestion->id);
             $suggestion->update($params);
         } else {
-            $suggestion = Suggestion::create($params);
+            $suggestion = SuggestedProduct::create($params);
         }
 
         if (count($products) > 0) {

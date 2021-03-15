@@ -36,6 +36,7 @@ use Storage;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\Helpers\HubstaffTrait;
 
+
 class TaskModuleController extends Controller {
 
 	use hubstaffTrait;
@@ -141,7 +142,7 @@ class TaskModuleController extends Controller {
 				  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
 			  ) as chat_messages  ON chat_messages.task_id = tasks.id
 			) AS tasks
-			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$isCompleteWhereClose.' AND (assign_from = ' . $userid . ' OR master_user_id = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.'; ');
+			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$isCompleteWhereClose.' AND (assign_from = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.'; ');
 
 
 			foreach ($data['task']['pending'] as $task) {
@@ -202,7 +203,7 @@ class TaskModuleController extends Controller {
 					FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
                  ) AS chat_messages ON chat_messages.task_id = tasks.id
                 ) AS tasks
-                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL AND (assign_from = ' . $userid . ' OR master_user_id = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.';');
+                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.';');
 				
 
 				foreach ($data['task']['completed'] as $task) {
@@ -265,7 +266,7 @@ class TaskModuleController extends Controller {
 	                 ) AS chat_messages ON chat_messages.task_id = tasks.id
 
 	               ) AS tasks
-				   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR master_user_id = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $orderByClause .' limit '.$paginate.' offset '.$offSet.';');
+				   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $orderByClause .' limit '.$paginate.' offset '.$offSet.';');
 				   
 				   foreach ($data['task']['statutory_not_completed'] as $task) {
 					array_push($assign_to_arr, $task->assign_to);
@@ -1030,7 +1031,15 @@ class TaskModuleController extends Controller {
 	private function createHubstaffTask(string $taskSummary, ?int $hubstaffUserId, int $projectId, bool $shouldRetry = true)
     {
         $tokens = $this->getTokens();
+       // echo '<pre>';print_r($tokens);
+
+        
+
+       
+
         $url = 'https://api.hubstaff.com/v2/projects/' . $projectId . '/tasks';
+
+        
         $httpClient = new Client();
         try {
 
@@ -1056,9 +1065,13 @@ class TaskModuleController extends Controller {
                 ]
             );
             $parsedResponse = json_decode($response->getBody()->getContents());
+
+         
             return $parsedResponse->task->id;
+
         } catch (ClientException $e) {
         	if($e->getCode() == 401) {
+
         		$this->refreshTokens();
                 if ($shouldRetry) {
                     return $this->createHubstaffTask(
@@ -1068,8 +1081,13 @@ class TaskModuleController extends Controller {
                         false
                     );
                 }
+                else
+                {
+
+                }
         	}
         }
+       
         return false;
 	}
 
@@ -2202,6 +2220,9 @@ class TaskModuleController extends Controller {
 				  $task->save();
 			  }
 			  if ($hubstaffTaskId) {
+
+			  	 
+
 				  $hubtask = new HubstaffTask();
 				  $hubtask->hubstaff_task_id = $hubstaffTaskId;
 				  $hubtask->project_id = $hubstaff_project_id;
@@ -2504,6 +2525,9 @@ class TaskModuleController extends Controller {
 				],500);
 			}
 			if ($hubstaffTaskId) {
+
+				
+
 				$task = new HubstaffTask();
 				$task->hubstaff_task_id = $hubstaffTaskId;
 				$task->project_id = $hubstaff_project_id;
@@ -2637,4 +2661,6 @@ class TaskModuleController extends Controller {
 
 
    }
+
+   
 }

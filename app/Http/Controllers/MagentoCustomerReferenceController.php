@@ -8,6 +8,7 @@ use App\Setting;
 use App\Customer;
 use App\StoreWebsite;
 use App\Helpers\InstantMessagingHelper;
+use App\Helpers\MagentoOrderHandleHelper;
 
 class MagentoCustomerReferenceController extends Controller
 {
@@ -22,13 +23,50 @@ class MagentoCustomerReferenceController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Create magento order
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
-        ///
+    public function createOrder( Request $request )
+    {   
+        $bodyContent = $request->getContent();
+        $order       = json_decode( $bodyContent );
+        $lang_code   = $order->lang_code ?? null;
+        if( empty( $bodyContent )  ){
+            $message = $this->generate_erp_response("magento.order.failed.validation",0, $default = 'Invalid data',$lang_code);
+            return response()->json([
+                'status'  => false,
+                'message' => $message,
+            ]);
+        }
+        $order = json_decode( $bodyContent );
+    
+        $newArray            = [];
+        $newArray['items'][] = $order;
+        $order            = json_decode(json_encode( $newArray) );
+        
+        if( isset( $order->items[0]->website ) ){
+            $website = StoreWebsite::where('website',$order->items[0]->website)->first();
+            if( $website ){
+                
+                $orderCreate = MagentoOrderHandleHelper::createOrder( $order, $website );
+                if( $orderCreate == true ){
+                    $message = $this->generate_erp_response("magento.order.success",0, $default = 'Order create successfully',$lang_code);
+                    return response()->json([
+                        'status'  => true,
+                        'message' => $message,
+                    ]);
+                }
+            }else{
+                \Log::error("Magento website not found");
+            }
+        }
+
+        $message = $this->generate_erp_response("magento.order.failed",0, $default = 'Something went wrong, Please try again', $lang_code);
+        return response()->json([
+            'status'  => false,
+            'message' => $message,
+        ]);
     }
 
     /**
@@ -41,7 +79,8 @@ class MagentoCustomerReferenceController extends Controller
     {
        
         if (empty($request->name)) {
-            return response()->json(['message' => 'Name is required'], 403);
+            $message = $this->generate_erp_response("customer_reference.403",0, $default = 'Name is required',request('lang_code'));
+            return response()->json(['message' => $message], 403);
         }
 
         // if (empty($request->phone)) {
@@ -49,11 +88,13 @@ class MagentoCustomerReferenceController extends Controller
         // }
 
         if (empty($request->email)) {
-            return response()->json(['message' => 'Email is required'], 403);
+            $message = $this->generate_erp_response("customer_reference.403",0, $default = 'Email is required', request('lang_code'));
+            return response()->json(['message' => $message], 403);
         }
 
         if (empty($request->website)) {
-            return response()->json(['message' => 'website is required'], 403);
+            $message = $this->generate_erp_response("customer_reference.403",0, $default = 'website is required', request('lang_code'));
+            return response()->json(['message' => $message], 403);
         }
         
         // if (empty($request->social)) {
@@ -95,7 +136,8 @@ class MagentoCustomerReferenceController extends Controller
         
         }
         else {
-            return response()->json(['message' => 'Account already exists with this email'], 403);
+            $message = $this->generate_erp_response("customer_reference.403",0, $default = 'Account already exists with this email', request('lang_code'));
+            return response()->json(['message' => $message], 403);
         }
         
         
@@ -108,6 +150,7 @@ class MagentoCustomerReferenceController extends Controller
         }
         
 
+        $message = $this->generate_erp_response("customer_reference.success",$store_website_id, $default = 'Saved successfully !', request('lang_code'));
         return response()->json(['message' => 'Saved SucessFully'], 200);
 
     }

@@ -10,6 +10,7 @@ use App\StoreWebsiteColor;
 use App\StoreWebsite;
 use App\Colors;
 use Log;
+use App\ColorReference;
 
 class ColorController extends Controller
 {
@@ -147,5 +148,16 @@ class ColorController extends Controller
 
         return response()->json(["code" => 500, "error" => "Wrong row id!"]);
 
+    }
+
+    public function colorReference()
+    {
+        $colors = ColorReference::select('original_color')->get();
+        $colorArray = [];
+        foreach ($colors as $color) {
+            $colorArray[] = $color->original_color;
+        }
+
+        return json_encode($colorArray);
     }
 }

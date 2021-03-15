@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Brand;
 use App\Activity;
 use Auth;
+use \App\User;
 
 class BrandObserver
 {

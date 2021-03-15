@@ -21,7 +21,7 @@
 <link rel="stylesheet" href="/css/bootstrap-datetimepicker.min.css">
 <div class="row">
 	<div class="col-lg-12 margin-tb">
-	    <h2 class="page-heading">Edit {{ $chatbotQuestion->value }} | Chatbot</h2>
+		<h2 class="page-heading">Edit {{ $chatbotQuestion->value }} ({{$chatbotQuestion->erp_or_watson}}) | Chatbot</h2>
 	</div>
 </div>
 <div class="tab-pane">
@@ -38,9 +38,9 @@
 			@endif
 		</div>
 	    <div class="col-lg-12 margin-tb">
-		<button class="btn btn-xs btn-primary" style="float:right;margin-right:10px;margin-top:10px;">
-		<a href="/chatbot/question" style="color:white;">Back</a>
-	</button>
+			<button class="btn btn-xs btn-primary" style="float:right;margin-right:10px;margin-top:10px;">
+				<a href="/chatbot/question" style="color:white;">Back</a>
+			</button>
 	    	<div class="well">
 	    		<form action="{{ route('chatbot.question.update',[$chatbotQuestion->id]) }}" method="post">
     				  <?php echo csrf_field(); ?>
@@ -63,7 +63,7 @@
 					    </div>
 					    <div class="form-group col-md-3">
 					      <label for="question">User Intent</label>
-					      <?php echo Form::text("question", null, ["class" => "form-control", "id" => "question", "placeholder" => "Enter your question"]); ?>
+					      <?php echo Form::text("question", null, ["data-type" => "intent","class" => "form-control user-intent-exist-search", "id" => "question", "placeholder" => "Enter your question"]); ?>
 					    </div>
 					    <div class="form-group col-md-3">
 					      <label for="value">Auto Approve</label>
@@ -73,78 +73,63 @@
 						</select>
 					    </div>
 					  </div>
-					  <!-- @if($chatbotQuestion->mailinglist_template_id)
-					  <div class="form-row">
-						<div class="form-group col-md-6">
-							<label for="value">Template</label>
-							<select name="mailinglist_template_id" id="" class="form-control">
-								<option value="">Select</option>
-								@foreach($templates as $temp)
-								<option value="{{$temp->id}}" {{$chatbotQuestion->mailinglist_template_id == $temp->id ? 'selected' : ''}}>{{$temp->name}}</option>
-								@endforeach
-							</select>
-						</div>
-					  </div>
-					  @endif -->
 					  @if($chatbotQuestion->task_type && $chatbotQuestion->task_type != '')
-					  <div class="form-row">
-					  <div class="form-group col-md-2">
-							<label for="value">Task Category</label>
-							<select name="task_category_id" id="" class="form-control">
-								<option value="">Select</option>
-								@foreach($task_category as $taskcat)
-								<option value="{{$taskcat->id}}" {{$taskcat->id == $chatbotQuestion->task_category_id ? 'selected' : ''}}>{{$taskcat->title}}</option>
-								@endforeach
-							</select>
-						</div>
-						<div class="form-group col-md-2">
-							<label for="value">Task Type</label>
-							<select name="task_type" id="task_type" class="form-control change-task-type">
-								<option value="task" {{$chatbotQuestion->task_type == 'task' ? 'selected' : ''}}>Task</option>
-								<option value="devtask" {{$chatbotQuestion->task_type == 'devtask' ? 'selected' : ''}}>Devtask</option>
-							</select>
-						</div>
-						<div class="form-group col-md-2">
-							<label for="value">Assign to</label>
-							<select name="assigned_to" id="" class="form-control">
-								<option value="">Select</option>
-								@foreach($userslist as $user)
-								<option value="{{$user->id}}" {{$user->id == $chatbotQuestion->assigned_to ? 'selected' : ''}}>{{$user->name}}</option>
-								@endforeach
-							</select>
-						</div>
-						<div class="col-md-6" id="repo-details">
-						<div class="form-group col-md-6" >
-									<label for="repository_id">Repository:</label>
-									<br>
-									<select style="width:100%" class="form-control select2" id="repository_id" name="repository_id">
+						  <div class="form-row">
+						  	<div class="form-group col-md-2">
+								<label for="value">Task Category</label>
+								<select name="task_category_id" id="" class="form-control">
 									<option value="">Select</option>
-										@foreach ($respositories as $repository)
-											<option value="{{ $repository->id }}" {{$repository->id == $chatbotQuestion->repository_id ? 'selected' : ''}}>{{ $repository->name }}</option>
-										@endforeach
-									</select>
+									@foreach($task_category as $taskcat)
+									<option value="{{$taskcat->id}}" {{$taskcat->id == $chatbotQuestion->task_category_id ? 'selected' : ''}}>{{$taskcat->title}}</option>
+									@endforeach
+								</select>
+							</div>
+							<div class="form-group col-md-2">
+								<label for="value">Task Type</label>
+								<select name="task_type" id="task_type" class="form-control change-task-type">
+									<option value="task" {{$chatbotQuestion->task_type == 'task' ? 'selected' : ''}}>Task</option>
+									<option value="devtask" {{$chatbotQuestion->task_type == 'devtask' ? 'selected' : ''}}>Devtask</option>
+								</select>
+							</div>
+							<div class="form-group col-md-2">
+								<label for="value">Assign to</label>
+								<select name="assigned_to" id="" class="form-control">
+									<option value="">Select</option>
+									@foreach($userslist as $user)
+									<option value="{{$user->id}}" {{$user->id == $chatbotQuestion->assigned_to ? 'selected' : ''}}>{{$user->name}}</option>
+									@endforeach
+								</select>
+							</div>
+							<div class="col-md-6" id="repo-details">
+							<div class="form-group col-md-6" >
+										<label for="repository_id">Repository:</label>
+										<br>
+										<select style="width:100%" class="form-control select2" id="repository_id" name="repository_id">
+										<option value="">Select</option>
+											@foreach ($respositories as $repository)
+												<option value="{{ $repository->id }}" {{$repository->id == $chatbotQuestion->repository_id ? 'selected' : ''}}>{{ $repository->name }}</option>
+											@endforeach
+										</select>
+									</div>
+									<div class="form-group col-md-6">
+										<label for="module_id">Module:</label>
+										<br>
+										<select style="width:100%" class="form-control" id="module_id" name="module_id" required>
+											<option value>Select a Module</option>
+											@foreach ($modules as $module)
+											<option value="{{ $module->id }}" {{$module->id == $chatbotQuestion->module_id ? 'selected' : ''}}>{{ $module->name }}</option>
+											@endforeach
+										</select>
+									</div>
+									</div>
 								</div>
-								<div class="form-group col-md-6">
-									<label for="module_id">Module:</label>
-									<br>
-									<select style="width:100%" class="form-control" id="module_id" name="module_id" required>
-										<option value>Select a Module</option>
-										@foreach ($modules as $module)
-										<option value="{{ $module->id }}" {{$module->id == $chatbotQuestion->module_id ? 'selected' : ''}}>{{ $module->name }}</option>
-										@endforeach
-									</select>
-								</div>
+							<div class="form-row">
+								<div class="form-group col-md-12">
+									<label for="value">Task Description</label>
+									<textarea name="task_description" class="form-control" rows="2" required>{{$chatbotQuestion->task_description}}</textarea>
 								</div>
 							</div>
-						<div class="form-row">
-							<div class="form-group col-md-12">
-								<label for="value">Task Description</label>
-								<textarea name="task_description" class="form-control" rows="2" required>{{$chatbotQuestion->task_description}}</textarea>
-							</div>
-						</div>
-
-
-					  @endif
+						  @endif
 					  @endif
 					  @if($chatbotQuestion->keyword_or_question == 'entity')
 					  <div class="form-row">
@@ -165,7 +150,7 @@
 					    </div>
 					    <div class="form-group col-md-3">
 					      <label for="value">User Entity</label>
-					      <?php echo Form::text("question", null, ["class" => "form-control", "id" => "value", "placeholder" => "Enter your value"]); ?>
+					      <?php echo Form::text("question", null, ["data-type" => "entity","class" => "form-control user-intent-exist-search", "id" => "value", "placeholder" => "Enter your value"]); ?>
 					    </div>
 						<div class="form-group col-md-3">
 					      <label for="value">Auto Approve</label>
@@ -255,6 +240,14 @@
 					@endif
 				</form>
 	    	</div>
+	    	<div class="well show-search-result">
+	    		<h4>Suggestion(s)</h4>
+	    		<table class="table table-striped table-bordered table-sm" cellspacing="0" width="100%" style="table-layout:fixed;">
+				   <tbody>
+				      
+				   </tbody>
+				</table>
+	    	</div>	
 		</div>
 		<div class="col-lg-12 margin-tb">
 		@if($chatbotQuestion->keyword_or_question == 'intent')
@@ -469,7 +462,7 @@
 
  $('#sending-datetime, #edit-sending-datetime').datetimepicker({
             format: 'YYYY-MM-DD HH:mm'
-});
+ });
 	var searchForKeyword = function(ele) {
     	var keywordBox = ele.find(".search-keyword");
 	    if (keywordBox.length > 0) {
@@ -705,6 +698,80 @@
 			$("#add-reply-hidden-id").val(id);
 			$("#chatbotReplyAddModal").show();
 			
+        });
+
+        $(document).on("keyup",".user-intent-exist-search",function() {
+        	let $this = $(this);
+        	var q = $this.val();
+        	$.ajax({
+				type: "get",
+	            url: "/chatbot/question/search-suggestion",
+	            dataType : "json",
+				data: {
+					q : q,
+					type :$this.data("type")
+				},
+	            success: function (response) {
+	            	if(response.code == 200) {
+	            		var td = `<thead>
+								      <tr>
+								         <th class="th-sm" style="width:5%">Sl no</th>
+								         <th class="th-sm" style="width:65%">User Intent</th>
+								         <th class="th-sm" style="width:20%">Intent name</th>
+								         <th class="th-sm" style="width:20%">Erp or Watson</th>
+								         <th class="th-sm" style="width:10%">Action</th>
+								      </tr>
+								   </thead>
+								   <tbody>`;
+	            		$.each(response.data,function(k,v) {
+	            			td += `<tr>
+							         <td>`+v.id+`</td>
+							         <td class="text-question">`+v.question+`</td>
+							         <td>`+v.value+`</td>
+							         <td>`+v.erp_or_watson+`</td>
+							         <td>
+							            <a class="btn btn-image delete-intent-button" data-id="`+v.id+`"><img src="/images/delete.png"></a>
+							         </td>
+							      </tr>`;
+	            		});
+
+	            		td += `</tbody>`;
+
+	            		$(".show-search-result").find("table").html(td);
+	            	}
+	               
+	            },
+	            error: function () {
+	               toastr['error']('Request could not finished please check server log!');
+	            }
+	        });
+
+        });
+
+        $(document).on("click",".delete-intent-button",function() {
+        	let $this = $(this);
+        	if(confirm("Are you sure you want to delete this ?")) {
+	        	$.ajax({
+					type: "post",
+		            url: "/chatbot/question/search-suggestion-delete",
+		            dataType : "json",
+					data: {
+						id : $this.data("id"),
+						"_token" : "<?php echo csrf_token(); ?>"
+					},
+		            success: function (response) {
+		               if(response.code == 200) {
+		               	  toastr['success'](response.message);
+		               	  $this.closest("tr").remove();
+		               }else{
+		               	  toastr['error'](response.message);
+		               } 
+		            },
+		            error: function () {
+		               toastr['error']('Please check the server log file for more information!');
+		            }
+		        });
+        	}
         });
 
 		$(document).on('submit', '#add-website-reply-form', function (e) {

@@ -215,169 +215,181 @@ form label.required:after{
                     <!-- Accordian form start -->
                         <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
                             <div class="panel panel-default">
-                            <div class="panel-heading" role="tab" id="headingOne">
-                                <h4 class="panel-title">
-                                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                Rule Information 
-                                </a>
-                            </h4>
-                            </div>
-                            <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
-                                <div class="panel-body">
-                                        <div class="form-group row">
-                                            <label for="code" class="col-sm-3 col-form-label required">Rule Name</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" class="form-control required" name="name" placeholder="Name" value="{{old('name')}}" id="rule_name" />
-                                                @if ($errors->has('name'))
-                                                <div class="alert alert-danger">{{$errors->first('name')}}</div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <label for="description" class="col-sm-3 col-form-label">Description</label>
-                                            <div class="col-sm-8">
-                                                <textarea type="text" class="form-control" name="description" placeholder="Description" id="description">{{old('description')}}</textarea>
-                                                @if ($errors->has('description'))
-                                                <div class="alert alert-danger">{{$errors->first('description')}}</div>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group row">
-                                            <label for="start" class="col-sm-3 col-form-label required">Active</label>
-                                            <div class="col-sm-8">
-                                                    <select class="form-control select select2 required" name="active" id="is_active">
-                                                            <option value="1">Yes</option>
-                                                            <option value="0">No</option>
-                                                    </select>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group row">
-                                            <label for="start" class="col-sm-3 col-form-label required">Websites</label>
-                                            <div class="col-sm-8">
-                                                    <select class="form-control select select2 required websites" name="website_ids" multiple="true" id="website_ids">
-                                                        <option value="">Please select</option>
-                                                        @foreach($websites as $website)
-                                                            <option value="{{ $website->platform_id }}">{{ $website->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group row">
-                                            <label for="start" class="col-sm-3 col-form-label required">Customer Groups</label>
-                                            <div class="col-sm-8">
-                                                    <select class="form-control select select2 required customers" name="customer_groups" multiple="true" id="customer_groups">
-                                                        <option data-title="NOT LOGGED IN" value="0" selected>NOT LOGGED IN</option>
-                                                        <option data-title="General" value="1">General</option>
-                                                        <option data-title="Wholesale" value="2">Wholesale</option>
-                                                        <option data-title="Retailer" value="3">Retailer</option>
-                                                    </select>
-                                            </div>
-                                        </div>
-
-                                        
-
-                                        <div class="form-group row">
-                                            <label for="start" class="col-sm-3 col-form-label required">Coupon</label>
-                                            <div class="col-sm-8">
-                                                    <select class="form-control select select2 required" name="coupon_type" id="coupon_type" >
-                                                        <option  value="NO_COUPON">No Coupon</option>
-                                                        <option  value="SPECIFIC_COUPON">Specific Coupon</option>
-                                                    </select>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group row hide_div">
-                                            <label for="start" class="col-sm-3 col-form-label">Coupon Code</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" class="form-control" name="code" placeholder="Code" id="coupon_code" />
-                                                @if ($errors->has('code'))
-                                                <div class="alert alert-danger">{{$errors->first('code')}}</div>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group row hide_div">
-                                        <label for="start" class="col-sm-3 col-form-label"></label>
-                                            <div class="col-sm-8">
-                                                <input type="checkbox" class="form-control" style="height:20px;width:20px;" id="disable_coupon_code" name="auto_generate" />
-                                                <div class="">If you select and save the rule you will be able to generate multiple coupon codes.</div>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group row hide_div">
-                                            <label for="start" class="col-sm-3 col-form-label">Uses per Coupon</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" class="form-control" name="uses_per_coupon" placeholder="" id="use_per_coupon" />
-                                                @if ($errors->has('uses_per_coupon'))
-                                                <div class="alert alert-danger">{{$errors->first('uses_per_coupon')}}</div>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group row">
-                                            <label for="start" class="col-sm-3 col-form-label">Uses per Coustomer</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" class="form-control" name="uses_per_coustomer" placeholder="" id="use_per_coustomer" />
-                                                <div class="">Usage limit enforced for logged in customers only.</div>
-                                                @if ($errors->has('uses_per_coustomer'))
-                                                <div class="alert alert-danger">{{$errors->first('uses_per_coustomer')}}</div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        
-
-                                        <div class="form-group row">
-                                            <label for="start" class="col-sm-3 col-form-label">Start</label>
-                                            <div class="col-sm-8">
-                                                <div class='input-group date' id='start'>
-                                                    <input type='text' class="form-control" name="start" value="{{old('start')}}" id="start_input" />
-                                                    <span class="input-group-addon">
-                                                        <span class="glyphicon glyphicon-calendar"></span>
-                                                    </span>
-                                                </div>
-                                                @if ($errors->has('start'))
-                                                <div class="alert alert-danger">{{$errors->first('start')}}</div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <label for="expiration" class="col-sm-3 col-form-label">Expiration</label>
-                                            <div class="col-sm-8">
-                                                <div class='input-group date' id='expiration'>
-                                                    <input type='text' class="form-control" name="expiration" value="{{old('expiration')}}" id="to_input" />
-                                                    <span class="input-group-addon">
-                                                        <span class="glyphicon glyphicon-calendar"></span>
-                                                    </span>
-                                                </div>
-                                                @if ($errors->has('expiration'))
-                                                <div class="alert alert-danger">{{$errors->first('expiration')}}</div>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group row">
-                                            <label for="start" class="col-sm-3 col-form-label">Priority</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" class="form-control" name="priority" placeholder="" id="" />
-                                                @if ($errors->has('priority'))
-                                                <div class="alert alert-danger">{{$errors->first('priority')}}</div>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group row">
-                                        <label for="start" class="col-sm-3 col-form-label">Public In RSS Feed</label>
-                                            <div class="col-sm-8">
-                                                <input type="checkbox" class="form-control" style="height:20px;width:20px;" name="rss" checked />
-                                            </div>
-                                        </div>
-
-
+                                <div class="panel-heading" role="tab" id="headingOne">
+                                    <h4 class="panel-title">
+                                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    Rule Information 
+                                    </a>
+                                    </h4>
                                 </div>
-                            </div>
+                                <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                                    <div class="panel-body">
+                                            <div class="form-group row">
+                                                <label for="code" class="col-sm-3 col-form-label required">Rule Name</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control required" name="name" placeholder="Name" value="{{old('name')}}" id="rule_name" />
+                                                    @if ($errors->has('name'))
+                                                    <div class="alert alert-danger">{{$errors->first('name')}}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="description" class="col-sm-3 col-form-label">Description</label>
+                                                <div class="col-sm-8">
+                                                    <textarea type="text" class="form-control" name="description" placeholder="Description" id="description">{{old('description')}}</textarea>
+                                                    @if ($errors->has('description'))
+                                                    <div class="alert alert-danger">{{$errors->first('description')}}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <label for="start" class="col-sm-3 col-form-label required">Active</label>
+                                                <div class="col-sm-8">
+                                                        <select class="form-control select select2 required" name="active" id="is_active">
+                                                                <option value="1">Yes</option>
+                                                                <option value="0">No</option>
+                                                        </select>
+                                                </div>
+                                            </div>
+
+
+
+                                            <div class="form-group row">
+                                                <label for="start" class="col-sm-3 col-form-label required">Store Websites</label>
+                                                <div class="col-sm-8">
+                                                        <select class="form-control select select2" name="store_website_id" onchange="getWebsitesByStoreId(this);">
+                                                            <option value="">Please select</option>
+                                                            @foreach($store_websites as $ws)
+                                                                <option value="{{ $ws->id }}">{{ $ws->title }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                </div>
+                                            </div>
+                                            
+
+                                            <div class="form-group row">
+                                                <label for="start" class="col-sm-3 col-form-label required">Websites</label>
+                                                <div class="col-sm-8">
+                                                        <select class="form-control select select2 required websites" name="website_ids" multiple="true" id="website_ids">
+                                                            
+                                                        </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <label for="start" class="col-sm-3 col-form-label required">Customer Groups</label>
+                                                <div class="col-sm-8">
+                                                        <select class="form-control select select2 required customers" name="customer_groups" multiple="true" id="customer_groups">
+                                                            <option data-title="NOT LOGGED IN" value="0" selected>NOT LOGGED IN</option>
+                                                            <option data-title="General" value="1">General</option>
+                                                            <option data-title="Wholesale" value="2">Wholesale</option>
+                                                            <option data-title="Retailer" value="3">Retailer</option>
+                                                        </select>
+                                                </div>
+                                            </div>
+
+                                            
+
+                                            <div class="form-group row">
+                                                <label for="start" class="col-sm-3 col-form-label required">Coupon</label>
+                                                <div class="col-sm-8">
+                                                        <select class="form-control select select2 required" name="coupon_type" id="coupon_type" >
+                                                            <option  value="NO_COUPON">No Coupon</option>
+                                                            <option  value="SPECIFIC_COUPON">Specific Coupon</option>
+                                                        </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row hide_div">
+                                                <label for="start" class="col-sm-3 col-form-label">Coupon Code</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" name="code" placeholder="Code" id="coupon_code" />
+                                                    @if ($errors->has('code'))
+                                                    <div class="alert alert-danger">{{$errors->first('code')}}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row hide_div">
+                                            <label for="start" class="col-sm-3 col-form-label"></label>
+                                                <div class="col-sm-8">
+                                                    <input type="checkbox" class="form-control" style="height:20px;width:20px;" id="disable_coupon_code" name="auto_generate" />
+                                                    <div class="">If you select and save the rule you will be able to generate multiple coupon codes.</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row hide_div">
+                                                <label for="start" class="col-sm-3 col-form-label">Uses per Coupon</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" name="uses_per_coupon" placeholder="" id="use_per_coupon" />
+                                                    @if ($errors->has('uses_per_coupon'))
+                                                    <div class="alert alert-danger">{{$errors->first('uses_per_coupon')}}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <label for="start" class="col-sm-3 col-form-label">Uses per Coustomer</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" name="uses_per_coustomer" placeholder="" id="use_per_coustomer" />
+                                                    <div class="">Usage limit enforced for logged in customers only.</div>
+                                                    @if ($errors->has('uses_per_coustomer'))
+                                                    <div class="alert alert-danger">{{$errors->first('uses_per_coustomer')}}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            
+
+                                            <div class="form-group row">
+                                                <label for="start" class="col-sm-3 col-form-label">Start</label>
+                                                <div class="col-sm-8">
+                                                    <div class='input-group date' id='start'>
+                                                        <input type='text' class="form-control" name="start" value="{{old('start')}}" id="start_input" />
+                                                        <span class="input-group-addon">
+                                                            <span class="glyphicon glyphicon-calendar"></span>
+                                                        </span>
+                                                    </div>
+                                                    @if ($errors->has('start'))
+                                                    <div class="alert alert-danger">{{$errors->first('start')}}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="expiration" class="col-sm-3 col-form-label">Expiration</label>
+                                                <div class="col-sm-8">
+                                                    <div class='input-group date' id='expiration'>
+                                                        <input type='text' class="form-control" name="expiration" value="{{old('expiration')}}" id="to_input" />
+                                                        <span class="input-group-addon">
+                                                            <span class="glyphicon glyphicon-calendar"></span>
+                                                        </span>
+                                                    </div>
+                                                    @if ($errors->has('expiration'))
+                                                    <div class="alert alert-danger">{{$errors->first('expiration')}}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <label for="start" class="col-sm-3 col-form-label">Priority</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" name="priority" placeholder="" id="" />
+                                                    @if ($errors->has('priority'))
+                                                    <div class="alert alert-danger">{{$errors->first('priority')}}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                            <label for="start" class="col-sm-3 col-form-label">Public In RSS Feed</label>
+                                                <div class="col-sm-8">
+                                                    <input type="checkbox" class="form-control" style="height:20px;width:20px;" name="rss" checked />
+                                                </div>
+                                            </div>
+
+
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="panel panel-default">
@@ -497,7 +509,79 @@ form label.required:after{
                                     </div>
                                 </div>
                             </div>
-                        </div>
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading" role="tab" id="headingFour">
+                                    <h4 class="panel-title">
+                                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                    Actions
+                                    </a>
+                                    </h4>
+                                </div>
+                                <div id="collapseFour" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
+                                    <div class="panel-body">
+                                            <div class="form-group row">
+                                                <label for="start" class="col-sm-3 col-form-label ">Apply</label>
+                                                <div class="col-sm-8">
+                                                        <select class="form-control select select2 " name="simple_action" id="simple_action">
+                                                            <option data-title="Percent of product price discount" value="by_percent">Percent of product price discount</option>
+                                                            <option data-title="Fixed amount discount" value="by_fixed">Fixed amount discount</option>
+                                                            <option data-title="Fixed amount discount for whole cart" value="cart_fixed">Fixed amount discount for whole cart</option>
+                                                            <option data-title="Buy X get Y free (discount amount is Y)" value="buy_x_get_y">Buy X get Y free (discount amount is Y)</option>
+                                                        </select>
+                                                </div>
+                                            </div>
+
+                                        
+
+                                            <div class="form-group row">
+                                                <label for="start" class="col-sm-3 col-form-label required">Discount Amount</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control required" name="discount_amount" placeholder="Discount amount" id="discount_amount" />
+                                                    @if ($errors->has('discount_amount'))
+                                                    <div class="alert alert-danger">{{$errors->first('discount_amount')}}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+
+
+                                            <div class="form-group row">
+                                                <label for="start" class="col-sm-3 col-form-label">Maximum Qty Discount is Applied To</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" name="discount_qty" placeholder="" id="discount_qty" />
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <label for="start" class="col-sm-3 col-form-label">Discount Qty Step (Buy X)</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" name="discount_step" placeholder="" id="discount_step" />
+                                                </div>
+                                            </div>
+                                            
+
+                                            <div class="form-group row">
+                                                <label for="start" class="col-sm-3 col-form-label">Apply to Shipping Amount</label>
+                                                <div class="col-sm-8">
+                                                        <select class="form-control select select2 " name="apply_to_shipping" id="apply_to_shipping">
+                                                            <option data-title="Yes" value="true">Yes</option>
+                                                            <option data-title="No" value="false" selected>No</option>
+                                                        </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="expiration" class="col-sm-3 col-form-label">Discard subsequent rules</label>
+                                                <div class="col-sm-8">
+                                                        <select class="form-control select select2 " name="stop_rules_processing" id="stop_rules_processing">
+                                                            <option data-title="Yes" value="true">Yes</option>
+                                                            <option data-title="No" value="false" selected>No</option>
+                                                        </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         <!-- Accordian form end here -->
 
                 </div>
@@ -609,11 +693,11 @@ form label.required:after{
             </thead>
             <tbody>
                 @foreach($rule_lists as $rule_list)
-                    <tr data-id="{{ $rule_list->rule_id }}" data-coupon-type="{{ $rule_list->coupon_type == 2 ? 'SPECIFIC_COUPON' : 'NO_COUPON' }}" onClick="displayCouponCodeModal(this);">
+                    <tr data-id="{{ $rule_list->id }}" data-coupon-type="{{ $rule_list->coupon_type }}" onClick="displayCouponCodeModal(this);">
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $rule_list->name }}</td>
-                            <td>{{ $rule_list->code }}</td>
-                            <td>{{ implode(',',$rule_list->website_ids) }}</td>
+                            <td>{{ $rule_list->coupon_code }}</td>
+                            <td>{{ $rule_list->website_ids }}</td>
                             <td>{{ $rule_list->from_date }}</td>
                             <td>{{ $rule_list->to_date }}</td>
                             <td>{{ $rule_list->is_active == 1 ? "Active" : "InActive" }}</td>
@@ -625,21 +709,16 @@ form label.required:after{
 </div>
 <hr>
 
-<div class="row">
+<div class="row" style="display:none;">
     <div class="table-responsive">
         <table class="table table-striped table-bordered" style="width: 99%" id="coupon_table">
             <thead>
                 <tr>
                     <th width="15%">Code</th>
-                    <th width="20%">Description</th>
-                    <th>Expiration</th>
-                    <th>Discount</th>
-                    <th>Minimum Order Amount</th>
-                    <th>Maximum Usage</th>
-                    <th>Usage</th>
-                    <th>Initial Amount</th>
-                    <th>Email</th>
-                    <th width="10%">Actions</th>
+                    <th width="20%">Created</th>
+                    <th>Expiration Date</th>
+                    <th>Uses</th>
+                    <th>Times Used</th>
                 </tr>
             </thead>
         </table>
@@ -661,7 +740,7 @@ form label.required:after{
     @endif
     /* beautify preserve:end */
     $(document).ready(function() {
-        displayLoader();
+        
         $('#start').datetimepicker({
             format: 'YYYY-MM-DD HH:mm'
         });
@@ -670,14 +749,14 @@ form label.required:after{
         $('#expiration').datetimepicker({
             format: 'YYYY-MM-DD HH:mm'
         });
-        $('#coupon_table').DataTable({
-            "processing": true,
-            "serverSide": true,
-            "ajax": {
-                url: '/checkout/coupons/load',
-                type: 'GET'
-            }
-        });
+        // $('#coupon_table').DataTable({
+        //     "processing": true,
+        //     "serverSide": true,
+        //     "ajax": {
+        //         url: '/checkout/coupons/load',
+        //         type: 'GET'
+        //     }
+        // });
         $('.dataTables_length').addClass('bs-select');
 
         $('input#report-date').daterangepicker();
@@ -993,7 +1072,7 @@ form label.required:after{
     });
     
     $('.save-button').on('click',function(){
-        displayLoader();
+        
         if($('#coupon-form').valid()){
             let formData = $('#coupon-form').serializeArray();
 
@@ -1013,20 +1092,23 @@ form label.required:after{
                 url : "{{ route('couponcode.store') }}",
                 type : "POST",
                 data : indexed_array,
+                beforeSend: function () {
+                  $("#loading-image-preview").show();
+                },
                 success : function (response){
-                    jQuery("#preloader").remove();
+                    $("#loading-image-preview").hide();
                     if(response.type == "error"){
-                        alert("Something went wrong!");
-                    }
-                    if(response.type == "success"){
-                        location.reload();
-                        $('.hide_div').hide();
-                        $('#couponModal').modal('hide');
-                        $('#coupon-form').trigger("reset");
+                        toastr['error'](response.message, 'error'); 
+                        return false;
+                    }else if(response.type == "success"){
+                      toastr['success'](response.message, 'success'); 
+                      location.reload();
                     }
                 },
-                error : function (response){
-
+                error : function (xhr, status, error){
+                  $("#loading-image-preview").hide();
+                  var err = eval("(" + xhr.responseText + ")");
+                  toastr['error'](err, 'error'); 
                 }
             });
         }
@@ -1047,25 +1129,30 @@ form label.required:after{
 
         if(selected_val == "NO_COUPON"){
             $('.hide_div_edit').hide();
-            $('#coupon_qty_edit').attr("disabled", true);
-            $('#coupon_length_edit').attr("disabled", true);
-            $('#format_edit').attr("disabled", true);
-            $('#prefix_edit').attr("disabled", true);
-            $('#suffix_edit').attr("disabled", true);
-            $('#dash_edit').attr("disabled", true);
+            $(document).find('#coupon_qty_edit').attr("disabled", true);
+            $(document).find('#coupon_length_edit').attr("disabled", true);
+            $(document).find('#format_edit').attr("disabled", true);
+            $(document).find('#prefix_edit').attr("disabled", true);
+            $(document).find('#suffix_edit').attr("disabled", true);
+            $(document).find('#dash_edit').attr("disabled", true);
+
+            $(document).find('.generate-code').attr("disabled", true);
+
         }else{
             $('.hide_div_edit').show();
-            $('#coupon_qty_edit').attr("disabled", false);
-            $('#coupon_length_edit').attr("disabled", false);
-            $('#format_edit').attr("disabled", false);
-            $('#prefix_edit').attr("disabled", false);
-            $('#suffix_edit').attr("disabled", false);
-            $('#dash_edit').attr("disabled", false);
+            $(document).find('#coupon_qty_edit').attr("disabled", false);
+            $(document).find('#coupon_length_edit').attr("disabled", false);
+            $(document).find('#format_edit').attr("disabled", false);
+            $(document).find('#prefix_edit').attr("disabled", false);
+            $(document).find('#suffix_edit').attr("disabled", false);
+            $(document).find('#dash_edit').attr("disabled", false);
+
+            $(document).find('.generate-code').attr("disabled", false);
+
         }
     })
 
     function displayCouponCodeModal(ele){
-        displayLoader();
         let rule_id = $(ele).attr('data-id');
         $('#rule_id').val(rule_id);
 
@@ -1077,42 +1164,69 @@ form label.required:after{
                 data : {
                     rule_id : rule_id
                 },
+                beforeSend: function () {
+                  $("#loading-image-preview").show();
+                },
                 success : function (response){
-                    jQuery("#preloader").remove();
+                    $("#loading-image-preview").hide();
                     if(response.status == "error"){
-                        alert("Something went wrong!");
+                        toastr['error'](response.message, 'error'); 
+                        return false;
                     }
                     if(response.status == "success"){
                         $('.edit-modal-section').html("");
                         $('.edit-modal-section').append(response.data.html);
+                        $(document).find('#coupon_table1').dataTable();
                         if(coupon_type == "NO_COUPON"){
                             $(document).find('.hide_div_edit').hide();
                         }else{
                             $(document).find('.hide_div_edit').show();
                         }
 
+
                         if(coupon_type == "NO_COUPON"){
-                            $('#coupon_qty_edit').attr("disabled", true);
-                            $('#coupon_length_edit').attr("disabled", true);
-                            $('#format_edit').attr("disabled", true);
-                            $('#prefix_edit').attr("disabled", true);
-                            $('#suffix_edit').attr("disabled", true);
-                            $('#dash_edit').attr("disabled", true);
+                            $(document).find('#coupon_qty_edit').attr("disabled", true);
+                            $(document).find('#coupon_length_edit').attr("disabled", true);
+                            $(document).find('#format_edit').attr("disabled", true);
+                            $(document).find('#prefix_edit').attr("disabled", true);
+                            $(document).find('#suffix_edit').attr("disabled", true);
+                            $(document).find('#dash_edit').attr("disabled", true);
+
+                            $(document).find('.generate-code').attr("disabled", true);
+
                         }else{
-                            $('#coupon_qty_edit').attr("disabled", false);
-                            $('#coupon_length_edit').attr("disabled", false);
-                            $('#format_edit').attr("disabled", false);
-                            $('#prefix_edit').attr("disabled", false);
-                            $('#suffix_edit').attr("disabled", false);
-                            $('#dash_edit').attr("disabled", false);
+                            $(document).find('#coupon_qty_edit').attr("disabled", false);
+                            $(document).find('#coupon_length_edit').attr("disabled", false);
+                            $(document).find('#format_edit').attr("disabled", false);
+                            $(document).find('#prefix_edit').attr("disabled", false);
+                            $(document).find('#suffix_edit').attr("disabled", false);
+                            $(document).find('#dash_edit').attr("disabled", false);
+
+                            $(document).find('.generate-code').attr("disabled", false);
+
+                        }
+
+                        if(coupon_type == "SPECIFIC_COUPON" && $(document).find('#disable_coupon_code_edit').val() == "on"){
+
+                            $(document).find('#coupon_qty_edit').attr("disabled", false);
+                            $(document).find('#coupon_length_edit').attr("disabled", false);
+                            $(document).find('#format_edit').attr("disabled", false);
+                            $(document).find('#prefix_edit').attr("disabled", false);
+                            $(document).find('#suffix_edit').attr("disabled", false);
+                            $(document).find('#dash_edit').attr("disabled", false);
+
+                            $(document).find('.generate-code').attr("disabled", false);
+
                         }
 
                         $('#couponEditModal').modal("show");
                         
                     }
                 },
-                error : function (response){
-
+                error : function (xhr, status, error){
+                  $("#loading-image-preview").hide();
+                  var err = eval("(" + xhr.responseText + ")");
+                  toastr['error'](err, 'error'); 
                 }
         });
         
@@ -1120,7 +1234,6 @@ form label.required:after{
 
 
     $('.edit-button').on('click',function(){
-        displayLoader();
         if($('#coupon-edit-form').valid()){
             let formData = $('#coupon-edit-form').serializeArray();
 
@@ -1141,20 +1254,25 @@ form label.required:after{
                 url : "{{ route('salesrules.update') }}",
                 type : "POST",
                 data : indexed_array,
+                beforeSend: function () {
+                  $("#loading-image-preview").show();
+                },
                 success : function (response){
-                    jQuery("#preloader").remove();
+                    $("#loading-image-preview").hide();  
                     if(response.type == "error"){
-                        alert("Something went wrong!");
+                      toastr['error'](response.message, 'error'); 
+                      return false;
                     }
                     if(response.type == "success"){
                         alert("Rule updated successfully");
                         $('#couponEditModal').modal('hide');
                         location.reload();
-                        //$('#coupon-form').trigger("reset");
                     }
                 },
-                error : function (response){
-
+                error : function (xhr, status, error){
+                  $("#loading-image-preview").hide();
+                  var err = eval("(" + xhr.responseText + ")");
+                  toastr['error'](err, 'error'); 
                 }
             });
         }
@@ -1162,7 +1280,6 @@ form label.required:after{
     });
 
     $(document).on('click','.generate-code',function(){
-        displayLoader();
         $(this).attr('disabled',true);
         $.ajax({
             url : "{{ route('generateCode') }}",
@@ -1176,32 +1293,85 @@ form label.required:after{
                 suffix : $('#suffix_edit').val(),
                 dash : $('#dash_edit').val()
             },
-            success : function (response){
-                jQuery("#preloader").remove();
-                if(response.type == "error"){
-                    alert("Something went wrong!");
-                }
-                if(response.type == "success"){
-                    alert("Code generated successfully");
-                    $('#couponEditModal').modal('hide');
-                    location.reload();
-                }
+            beforeSend: function () {
+              $("#loading-image-preview").show();
             },
-            error : function (response){
-
+            success : function (response){
+              $("#loading-image-preview").hide();  
+              $(this).attr('disabled',false);
+              if(response.type == "error"){
+                toastr['error'](response.message, 'error'); 
+                return false;
+              }
+              if(response.type == "success"){
+                alert("Code generated successfully");
+                $('#couponEditModal').modal('hide');
+                location.reload();
+              }
+            },
+            error : function (xhr, status, error){
+              $("#loading-image-preview").hide();
+              var err = eval("(" + xhr.responseText + ")");
+              toastr['error'](err, 'error'); 
             }
         });
     });
 
-    function displayLoader(){
-        // jQuery("body").prepend('<div id="preloader">Loading...</div>');
-        
-        // jQuery(document).ready(function() {
-        //     jQuery("#preloader").remove();
-        // });
+    function getWebsitesByStoreId(ele){
+        let store_id = $(ele).val();
 
-        // $(".loader").delay(2000).fadeOut("slow");
-        // $("#overlayer").delay(2000).fadeOut("slow");
+        $.ajax({
+            url : "{{ route('getWebsiteByStore') }}",
+            type : "POST",
+            data : {
+                store_id : store_id,
+            },
+            beforeSend: function () {
+              $("#loading-image-preview").show();
+            },
+            success : function (response){
+              $("#loading-image-preview").hide();  
+                if(response.type == "success"){
+                    $('.websites').html("");
+                    $('.websites').append(response.data);
+
+                    $('.websites_edit').html("");
+                    $('.websites_edit').append(response.data);
+                }
+            },
+            error : function (xhr, status, error){
+              $("#loading-image-preview").hide();
+              var err = eval("(" + xhr.responseText + ")");
+              toastr['error'](err, 'error'); 
+            }
+        });
+    }
+
+    function deleteCoupon(ele){
+        let code_id = $(ele).attr('data-id');
+        $.ajax({
+            url : "{{ route('deleteCouponByCode') }}",
+            type : "POST",
+            data : {
+                id : code_id,
+            },
+            beforeSend: function () {
+              $("#loading-image-preview").show();
+            },
+            success : function (response){
+                if(response.type == "success"){
+                    alert("Coupon successfully removed");
+                    location.reload();
+                }else{
+                    alert("Someting went wrong");
+                }
+            },
+            error : function (xhr, status, error){
+              $("#loading-image-preview").hide();
+              var err = eval("(" + xhr.responseText + ")");
+              toastr['error'](err, 'error'); 
+            }
+        });
     }
 </script>
 @endsection

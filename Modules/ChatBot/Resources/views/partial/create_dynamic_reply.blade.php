@@ -27,15 +27,15 @@
                     @endforeach
                 </select>
             </div>
-            <!-- <div class="form-group">
-                <label for="value">Template</label>
-                <select name="mailinglist_template_id" id="" class="form-control">
-                    <option value="">Select</option>
-                    @foreach($templates as $temp)
-                    <option value="{{$temp->id}}">{{$temp->name}}</option>
+            <div class="form-group">
+                <label for="value">Select watson account</label>
+                <select name="watson_account" class="form-control" required>
+                    <option value="0">All account </option>
+                    @foreach($watson_accounts as $acc)
+                    	<option value="{{$acc->id}}" > {{$acc->id}} - {{$acc->storeWebsite->title}} </option>
                     @endforeach
                 </select>
-            </div> -->
+            </div>
             <div class="form-group">
                 <strong>Reply:</strong>
                 <textarea name="suggested_reply" class="form-control" rows="8" cols="80" required>{{ old('suggested_reply') }}</textarea>

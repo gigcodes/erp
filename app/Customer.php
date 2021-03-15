@@ -25,7 +25,9 @@ class Customer extends Model
         'reminder_last_reply',
         'wedding_anniversery',
         'dob',
-        'do_not_disturb'
+        'do_not_disturb',
+        'store_name',
+        'newsletter'
     ];
 
     protected $casts = [
@@ -67,9 +69,14 @@ class Customer extends Model
         return $this->hasMany('App\Order')->orderBy('created_at', 'DESC')->first();
     }
 
+    public function latestRefund()
+    {
+        return $this->hasMany('App\ReturnExchange')->orderBy('created_at', 'DESC')->first();
+    }
+
     public function suggestion()
     {
-        return $this->hasOne('App\Suggestion');
+        return $this->hasOne('App\SuggestedProduct');
     }
 
     public function instructions()

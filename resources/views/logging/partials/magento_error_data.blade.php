@@ -8,7 +8,7 @@
     <td>
     {{ $log->created_at->format('d-m-y H:i:s') }}
     </td>
-    <td> 
+    <td>
         @if($log->store_website_id)
             {{$log->store_website->title}}
         @endif
