@@ -55,7 +55,7 @@ class Handler extends ExceptionHandler
 
 
         if ($exception instanceof \UnexpectedValueException) {
-            return response()->json(['status' => 'failed','message' => 'Please check the file permission issue on the folder'], 405);
+            return response()->json(['status' => 'failed','message' => 'Please check the file permission issue on the folder => '.$exception->getMessage()], 405);
         }
 
 	    return parent::render($request, $exception);
