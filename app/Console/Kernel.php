@@ -511,7 +511,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('command:waybilltrack')->dailyAt("1:00");
        
 		//update directory manager to db
-	    $schedule->command('project_directory:manager')->dailyAt("1:00");
+	    //$schedule->command('project_directory:manager')->dailyAt("1:00");
 
 
          // make payment receipt for hourly associates on daily basis.
