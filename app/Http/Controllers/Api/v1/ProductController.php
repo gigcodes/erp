@@ -82,7 +82,7 @@ class ProductController extends Controller
                                 }
                            // }
                             // if status is cancelled already then return false
-                            if($getOrder->status == 6) {
+                            if($getOrder->order_status_id == 6) {
                                 $result_input["iscanceled"] = false;
                             }
                         }
