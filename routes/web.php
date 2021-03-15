@@ -1644,6 +1644,8 @@ Route::post('instagram/post/likeUserPost', 'InstagramPostsController@likeUserPos
 Route::post('instagram/post/acceptRequest', 'InstagramPostsController@acceptRequest');
 Route::post('instagram/post/sendRequest', 'InstagramPostsController@sendRequest');
 
+Route::post('instagram/history', 'InstagramPostsController@history')->name('instagram.accounts.histroy');
+
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
 
@@ -1701,6 +1703,8 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('hashtag/queue/status', 'HashtagController@checkStatusCommand')->name('hashtag.command.status');
     Route::get('hashtags/grid', 'InstagramController@hashtagGrid');
     Route::get('influencers', 'HashtagController@influencer')->name('influencers.index');
+
+    
 
     Route::get('comments', 'InstagramController@getComments');
     Route::post('comments', 'InstagramController@postComment');

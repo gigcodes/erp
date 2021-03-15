@@ -866,20 +866,45 @@ class InstagramPostsController extends Controller
         echo json_encode(array("message"=>"Data Updated Succesfully"));
     }
 
-    public function getImages()
-    {
-        $images = [];
-        $keywords = ['fashion','living'];
-        $number = rand(1,500);
-        $response = UnsplashSearch::photos('fashion',['page' => $number, 'order_by' => 'latest']);
-        $content =  $response->getContents();
-        $lists = json_decode($content);
+    public function getImages( Request $request )
+    {   
+        if( $request->type == 'user' ){
 
-        foreach ($lists->results as $list) {
-            $images[] = $list->urls->full;
+            $number = rand(1,500);
+            $response = UnsplashSearch::users( $request->keyword ,['page' => $number]);
+            $content =  $response->getContents();
+            $lists = json_decode($content);
+            $images = [];
+            foreach ($lists->results as $list) {
+                $images[] = $list->urls->full;
+            }
+            return $images ? $images : null;
+        }else if( $request->type == 'collection' ){
+
+            $number = rand(1,500);
+            $response = UnsplashSearch::collections( $request->keyword ,['page' => $number]);
+            $content =  $response->getContents();
+            $lists = json_decode($content);
+            
+            $images = [];
+            foreach ($lists->results as $list) {
+                $images[] = $list->cover_photo->urls->full;
+            }
+            return $images ? $images : null;
+
+        }else {
+            $number = rand(1,500);
+            $response = UnsplashSearch::photos( $request->keyword ,['page' => $number, 'order_by' => 'latest']);
+            $content =  $response->getContents();
+            $lists = json_decode($content);
+            
+            $images = [];
+            foreach ($lists->results as $list) {
+                $images[] = $list->urls->full;
+            }
+            return $images ? $images : null;
         }
 
-        return $images;
 
     }
 
@@ -983,6 +1008,8 @@ class InstagramPostsController extends Controller
                 //return response()->json([$decode], 200);
                 $count = 0;
                 $lastCount = rand(5,10);
+                $likedUserNameList = [];
+                $likePostCount = 0;
                 foreach ($decode->users as $value) {
                     if($count == $lastCount){
                         break;
@@ -996,14 +1023,14 @@ class InstagramPostsController extends Controller
                         if($likePostCount == $likePostCountLast){
                             break;
                         }
-                     sleep(rand(5,10));
+                        sleep(rand(5,10));
                         $getdatass=$instagram->media->like($data->id,'0');
-                    //  print_r($getdatass);die;
                         $likePostCount++;
                     }
                     $count++;
                 }
-                $this->instagramLog($request->account_id,"success","Liked User Post Successfully");
+
+                $this->instagramLog($request->account_id,"success","Liked Post : ".$likePostCount);
                 return response()->json(['Liked User Post Successfully'], 200);
             }else{
                 $this->instagramLog($request->account_id,"error","account id missing");
@@ -1035,7 +1062,7 @@ class InstagramPostsController extends Controller
                             $getdata=$instagram->people->approveFriendship($getdata->pk);
                             $count++;
                         }
-                    $this->instagramLog($request->account_id,"success","All request accepted Successfully");
+                    $this->instagramLog($request->account_id,"success","Total request accepted : ".$count);
                     return response()->json(['All request accepted Successfully'], 200);
 
             }else{
@@ -1068,7 +1095,7 @@ class InstagramPostsController extends Controller
                     $instagram->people->follow($user->pk);
                     $count++;
                 }
-                $this->instagramLog($request->account_id,"success","Post Added Succesfully");
+                $this->instagramLog($request->account_id,"success","Total send request : ".$count);
                 return response()->json(['Post Added Succesfully'], 200);
 
             }else{
@@ -1088,6 +1115,13 @@ class InstagramPostsController extends Controller
         $InstagramLog->log_title = $title;
         $InstagramLog->log_description = $description;
         $InstagramLog->save();
+    }
+
+    public function history(Request $request)
+    {   
+        
+    	$productCategory = InstagramLog::where("account_id", $request->account_id)->orderBy("created_at","desc")->get();
+        return response()->json(["code" => 200 , "data" => $productCategory]);
     }
 
 }

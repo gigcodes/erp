@@ -24,10 +24,11 @@
  <td>
    
    @if(strtolower($account->platform) == 'instagram')
-   <a href="javascript:;" onclick="postImage({{ $account->id }})" ><i aria-hidden="true" class="fa fa-upload" title="Post Images"></i></a>
+   <a href="javascript:;" onclick="openModel({{ $account->id }})" ><i aria-hidden="true" class="fa fa-upload" title="Post Images"></i></a>
    <a href="javascript:;" onclick="likeUserPost({{ $account->id }})"><i class="fa fa-thumbs-up" title="Like Posts"></i></a>
    <a href="javascript:;" onclick="sendRequest({{ $account->id }})"><i class="fa fa-send" title="Send Request"></i></a>
    <a href="javascript:;" onclick="acceptRequest({{ $account->id }})"><i class="fa fa-envelope-open" title="Accept Request"></i></a>
+   <a href="javascript:;" data-id="{{ $account->id }}" class="account-history"><i class="fa fa-history" title="History"></i></a>
      <!-- <button onclick="postImage({{ $account->id }})" class="btn btn-secondary btn-sm">Post Images</button>
      <button onclick="likeUserPost({{ $account->id }})" class="btn btn-secondary btn-sm">Like Posts</button>
      <button onclick="sendRequest({{ $account->id }})" class="btn btn-secondary btn-sm">Send Request</button>
