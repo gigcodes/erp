@@ -284,7 +284,10 @@
                                 <a style="padding:3px;" class="btn  d-inline btn-image" href="{{ get_server_last_log_file($supplier->scraper_name,$supplier->server_id) }}" id="link" target="-blank"><img src="/images/view.png" /></a>
                                 <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="restartScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )"><img width="2px;" src="/images/resend2.png"/></button>
                                 <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="getRunningStatus('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )"><img width="2px;" src="/images/resend.png"/></button>
-                                
+
+                                <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-screenshot">
+                                     <i class="fa fa-desktop"></i>
+                                </button>
                             </td>
                             </tr>
                             <tr class="hidden_row_{{ $supplier->id  }} dis-none" data-eleid="{{ $supplier->id }}">
@@ -672,6 +675,19 @@
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body">
+                    </div>
+                </div>
+            </div>
+      </div>
+      <div id="show-content-model-table" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title"></h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                       
                     </div>
                 </div>
             </div>
@@ -1099,6 +1115,39 @@
             model.find(".modal-title").html("Scraper Start time details");
             model.find(".modal-body").html(html);
             model.modal("show");
+        });
+
+        $(document).on("click",".get-screenshot",function (e){
+            e.preventDefault();
+            var id = $(this).data("id");
+            $.ajax({
+                url: '/scrap/screenshot',
+                type: 'GET',
+                data: {id: id}
+            }).done(function(response) {
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Scraper screenshots");
+                model.find(".modal-body").html(response);
+                model.modal("show");
+            }).fail(function() {
+                alert('Please check laravel log for more information')
+            });
+        });
+
+        $(document).on("click","#show-content-model-table li",function (e){
+            e.preventDefault();
+            var a = $(this).find("a");
+            if(typeof a != "undefined") {
+                $.ajax({
+                    url: a.attr("href"),
+                    type: 'GET'
+                }).done(function(response) {
+                    var model  = $("#show-content-model-table");
+                    model.find(".modal-body").html(response);
+                }).fail(function() {
+                    alert('Please check laravel log for more information')
+                });
+            }
         });
     </script>
 @endsection

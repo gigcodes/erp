@@ -7,6 +7,7 @@ use App\CronJobReport;
 use App\Customer;
 use App\Product;
 use App\Suggestion;
+use App\SuggestedProduct;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -49,14 +50,14 @@ class SendProductSuggestion extends Command
                 'start_time' => Carbon::now(),
             ]);
 
-            $suggestions = Suggestion::all();
+            $suggestions = SuggestedProduct::all();
 
             foreach ($suggestions as $suggestion) {
                 $customer = Customer::find($suggestion->customer_id);
 
                 if ($customer) {
-                    $brands     = json_decode($suggestion->brand);
-                    $categories = json_decode($suggestion->category);
+                    $brands     = json_decode($suggestion->brands);
+                    $categories = json_decode($suggestion->categories);
                     $sizes      = json_decode($suggestion->size);
                     $suppliers  = json_decode($suggestion->supplier);
 

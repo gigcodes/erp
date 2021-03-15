@@ -123,9 +123,11 @@
     <label for="value">Select watson account</label>
     <select name="watson_account" class="form-control" required>
         <option value="0">All account </option>
-        @foreach($watson_accounts as $acc)
-            <option value="{{$acc->id}}" > {{$acc->id}} - {{$acc->storeWebsite->title}}</option>
-        @endforeach
+        @if(!empty($watson_accounts))
+            @foreach($watson_accounts as $acc)
+                <option value="{{$acc->id}}" > {{$acc->id}} - {{$acc->storeWebsite->title}}</option>
+            @endforeach
+        @endif
     </select>
 </div>
 <div class="form-group">

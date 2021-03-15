@@ -60,22 +60,20 @@ class MailinglistController extends Controller
         $store_website = StoreWebsite::Where('website'  , $request->website )->first();
         // Step 2
         if (!$store_website) {
-            $message = $this->generate_erp_response("newsletter.failed", 0, $default = "Store website not found");
+            $message = $this->generate_erp_response("newsletter.failed", 0, $default = "Store website not found", request('lang_code'));
            return response()->json(["code" => 200, "message" => $message]);
         }
         // Step 3
         $customer = $this->get_customer($request->get("email") , $store_website->id );
 
         if( $customer && $customer->newsletter == 1  && $customer->store_website_id == $store_website->id ) {
-            $message = $this->generate_erp_response("newsletter.failed.already_subscribed", $store_website->id, $default = "You have already subscibed newsletter");
+            $message = $this->generate_erp_response("newsletter.failed.already_subscribed", $store_website->id, $default = "You have already subscibed newsletter", request('lang_code') );
             return response()->json(["code" => 500, "message" => $message ]);
         }
 
         if (!$customer) {
             $customer =  $this->create_customer( $request->get("email") , $store_website->id, $request->get("store_name",null) );
         } 
-
-
 
         // Step4
         $mailinglist = Mailinglist::where('website_id', $store_website->id)->get();
@@ -89,7 +87,7 @@ class MailinglistController extends Controller
         $customer->save();
 
         // return response()->json(["code" => 200, "message" => "Done", "data" => $request->all()]);
-        $message = $this->generate_erp_response("newsletter.success", $store_website->id, $default = "Successfully added");
+        $message = $this->generate_erp_response("newsletter.success", $store_website->id, $default = "Successfully added", request('lang_code'));
         return response()->json(["code" => 200, "message" => $message ]);
     }
 

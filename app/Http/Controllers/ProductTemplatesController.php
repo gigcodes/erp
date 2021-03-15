@@ -454,7 +454,7 @@ class ProductTemplatesController extends Controller
 
                 $template->template_status=$request->status;
 
-                $contents = file_get_contents($request->image_url_png);
+                $contents = $this->getImageByCurl($request->image_url_png);
 
                $media= MediaUploader::fromString($contents)->useFilename('profile')->toDirectory('product-template-images')->upload();
 
@@ -468,5 +468,16 @@ class ProductTemplatesController extends Controller
 
              }
         }
+    }
+
+    public function getImageByCurl($url)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
     }
 }

@@ -30,9 +30,10 @@
       <h2 class="page-heading">Log List Magento ({{ $total_count }})</h2>
       <div class="pull-right">
         <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
+        <a href="/logging/magento-product-api-call" target="__blank">
+          <button type="button" class="btn btn-image"><img src="/images/details.png" /></button>
+        </a>
       </div>
-
-    </div>
   </div>
 
   <div class="col-md-12">
@@ -166,7 +167,7 @@
                   <td style="display:flex;justify-content: space-between;align-items: center;">
                     <button data-toggle="modal" data-target="#update_modal" class="btn btn-xs btn-secondary update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
                     <button class="btn btn-xs btn-secondary show_error_logs" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-eye"></i></button>
-                    <input style="width:20px;height:20px" type="checkbox" class="form-control selectProductCheckbox_class" value="{{ $item->sku }}" websiteid="{{$item->store_website_id}}" name="selectProductCheckbox"/>
+                    <input style="width:20px;height:20px" type="checkbox" class="form-control selectProductCheckbox_class" value="{{ $item->sku }}{{ $item->color }}" websiteid="{{$item->store_website_id}}" name="selectProductCheckbox"/>
                   </td>
                 </tr>
               @endforeach()
@@ -352,7 +353,6 @@
     var ref = $(this);
     ref.find('td:eq(15)').children('.selectProductCheckbox_class').change(function(){
       if($(this).is(':checked')){
-        console.log("here");
         var val = $(this).val()
         //if(!product.includes($(this).val())){  
           if(product.length > 0){

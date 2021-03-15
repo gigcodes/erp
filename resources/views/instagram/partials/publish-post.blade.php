@@ -1,5 +1,5 @@
 <div id="add-vendor-info-modal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" style="width: 1000px;">
 		<div class="modal-content">
 			<div id="myDiv">
 			   	<img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
@@ -9,6 +9,7 @@
                 <h2>Publish Post</h2>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
+			
             <div class="modal-body">
 				<form role="form" method="post" action="{{ route('post.store') }}" name="post-create" autocomplete="off" style="margin-top: 30px;">
 					@csrf
@@ -18,7 +19,9 @@
 		                    <div class="card media-manager">
 		                        <div class="card-header pl-1">
 		                            <h3 class="card-title">@lang('Media')</h3>
-									<button type="button" class="btn btn-secondary btn-sm mr-3 attachInstagramMedia" title="attach media from all content"><i class="fa fa-paperclip"></i></button>
+
+		                            <a href="{{route('attachImages','instagram-post')}}" class="btn btn-secondary btn-sm mr-3 attachInstagramMedia" title="attach media from all content"><i class="fa fa-paperclip"></i></a>
+									<!-- <button type="button" class="btn btn-secondary btn-sm mr-3 attachInstagramMedia" title="attach media from all content"><i class="fa fa-paperclip"></i></button> -->
 		                            <small class="ml-3 text-gray">{{ $used_space }} / {{ $storage_limit }}</small>
 		                            <div class="card-options">
 		                                <button type="button" class="btn btn-secondary btn-sm btn-delete mr-3" disabled>
@@ -34,7 +37,10 @@
 		                            <div class="dimmer active">
 		                                <div class="loader"></div>
 		                                <div class="dimmer-content">
-		                                    <div class="d-flex flex-wrap align-content-start media-files-container"></div>
+
+		                                	
+		                                    <div class="d-flex flex-wrap align-content-start media-files-container">
+		                                    </div>
 		                                </div>
 		                            </div>
 		                        </div>

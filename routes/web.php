@@ -1701,6 +1701,8 @@ Route::post('instagram/post/sendRequest', 'InstagramPostsController@sendRequest'
 });
 
 
+Route::post('instagram/history', 'InstagramPostsController@history')->name('instagram.accounts.histroy');
+
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
 
@@ -1759,6 +1761,8 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::get('hashtags/grid', 'InstagramController@hashtagGrid');
     Route::get('influencers', 'HashtagController@influencer')->name('influencers.index');
 
+    
+
     Route::get('comments', 'InstagramController@getComments');
     Route::post('comments', 'InstagramController@postComment');
     Route::get('post-media', 'InstagramController@showImagesToBePosted');
@@ -1782,6 +1786,8 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
 
     //Add Post
     Route::get('post/create', 'InstagramPostsController@post')->name('instagram.post');
+     Route::any('post/create/images', 'InstagramPostsController@post')->name('instagram.post.images');
+
     Route::get('post', 'InstagramPostsController@viewPost')->name('post.index');
     Route::get('post/edit', 'InstagramPostsController@editPost')->name('post.edit');
     Route::post('post/create','InstagramPostsController@createPost')->name('post.store');
@@ -1811,7 +1817,7 @@ Route::prefix('log-scraper-vs-ai')->middleware('auth')->group(function () {
 });
 
 Route::prefix('social-media')->middleware('auth')->group(function () {
-    Route::get('/instagram-posts/grid', 'InstagramPostsController@grid');
+    Route::get('/instagram-posts/grid','InstagramPostsController@grid');
     Route::get('/instagram-posts', 'InstagramPostsController@index');
 });
 
@@ -1832,6 +1838,7 @@ Route::prefix('comments')->middleware('auth')->group(function () {
 });
 
 Route::prefix('scrap')->middleware('auth')->group(function () {
+    Route::get('screenshot', 'ScrapStatisticsController@getScreenShot');
     Route::get('statistics/update-field', 'ScrapStatisticsController@updateField');
     Route::get('statistics/update-scrap-field', 'ScrapStatisticsController@updateScrapperField');
     Route::get('statistics/show-history', 'ScrapStatisticsController@showHistory');

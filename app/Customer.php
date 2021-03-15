@@ -77,7 +77,7 @@ class Customer extends Model
 
     public function suggestion()
     {
-        return $this->hasOne('App\Suggestion');
+        return $this->hasOne('App\SuggestedProduct');
     }
 
     public function instructions()

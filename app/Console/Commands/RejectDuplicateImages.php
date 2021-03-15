@@ -144,7 +144,7 @@ class RejectDuplicateImages extends Command
             }
 
         } catch(\Exception $e) {
-            \Log::info("Fix issue on Rejecte duplicate images => ".$e->getMessage());
+            //\Log::info("Fix issue on Rejecte duplicate images => ".$e->getMessage());
         }
 
         $this->output->write('Cron complated', true);

@@ -615,7 +615,7 @@ class ScrapController extends Controller
         $brand = Brand::where('name', $receivedJson->brand)->first();
 
         // No brand found?
-        if (!$receivedJson->brand) {
+        if (!$brand) {
             // Check for reference
             $brand = Brand::where('references', 'LIKE', '%' . $receivedJson->brand . '%')->first();
 
@@ -626,6 +626,8 @@ class ScrapController extends Controller
                 ]);
             }
         }
+
+
 
         
         //add log in scraped product
@@ -1592,6 +1594,39 @@ class ScrapController extends Controller
         ]);
         app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
         return redirect()->back();
+    }
+
+    public function sendScreenshot(Request $request)
+    {
+        if(empty($request->website)) {
+            return response()->json(["code" => 500 , "data" => [], "message" => "website (scraper name) is required field"]);
+        }
+
+        if(!$request->hasFile('screenshot')) {
+            return response()->json(["code" => 500 , "data" => [], "message" => "Screenshot is required"]);
+        }
+
+        $scraper = \App\Scraper::where("scraper_name",$request->website)->first();
+
+        if(!$scraper) {
+           return response()->json(["code" => 500 , "data" => [], "message" => "website (scraper name) is is wrong"]);
+        }
+
+        $media = MediaUploader::fromSource($request->file('screenshot'))
+        ->toDirectory('scraper-screenshot/' . floor($scraper->id / config('constants.image_per_folder')))
+        ->upload();
+
+        $history = new \App\ScraperScreenshotHistory;
+        $history->fill([
+            "scraper_name" => $scraper->scraper_name,
+            "scraper_id" => $scraper->id,
+        ]);
+        $history->save();
+
+        $history->attachMedia($media, config('constants.media_screenshot_tag'));
+
+        return response()->json(["code" => 200 , "data" => [], "message" => "Screenshot saved successfully"]);
+
     }
 }
 
