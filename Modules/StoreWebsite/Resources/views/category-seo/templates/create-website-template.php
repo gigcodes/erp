@@ -64,7 +64,7 @@
 									<thead>
 										<tr>
 											<th>Keywords</th>
-											<th>Search Volume</th>
+											<th>Avg. monthly</th>
 											<th>Competition</th>
 										</tr>
 									</thead>

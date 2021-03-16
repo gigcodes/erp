@@ -512,8 +512,8 @@ function getGoogleKeyWord(title) {
     $.ajax({
        
         type: 'get',
-        url: '/google-keyword-search',
-        data: { keyword: title, language: lan, google_search: 'true' },
+        url: '/google-keyword-search-v6',
+        data: { keyword: title, google_search: 'true' },
 
         beforeSend: function () {
             $("#loading-image").show();
@@ -525,7 +525,7 @@ function getGoogleKeyWord(title) {
                 var t = '';
                 $.each(response, function (index, data) {
                     t += `<tr><td class="keyword-list">` + data.keyword + `</td>`;
-                    t += `<td>` + data.searchVolume + `</td>`;
+                    t += `<td>` + data.avg_monthly_searches + `</td>`;
                     t += `<td>` + data.competition + `</td></tr>`;
                 });
                 $(document).find('.suggestList-table').html(t);
