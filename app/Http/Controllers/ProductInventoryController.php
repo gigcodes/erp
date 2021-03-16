@@ -1304,8 +1304,9 @@ class ProductInventoryController extends Controller
             $newRow = [];
 			$newRow['supplier_name'] = $row->supplier->supplier;
 			$brandCount = \App\InventoryStatusHistory::join("products as p","p.id","inventory_status_histories.product_id")->whereDate('inventory_status_histories.created_at','>', Carbon::now()->subDays(7))->where("inventory_status_histories.supplier_id",$row->supplier_id)
+			->where('in_stock','>',0)
 			->groupBy("p.brand")
-			->select(\DB::raw("count(distinct p.brand) as total"))
+			->select(\DB::raw("count(p.brand) as total"))
 			->count();
 
 			$newRow['brands'] = $brandCount;
