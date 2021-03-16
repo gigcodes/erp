@@ -98,7 +98,7 @@
                     <tr>
                        <td>{{$row['supplier_name']}}</td>
                        <td>{{$row['products']}}</td>
-                       <td>{{$row['brands']}}</td>
+                       <td><a href="javascript:;" data-supplier-id="{{ $row['supplier_id'] }}" class="brand-result-page">{{$row['brands']}}</a></td>
                        <?php foreach($columnData as $e) { ?>
                            <td> <?php echo isset($row['dates'][$e]) ? $row['dates'][$e] : 0; ?> </td>
                        <?php } ?> 
@@ -116,7 +116,24 @@
         </div>
     </div>
 
-    
+ <div id="brand-history-model" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Brand History</h4>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+            <div class="modal-body">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+      </div>
+  </div>
+</div>
+
+
 @endsection
 
 @section('scripts')
@@ -133,6 +150,23 @@
         }
 
 
+     $(document).on("click",".brand-result-page",function() {
+          var $this = $(this);
+          $.ajax({
+              url:'/product/history/by/supplier-brand',
+              data:{
+                supplier_id : $this.data("supplier-id")
+              },
+              success:function(result){
+                var brandModel = $("#brand-history-model");
+                    brandModel.find(".modal-body").html(result);
+                    brandModel.modal("show");
+              },
+              error:function(exx){
+
+              }
+          });
+     });
 
 </script>
 
