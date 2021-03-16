@@ -1328,4 +1328,19 @@ class ProductInventoryController extends Controller
 
 
 	}
+
+
+	public function supplierProductHistoryBrand (Request $request) 
+	{
+		$inventory = \App\InventoryStatusHistory::join("products as p","p.id","inventory_status_histories.product_id")
+			->leftjoin("brands as b","b.id","p.brand")
+			->whereDate('inventory_status_histories.created_at','>', Carbon::now()->subDays(7))->where("inventory_status_histories.supplier_id",$request->supplier_id)
+			->where('in_stock','>',0)
+			->groupBy("p.brand")
+			->select([\DB::raw("count(distinct p.id) as total"),"p.brand","b.name"])
+			->orderBy("total","desc")
+			->get();
+
+		return view("product-inventory.brand-history",compact('inventory'));
+	}
 }
