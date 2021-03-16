@@ -12,7 +12,6 @@
                     <tr style="<?php echo ($i->total <= 10 ) ? 'background: red' : ''; ?>">
                         <td><?php echo $c+1 ?></td>  
                         <td><?php echo $i->brand ?></td>  
-                        <td><?php echo $i->brand ?></td>  
                         <td><?php echo $i->name ?></td>  
                         <td><?php echo $i->total ?></td>  
                     </tr>
