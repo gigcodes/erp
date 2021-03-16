@@ -236,17 +236,19 @@ $(document).on('change', '#meta_title', function () {
 });
 
 $(document).on('click', '#extra-keyword-search-btn', function () {
+    $(document).find('.suggestList').hide();
     getGoogleKeyWord($('#extra-keyword-search').val());
 });
 
 $(document).on('click', '#keyword-search-btn', function () {
+    $(document).find('.suggestList').hide();
     getGoogleKeyWord($('#meta_title').val());
 });
 
-$(document).on('click', '.suggestList > li', function () {
-    var keywords = $(this).data('keyword');
-
-    if ( keywords ) {
+$(document).on('click', '.keyword-list', function () {
+    var keywords = $(this).text();
+    
+    if (keywords) {
         if ($(this).hasClass('badge-green')) {
             $('#meta_keywords').val($('#meta_keywords').val().replace("," + keywords, ""));
             $(this).removeClass('badge-green').find('i').remove()
@@ -260,6 +262,23 @@ $(document).on('click', '.suggestList > li', function () {
 
 });
 
+// $(document).on('click', '.suggestList > li', function () {
+//     var keywords = $(this).data('keyword');
+
+//     if ( keywords ) {
+//         if ($(this).hasClass('badge-green')) {
+//             $('#meta_keywords').val($('#meta_keywords').val().replace("," + keywords, ""));
+//             $(this).removeClass('badge-green').find('i').remove()
+//         } else {
+//             $('#meta_keywords').val($('#meta_keywords').val() + ',' + keywords);
+//             $(this).addClass('badge-green').append('<i class="fa fa-remove pl-2"></i>')
+//         }
+//     }
+
+//     $('input[name="meta_keyword"]').trigger('change');
+
+// });
+
 
 $(document).on('change , keyup', 'input[name="meta_keyword"]', function () {
     $('#meta_keywords_count').text( 'Length: '+ $(this).val().length);
@@ -270,9 +289,7 @@ $(document).on('change , keyup', 'textarea[name="meta_description"]', function (
 });
 
 function getGoogleKeyWord(title) {
-
-    $(document).find('.suggestList').empty();
-    $(document).find('.suggestList').removeClass('width-fix');
+    $(document).find('.suggestList-table').empty();
     var lan = $('.website-language-change').val();
 
     $.ajax({
@@ -288,11 +305,14 @@ function getGoogleKeyWord(title) {
             if (response.length > 0) {
                 $(document).find('#extra-keyword-search-btn').removeClass('hide');
                 $(document).find('#extra-keyword-search').removeClass('hide');
-                $(document).find('.suggestList').addClass('width-fix');
-                $(document).find('.suggestList').append('<li class="badge badge-primary w-100" > keywords - searchVolume - competition </i>');
+                var t = '';
                 $.each(response, function (index, data) {
-                    $(document).find('.suggestList').append('<li class="badge badge-primary" data-keyword="' + data.keyword + '" >' + data.keyword + ' - ' + data.searchVolume + ' - ' + data.competition + '</i>');
+                    t += `<tr><td class="keyword-list">` + data.keyword + `</td>`;
+                    t += `<td>` + data.searchVolume + `</td>`;
+                    t += `<td>` + data.competition + `</td></tr>`;
                 });
+                $(document).find('.suggestList-table').html(t);
+                $(document).find('.suggestList').show();
             } else {
                 $(document).find('#extra-keyword-search-btn,#extra-keyword-search').hide();
             }
