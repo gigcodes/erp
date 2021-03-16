@@ -24,6 +24,7 @@ use App\Library\Instagram\PublishPost;
 use Plank\Mediable\Media;
 use App\StoreSocialContent;
 use App\InstagramPostLog;
+use App\InstagramLog;
 use UnsplashSearch;
 use App\Jobs\InstaSchedulePost;
 \InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
@@ -1178,7 +1179,14 @@ class InstagramPostsController extends Controller
         }
     }
 
-   
+    public function instagramLog($account_id,$title,$description){
+            $InstagramLog = new InstagramLog();
+            $InstagramLog->account_id = $account_id;
+            $InstagramLog->log_title = $title;
+            $InstagramLog->log_description = $description;
+            $InstagramLog->save();
+            return true;
+    }
 
 
     public function createPostLog($postId=null,$title=null,$message=null)
