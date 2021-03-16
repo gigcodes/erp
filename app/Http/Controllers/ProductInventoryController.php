@@ -1277,7 +1277,7 @@ class ProductInventoryController extends Controller
 	{
 		$suppliers = \App\Supplier::all();
 		$inventory = \App\InventoryStatusHistory::select('created_at','supplier_id',DB::raw('count(distinct product_id) as product_count_count,GROUP_CONCAT(product_id) as brand_products'))
-			->whereDate('created_at','>', Carbon::now()->subDays(7))
+			//->whereDate('created_at','>', Carbon::now()->subDays(7))
 			->where('in_stock','>',0)
 			->groupBy('supplier_id');
 
@@ -1285,8 +1285,10 @@ class ProductInventoryController extends Controller
 			$inventory = $inventory->where('supplier_id',$request->supplier);
 		}
 
-		$total_rows = $inventory->count();
-		$inventory = $inventory->orderBy('product_count_count','desc')->paginate(10);
+		$inventory = $inventory->orderBy('product_count_count','desc')->paginate(24);
+
+		$total_rows = $inventory->total();
+
 		$allHistory = [];
 		$date = date('Y-m-d', strtotime(date("Y-m-d") . ' -6 day'));
 		$extraDates = $date;
@@ -1301,7 +1303,7 @@ class ProductInventoryController extends Controller
             
             $newRow = [];
 			$newRow['supplier_name'] = $row->supplier->supplier;
-			$brandCount = \App\InventoryStatusHistory::join("products as p","p.id","inventory_status_histories.product_id")->groupBy("p.brand")->whereDate('inventory_status_histories.created_at','>', Carbon::now()->subDays(7))->where("inventory_status_histories.supplier_id",$row->supplier_id)->select(\DB::raw("count(*) as total"))->first();
+			$brandCount = \App\InventoryStatusHistory::join("products as p","p.id","inventory_status_histories.product_id")->groupBy("p.brand")->whereDate('inventory_status_histories.created_at','>', Carbon::now()->subDays(7))->where("inventory_status_histories.supplier_id",$row->supplier_id)->select(\DB::raw("count(distinct p.brand) as total"))->first();
 			$newRow['brands'] = ($brandCount) ? $brandCount->total : 0;
 
 
