@@ -3,6 +3,9 @@
 @section('title', 'Supplier Inventory History')
 
 @section('large_content')
+    <div id="myDiv">
+        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+    </div>
     <div class="row">
         <div class="col-md-12">
             <h2 class="page-heading">Supplier Inventory History ({{$total_rows}})</h2>
@@ -157,13 +160,17 @@
               data:{
                 supplier_id : $this.data("supplier-id")
               },
+              beforeSend: function () {
+                  $("#loading-image").show();
+              },
               success:function(result){
+                $("#loading-image").hide();
                 var brandModel = $("#brand-history-model");
                     brandModel.find(".modal-body").html(result);
                     brandModel.modal("show");
               },
               error:function(exx){
-
+                $("#loading-image").hide();
               }
           });
      });
