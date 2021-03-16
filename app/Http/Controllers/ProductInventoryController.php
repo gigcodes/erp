@@ -1307,6 +1307,7 @@ class ProductInventoryController extends Controller
 			->where('in_stock','>',0)
 			->groupBy("p.brand")
 			->select(\DB::raw("count(p.brand) as total"))
+			->get()
 			->count();
 
 			$newRow['brands'] = $brandCount;
