@@ -1664,25 +1664,26 @@ class CustomerController extends Controller
 		//Store ID Email
 		$emailAddressDetails = EmailAddress::select()->where(['store_website_id'=>$customer->store_website_id])->first();
 		
-        Mail::to($customer->email)->send(new CustomerEmail($request->subject, $request->message, $emailAddressDetails->from_address));
-		if ($request->order_id != '') {
+        if ($request->order_id != '') {
             $order_data = json_encode(['order_id' => $request->order_id]);
         }
 
-        $params = [
-            'model_id' => $customer->id,
-            'model_type' => Customer::class,
-            //'from' => 'customercare@sololuxury.co.in',
-            'from' => $emailAddressDetails->from_address,
-            'to' => $customer->email,
-            'send' => 1,
-            'subject' => $request->subject,
-            'message' => $request->message,
-            'template' => 'customer-simple',
-            'additional_data' => isset($order_data) ? $order_data : ''
-        ];
+        $emailClass = (new CustomerEmail($request->subject, $request->message, $emailAddressDetails->from_address))->build();
 
-        Email::create($params);
+        $email             = Email::create([
+            'model_id'         => $customer->id,
+            'model_type'       => Customer::class,
+            'from'             => $emailAddressDetails->from_address,
+            'to'               => $customer->email,
+            'subject'          => $request->subject,
+            'message'          => $emailClass->render(),
+            'template'         => 'customer-simple',
+            'additional_data'  => isset($order_data) ? $order_data : '',
+            'status'           => 'pre-send',
+            'store_website_id' => null,
+        ]);
+
+        \App\Jobs\SendEmail::dispatch($email);
 
         return redirect()->route('customer.show', $customer->id)->withSuccess('You have successfully sent an email!');
     }
@@ -1830,39 +1831,21 @@ class CustomerController extends Controller
     {
         $customer = Customer::find($request->customer_id);
 
-        //Mail::to($customer->email)->send(new IssueCredit($customer));
-        $view = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
-        $params = [
-            'model_id'   => $customer->id,
-            'model_type' => Customer::class,
-            'from'       => $view->fromMailer,
-            'to'         => $customer->email,
-            'subject'    => $view->subject,
-            'message'    => $view->render(),
-            'template'   => 'issue-credit',
-            'additional_data' => '',
-            'is_draft'   => 1
-        ];
+        $emailClass = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
 
-        $emailObject = Email::create($params);
-
-        CommunicationHistory::create([
-            'model_id' => $customer->id,
-            'model_type' => Customer::class,
-            'type' => 'issue-credit',
-            'method' => 'email'
+        $email             = Email::create([
+            'model_id'         => $customer->id,
+            'model_type'       => Customer::class,
+            'from'             => $emailClass->fromMailer,
+            'to'               => $customer->email,
+            'subject'          => $emailClass->subject,
+            'message'          => $emailClass->render(),
+            'template'         => 'issue-credit',
+            'additional_data'  => '',
+            'status'           => 'pre-send'
         ]);
 
-        try {
-           \MultiMail::to($customer->email)->send(new \App\Mails\Manual\SendIssueCredit($customer));
-           $emailObject->is_draft = 0;
-        }catch(\Exception $e) {
-           $emailObject->is_draft = 1;
-           $emailObject->error_message = $e->getMessage();
-        } 
-
-        $emailObject->save();
-
+        \App\Jobs\SendEmail::dispatch($email);
 
         $message = "Dear $customer->name, this is to confirm that an amount of Rs. $customer->credit - is credited with us against your previous order. You can use this credit note for reference on your next purchase. Thanks & Regards, Solo Luxury Team";
         $requestData = new Request();

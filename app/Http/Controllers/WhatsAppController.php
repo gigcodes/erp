@@ -3637,23 +3637,21 @@ class WhatsAppController extends FindByNumberController
                         $message_body = str_replace( array("{{customer_name}}","{{content}}"),array( $customer->name,  $message_body ),$template->static_template );
                     }
 
-                    $email_params = [
-                        'model_id'        => null,
-                        'model_type'      => null,
-                        'origin_id'       => null,
-                        'reference_id'    => null,
-                        'type'            => 'outgoing',
-                        'seen'            => 0,
-                        'from'            => $from_address ?? '',
-                        'to'              => $customer->email,
-                        'subject'         => $subject,
-                        'message'         => $message_body,
-                        'template'        => 'customer-simple',
-                        'additional_data' => null,
-                        'is_draft'        => 1,
-                        'created_at'      => Carbon::now(),
-                    ];
-                    Email::create($email_params);
+                    $email             = \App\Email::create([
+                        'model_id'         => $customer->id,
+                        'model_type'       => \App\Customer::class,
+                        'from'             => $from_address ?? '',
+                        'to'               => $customer->email,
+                        'subject'          => $subject,
+                        'message'          => $message_body,
+                        'template'         => 'customer-simple',
+                        'additional_data'  => $customer->id,
+                        'status'           => 'pre-send',
+                        'store_website_id' => null,
+                        'is_draft' => 1,
+                    ]);
+
+                    \App\Jobs\SendEmail::dispatch($email);
                     
                     $message->update([
                         'approved' => 1,

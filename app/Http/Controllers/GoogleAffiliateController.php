@@ -344,22 +344,23 @@ class GoogleAffiliateController extends Controller
         \Log::channel('scraper')->info($request);
         $affiliates = Affiliates::find($request->affiliate_id);
         \Log::channel('scraper')->info($affiliates);
-        Mail::to($affiliates->emailaddress)->send(new AffiliateEmail($request->subject, $request->message));
 
+        $emailClass = (new AffiliateEmail($request->subject, $request->message))->build();
 
-        $params = [
-            'model_id' => $affiliates->id,
-            'model_type' => Affiliates::class,
-            'from' => 'affiliate@amourint.com',
-            'to' => $affiliates->emailaddress,
-            'send' => 1,
-            'subject' => $request->subject,
-            'message' => $request->message,
-            'template' => 'customer-simple',
-            'additional_data' => ''
-        ];
+        $email             = \App\Email::create([
+            'model_id'         => $affiliates->id,
+            'model_type'       => Affiliates::class,
+            'from'             => 'affiliate@amourint.com',
+            'to'               => $affiliates->emailaddress,
+            'subject'          => $request->subject,
+            'message'          => $emailClass->render(),
+            'template'         => 'order-confirmation',
+            'additional_data'  => '',
+            'status'           => 'pre-send',
+            'store_website_id' => null,
+        ]);
 
-        Email::create($params);
+        \App\Jobs\SendEmail::dispatch($email);
 
         return redirect()->route('affiliates.index', $customer->id)->withSuccess('You have successfully sent an email!');
     }

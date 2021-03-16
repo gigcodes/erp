@@ -334,20 +334,24 @@ class PurchaseProductController extends Controller
             $message = 'Please check below products';
             $product_ids = json_decode($request->product_ids, true);
             Excel::store(new EnqueryExport($product_ids,$path), $path, 'files');
-            Mail::to($supplier->email)->send(new PurchaseExport($path, $subject, $message));
+            
+            $emailClass = (new PurchaseExport($path, $subject, $message))->build();
 
-            $params = [
-                'model_id' => $supplier_id,
-                'model_type' => Supplier::class,
-                'from' => 'buying@amourint.com',
-                'to' => $supplier->email,
-                'subject' => $subject,
-                'message' => $message,
-                'template' => 'purchase-simple',
-                'additional_data' => json_encode(['attachment' => $path])
-            ];
-    
-            \App\Email::create($params);
+            $email             = Email::create([
+                'model_id'         => $supplier_id,
+                'model_type'       => Supplier::class,
+                'from'             => 'buying@amourint.com',
+                'to'               => $supplier->email,
+                'subject'          => $subject,
+                'message'          => $message,
+                'template'         => 'purchase-simple',
+                'additional_data'  => json_encode(['attachment' => $path]),
+                'status'           => 'pre-send',
+                'is_draft'         => 1,
+            ]);
+
+            \App\Jobs\SendEmail::dispatch($email);
+
             return response()->json(['message' => 'Successfull','code' => 200]);
         }
 
@@ -358,20 +362,24 @@ class PurchaseProductController extends Controller
             $message = 'Please check below product order request';
             $product_ids = json_decode($request->product_ids, true);
             Excel::store(new EnqueryExport($product_ids,$path), $path, 'files');
-            Mail::to($supplier->email)->send(new PurchaseExport($path, $subject, $message));
+           
+            $emailClass = (new PurchaseExport($path, $subject, $message))->build();
 
-            $params = [
-                'model_id' => $supplier_id,
-                'model_type' => Supplier::class,
-                'from' => 'buying@amourint.com',
-                'to' => $supplier->email,
-                'subject' => $subject,
-                'message' => $message,
-                'template' => 'purchase-simple',
-                'additional_data' => json_encode(['attachment' => $path])
-            ];
+            $email             = Email::create([
+                'model_id'         => $supplier_id,
+                'model_type'       => Supplier::class,
+                'from'             => 'buying@amourint.com',
+                'to'               => $supplier->email,
+                'subject'          => $subject,
+                'message'          => $message,
+                'template'         => 'purchase-simple',
+                'additional_data'  => json_encode(['attachment' => $path]),
+                'status'           => 'pre-send',
+                'is_draft'         => 1,
+            ]);
+
+            \App\Jobs\SendEmail::dispatch($email);
     
-            \App\Email::create($params);
             return response()->json(['message' => 'Successfull','code' => 200]);
         }
     }

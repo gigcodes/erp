@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterTableEmailsStatusAndOther extends Migration
+class AlterTableCommunicationHistories extends Migration
 {
     /**
      * Run the migrations.
@@ -14,12 +14,11 @@ class AlterTableEmailsStatusAndOther extends Migration
     public function up()
     {
         //
-        Schema::table("emails",function(Blueprint $table) {
-           $table->integer('store_website_id')->after('is_draft')->nullable()->index();
+        Schema::table('communication_histories',function(Blueprint $table){
+            $table->integer('refer_id')->after('method')->nullable()->index();
         });
 
     }
-
 
     /**
      * Reverse the migrations.
@@ -29,8 +28,8 @@ class AlterTableEmailsStatusAndOther extends Migration
     public function down()
     {
         //
-        Schema::table("emails",function(Blueprint $table) {
-            $table->dropField('store_website_id');
+        Schema::table('communication_histories',function(Blueprint $table){
+            $table->dropField('refer_id');
         });
     }
 }

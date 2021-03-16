@@ -891,20 +891,23 @@ class PurchaseController extends Controller
             }
         }
 
-        Mail::to($agent->email)->cc($cc_agents_emails)->bcc('yogeshmordani@icloud.com')->send(new PurchaseExport($path, $request->subject, $request->message));
+        //Mail::to($agent->email)->cc($cc_agents_emails)->bcc('yogeshmordani@icloud.com')->send(new PurchaseExport($path, $request->subject, $request->message));
 
-        $params = [
-            'model_id' => $request->supplier_id,
-            'model_type' => Supplier::class,
-            'from' => 'buying@amourint.com',
-            'to' => $first_agent_email,
-            'subject' => $request->subject,
-            'message' => $request->message,
-            'template' => 'purchase-simple',
-            'additional_data' => json_encode(['attachment' => $path])
-        ];
+        $emailClass = (new PurchaseExport($path, $request->subject, $request->message))->build();
 
-        Email::create($params);
+        $email             = Email::create([
+            'model_id'         => $request->supplier_id,
+            'model_type'       => Supplier::class,
+            'from'             => 'buying@amourint.com',
+            'to'               => $first_agent_email,
+            'subject'          => $request->subject,
+            'message'          => $request->message,
+            'template'         => 'purchase-simple',
+            'additional_data'  => json_encode(['attachment' => $path]),
+            'status'           => 'pre-send',
+        ]);
+
+        \App\Jobs\SendEmail::dispatch($email);
 
         return redirect()->back()->withSuccess('You have successfully sent an email!');
     }

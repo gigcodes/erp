@@ -857,7 +857,7 @@ class OrderController extends Controller
                         //Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
                         $emailClass = (new OrderConfirmation($order))->build();
 
-                        $params = [
+                        $email = Email::create([
                             'model_id'        => $order->id,
                             'model_type'      => Order::class,
                             'from'            => $emailClass->fromMailer,
@@ -867,37 +867,36 @@ class OrderController extends Controller
                             'template'        => 'order-confirmation',
                             'additional_data' => $order->id,
                             'status'          => 'pre-send',
-                        ];
+                            'is_draft'        => 1,
+                        ]);
 
-                        $email = Email::create($params);
-
-                        \App\Jobs\SendEmaill::dispatch($email);
+                        \App\Jobs\SendEmail::dispatch($email);
 
                         /*try {
 
-                            $emailClass = (new OrderConfirmation($order))->build();
-                            \MultiMail::to($order->customer->email)->send(new OrderConfirmation($order));
-                            $params = [
-                                'model_id'        => $order->id,
-                                'model_type'      => Order::class,
-                                'from'            => $emailClass->fromMailer,
-                                'to'              => $order->customer->email,
-                                'subject'         => $emailClass->subject,
-                                'message'         => $emailClass->render(),
-                                'template'        => 'order-confirmation',
-                                'additional_data' => $order->id,
-                                'status'          => 'pre-send',
-                            ];
-                            Email::create($params);
-                            CommunicationHistory::create([
-                                'model_id'   => $order->id,
-                                'model_type' => Order::class,
-                                'type'       => 'offline-confirmation',
-                                'method'     => 'email',
-                            ]);
-                        } catch (\Exception $e) {
-                            \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
-                        }*/
+                    $emailClass = (new OrderConfirmation($order))->build();
+                    \MultiMail::to($order->customer->email)->send(new OrderConfirmation($order));
+                    $params = [
+                    'model_id'        => $order->id,
+                    'model_type'      => Order::class,
+                    'from'            => $emailClass->fromMailer,
+                    'to'              => $order->customer->email,
+                    'subject'         => $emailClass->subject,
+                    'message'         => $emailClass->render(),
+                    'template'        => 'order-confirmation',
+                    'additional_data' => $order->id,
+                    'status'          => 'pre-send',
+                    ];
+                    Email::create($params);
+                    CommunicationHistory::create([
+                    'model_id'   => $order->id,
+                    'model_type' => Order::class,
+                    'type'       => 'offline-confirmation',
+                    'method'     => 'email',
+                    ]);
+                    } catch (\Exception $e) {
+                    \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
+                    }*/
                     }
                 }
             }
@@ -1176,7 +1175,7 @@ class OrderController extends Controller
                         //Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
                         $emailClass = (new OrderConfirmation($order_new))->build();
 
-                        $params = [
+                        $emailObject = Email::create([
                             'model_id'        => $order_new->id,
                             'model_type'      => Order::class,
                             'from'            => $emailClass->fromMailer,
@@ -1187,27 +1186,10 @@ class OrderController extends Controller
                             'additional_data' => $order_new->id,
                             'status'          => 'pre-send',
                             'is_draft'        => 1,
-                        ];
-
-                        $emailObject = Email::create($params);
+                        ]);
 
                         \App\Jobs\SendEmail::dispatch($emailObject);
 
-                        try {
-                            \MultiMail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
-                            CommunicationHistory::create([
-                                'model_id'   => $order_new->id,
-                                'model_type' => Order::class,
-                                'type'       => 'offline-confirmation',
-                                'method'     => 'email',
-                            ]);
-                            $emailObject->is_draft = 0;
-                        } catch (\Exception $e) {
-                            $emailObject->is_draft      = 1;
-                            $emailObject->error_message = $e->getMessage();
-                            \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
-                        }
-                        $emailObject->save();
                     }
                 }
             }
@@ -1307,32 +1289,28 @@ class OrderController extends Controller
         if (true) {
             // if ($order->auto_emailed == 0) {
             if ($order->order_status == \App\Helpers\OrderHelper::$advanceRecieved) {
-                Mail::to($order->customer->email)->send(new AdvanceReceipt($order));
+
+                $emailClass = (new AdvanceReceipt($order))->build();
 
                 // $order->update([
                 //  'auto_emailed' => 1,
                 //  'auto_emailed_date' => Carbon::now()
                 // ]);
-
-                $params = [
-                    'model_id'        => $order->customer->id,
-                    'model_type'      => Customer::class,
-                    'from'            => 'customercare@sololuxury.co.in',
-                    'to'              => $order->customer->email,
-                    'subject'         => "Advance Receipt",
-                    'message'         => '',
-                    'template'        => 'advance-receipt',
-                    'additional_data' => $order->id,
-                ];
-
-                Email::create($params);
-
-                CommunicationHistory::create([
-                    'model_id'   => $order->id,
-                    'model_type' => Order::class,
-                    'type'       => 'advance-receipt',
-                    'method'     => 'email',
+                $storeWebsiteOrder = $order->storeWebsiteOrder;
+                $email             = Email::create([
+                    'model_id'         => $order->customer->id,
+                    'model_type'       => Customer::class,
+                    'from'             => 'customercare@sololuxury.co.in',
+                    'to'               => $order->customer->email,
+                    'subject'          => $emailClass->subject,
+                    'message'          => $emailClass->render(),
+                    'template'         => 'advance-receipt',
+                    'additional_data'  => $order->id,
+                    'status'           => 'pre-send',
+                    'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
                 ]);
+
+                \App\Jobs\SendEmail::dispatch($email);
             }
         }
 
@@ -1346,32 +1324,32 @@ class OrderController extends Controller
         // if ($order->auto_emailed == 0) {
         if (!$order->is_sent_offline_confirmation()) {
             if ($order->order_type == 'offline') {
-                Mail::to($order->customer->email)->send(new OrderConfirmation($order));
-
                 // $order->update([
                 //  'auto_emailed' => 1,
                 //  'auto_emailed_date' => Carbon::now()
                 // ]);
 
-                $params = [
-                    'model_id'        => $order->customer->id,
-                    'model_type'      => Customer::class,
-                    'from'            => 'customercare@sololuxury.co.in',
-                    'to'              => $order->customer->email,
-                    'subject'         => "New Order # " . $order->order_id,
-                    'message'         => '',
-                    'template'        => 'order-confirmation',
-                    'additional_data' => $order->id,
-                ];
+                $emailClass = (new OrderConfirmation($order))->build();
 
-                Email::create($params);
-
-                CommunicationHistory::create([
-                    'model_id'   => $order->id,
-                    'model_type' => Order::class,
-                    'type'       => 'offline-confirmation',
-                    'method'     => 'email',
+                // $order->update([
+                //  'auto_emailed' => 1,
+                //  'auto_emailed_date' => Carbon::now()
+                // ]);
+                $storeWebsiteOrder = $order->storeWebsiteOrder;
+                $email             = Email::create([
+                    'model_id'         => $order->customer->id,
+                    'model_type'       => Customer::class,
+                    'from'             => 'customercare@sololuxury.co.in',
+                    'to'               => $order->customer->email,
+                    'subject'          => $emailClass->subject,
+                    'message'          => $emailClass->render(),
+                    'template'         => 'order-confirmation',
+                    'additional_data'  => $order->id,
+                    'status'           => 'pre-send',
+                    'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
                 ]);
+
+                \App\Jobs\SendEmail::dispatch($email);
 
                 // $params = [
                 //   'number'      => NULL,
@@ -1798,27 +1776,24 @@ class OrderController extends Controller
                 'method'     => 'whatsapp',
             ]);
 
-            Mail::to($order->customer->email)->send(new RefundProcessed($order->order_id, $product_names));
+            $emailClass = (new RefundProcessed($order->order_id, $product_names))->build();
 
-            $params = [
-                'model_id'        => $order->customer->id,
-                'model_type'      => Customer::class,
-                'from'            => 'customercare@sololuxury.co.in',
-                'to'              => $order->customer->email,
-                'subject'         => "Refund Processed",
-                'message'         => '',
-                'template'        => 'refund-processed',
-                'additional_data' => json_encode(['order_id' => $order->order_id, 'product_names' => $product_names]),
-            ];
-
-            Email::create($params);
-
-            CommunicationHistory::create([
-                'model_id'   => $order->id,
-                'model_type' => Order::class,
-                'type'       => 'refund-initiated',
-                'method'     => 'email',
+            $storeWebsiteOrder = $order->storeWebsiteOrder;
+            $email             = Email::create([
+                'model_id'         => $order->id,
+                'model_type'       => Order::class,
+                'from'             => 'customercare@sololuxury.co.in',
+                'to'               => $order->customer->email,
+                'subject'          => $emailClass->subject,
+                'message'          => $emailClass->render(),
+                'template'         => 'refund-initiated',
+                'additional_data'  => $order->id,
+                'status'           => 'pre-send',
+                'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
             ]);
+
+            \App\Jobs\SendEmail::dispatch($email);
+
         }
 
         return response('success');
@@ -2295,68 +2270,46 @@ class OrderController extends Controller
                     try {
                         // send order canellation email
                         if (strtolower($statuss->status) == "cancel") {
-                            $view   = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
-                            $params = [
-                                'model_id'        => $order->customer->id,
-                                'model_type'      => Customer::class,
-                                'from'            => $view->fromMailer,
-                                'to'              => $order->customer->email,
-                                'subject'         => $view->subject,
-                                'message'         => $view->render(),
-                                'template'        => 'order-cancellation-update',
-                                'additional_data' => $order->id,
-                                'is_draft'        => 1,
-                            ];
 
-                            $emailObject = Email::create($params);
+                            $emailClass = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
 
-                            try {
-                                \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderCancellationMail($order));
-                                CommunicationHistory::create([
-                                    'model_id'   => $order->id,
-                                    'model_type' => Order::class,
-                                    'type'       => 'order-cancellation-update',
-                                    'method'     => 'email',
-                                ]);
-                                $emailObject->is_draft = 0;
-                            } catch (\Exception $e) {
-                                $emailObject->is_draft      = 1;
-                                $emailObject->error_message = $e->getMessage();
-                            }
+                            $storeWebsiteOrder = $order->storeWebsiteOrder;
+                            $email             = Email::create([
+                                'model_id'         => $order->id,
+                                'model_type'       => Order::class,
+                                'from'             => $emailClass->fromMailer,
+                                'to'               => $order->customer->email,
+                                'subject'          => $emailClass->subject,
+                                'message'          => $emailClass->render(),
+                                'template'         => 'order-cancellation-update',
+                                'additional_data'  => $order->id,
+                                'status'           => 'pre-send',
+                                'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
+                                'is_draft'         => 1,
+                            ]);
 
-                            $emailObject->save();
+                            \App\Jobs\SendEmail::dispatch($email);
 
                         } else {
 
-                            $view   = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
-                            $params = [
-                                'model_id'        => $order->customer->id,
-                                'model_type'      => Customer::class,
-                                'from'            => $view->fromMailer,
-                                'to'              => $order->customer->email,
-                                'subject'         => $view->subject,
-                                'message'         => $view->render(),
-                                'template'        => 'order-status-update',
-                                'additional_data' => $order->id,
-                            ];
+                            $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
 
-                            $emailObject = Email::create($params);
+                            $storeWebsiteOrder = $order->storeWebsiteOrder;
+                            $email             = Email::create([
+                                'model_id'         => $order->id,
+                                'model_type'       => Order::class,
+                                'from'             => $emailClass->fromMailer,
+                                'to'               => $order->customer->email,
+                                'subject'          => $emailClass->subject,
+                                'message'          => $emailClass->render(),
+                                'template'         => 'order-status-update',
+                                'additional_data'  => $order->id,
+                                'status'           => 'pre-send',
+                                'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
+                                'is_draft'         => 1,
+                            ]);
 
-                            try {
-                                \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderStatusChangeMail($order));
-                                CommunicationHistory::create([
-                                    'model_id'   => $order->id,
-                                    'model_type' => Order::class,
-                                    'type'       => 'order-status-update',
-                                    'method'     => 'email',
-                                ]);
-                                $emailObject->is_draft = 0;
-                            } catch (\Exception $e) {
-                                $emailObject->is_draft      = 1;
-                                $emailObject->error_message = $e->getMessage();
-                            }
-
-                            $emailObject->save();
+                            \App\Jobs\SendEmail::dispatch($email);
                         }
 
                     } catch (\Exception $e) {
@@ -2364,25 +2317,26 @@ class OrderController extends Controller
                     }
 
                 } else {
-                    \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderStatusChangeMail($order));
-                    $view   = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
-                    $params = [
-                        'model_id'        => $order->customer->id,
-                        'model_type'      => Customer::class,
-                        'from'            => $view->fromMailer,
-                        'to'              => $order->customer->email,
-                        'subject'         => $view->subject,
-                        'message'         => $view->render(),
-                        'template'        => 'order-status-update',
-                        'additional_data' => $order->id,
-                    ];
-                    Email::create($params);
-                    CommunicationHistory::create([
-                        'model_id'   => $order->id,
-                        'model_type' => Order::class,
-                        'type'       => 'order-status-update',
-                        'method'     => 'email',
+
+                    $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+
+                    $storeWebsiteOrder = $order->storeWebsiteOrder;
+                    $email             = Email::create([
+                        'model_id'         => $order->id,
+                        'model_type'       => Order::class,
+                        'from'             => $emailClass->fromMailer,
+                        'to'               => $order->customer->email,
+                        'subject'          => $emailClass->subject,
+                        'message'          => $emailClass->render(),
+                        'template'         => 'order-status-update',
+                        'additional_data'  => $order->id,
+                        'status'           => 'pre-send',
+                        'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
+                        'is_draft'         => 1,
                     ]);
+
+                    \App\Jobs\SendEmail::dispatch($email);
+
                 }
 
                 // }catch(\Exception $e) {
@@ -2436,25 +2390,26 @@ class OrderController extends Controller
         $order = Order::find($id);
         if (!$order->is_sent_offline_confirmation()) {
             if ($order->order_type == 'offline') {
-                Mail::to($order->customer->email)->send(new OrderConfirmation($order));
-                $view   = (new OrderConfirmation($order))->render();
-                $params = [
-                    'model_id'        => $order->customer->id,
-                    'model_type'      => Customer::class,
-                    'from'            => 'customercare@sololuxury.co.in',
-                    'to'              => $order->customer->email,
-                    'subject'         => "New Order # " . $order->order_id,
-                    'message'         => $view,
-                    'template'        => 'order-confirmation',
-                    'additional_data' => $order->id,
-                ];
-                Email::create($params);
-                CommunicationHistory::create([
-                    'model_id'   => $order->id,
-                    'model_type' => Order::class,
-                    'type'       => 'offline-confirmation',
-                    'method'     => 'email',
+                
+                $emailClass = (new OrderConfirmation($order))->build();
+
+                $storeWebsiteOrder = $order->storeWebsiteOrder;
+                $email             = Email::create([
+                    'model_id'         => $order->id,
+                    'model_type'       => Order::class,
+                    'from'             => $emailClass->fromMailer,
+                    'to'               => $order->customer->email,
+                    'subject'          => "New Order # " . $order->order_id,
+                    'message'          => $emailClass->render(),
+                    'template'         => 'order-confirmation',
+                    'additional_data'  => $order->id,
+                    'status'           => 'pre-send',
+                    'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
+                    'is_draft'         => 1,
                 ]);
+
+                \App\Jobs\SendEmail::dispatch($email);
+
             }
         }
         return response()->json(["code" => 200, "data" => [], "message" => "You have successfully sent confirmation email!"]);
@@ -3075,7 +3030,25 @@ class OrderController extends Controller
                                     $emailData['static_template'] = $bodyText;
                                     $emailData['from']            = $storeEmailAddress->from_address;
 
-                                    Mail::to($order->customer->email)->send(new OrderStatusMail($emailData));
+                                    $emailClass = (new OrderStatusMail($emailData))->build();
+
+                                    $storeWebsiteOrder = $order->storeWebsiteOrder;
+                                    $email             = Email::create([
+                                        'model_id'         => $order->customer->id,
+                                        'model_type'       => Customer::class,
+                                        'from'             => 'customercare@sololuxury.co.in',
+                                        'to'               => $order->customer->email,
+                                        'subject'          => $emailClass->subject,
+                                        'message'          => $emailClass->render(),
+                                        'template'         => 'order-status-update',
+                                        'additional_data'  => $order->id,
+                                        'status'           => 'pre-send',
+                                        'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
+                                    ]);
+
+                                    \App\Jobs\SendEmail::dispatch($email);
+
+
                                 }
                             }
                         }

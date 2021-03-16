@@ -17,10 +17,9 @@ class DefaultSendEmail extends Mailable
      *
      * @return void
      */
-    public function __construct($data)
+    public function __construct($email)
     {
-        $this->email = $email;
-        $this->fromMailer = 'customercare@sololuxury.co.in';
+        $this->email      = $email;
     }
 
     /**
@@ -30,55 +29,8 @@ class DefaultSendEmail extends Mailable
      */
     public function build()
     {
-        $subject        = "Order # " . $this->order->order_id ." has been cancelled";
-        $email          = $this->email;
-        
-        $customer       = $order->customer;
-        $order_products = $order->order_products;
-        $email          = "customercare@sololuxury.co.in";
-
-        $content        = "Your order request has been cancelled";
-
-        $this->subject  = $email->subject;
-        $this->fromMailer = "customercare@sololuxury.co.in";
-
-
-        // check this order is related to store website ?
-        $storeWebsiteOrder = $order->storeWebsiteOrder;
-
-        if ($storeWebsiteOrder) {
-            $emailAddress = \App\EmailAddress::where('store_website_id',$storeWebsiteOrder->website_id)->first();
-            if($emailAddress) {
-                $this->fromMailer = $emailAddress->from_address;
-            }
-            $template = \App\MailinglistTemplate::getOrderCancellationTemplate($storeWebsiteOrder->website_id);
-        } else {
-            $template = \App\MailinglistTemplate::getOrderCancellationTemplate();
-        }
-
-        if ($template) {
-            $this->subject = $template->subject;
-            if (!empty($template->mail_tpl)) {
-                // need to fix the all email address
-                return $this->from($email)
-                    ->subject($this->subject)
-                    ->view($template->mail_tpl, compact(
-                        'order', 'customer', 'order_products'
-                    ));
-            } else {
-
-                $content = str_replace([
-                    '{FIRST_NAME}','{ORDER_STATUS}','{ORDER_ID}'],
-                    [$order->customer->name,$order->order_status,$order->order_id],
-                    $template->static_template
-                );
-            }
-        }
-
-        return $this->from($email)
-        ->subject($this->subject)
-        ->view('emails.blank_content', compact(
-            'order', 'customer', 'order_products', 'content'
-        ));
+        $email   = $this->email;
+        $content = $email->message;
+        return $this->to($email->to)->from($email->from)->subject($email->subject)->view('emails.blank_content', compact('content'));
     }
 }
