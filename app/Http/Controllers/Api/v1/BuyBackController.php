@@ -75,6 +75,8 @@ class BuyBackController extends Controller
                         $order->order_status = 'Cancel';
                         $order->order_status_id = 11;
                         $order->save();
+                        $storewebisteOrder->status_id = 11;
+                        $storewebisteOrder->save();
                     }
                 }
             }else{
