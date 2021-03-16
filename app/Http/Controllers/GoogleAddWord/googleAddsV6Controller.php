@@ -122,7 +122,11 @@ class googleAddsV6Controller extends Controller
         }
         try {
             
-			return $result =  self::runExample($googleAdsClient,self::CUSTOMER_ID,[ $request->location ?? null ],$request->language ??self::LANGUAGE_ID,[$request->keyword],self::PAGE_URL);
+			if( $request->location ){
+				return $result =  self::runExample($googleAdsClient,self::CUSTOMER_ID,[ $request->location ],$request->language ??self::LANGUAGE_ID,[$request->keyword],self::PAGE_URL);
+			}else{
+				return $result =  self::runExample($googleAdsClient,self::CUSTOMER_ID,[],$request->language ??self::LANGUAGE_ID,[$request->keyword],self::PAGE_URL);
+			}
             
 			
         } catch (GoogleAdsException $googleAdsException) {
