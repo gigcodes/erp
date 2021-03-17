@@ -315,7 +315,7 @@ form label.required:after{
                                             <label for="start" class="col-sm-3 col-form-label"></label>
                                                 <div class="col-sm-8">
                                                     <input type="checkbox" class="form-control" style="height:20px;width:20px;" id="disable_coupon_code" value="1" name="auto_generate" />
-                                                    <div class="">If you select and save the rule you will be able to generate multiple coupon codes12.</div>
+                                                    <div class="">If you select and save the rule you will be able to generate multiple coupon codes.</div>
                                                 </div>
                                             </div>
 
