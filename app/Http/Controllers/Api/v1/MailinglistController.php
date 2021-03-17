@@ -20,14 +20,15 @@ class MailinglistController extends Controller
     *@param $email
     *@param $store_website_id
     */ 
-    public function create_customer($email ,  $store_website_id, $storeName = null) {
+    public function create_customer($email ,  $store_website_id, $storeName = null, $language = null) {
 
         $customer = new Customer;
 
-        if( !empty( $store_website_id ) ){
-            $website = Website::where( 'store_website_id', $store_website_id )->first();
-            if( isset( $website->code ) ){
-                $customer->language = $website->code;
+        if( !empty( $language ) ){
+            $language = explode("_", $language);
+            $language = end($language);
+            if ( !empty( $language ) ) {
+                $customer->language = $language;
             }
         }
 
@@ -72,7 +73,7 @@ class MailinglistController extends Controller
         }
 
         if (!$customer) {
-            $customer =  $this->create_customer( $request->get("email") , $store_website->id, $request->get("store_name",null) );
+            $customer =  $this->create_customer( $request->get("email") , $store_website->id, $request->get("store_name",null) ,$request->lang_code );
         } 
 
         // Step4
