@@ -382,8 +382,10 @@ class CouponController extends Controller
 
         $store_website = StoreWebsite::where('id', $request->store_website_id)->first();
         $store_lables  = [];
-        foreach ($request->store_labels as $key => $lables) {
-            array_push($store_lables, ['store_id' => $key, 'store_label' => $lables, 'extension_attributes' => '{}']);
+        if(!empty($request->store_labels)) {
+            foreach ($request->store_labels as $key => $lables) {
+                array_push($store_lables, ['store_id' => $key, 'store_label' => $lables, 'extension_attributes' => '{}']);
+            }
         }
 
         $startDate = !empty($request->start) ? $request->start : date("Y-m-d");
@@ -505,12 +507,14 @@ class CouponController extends Controller
         $local_rules->apply_to_shipping     = $request->apply_to_shipping;
         $local_rules->simple_free_shipping  = 0;
         if ($local_rules->save()) {
-            foreach ($request->store_labels as $key => $label) {
-                $store_view_value                = new WebsiteStoreViewValue();
-                $store_view_value->rule_id       = $local_rules->id;
-                $store_view_value->store_view_id = $key;
-                $store_view_value->value         = $label;
-                $store_view_value->save();
+            if(!empty($request->store_labels)) {
+                foreach ($request->store_labels as $key => $label) {
+                    $store_view_value                = new WebsiteStoreViewValue();
+                    $store_view_value->rule_id       = $local_rules->id;
+                    $store_view_value->store_view_id = $key;
+                    $store_view_value->value         = $label;
+                    $store_view_value->save();
+                }
             }
         }
         return response()->json(['type' => "success", 'data' => $result, 'message' => "Added successfully"], 200);
@@ -534,7 +538,7 @@ class CouponController extends Controller
             "extension_attributes" => json_encode('{}'),
         ];
 
-        $url = $store_website_id->magento_url . "/rest/default/V1/coupons";
+        $url = $store_website_id->magento_url . "/rest/V1/coupons";
         $ch  = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', $authorization));
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -677,8 +681,10 @@ class CouponController extends Controller
     public function updateRules(Request $request)
     {
         $store_lables = [];
-        foreach ($request->store_labels as $key => $lables) {
-            array_push($store_lables, ['store_id' => $key, 'store_label' => $lables, 'extension_attributes' => '{}']);
+        if(!empty($request->store_labels)) {
+            foreach ($request->store_labels as $key => $lables) {
+                array_push($store_lables, ['store_id' => $key, 'store_label' => $lables, 'extension_attributes' => '{}']);
+            }
         }
 
         $local_rules        = CouponCodeRules::where('id', $request->rule_id)->first();
@@ -792,12 +798,14 @@ class CouponController extends Controller
         $local_rules->simple_free_shipping  = 0;
         if ($local_rules->save()) {
             WebsiteStoreViewValue::where('rule_id', $request->rule_id)->delete();
-            foreach ($request->store_labels as $key => $label) {
-                $store_view_value                = new WebsiteStoreViewValue();
-                $store_view_value->rule_id       = $local_rules->id;
-                $store_view_value->store_view_id = $key;
-                $store_view_value->value         = $label;
-                $store_view_value->save();
+            if(!empty($request->store_labels)) {
+                foreach ($request->store_labels as $key => $label) {
+                    $store_view_value                = new WebsiteStoreViewValue();
+                    $store_view_value->rule_id       = $local_rules->id;
+                    $store_view_value->store_view_id = $key;
+                    $store_view_value->value         = $label;
+                    $store_view_value->save();
+                }
             }
         }
 
