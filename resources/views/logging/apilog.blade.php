@@ -22,7 +22,7 @@
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Laravel API Logs ({{$count}})</h2>
+            <h2 class="page-heading">Laravel API Logs (<span class="page-total">{{$count}}</span>)</h2>
              <!-- <div class="pull-right">
                 <a href="/logging/live-laravel-logs" type="button" class="btn btn-secondary">Live Logs</a>
                 <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
@@ -199,6 +199,7 @@
 
               if(res.status){
               $('.tableLazy').append(res.html);
+              $(".page-total").html(res.count);
               $.each(res.logs.data,function(k,v)
               {
                 $logsRecords.push(v);
@@ -238,10 +239,11 @@
          
 
               if(res.status){
-              $('.tableLazy').html(res.html);
+                $('.tableLazy').html(res.html);
 
 
                 $logsRecords=res.logs.data;
+                $(".page-total").html(res.count);
               
               
            }
