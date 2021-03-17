@@ -27,6 +27,7 @@ class Customer extends Model
         'dob',
         'do_not_disturb',
         'store_name',
+        'language',
         'newsletter'
     ];
 
