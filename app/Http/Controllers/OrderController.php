@@ -74,6 +74,7 @@ use App\waybillTrackHistories;
 use stdClass;
 use App\CreditHistory;
 use App\QuickReply;
+use App\OrderCustomerAddress;
 use Session;
 class OrderController extends Controller {
 
@@ -277,7 +278,7 @@ class OrderController extends Controller {
       ->orWhere('sales_person',Helpers::getUserIdByName($term))
       ->orWhere('received_by',Helpers::getUserIdByName($term))
       ->orWhere('client_name','like','%'.$term.'%')
-      ->orWhere('city','like','%'.$term.'%')
+      ->orWhere('orders.city','like','%'.$term.'%')
       ->orWhere('order_status_id',(new \App\ReadOnly\OrderStatus())->getIDCaseInsensitive($term));
     }
     if ($order_status[0] != '') {
@@ -545,6 +546,11 @@ class OrderController extends Controller {
     return view('orders.products', compact('products','term', 'orderby', 'brand', 'supplier'));
   }
 
+  function getCustomerAddress( Request $request ){
+	 
+		$address = OrderCustomerAddress::where( 'order_id', $request->order_id )->get();
+		return response()->json(["code" => 200 , "data" => $address]);
+  }
   /**
   * Show the form for creating a new resource.
   *
@@ -969,6 +975,7 @@ public function show( Order $order ) {
   $data['comments']        = Comment::with('user')->where( 'subject_id', $order->id )
   ->where( 'subject_type','=' ,Order::class )->get();
   $data['users']          = User::all()->toArray();
+  $data['customerAddress'] = OrderCustomerAddress::where( 'order_id', $order->id )->get();
   $messages = Message::all()->where('moduleid','=', $data['id'])->where('moduletype','=', 'order')->sortByDesc("created_at")->take(10)->toArray();
   $data['messages'] = $messages;
   $data['total_price'] = $this->getTotalOrderPrice($order);

@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use App\ChatMessage;
 use App\CommunicationHistory;
 use App\Order;
+use App\OrderCustomerAddress;
 use App\ProductSizes;
 use App\Mails\Manual\OrderConfirmation;
 use App\Email;
@@ -149,6 +150,46 @@ class MagentoOrderHandleHelper extends Model
                         }
                     }
 
+                    if( !empty( $order->billing_address ) || !empty( $order->shipping_address ) ){
+                        $customerAddress = array (
+                            array (
+                                'order_id'     => $id ?? null,
+                                'address_type' => $order->billing_address->address_type ?? null,
+                                'city'         => $order->billing_address->city ?? null,
+                                'country_id'   => $order->billing_address->country_id ?? null,
+                                'customer_id'  => $order->billing_address->customer_id ?? null,
+                                'email'        => $order->billing_address->email ?? null,
+                                'entity_id'    => $order->billing_address->entity_id ?? null,
+                                'firstname'    => $order->billing_address->firstname ?? null,
+                                'lastname'     => $order->billing_address->lastname ?? null,
+                                'parent_id'    => $order->billing_address->parent_id ?? null,
+                                'postcode'     => $order->billing_address->postcode ?? null,
+                                'street'       => $order->billing_address->street ?? null,
+                                'telephone'    => $order->billing_address->telephone ?? null
+                            ),
+                            array (
+                                'order_id'     => $id ?? null,
+                                'address_type' => $order->shipping_address->address_type ?? null,
+                                'city'         => $order->shipping_address->city ?? null,
+                                'country_id'   => $order->shipping_address->country_id ?? null,
+                                'customer_id'  => $order->shipping_address->customer_id ?? null,
+                                'email'        => $order->shipping_address->email ?? null,
+                                'entity_id'    => $order->shipping_address->entity_id ?? null,
+                                'firstname'    => $order->shipping_address->firstname ?? null,
+                                'lastname'     => $order->shipping_address->lastname ?? null,
+                                'parent_id'    => $order->shipping_address->parent_id ?? null,
+                                'postcode'     => $order->shipping_address->postcode ?? null,
+                                'street'       => $order->shipping_address->street ?? null,
+                                'telephone'    => $order->shipping_address->telephone ?? null
+                            )
+                        );
+                        try {
+                            OrderCustomerAddress::insert( $customerAddress );
+                            \Log::info("Order customer address added" . json_encode($customerAddress));
+                        } catch (\Throwable $th) {
+                            \Log::error("Order customer address " . $th->getMessage() );
+                        }
+                    }
                     $orderSaved = Order::find($id);
                     if ($order->payment->method == 'cashondelivery') {
                         $product_names = '';
@@ -234,7 +275,7 @@ class MagentoOrderHandleHelper extends Model
                     $websiteOrder->save();
 
                     $customer = $orderSaved->customer;
-
+        
                     try{
                         Mail::to($customer->email)->send(new OrderConfirmation($orderSaved));
                     } catch (\Throwable $th) {
