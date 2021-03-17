@@ -31,7 +31,7 @@ class ChatMessage extends Model
 
     use Mediable;
 
-    protected $fillable = ['is_queue', 'unique_id', 'lead_id', 'order_id', 'customer_id', 'supplier_id', 'vendor_id', 'user_id','ticket_id','task_id', 'erp_user', 'contact_id', 'dubbizle_id', 'assigned_to', 'purchase_id', 'message', 'media_url', 'number', 'approved', 'status', 'error_status', 'resent', 'is_reminder', 'created_at', 'issue_id', 'developer_task_id', 'lawyer_id', 'case_id', 'blogger_id', 'voucher_id', 'document_id', 'group_id','old_id','message_application_id','is_chatbot','sent_to_user_id','site_development_id','social_strategy_id','store_social_content_id','quoted_message_id','is_reviewed','hubstaff_activity_summary_id','question_id','is_email','user_type'];
+    protected $fillable = ['is_queue', 'unique_id', 'lead_id', 'order_id', 'customer_id', 'supplier_id', 'vendor_id', 'user_id','ticket_id','task_id', 'erp_user', 'contact_id', 'dubbizle_id', 'assigned_to', 'purchase_id', 'message', 'media_url', 'number', 'approved', 'status', 'error_status', 'resent', 'is_reminder', 'created_at', 'issue_id', 'developer_task_id', 'lawyer_id', 'case_id', 'blogger_id', 'voucher_id', 'document_id', 'group_id','old_id','message_application_id','is_chatbot','sent_to_user_id','site_development_id','social_strategy_id','store_social_content_id','quoted_message_id','is_reviewed','hubstaff_activity_summary_id','question_id','is_email'];
     protected $table = "chat_messages";
     protected $dates = ['created_at', 'updated_at'];
     protected $casts = array(
