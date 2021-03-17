@@ -165,10 +165,10 @@
 <div class="row">
     <div class="infinite-scroll" style="width:100%;">
 	<div class="table-responsive mt-2">
-      <table class="table table-bordered order-table" style="border: 1px solid #5A6268 !important; color:black;">
+      <table class="table table-bordered order-table table-condensed" style="border: 1px solid #5A6268 !important; color:black;">
         <thead>
         <tr>
-            <th width="5%">Select</th>
+            <th width="1%" style="padding:0;" >Select</th>
             <th width="5%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
             <th width="6%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Date</a></th>
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Client</a></th>
@@ -178,7 +178,7 @@
             <th>Brands</th>
             <th width="14%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
             <th width="8%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=advance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Advance</a></th>
-            <th width="8%"><a href="/or    der{{ isset($term) ? '?term='.$term.'&' : '?' }}{{ isset($order_status) ? implode('&', array_map(function($item) {return 'status[]='. $item;}, $order_status)) . '&' : '&' }}sortby=balance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Balance</a></th>
+            <th width="8%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}{{ isset($order_status) ? implode('&', array_map(function($item) {return 'status[]='. $item;}, $order_status)) . '&' : '&' }}sortby=balance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Balance</a></th>
             {{-- <th style="width: 5%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=action{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Action Status</a></th>
             <th style="width: 8%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=due{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Due</a></th> --}}
             {{-- <th style="width: 8%">Message Status</th> --}}
@@ -281,7 +281,7 @@
                 </div>	        
               </td>
               <td>
-                <div>{{($order->estimated_delivery_date)?$order->estimated_delivery_date:'---'}}</div>
+                <div style="display:inline;">{{($order->estimated_delivery_date)?$order->estimated_delivery_date:'---'}}</div>
                
               <i class="fa fa-pencil-square-o show-est-del-date" data-id="{{$order->id}}" data-new-est="{{($order->estimated_delivery_date)?$order->estimated_delivery_date:''}}" aria-hidden="true"></i>
               <i class="fa fa-info-circle est-del-date-history" data-id="{{$order->id}}"  aria-hidden="true"></i>
@@ -346,6 +346,10 @@
                   @endif
                   <a title="Generate AWB" data-order-id="<?php echo $order->id; ?>" data-items='<?php echo json_encode($extraProducts); ?>'  data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb pd-5 btn-ht" href="javascript:;"  >
                     <i class="fa fa-truck" aria-hidden="true"></i>
+                  </a>
+
+                  <a title="View customer address" data-order-id="<?php echo $order->id; ?>"  class="btn btn-image customer-address-view pd-5 btn-ht" href="javascript:;"  >
+                    <i class="fa fa-address-card" aria-hidden="true"></i>
                   </a>
                   {{-- @can('order-edit')
                   <a class="btn btn-image pd-5 btn-ht" href="{{ route('order.edit',$order['id']) }}"><img src="{{asset('images/edit.png')}}" /></a>
@@ -545,6 +549,7 @@
 @include("partials.modals.update-delivery-date-modal")
 @include("partials.modals.tracking-event-modal")
 @include("partials.modals.generate-awb-modal")
+@include("partials.modals.customer-address-modal")
 @include("partials.modals.add-invoice-modal")
 @include('partials.modals.return-exchange-modal')
 @section('scripts')
@@ -609,6 +614,44 @@
           $(this).closest(".card-body").remove();
       });
       
+      	$(document).on("click",".customer-address-view",function() {
+			  console.log(this);
+			var order_id = $(this).data("order-id");
+			$.ajax({
+				headers: {
+					'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				},
+				url: "order/get-customer-address",
+				type: "post",
+				data : { order_id: order_id },
+				beforeSend: function() {
+					$("loading-image").show();
+				}
+			}).done( function(response) {
+				if(response.code == 200) {
+					 var t = '';
+					$.each(response.data,function(k,v) {
+						t += `<tr><td>`+v.address_type+`</td>`;
+						t += `<td>`+v.city+`</td>`;
+						t += `<td>`+v.country_id+`</td>`;
+						t += `<td>`+v.email+`</td>`;
+						t += `<td>`+v.firstname+`</td>`;
+						t += `<td>`+v.lastname+`</td>`;
+						t += `<td>`+v.postcode+`</td>`;
+						t += `<td>`+v.street+`</td>`;
+						t += `<td>`+v.telephone+`</td></tr>`;
+					});
+
+					$("#customer-address-modal").find(".show-list-records").html(t);
+					$('#customer-address-modal').modal("show");
+					$("loading-image").hide();
+				}
+				
+			}).fail(function(errObj) {
+				alert("Could not find any data");
+			});
+		});
+
       $(document).on("click",".generate-awb",function() {
           var customer = $(this).data("customer");
           var order_id = $(this).data("order-id");

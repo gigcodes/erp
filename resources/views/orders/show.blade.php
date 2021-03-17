@@ -75,6 +75,7 @@
               </li> --}}
               <li><a href="#3" data-toggle="tab">Call Recordings</a>
               <li><a href="#delivery_approval" data-toggle="tab">Delivery Approval</a>
+              <li><a href="#customer-address" data-toggle="tab">Customer Address</a>
               </li>
            </ul>
         </div>
@@ -900,6 +901,48 @@
                     </tr>
                   </tbody>
                 </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="tab-pane" id="customer-address">
+          <div class="row">
+            <div class="col-xs-12 col-sm-12">
+              <h3 style="text-center">Customer address</h3>
+
+            <div class="col-xs-12 col-sm-12">
+              <div class="table-responsive">
+                <table class="table fixed_header table-hover" id="latest-remark-records">
+					<thead class="thead-dark">
+					<tr>
+						<th scope="col">Address type</th>
+						<th scope="col">City</th>
+						<th scope="col">Country</th>
+						<th scope="col">email</th>
+						<th scope="col">First name</th>
+						<th scope="col">Last name</th>
+						<th scope="col">Postcode</th>
+						<th scope="col">Street</th>
+						<th scope="col">Telephone</th>
+					</tr>
+					</thead>
+					<tbody class="show-list-records" >
+						@foreach ($customerAddress as $item)
+							<tr>
+								<td>{{ $item->address_type }}</td>
+								<td>{{ $item->city }}</td>
+								<td>{{ $item->country_id }}</td>
+								<td>{{ $item->email }}</td>
+								<td>{{ $item->firstname }}</td>
+								<td>{{ $item->lastname }}</td>
+								<td>{{ $item->postcode }}</td>
+								<td>{{ $item->street }}</td>
+								<td>{{ $item->telephone }}</td>
+							</tr>
+						@endforeach
+					</tbody>
+				</table>
               </div>
             </div>
           </div>
