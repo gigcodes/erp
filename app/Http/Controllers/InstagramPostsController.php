@@ -837,7 +837,7 @@ class InstagramPostsController extends Controller
             
             $consumerKey = env('HASTAGIFY_CONSUMER_KEY');
             $consumerSecret = env('HASTAGIFY_CONSUMER_SECRET');
-            
+            \Log::error(" hashtagify credentials: " . $consumerKey.', '.$consumerSecret);
             $curl = curl_init();
 
             curl_setopt_array($curl, array(
@@ -857,7 +857,8 @@ class InstagramPostsController extends Controller
 
             $response = curl_exec($curl);
             $err = curl_error($curl);
-
+            \Log::error(" hashtagify response " .$response);
+            \Log::error(" hashtagify error" .$err);
             curl_close($curl);
 
             if ($err) {
