@@ -1083,9 +1083,10 @@ form label.required:after{
                 }else if(n['name'] == "customer_groups"){
                     indexed_array[n['name']] = $('.customers').val(); 
                 }else{
-                    indexed_array[n['name']] = n['value'];
+                     if(n['value'] != "") {
+                        indexed_array[n['name']] = n['value'];
+                     }
                 }
-                
             });
 
             $.ajax({
@@ -1244,7 +1245,9 @@ form label.required:after{
                 }else if(n['name'] == "customer_groups_edit"){
                     indexed_array[n['name']] = $('.customers_edit').val(); 
                 }else{
-                    indexed_array[n['name']] = n['value'];
+                    if(n['value'] != "") {
+                      indexed_array[n['name']] = n['value'];
+                    }
                 }
                 
             });
