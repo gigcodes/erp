@@ -2823,6 +2823,7 @@ Route::get('/get/website/stores/{website?}', 'scrapperPhyhon@websiteStoreList')-
 
 // DEV MANISH
 Route::get('google-keyword-search', 'GoogleAddWord\googleAddsController@index')->name('google-keyword-search');
+Route::get('google-keyword-search-v6', 'GoogleAddWord\googleAddsV6Controller@main')->name('google-keyword-search-v6');
 
 Route::resource('google-traslation-settings', 'GoogleTraslationSettingsController');
 });
