@@ -234,7 +234,7 @@ class BrandController extends Controller
 
     public function brandReference()
     {
-        $brands = Brand::select('name','references')->where('magento_id', '>', 0)->get();
+        $brands = Brand::select('name','references')->get();
         foreach ($brands as $brand) {
             $referenceArray[] = $brand->name;
             if(!empty($brand->references)){
