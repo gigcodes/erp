@@ -129,6 +129,7 @@ use App\Console\Commands\RunGoogleAnalytics;
 use App\Console\Commands\scrappersImages;
 use App\Console\Commands\scrappersImagesDelete;
 use App\Console\Commands\InstagramHandler;
+use App\Console\Commands\InsertPleskEmail;
 
 class Kernel extends ConsoleKernel
 {
@@ -255,6 +256,7 @@ class Kernel extends ConsoleKernel
         scrappersImages::class,
         scrappersImagesDelete::class,
         InstagramHandler::class,
+        InsertPleskEmail::class
     ];
 
     /**
