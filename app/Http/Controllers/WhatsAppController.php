@@ -3776,26 +3776,29 @@ class WhatsAppController extends FindByNumberController
                     if ($context == 'task') {
                         $sender = User::find($message->user_id);
 
+                        $isUser = false;
                         if ($message->erp_user == '') {
                             $receiver = Contact::find($message->contact_id);
                         } else {
+                            $isUser = true;
                             $receiver = User::find($message->erp_user);
                         }
 
                         $phone = @$receiver->phone;
-                        $whatsapp_number = ($receiver) ? $receiver->whatsapp_number : $sender->whatsapp_number;
+                        $whatsapp_number = ($receiver && $isUser) ? $receiver->whatsapp_number : $sender->whatsapp_number;
                     } else {
                         if ($context == 'user') {
                             $sender = User::find($message->user_id);
-
+                            $isUser = false;
                             if ($message->erp_user != '') {
+                                $isUser = true;
                                 $receiver = User::find($message->erp_user);
                             } else {
                                 $receiver = Contact::find($message->contact_id);
                             }
 
                             $phone = $receiver->phone;
-                            $whatsapp_number = $sender->whatsapp_number;
+                            $whatsapp_number = ($receiver && $isUser) ? $receiver->whatsapp_number : $sender->whatsapp_number;
                         } else {
                             if ($context == 'dubbizle') {
                                 $dubbizle = Dubbizle::find($message->dubbizle_id);
