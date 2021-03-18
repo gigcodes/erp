@@ -2285,7 +2285,7 @@ class OrderController extends Controller
                                 'additional_data'  => $order->id,
                                 'status'           => 'pre-send',
                                 'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
-                                'is_draft'         => 1,
+                                'is_draft'         => 0,
                             ]);
 
                             \App\Jobs\SendEmail::dispatch($email);
@@ -2306,7 +2306,7 @@ class OrderController extends Controller
                                 'additional_data'  => $order->id,
                                 'status'           => 'pre-send',
                                 'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
-                                'is_draft'         => 1,
+                                'is_draft'         => 0,
                             ]);
 
                             \App\Jobs\SendEmail::dispatch($email);
@@ -2332,7 +2332,7 @@ class OrderController extends Controller
                         'additional_data'  => $order->id,
                         'status'           => 'pre-send',
                         'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
-                        'is_draft'         => 1,
+                        'is_draft'         => 0,
                     ]);
 
                     \App\Jobs\SendEmail::dispatch($email);
@@ -2405,7 +2405,7 @@ class OrderController extends Controller
                     'additional_data'  => $order->id,
                     'status'           => 'pre-send',
                     'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
-                    'is_draft'         => 1,
+                    'is_draft'         => 0,
                 ]);
 
                 \App\Jobs\SendEmail::dispatch($email);
@@ -3289,17 +3289,36 @@ class OrderController extends Controller
 
     public function testEmail(Request $request)
     {
-        return false;
-        /*$order_new = \App\Order::find(2032);
-    $view = (new OrderConfirmation($order_new))->build();
-    //echo "<pre>"; print_r($view);  echo "</pre>";die;
+        $order = \App\Order::find(2032);
 
-    //\MultiMail::to('webreak.pravin@ gmail.com')->send(new \App\Mail\OrderStatusChangeMail($order_new));
-    $customer = \App\Customer::first();
-    \MultiMail::to('webreak.pravin@gmail.com')->send(new \App\Mails\Manual\SendIssueCredit($customer));
+        $emailClass = (new OrderConfirmation($order))->build();
 
-    // \MultiMail::to('webreak.pravin@gmail.com')->send(new OrderConfirmation($order_new));
-    // */
+        $email = \App\Email::create([
+            'model_id'        => $order->id,
+            'model_type'      => \App\Order::class,
+            'from'            => $emailClass->fromMailer,
+            'to'              => $order->customer->email,
+            'subject'         => $emailClass->subject,
+            'message'         => $emailClass->render(),
+            'template'        => 'order-confirmation',
+            'additional_data' => $order->id,
+            'status'          => 'pre-send',
+            'is_draft'        => 1,
+        ]);
+
+        \App\Jobs\SendEmail::dispatch($email);
+
+        return response()->json(['message' => 'unable to add reply', 'status' => 500]);
+        
+        //$view = (new OrderConfirmation($order_new))->build();
+        //echo "<pre>"; print_r($view);  echo "</pre>";die;
+
+        //\MultiMail::to('webreak.pravin@ gmail.com')->send(new \App\Mail\OrderStatusChangeMail($order_new));
+        //$customer = \App\Customer::first();
+        //\MultiMail::to('webreak.pravin@gmail.com')->send(new \App\Mails\Manual\SendIssueCredit($customer));
+
+        // \MultiMail::to('webreak.pravin@gmail.com')->send(new OrderConfirmation($order_new));
+        // 
     }
 
     public function statusChangeTemplate(Request $request)

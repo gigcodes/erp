@@ -347,7 +347,7 @@ class PurchaseProductController extends Controller
                 'template'         => 'purchase-simple',
                 'additional_data'  => json_encode(['attachment' => $path]),
                 'status'           => 'pre-send',
-                'is_draft'         => 1,
+                'is_draft'         => 0,
             ]);
 
             \App\Jobs\SendEmail::dispatch($email);
@@ -375,7 +375,7 @@ class PurchaseProductController extends Controller
                 'template'         => 'purchase-simple',
                 'additional_data'  => json_encode(['attachment' => $path]),
                 'status'           => 'pre-send',
-                'is_draft'         => 1,
+                'is_draft'         => 0,
             ]);
 
             \App\Jobs\SendEmail::dispatch($email);

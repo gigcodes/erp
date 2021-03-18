@@ -38,6 +38,7 @@ class SendEmail implements ShouldQueue
         $email = $this->email;
 
         try {
+
             \MultiMail::to($email->to)->from($email->from)->send(new DefaultSendEmail($email));
             \App\CommunicationHistory::create([
                 'model_id'   => $email->model_id,
@@ -55,5 +56,6 @@ class SendEmail implements ShouldQueue
 
         $email->save();
 
+        return true;
     }
 }

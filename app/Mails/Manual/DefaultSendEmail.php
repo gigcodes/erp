@@ -31,6 +31,10 @@ class DefaultSendEmail extends Mailable
     {
         $email   = $this->email;
         $content = $email->message;
-        return $this->to($email->to)->from($email->from)->subject($email->subject)->view('emails.blank_content', compact('content'));
+
+        return $this->to($email->to)
+        ->from($email->from)
+        ->subject($email->subject)
+        ->view('emails.blank_content', compact('content'));
     }
 }

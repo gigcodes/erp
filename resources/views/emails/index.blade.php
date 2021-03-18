@@ -92,6 +92,9 @@
           <li class="nav-item">
             <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('draft','both')">Draft</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('pre-send','both')">Queue</a>
+          </li>
       </ul>
       <div class="tab-content" id="myTabContent">
           <div class="tab-pane fade show active" id="read" role="tabpanel" aria-labelledby="read-tab">
