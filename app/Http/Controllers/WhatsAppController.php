@@ -3783,7 +3783,7 @@ class WhatsAppController extends FindByNumberController
                         }
 
                         $phone = @$receiver->phone;
-                        $whatsapp_number = $sender->whatsapp_number;
+                        $whatsapp_number = ($receiver) ? $receiver->whatsapp_number : $sender->whatsapp_number;
                     } else {
                         if ($context == 'user') {
                             $sender = User::find($message->user_id);
