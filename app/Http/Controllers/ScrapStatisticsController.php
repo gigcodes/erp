@@ -557,18 +557,25 @@ class ScrapStatisticsController extends Controller
     {
         $requestData = new Request();
         $requestData->setMethod('POST');
-        $requestData->request->add([
-            'priority'    => 1,
-            'issue'       => $request->task_description,
-            'status'      => 'Planned',
-            'module'      => 'Scraper',
-            'subject'     => $request->task_subject,
-            'assigned_to' => $request->get('assigned_to'),
-            'scraper_id'  => $id,
-            'task_type_id' => 1
-        ]);
 
-        app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+        $scraper = \App\Scraper::find($id);
+        
+        if($scraper) {
+            
+            $requestData->request->add([
+                'priority'    => 1,
+                'issue'       => $request->task_description,
+                'status'      => 'Planned',
+                'module'      => 'Scraper',
+                'subject'     => $scraper->scraper_name." - ".$request->task_subject,
+                'assigned_to' => $request->get('assigned_to'),
+                'scraper_id'  => $id,
+                'task_type_id' => 1
+            ]);
+
+            app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+        }
+
 
         $developerTasks = \App\DeveloperTask::where("scraper_id", $request->id)->latest()->get();
 
