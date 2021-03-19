@@ -2797,6 +2797,7 @@ Route::prefix('pushfcmnotification')->middleware('auth')->group(static function 
     Route::get('/{id?}/edit', 'FcmNotificationController@edit')->name('pushfcmnotification.edit');
     Route::post('/store', 'FcmNotificationController@store')->name('pushfcmnotification.store');
     Route::post('/update', 'FcmNotificationController@update')->name('pushfcmnotification.update');
+    Route::get('/error-list', 'FcmNotificationController@errorList')->name('pushfcmnotification.errorList');
 });
 
 
