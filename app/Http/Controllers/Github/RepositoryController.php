@@ -188,6 +188,8 @@ class RepositoryController extends Controller
 
         $url = "https://api.github.com/repositories/" . $id . "/merges";
 
+        \Log::info($url);
+
         try {
             $this->client->post(
                 $url,
