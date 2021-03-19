@@ -3320,7 +3320,7 @@ public function submitInvoice(Request $request) {
           $allOutput[] = $cmd;
           $result = exec($cmd, $allOutput);
 
-          echo "<pre>"; print_r($result);  echo "</pre>";die;
+          \Log::info(print_r($result,true));
 
 
           return false;
