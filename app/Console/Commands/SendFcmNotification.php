@@ -86,7 +86,7 @@ class SendFcmNotification extends Command
                     $errorMessage = json_encode($downstreamResponse->tokensWithError());
                 }
 
-                PushFcmNotificationHistory::create([
+                \App\PushFcmNotificationHistory::create([
                     "token"           => $token,
                     "notification_id" => $Notification->id,
                     "success"         => $success,
