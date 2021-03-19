@@ -783,7 +783,7 @@ class Model
         return false;
     }
 
-    public static function sendMessageCustomer(Customer $customer, $assistantID,  AssistantService $assistant, $inputText, $contextReset = false)
+    public static function sendMessageCustomer($customer, $assistantID,  AssistantService $assistant, $inputText, $contextReset = false)
     {
         if (env("PUSH_WATSON", true) == false) {
             return true;
