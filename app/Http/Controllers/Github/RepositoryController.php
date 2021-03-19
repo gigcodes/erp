@@ -188,8 +188,6 @@ class RepositoryController extends Controller
 
         $url = "https://api.github.com/repositories/" . $id . "/merges";
 
-        \Log::info($url);
-
         try {
             $this->client->post(
                 $url,
@@ -217,13 +215,10 @@ class RepositoryController extends Controller
             //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
 
             $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch . ' 2>&1';
-            \Log::info($cmd);
 
             $allOutput = array();
             $allOutput[] = $cmd;
             $result = exec($cmd, $allOutput);
-
-            \Log::info(print_r($result,true));
 
         } catch (Exception $e) {
             \Log::error($e);
