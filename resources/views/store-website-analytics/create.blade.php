@@ -42,6 +42,17 @@
                 </div>
               </div>
               <div class="form-group row">
+                <label for="email" class="col-4 col-form-label">{{ __('Email') }}</label>
+                <div class="col-8">
+                  <input id="email" name="email" placeholder="Email" type="text" class="form-control {{ $errors->has('email') ? ' is-invalid' : '' }}" value="{{old('email')}}" required="required" autofocus>
+                  @if ($errors->has('email'))
+                  <span class="invalid-feedback">
+                    <strong>{{ $errors->first('email') }}</strong>
+                  </span>
+                  @endif
+                </div>
+              </div>
+              <div class="form-group row">
                 <label for="view_id" class="col-4 col-form-label">{{ __('View Id') }}</label>
                 <div class="col-8">
                   <input id="view_id" name="view_id" placeholder="View Id" type="text" class="form-control {{ $errors->has('view_id') ? ' is-invalid' : '' }}" value="{{old('view_id')}}" required="required" autofocus>

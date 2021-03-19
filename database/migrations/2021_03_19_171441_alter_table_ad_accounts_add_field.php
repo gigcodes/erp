@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterTableGoogleTranslationSettings extends Migration
+class AlterTableAdAccountsAddField extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,8 @@ class AlterTableGoogleTranslationSettings extends Migration
     public function up()
     {
         //
-        Schema::table("google_traslation_settings",function(Blueprint $table) {
+        Schema::table("ad_accounts",function(Blueprint $table) {
+            $table->string("last_error")->nullable()->after("status");
             $table->timestamp("last_error_at")->nullable()->after("last_error");
         });
     }
@@ -27,7 +28,8 @@ class AlterTableGoogleTranslationSettings extends Migration
     public function down()
     {
         //
-        Schema::table("google_traslation_settings",function(Blueprint $table) {
+        Schema::table("ad_accounts",function(Blueprint $table) {
+            $table->dropField("last_error");
             $table->dropField("last_error_at");
         });
     }
