@@ -284,9 +284,11 @@
                                 <a style="padding:3px;" class="btn  d-inline btn-image" href="{{ get_server_last_log_file($supplier->scraper_name,$supplier->server_id) }}" id="link" target="-blank"><img src="/images/view.png" /></a>
                                 <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="restartScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )"><img width="2px;" src="/images/resend2.png"/></button>
                                 <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="getRunningStatus('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )"><img width="2px;" src="/images/resend.png"/></button>
-
                                 <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-screenshot">
                                      <i class="fa fa-desktop"></i>
+                                </button>
+                                <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-tasks-remote">
+                                     <i class="fa fa-tasks"></i>
                                 </button>
                             </td>
                             </tr>
@@ -692,6 +694,27 @@
                 </div>
             </div>
       </div>
+      <div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+                    <input type="hidden" id="chat_obj_type" name="chat_obj_type">
+                    <input type="hidden" id="chat_obj_id" name="chat_obj_id">
+                    <button type="submit" class="btn btn-default downloadChatMessages">Download</button>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+               50% 50% no-repeat;display:none;">
+    </div>
 @endsection
 
 @section('scripts')
@@ -1123,16 +1146,67 @@
             $.ajax({
                 url: '/scrap/screenshot',
                 type: 'GET',
-                data: {id: id}
+                data: {id: id},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
             }).done(function(response) {
+                $("#loading-image").hide();
                 var model  = $("#show-content-model-table");
                 model.find(".modal-title").html("Scraper screenshots");
                 model.find(".modal-body").html(response);
                 model.modal("show");
             }).fail(function() {
+                $("#loading-image").hide();
                 alert('Please check laravel log for more information')
             });
         });
+
+        $(document).on("click",".get-tasks-remote",function (e){
+            e.preventDefault();
+            var id = $(this).data("id");
+            $.ajax({
+                url: '/scrap/task-list',
+                type: 'GET',
+                data: {id: id},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Task List");
+                model.find(".modal-body").html(response);
+                model.modal("show");
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+
+        $(document).on("click",".btn-create-task",function (e){
+            e.preventDefault();
+            var $this = $(this).closest("form");
+            $.ajax({
+                url: $this.attr("action"),
+                type: $this.attr("method"),
+                data: $this.serialize(),
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Scraper screenshots");
+                model.find(".modal-body").html(response);
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+        
+
+        
 
         $(document).on("click","#show-content-model-table li",function (e){
             e.preventDefault();
@@ -1140,14 +1214,63 @@
             if(typeof a != "undefined") {
                 $.ajax({
                     url: a.attr("href"),
-                    type: 'GET'
+                    type: 'GET',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    }
                 }).done(function(response) {
+                     $("#loading-image").hide();
                     var model  = $("#show-content-model-table");
                     model.find(".modal-body").html(response);
                 }).fail(function() {
+                    $("#loading-image").hide();
                     alert('Please check laravel log for more information')
                 });
             }
         });
+
+
+        $(document).on('click', '.send-message1', function () {
+            var thiss = $(this);
+            var data = new FormData();
+            var task = $(this).data('task-id');
+            var message = $("#messageid_"+task).val();
+            data.append("issue_id", task);
+            data.append("message", message);
+            data.append("status", 1);
+
+            if (message.length > 0) {
+                if (!$(this).is(':disabled')) {
+                    $.ajax({
+                        url: BASE_URL+'/whatsapp/sendMessage/issue',
+                        type: 'POST',
+                        "dataType": 'json',           // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function () {
+                            $(thiss).attr('disabled', true);
+                            $("#loading-image").show();
+                        }
+                    }).done(function (response) {
+                        //thiss.closest('tr').find('.message-chat-txt').html(thiss.siblings('textarea').val());
+                        $("#message-chat-txt-"+task).html(response.message.message);
+                        $("#messageid_"+task).val('');
+                        $("#loading-image").hide();
+                        $(this).attr('disabled', false);
+                    }).fail(function (errObj) {
+                        $(this).attr('disabled', false);
+
+                        alert("Could not send message");
+                        console.log(errObj);
+                        $("#loading-image").hide();
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+        });
+
     </script>
 @endsection
