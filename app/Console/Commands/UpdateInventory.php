@@ -59,7 +59,7 @@ class UpdateInventory extends Command
                 ->where(function($q) {
                     $q->whereDate("last_cron_check","!=",date("Y-m-d"))->orWhereNull('last_cron_check');
                 })
-                ->limit(500)
+                ->limit(100)
                 ->where("suppliers.supplier_status_id", 1)
                 ->select("sp.last_inventory_at", "sp.sku", "sc.inventory_lifetime","sp.product_id","suppliers.id as supplier_id","sp.id as sproduct_id")->get()->groupBy("sku")->toArray();
                 
@@ -73,6 +73,8 @@ class UpdateInventory extends Command
                     
                     foreach ($skuRecords as $records) {
                         
+                        \DB::statement("update `scraped_products` set `last_cron_check` = now() where `id` = '" . $records['sproduct_id'] . "'");
+
                         $inventoryLifeTime = isset($records["inventory_lifetime"]) && is_numeric($records["inventory_lifetime"])
                         ? $records["inventory_lifetime"]
                         : 0;
@@ -118,7 +120,7 @@ class UpdateInventory extends Command
                         $hasInventory = true;
 
                         dump("Scraped Product updated : ".$records['sproduct_id']);
-                        \DB::statement("update `scraped_products` set `last_cron_check` = now() where `id` = '" . $records['sproduct_id'] . "'");
+                        
                     }
                     
                     if (!$hasInventory && !empty($productId)) {
@@ -126,8 +128,12 @@ class UpdateInventory extends Command
                     }
                 } 
                 if(!empty($zeroStock)){
-                    if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                        MagentoHelper::callHelperForZeroStockQtyUpdate($zeroStock);
+                    try{
+                        if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                                MagentoHelper::callHelperForZeroStockQtyUpdate($zeroStock);
+                        }
+                    }catch(\Exception $e) {
+
                     }
                 }
                 

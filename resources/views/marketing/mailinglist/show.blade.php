@@ -94,7 +94,7 @@
                 <div class="col-lg-12 margin-tb">
                     <h2 class="page-heading">Maililng list {{$list->name}} ({{$customers->total()}})</h2>
                     <div class="pull-left">
-                        <form action="{{route('mailingList.single', $list->remote_id)}}" method="GET">
+                        <form action="{{route('mailingList.single', ['remoteId' => $list->remote_id, 'store_id' => $list->website_id])}}" method="GET">
                             <div class="form-group">
                                 <div class="row">
                                     <div class="col-md-4">

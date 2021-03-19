@@ -111,7 +111,13 @@ class ManageWatson implements ShouldQueue
                 $errorlog->status = $success;
                 $errorlog->response = $result->getContent();
                 $errorlog->save();
+
+                ChatbotQuestion::where( 'id', $this->question->id )->update([ 'watson_status' => $success]);
+
             } else {
+
+                ChatbotQuestion::where( 'id', $this->question->id )->update([ 'watson_status' => $success]);
+
                 $errorlog = new ChatbotErrorLog;
                 $errorlog->chatbot_question_id = $this->question->id;
                 $errorlog->store_website_id = $account->store_website_id;

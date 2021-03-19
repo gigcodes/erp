@@ -51,7 +51,7 @@ class GoogleWebMasterController extends Controller
            $SearchAnalytics=$SearchAnalytics->where('device',$request->device);
         }
 
-         if($request->country)
+         if($request->country !='all')
         {
            $SearchAnalytics=$SearchAnalytics->where('country',$request->country);
         }
@@ -69,11 +69,46 @@ class GoogleWebMasterController extends Controller
           
         }
 
+        if($request->clicks && ($request->clicks=='asc'|| $request->clicks=='desc'))
+        {
+            
+           $SearchAnalytics=$SearchAnalytics->orderBy('clicks',$request->clicks);
+
+        }
+
+        if($request->position && ($request->position=='asc'|| $request->position=='desc'))
+        {
+            
+           $SearchAnalytics=$SearchAnalytics->orderBy('position',$request->position);
+
+        }
+
+        if($request->ctr && ($request->ctr=='asc'|| $request->ctr=='desc'))
+        {
+            
+           $SearchAnalytics=$SearchAnalytics->orderBy('ctr',$request->ctr);
+
+        }
+
+        if($request->impression && ($request->impression=='asc'|| $request->impression=='desc'))
+        {
+            
+           $SearchAnalytics=$SearchAnalytics->orderBy('impressions',$request->impression);
+
+        }
+
+        if($request->country=='all')
+        {
+            $search_analytics=$SearchAnalytics->select('*',\DB::raw('sum(clicks) as clicks,sum(impressions) as impressions, avg(position) as position,avg(ctr) as ctr'))->groupBy('country');
+        }
+
+
+
         $sitesData=$SearchAnalytics->paginate(Setting::get('pagination'));
 
 
 
-       // echo '<pre>';print_r($sites[0]->site->site_url);die;
+       // echo '<pre>';print_r($sitesData->toArray());die;
 
 		return view('google-web-master/index', compact('getSites','sitesData','sites','request','devices','countries','logs'));
 		}
@@ -152,6 +187,7 @@ class GoogleWebMasterController extends Controller
 
                  $check_error_response=json_decode($response);
 
+               
                             
 
 				curl_close($curl);
@@ -169,10 +205,12 @@ class GoogleWebMasterController extends Controller
 						foreach(json_decode( $response)->siteEntry as $key=> $site) {
 							// Create ot update site url
 							GoogleWebMasters::updateOrCreate(['sites'=>$site->siteUrl]);
+
+                            echo "https://www.googleapis.com/webmasters/v3/sites/".urlencode($site->siteUrl)."/sitemaps";
 							$curl1 = curl_init();
 							//replace website name with code coming form site list
 							curl_setopt_array($curl1, array(
-							    CURLOPT_URL => "https://www.googleapis.com/webmasters/v3/sites/".$site->siteUrl."/sitemaps",
+							    CURLOPT_URL => "https://www.googleapis.com/webmasters/v3/sites/".urlencode($site->siteUrl)."/sitemaps",
 							  CURLOPT_RETURNTRANSFER => true,
 							  CURLOPT_ENCODING => "",
 							  CURLOPT_MAXREDIRS => 10,
@@ -194,7 +232,7 @@ class GoogleWebMasterController extends Controller
 							} else {
 
 								
-								if(is_array( json_decode( $response1)->sitemap ) ){
+								if(isset(json_decode($response1)->sitemap) && is_array(json_decode($response1)->sitemap) ){
 									foreach(json_decode( $response1)->sitemap as $key=> $sitemap) {
 										GoogleWebMasters::where('sites',$site->siteUrl)->update(['crawls' => $sitemap->errors]);
 									}
@@ -232,6 +270,7 @@ class GoogleWebMasterController extends Controller
         		if($google_key)
         		{
                    $this->apiKey=$google_key;
+                   $this->apiKey='';
 
                    $this->googleToken=$request->session()->get('token')['access_token'];
 
@@ -293,7 +332,7 @@ class GoogleWebMasterController extends Controller
 
            
 
-        	return array('status'=>1,'sitesUpdated'=>$this->sitesUpdated,'sitesCreated'=>$this->sitesCreated,'searchAnalyticsCreated'=>$this->searchAnalyticsCreated,'success'=>$this->sitesUpdated. ' of sites are updated.','error'=>count($this->curl_errors_array).' error found in this request.','error_message'=>$this->curl_errors_array[0]['error']);
+        	return array('status'=>1,'sitesUpdated'=>$this->sitesUpdated,'sitesCreated'=>$this->sitesCreated,'searchAnalyticsCreated'=>$this->searchAnalyticsCreated,'success'=>$this->sitesUpdated. ' of sites are updated.','error'=>count($this->curl_errors_array).' error found in this request.','error_message'=>$this->curl_errors_array[0]['error']??'');
         }
 
 

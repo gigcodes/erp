@@ -59,8 +59,17 @@
 									<button type="button" class="hide btn btn-primary input-group-text" id="extra-keyword-search-btn"> <l class="fa fa-search"></i> </button>
 								</div>
 							</div>
-							<div class="row pt-3">
-								<ul class="suggestList pl-4"></ul>
+							<div class="row pt-3 height-fix suggestList" style="display:none">
+								<table class="table table-bordered">
+									<thead>
+										<tr>
+											<th>Keywords</th>
+											<th>Avg. monthly</th>
+											<th>Competition</th>
+										</tr>
+									</thead>
+									<tbody class="suggestList-table"></tbody>
+								</table>
 							</div>
 					   </div>
                 </div>

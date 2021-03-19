@@ -82,22 +82,28 @@ class ProductController extends Controller
                                 }
                            // }
                             // if status is cancelled already then return false
-                            if($getOrder->status == 6) {
-                                $result_input["iscanceled"] = false;
-                            }
                         }
-                        return response()->json(["code" => 200, "message" => "Success", "data" => $result_input]);
+                        if($getOrder->order_status_id == 11) {
+                            $result_input["iscanceled"] = false;
+                        }
+                            
+                        $message = $this->generate_erp_response("order.cancel.success", 0, $default = "Success", request('lang_code'));
+                        return response()->json(["code" => 200, "message" => $message, "data" => $result_input]);
                     }else{
-                        return response()->json(["code" => 500, "message" => "data not found.", "data" => []]); 
+                        $message = $this->generate_erp_response("order.cancel.failed", 0, $default = "data not found", request('lang_code'));
+                        return response()->json(["code" => 500, "message" => $message, "data" => []]); 
                     }
                 }else{
-                    return response()->json(["code" => 500, "message" => "data not found.", "data" => []]);  
+                    $message = $this->generate_erp_response("order.cancel.failed", 0, $default = "data not found", request('lang_code'));
+                    return response()->json(["code" => 500, "message" => $message, "data" => []]);  
                 }
             }else{
-                return response()->json(["code" => 500, "message" => "data not found.", "data" => []]); 
+                $message = $this->generate_erp_response("order.cancel.failed", 0, $default = "data not found", request('lang_code'));
+                return response()->json(["code" => 500, "message" => $message, "data" => []]); 
             }
            
         }
-        return response()->json(["code" => 500, "message" => "website is missing.", "data" => []]);
+        $message = $this->generate_erp_response("order.cancel.failed.website_missing", 0, $default = "website is missing.", request('lang_code'));
+        return response()->json(["code" => 500, "message" => $message, "data" => []]);
     }
 }

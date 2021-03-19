@@ -91,12 +91,13 @@ class QuestionController extends Controller
 
     public function save(Request $request)
     {
-        // dd(empty($params["question"]));
         $params          = $request->all();
         $params["value"] = str_replace(" ", "_", $params["value"]);
+        $params["watson_account_id"] = $request->watson_account;
         $validator = Validator::make($params, [
             'value' => 'required|unique:chatbot_questions|max:255',
             'keyword_or_question' => 'required',
+            'watson_account'  => 'nullable',
         ]);
         if ($validator->fails()) {
             return response()->json(["code" => 500, "error" => $validator->errors()]);
@@ -186,8 +187,12 @@ class QuestionController extends Controller
         }
 
 
-        $wotson_account_ids = WatsonAccount::all();
-
+        if( $params['watson_account'] > 0 ){
+            $wotson_account_ids = WatsonAccount::where( 'id', $request->watson_account )->get();
+        }else{
+            $wotson_account_ids = WatsonAccount::all();
+        }
+        
         foreach($wotson_account_ids as $id){
             $data_to_insert[] = [
                 'suggested_reply' => $params["suggested_reply"],
@@ -195,16 +200,22 @@ class QuestionController extends Controller
                 'chatbot_question_id' => $chatbotQuestion->id
             ];
         }
-
         ChatbotQuestionReply::insert($data_to_insert);
+
 
         if($request->erp_or_watson == 'watson') {
             if($request->keyword_or_question == 'intent' || $request->keyword_or_question == 'simple' || $request->keyword_or_question == 'priority-customer') {
-                $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id));
+
+                ChatbotQuestion::where( 'id', $chatbotQuestion->id )->update([ 'watson_status' => 'Pending watson send' ]);
+
+                $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, null, $request->watson_account));
             }
 
             if($request->keyword_or_question == 'entity') {
-                $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id));
+                
+                ChatbotQuestion::where( 'id', $chatbotQuestion->id )->update([ 'watson_status' => 'Pending watson send' ]);
+
+                $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, null, $request->watson_account));
             }
 
             
@@ -770,6 +781,7 @@ class QuestionController extends Controller
             'task_category_id' => 'required',
             'task_description' => 'required',
             'suggested_reply' => 'required',
+            'watson_account'  => 'nullable',
         ]);
         if($params['task_type'] == 'devtask') {
             if(!$params['repository_id'] || !$params['module_id']) {
@@ -783,6 +795,7 @@ class QuestionController extends Controller
         $params["erp_or_watson"] = 'erp';
         $params["auto_approve"] = 1;
         $params["is_active"] = 1;
+        $params["watson_account_id"] = $params['watson_account'];
         $chatbotQuestion = ChatbotQuestion::create($params);
         if (!empty($params["question"])) {
                     $chatbotQuestionExample        = new ChatbotQuestionExample;
@@ -790,24 +803,31 @@ class QuestionController extends Controller
                     $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
                     $chatbotQuestionExample->save();
         }
-        $wotson_account_ids = WatsonAccount::all();
+
+        if( $params['watson_account'] > 0 ){
+            $wotson_account_ids = WatsonAccount::where( 'id', $params['watson_account'] )->get();
+        }else{
+            $wotson_account_ids = WatsonAccount::all();
+        }
+
 
         foreach($wotson_account_ids as $id){
             $data_to_insert[] = [
-                'suggested_reply' => $params["suggested_reply"],
-                'store_website_id' => $id->store_website_id,
+                'suggested_reply'     => $params["suggested_reply"],
+                'store_website_id'    => $id->store_website_id,
                 'chatbot_question_id' => $chatbotQuestion->id
             ];
         }
-
         ChatbotQuestionReply::insert($data_to_insert);
+
         return response()->json(['message' => 'Successfully created the Intent', 'code' => 200]);
     }
 
 
 
 
-        public function saveDynamicReply(Request $request) {
+    public function saveDynamicReply(Request $request) {
+
         $params          = $request->all();
         $params["value"] = str_replace(" ", "_", $params["value"]);
         $validator = Validator::make($params, [
@@ -816,6 +836,7 @@ class QuestionController extends Controller
             'category_id' => 'required',
             'erp_or_watson' => 'required',
             'suggested_reply' => 'required',
+            'watson_account'  => 'nullable',
         ]);
         if ($validator->fails()) {
             return response()->json(["code" => 500, "error" => 'Incomplete data or intent already exists']);
@@ -823,6 +844,7 @@ class QuestionController extends Controller
         $params["keyword_or_question"] = 'intent';
         $params["is_active"] = 1;
         $params["dynamic_reply"] = 1;
+        $params["watson_account_id"] = $params['watson_account'];
         $chatbotQuestion = ChatbotQuestion::create($params);
         if (!empty($params["question"])) {
                     $chatbotQuestionExample        = new ChatbotQuestionExample;
@@ -832,10 +854,15 @@ class QuestionController extends Controller
         }
        
         if($params["erp_or_watson"] == 'watson') {
-            $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id));
+            $result = json_decode(WatsonManager::pushQuestion( $chatbotQuestion->id, null, $params['watson_account'] ));
         }
         else {
-            $wotson_account_ids = WatsonAccount::all();
+            
+            if( $params['watson_account'] > 0 ){
+                $wotson_account_ids = WatsonAccount::where( 'id', $params['watson_account'] )->get();
+            }else{
+                $wotson_account_ids = WatsonAccount::all();
+            }
 
             foreach($wotson_account_ids as $id){
                 $data_to_insert[] = [
@@ -929,6 +956,27 @@ class QuestionController extends Controller
         }
 
         return response()->json(["code" => 500 , "data" => [], "message" => "Record does not exist in the database"]);
+    }
+
+    public function repeatWatson(Request $request)
+    {
+        $id = $request->id;
+        $chatbotQuestion = ChatbotQuestion::whereIn("id", $id)->get();
+
+        if ($chatbotQuestion) {
+            
+            foreach($chatbotQuestion as $key){
+
+                if( $key->erp_or_watson == 'watson' ){
+                    if($key->keyword_or_question == 'intent' || $key->keyword_or_question == 'simple' || $key->keyword_or_question == 'priority-customer' || $key->keyword_or_question == 'entity') {
+                        WatsonManager::pushQuestion( $key->id, null, $key->watson_account_id );
+                    }
+                }
+            }
+            return response()->json(["code" => 200 , "data" => [], "message" => "send successfully"]);
+        }
+
+        return response()->json(["code" => 500 , "data" => [], "message" => "Something went wrong, Please try again!"]);
     }
     
 }

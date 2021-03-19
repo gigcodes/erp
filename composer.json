@@ -26,6 +26,7 @@
         "giggsey/libphonenumber-for-php": "^8.11",
         "google/apiclient": "^2.0",
         "google/cloud-translate": "^1.9",
+        "googleads/google-ads-php": "^6.1",
         "googleads/googleads-php-lib": "48.0.0",
         "guzzlehttp/guzzle": "^6.3",
         "intervention/image": "^2.5",

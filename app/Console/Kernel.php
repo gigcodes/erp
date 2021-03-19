@@ -130,6 +130,7 @@ use App\Console\Commands\scrappersImages;
 use App\Console\Commands\scrappersImagesDelete;
 use App\Console\Commands\InstagramHandler;
 use App\Console\Commands\SendDailyReports;
+use App\Console\Commands\InsertPleskEmail;
 
 class Kernel extends ConsoleKernel
 {
@@ -256,7 +257,8 @@ class Kernel extends ConsoleKernel
         scrappersImages::class,
         scrappersImagesDelete::class,
         InstagramHandler::class,
-        SendDailyReports::class
+        SendDailyReports::class,
+        InsertPleskEmail::class
     ];
 
     /**
@@ -514,7 +516,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('command:waybilltrack')->dailyAt("1:00");
        
 		//update directory manager to db
-	    $schedule->command('project_directory:manager')->dailyAt("1:00");
+	    //$schedule->command('project_directory:manager')->dailyAt("1:00");
 
 
          // make payment receipt for hourly associates on daily basis.
@@ -548,7 +550,7 @@ class Kernel extends ConsoleKernel
 		$schedule->command("scrappersImages")->daily();
         $schedule->command("scrappersImagesDelete")->daily();
         //cron for instagram handler daily basis
-        $schedule->command("instagram:handler")->daily();
+        $schedule->command("instagram:handler")->everyMinute()->withoutOverlapping();
     }
 
     /**

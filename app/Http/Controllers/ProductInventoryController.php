@@ -1227,4 +1227,120 @@ class ProductInventoryController extends Controller
 
 		return response()->json(["code" => 200 , "data" => [],"message" => implode("</br>", $messages),"error_messages" => implode("</br>", $errorMessages)]);
 	}
+
+	public function supplierProductSummary(Request $request,int $supplier_id)
+	{
+		
+
+		$inventory=\App\InventoryStatusHistory::whereDate('created_at','>', Carbon::now()->subDays(7))->where('supplier_id',$supplier_id)->orderBy('in_stock','desc');
+		
+
+		if($request->search)
+		{
+			$inventory->where('product_id','like','%'.$request->search)->orWhereHas('product', function ($query) use($request) {
+
+           $query->where('name', 'like','%'.$request->search.'%');
+
+             });
+		}
+       
+		$total_rows=$inventory->count();
+
+
+		$inventory=$inventory->paginate(Setting::get('pagination'));
+
+		
+       $allHistory=[];
+
+    
+		foreach ($inventory as $key => $history) {
+
+			$row=array('id'=>$history->id,'product_name'=>$history->product->name??'','supplier_name'=>$history->supplier->supplier??'','product_id'=>$history->product_id,'brand_name'=>$history->product->brands->name??'');
+
+
+          $dates=\App\InventoryStatusHistory::whereDate('created_at','>', Carbon::now()->subDays(7))->where('supplier_id',$history->supplier_id)->where('product_id',$history->product_id)->get();
+
+          $row['dates']=$dates;
+
+          $allHistory[]=(object)$row;
+
+			
+		}
+  
+
+		return view('product-inventory.supplier-inventory-history',compact('allHistory','inventory','total_rows','request'));
+
+
+	}
+
+	public function supplierProductHistory(Request $request)
+	{
+		$suppliers = \App\Supplier::all();
+		$inventory = \App\InventoryStatusHistory::select('created_at','supplier_id',DB::raw('count(distinct product_id) as product_count_count,GROUP_CONCAT(product_id) as brand_products'))
+			->whereDate('created_at','>', Carbon::now()->subDays(7))
+			->where('in_stock','>',0)
+			->groupBy('supplier_id');
+
+		if($request->supplier) {
+			$inventory = $inventory->where('supplier_id',$request->supplier);
+		}
+
+		$inventory = $inventory->orderBy('product_count_count','desc')->paginate(24);
+
+		$total_rows = $inventory->total();
+
+		$allHistory = [];
+		$date = date('Y-m-d', strtotime(date("Y-m-d") . ' -6 day'));
+		$extraDates = $date;
+		$columnData = [];
+		for ($i=1; $i < 8 ; $i++) { 
+			$columnData[] = $extraDates;
+			$extraDates   = date('Y-m-d', strtotime($extraDates . ' +1 day'));
+		}
+
+
+		foreach ($inventory as $key => $row) {
+            
+            $newRow = [];
+			$newRow['supplier_name'] = $row->supplier->supplier;
+			$brandCount = \App\InventoryStatusHistory::join("products as p","p.id","inventory_status_histories.product_id")->whereDate('inventory_status_histories.created_at','>', Carbon::now()->subDays(7))->where("inventory_status_histories.supplier_id",$row->supplier_id)
+			->where('in_stock','>',0)
+			->groupBy("p.brand")
+			->select(\DB::raw("count(p.brand) as total"))
+			->get()
+			->count();
+
+			$newRow['brands'] = $brandCount;
+			$newRow['products'] = $row->product_count_count;
+			$newRow['supplier_id'] = $row->supplier_id;
+
+			foreach ($columnData as $c) { 
+				# code...
+				$totalProduct = \App\InventoryStatusHistory::whereDate('created_at',$c)->where('supplier_id',$row->supplier_id)->select(\DB::raw("count(distinct product_id) as total_product"))->first();
+
+				$newRow['dates'][$c] = ($totalProduct) ? $totalProduct->total_product : 0;
+			}
+
+			array_push($allHistory,$newRow);
+		}
+
+		return view('product-inventory.supplier-product-history',compact('allHistory','inventory','total_rows','suppliers','request','columnData'));
+
+
+	}
+
+
+	public function supplierProductHistoryBrand (Request $request) 
+	{
+		$inventory = \App\InventoryStatusHistory::join("products as p","p.id","inventory_status_histories.product_id")
+			->leftjoin("brands as b","b.id","p.brand")
+			->whereDate('inventory_status_histories.created_at','>', Carbon::now()->subDays(7))->where("inventory_status_histories.supplier_id",$request->supplier_id)
+			->where('in_stock','>',0)
+			->groupBy("p.brand")
+			->select([\DB::raw("count(distinct p.id) as total"),"p.brand","b.name"])
+			->orderBy("total","desc")
+			->get();
+
+		return view("product-inventory.brand-history",compact('inventory'));
+	}
 }

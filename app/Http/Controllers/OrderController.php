@@ -74,6 +74,7 @@ use App\waybillTrackHistories;
 use stdClass;
 use App\CreditHistory;
 use App\QuickReply;
+use App\OrderCustomerAddress;
 use Session;
 class OrderController extends Controller {
 
@@ -277,7 +278,7 @@ class OrderController extends Controller {
       ->orWhere('sales_person',Helpers::getUserIdByName($term))
       ->orWhere('received_by',Helpers::getUserIdByName($term))
       ->orWhere('client_name','like','%'.$term.'%')
-      ->orWhere('city','like','%'.$term.'%')
+      ->orWhere('orders.city','like','%'.$term.'%')
       ->orWhere('order_status_id',(new \App\ReadOnly\OrderStatus())->getIDCaseInsensitive($term));
     }
     if ($order_status[0] != '') {
@@ -545,6 +546,11 @@ class OrderController extends Controller {
     return view('orders.products', compact('products','term', 'orderby', 'brand', 'supplier'));
   }
 
+  function getCustomerAddress( Request $request ){
+	 
+		$address = OrderCustomerAddress::where( 'order_id', $request->order_id )->get();
+		return response()->json(["code" => 200 , "data" => $address]);
+  }
   /**
   * Show the form for creating a new resource.
   *
@@ -969,6 +975,7 @@ public function show( Order $order ) {
   $data['comments']        = Comment::with('user')->where( 'subject_id', $order->id )
   ->where( 'subject_type','=' ,Order::class )->get();
   $data['users']          = User::all()->toArray();
+  $data['customerAddress'] = OrderCustomerAddress::where( 'order_id', $order->id )->get();
   $messages = Message::all()->where('moduleid','=', $data['id'])->where('moduletype','=', 'order')->sortByDesc("created_at")->take(10)->toArray();
   $data['messages'] = $messages;
   $data['total_price'] = $this->getTotalOrderPrice($order);
@@ -3179,24 +3186,28 @@ public function submitInvoice(Request $request) {
 
         $token = $request->bearerToken();
         if((!$email || trim($email) == '') && empty($order_no)) {
-            $message = $this->generate_erp_response("customer.order.success",0, $default = "Email is absent in your request");
+            $message = $this->generate_erp_response("customer.order.failed",0, $default = "Email is absent in your request", request('lang_code'));
             return response()->json(['message' => $message,'status' => 400]);
         }
 
           if((!$order_no || trim($order_no) == '') && empty($email)) {
-            return response()->json(['message' => 'Order reference no is absent in your request','status' => 400]);
+			  $message = $this->generate_erp_response("customer.order.failed.reference_no_absent",0, $default = "Order reference no is absent in your request", request('lang_code'));
+            return response()->json(['message' => $message,'status' => 400]);
           }
 
 
           if(!$store_url || trim($store_url) == '') {
-            return response()->json(['message' => 'Store Url is absent in your request','status' => 400]);
+			$message = $this->generate_erp_response("customer.order.failed.store_url_absent",0, $default = "Store Url is absent in your request", request('lang_code'));
+            return response()->json(['message' => $message,'status' => 400]);
           }
           $store_website = StoreWebsite::where('website',"like", $store_url)->first();
           if(!$store_website) {
-            return response()->json(['message' => 'Store not found with this url','status' => 404]);
+			$message = $this->generate_erp_response("customer.order.failed.store_not_found",0, $default = "Store not found with this url", request('lang_code'));
+            return response()->json(['message' => $message,'status' => 404]);
           }
           if($store_website->api_token != $token) {
-            return response()->json(['message' => 'Token mismatched','status' => 401]);
+			$message = $this->generate_erp_response("customer.order.failed.token_missing",$store_website->id, $default = "Token mismatched", request('lang_code'));
+            return response()->json(['message' => $message,'status' => 401]);
           }
 
           if(!empty($email)) {
@@ -3221,7 +3232,8 @@ public function submitInvoice(Request $request) {
 
 
           if(count($orders) == 0) {
-            return response()->json(['message' => 'No orders found against this customer','status' => 200]);
+			$message = $this->generate_erp_response("customer.order.failed.no_order_found",$store_website->id, $default = "No orders found against this customer", request('lang_code'));
+            return response()->json(['message' => $message,'status' => 200]);
           }
           foreach($orders as $order) {
             $histories  = OrderStatusHistory::
@@ -3268,7 +3280,7 @@ public function submitInvoice(Request $request) {
         }
         $orders = $orders->toArray();
         // $orders = json_encode($orders);
-        $message = $this->generate_erp_response("customer.order.success",$store_website->id, $default = "Orders Fetched successfully");
+        $message = $this->generate_erp_response("customer.order.success",$store_website->id, $default = "Orders Fetched successfully", request('lang_code'));
         return response()->json(['message' => $message,'status' => 200, 'data' => $orders]);
 
     }
@@ -3297,7 +3309,21 @@ public function submitInvoice(Request $request) {
         }
 
         public function testEmail(Request $request)
-        {
+        { 
+
+          $branch = 'master';
+            //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
+
+          $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') .'erp/deploy_branch.sh ' . $branch . ' 2>&1';
+
+          $allOutput = array();
+          $allOutput[] = $cmd;
+          $result = exec($cmd, $allOutput);
+
+          echo "<pre>"; print_r($allOutput);  echo "</pre>";die;
+
+
+
           return false;
           /*$order_new = \App\Order::find(2032);
           $view = (new OrderConfirmation($order_new))->build();
