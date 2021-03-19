@@ -3311,7 +3311,18 @@ public function submitInvoice(Request $request) {
         public function testEmail(Request $request)
         { 
 
-          echo "Testing branch";
+          $branch = 'master';
+            //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
+
+          $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') .'erp/deploy_branch.sh ' . $branch . ' 2>&1';
+
+          $allOutput = array();
+          $allOutput[] = $cmd;
+          $result = exec($cmd, $allOutput);
+
+          echo "<pre>"; print_r($allOutput);  echo "</pre>";die;
+
+
           return false;
           /*$order_new = \App\Order::find(2032);
           $view = (new OrderConfirmation($order_new))->build();
