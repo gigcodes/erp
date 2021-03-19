@@ -129,6 +129,7 @@ use App\Console\Commands\RunGoogleAnalytics;
 use App\Console\Commands\scrappersImages;
 use App\Console\Commands\scrappersImagesDelete;
 use App\Console\Commands\InstagramHandler;
+use App\Console\Commands\SendDailyReports;
 use App\Console\Commands\InsertPleskEmail;
 
 class Kernel extends ConsoleKernel
@@ -256,6 +257,7 @@ class Kernel extends ConsoleKernel
         scrappersImages::class,
         scrappersImagesDelete::class,
         InstagramHandler::class,
+        SendDailyReports::class,
         InsertPleskEmail::class
     ];
 
@@ -507,6 +509,7 @@ class Kernel extends ConsoleKernel
 		$schedule->command('routes:sync')->hourly()->withoutOverlapping();
 
 		$schedule->command('command:assign_incomplete_products')->dailyAt('01:30');
+		$schedule->command('send:daily-reports')->dailyAt('23:00');
 
 		
         //update order way billtrack histories

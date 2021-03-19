@@ -126,6 +126,9 @@
                               @if ($key == 3)
                                 <button type="button" class="btn btn-image show-tasks p-0 m-0" data-count="{{ $count }}" data-rowspan="{{ count($data) + 2 }}">v</button>
                               @endif
+							  @if ($task->status != 'stop')
+							  	<button type="button" class="btn btn-image task-stop p-0 m-0" data-id="{{ $task->id }}" title="Stop"> <i class="fa fa-stop"></i> </button>
+                              @endif
                             </span>
                           </div>
                         </td>
@@ -451,6 +454,33 @@
 
 
     
+
+    $(document).on('click', '.task-stop', function() {
+		event.preventDefault();
+		var button = $(this);
+		var parent_id = $(this).data('id');
+		if(! confirm("Are you sure to stop this notification? It'll delete all future notification.") ){
+			return false;
+		}
+
+        $.ajax({
+		  _token: "{{ csrf_token() }}",
+          type: 'POST',
+          url: '/calendar/events/stop',
+          data: { parent_id : parent_id },
+          beforeSend: function () {
+            
+          }
+        }).done(function(response) {
+            toastr['success'](response.message, 'success');  
+			button.remove();
+        }).fail(function(response) {
+            
+            toastr['success']('Sorry, Something went wrong!', 'success');
+        });
+	  
+      
+    });
 
     $(document).on('click', '.show-tasks', function() {
       var count = $(this).data('count');

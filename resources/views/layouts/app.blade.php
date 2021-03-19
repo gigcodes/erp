@@ -2238,6 +2238,10 @@ $metaData = '';
                 format: 'HH:mm'
             });
 
+            $('#repeat_end').datetimepicker({
+                format: 'YYYY-MM-DD'
+            });
+
             $(".selectx-vendor").select2({tags :true});
         });
         window.token = "{{ csrf_token() }}";
@@ -2273,6 +2277,18 @@ $metaData = '';
 
         $('.notification-button').on('click', function() {
             $("#quick-user-event-notification-modal").modal("show");
+        });
+
+        $('select[name="repeat"]').on('change', function () {
+            $(this).val() == 'weekly' ? $('#repeat_on').removeClass('hide') : $('#repeat_on').addClass('hide');
+        });
+
+        $('select[name="ends_on"]').on('change', function () {
+            $(this).val() == 'on' ? $('#repeat_end_date').removeClass('hide') : $('#repeat_end_date').addClass('hide');
+        });
+
+        $('select[name="repeat"]').on('change', function () {
+            $(this).val().length > 0 ? $('#ends_on').removeClass('hide') : $('#ends_on').addClass('hide');
         });
 
         $(document).on("submit","#notification-submit-form",function(e){

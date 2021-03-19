@@ -9,6 +9,7 @@ use App\UserEvent\UserEventAttendee;
 use App\UserEvent\UserEventParticipant;
 use Auth;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class UserEventController extends Controller
 {
@@ -156,6 +157,37 @@ class UserEventController extends Controller
     }
 
     /**
+     * Stop notification
+     */
+    function stopEvent( Request $request ){
+        
+        $id = $request->parent_id;
+        if (!$id) {
+            return response()->json(
+                [
+                    'message' => 'Not allowed'
+                ],
+                401
+            );
+        }
+
+        try {
+            \App\DailyActivity::where('id', $id)->update(['status' => 'stop']);
+            \App\DailyActivity::where('parent_row', $id)->where('for_date' , '>=' , Carbon::now()->toDateTimeString())->delete();
+            return response()->json([
+                "code"    => 200, 
+                'message' => 'Event stop successfully',
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "code"    => 500, 
+                'message' => $th->getMessage(),
+            ]);
+        }
+
+    }
+
+    /**
      * Create a new event
      */
     function createEvent(Request $request)
@@ -231,8 +263,14 @@ class UserEventController extends Controller
         $dailyActivities->activity  = $userEvent->subject;
         $dailyActivities->user_id   = $userId;
         $dailyActivities->for_date  = $date;
+        $dailyActivities->repeat_type     = $request->repeat;
+        $dailyActivities->repeat_on       = $request->repeat_on;
+        $dailyActivities->repeat_end      = $request->ends_on;
+        $dailyActivities->repeat_end_date = $request->repeat_end_date;
         
         if($dailyActivities->save()) {
+            $dailyActivities->parent_row = $dailyActivities->id;
+            $dailyActivities->save();
            $userEvent->daily_activity_id =  $dailyActivities->id;
            $userEvent->save();
         }
