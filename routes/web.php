@@ -2388,6 +2388,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/calendar', 'UserEventController@index');
     Route::get('/calendar/events', 'UserEventController@list');
     Route::post('/calendar/events', 'UserEventController@createEvent')->name("calendar.event.create");
+    Route::post('/calendar/events/stop', 'UserEventController@stopEvent')->name("calendar.event.stop");
     Route::put('/calendar/events/{id}', 'UserEventController@editEvent');
     Route::delete('/calendar/events/{id}', 'UserEventController@removeEvent');
 });

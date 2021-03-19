@@ -20,6 +20,43 @@
                         <input id="notification-time" name="time" class="form-control" type="text">
                         <span id="time_error" class="text-danger"></span>
                     </div>    
+                    <div class="row">
+                        <div class="form-group col-6">
+                            <label for="notification-time">Repeat</label>
+                            <select name="repeat" class="form-control">
+                                <option value="">Select option</option>
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                        </div>    
+                        <div class="form-group col-6 hide" id="repeat_on">
+                            <label for="notification-time">Repeat on</label>
+                            <select name="repeat_on" class="form-control">
+                                <option value="monday">Monday</option>
+                                <option value="tuesday">Tuesday</option>
+                                <option value="wednesday">Wednesday</option>
+                                <option value="thursday">Thursday</option>
+                                <option value="friday">Friday</option>
+                                <option value="saturday">Saturday</option>
+                                <option value="sunday">Sunday</option>
+                            </select>
+                        </div>
+                    </div> 
+                    <div class="row">
+                        <div class="form-group col-6 hide" id="ends_on">
+                            <label for="notification-time">Ends</label>
+                            <select name="ends_on" class="form-control">
+                                <option value="">Select option</option>
+                                <option value="never">Never</option>
+                                <option value="on">On</option>
+                            </select>
+                        </div>    
+                        <div class="form-group col-6 hide" id="repeat_end_date">
+                            <label for="repeat_end_date">Select date</label>
+                            <input id="repeat_end" name="repeat_end_date" class="form-control" type="text">
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label for="notification-subject">Subject</label>
                         <input id="notification-subject" name="subject" class="form-control" type="text">
