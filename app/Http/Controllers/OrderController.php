@@ -3311,6 +3311,7 @@ public function submitInvoice(Request $request) {
         public function testEmail(Request $request)
         { 
 
+          echo "Testing branch";
           return false;
           /*$order_new = \App\Order::find(2032);
           $view = (new OrderConfirmation($order_new))->build();
