@@ -1452,8 +1452,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('supplier', 'SupplierController');
     Route::resource('google-server', 'GoogleServerController');
     Route::post('log-google-cse', 'GoogleServerController@logGoogleCse')->name('log.google.cse');
+    
+
     Route::resource('email-addresses', 'EmailAddressesController');
     Route::post('email/getemailhistory/{id}', 'EmailAddressesController@getEmailAddressHistory');
+    Route::get('email/get-related-account/{id}', 'EmailAddressesController@getRelatedAccount');
     Route::post('supplier/block', 'SupplierController@block')->name('supplier.block');
     Route::post('supplier/saveImage', 'SupplierController@saveImage')->name('supplier.image');;
     Route::post('supplier/change-status', 'SupplierController@changeStatus');

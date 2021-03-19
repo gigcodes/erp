@@ -1197,7 +1197,7 @@
             }).done(function(response) {
                 $("#loading-image").hide();
                 var model  = $("#show-content-model-table");
-                model.find(".modal-title").html("Scraper screenshots");
+                model.find(".modal-title").html("Task List");
                 model.find(".modal-body").html(response);
             }).fail(function() {
                 $("#loading-image").hide();
