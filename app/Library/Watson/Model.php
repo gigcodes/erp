@@ -700,7 +700,7 @@ class Model
 
     }
 
-    public static function createSession(Customer $customer, AssistantService $assistant, $assistantID)
+    public static function createSession($customer, AssistantService $assistant, $assistantID)
     {
         if (env("PUSH_WATSON", true) == false) {
             return true;
