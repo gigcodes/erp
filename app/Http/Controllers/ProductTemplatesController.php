@@ -396,7 +396,9 @@ class ProductTemplatesController extends Controller
 
         if($request->modifications_array)
         {
-           $modifications=$request->modifications_array;
+           foreach ($request->modifications_array as $key => $value) {
+               array_push($modifications, $value);
+           }
         }
 
         
@@ -415,9 +417,9 @@ class ProductTemplatesController extends Controller
 
                       
 
-                    //  return json_encode($modifications);
+                   //   echo json_encode($modifications);die;
 
-      $body=array('template'=>$template,'modifications'=>$modifications,'webhook_url'=>route('api.product.update.webhook'),'metadata'=>$template->id);
+      $body=array('template'=>$template->template->uid,'modifications'=>$modifications,'webhook_url'=>route('api.product.update.webhook'),'metadata'=>$template->id);
 
       //echo json_encode($body);
 
@@ -450,15 +452,32 @@ class ProductTemplatesController extends Controller
              {
                 $template=ProductTemplate::find($request->metadata);
 
-                $contents = file_get_contents($request->image_url_png);
+                $template->template_status=$request->status;
+
+                $contents = $this->getImageByCurl($request->image_url_png);
 
                $media= MediaUploader::fromString($contents)->useFilename('profile')->toDirectory('product-template-images')->upload();
 
 
               $template->attachMedia($media,['template-image']);
 
+              $template->template_status=$request->status;
+              
+              $template->save();
+
 
              }
         }
+    }
+
+    public function getImageByCurl($url)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
     }
 }

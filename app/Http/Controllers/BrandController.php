@@ -234,7 +234,7 @@ class BrandController extends Controller
 
     public function brandReference()
     {
-        $brands = Brand::select('name','references')->where('magento_id', '>', 0)->get();
+        $brands = Brand::select('name','references')->get();
         foreach ($brands as $brand) {
             $referenceArray[] = $brand->name;
             if(!empty($brand->references)){
@@ -448,5 +448,16 @@ class BrandController extends Controller
     public function activites(Request $request, $id) {
         $activites = Activity::where('subject_id',$id)->where('subject_type','Brand')->get();
         return view()->make('brand.activities', compact('activites'));
+    }
+
+    public function priority(Request $request)
+    {
+        $brand = Brand::find($request->id);
+      $brand->priority = $request->priority;
+      if($brand->save())
+      {
+        return response()->json(['message' => 'Brand priority updated'], 200);
+      }
+      
     }
 }

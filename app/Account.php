@@ -13,7 +13,7 @@ class Account extends Model
     use SoftDeletes;
     use Mediable;
   protected $fillable = [
-    'first_name', 'last_name', 'email', 'password', 'dob', 'platform', 'followers_count', 'posts_count', 'dp_count', 'broadcast', 'country', 'gender','proxy'
+    'first_name', 'last_name', 'email', 'password', 'dob', 'platform', 'followers_count', 'posts_count', 'dp_count', 'broadcast', 'country', 'gender','proxy','last_cron_time'
   ];
 
   public function reviews()

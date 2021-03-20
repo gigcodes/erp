@@ -257,6 +257,11 @@ class MailinglistController extends Controller
             }
 
         }
+        
+        if( !empty( $request->store_id ) ){
+            $customers = $customers->where( 'store_website_id', $request->store_id );
+        }
+
         $customers = $customers->select('email', 'id', 'name', 'do_not_disturb','source')->paginate(20);
         $list = Mailinglist::where('remote_id', $id)->with('listCustomers')->first();
 

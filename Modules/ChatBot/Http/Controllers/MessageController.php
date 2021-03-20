@@ -5,6 +5,7 @@ namespace Modules\ChatBot\Http\Controllers;
 use App\ChatbotCategory;
 use App\ChatMessage;
 use App\Suggestion;
+use App\SuggestedProduct;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -20,7 +21,8 @@ class MessageController extends Controller
         $search = request("search");
         $status = request("status");
 
-        $pendingApprovalMsg = ChatMessage::join("customers as c", "c.id", "chat_messages.customer_id")
+        $pendingApprovalMsg = ChatMessage::leftjoin("customers as c", "c.id", "chat_messages.customer_id")
+            ->join("vendors as v", "v.id", "chat_messages.vendor_id")
             ->leftJoin("store_websites as sw","sw.id","c.store_website_id")
             ->Join("chatbot_replies as cr", "cr.replied_chat_id", "chat_messages.id")
             ->leftJoin("chat_messages as cm1", "cm1.id", "cr.chat_id");
@@ -39,8 +41,7 @@ class MessageController extends Controller
 
         $pendingApprovalMsg = $pendingApprovalMsg->where(function($q) {
             $q->where("chat_messages.message","!=", "");
-        })->where("chat_messages.customer_id", ">", 0)
-        ->select(["chat_messages.*", "cm1.id as chat_id", "cr.question","cm1.message as answer", "c.name as customer_name","cr.reply_from","cm1.approved","sw.title as website_title"])
+        })->select(["chat_messages.*", "cm1.id as chat_id", "cr.question","cm1.message as answer", "c.name as customer_name","v.name as vendors_name","cr.reply_from","cm1.approved","sw.title as website_title"])
         ->orderBy("chat_messages.id","desc")
         ->paginate(20);
             
@@ -116,7 +117,7 @@ class MessageController extends Controller
             if ($chatMessages) {
                 $chatsuggestion = $chatMessages->suggestion;
                 if ($chatsuggestion) {
-                    $data    = Suggestion::attachMoreProducts($chatsuggestion);
+                    $data    = SuggestedProduct::attachMoreProducts($chatsuggestion);
                     $code    = 500;
                     $message = "Sorry no images found!";
                     if (count($data) > 0) {

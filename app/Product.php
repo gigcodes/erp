@@ -565,7 +565,7 @@ class Product extends Model
 
     public function suggestions()
     {
-        return $this->belongsToMany('App\Suggestion', 'suggestion_products', 'product_id', 'suggestion_id');
+        return $this->belongsToMany('App\SuggestedProduct', 'suggested_product_lists', 'product_id', 'suggested_products_id');
     }
 
     public function amends()

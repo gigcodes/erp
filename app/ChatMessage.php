@@ -278,7 +278,7 @@ class ChatMessage extends Model
 
     public function suggestion()
     {
-        return $this->hasOne("App\Suggestion","chat_message_id","id");
+        return $this->hasOne("App\SuggestedProduct","chat_message_id","id");
     }
 
     public static function getLastImgProductId($customerId)

@@ -156,7 +156,6 @@ class MissingBrandController extends Controller
                 similar_text(strtolower($input), strtolower($word), $percent);
 
                 if ($percent >= 70) {
-                    dd($missingBrand->name);
                     $brand->references .= ',' . $missingBrand->name;
                     $brand->save();
                     $isFind = 1;

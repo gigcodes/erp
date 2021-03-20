@@ -15,6 +15,29 @@
 
     @include('partials.flash_messages')
 
+    <div class="row">
+        <div class="col-xs-12">
+            <form class="form-search-data">
+                <div class="row">
+                    <div class="col-xs-12 col-md-3 pd-2">
+                        <div class="form-group cls_task_subject">
+                            <input type="text" name="keyword" placeholder="Search Keyword" class="form-control input-sm" value="{{ request('keyword') }}">
+                        </div>
+                    </div>
+                    <!-- Language Selection -->
+                    <div class="col-xs-12 col-md-3 pd-2">
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                        </div>
+                    </div>
+                    <!-- Search Network -->
+                    
+                </div>
+                <!-- FILTERS -->
+            </form>
+        </div>
+    </div>
+
     <div class="mt-3 col-md-12">
       <table class="table table-bordered table-striped">
         <thead>

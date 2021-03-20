@@ -8,13 +8,11 @@
     .preview-category input.form-control {
       width: auto;
     }
-    .suggestList li {
-        display: inline-block;
-        margin-right: 10px;
+    .keyword-list {
         cursor: pointer;
         
     }
-    .width-fix{
+    .height-fix{
         height: 220px;
         display: inline-block;
         overflow: auto;

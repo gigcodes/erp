@@ -26,19 +26,21 @@ class ManageWatsonAssistant implements ShouldQueue
     protected $contextReset;
     protected $message_application_id;
     protected $messageModel;
+    protected $userType;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($customer, $inputText, $contextReset, $message_application_id, $messageModel = null)
+    public function __construct($customer, $inputText, $contextReset, $message_application_id, $messageModel = null, $userType = null)
     {
         $this->customer = $customer;
         $this->inputText = $inputText;
         $this->contextReset = $contextReset;
         $this->message_application_id = $message_application_id;
         $this->messageModel = $messageModel;
+        $this->userType = $userType;
 
     }
 
@@ -58,7 +60,7 @@ class ManageWatsonAssistant implements ShouldQueue
                 $account->api_key
             );
             $asistant->set_url($account->url);
-            Model::sendMessageFromJob($this->customer, $account, $asistant, $this->inputText, $this->contextReset, $this->message_application_id, $this->messageModel);
+            Model::sendMessageFromJob($this->customer, $account, $asistant, $this->inputText, $this->contextReset, $this->message_application_id, $this->messageModel , $this->userType);
         }
     }
 

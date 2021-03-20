@@ -42,11 +42,14 @@ Content-Type: application/json
     "style":"Enter style",
     "keyword":"Enter keyword",
     "image":"Enter image",
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
 
 // please send type_of_inquirey:special_notes so we can understand this is special notes
 // also this is the required fields which we need to pass 'name','last_name','email','type_of_inquiry','subject','message'
+
+key : ticket.success
 
 **Successful Response:**
 
@@ -60,7 +63,7 @@ Content-Type: application/json
     "message": "Ticket #T20201009155741 created successfully"
 }
 ```
-
+Key : ticket.failed, ticket.failed.validation, ticket.failed.email_or_phone
 **Failed Response:**
 
 ```json
@@ -92,8 +95,11 @@ Content-Type: application/json
     "referee_email": "Singh.karamjit1689@gmail.com", //required,email,length maxminum 20
     "referee_phone": "9999999999", //length maxminum 20
     "website": "WWW.SOLOLUXURY.COM",//required, must be a website in store websites
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
+
+Key : refera.friend.success
 
 **Successful Response:**
 
@@ -104,9 +110,12 @@ Content-Type: application/json
     "message": "refferal created successfully",
     "referrer_code": "o4kx9LzcrbYCMFj",
     "referrer_email": "abc@example.com",
-    "referee_email": "Singh.karamjit1689@gmail.com"
+    "referee_email": "Singh.karamjit1689@gmail.com",
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
+
+Key : refera.friend.failed, refera.friend.failed.validation, coupon.failed.refferal_program
 
 **Failed Response:**
 
@@ -138,8 +147,10 @@ Content-Type: application/json
     "gift_card_message" : "test message", //length maxminum 200
     "expiry_date" : "2020-10-16", //required, date after yesterday
     "website"  : "WWW.SOLOLUXURY.COM", //required, must be a website in store websites
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
+Key : giftcard.success
 
 **Successful Response:**
 
@@ -150,6 +161,8 @@ Content-Type: application/json
     "message": "gift card added successfully",
 }
 ```
+
+Key : giftcard.failed, giftcard.failed.validation
 
 **Failed Response:**
 
@@ -170,9 +183,12 @@ Content-Type: application/json
 GET https://erp.theluxuryunlimited.com/api/giftcards/check-giftcard-coupon-amount
 Accept: application/json
 Content-Type: application/json
-{   "coupon_code" : "A1A22A111FFF333", //required, length maxminum 30, existing in gift_cards
+{   
+    "coupon_code" : "A1A22A111FFF333", //required, length maxminum 30, existing in gift_cards
+    "lang_code":"ae_ar", // Enter language code 
 }
 ```
+Key : giftcard.amount.success
 
 **Successful Response:**
 ```json
@@ -187,10 +203,12 @@ Content-Type: application/json
     }
 }
 ```
+Key : giftcard.amount.failed, giftcard.amount.failed.validation
 
 **Failed Response:**
 
 ```
+{
     "status" : "failed",
     "message" : "coupon does not exists in record !",
 }
@@ -206,6 +224,8 @@ Accept: application/json
 Content-Type: application/json
 'Authorization: Bearer (Requested_website_token)'
 ```
+Key : customer.order.success
+
 **Successful Response:**
 ```json
 Content-Type: application/json
@@ -271,6 +291,9 @@ Content-Type: application/json
     ]
 }
 ```
+
+Key : customer.order.failed, customer.order.failed.reference_no_absent, customer.order.failed.store_url_absent, customer.order.failed.store_not_found, customer.order.failed.token_missing, customer.order.failed.no_order_found
+
 **Failed Response:**
 
 ```json
@@ -291,7 +314,8 @@ Content-Type: application/json
 {
     "customer_email" : "firasath90@gmail.com",
     "website" : "www.brands-labels.com",
-    "order_id" : "000000012"
+    "order_id" : "000000012",
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
 
@@ -330,7 +354,8 @@ Content-Type: application/json
 ```
 
 
-key : buyback.failed
+key : buyback.failed, buyback.failed.validation, buyback.failed.no_order_found
+
 **Failed Response:**
 ```json
 Content-Type: application/json
@@ -352,14 +377,17 @@ Content-Type: application/json
     "website" : "www.brands-labels.com",
     "order_id" : "000000012",
     "product_sku" : "Test01",
-    "type":"exchange"
+    "type":"exchange",
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
 For type expected value will be "return","exchange","buyback","refund", "cancellation"
 
 
+Type : return, exchange, buyback, refund, cancellation
 
-key : exchange.success
+key : [type].success
+
 **Successful Response:**
 ```json
 Content-Type: application/json
@@ -369,7 +397,10 @@ Content-Type: application/json
 }
 ```
 
-exchange.failed
+Type : return, exchange, buyback, refund, cancellation
+
+Key : [type].failed, [type].failed.validation, [type].failed.no_order_found
+
 **Failed Response:**
 ```json
 Content-Type: application/json
@@ -389,7 +420,8 @@ Accept: application/json
 Content-Type: application/json
 {
     "sku" : "565655VT0406512FW2019",
-    "country" : "IN"
+    "country" : "IN",
+    "lang_code":"ae_ar", // Enter language code
 }
 
 
@@ -411,7 +443,8 @@ Content-Type: application/json
 }
 ```
 
-key : price_compare.failed
+key : price_compare.failed, price_compare.failed.validation, price_compare.failed.no_price_comparision
+
 **Failed Response:**
 ```json
 Content-Type: application/json
@@ -444,12 +477,14 @@ Content-Type: application/json
     "city":"Texas", //optional, string
     "postcode":"111111", //optional, string
     "country":"United States Of America", //optional, string
+    "lang_code":"ae_ar", // Enter language code
 
 }
 ```
 
 
 key : affiliates.success
+
 **Successful Response:**
 ```json
 HTTP/1.1 200
@@ -460,7 +495,8 @@ Content-Type: application/json
 }
 ```
 
-key : affiliates.failed
+key : affiliates.failed, affiliates.failed.validation
+
 **Failed Response:**
 ```json
 HTTP/1.1 500
@@ -486,7 +522,9 @@ Content-Type: application/json
     "phone": "918638973610", //optional
     "website": "WWW.SOLOLUXURY.COM",//required, must be a website in store websites
     "dob": "2020-10-23", //optional
-    "wedding_anniversery": "2020-10-23"//optional
+    "wedding_anniversery": "2020-10-23", //optional
+    "lang_code":"ae_ar", // Enter language code
+    
 }
 ```
 
@@ -510,7 +548,6 @@ Content-Type: application/json
 }
 ```
 
-```
 ## Tickets API
 
 **Request:**
@@ -523,7 +560,8 @@ Content-Type: application/json
     "website" : "live_chat",
     "email" : "bardam.yus@gmail.com", //optional if ticket_id is set 
     "ticket_id":"PWTCR", //optional if email is set
-    "per_page":"10" //optional, default is 15
+    "per_page":"10", //optional, default is 15
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
 **Successful Response:**
@@ -590,7 +628,8 @@ Content-Type: application/json
 }
 ```
 
-key : ticket.send.failed
+key : ticket.send.failed, ticket.send.failed.validation, ticket.send.failed.ticket_or_email
+
 **Failed Response:**
 ```json
 Content-Type: application/json
@@ -610,6 +649,7 @@ Content-Type: application/json
 {
     "website" : "WWW.SOLOLUXURY.COM", //required , exists in store websites
     "token" : "sdsad2e232dsdsd", //required 
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
 
@@ -623,7 +663,8 @@ HTTP/1.1 200
 }
 ```
 
-key : notification.failed
+key : notification.failed, notification.failed.validation
+
 **Failed Response:**
 ```json
 HTTP/1.1 500
@@ -665,11 +706,13 @@ Content-Type: application/json
     "website_name":"sololuxury", //optional, string
     "url":"url", //optional, string
     "country":"United States Of America", //optional, string
-    "type" :"influencer"
+    "type" :"influencer",
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
 
-key : same as affiliate because it call same API
+key : influencer.success
+
 **Successful Response:**
 ```json
 HTTP/1.1 200
@@ -680,7 +723,8 @@ Content-Type: application/json
 }
 ```
 
-key : same as affiliate because it call same API
+key : influencer.failed.validation, influencer.failed
+
 **Failed Response:**
 ```json
 HTTP/1.1 500
@@ -699,7 +743,33 @@ Accept: application/json
 Content-Type: application/json
 {
     "website" : "www.veralusso.com", //existing website
-    "email":"Solo@theluxuryunlimited.com"
+    "email":"Solo@theluxuryunlimited.com",
+    "store_name" : "store name or store code",
+    "lang_code":"ae_ar", // Enter language code
+}
+```
+
+key : newsletter.success
+**Successful Response:**
+
+```json
+Content-Type: application/json
+{
+    "code": 200,
+    "message": "Newsletter has been added succesfully SOLO LUXURY"
+}
+```
+
+
+key : newsletter.failed, newsletter.failed.already_subscribed
+
+**Failed Response:**
+
+```json
+Content-Type: application/json
+{
+    "code": 500,
+    "message": "You have already subscibed newsletter"
 }
 ```
 
@@ -713,7 +783,8 @@ Content-Type: application/json
 {
     "message": "error-message",
     "website": "Farfetch",  
-    "url": "https:\/\/www.farfetch.com\/mt\/shopping\/kids\/young-versace-crystal-logo-t-shirt-item-15339323.aspx?q=YC000346YA00019A1008"
+    "url": "https:\/\/www.farfetch.com\/mt\/shopping\/kids\/young-versace-crystal-logo-t-shirt-item-15339323.aspx?q=YC000346YA00019A1008",
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
 
@@ -750,9 +821,12 @@ Accept: application/json
 Content-Type: application/json
 {
     "website" : "www.brands-labels.com",
-    "order_id" : "000000012"
+    "order_id" : "000000012",
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
+
+Key : order.cancel.success
 
 **Successful Response:**
 ```json
@@ -767,6 +841,7 @@ Content-Type: application/json
     }
 }
 ```
+Key : order.cancel.failed, order.cancel.failed.website_missing
 
 **Failed Response:**
 ```json
@@ -776,3 +851,310 @@ Content-Type: application/json
     "data": []
 }
 ```
+
+## Magento order create
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/magento/order-create
+Accept: application/json
+Content-Type: application/json
+{
+           
+            "website": "WWW.SOLOLUXURY.COM",
+            "lang_code":"ae_ar", // Enter language code
+            "base_currency_code": "EUR",
+            "base_discount_amount": 0,
+            "base_grand_total": 495,
+            "base_discount_tax_compensation_amount": 0,
+            "base_shipping_amount": 0,
+            "base_shipping_discount_amount": 0,
+            "base_shipping_discount_tax_compensation_amnt": 0,
+            "base_shipping_incl_tax": 0,
+            "base_shipping_tax_amount": 0,
+            "base_subtotal": 495,
+            "base_subtotal_incl_tax": 495,
+            "base_tax_amount": 0,
+            "base_total_due": 495,
+            "base_to_global_rate": 1,
+            "base_to_order_rate": 4.4756,
+            "billing_address_id": 8,
+            "created_at": "2021-02-25 17:37:17",
+            "customer_email": "jamesadolf1970@iclodd.com",
+            "customer_firstname": "James",
+            "customer_group_id": 1,
+            "customer_id": 72,
+            "customer_is_guest": 0,
+            "customer_lastname": "Adolf",
+            "customer_note_notify": 1,
+            "discount_amount": 0,
+            "email_sent": 1,
+            "entity_id": 4,
+            "global_currency_code": "EUR",
+            "grand_total": 2220,
+            "discount_tax_compensation_amount": 0,
+            "increment_id": "206000000001",
+            "is_virtual": 0,
+            "order_currency_code": "AED",
+            "protect_code": "91531c793d0bbcef689c3a74d01c1522",
+            "quote_id": 13,
+            "remote_ip": "86.99.143.188",
+            "shipping_amount": 0,
+            "shipping_description": "Free Shipping - Free",
+            "shipping_discount_amount": 0,
+            "shipping_discount_tax_compensation_amount": 0,
+            "shipping_incl_tax": 0,
+            "shipping_tax_amount": 0,
+            "state": "new",
+            "status": "pending",
+            "store_currency_code": "EUR",
+            "store_id": 206,
+            "store_name": "UAE\nUAE\nEnglish",
+            "store_to_base_rate": 0,
+            "store_to_order_rate": 0,
+            "subtotal": 2220,
+            "subtotal_incl_tax": 2220,
+            "tax_amount": 0,
+            "total_due": 2220,
+            "total_item_count": 1,
+            "total_qty_ordered": 1,
+            "updated_at": "2021-02-25 17:37:20",
+            "weight": 0,
+            "x_forwarded_for": "86.99.143.188",
+            "items": [
+                {
+                    "amount_refunded": 0,
+                    "base_amount_refunded": 0,
+                    "base_discount_amount": 0,
+                    "base_discount_invoiced": 0,
+                    "base_discount_tax_compensation_amount": 0,
+                    "base_original_price": 495,
+                    "base_price": 495,
+                    "base_price_incl_tax": 495,
+                    "base_row_invoiced": 0,
+                    "base_row_total": 495,
+                    "base_row_total_incl_tax": 495,
+                    "base_tax_amount": 0,
+                    "base_tax_invoiced": 0,
+                    "created_at": "2021-02-25 17:37:17",
+                    "discount_amount": 0,
+                    "discount_invoiced": 0,
+                    "discount_percent": 0,
+                    "free_shipping": 0,
+                    "discount_tax_compensation_amount": 0,
+                    "is_qty_decimal": 0,
+                    "is_virtual": 0,
+                    "item_id": 4,
+                    "name": "SNEAKERS",
+                    "no_discount": 0,
+                    "order_id": 4,
+                    "original_price": 2220,
+                    "price": 2220,
+                    "price_incl_tax": 2220,
+                    "product_id": 7931,
+                    "product_type": "simple",
+                    "qty_canceled": 0,
+                    "qty_invoiced": 0,
+                    "qty_ordered": 1,
+                    "qty_refunded": 0,
+                    "qty_shipped": 0,
+                    "quote_item_id": 12,
+                    "row_invoiced": 0,
+                    "row_total": 2220,
+                    "row_total_incl_tax": 2220,
+                    "row_weight": 0,
+                    "sku": "CS1823AW478White",
+                    "store_id": 206,
+                    "tax_amount": 0,
+                    "tax_invoiced": 0,
+                    "tax_percent": 0,
+                    "updated_at": "2021-02-25 17:37:17",
+                    "weight": 0
+                }
+            ],
+            "billing_address": {
+                "address_type": "billing",
+                "city": "Dubai",
+                "country_id": "AE",
+                "customer_id": 72,
+                "email": "jamesadolf1970@iclodd.com",
+                "entity_id": 8,
+                "firstname": "james",
+                "lastname": "adolf",
+                "parent_id": 4,
+                "postcode": "13323",
+                "street": [
+                    "3759 No.232, Al-Narjis District"
+                ],
+                "telephone": "0508309192"
+            },
+            "payment": {
+                "account_status": null,
+                "additional_information": [
+                    "Cash On Delivery",
+                    ""
+                ],
+                "amount_ordered": 2220,
+                "base_amount_ordered": 495,
+                "base_shipping_amount": 0,
+                "cc_last4": null,
+                "entity_id": 4,
+                "method": "cashondelivery",
+                "parent_id": 4,
+                "shipping_amount": 0
+            },
+            "status_histories": [],
+            "extension_attributes": {
+                "shipping_assignments": [
+                    {
+                        "shipping": {
+                            "address": {
+                                "address_type": "shipping",
+                                "city": "Dubai",
+                                "country_id": "AE",
+                                "customer_id": 72,
+                                "email": "jamesadolf1970@iclodd.com",
+                                "entity_id": 7,
+                                "firstname": "james",
+                                "lastname": "adolf",
+                                "parent_id": 4,
+                                "postcode": "13323",
+                                "street": [
+                                    "3759 No.232, Al-Narjis District"
+                                ],
+                                "telephone": "0508309192"
+                            },
+                            "method": "freeshipping_freeshipping",
+                            "total": {
+                                "base_shipping_amount": 0,
+                                "base_shipping_discount_amount": 0,
+                                "base_shipping_discount_tax_compensation_amnt": 0,
+                                "base_shipping_incl_tax": 0,
+                                "base_shipping_tax_amount": 0,
+                                "shipping_amount": 0,
+                                "shipping_discount_amount": 0,
+                                "shipping_discount_tax_compensation_amount": 0,
+                                "shipping_incl_tax": 0,
+                                "shipping_tax_amount": 0
+                            }
+                        },
+                        "items": [
+                            {
+                                "amount_refunded": 0,
+                                "base_amount_refunded": 0,
+                                "base_discount_amount": 0,
+                                "base_discount_invoiced": 0,
+                                "base_discount_tax_compensation_amount": 0,
+                                "base_original_price": 495,
+                                "base_price": 495,
+                                "base_price_incl_tax": 495,
+                                "base_row_invoiced": 0,
+                                "base_row_total": 495,
+                                "base_row_total_incl_tax": 495,
+                                "base_tax_amount": 0,
+                                "base_tax_invoiced": 0,
+                                "created_at": "2021-02-25 17:37:17",
+                                "discount_amount": 0,
+                                "discount_invoiced": 0,
+                                "discount_percent": 0,
+                                "free_shipping": 0,
+                                "discount_tax_compensation_amount": 0,
+                                "is_qty_decimal": 0,
+                                "is_virtual": 0,
+                                "item_id": 4,
+                                "name": "SNEAKERS",
+                                "no_discount": 0,
+                                "order_id": 4,
+                                "original_price": 2220,
+                                "price": 2220,
+                                "price_incl_tax": 2220,
+                                "product_id": 7931,
+                                "product_type": "simple",
+                                "qty_canceled": 0,
+                                "qty_invoiced": 0,
+                                "qty_ordered": 1,
+                                "qty_refunded": 0,
+                                "qty_shipped": 0,
+                                "quote_item_id": 12,
+                                "row_invoiced": 0,
+                                "row_total": 2220,
+                                "row_total_incl_tax": 2220,
+                                "row_weight": 0,
+                                "sku": "CS1823AW478White",
+                                "store_id": 206,
+                                "tax_amount": 0,
+                                "tax_invoiced": 0,
+                                "tax_percent": 0,
+                                "updated_at": "2021-02-25 17:37:17",
+                                "weight": 0
+                            }
+                        ]
+                    }
+                ],
+                "payment_additional_info": [
+                    {
+                        "key": "method_title",
+                        "value": "Cash On Delivery"
+                    },
+                    {
+                        "key": "instructions",
+                        "value": ""
+                    }
+                ],
+                "applied_taxes": [],
+                "item_applied_taxes": []
+            }
+}
+```
+Key : magento.order.success
+
+**Successful Response:**
+
+```json
+Content-Type: application/json
+{
+    "status": true,
+    "message": "Order create successfully"
+}
+```
+
+Key : magento.order.failed, magento.order.failed.validation
+
+**Failed Response:**
+
+```json
+Content-Type: application/json
+
+{
+    "status": false,
+    "message": "Something went wrong, Please try again"
+}
+```
+
+## Send screenshot from scraper
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/scrape/send-screenshot
+"website" : "www.brands-labels.com",
+"screenshot" : "insert-file-here"
+```
+
+**Successful Response:**
+```json
+{
+    "code": 200,
+    "data": [],
+    "message": "Screenshot saved successfully"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```
+

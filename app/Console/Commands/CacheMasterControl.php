@@ -57,42 +57,42 @@ class CacheMasterControl extends Command
             ]);
 
             // update cache for the cropped image references -- using in master control
-            Cache::remember('cropped_image_references', 15, function () {
+            Cache::remember('cropped_image_references', 30, function () {
                 return CroppedImageReference::count();
             });
 
             // update pending crop references -- using in master control
-            Cache::remember('pending_crop_reference', 15, function () {
+            Cache::remember('pending_crop_reference', 30, function () {
                 return Product::where('status_id', StatusHelper::$autoCrop)->where('stock', '>=', 1)->count();
             });
 
             // update pending crop references -- using in master control
-            Cache::remember('crop_reference_week_count', 15, function () {
+            Cache::remember('crop_reference_week_count', 30, function () {
                 return CroppedImageReference::where('created_at', '>=', \Carbon\Carbon::now()->subDays(7)->startOfDay())->count();
             });
 
-            Cache::remember('cronLastErrors', 15, function () {
+            Cache::remember('cronLastErrors', 30, function () {
                 return \App\CronJob::join("cron_job_reports as cjr", "cron_jobs.signature", "cjr.signature")
                     ->where("cjr.start_time", '>', \DB::raw('NOW() - INTERVAL 24 HOUR'))->where("cron_jobs.last_status", "error")->groupBy("cron_jobs.signature")->get();
             });
 
             // update crop reference daily count -- using in master control
-            Cache::remember('crop_reference_daily_count', 15, function () {
+            Cache::remember('crop_reference_daily_count', 30, function () {
                 return CroppedImageReference::whereDate('created_at', Carbon::today())->count();
             });
 
             // pending crop category -- using in master control
-            Cache::remember('pending_crop_category', 15, function () {
+            Cache::remember('pending_crop_category', 30, function () {
                 return Product::where('status_id', StatusHelper::$attributeRejectCategory)->where('stock', '>=', 1)->count();
             });
 
             // status count -- using in master control
-            Cache::remember('status_count', 15, function () {
+            Cache::remember('status_count', 30, function () {
                 return StatusHelper::getStatusCount();
             });
 
             // scraped product in stock -- using in master control
-            Cache::remember('result_scraped_product_in_stock', 15, function () {
+            Cache::remember('result_scraped_product_in_stock', 30, function () {
                 $sqlScrapedProductsInStock = "
                     SELECT
                         COUNT(DISTINCT(sp.sku)) as ttl
@@ -110,8 +110,7 @@ class CacheMasterControl extends Command
                         s.supplier_status_id=1 AND
                         sp.validated=1 AND
                         sp.website!='internal_scraper' AND
-                            
-                ";
+                        sp.last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)";
 
                 return DB::select($sqlScrapedProductsInStock);
             });
@@ -119,7 +118,7 @@ class CacheMasterControl extends Command
             //Getting Customer Chat
             $chat = ChatMessage::where('created_at','>=', Carbon::now()->subDay()->toDateTimeString());
 
-            Cache::remember('result_customer_chat', 5, function () use ($chat) {
+            Cache::remember('result_customer_chat', 30, function () use ($chat) {
 
                 $chatCustomers = clone $chat;
                 $customerChats = $chatCustomers->select('customer_id')->whereNotNull('customer_id')->whereNotNull('number')->orderBy('created_at', 'desc')->groupBy('customer_id')->get()->toArray();
@@ -140,7 +139,7 @@ class CacheMasterControl extends Command
             });
 
             //Getting Supplier Chat
-            Cache::remember('result_supplier_chat', 5, function () use ($chat) {
+            Cache::remember('result_supplier_chat', 30, function () use ($chat) {
 
                 $chatSuppliers = clone $chat;
 
@@ -164,7 +163,7 @@ class CacheMasterControl extends Command
             });
 
             //Getting Vendor Chat
-            Cache::remember('result_vendor_chat', 5, function () use ($chat) {
+            Cache::remember('result_vendor_chat', 30, function () use ($chat) {
 
                 $vendorChats = $chat->select('vendor_id')->whereNotNull('vendor_id')->orderBy('created_at', 'desc')->groupBy('vendor_id')->get()->toArray();
 
@@ -185,19 +184,19 @@ class CacheMasterControl extends Command
 
             });
 
-            Cache::remember('reply_categories', 15, function () use ($chat) {
+            Cache::remember('reply_categories', 30, function () use ($chat) {
                 return $reply_categories = ReplyCategory::all();
             });
 
-            Cache::remember('vendorReplier', 15, function () use ($chat) {
+            Cache::remember('vendorReplier', 30, function () use ($chat) {
                 return $vendorReplier = \App\Reply::where("model", "Vendor")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
             });
 
-            Cache::remember('supplierReplier', 15, function () use ($chat) {
+            Cache::remember('supplierReplier', 30, function () use ($chat) {
                 return $supplierReplier = \App\Reply::where("model", "Supplier")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
             });
 
-            Cache::remember('latestScrapRemarks', 15, function () use ($chat) {
+            Cache::remember('latestScrapRemarks', 30, function () use ($chat) {
                 return \DB::select("
                     select * 
                     from scrap_remarks as sr 

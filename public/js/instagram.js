@@ -31527,6 +31527,7 @@
                             $(".media-manager .dimmer").addClass("active");
                         },
                         success: function (t) {
+
                             ($media_container = $(".media-manager .media-files-container")),
                                 $media_container.empty(),
                                 $(".media-manager .dimmer").removeClass("active"),
@@ -31543,6 +31544,14 @@
                                             '" class="imagecheck-image">        </figure>    </label><p style="font-size: 11px;">'+e.sitename+'</p></div>'
                                     );
                                 });
+
+                                if($attachImages.length)
+                                {
+                                    $media_container.append($attachImages);
+                                   
+                                }
+
+                                
                         },
                     });
             },

@@ -11,6 +11,34 @@
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
+         #loading-image-model {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin: -50px 0px 0px -50px;
+        }
+        .selectgroup-item {
+            -ms-flex-positive: 1;
+            flex-grow: 1;
+            position: relative;
+        }
+        .selectgroup-button {
+            display: block;
+            border: 1px solid rgba(0,40,100,.12);
+            text-align: center;
+            padding: .375rem 1rem;
+            position: relative;
+            cursor: pointer;
+            border-radius: 3px;
+            color: #9aa0ac;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            font-size: .9375rem;
+            line-height: 1.5rem;
+            min-width: 2.375rem;
+        }
     </style>
 @endsection
 
@@ -121,6 +149,7 @@
 
 @include('marketing.accounts.partials.add-modal')
 @include('marketing.accounts.partials.multiple-image')
+@include('marketing.accounts.partials.account-history')
 
    
 @endsection
@@ -271,28 +300,87 @@
         $('#addModal').modal('show');         
     } 
 
-    function postImage(id) {
+    $(document).on("click",".account-history",function(e) {
+        e.preventDefault();
+            var account_id = $(this).data("id");
+            $.ajax({
+                url: '/instagram/history',
+                type: 'POST',
+                data : { "_token": "{{ csrf_token() }}", account_id : account_id },
+                dataType: 'json',
+                beforeSend: function () {
+                  $("#loading-image").show();
+                },
+                success: function(result){
+                    $("#loading-image").hide();
+
+                    if(result.code == 200) {
+                       var t = '';
+                       $.each(result.data,function(k,v) {
+                          t += `<tr><td>`+v.account_id+`</td>`;
+                          t += `<td>`+v.log_title+`</td>`;
+                          t += `<td>`+v.log_description+`</td>`;
+                          t += `<td>`+v.created_at+`</td>`;
+                          t += `<td>`+v.updated_at+`</td></tr>`;
+                       });
+                    }
+                    $("#category-history-modal").find(".show-list-records").html(t);
+                    $("#category-history-modal").modal("show");
+                },
+                error: function (){
+                    $("#loading-image").hide();
+                }
+            });
+       });
+
+    function openModel(id) {
+        $('#account_id').val(id);
+        $('#largeImageModal').modal('show');         
+    }
+
+    $('#get-images').click(function (e) { 
+        e.preventDefault();
+        
+        if(!$('input[name="image_text"]').val()){
+            $('input[name="image_text"]').focus();
+            return false;
+        }
+        if(!$('input[name="type"]').val()){
+            $('input[name="type"]').focus();
+            return false;
+        }
+
+        console.log( $('input[name="type"]:checked').val(), $('input[name="image_text"]').val() );
+        postImage($('#account_id').val(), $('input[name="type"]:checked').val(), $('input[name="image_text"]').val());
+        
+    });
+    function postImage(id, type, text) {
         src = '/instagram/post/getImages'
         $.ajax({
                 url: src,
+                data: { type: type, keyword: text },
                 dataType: "json",
                 beforeSend: function() {
-                       $("#loading-image").show();
+                       $("#loading-image-model").show();
                 },
             }).done(function (data) {
-                html = ''
-                html += '<div class="row">';
-                for(image of data){
-                    html += '<div class="col-md-3"><img src="'+image+'" height="200" width="200" class="img-responsive"><br><input type="checkbox" style="margin-bottom: 10px;" class="image-select" value="'+image+'" ></div>';
+                if(data != null){
+
+                    html = ''
+                    html += '<div class="row">';
+                        for(image of data){
+                            html += '<div class="col-md-3"><img src="'+image+'" height="200" width="200" class="img-responsive"><br><input type="checkbox" style="margin-bottom: 10px;" class="image-select" value="'+image+'" ></div>';
+                        }
+                    html += '</div>'
+                    $('#images').empty().append(html);
+                    $('#account_id').val(id)
+                }else{
+                    alert('No data found');
                 }
-                
-                html += '</div>'
-                $('#images').empty().append(html);
-                $('#account_id').val(id)
-                $('#largeImageModal').modal('show')
-                console.log(data)
+                $("#loading-image-model").hide();
             }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                alert('No response from server');
+                $("#loading-image-model").hide();
+                alert('No data found');
             });
         } 
 
@@ -303,8 +391,10 @@
         $('.modal-body input:checked').each(function() {
             selected.push($(this).val());
         });
+
         if(selected.length == 0){
-            alert('Please select image')
+            alert('Please select image');
+            return false;
         }else{
             $.ajax({
             url: '/instagram/post/getCaptions',
@@ -313,7 +403,6 @@
                    $("#loading-image").show();
             },
             }).done(function (data) {
-                console.log(data)
                 html = ''
                 select = ''
                 select += '<select class="form-control selected-caption">' 
@@ -331,7 +420,6 @@
                 $('#next_button').hide();
                 $('#submit_button').show();
                 
-                alert('selected')
             }).fail(function (jqXHR, ajaxOptions, thrownError) {
                 alert('No response from server');
             });
@@ -432,7 +520,7 @@
             },
         }).done(function (data) {
             $("#loading-image").hide();
-            alert('Liked User Post Successfully')
+            alert('All request accepted Successfully')
         }).fail(function (jqXHR, ajaxOptions, thrownError) {
             alert('No response from server');
         });

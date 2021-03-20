@@ -17,10 +17,20 @@ class EmailAddressesController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {
-        // $emailAddress = EmailAddress::paginate(15);
-        $emailAddress = EmailAddress::select('email_addresses.*', DB::raw('(SELECT is_success FROM email_run_histories WHERE email_address_id = email_addresses.id Order by id DESC LIMIT 1) as is_success'))->paginate(15);
-		$allStores = StoreWebsite::all();
+    {   
+        $query = EmailAddress::query();
+        $query->select('email_addresses.*', DB::raw('(SELECT is_success FROM email_run_histories WHERE email_address_id = email_addresses.id Order by id DESC LIMIT 1) as is_success'));
+        $columns = ['from_name', 'from_address', 'driver', 'host', 'port', 'encryption'];
+        
+        if( $request->keyword ){
+            foreach($columns as $column){
+                $query->orWhere($column, 'LIKE', '%' . $request->keyword . '%');
+            }
+        }
+
+        $emailAddress = $query->paginate();
+        $allStores    = StoreWebsite::all();
+
         return view('email-addresses.index', [
             'emailAddress' => $emailAddress,
 			'allStores' => $allStores

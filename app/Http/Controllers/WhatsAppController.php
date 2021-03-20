@@ -1306,6 +1306,9 @@ class WhatsAppController extends FindByNumberController
             $params['dubbizle_id'] = $dubbizleId;
             $params['customer_id'] = $customerId;
 
+            if( $vendor ){
+                $params['user_type'] = 1;
+            }
             
 
 
@@ -1446,6 +1449,9 @@ class WhatsAppController extends FindByNumberController
                         $message->save();
                     }
                 }
+                
+                $vendor->store_website_id = 1;
+                //\App\Helpers\MessageHelper::sendwatson( $vendor, $params['message'], true , $message, null, null, $userType = 'vendor');
             }
 
             // check if the supplier message has been set then we need to send that message to erp user
@@ -2081,6 +2087,7 @@ class WhatsAppController extends FindByNumberController
                     $params = [];
                     $params['message'] = $request->get('message', '');
                     $params['erp_user'] = $request->get('user_id', 0);
+                    $params['user_id'] = $request->get('user_id', 0);
                     $params['approved'] = 1;
                     $params['status'] = 2;
 
@@ -3769,26 +3776,29 @@ class WhatsAppController extends FindByNumberController
                     if ($context == 'task') {
                         $sender = User::find($message->user_id);
 
+                        $isUser = false;
                         if ($message->erp_user == '') {
                             $receiver = Contact::find($message->contact_id);
                         } else {
+                            $isUser = true;
                             $receiver = User::find($message->erp_user);
                         }
 
                         $phone = @$receiver->phone;
-                        $whatsapp_number = $sender->whatsapp_number;
+                        $whatsapp_number = ($receiver && $isUser) ? $receiver->whatsapp_number : $sender->whatsapp_number;
                     } else {
                         if ($context == 'user') {
                             $sender = User::find($message->user_id);
-
+                            $isUser = false;
                             if ($message->erp_user != '') {
+                                $isUser = true;
                                 $receiver = User::find($message->erp_user);
                             } else {
                                 $receiver = Contact::find($message->contact_id);
                             }
 
                             $phone = $receiver->phone;
-                            $whatsapp_number = $sender->whatsapp_number;
+                            $whatsapp_number = ($receiver && $isUser) ? $receiver->whatsapp_number : $sender->whatsapp_number;
                         } else {
                             if ($context == 'dubbizle') {
                                 $dubbizle = Dubbizle::find($message->dubbizle_id);

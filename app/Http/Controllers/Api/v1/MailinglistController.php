@@ -7,6 +7,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\StoreWebsite;
 use App\Mailinglist;
+use App\WebsiteStoreView;
+use App\Website;
+use App\Language;
 
 class MailinglistController extends Controller
 {   
@@ -17,10 +20,21 @@ class MailinglistController extends Controller
     *@param $email
     *@param $store_website_id
     */ 
-    public function create_customer($email ,  $store_website_id) {
+    public function create_customer($email ,  $store_website_id, $storeName = null, $language = null) {
+
         $customer = new Customer;
+
+        if( !empty( $language ) ){
+            $language = explode("_", $language);
+            $language = end($language);
+            if ( !empty( $language ) ) {
+                $customer->language = $language;
+            }
+        }
+
         $customer->email            = $email;
         $customer->store_website_id = $store_website_id;
+        $customer->store_name = $storeName ;
         $customer->save();
         return $customer;
     }
@@ -45,19 +59,22 @@ class MailinglistController extends Controller
     public function add(Request $request) {
         // Step1
         $store_website = StoreWebsite::Where('website'  , $request->website )->first();
-
         // Step 2
         if (!$store_website) {
-            $message = $this->generate_erp_response("newsletter.success", 0, $default = "Store website not found");
+            $message = $this->generate_erp_response("newsletter.failed", 0, $default = "Store website not found", request('lang_code'));
            return response()->json(["code" => 200, "message" => $message]);
         }
         // Step 3
         $customer = $this->get_customer($request->get("email") , $store_website->id );
 
-        if (!$customer) {
-          $customer =  $this->create_customer( $request->get("email") , $store_website->id );
-        } 
+        if( $customer && $customer->newsletter == 1  && $customer->store_website_id == $store_website->id ) {
+            $message = $this->generate_erp_response("newsletter.failed.already_subscribed", $store_website->id, $default = "You have already subscibed newsletter", request('lang_code') );
+            return response()->json(["code" => 500, "message" => $message ]);
+        }
 
+        if (!$customer) {
+            $customer =  $this->create_customer( $request->get("email") , $store_website->id, $request->get("store_name",null) ,$request->lang_code );
+        } 
 
         // Step4
         $mailinglist = Mailinglist::where('website_id', $store_website->id)->get();
@@ -67,8 +84,11 @@ class MailinglistController extends Controller
             $this->addToList($m->remote_id, $request->get("email"));
         }
 
+        $customer->newsletter = 1;
+        $customer->save();
+
         // return response()->json(["code" => 200, "message" => "Done", "data" => $request->all()]);
-        $message = $this->generate_erp_response("newsletter.success", $store_website->id, $default = "Successfully added");
+        $message = $this->generate_erp_response("newsletter.success", $store_website->id, $default = "Successfully added", request('lang_code'));
         return response()->json(["code" => 200, "message" => $message ]);
     }
 
