@@ -131,6 +131,7 @@ use App\Console\Commands\scrappersImagesDelete;
 use App\Console\Commands\InstagramHandler;
 use App\Console\Commands\SendDailyReports;
 use App\Console\Commands\InsertPleskEmail;
+use App\Console\Commands\SendDailyPlannerNotification;
 
 class Kernel extends ConsoleKernel
 {
@@ -258,6 +259,7 @@ class Kernel extends ConsoleKernel
         scrappersImagesDelete::class,
         InstagramHandler::class,
         SendDailyReports::class,
+        SendDailyPlannerNotification::class,
         InsertPleskEmail::class
     ];
 
@@ -551,6 +553,7 @@ class Kernel extends ConsoleKernel
         $schedule->command("scrappersImagesDelete")->daily();
         //cron for instagram handler daily basis
         $schedule->command("instagram:handler")->everyMinute()->withoutOverlapping();
+        $schedule->command("send-daily-planner-notification")->everyMinute();
     }
 
     /**

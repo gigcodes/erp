@@ -698,6 +698,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Daily Planner
     Route::post('dailyplanner/complete', 'DailyPlannerController@complete')->name('dailyplanner.complete');
     Route::post('dailyplanner/reschedule', 'DailyPlannerController@reschedule')->name('dailyplanner.reschedule');
+    Route::post('dailyplanner/history', 'DailyPlannerController@history')->name('dailyplanner.history');
+    Route::post('dailyplanner/resend-notification', 'DailyPlannerController@resendNotification')->name('dailyplanner.resend.notification');
     Route::resource('dailyplanner', 'DailyPlannerController');
 
     Route::resource('refund', 'RefundController');

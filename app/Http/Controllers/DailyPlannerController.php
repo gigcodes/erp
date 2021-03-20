@@ -7,6 +7,9 @@ use App\User;
 use App\Task;
 use App\DailyActivity;
 use App\Instruction;
+use App\UserEvent\UserEvent;
+use App\DailyActivitiesHistories;
+use App\Mails\Manual\SendDailyActivityReport;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -129,6 +132,120 @@ class DailyPlannerController extends Controller
         'spentTime'         => $spentTime
       ]);
     }
+
+	/**
+     * Show the planner history.
+     *
+     * @return \Illuminate\Http\Response
+     */
+	public function history( Request $request ){
+
+		if( $request->id ){
+			$history = DailyActivitiesHistories::where( 'daily_activities_id', $request->id )->orderBy("created_at","desc")->get();
+			return response()->json( ["code" => 200 , "data" => $history] );
+		}
+	}
+
+	/**
+     * Resend notification.
+     *
+     * @return \Illuminate\Http\Response
+     */
+	public function resendNotification( Request $request ){
+
+		if( $request->id ){
+
+			try {
+				$events = UserEvent::where( 'daily_activity_id', $request->id)->get();
+				$userWise           = [];
+				$vendorParticipants = [];
+
+				if (!$events->isEmpty()) {
+					foreach ($events as $event) {
+						$userWise[$event->user_id][] = $event;
+						$participants                = $event->attendees;
+						if (!$participants->isEmpty()) {
+							foreach ($participants as $participant) {
+								if ($participant->object == \App\Vendor::class) {
+									$vendorParticipants[$participant->object_id] = $event;
+								}
+							}
+						}
+					}
+				}
+
+				if (!empty($userWise)) {
+					foreach ($userWise as $id => $events) {
+						// find user into database
+						$user = \App\User::find($id);
+						// if user exist
+						if (!empty($user)) {
+							$notification   = [];
+							$notification[] = "Following Event Schedule on within the next 30 min";
+							$no             = 1;
+
+							foreach ($events as $event) {
+								$notification[] = $no . ") [" . $event->start . "] => " . $event->subject;
+								$no++;
+
+								$history = [
+									'daily_activities_id' => $event->daily_activity_id,
+									'title'               => 'User : '.$user->name. 'User email : '.$user->email,
+									'description'         => "[" . $event->start. "]  => " . $event->subject,
+								];
+								DailyActivitiesHistories::insert( $history );
+							}
+
+							$params['user_id'] = $user->id;
+							$params['message'] = implode("\n", $notification);
+							// send chat message
+							$chat_message = \App\ChatMessage::create($params);
+							// send
+							app('App\Http\Controllers\WhatsAppController')
+								->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
+							
+						
+
+						}
+					}
+				}
+
+				if (!empty($vendorParticipants)) {
+					foreach ($vendorParticipants as $id => $vendorParticipant) {
+						$vendor = \App\Vendor::find($id);
+						if (!empty($vendor)) {
+							$notification   = [];
+							$notification[] = "Following Event Schedule on within the next 30 min";
+							$no             = 1;
+							foreach ($events as $event) {
+								$notification[] = $no . ") [" . $event->start . "] => " . $event->subject;
+								$no++;
+								$history = [
+									'daily_activities_id' => $event->daily_activity_id,
+									'title'               => 'Vendor : '.$vendor->name,
+									'description'         => "[" . $event->start . "] => " . $event->subject,
+								];
+								DailyActivitiesHistories::insert( $history );
+							}
+
+							$params['vendor_id'] = $vendor->id;
+							$params['message']   = implode("\n", $notification);
+							// send chat message
+							$chat_message = \App\ChatMessage::create($params);
+							// send
+							app('App\Http\Controllers\WhatsAppController')
+								->sendWithThirdApi($vendor->phone, $vendor->whatsapp_number, $params['message'], false, $chat_message->id);
+						}
+					}
+				}
+				
+				return response()->json( ["code" => 200 , "data" => 'Successfully sent'] );
+
+			} catch (\Throwable $th) {
+				return response()->json( ["code" => 500 , "data" => $th->getMessage() ] );
+			}
+		}
+	}
 
     /**
      * Show the form for creating a new resource.
