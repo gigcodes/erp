@@ -235,6 +235,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 
     $(document).on('click', '.unmerge-brand', function(e) {
         e.preventDefault();
+        var $this = $(this);
         if(confirm("Do you want to unmerge this brand?")) {
             var brand_name = $(this).parents().eq(1).find('span').first().text();
             var from_brand_id = $(this).data('id'); 
@@ -249,7 +250,8 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 },
                 success: function(response) {
                     toastr['success']((typeof response.message != "undefined") ? response.message : "Brand unmerged successfully", "success");
-                    location.reload();
+                    $this.closest("p").remove();
+                    //location.reload();
                 },
                 error: function(response){
                     toastr['error'](response.responseJSON.message, 'error');
