@@ -187,10 +187,12 @@
                         </div>
                     </div>
                     <!-- Search Network -->
-                    
                 </div>
                 <!-- FILTERS -->
             </form>
+        </div>
+        <div class="col-md-4 pb-2">
+            <a href="?reauth=true" class="btn btn-info "> Refresh Auth token </a>
         </div>
     </div>
 

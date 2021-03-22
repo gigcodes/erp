@@ -93,33 +93,37 @@ class googleAddsV6Controller extends Controller
                 'https://www.googleapis.com/auth/webmasters.readonly',
             ));
             $gClient->setAccessType("offline");          
-            // $google_oauthV2 = new \Google_Service_Oauth2($gClient);
-            // if ($request->get('code')){
-            //     $gClient->authenticate($request->get('code'));
-            //     dd($gClient->getAccessToken());
-            // }
-            // if ($gClient->getAccessToken()){
-            //     dump('get-access-token');
-            //     dd($gClient->getAccessToken()['access_token']);
-            // }else{
-            //     $authUrl = $gClient->createAuthUrl();
-            //     return redirect()->to($authUrl);
-            // }
+			$google_oauthV2 = new \Google_Service_Oauth2($gClient);
+			if ($request->get('code')){
+				$gClient->authenticate($request->get('code'));
+			}
+			if ($gClient->getAccessToken()){
+				$file      = file(storage_path('google_ads_php.ini'));
+				$edit_file = str_replace( $file[30], 'refreshToken = "'.$gClient->getAccessToken()['access_token'].'"'.PHP_EOL.'', file_get_contents( storage_path('google_ads_php.ini') ));
+				file_put_contents( storage_path('google_ads_php.ini'), $edit_file );
+				return redirect()->route('google-keyword-search-v6')->with('success','New token generated successfully');
+			}else{
+				if( request('reauth') == 'true' ){
+					$authUrl = $gClient->createAuthUrl();
+					return redirect()->to($authUrl);
+				}
+			}
 
         // Either pass the required parameters for this example on the command line, or insert them
         // into the constants above.
         // Generate a refreshable OAuth2 credential for authentication.
+        if (!$request->ajax()) {
+            $languages = $this->getGoogleLanguages();
+		    $locations = $this->getGooglelocations();
+            return view( 'google.google-adds.index-v6',compact('languages','locations') );
+        }
+
         $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile(storage_path('google_ads_php.ini'))->build();
 
         // Construct a Google Ads client configured from a properties file and the
         // OAuth2 credentials above.
         $googleAdsClient = (new GoogleAdsClientBuilder())->fromFile(storage_path('google_ads_php.ini'))->withOAuth2Credential($oAuth2Credential)->build();
         
-        if (!$request->ajax()) {
-            $languages = $this->getGoogleLanguages();
-		    $locations = $this->getGooglelocations();
-            return view( 'google.google-adds.index-v6',compact('languages','locations') );
-        }
         try {
             
 			if( $request->location ){
