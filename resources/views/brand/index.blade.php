@@ -247,8 +247,8 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                     'brand_name': brand_name,
                     'from_brand_id': from_brand_id
                 },
-                success: function() {
-                    toastr['success']('Brand unmerged successfully', 'success');
+                success: function(response) {
+                    toastr['success']((typeof response.message != "undefined") ? response.message : "Brand unmerged successfully", "success");
                     location.reload();
                 },
                 error: function(response){
