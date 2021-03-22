@@ -37,7 +37,10 @@ class ProductsCreator
         if ($supplierModel == null) {
             // Debug
             Log::channel('productUpdates')->debug("[Error] Supplier is null " . $image->website);
-
+            // check if the object is related to scraped product then we will add the error over there
+            $image->validated = 0;
+            $image->validation_result = "[Error] Supplier is null " . $image->website." while adding sku ".$image->sku;
+            $image->save();
             // Return false
             return false;
         } else {
@@ -98,7 +101,9 @@ class ProductsCreator
             if (!$product) {
                 // Debug
                 Log::channel('productUpdates')->debug("[Error] No product!");
-
+                $image->validated = 0;
+                $image->validation_result = "[Error] No product! " . $image->website." while adding sku ".$image->sku;
+                $image->save();
                 // Return false
                 return false;
             }
@@ -324,6 +329,9 @@ class ProductsCreator
 
         if ($product === null) {
             Log::channel('productUpdates')->debug("[Skipped] Product is null");
+            $image->validated = 0;
+            $image->validation_result = "[Skipped] Product is null " . $image->website." while adding sku ".$image->sku;
+            $image->save();
             return;
         }
         // Changed status to auto crop now
@@ -411,6 +419,11 @@ class ProductsCreator
         } catch (\Exception $exception) {
             Log::channel('productUpdates')->alert("[Exception] Couldn't create product");
             Log::channel('productUpdates')->alert($exception->getMessage());
+
+            $image->validated = 0;
+            $image->validation_result = "[Exception] Couldn't create product " . $exception->getMessage()." while adding sku ".$image->sku;
+            $image->save();
+
             return;
         }
 
