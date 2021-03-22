@@ -115,7 +115,7 @@ class TaskModuleController extends Controller {
 			$isCompleteWhereClose = ' AND is_verified IS NULL ';
 
 			if(!Auth::user()->isAdmin()) {
-				$isCompleteWhereClose = ' AND is_completed IS NULL AND is_verified IS NULL ';
+				$isCompleteWhereClose = ' AND is_verified IS NULL ';
 			}
 			if($request->filter_by == 1) {
 				$isCompleteWhereClose = ' AND is_completed IS NULL ';
