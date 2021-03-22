@@ -82,9 +82,10 @@
               <tr>
                 <th width="20%">Time</th>
                 <th width="40%">Planned</th>
-                <th width="20%">Actual Start Time</th>
-                <th width="20%">Actual Complete Time</th>
-                <th width="20%">Remark</th>
+                <th width="10%">Actual Start Time</th>
+                <th width="10%">Actual Complete Time</th>
+                <th width="10%">Remark</th>
+                <th width="40%">Action</th>
               </tr>
             </thead>
 
@@ -112,24 +113,7 @@
                                 - pending for {{ $task->pending_for }} days
                               @endif
                             </span>
-                            <span>
-                              @if ((is_null($task->is_completed) || $task->is_completed == '') && $task->id != '' &&  (is_null($task->actual_start_date) || $task->actual_start_date == "0000-00-00 00:00:00"))
-                                <button type="button" class="btn btn-image task-actual-start p-0 m-0" data-id="{{ $task->id }}" data-type="{{ $task->activity != '' ? 'activity' : 'task' }}"><img src="/images/youtube_128.png" /></button>
-                              @elseif(is_null($task->is_completed) || $task->is_completed == '' &&  $task->id != '')
-                                <button type="button" class="btn btn-image task-complete p-0 m-0" data-id="{{ $task->id }}" data-type="{{ $task->activity != '' ? 'activity' : 'task' }}"><img src="/images/incomplete.png" /></button>
-                              @endif
-                              @if($task->id != '')
-                                <button type="button" class="btn btn-image task-reschedule p-0 m-0" data-task="{{ $task }}" data-id="{{ $task->id }}" data-type="{{ $task->activity != '' ? 'activity' : 'task' }}">
-                                    <i class="fa fa-calendar" aria-hidden="true"></i>
-                                </button>
-                              @endif
-                              @if ($key == 3)
-                                <button type="button" class="btn btn-image show-tasks p-0 m-0" data-count="{{ $count }}" data-rowspan="{{ count($data) + 2 }}">v</button>
-                              @endif
-							  @if ($task->status != 'stop')
-							  	<button type="button" class="btn btn-image task-stop p-0 m-0" data-id="{{ $task->id }}" title="Stop"> <i class="fa fa-stop"></i> </button>
-                              @endif
-                            </span>
+                            
                           </div>
                         </td>
                         <td class="p-2 task-start-time">{{ $task->actual_start_date != '0000-00-00 00:00:00' ? \Carbon\Carbon::parse($task->actual_start_date)->format('d-m H:i') : '' }}</td>
@@ -154,6 +138,26 @@
                             </span>
                           </span>
                         </td>
+						<td class="p-2">
+							@if ((is_null($task->is_completed) || $task->is_completed == '') && $task->id != '' &&  (is_null($task->actual_start_date) || $task->actual_start_date == "0000-00-00 00:00:00"))
+								<button type="button" class="btn btn-image task-actual-start p-0 m-0" data-id="{{ $task->id }}" data-type="{{ $task->activity != '' ? 'activity' : 'task' }}"><img src="/images/youtube_128.png" /></button>
+							@elseif(is_null($task->is_completed) || $task->is_completed == '' &&  $task->id != '')
+								<button type="button" class="btn btn-image task-complete p-0 m-0" data-id="{{ $task->id }}" data-type="{{ $task->activity != '' ? 'activity' : 'task' }}"><img src="/images/incomplete.png" /></button>
+							@endif
+							@if($task->id != '')
+								<button type="button" class="btn btn-image task-reschedule p-0 m-0" data-task="{{ $task }}" data-id="{{ $task->id }}" data-type="{{ $task->activity != '' ? 'activity' : 'task' }}">
+									<i class="fa fa-calendar" aria-hidden="true"></i>
+								</button>
+							@endif
+							@if ($key == 3)
+								<button type="button" class="btn btn-image show-tasks p-0 m-0" data-count="{{ $count }}" data-rowspan="{{ count($data) + 2 }}">v</button>
+							@endif
+							@if ($task->status != 'stop')
+								<button type="button" class="btn btn-image task-stop p-0 m-0" data-id="{{ $task->id }}" title="Stop"> <i class="fa fa-stop"></i> </button>
+							@endif
+							<button type="button" class="btn btn-image task-resend p-0 m-0" data-id="{{ $task->id }}" title="Resend"> <i class="fa fa-send"></i> </button>
+							<button type="button" class="btn btn-image task-history p-0 m-0" data-id="{{ $task->id }}" title="Resend"> <i class="fa fa-history"></i> </button>
+						</td>
                       </tr>
                   @endforeach
                 @else
@@ -238,6 +242,7 @@
 
     {{-- @include('partials.modals.remarks') --}}
     @include('partials.modals.reschedule-dailyplanner')
+    @include('partials.modals.history-dailyplanner')
 @endsection
 
 
@@ -476,11 +481,82 @@
 			button.remove();
         }).fail(function(response) {
             
-            toastr['success']('Sorry, Something went wrong!', 'success');
+            toastr['error']('Sorry, Something went wrong please try again!', 'error');
         });
 	  
       
     });
+
+	$(document).on("click",".task-history",function(e) {
+        e.preventDefault();
+		var id = $(this).data("id");
+		$.ajax({
+			url: '/dailyplanner/history',
+			type: 'POST',
+			data : { _token: "{{ csrf_token() }}", id : id },
+			dataType: 'json',
+			beforeSend: function () {
+				$("#loading-image").show();
+			},
+			success: function(result){
+				$("#loading-image").hide();
+
+				if(result.code == 200) {
+					var t = '';
+					$.each(result.data,function(k,v) {
+						t += `<tr><td>`+v.daily_activities_id+`</td>`;
+						t += `<td>`+v.title+`</td>`;
+						t += `<td>`+v.description+`</td>`;
+						t += `<td>`+v.created_at+`</td>`;
+						t += `<td>`+v.updated_at+`</td></tr>`;
+					});
+
+					if( t == '' ){
+						t = '<tr><td colspan="5" class="text-center">No data found</td></tr>';
+					}
+				}
+				$("#category-history-modal").find(".show-list-records").html(t);
+				$("#category-history-modal").modal("show");
+			},
+			error: function (){
+				$("#loading-image").hide();
+			}
+		});
+	});
+
+	$(document).on("click",".task-resend",function(e) {
+        e.preventDefault();
+		var button = $(this);
+		if(! confirm("Are you sure to resend this notification?") ){
+			return false;
+		}
+
+		var id = $(this).data("id");
+		$.ajax({
+			url: '/dailyplanner/resend-notification',
+			type: 'POST',
+			data : { _token: "{{ csrf_token() }}", id : id },
+			dataType: 'json',
+			
+			beforeSend: function () {
+				$("#loading-image").show();
+				button.prop('disabled', true);
+			},
+			success: function(result){
+				$("#loading-image").hide();
+				if(result.code == 200) {
+					toastr['success'](result.message, 'success');  
+				}else{
+					toastr['error']('Sorry, Something went wrong please try again!', 'error');
+				}
+				button.prop('disabled', false);
+			},
+			error: function (){
+				toastr['error']('Sorry, Something went wrong please try again!', 'error');
+				button.prop('disabled', false);
+			}
+		});
+	});
 
     $(document).on('click', '.show-tasks', function() {
       var count = $(this).data('count');

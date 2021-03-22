@@ -698,6 +698,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Daily Planner
     Route::post('dailyplanner/complete', 'DailyPlannerController@complete')->name('dailyplanner.complete');
     Route::post('dailyplanner/reschedule', 'DailyPlannerController@reschedule')->name('dailyplanner.reschedule');
+    Route::post('dailyplanner/history', 'DailyPlannerController@history')->name('dailyplanner.history');
+    Route::post('dailyplanner/resend-notification', 'DailyPlannerController@resendNotification')->name('dailyplanner.resend.notification');
     Route::resource('dailyplanner', 'DailyPlannerController');
 
     Route::resource('refund', 'RefundController');
@@ -1805,6 +1807,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
 
      //direct message new
      Route::get('direct', 'DirectMessageController@index')->name('direct.index');
+    //  Route::get('direct', 'DirectMessageController@incomingPendingRead')->name('direct.index');
      Route::post('direct/send', 'DirectMessageController@sendMessage')->name('direct.send');
      Route::post('direct/sendImage', 'DirectMessageController@sendImage')->name('direct.send.file');
      Route::post('direct/newChats', 'DirectMessageController@incomingPendingRead')->name('direct.new.chats');
@@ -1812,6 +1815,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
      Route::post('direct/send-message', 'DirectMessageController@prepareAndSendMessage')->name('direct.send-message');
      Route::post('direct/latest-posts', 'DirectMessageController@latestPosts')->name('direct.latest-posts');
      Route::post('direct/messages', 'DirectMessageController@messages')->name('direct.messages');
+     Route::post('direct/history', 'DirectMessageController@history')->name('direct.history');
      Route::post('direct/infulencers-messages', 'DirectMessageController@influencerMessages')->name('direct.infulencers-messages');
 
 });

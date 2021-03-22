@@ -127,7 +127,10 @@ class QuickReplyController extends Controller
     public function getStoreWiseReplies($category_id, $store_website_id = null)
     {
         try {
-            $replies = Reply::where(['category_id' => $category_id, 'store_website_id' => $store_website_id])->get();
+            
+            $replies = ( $store_website_id ) 
+                        ? Reply::where(['category_id' => $category_id, 'store_website_id' => $store_website_id])->get()
+                        : Reply::where(['category_id' => $category_id])->get();
             return new JsonResponse(['status' => 1, 'data' => $replies]);
         } catch (\Exception $e) {
             return new JsonResponse(['status' => 0, 'message' => 'Try again']);

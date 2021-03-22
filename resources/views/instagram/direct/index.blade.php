@@ -11,7 +11,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
             font-size: 18px;
         }
         .type_msg.message_textarea {
-            width: 90%;
+            width: 100% !important;
             height: 60px;
         }
         .cls_remove_rightpadding{
@@ -59,20 +59,47 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
             <div class="col-lg-12 margin-tb">
                 <h2 class="page-heading">Direct Message</h2>
                 <div class="pull-right">
+                    <div class="pb-2">
+                        <button type="button" class="btn btn-xs btn-secondary" id="fetchNewMessage">Fetch new message</button>
+                    </div>
                 </div>
             </div>
         </div>
+        @include('partials.flash_messages')
+        <div class="row">
+        <div class="col-lg-12 margin-tb">
+            <div class="pull-left">
+              @if (Auth::user()->hasRole('Admin'))
+                <form action="" class="form-inline" method="GET">
+                    <div class="form-group mr-3">
+                            <input type="text" name="keyword" class="form-control" placeholder="Search keywords" value="{{ request('keyword') }}">
+                    </div>
+
+                    <div class="form-group ml-3">
+                        <select class="form-control from_account_list" name="form_account">
+                            <option value="">Select option</option>
+                            @foreach ($accounts as $item)
+                                <option value="{{ $item->id }}"> {{ $item->last_name }} </option>
+                            @endforeach
+                        </select>
+                    </div>
+                  <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                </form>
+              @endif
+            </div>
+        </div>
+    </div>
 
         <div class="row">
             <div class="table-responsive">
                 <table class="table table-striped table-bordered" id="direct-table">
                     <thead>
                         <tr>
-                            <th style="width: 5%;">Sr. No.</th>
+                            <th style="width: 1%;">Sr. No.</th>
                             <th style="width: 5%;">Site Name</th>
-                            <th style="width: 5%;">User</th>
+                            <th style="width: 10%;">User</th>
                             <th style="width: 10%;">Translation Language</th>
-                            <th style="width: 50%;">Communication</th>
+                            <th style="width: 30%;">Communication</th>
                             <th style="width: 10%;">Actions</th>
                         </tr>
                     </thead>
@@ -98,6 +125,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
     </div>
 @endsection
 @include('instagram.partials.customer-form-modals')
+@include('instagram.direct.history')
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
@@ -134,6 +162,47 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
 
         });
 
+        $(document).on("click",".task-history",function(e) {
+            e.preventDefault();
+            var btn = $(this);
+            var id = $(this).data("id");
+            $.ajax({
+                url: '{{ route('direct.history') }}',
+                type: 'POST',
+                data : { _token: "{{ csrf_token() }}", id : id },
+                dataType: 'json',
+                beforeSend: function () {
+                    btn.prop('disabled',true);
+                },
+                success: function(result){
+                    if(result.code == 200) {
+                        var t = '';
+                        $.each(result.data,function(k,v) {
+                            t += `<tr><td>`+v.title+`</td>`;
+                            t += `<td>`+v.description+`</td>`;
+                            t += `<td>`+v.created_at+`</td></tr>`;
+                        });
+                        if( t == '' ){
+                            t = '<tr><td colspan="5" class="text-center">No data found</td></tr>';
+                        }
+                    }
+                    $("#category-history-modal").find(".show-list-records").html(t);
+                    $("#category-history-modal").modal("show");
+                    btn.prop('disabled',false);
+                },
+                error: function (){
+                    btn.prop('disabled',false);
+                }
+            });
+        });
+
+        $('.attach-media-btn').on('click', function () {
+            event.preventDefault();
+            var form_account = $('#from_account_id'+$(this).data('target')).val();
+            window.location.href = $(this).attr('href')+'&from_account='+form_account
+            return false;
+        });
+
         $(document).on('click', '.expand-row', function () {
             var selection = window.getSelection();
             if (selection.toString().length === 0) {
@@ -141,38 +210,47 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                 $(this).find('.td-full-container').toggleClass('hidden');
             }
         });
-            $(document).on('change', '#categories', function () {
-                if ($(this).val() != "") {
-                    var category_id = $(this).val();
+        
+        $(document).on('change', '.categories_load', function () {
+            var thread_id = $(this).data('id');
+            if ($(this).val() != "") {
+                var category_id = $(this).val();
 
-                    var store_website_id = $('#selected_customer_store').val();
-                  /*  if(store_website_id == ''){
-                        store_website_id = 0;
-                    }*/
-                    $.ajax({
-                        url: "{{ url('get-store-wise-replies') }}"+'/'+category_id+'/'+store_website_id,
-                        type: 'GET',
-                        dataType: 'json'
-                    }).done(function(data){
-                        console.log(data);
-                        if(data.status == 1){
-                            $('#quick_replies').empty().append('<option value="">Quick Reply</option>');
-                            var replies = data.data;
-                            replies.forEach(function (reply) {
-                                $('#quick_replies').append($('<option>', {
-                                    value: reply.reply,
-                                    text: reply.reply,
-                                    'data-id': reply.id
-                                }));
-                            });
-                        }
-                    });
-
+                var store_website_id = $('#selected_customer_store').val();
+                 if(!store_website_id){
+                    var store_website_id = '0';
                 }
-            });
+                $.ajax({
+                    url: "{{ url('get-store-wise-replies') }}"+'/'+category_id+'/'+store_website_id,
+                    type: 'GET',
+                    dataType: 'json'
+                }).done(function(data){
+                    console.log(data);
+                    if(data.status == 1){
+                        $('#quick_replies'+thread_id).empty().append('<option value="">Quick Reply</option>');
+                        var replies = data.data;
+                        replies.forEach(function (reply) {
+                            $('#quick_replies'+thread_id).append($('<option>', {
+                                value: reply.reply,
+                                text: reply.reply,
+                                'data-id': reply.id
+                            }));
+                        });
+                        toastr['success']('Success', 'success');
+                    }
+                });
+
+            }
+        });
 
             function sendMessage(id){
+                
                 message = $('#message'+id).val();
+                if(message == ''){
+                    toastr['error']('Message field required', 'success');
+                    return false;
+                }
+                var from_account = $('#from_account_id'+id).val();
                 if(sendMessage){
                     $.ajax({
                         url: '{{ route('direct.send') }}',
@@ -182,17 +260,20 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                             "_token": "{{ csrf_token() }}", 
                             "message" : message,
                             "thread_id" : id,
+                            "from_account_id" : from_account,
                        },
+                    }).beforeSend( function() {
+                        
                     })
                     .done(function() {
                         $('#message'+id).val('');
-                        console.log("success");
+                        toastr['success']('Message sent', 'success');
                     })
                     .fail(function() {
-                        console.log("error");
+                        toastr['success']('Server error', 'success');
                     })
                     .always(function() {
-                        console.log("complete");
+                        
                     });
                     
                 }else{
@@ -200,8 +281,9 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                 }
             }
             $('.quick_comment_add').on("click", function () {
-                var textBox = $(".quick_comment").val();
-                var quickCategory = $('#categories').val();
+                var thread_id = $(this).data('id');
+                var textBox = $(".quick_comment"+thread_id).val();
+                var quickCategory = $('#categories'+thread_id).val();
 
                 if (textBox == "") {
                     alert("Please Enter New Quick Comment!!");
@@ -225,53 +307,47 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                         'store_website_id' : $('#selected_customer_store').val()
                     }
                 }).done(function (data) {
-                    console.log(data);
-                    $(".quick_comment").val('');
-                    $('#quick_replies').append($('<option>', {
+                    $(".quick_comment"+thread_id).val('');
+                    $('#quick_replies'+thread_id).append($('<option>', {
                         value: data.data,
                         text: data.data
                     }));
+                    toastr['success']('Success', 'success');
                 })
             });
 
-            $('#quick_replies').on("change", function(){
-                $('.message_textarea').text($(this).val());
+            $('.quick_replies').on("change", function(){
+                $('#message'+$(this).data('id')).text( $(this).val() );
             });
 
-            function getNewChats(){
-                
+            $('#fetchNewMessage').on('click', function () {
+                var button = $(this);
                 $.ajax({
-                url: '{{ route('direct.new.chats') }}',
+                    url: '{{ route('direct.new.chats') }}',
                     type: 'POST',
                     dataType: 'json',
                     data: {
                         '_token': "{{ csrf_token() }}",
                     },
                 beforeSend: function() {
-                       $("#loading-image").show();
+                    button.prop('disabled', true);
                 },
             
                 }).done(function (data) {
-                     $("#loading-image").hide();
-                    console.log(data);
+                    $("#loading-image").hide();
                     $("#direct-table tbody").empty().html(data.tbody);
                     if (data.links.length > 10) {
                         $('ul.pagination').replaceWith(data.links);
                     } else {
                         $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
                     }
-                    
+                    toastr['success']('Success!', 'success');
+                    button.prop('disabled', false);
                 }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                    alert('No response from server');
+                    button.prop('disabled', false);
+                    toastr['success']('No response from server', 'success');
                 });
-
-            }
-            $( document ).ready(function() {
-                setInterval(function(){
-                    getNewChats();
-                }, 60000);
             });
-            getNewChats();
     </script>
 
 @endsection

@@ -415,7 +415,7 @@ class BrandController extends Controller
                     $newBrand->save();
                 }
             } else {
-                return response()->json(['message' => 'Brand already exist!'], 422);
+                return response()->json(['message' => 'Brand unmerged successfully'], 200);
             }
             Activity::create([
                 'subject_type' => "Brand",
@@ -423,7 +423,7 @@ class BrandController extends Controller
                 'causer_id' => Auth::user()->id,
                 'description' => Auth::user()->name ." has unmerged ".$fromBrand->name. " to ".$request->brand_name
             ]);
-            return response()->json(["data" => []], 200);
+            return response()->json(['message' => 'Brand unmerged successfully',  "data" => []], 200);
         }
 
         return response()->json(["code" => 500 , "data" => [],"message" => "Please check valid brand exist"]);
