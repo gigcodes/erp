@@ -366,6 +366,7 @@ class ChatMessagesController extends Controller
                     'customer_id' => $chatMessage->customer_id,
                     'approved' => $chatMessage->approved,
                     'error_status' => $chatMessage->error_status,
+                    'error_info' => $chatMessage->error_info,
                     'is_queue' => $chatMessage->is_queue,
                     'is_reviewed' => $chatMessage->is_reviewed,
                     'quoted_message_id' => $chatMessage->quoted_message_id
