@@ -15,7 +15,7 @@ class AlterTableGoogleTranslationSettings extends Migration
     {
         //
         Schema::table("google_traslation_settings",function(Blueprint $table) {
-            $table->timestamp("last_error_at")->nullable()->after("last_error");
+            $table->timestamp("last_error_at")->nullable()->after("last_note");
         });
     }
 

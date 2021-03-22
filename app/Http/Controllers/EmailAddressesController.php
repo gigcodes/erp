@@ -184,8 +184,8 @@ class EmailAddressesController extends Controller
                 $accounts[] = [
                     "name"          => $translation->email,
                     "email"         => $translation->email,
-                    "last_error"    => $translation->last_error,
-                    "last_error_at" => $translation->last_note,
+                    "last_error"    => $translation->last_note,
+                    "last_error_at" => $translation->last_error_at,
                     "credential"    => $translation->account_json,
                     'store_website' => "N/A",
                     'status'        => $translation->status,
