@@ -60,6 +60,7 @@ class ProductController extends Controller
                         $result_input = $request->input();
                         $result_input["iscanceled"] = true;
                         $result_input["isrefund"] = true;
+                        $result_input["isreturn"] = true;
                         if($ProductCancellationPolicie){
                             $order_product->purchase_status;
                             //if($order_product->purchase_status == "Cancel"){
@@ -70,6 +71,7 @@ class ProductController extends Controller
                                     : $created->diffInDays($now);
                                 if($difference > $ProductCancellationPolicie->days_cancelation){
                                     $result_input["iscanceled"] = false;
+                                    $result_input["isreturn"] = false;
                                 }
                             //}else if($order_product->purchase_status == "Refund to be processed"){
                                 $created = new Carbon($order_product->shipment_date);
@@ -79,12 +81,14 @@ class ProductController extends Controller
                                     : $created->diffInDays($now);
                                 if($difference > $ProductCancellationPolicie->days_refund){
                                     $result_input["isrefund"] = false;
+                                    $result_input["isreturn"] = false;
                                 }
                            // }
                             // if status is cancelled already then return false
                         }
                         if($getOrder->order_status_id == 11) {
                             $result_input["iscanceled"] = false;
+                            $result_input["isreturn"] = false;
                         }
                             
                         $message = $this->generate_erp_response("order.cancel.success", 0, $default = "Success", request('lang_code'));
