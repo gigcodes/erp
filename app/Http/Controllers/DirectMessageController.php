@@ -16,6 +16,7 @@ use DB;
 use App\ReadOnly\SoloNumbers;
 use InstagramAPI\Media\Photo\InstagramPhoto;
 use App\ScrapInfluencer;
+use App\InstagramDirectMessagesHistory;
 Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class DirectMessageController extends Controller
@@ -23,9 +24,24 @@ class DirectMessageController extends Controller
     public function index()
     {
      
-    	$threads = InstagramThread::whereNotNull('instagram_user_id')->whereNotNull('account_id')->get();
-$select_brands = Brand::pluck('name','id');
-$solo_numbers = (new SoloNumbers)->all();
+    	$threads = InstagramThread::select('instagram_threads.*')->whereNotNull('instagram_threads.instagram_user_id')
+                        ->whereNotNull('instagram_threads.account_id')
+                        ->leftJoin('instagram_users_lists', 'instagram_threads.instagram_user_id', '=', 'instagram_users_lists.id')
+                        ->leftJoin('chat_messages', 'instagram_threads.thread_id', '=', 'chat_messages.unique_id');
+        if( request('form_account') ){
+            $threads->where('instagram_threads.account_id', request('form_account') );
+        }
+        if( request('keyword') ){
+            $threads->where('username','like', '%'.request('keyword').'%');
+            $threads->orWhere('message','like', '%'.request('keyword').'%');
+        }
+
+        $threads = $threads->groupBy('instagram_threads.id')->get();
+        $select_brands = Brand::pluck('name','id');
+        $solo_numbers = (new SoloNumbers)->all();
+
+        $accounts = Account::where('platform','instagram')->whereNotNull('proxy')->get();
+
     	// if ($request->ajax()) {
      //        return response()->json([
      //            'tbody' => view('instagram.direct.data', compact('threads'))->render(),
@@ -33,9 +49,21 @@ $solo_numbers = (new SoloNumbers)->all();
      //        ], 200);
      //    }
 
-    	return view('instagram.direct.index',['threads' => $threads,'select_brands' => $select_brands,'solo_numbers' => $solo_numbers]);
+    	return view('instagram.direct.index',['threads' => $threads,'select_brands' => $select_brands,'solo_numbers' => $solo_numbers, 'accounts' => $accounts ]);
     }
 
+    /**
+     * Show the history.
+     *
+     * @return \Illuminate\Http\Response
+     */
+	public function history( Request $request ){
+
+		if( $request->id ){
+			$history = InstagramDirectMessagesHistory::where('thread_id', $request->id )->orderBy("created_at","desc")->get();
+			return response()->json( ["code" => 200 , "data" => $history] );
+		}
+	}
 
     public function incomingPendingRead(Request $request)
     {
@@ -116,7 +144,7 @@ $solo_numbers = (new SoloNumbers)->all();
 
     	if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('instagram.direct.data', compact('threads'))->render(),
+                'tbody' => view('instagram.direct.data', compact('threads','accounts'))->render(),
                 'links' => (string)$threads->render()
             ], 200);
         }
@@ -284,11 +312,17 @@ $solo_numbers = (new SoloNumbers)->all();
     }
 
     public function sendMessage(Request $request) {
+
         $thread = InstagramThread::find($request->thread_id);
         $agent = $thread->account;
         $messageType = 1;
+
+        if( !empty($request->from_account_id) ){
+            $thread->account = Account::where('id',$request->from_account_id)->whereNotNull('proxy')->first();
+        }
+
         if($agent){
-        	$status = $this->sendMessageToInstagramUser($thread->account->last_name, $thread->account->password, $thread->account->proxy, $thread->instagramUser->username, $request->message);
+        	$status = $this->sendMessageToInstagramUser($thread->account->last_name, $thread->account->password, $thread->account->proxy, $thread->instagramUser->username, $request->message, $thread);
 		}
 		
         if ($status === false) {
@@ -337,30 +371,42 @@ $solo_numbers = (new SoloNumbers)->all();
 
 
     public function sendImage(Request $request)
-    {
-        
-        if($request->nothing){
-            $id = $request->nothing;
-            $thread = InstagramThread::find($id);
-            $agent = $thread->account;
-            $messageType = 1;
-            if($agent){
-                $images = json_decode($request->get("images"), true);
-                if($images){
-                    foreach ($images as $image) {
+    {   
+        try {
+            if($request->nothing){
+                $id = $request->nothing;
+                $thread = InstagramThread::find($id);
+                if( !empty($request->from_account) ){
+                    $account = Account::where('id',$request->from_account)->whereNotNull('proxy')->first();
+                    if( $account ){
+                        $thread->account = $account;
+                    }
+                }
+                $agent = $thread->account;
+                $messageType = 1;
+                if($agent){
+                    $images = json_decode($request->get("images"), true);
+                    if($images){
+                        foreach ($images as $image) {
                             $image = Media::find($image);
-                            $status = $this->sendFileToInstagramUser($thread->account->last_name, $thread->account->password, $thread->account->proxy, $thread->instagramUser->username, $image);
+                            $status = $this->sendFileToInstagramUser($thread->account->last_name, $thread->account->password, $thread->account->proxy, $thread->instagramUser->username, $image, $thread);
                         }
+                    }
+                    
                 }
                 
             }
             
+            return redirect()->route('direct.index')->with('success','Images send successfully');
+        } catch (\Throwable $th) {
+            return redirect()->route('direct.index')->with('error',$th->getMessage());
         }
-       
+
+        return redirect()->route('direct.index')->with('error','Something went wrong, Please try again later');
        
     }
 
-    private function sendFileToInstagramUser($sender, $password, $proxy , $receiver, $file) {
+    private function sendFileToInstagramUser($sender, $password, $proxy , $receiver, $file, $thread) {
         $i = new Instagram();
 
         try {
@@ -387,12 +433,19 @@ $solo_numbers = (new SoloNumbers)->all();
             ]
         ], $photo->getFile());
 
+        $history = [
+            'thread_id'   => $thread->thread_id,
+            'title'       => 'Send image',
+            'description' => 'Message send successfully',
+        ];
+
+        InstagramDirectMessagesHistory::insert( $history );
         return [true, $i->account_id, $file->filename];
 
 
     }
 
-    private function sendMessageToInstagramUser($sender, $password, $proxy, $receiver, $message) {
+    private function sendMessageToInstagramUser($sender, $password, $proxy, $receiver, $message, $thread) {
         $i = new Instagram();
 
         try {
@@ -412,14 +465,25 @@ $solo_numbers = (new SoloNumbers)->all();
         
 
         try {
-            $i->direct->sendText([
+            $resp = $i->direct->sendText([
                 'users' => [
                     $receiver
                 ]
             ], $message);
+
+            $history = [
+                'thread_id'   => $thread->thread_id,
+                'title'       => 'Send text message',
+                'description' => 'Message send successfully',
+            ];
         } catch (\Exception $exception) {
-            dd($exception);
+            $history = [
+                'thread_id'   => $thread->thread_id,
+                'title'       => 'Send text message',
+                'description' => $exception->getMessage()
+            ];
         }
+        InstagramDirectMessagesHistory::insert( $history );
         return [true, $i->account_id, $message];
 
     }
