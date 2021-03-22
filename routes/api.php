@@ -31,6 +31,7 @@ Route::post('mailinglist/add', 'Api\v1\MailinglistController@add');
 Route::get('scrape/queue', 'Products\ScrapeController@getUrlFromQueue');
 Route::get('scrape/process', 'Products\ScrapeController@processDataFromScraper');
 Route::post('scrape/send-screenshot', 'ScrapController@sendScreenshot');
+Route::post('scrape/send-position', 'ScrapController@sendPosition');
 
 Route::get('messages/{thread}', 'InstagramController@getThread');
 Route::post('messages/{thread}', 'InstagramController@replyToThread');

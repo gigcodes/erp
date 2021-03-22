@@ -96,7 +96,7 @@ class ScrapStatisticsController extends Controller
             JOIN
                 scraped_products ls
             ON
-                sc.scraper_name=ls.website
+                sc.scraper_name=sc.id
             WHERE
                 sc.scraper_name IS NOT NULL AND
                 ls.website != "internal_scraper" AND
@@ -544,6 +544,15 @@ class ScrapStatisticsController extends Controller
 
         return view("scrap.partials.screenshot-history", compact('screenshots'));
     }
+
+
+    public function positionHistory(Request $request)
+    {
+        $histories = \App\ScraperPositionHistory::where("scraper_id", $request->id)->latest()->paginate(1);
+
+        return view("scrap.partials.position-history", compact('histories'));
+    }
+
 
     public function taskList(Request $request)
     {
