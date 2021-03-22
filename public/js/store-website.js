@@ -115,6 +115,28 @@ var page = {
             page.getChildCategories(id);
 
         });
+
+
+        $(document).on("click",".btn-show-password",function() {
+             var block = $(this).closest(".subMagentoUser");
+             var password = block.find(".user-password");
+             const type = password.attr('type') === 'password' ? 'text' : 'password';
+                          password.attr('type', type);
+        });
+
+        $(document).on("click",".btn-copy-password",function() {
+             var block = $(this).closest(".subMagentoUser");
+             var password = block.find(".user-password");
+             
+              var $temp = $("<input>");
+              $("body").append($temp);
+              $temp.val(password.val()).select();
+              document.execCommand("copy");
+              $temp.remove();
+
+              alert("Copied!");
+        });
+
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -294,14 +316,20 @@ var page = {
                       '<div class="form-group">'+
                         '<div class="row">'+
                              '<label class="col-sm-12" for="password">Password</label>'+
-                             '<div class="col-sm-9 sub-pass">'+
+                             '<div class="col-sm-7 sub-pass">'+
                                 '<input type="password" name="password" value="" class="form-control user-password" id="password" placeholder="Enter Password">'+
                              '</div>'+
-                             '<div class="col-sm-3">'+
-                                '<button type="button" data-id="" class="btn btn-edit-magento-user" style="border:1px solid">'+
+                             '<div class="col-sm-5">'+
+                                '<button type="button" data-id="" class="btn btn-show-password btn-sm" style="border:1px solid">'+
+                                    '<i class="fa fa-eye" aria-hidden="true"></i>'+
+                                '</button>'+
+                                '<button type="button" data-id="" class="btn btn-copy-password btn-sm" style="border:1px solid">'+
+                                    '<i class="fa fa-clone" aria-hidden="true"></i>'+
+                                '</button>'+
+                                '<button type="button" data-id="" class="btn btn-edit-magento-user btn-sm" style="border:1px solid">'+
                                     '<i class="fa fa-check" aria-hidden="true"></i>'+
                                 '</button>'+
-                                '<button type="button" data-id="" class="btn btn-delete-magento-user" style="border:1px solid">'+
+                                '<button type="button" data-id="" class="btn btn-delete-magento-user btn-sm" style="border:1px solid">'+
                                     '<i class="fa fa-trash" aria-hidden="true"></i>'+
                                 '</button>'+
                              '</div>'+
