@@ -1158,3 +1158,30 @@ POST https://erp.theluxuryunlimited.com/api/scrape/send-screenshot
 }
 ```
 
+## Send position from scraper
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/scrape/send-position
+{
+    "website": "giglio",
+    "comment" : "Hello world"
+}
+```
+
+**Successful Response:**
+```json
+{
+    "code": 200,
+    "data": [],
+    "message": "History saved successfully"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```

@@ -269,6 +269,11 @@
                             </td> -->
                             <td width="10%">
                                 {{ !empty($supplier->scrapers_status) ? $supplier->scrapers_status : "N/A" }}
+                                <br>
+                                @php
+                                    $hasTask = $supplier->developerTask();
+                                @endphp
+                                {{ ($hasTask) ? "Task-Available" : "No-Task" }}
                             </td>
                             <td width="10%">
                                 <?php
@@ -289,6 +294,9 @@
                                 </button>
                                 <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-tasks-remote">
                                      <i class="fa fa-tasks"></i>
+                                </button>
+                                <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-position-history">
+                                     <i class="fa fa-address-card"></i>
                                 </button>
                             </td>
                             </tr>
@@ -1183,6 +1191,31 @@
                 alert('Please check laravel log for more information')
             });
         });
+
+
+        $(document).on("click",".get-position-history",function (e){
+            e.preventDefault();
+            var id = $(this).data("id");
+            $.ajax({
+                url: '/scrap/position-history',
+                type: 'GET',
+                data: {id: id},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Scraper Position History");
+                model.find(".modal-body").html(response);
+                model.modal("show");
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+
+
 
         $(document).on("click",".btn-create-task",function (e){
             e.preventDefault();
