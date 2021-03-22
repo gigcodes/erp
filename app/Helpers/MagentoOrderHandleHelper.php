@@ -100,13 +100,16 @@ class MagentoOrderHandleHelper extends Model
                         }
                         $payment_method = 'cashondelivery';
                     }
+
+                    $allStatus = OrderHelper::getStatus();
+
                     $magentoId = $order->increment_id;
                     $id        = \DB::table('orders')->insertGetId(
                         array(
                             'customer_id'     => $customer_id,
                             'order_id'        => $order->increment_id,
                             'order_type'      => 'online',
-                            'order_status'    => $order_status,
+                            'order_status'    => isset($allStatus[$order_status]) ? $allStatus[$order_status] : $order_status,
                             'order_status_id' => $order_status,
                             'payment_mode'    => $payment_method,
                             'order_date'      => $order->created_at,
