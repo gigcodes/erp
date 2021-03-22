@@ -4854,6 +4854,11 @@ class WhatsAppController extends FindByNumberController
             }
         }
 
+        $chatMessage = null;
+        if($chat_message_id > 0) {
+            $chatMessage = \App\ChatMessage::find($chat_message_id);
+        }
+
 
         // Set instanceId and token
         if (isset($config[$whatsapp_number])) {
@@ -4928,6 +4933,11 @@ class WhatsAppController extends FindByNumberController
             // DON'T THROW EXCEPTION
             //throw new \Exception("cURL Error #:" . $err);
             \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err);
+            if($chatMessage) {
+                $chatMessage->error_status = 1;
+                $chatMessage->error_info = (string)$number . ":" . $err;
+                $chatMessage->save();
+            }
             return false;
         } else {
             // Log curl response
@@ -4941,6 +4951,11 @@ class WhatsAppController extends FindByNumberController
                 // DON'T THROW EXCEPTION
                 //throw new \Exception("Something was wrong with message: " . $response);
                 \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message for number " . $number . ": " . $response);
+                if($chatMessage) {
+                    $chatMessage->error_status = 1;
+                    $chatMessage->error_info = (string)$number . ": " . $response;
+                    $chatMessage->save();
+                }
                 return false;
             } else {
                 // Log successful send
