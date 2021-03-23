@@ -13,7 +13,6 @@
                 <th scope="col">title</th>
                 <th scope="col">Description</th>
                 <th scope="col">Created At</th>
-                <th scope="col">Updated By</th>
               </tr>
             </thead>
             <tbody class="show-list-records" >

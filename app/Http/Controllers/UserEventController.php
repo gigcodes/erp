@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\User;
+use App\DailyActivitiesHistories;
 use App\UserEvent\UserEvent;
 use App\UserEvent\UserEventAttendee;
 use App\UserEvent\UserEventParticipant;
@@ -231,7 +232,12 @@ class UserEventController extends Controller
                 $userEventParticipant->save();
             }
         }
-
+        $history = [
+            'daily_activities_id' => $request->daily_activity_id,
+            'title'               => 'Event Edit',
+            'description'         => 'Event edit by '.Auth::user()->name,
+        ];
+        DailyActivitiesHistories::insert( $history );
         return redirect()->back()->with('success','success');
     }
 
@@ -253,11 +259,23 @@ class UserEventController extends Controller
         try {
             \App\DailyActivity::where('id', $id)->update(['status' => 'stop']);
             \App\DailyActivity::where('parent_row', $id)->where('for_date' , '>=' , Carbon::now()->toDateTimeString())->delete();
+            $history = [
+                'daily_activities_id' => $id,
+                'title'               => 'Event Stop',
+                'description'         => 'Event Stop by '.Auth::user()->name,
+            ];
+            DailyActivitiesHistories::insert( $history );
             return response()->json([
                 "code"    => 200, 
                 'message' => 'Event stop successfully',
             ]);
         } catch (\Throwable $th) {
+            $history = [
+                'daily_activities_id' => $id,
+                'title'               => 'Event Stop failed',
+                'description'         => $th->getMessage(),
+            ];
+            DailyActivitiesHistories::insert( $history );
             return response()->json([
                 "code"    => 500, 
                 'message' => $th->getMessage(),
@@ -378,6 +396,12 @@ class UserEventController extends Controller
                 $userEventParticipant->save();
             }
         }
+        $history = [
+            'daily_activities_id' => $dailyActivities->id,
+            'title'               => 'Event creat',
+            'description'         => "Event created by ".Auth::user()->name,
+        ];
+        DailyActivitiesHistories::insert( $history );
 
         return response()->json([
             "code"    => 200, 

@@ -168,7 +168,7 @@
 								<button type="button" class="btn btn-image task-complete p-0 m-0" data-id="{{ $task->id }}" data-type="{{ $task->activity != '' ? 'activity' : 'task' }}"><img src="/images/incomplete.png" /></button>
 							@endif
 							@if($task->id != '')
-								<button type="button" class="btn btn-image task-reschedule p-0 m-0" data-task="{{ $task }}" data-id="{{ $task->id }}" data-type="{{ $task->activity != '' ? 'activity' : 'task' }}">
+								<button type="button" class="btn btn-image task-reschedule p-0 m-0" title="reschedule" data-task="{{ $task }}" data-id="{{ $task->id }}" data-type="{{ $task->activity != '' ? 'activity' : 'task' }}">
 									<i class="fa fa-calendar" aria-hidden="true"></i>
 								</button>
 							@endif
@@ -179,9 +179,8 @@
 								<button type="button" class="btn btn-image task-stop p-0 m-0" data-id="{{ $task->id }}" title="Stop"> <i class="fa fa-stop"></i> </button>
 							@endif
 							<button type="button" class="btn btn-image task-resend p-0 m-0" data-id="{{ $task->id }}" title="Resend"> <i class="fa fa-send"></i> </button>
-							<button type="button" class="btn btn-image task-history p-0 m-0" data-id="{{ $task->id }}" title="Resend"> <i class="fa fa-history"></i> </button>
-							<a href="{{ route('calendar.event.edit',$task->id) }}" class="btn btn-image p-0 m-0" > <i class="fa fa-edit"></i> </a>
-							{{-- <button type="button" class="btn btn-image task-edit p-0 m-0" data-id="{{ $task->id }}" title="Resend">  </button> --}}
+							<button type="button" class="btn btn-image task-history p-0 m-0" data-id="{{ $task->id }}" title="History"> <i class="fa fa-history"></i> </button>
+							<a href="{{ route('calendar.event.edit',$task->id) }}" class="btn btn-image p-0 m-0"  title="Edit" > <i class="fa fa-edit"></i> </a>
 						</td>
                       </tr>
                   @endforeach
@@ -488,6 +487,40 @@
       }
     });
 
+	$(document).on("click",".task-resend",function(e) {
+        e.preventDefault();
+		var button = $(this);
+		if(! confirm("Are you sure to resend this notification?") ){
+			return false;
+		}
+
+		var id = $(this).data("id");
+		$.ajax({
+			url: '/dailyplanner/resend-notification',
+			type: 'POST',
+			data : { _token: "{{ csrf_token() }}", id : id },
+			dataType: 'json',
+			
+			beforeSend: function () {
+				$("#loading-image").show();
+				button.prop('disabled', true);
+			},
+			success: function(result){
+				$("#loading-image").hide();
+				if(result.code == 200) {
+					toastr['success'](result.message, 'success');  
+				}else{
+					toastr['error']('Sorry, Something went wrong please try again!', 'error');
+				}
+				button.prop('disabled', false);
+			},
+			error: function (){
+				toastr['error']('Sorry, Something went wrong please try again!', 'error');
+				button.prop('disabled', false);
+			}
+		});
+	});
+
     $(document).on('click', '.task-stop', function() {
 		event.preventDefault();
 		var button = $(this);
@@ -535,8 +568,7 @@
 						t += `<tr><td>`+v.daily_activities_id+`</td>`;
 						t += `<td>`+v.title+`</td>`;
 						t += `<td>`+v.description+`</td>`;
-						t += `<td>`+v.created_at+`</td>`;
-						t += `<td>`+v.updated_at+`</td></tr>`;
+						t += `<td>`+v.created_at+`</td></tr>`;
 					});
 
 					if( t == '' ){
@@ -548,40 +580,6 @@
 			},
 			error: function (){
 				$("#loading-image").hide();
-			}
-		});
-	});
-
-	$(document).on("click",".task-resend",function(e) {
-        e.preventDefault();
-		var button = $(this);
-		if(! confirm("Are you sure to resend this notification?") ){
-			return false;
-		}
-
-		var id = $(this).data("id");
-		$.ajax({
-			url: '/dailyplanner/resend-notification',
-			type: 'POST',
-			data : { _token: "{{ csrf_token() }}", id : id },
-			dataType: 'json',
-			
-			beforeSend: function () {
-				$("#loading-image").show();
-				button.prop('disabled', true);
-			},
-			success: function(result){
-				$("#loading-image").hide();
-				if(result.code == 200) {
-					toastr['success'](result.message, 'success');  
-				}else{
-					toastr['error']('Sorry, Something went wrong please try again!', 'error');
-				}
-				button.prop('disabled', false);
-			},
-			error: function (){
-				toastr['error']('Sorry, Something went wrong please try again!', 'error');
-				button.prop('disabled', false);
 			}
 		});
 	});

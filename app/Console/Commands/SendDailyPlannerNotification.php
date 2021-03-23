@@ -85,8 +85,8 @@ class SendDailyPlannerNotification extends Command
 
                             $history = [
                                 'daily_activities_id' => $event->daily_activity_id,
-                                'title'               => 'User : '.$user->name. ' User email : '.$user->email,
-                                'description'         => "[" . $event->start. "]  => " . $event->subject,
+                                'title'               => 'Sent notification',
+                                'description'         => "To ".$user->name,
                             ];
                             DailyActivitiesHistories::insert( $history );
                         }
@@ -117,8 +117,8 @@ class SendDailyPlannerNotification extends Command
                             $no++;
                             $history = [
                                 'daily_activities_id' => $event->daily_activity_id,
-                                'title'               => 'Vendor : '.$vendor->name,
-                                'description'         => "[" . $event->start . "] => " . $event->subject,
+                                'title'               => 'Sent notification',
+                                'description'         => "To ".$vendor->name,
                             ];
                             DailyActivitiesHistories::insert( $history );
                         }
