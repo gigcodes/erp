@@ -70,6 +70,7 @@ class Product extends Model
         'dmeasurement',
         'size',
         'color',
+        'suggested_color',
         'last_brand'
     ];
 
@@ -1100,6 +1101,7 @@ class Product extends Model
             'products.sku',
             'products.size',
             'products.color',
+            'products.suggested_color',
             'products.composition',
             'products.size_eu',
             'psu.size_system',
