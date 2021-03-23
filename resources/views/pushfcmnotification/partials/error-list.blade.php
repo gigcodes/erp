@@ -13,7 +13,7 @@
                 @foreach ($errors as $i => $error)
                     <tr>
                         <td>{{ $i+1 }}</td>
-                        <td>{{ $error->token }}</td>
+                        <td><span title="{{$error->token}}">{{ substr($error->token,0,30) }}</span></td>
                         <td>{{ $error->error_message }}</td>
                         <td>{{ $error->created_at }}</td>
                     </tr>
