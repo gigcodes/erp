@@ -60,8 +60,10 @@ class ProductsCreator
 
         // Get color
         $isWithColor = false;
-        if (isset($image->properties['color']) || isset($image->properties->color)) {
-            $isWithColor = true;
+        if (isset($image->properties['color'])) {
+            if(!empty($image->properties['color'])) {
+                $isWithColor = true;
+            }
         }
         $color = ColorNamesReference::getProductColorFromObject($image);
 
