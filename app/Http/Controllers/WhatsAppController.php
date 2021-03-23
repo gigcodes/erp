@@ -4933,7 +4933,7 @@ class WhatsAppController extends FindByNumberController
             //throw new \Exception("cURL Error #:" . $err);
             \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err);
             if($chatMessage) {
-                $chatMessage->error_status = 1;
+                $chatMessage->error_status = \App\ChatMessage::ERROR_STATUS_ERROR;
                 $chatMessage->error_info = json_encode(["number" => $number, "error" => $err]);
                 $chatMessage->save();
             }
@@ -4951,13 +4951,17 @@ class WhatsAppController extends FindByNumberController
                 //throw new \Exception("Something was wrong with message: " . $response);
                 \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message for number " . $number . ": " . $response);
                 if($chatMessage) {
-                    $chatMessage->error_status = 1;
+                    $chatMessage->error_status = \App\ChatMessage::ERROR_STATUS_ERROR;
                     $chatMessage->error_info = json_encode(["number" => $number, "error" => $response]);
                     $chatMessage->save();
                 }
                 return false;
             } else {
                 // Log successful send
+                if($chatMessage) {
+                    $chatMessage->error_status = \App\ChatMessage::ERROR_STATUS_SUCCESS;
+                    $chatMessage->save();
+                }   
                 \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Message was sent to number " . $number . ":" . $response);
             }
         }
