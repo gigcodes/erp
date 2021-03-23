@@ -134,6 +134,9 @@ class MagentoOrderHandleHelper extends Model
                             } else {
                                 $size = '';
                             }
+
+                            $splitted_sku = explode( '-', $item->sku );
+
                             $skuAndColor = MagentoHelper::getSkuAndColor($item->sku);
                             \Log::info("skuAndColor : " . json_encode($skuAndColor));
                             
@@ -141,11 +144,11 @@ class MagentoOrderHandleHelper extends Model
                                 array(
                                     'order_id'      => $id,
                                     'product_id'    => !empty($skuAndColor['product_id']) ? $skuAndColor['product_id'] : null,
-                                    'sku'           => $skuAndColor['sku'],
+                                    'sku'           => isset($splitted_sku[0]) ? $splitted_sku[0] : $skuAndColor['sku'],
                                     'product_price' => round($item->price),
                                     'qty'           => round($item->qty_ordered),
                                     'size'          => $size,
-                                    'color'         => $skuAndColor['color'],
+                                    'color'         => isset($splitted_sku[1]) ? $splitted_sku[1] : $skuAndColor['sku'],
                                     'created_at'    => $order->created_at,
                                     'updated_at'    => $order->created_at,
                                 )
