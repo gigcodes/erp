@@ -121,7 +121,7 @@ class DailyPlannerController extends Controller
         }
       }
 
-      return view('dailyplanner.index', [
+	  return view('dailyplanner.index', [
         'tasks'             => $tasks,
         'time_slots'        => $time_slots,
         'users_array'       => $users_array,
@@ -144,6 +144,103 @@ class DailyPlannerController extends Controller
 			$history = DailyActivitiesHistories::where( 'daily_activities_id', $request->id )->orderBy("created_at","desc")->get();
 			return response()->json( ["code" => 200 , "data" => $history] );
 		}
+	}
+
+	/**
+     * Send schedule to User.
+     *
+     * @return \Illuminate\Http\Response
+     */
+	public function sendSchedule( Request $request ){
+		$validated = $request->validate([
+            'date'   => 'required',
+            'user' => 'required',
+        ]);
+			try {
+				$events = UserEvent::where('user_id',$request->user)->whereDate('date',$request->date)->get();
+
+				$userWise           = [];
+				$vendorParticipants = [];
+				if (!$events->isEmpty()) {
+					foreach ($events as $event) {
+						$userWise[$event->user_id][] = $event;
+						$participants                = $event->attendees;
+						if (!$participants->isEmpty()) {
+							foreach ($participants as $participant) {
+								if ($participant->object == \App\Vendor::class) {
+									$vendorParticipants[$participant->object_id] = $event;
+								}
+							}
+						}
+					}
+				}
+
+				if (!empty($userWise)) {
+					foreach ($userWise as $id => $events) {
+						// find user into database
+						$user = \App\User::find($id);
+						// if user exist
+						if (!empty($user)) {
+							$notification   = [];
+							$notification[] = "Following Event Schedule on today";
+							$no             = 1;
+							foreach ($events as $event) {
+								$notification[] = $no . ") [" . $event->start . "] => " . $event->subject;
+								$no++;
+
+								$history = [
+									'daily_activities_id' => $event->daily_activity_id,
+									'title'               => 'User : '.$user->name. ' User email : '.$user->email,
+									'description'         => "[" . $event->start. "]  => " . $event->subject,
+								];
+								DailyActivitiesHistories::insert( $history );
+							}
+
+							$params['user_id'] = $user->id;
+							$params['message'] = implode("\n", $notification);
+							// send chat message
+							$chat_message = \App\ChatMessage::create($params);
+							// send
+							app('App\Http\Controllers\WhatsAppController')
+								->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], null, $chat_message->id);
+						}
+					}
+				}
+
+				if (!empty($vendorParticipants)) {
+					foreach ($vendorParticipants as $id => $vendorParticipant) {
+						$vendor = \App\Vendor::find($id);
+						if (!empty($vendor)) {
+							$notification   = [];
+							$notification[] = "Following Event Schedule on today";
+							$no             = 1;
+							foreach ($events as $event) {
+								$notification[] = $no . ") [" . $event->start . "] => " . $event->subject;
+								$no++;
+
+								$history = [
+									'daily_activities_id' => $event->daily_activity_id,
+									'title'               => 'Vendor : '.$vendor->name,
+									'description'         => "[" . $event->start . "] => " . $event->subject,
+								];
+								DailyActivitiesHistories::insert( $history );
+							}
+
+							$params['vendor_id'] = $vendor->id;
+							$params['message']   = implode("\n", $notification);
+							// send chat message
+							$chat_message = \App\ChatMessage::create($params);
+							// send
+							app('App\Http\Controllers\WhatsAppController')
+								->sendWithThirdApi($vendor->phone, $vendor->whatsapp_number, $params['message'], false, $chat_message->id);
+
+						}
+					}
+				}
+				return redirect()->back()->with('success','success');
+			} catch (\Throwable $th) {
+				return redirect()->back()->with('error', $th->getMessage());
+			}
 	}
 
 	/**
@@ -172,6 +269,8 @@ class DailyPlannerController extends Controller
 							}
 						}
 					}
+				}else{
+					return response()->json( ["code" => 500 , "data" => 'No data found' ] );
 				}
 
 				if (!empty($userWise)) {

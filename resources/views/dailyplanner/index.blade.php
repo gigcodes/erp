@@ -39,6 +39,29 @@
                 </form>
               @endif
             </div>
+			<form action="{{ route('dailyplanner.send.vendor.schedule') }}" class="form-inline" method="post">
+				<div class="form-group mr-3">
+					@csrf
+				  <select class="form-control input-sm ml-3" name="user">
+					<option value="">Select a User</option>
+					 @foreach ($users_array as $id => $user)
+                        <option value="{{ $id }}">{{ $user }}</option>
+                      @endforeach
+				  </select>
+				</div>
+
+				<div class="form-group ml-3">
+				  <div class='input-group date'>
+					<input type='text' class="form-control input-sm" id="send-planned-datetime" name="date" value="" />
+					<span class="input-group-addon">
+					  <span class="glyphicon glyphicon-calendar"></span>
+					</span>
+				  </div>
+				</div>
+				<div class="form-group ml-3">
+					<button type="submit" class="btn btn-md btn-secondary"> Send schedule </button>
+				</div>
+			  </form>
 
             <div class="pull-right">
               {{-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#documentCreateModal">+</a> --}}
@@ -157,6 +180,8 @@
 							@endif
 							<button type="button" class="btn btn-image task-resend p-0 m-0" data-id="{{ $task->id }}" title="Resend"> <i class="fa fa-send"></i> </button>
 							<button type="button" class="btn btn-image task-history p-0 m-0" data-id="{{ $task->id }}" title="Resend"> <i class="fa fa-history"></i> </button>
+							<a href="{{ route('calendar.event.edit',$task->id) }}" class="btn btn-image p-0 m-0" > <i class="fa fa-edit"></i> </a>
+							{{-- <button type="button" class="btn btn-image task-edit p-0 m-0" data-id="{{ $task->id }}" title="Resend">  </button> --}}
 						</td>
                       </tr>
                   @endforeach
@@ -167,6 +192,7 @@
                     <td class="p-2 task-start"></td>
                     <td class="p-2 task-complete"></td>
                     <td class="p-2"></td>
+					<td class="p-2"></td>
                   </tr>
                 @endif
                 <tr class="dis-none create-input-table">
@@ -190,6 +216,7 @@
                       <button type="button" class="btn btn-image quick-plan-button" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}"><img src="/images/filled-sent.png" /></button>
                     </div>
                   </td>
+                  <td class="p-2"></td>
                   <td class="p-2"></td>
                   <td class="p-2"></td>
                   <td class="p-2"></td>
@@ -243,6 +270,7 @@
     {{-- @include('partials.modals.remarks') --}}
     @include('partials.modals.reschedule-dailyplanner')
     @include('partials.modals.history-dailyplanner')
+    {{-- @include('dailyplanner.edit-event') --}}
 @endsection
 
 
@@ -252,6 +280,9 @@
   <script type="text/javascript">
     $(document).ready(function() {
       $('#planned-datetime').datetimepicker({
+        format: 'YYYY-MM-DD'
+      });
+      $('#send-planned-datetime').datetimepicker({
         format: 'YYYY-MM-DD'
       });
 
@@ -456,9 +487,6 @@
         });
       }
     });
-
-
-    
 
     $(document).on('click', '.task-stop', function() {
 		event.preventDefault();
@@ -693,7 +721,7 @@
             toastr['success'](response.message, 'success');  
         }).fail(function(response) {
             $this.text("Save");
-            toastr['success']('Sorry, we could not reschedule your daily planner!', 'success');
+            toastr['error']('Sorry, we could not reschedule your daily planner!', 'success');
         });
     });
 

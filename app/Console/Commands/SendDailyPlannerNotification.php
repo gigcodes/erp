@@ -49,8 +49,8 @@ class SendDailyPlannerNotification extends Command
                 'start_time' => Carbon::now(),
             ]);
 
-            // get the events which has 30 Min left
-            $events = UserEvent::havingRaw("TIMESTAMPDIFF(MINUTE,now() , start) = 30")->get();
+            // get the events which has 30  OR 05 Min left
+            $events = UserEvent::havingRaw("TIMESTAMPDIFF(MINUTE,now() , start) >= 30 and TIMESTAMPDIFF(MINUTE, now(), start) <= 35 OR TIMESTAMPDIFF(MINUTE, now(), start) = 05 ")->get();
 
             $userWise           = [];
             $vendorParticipants = [];
@@ -85,7 +85,7 @@ class SendDailyPlannerNotification extends Command
 
                             $history = [
                                 'daily_activities_id' => $event->daily_activity_id,
-                                'title'               => 'User : '.$user->name. 'User email : '.$user->email,
+                                'title'               => 'User : '.$user->name. ' User email : '.$user->email,
                                 'description'         => "[" . $event->start. "]  => " . $event->subject,
                             ];
                             DailyActivitiesHistories::insert( $history );
