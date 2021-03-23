@@ -300,9 +300,9 @@ class ScrapController extends Controller
             $scrapedProduct->categories  = $categoryForScrapedProducts;
             $scrapedProduct->color       = $colorForScrapedProducts;
             $scrapedProduct->composition = $compositionForScrapedProducts;
-            $scrapedProduct->material_used       = isset($requestedProperties->material_used) ? $requestedProperties->material_used : "";
-            $scrapedProduct->supplier      = isset($requestedProperties->supplier) ? $requestedProperties->supplier : "";
-            $scrapedProduct->country       = isset($requestedProperties->country) ? $requestedProperties->country : "";
+            $scrapedProduct->material_used       = isset($requestedProperties['material_used']) ? $requestedProperties['material_used'] : null;
+            $scrapedProduct->supplier      = isset($requestedProperties['supplier']) ? $requestedProperties['supplier'] : null;
+            $scrapedProduct->country       = isset($requestedProperties['country']) ? $requestedProperties['country'] : null;
             $scrapedProduct->size = (isset($requestedProperties['sizes']) && is_array($requestedProperties['sizes'])) ? implode(",", $requestedProperties['sizes']) : null;
             if ($request->get('size_system') != "") {
                 $scrapedProduct->size_system = $request->get('size_system');
