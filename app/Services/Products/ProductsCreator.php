@@ -59,6 +59,10 @@ class ProductsCreator
         ]);
 
         // Get color
+        $isWithColor = false;
+        if (isset($image->properties['color']) || isset($image->properties->color)) {
+            $isWithColor = true;
+        }
         $color = ColorNamesReference::getProductColorFromObject($image);
 
         $composition = $formattedDetails['composition'];
@@ -350,7 +354,6 @@ class ProductsCreator
         $product->is_on_sale = $image->is_sale ? 1 : 0;
 
         $product->composition = $composition;
-        $product->color = ColorNamesReference::getProductColorFromObject($image);
         $product->size = $formattedDetails[ 'size' ];
         $product->lmeasurement = (int)$formattedDetails[ 'lmeasurement' ];
         $product->hmeasurement = (int)$formattedDetails[ 'hmeasurement' ];
@@ -363,6 +366,15 @@ class ProductsCreator
         }else{
             $product->status_id = \App\Helpers\StatusHelper::$unknownCategory;
         }
+
+        // color has been updating from here
+        if($isWithColor) {
+           $product->color = $color;
+        }else{
+           $product->suggested_color = $color;
+           $product->status_id = \App\Helpers\StatusHelper::$unknownColor;
+        }
+
         // start to update the eu size
         if(!empty($product->size)) {
             $sizeExplode = explode(",", $product->size);

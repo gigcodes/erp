@@ -109,6 +109,7 @@
                 <th>Brand</th>
                 <th>Supplier</th>
                 <th>Color</th>
+                <th>S.Color</th>
                 <th>Composition</th>
                 <th>Size system</th>
                 <th>Size</th>
