@@ -45,6 +45,8 @@ class SendFcmNotification extends Command
         $fromdate      = date('Y-m-d H:i');
         $newtimestamp  = strtotime($fromdate . ' + 4 minute');
         $todate        = date('Y-m-d H:i', $newtimestamp);
+        echo $fromdate."#".$todate;
+        echo PHP_EOL;
         $Notifications = PushFcmNotification::select('sw.push_web_key', 'sw.push_web_id', 'ft.token', 'push_fcm_notifications.*')
             ->leftJoin('fcm_tokens as ft', 'ft.store_website_id', '=', 'push_fcm_notifications.store_website_id')
             ->leftJoin('store_websites as sw', 'sw.id', '=', 'push_fcm_notifications.store_website_id')
@@ -53,37 +55,44 @@ class SendFcmNotification extends Command
             ->where('sw.push_web_id', '!=', '')
             ->whereBetween('push_fcm_notifications.sent_at', [$fromdate, $todate])
             ->get();
-        if (isset($Notifications) && count($Notifications) != 0 && is_array($Notifications)) {
+        if (!$Notifications->isEmpty()) {
             foreach ($Notifications as $Notification) {
-                config(['FCM_SERVER_KEY' => $Notification['push_web_key']]);
-                config(['FCM_SENDER_ID' => $Notification['push_web_id']]);
-                $optionBuilder = new OptionsBuilder();
-                $optionBuilder->setTimeToLive(60 * 20);
+                try{
+                    
+                    config(['FCM_SERVER_KEY' => $Notification['push_web_key']]);
+                    config(['FCM_SENDER_ID' => $Notification['push_web_id']]);
+                    $optionBuilder = new OptionsBuilder();
+                    $optionBuilder->setTimeToLive(60 * 20);
 
-                $notificationBuilder = new PayloadNotificationBuilder($Notification->title);
-                $notificationBuilder->setBody($Notification->body)
-                    ->setSound('default');
+                    $notificationBuilder = new PayloadNotificationBuilder($Notification->title);
+                    $notificationBuilder->setBody($Notification->body)
+                        ->setSound('default');
 
-                $dataBuilder = new PayloadDataBuilder();
-                $dataBuilder->addData(['icon' => $Notification->icon, 'url', $Notification->url]);
+                    $dataBuilder = new PayloadDataBuilder();
+                    $dataBuilder->addData(['icon' => $Notification->icon, 'url', $Notification->url]);
 
-                $option       = $optionBuilder->build();
-                $notification = $notificationBuilder->build();
-                $data         = $dataBuilder->build();
+                    $option       = $optionBuilder->build();
+                    $notification = $notificationBuilder->build();
+                    $data         = $dataBuilder->build();
 
-                $token = $Notification->token;
+                    $token = $Notification->token;
 
-                $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
+                    $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
 
-                $success = false;
-                $errorMessage = "";
-                if ($downstreamResponse->numberSuccess()) {
-                    PushFcmNotification::where('id', $Notification->id)->update(['sent_on' => date('Y-m-d H:i')]);
-                    $this->info('Message Sent Succesfully');
-                    $success = true;
-                } elseif ($downstreamResponse->numberFailure()) {
-                    $this->info($downstreamResponse->tokensWithError());
-                    $errorMessage = json_encode($downstreamResponse->tokensWithError());
+                    $success = false;
+                    $errorMessage = "";
+                    if ($downstreamResponse->numberSuccess()) {
+                        PushFcmNotification::where('id', $Notification->id)->update(['sent_on' => date('Y-m-d H:i')]);
+                        $this->info('Message Sent Succesfully');
+                        $success = true;
+                    } elseif ($downstreamResponse->numberFailure()) {
+                        $this->info($downstreamResponse->tokensWithError());
+                        $errorMessage = json_encode($downstreamResponse->tokensWithError());
+                    }
+
+                }catch(\Exception $e){
+                    $success = false;
+                    $errorMessage = $e->getMessage();
                 }
 
                 \App\PushFcmNotificationHistory::create([
