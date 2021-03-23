@@ -194,7 +194,7 @@ var getHtml = function(response) {
             } else if (message.status == 4) {
             } else {
                 if ( message.type == "customer") {
-                    if (message.error_status == 0) {
+                    if (message.error_status == 1) {
                         button +="<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /></a><a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + message.id + "'><i class='fa fa-repeat' aria-hidden='true'></i></a>";
                      } else if (message.error_status == 2) {
                        button += "<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a title='Resend' href='#' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + message.id + "'><i class='fa fa-repeat' aria-hidden='true'></i></a>";
