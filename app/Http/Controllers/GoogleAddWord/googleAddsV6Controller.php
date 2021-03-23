@@ -81,8 +81,8 @@ class googleAddsV6Controller extends Controller
             $google_redirect_url = route('google-keyword-search-v6');
             $gClient = new \Google_Client();
             $gClient->setApplicationName('Web client 1');
-            $gClient->setClientId('1033530909733-pe9jnfsof00ipvi6kolt9bbher1g766s.apps.googleusercontent.com');
-            $gClient->setClientSecret('iLARWavmtpRtWf2ZkFbl3uf7');
+            $gClient->setClientId('1033530909733-m7qagjmstl2gt5scg5qn7ohrhd36v1jp.apps.googleusercontent.com');
+            $gClient->setClientSecret('AfFnGMvCB-iS9jgS2B4WQLKO');
             $gClient->setDeveloperKey('OE17uoc7MEFBrTkUa3UpIg');
             $gClient->setRedirectUri($google_redirect_url);
             $gClient->setScopes(array(
@@ -99,7 +99,7 @@ class googleAddsV6Controller extends Controller
 			}
 			if ($gClient->getAccessToken()){
 				$file      = file(storage_path('google_ads_php.ini'));
-				$edit_file = str_replace( $file[30], 'refreshToken = "'.$gClient->getAccessToken()['access_token'].'"'.PHP_EOL.'', file_get_contents( storage_path('google_ads_php.ini') ));
+				$edit_file = str_replace( $file[30], 'refreshToken = "'.$gClient->getAccessToken()['refresh_token'].'"'.PHP_EOL.'', file_get_contents( storage_path('google_ads_php.ini') ));
 				file_put_contents( storage_path('google_ads_php.ini'), $edit_file );
 				return redirect()->route('google-keyword-search-v6')->with('success','New token generated successfully');
 			}else{
