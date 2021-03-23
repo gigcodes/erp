@@ -40,7 +40,7 @@ class ScrapStatisticsController extends Controller
 
         // Get active suppliers
         $activeSuppliers = Scraper::join("suppliers as s", "s.id", "scrapers.supplier_id")
-            ->select('scrapers.id as scrapper_id', 'scrapers.*', "s.*", "scrapers.full_scrape as scrapers_status")
+            ->select('scrapers.id as scrapper_id', 'scrapers.*', "s.*", "scrapers.status as scrapers_status")
             ->where('supplier_status_id', 1)
             ->whereIn("scrapper", [1, 2])
             ->whereNull('parent_id');
@@ -55,9 +55,9 @@ class ScrapStatisticsController extends Controller
             $activeSuppliers->where("scrapers.scraper_made_by", $madeby);
         }
 
-        // if ($request->get("scrapers_status", "") != '') {
-        //     $activeSuppliers->where("scrapers.status", $request->get("scrapers_status", ""));
-        // }
+        if ($request->get("scrapers_status", "") != '') {
+            $activeSuppliers->where("scrapers.status", $request->get("scrapers_status", ""));
+        }
 
         if ($scrapeType > 0) {
             $activeSuppliers->where("scraper_type", $scrapeType);

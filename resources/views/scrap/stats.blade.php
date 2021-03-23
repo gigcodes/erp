@@ -88,10 +88,9 @@
             </div>
             <div class="form-group mb-3 col-md-3">
                 <select name="scrapers_status" class="form-control form-group">
-                    <option value="">Status</option>
-                    <option <?php echo request()->get('scrapers_status','') == 'Ok' ? 'selected=selected' : '' ?> value="Ok">Ok</option>
-                    <option <?php echo request()->get('scrapers_status','') == 'Rework' ? 'selected=selected' : '' ?> value="Rework">Rework</option>
-                    <option <?php echo request()->get('scrapers_status','') == 'In Process'? 'selected=selected' : '' ?> value="In Process">In Process</option>
+                    @foreach(\App\Scraper::STATUS as $k => $v)
+                        <option <?php echo request()->get('scrapers_status','') == $k ? 'selected=selected' : '' ?> value="<?php echo $k; ?>"><?php echo $v; ?></option>
+                    @endforeach
                 </select>
             </div>
             <div class="form-group mr-3 mb-3 col-md-3">
@@ -101,15 +100,11 @@
     </form>
     <div class="row">
         <div class="col col-md-7">
-            <div class="col-md-4">
-                Status Ok count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'Ok')->where('supplier_status_id', 1)->count()}}
-            </div>
-            <div class="col-md-4">
-                Status Rework count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'Rework')->where('supplier_status_id', 1)->count()}}
-            </div>
-            <div class="col-md-4">
-                Status In Process count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'In Process')->where('supplier_status_id', 1)->count()}}
-            </div>
+            @foreach(\App\Scraper::STATUS as $k => $v)
+                <div class="col-md-4">
+                    Status {{$v}} count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', $v)->where('supplier_status_id', 1)->count()}}
+                </div>
+            @endforeach
         </div>    
         <div class="col col-md-5">
             <div class="row">
@@ -192,12 +187,12 @@
                                 $hasWarning = false;
                                 if ( (!empty($data) && $data->running == 0) || $data == null ) {
                                     $hasError =  true;
-                                    echo '<tr class="history-item-scrap" data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'">';
+                                    echo '<tr class="history-item-scrap" data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'" data-eleid="'.$supplier->id.'">';
                                 } elseif ( $percentage > 25 ) {
                                     $hasWarning = true;
-                                    echo '<tr class="history-item-scrap" data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'">';
+                                    echo '<tr class="history-item-scrap" data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'" data-eleid="'.$supplier->id.'">';
                                 } else {
-                                    echo '<tr class="history-item-scrap" data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'">';
+                                    echo '<tr class="history-item-scrap" data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'" data-eleid="'.$supplier->id.'">';
                                 }
 
                                 if($status == 1 && !$hasError) {
@@ -268,7 +263,9 @@
                                 {{ isset(\App\Helpers\StatusHelper::getStatus()[$supplier->next_step_in_product_flow]) ? \App\Helpers\StatusHelper::getStatus()[$supplier->next_step_in_product_flow] : "N/A" }}
                             </td> -->
                             <td width="10%">
-                                {{ !empty($supplier->scrapers_status) ? $supplier->scrapers_status : "N/A" }}
+                                <div class="form-group">
+                                    <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->scrapers_status, ["class" => "form-control scrapers_status", "style" => "width:100%;"]); ?>
+                                </div>
                                 <br>
                                 @php
                                     $hasTask = $supplier->developerTask();
@@ -348,7 +345,7 @@
                                 <td colspan="2">
                                     <label>Status:</label>
                                     <div class="form-group">
-                                        <?php echo Form::select("status", ['' => "N/A", 'Ok' => 'Ok', 'Rework' => 'Rework', 'In Process' => 'In Process'], $supplier->scrapers_status, ["class" => "form-control scrapers_status", "style" => "width:100%;"]); ?>
+                                        <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->scrapers_status, ["class" => "form-control scrapers_status", "style" => "width:100%;"]); ?>
                                     </div>
                                 </td>
                             </tr>
@@ -494,7 +491,7 @@
                                         <td colspan="2">
                                             <label>Status:</label>
                                             <div class="form-group">
-                                                <?php echo Form::select("status", ['' => "N/A", 'Ok' => 'Ok', 'Rework' => 'Rework', 'In Process' => 'In Process'], $childSupplier->scrapers_status, ["class" => "form-control scrapers_status", "style" => "width:100%;"]); ?>
+                                                <?php echo Form::select("status", \App\Scraper::STATUS, $childSupplier->scrapers_status, ["class" => "form-control scrapers_status", "style" => "width:100%;"]); ?>
                                             </div>
                                         </td>
                                      </tr>
