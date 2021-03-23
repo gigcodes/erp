@@ -80,10 +80,10 @@ class googleAddsV6Controller extends Controller
     {   
             $google_redirect_url = route('google-keyword-search-v6');
             $gClient = new \Google_Client();
-            $gClient->setApplicationName('Web client 1');
-            $gClient->setClientId('1033530909733-m7qagjmstl2gt5scg5qn7ohrhd36v1jp.apps.googleusercontent.com');
-            $gClient->setClientSecret('AfFnGMvCB-iS9jgS2B4WQLKO');
-            $gClient->setDeveloperKey('OE17uoc7MEFBrTkUa3UpIg');
+            $gClient->setApplicationName(env('GOOGLE_ADS_CLIENT_APPLICATION_NAME',null));
+            $gClient->setClientId(env('GOOGLE_ADS_CLIENT_ID',null));
+            $gClient->setClientSecret(env('GOOGLE_ADS_CLIENT_SECRET',null));
+            $gClient->setDeveloperKey(env('GOOGLE_ADS_DEVELOPER_KEY',null));
             $gClient->setRedirectUri($google_redirect_url);
             $gClient->setScopes(array(
                 'https://www.googleapis.com/auth/doubleclicksearch',
