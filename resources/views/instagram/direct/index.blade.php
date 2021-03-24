@@ -262,10 +262,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                             "thread_id" : id,
                             "from_account_id" : from_account,
                        },
-                    }).beforeSend( function() {
-                        
-                    })
-                    .done(function() {
+                    }).done(function() {
                         $('#message'+id).val('');
                         toastr['success']('Message sent', 'success');
                     })
@@ -340,6 +337,9 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                         $('ul.pagination').replaceWith(data.links);
                     } else {
                         $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                    }
+                    if( data.message ){
+                        toastr['error'](data.message, 'Account credentials wrong');
                     }
                     toastr['success']('Success!', 'success');
                     button.prop('disabled', false);
