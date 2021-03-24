@@ -39,6 +39,29 @@
                 </form>
               @endif
             </div>
+			<form action="{{ route('dailyplanner.send.vendor.schedule') }}" class="form-inline" method="post">
+				<div class="form-group mr-3">
+					@csrf
+				  <select class="form-control input-sm ml-3" name="user">
+					<option value="">Select a User</option>
+					 @foreach ($users_array as $id => $user)
+                        <option value="{{ $id }}">{{ $user }}</option>
+                      @endforeach
+				  </select>
+				</div>
+
+				<div class="form-group ml-3">
+				  <div class='input-group date'>
+					<input type='text' class="form-control input-sm" id="send-planned-datetime" name="date" value="" />
+					<span class="input-group-addon">
+					  <span class="glyphicon glyphicon-calendar"></span>
+					</span>
+				  </div>
+				</div>
+				<div class="form-group ml-3">
+					<button type="submit" class="btn btn-md btn-secondary"> Send schedule </button>
+				</div>
+			  </form>
 
             <div class="pull-right">
               {{-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#documentCreateModal">+</a> --}}
@@ -145,7 +168,7 @@
 								<button type="button" class="btn btn-image task-complete p-0 m-0" data-id="{{ $task->id }}" data-type="{{ $task->activity != '' ? 'activity' : 'task' }}"><img src="/images/incomplete.png" /></button>
 							@endif
 							@if($task->id != '')
-								<button type="button" class="btn btn-image task-reschedule p-0 m-0" data-task="{{ $task }}" data-id="{{ $task->id }}" data-type="{{ $task->activity != '' ? 'activity' : 'task' }}">
+								<button type="button" class="btn btn-image task-reschedule p-0 m-0" title="reschedule" data-task="{{ $task }}" data-id="{{ $task->id }}" data-type="{{ $task->activity != '' ? 'activity' : 'task' }}">
 									<i class="fa fa-calendar" aria-hidden="true"></i>
 								</button>
 							@endif
@@ -156,7 +179,8 @@
 								<button type="button" class="btn btn-image task-stop p-0 m-0" data-id="{{ $task->id }}" title="Stop"> <i class="fa fa-stop"></i> </button>
 							@endif
 							<button type="button" class="btn btn-image task-resend p-0 m-0" data-id="{{ $task->id }}" title="Resend"> <i class="fa fa-send"></i> </button>
-							<button type="button" class="btn btn-image task-history p-0 m-0" data-id="{{ $task->id }}" title="Resend"> <i class="fa fa-history"></i> </button>
+							<button type="button" class="btn btn-image task-history p-0 m-0" data-id="{{ $task->id }}" title="History"> <i class="fa fa-history"></i> </button>
+							<a href="{{ route('calendar.event.edit',$task->id) }}" class="btn btn-image p-0 m-0"  title="Edit" > <i class="fa fa-edit"></i> </a>
 						</td>
                       </tr>
                   @endforeach
@@ -167,6 +191,7 @@
                     <td class="p-2 task-start"></td>
                     <td class="p-2 task-complete"></td>
                     <td class="p-2"></td>
+					<td class="p-2"></td>
                   </tr>
                 @endif
                 <tr class="dis-none create-input-table">
@@ -190,6 +215,7 @@
                       <button type="button" class="btn btn-image quick-plan-button" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}"><img src="/images/filled-sent.png" /></button>
                     </div>
                   </td>
+                  <td class="p-2"></td>
                   <td class="p-2"></td>
                   <td class="p-2"></td>
                   <td class="p-2"></td>
@@ -243,6 +269,7 @@
     {{-- @include('partials.modals.remarks') --}}
     @include('partials.modals.reschedule-dailyplanner')
     @include('partials.modals.history-dailyplanner')
+    {{-- @include('dailyplanner.edit-event') --}}
 @endsection
 
 
@@ -252,6 +279,9 @@
   <script type="text/javascript">
     $(document).ready(function() {
       $('#planned-datetime').datetimepicker({
+        format: 'YYYY-MM-DD'
+      });
+      $('#send-planned-datetime').datetimepicker({
         format: 'YYYY-MM-DD'
       });
 
@@ -457,8 +487,39 @@
       }
     });
 
+	$(document).on("click",".task-resend",function(e) {
+        e.preventDefault();
+		var button = $(this);
+		if(! confirm("Are you sure to resend this notification?") ){
+			return false;
+		}
 
-    
+		var id = $(this).data("id");
+		$.ajax({
+			url: '/dailyplanner/resend-notification',
+			type: 'POST',
+			data : { _token: "{{ csrf_token() }}", id : id },
+			dataType: 'json',
+			
+			beforeSend: function () {
+				$("#loading-image").show();
+				button.prop('disabled', true);
+			},
+			success: function(result){
+				$("#loading-image").hide();
+				if(result.code == 200) {
+					toastr['success'](result.message, 'success');  
+				}else{
+					toastr['error']('Sorry, Something went wrong please try again!', 'error');
+				}
+				button.prop('disabled', false);
+			},
+			error: function (){
+				toastr['error']('Sorry, Something went wrong please try again!', 'error');
+				button.prop('disabled', false);
+			}
+		});
+	});
 
     $(document).on('click', '.task-stop', function() {
 		event.preventDefault();
@@ -507,8 +568,7 @@
 						t += `<tr><td>`+v.daily_activities_id+`</td>`;
 						t += `<td>`+v.title+`</td>`;
 						t += `<td>`+v.description+`</td>`;
-						t += `<td>`+v.created_at+`</td>`;
-						t += `<td>`+v.updated_at+`</td></tr>`;
+						t += `<td>`+v.created_at+`</td></tr>`;
 					});
 
 					if( t == '' ){
@@ -520,40 +580,6 @@
 			},
 			error: function (){
 				$("#loading-image").hide();
-			}
-		});
-	});
-
-	$(document).on("click",".task-resend",function(e) {
-        e.preventDefault();
-		var button = $(this);
-		if(! confirm("Are you sure to resend this notification?") ){
-			return false;
-		}
-
-		var id = $(this).data("id");
-		$.ajax({
-			url: '/dailyplanner/resend-notification',
-			type: 'POST',
-			data : { _token: "{{ csrf_token() }}", id : id },
-			dataType: 'json',
-			
-			beforeSend: function () {
-				$("#loading-image").show();
-				button.prop('disabled', true);
-			},
-			success: function(result){
-				$("#loading-image").hide();
-				if(result.code == 200) {
-					toastr['success'](result.message, 'success');  
-				}else{
-					toastr['error']('Sorry, Something went wrong please try again!', 'error');
-				}
-				button.prop('disabled', false);
-			},
-			error: function (){
-				toastr['error']('Sorry, Something went wrong please try again!', 'error');
-				button.prop('disabled', false);
 			}
 		});
 	});
@@ -693,7 +719,7 @@
             toastr['success'](response.message, 'success');  
         }).fail(function(response) {
             $this.text("Save");
-            toastr['success']('Sorry, we could not reschedule your daily planner!', 'success');
+            toastr['error']('Sorry, we could not reschedule your daily planner!', 'success');
         });
     });
 

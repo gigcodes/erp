@@ -699,6 +699,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('dailyplanner/complete', 'DailyPlannerController@complete')->name('dailyplanner.complete');
     Route::post('dailyplanner/reschedule', 'DailyPlannerController@reschedule')->name('dailyplanner.reschedule');
     Route::post('dailyplanner/history', 'DailyPlannerController@history')->name('dailyplanner.history');
+    Route::post('dailyplanner/send/schedule', 'DailyPlannerController@sendSchedule')->name('dailyplanner.send.vendor.schedule');
     Route::post('dailyplanner/resend-notification', 'DailyPlannerController@resendNotification')->name('dailyplanner.resend.notification');
     Route::resource('dailyplanner', 'DailyPlannerController');
 
@@ -2468,6 +2469,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/calendar', 'UserEventController@index');
     Route::get('/calendar/events', 'UserEventController@list');
     Route::post('/calendar/events', 'UserEventController@createEvent')->name("calendar.event.create");
+    Route::get('/calendar/events/edit/{id}', 'UserEventController@GetEditEvent')->name("calendar.event.edit");
+    Route::post('/calendar/events/update', 'UserEventController@UpdateEvent')->name("calendar.event.update");
     Route::post('/calendar/events/stop', 'UserEventController@stopEvent')->name("calendar.event.stop");
     Route::put('/calendar/events/{id}', 'UserEventController@editEvent');
     Route::delete('/calendar/events/{id}', 'UserEventController@removeEvent');
