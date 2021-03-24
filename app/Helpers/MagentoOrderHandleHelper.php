@@ -135,6 +135,10 @@ class MagentoOrderHandleHelper extends Model
                                 $size = '';
                             }
 
+                            if(!empty($item->product_size)) {
+                                $size = $item->product_size;
+                            }
+
                             $splitted_sku = explode( '-', $item->sku );
 
                             $skuAndColor = MagentoHelper::getSkuAndColor($item->sku);
