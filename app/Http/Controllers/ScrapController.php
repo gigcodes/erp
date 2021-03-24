@@ -762,9 +762,14 @@ class ScrapController extends Controller
                 $product->composition = $composition;
             }
 
-            if (empty($product->color)) {
+            if (empty($product->color) && !empty($formatter['color'])) {
                 $product->color = $color;
             }
+
+            if(empty($formatter['color'])) {
+                $product->suggested_color = $color;   
+            }
+
 
             if (empty($product->description_link)) {
                 $product->description_link = $receivedJson->url;
