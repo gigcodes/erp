@@ -1661,11 +1661,13 @@ class ScrapController extends Controller
                     echo "Sorry , no log was return from server";
                     die;
                 }else{
-                    $file = "$request->server_id-$scraper->scraper_name.txt";
-                    header('Content-Description: File Transfer');
-                    header("Content-type: application/octet-stream");
-                    header("Content-disposition: attachment; filename= ".$file."");
-                    echo base64_decode($response->log);
+                    if(!empty($response->log)) {
+                        $file = "$request->server_id-$scraper->scraper_name.txt";
+                        header('Content-Description: File Transfer');
+                        header("Content-type: application/octet-stream");
+                        header("Content-disposition: attachment; filename= ".$file."");
+                        echo base64_decode($response->log);
+                    }
                 }
             } else {
                 abort(404);
