@@ -65,6 +65,8 @@ Route::resource('product-location', 'ProductLocationController');
 //Google Web Master Routes
 Route::prefix('googlewebmaster')->middleware('auth')->group(static function () {
     
+    Route::get('get-site-submit-hitory','GoogleWebMasterController@getSiteSubmitHitory')->name('googlewebmaster.get.history') ;
+    Route::post('re-submit-site','GoogleWebMasterController@ReSubmitSiteToWebmaster')->name('googlewebmaster.re-submit.site.webmaster') ;
     Route::get('get-access-token','GoogleWebMasterController@googleLogin')->name('googlewebmaster.get-access-token') ;
     Route::get('/index', 'GoogleWebMasterController@index')->name('googlewebmaster.index');
 
