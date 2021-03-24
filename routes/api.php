@@ -141,6 +141,7 @@ Route::post('local/instagram-post','InstagramPostsController@saveFromLocal');
 Route::get('local/instagram-user-post','InstagramPostsController@getUserForLocal');
 
 Route::post('node/get-status','ScrapController@getStatus');
+Route::get('node/get-log','ScrapController@getLatestLog')->name("scraper.get.log.list");
 
 Route::prefix('v1')->group(function () {
     Route::prefix('product')->group(function () {

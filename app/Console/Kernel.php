@@ -105,7 +105,7 @@ use App\Console\Commands\RunPriorityKeywordSearch;
 use App\Console\Commands\CacheMasterControl;
 use App\Console\Commands\SendEventNotificationBefore24hr;
 use App\Console\Commands\SendEventNotificationBefore2hr;
-use App\Console\Commands\SendEventNotificationBefore30Min;
+//use App\Console\Commands\SendEventNotificationBefore30Min;
 use App\Console\Commands\AccountHubstaffActivities;
 use App\Console\Commands\DailyHubstaffActivityLevel;
 use App\Console\Commands\GenerateProductPricingJson;
@@ -232,7 +232,7 @@ class Kernel extends ConsoleKernel
         ProcessCommentsFromCompetitors::class,
         SendEventNotificationBefore24hr::class,
         SendEventNotificationBefore2hr::class,
-        SendEventNotificationBefore30min::class,
+        //SendEventNotificationBefore30min::class,
         AccountHubstaffActivities::class,
         DailyHubstaffActivityLevel::class,
         EmailExcelImporter::class,

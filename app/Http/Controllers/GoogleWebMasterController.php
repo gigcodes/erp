@@ -7,6 +7,8 @@ use App\GoogleWebMasters;
 use App\Http\Controllers\Controller;
 use App\Site;
 use App\GoogleSearchAnalytics;
+use App\WebsiteStoreViewsWebmasterHistory;
+use App\WebsiteStoreView;
 use App\Setting;
 use Spatie\Activitylog\Models\Activity;
 
@@ -135,21 +137,33 @@ class GoogleWebMasterController extends Controller
 
             $gClient->setScopes(array(
                 'https://www.googleapis.com/auth/webmasters',
-                'https://www.googleapis.com/auth/webmasters.readonly',
+                // 'https://www.googleapis.com/auth/webmasters.readonly',
             ));          
 
             $google_oauthV2 = new \Google_Service_Oauth2($gClient);
             if ($request->get('code')){
-                $gClient->authenticate($request->get('code'));
-                $request->session()->put('token', $gClient->getAccessToken());
+				$gClient->authenticate($request->get('code'));
+				try {
+					$path = base_path('.env');
+					if (file_exists($path)) {
+						file_put_contents($path, str_replace(
+							'GOOGLE_CLIENT_ACCESS_TOKEN='.env('GOOGLE_CLIENT_ACCESS_TOKEN'), 'GOOGLE_CLIENT_ACCESS_TOKEN='.$gClient->getAccessToken()['access_token'].'', file_get_contents($path)
+						));
+					}
+					\Artisan::call('cache:clear');
+					\Artisan::call('config:clear');
+					\Log::info('env update succes');
+				} catch (\Throwable $th) {
+					\Log::error($th->getMessage());
+				}
+
+				$request->session()->put('token', $gClient->getAccessToken());
             }
             if ($request->session()->get('token'))
             {
                 $gClient->setAccessToken($request->session()->get('token'));
             }
-
-
-        
+			
             if ($gClient->getAccessToken())
             {
                
@@ -256,7 +270,6 @@ class GoogleWebMasterController extends Controller
 
         public function updateSitesData($request)
         {
-
         	if(!(isset($request->session()->get('token')['access_token'])))
         	{
                  redirect()->route('googlewebmaster.get-access-token');
@@ -518,5 +531,76 @@ class GoogleWebMasterController extends Controller
 							return $response;
         }
 
+	/**
+     * Show the site submit history.
+     * 
+     * @return Response
+     */
+	public function getSiteSubmitHitory(){
+		$history = WebsiteStoreViewsWebmasterHistory::orderBy("created_at","desc")->get();
+		return response()->json( ["code" => 200 , "data" => $history] );
+	}
+
+	/**
+     * Re-submit site to webmaster.
+     * 
+     * @return Response
+     */
+	public function ReSubmitSiteToWebmaster( Request $request ){
+
+		if( !empty( $request->id ) ){
+			$fetchStores = WebsiteStoreView::whereNotNull('website_store_id')
+						->where('website_store_views.id',$request->id)
+						->join("website_stores as ws", "ws.id", "website_store_views.website_store_id")
+						->join("websites as w", "w.id", "ws.website_id")
+						->join("store_websites as sw", "sw.id", "w.store_website_id")
+						->select("website_store_views.code","website_store_views.id", "sw.website")
+						->first();
+			
+			if( $fetchStores ){
+				$websiter = urlencode(utf8_encode($fetchStores->website.'/'.$fetchStores->code));
+                $url_for_sites = 'https://searchconsole.googleapis.com/webmasters/v3/sites/'.$websiter;
+                $token         = env('GOOGLE_CLIENT_ACCESS_TOKEN');
+
+        		$curl = curl_init();
+                //replace website name with code coming form site list
+                curl_setopt_array($curl, array(
+                    CURLOPT_URL => $url_for_sites,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_ENCODING => "",
+                    CURLOPT_MAXREDIRS => 10,
+                    CURLOPT_TIMEOUT => 30,
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST => "PUT",
+                    CURLOPT_HTTPHEADER => array( 
+                        'Accept: application/json',
+                        'Content-length: 0', 
+                        "authorization: Bearer ".$token
+                    ),
+                ));
+                $response = curl_exec($curl);
+                $response = json_decode($response);
+
+                if (curl_errno($curl)) {
+                    $error_msg = curl_error($curl);
+                }
+
+                curl_close($curl);
+
+                if( !empty($response) ){
+                    $history = [
+                        'website_store_views_id' => $fetchStores->id,
+                        'log' => isset( $response->error->message ) ? $response->error->message : 'Error'
+                    ];
+                    WebsiteStoreViewsWebmasterHistory::insert( $history );
+					return response()->json( ["code" => 400 , "message" => $response->error->message] );
+                }else{
+                    WebsiteStoreView::where('id', $fetchStores->id)->update( [ 'site_submit_webmaster' => 1 ] );
+					return response()->json( ["code" => 200 , "message" => 'Site submit successfully'] );
+                }
+			}
+			return response()->json( ["code" => 400 , "message" => 'No record found'] );
+		}
+	}
 
 }

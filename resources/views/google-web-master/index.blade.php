@@ -27,7 +27,10 @@
             <table id="table" class="table table-striped table-bordered">
                 <thead>
                 
-                      <span><a class="btn btn-secondary pull-right m-2" href="{{route('googlewebmaster.get-access-token')}}"> Refresh Record</a></span>
+					<span><a class="btn btn-secondary pull-right m-2" href="{{route('googlewebmaster.get-access-token')}}"> Refresh Record</a></span>
+					<span><button class="btn btn-secondary pull-right m-2 site-history" > Site submit history </button></span>
+					<span><button class="btn btn-secondary btn-xs site-history"  > Site submit history </button></span>
+					{{-- <span><a class="btn btn-secondary pull-right m-2" href="{{route('googlewebmaster.get-access-token')}}"> Site submit history</a></span> --}}
                       
 
 
@@ -383,6 +386,7 @@
         </div>
     </div>
 
+@include('google-web-master.site-submit-webmaster-history')
     
 @endsection
 
@@ -398,7 +402,68 @@
 
            $(selector).closest('form').submit();
         }
+	
+	$(document).on("click",".site-history",function(e) {
+        e.preventDefault();
+		var id = $(this).data("id");
+		var btn = $(this);
+		$.ajax({
+			url: '/googlewebmaster/get-site-submit-hitory',
+			type: 'GET',
+			dataType: 'json',
+			beforeSend: function () {
+				btn.prop('disabled',true);
+			},
+			success: function(result){
+				if(result.code == 200) {
+					var t = '';
+					$.each(result.data,function(k,v) {
+						t += `<tr><td>`+v.website_store_views_id+`</td>`;
+						t += `<td>`+v.log+`</td>`;
+						t += '<td><button class="btn btn-secondary btn-xs re-submit-site" data-id="'+v.website_store_views_id+'" title="Re-submit"> <i class="fa fa-refresh"></i></button></td>';
+						t += `<td>`+v.created_at+`</td></tr>`;
+					});
+					if( t == '' ){
+						t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
+					}
+				}
+				$("#category-history-modal").find(".show-list-records").html(t);
+				$("#category-history-modal").modal("show");
+				btn.prop('disabled',false);
+			},
+			error: function (){
+				btn.prop('disabled',false);
+				toastr['error']('Something went wrong', 'Error');
+			}
+		});
+	});
 
+	$(document).on("click",".re-submit-site",function(e) {
+        e.preventDefault();
+		var id = $(this).data("id");
+		var btn = $(this);
+		$.ajax({
+			url: "{{ route('googlewebmaster.re-submit.site.webmaster') }}",
+			type: 'POST',
+			dataType: 'json',
+			data : { _token: "{{ csrf_token() }}", id : id },
+			beforeSend: function () {
+				btn.prop('disabled',true);
+			},
+			success: function(result){
+				if(result.code == 200) {
+					toastr['success'](result.message, 'success');
+				}else{
+					toastr['error'](result.message, 'Error');
+				}
+				btn.prop('disabled',false);
+			},
+			error: function (){
+				toastr['error']('Something went wrong', 'Error');
+				btn.prop('disabled',false);
+			}
+		});
+	});
 
 
 </script>

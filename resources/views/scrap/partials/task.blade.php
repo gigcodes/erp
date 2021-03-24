@@ -11,11 +11,11 @@
         <table class="table table-bordered table-striped sort-priority-scrapper">
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Task</th>
-                    <th>Communication</th>
-                    <th>Assigned to</th>
-                    <th>Created at</th>
+                    <th width="10%">#</th>
+                    <th width="25%">Task</th>
+                    <th width="35%">Communication</th>
+                    <th width="15%">Assigned to</th>
+                    <th width="15%">Created at</th>
                 </tr>
             </thead>
             <tbody class="conent">

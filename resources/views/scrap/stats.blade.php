@@ -26,25 +26,14 @@
         }
 
         .fixed_header tbody {
-            display: block;
             width: 100%;
             overflow: auto;
             height: 250px;
         }
 
-        .fixed_header thead tr {
-            display: block;
-        }
-
         .fixed_header thead {
             background: black;
             color: #fff;
-        }
-
-        .fixed_header th, .fixed_header td {
-            padding: 5px;
-            text-align: left;
-            width: 200px;
         }
     </style>
 @endsection
@@ -265,6 +254,7 @@
                             <td width="10%">
                                 <div class="form-group">
                                     <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->scrapers_status, ["class" => "form-control scrapers_status", "style" => "width:100%;"]); ?>
+                                    <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="status" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
                                 </div>
                                 <br>
                                 @php
@@ -286,6 +276,11 @@
                                 <a style="padding:3px;" class="btn  d-inline btn-image" href="{{ get_server_last_log_file($supplier->scraper_name,$supplier->server_id) }}" id="link" target="-blank"><img src="/images/view.png" /></a>
                                 <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="restartScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )"><img width="2px;" src="/images/resend2.png"/></button>
                                 <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="getRunningStatus('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )"><img width="2px;" src="/images/resend.png"/></button>
+                                <a href="<?php echo route("scraper.get.log.list"); ?>?name=<?php echo $supplier->scraper_name ?>&server_id=<?php echo $supplier->server_id ?>" target="__blank">
+                                    <button style="padding:3px;" type="button" class="btn btn-image d-inline">
+                                        <i class="fa fa-bars"></i>
+                                    </button>
+                                </a>
                                 <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-screenshot">
                                      <i class="fa fa-desktop"></i>
                                 </button>
@@ -764,7 +759,7 @@
                 var no = 1;
                 if(response.code == 200) {
                     $.each(response.data, function (index, value) {
-                        html += '<tr><th scope="row">' + no + '</th><td>' + value.scraper_name + '</td><td>' + moment(value.created_at).format('DD-M H:mm') + '</td><td>' + value.user_name + '</td><td>' + value.remark + '</td></tr>';
+                        html += '<tr><td>' + value.scraper_name + '</td><td>' + moment(value.created_at).format('DD-M H:mm') + '</td><td>' + value.user_name + '</td><td>' + value.remark + '</td></tr>';
                         no++;
                     });
                     $("#latestRemark").find('.show-list-records').html(html);
@@ -780,8 +775,6 @@
 
             var name = $(this).data('name');
 
-            console.log(name)
-            
             $('#add-remark input[name="id"]').val(name);
 
             $.ajax({
@@ -799,7 +792,33 @@
                 $.each(response, function (index, value) {
                     /*html += '<li><span class="float-left">' + value.remark + '</span><span class="float-right"><small>' + value.user_name + ' updated on ' + moment(value.created_at).format('DD-M H:mm') + ' </small></span></li>';
                     html + "<hr>";*/
-                    html += '<tr><th scope="row">' + no + '</th><td>' + value.remark + '</td><td>' + value.user_name + '</td><td>' + moment(value.created_at).format('DD-M H:mm') + '</td></tr>';
+                    html += '<tr><td>' + value.remark + '</td><td>' + value.user_name + '</td><td>' + moment(value.created_at).format('DD-M H:mm') + '</td></tr>';
+                    no++;
+                });
+                $("#makeRemarkModal").find('#remark-list').html(html);
+            });
+        });
+
+        $(document).on('click', '.filter-auto-remark', function (e) {
+            var name = $('#add-remark input[name="id"]').val();
+            var auto = $(this).is(":checked");
+            $.ajax({
+                type: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: '{{ route('scrap.getremark') }}',
+                data: {
+                    name: name,
+                    auto : auto
+                },
+            }).done(response => {
+                var html = '';
+                var no = 1;
+                $.each(response, function (index, value) {
+                    /*html += '<li><span class="float-left">' + value.remark + '</span><span class="float-right"><small>' + value.user_name + ' updated on ' + moment(value.created_at).format('DD-M H:mm') + ' </small></span></li>';
+                    html + "<hr>";*/
+                    html += '<tr><td>' + value.remark + '</td><td>' + value.user_name + '</td><td>' + moment(value.created_at).format('DD-M H:mm') + '</td></tr>';
                     no++;
                 });
                 $("#makeRemarkModal").find('#remark-list').html(html);
@@ -829,7 +848,7 @@
                 html + "<hr>";
 */
                 var no = $("#remark-list").find("tr").length + 1;
-                html = '<tr><th scope="row">' + no + '</th><td>' + remark + '</td><td>You</td><td>' + moment().format('DD-M H:mm') + '</td></tr>';
+                html = '<tr><td>' + remark + '</td><td>You</td><td>' + moment().format('DD-M H:mm') + '</td></tr>';
                 $("#makeRemarkModal").find('#remark-list').append(html);
             }).fail(function (response) {
                 alert('Could not fetch remarks');
@@ -928,10 +947,10 @@
             }).done(function (response) {
                 $("#remarkHistory").modal("show");
                 var table = '';
-                table = table + '<table class="table table-bordered table-striped" ><tr><th>From/To</th><th>Date</th><th>By</th></tr>';
+                table = table + '<table class="table table-bordered table-striped" ><tr><th>From</th><th>To</th><th>Date</th><th>By</th></tr>';
 
                 for(var i=0;i<response.length;i++) {
-                    table = table + '<tr><td>'+response[i].remark+'</td><td>'+response[i].created_at+'</td><td>'+response[i].user_name+'</td></tr>';
+                    table = table + '<tr><td>'+response[i].old_value+'</td><td>'+response[i].new_value+'</td></td><td>'+response[i].created_at+'</td><td>'+response[i].user_name+'</td></tr>';
                 }
                 table = table + '</table>';
 

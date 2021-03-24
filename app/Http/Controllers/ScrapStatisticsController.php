@@ -237,8 +237,15 @@ class ScrapStatisticsController extends Controller
 
     public function showHistory(Request $request)
     {
+        $remarks = ScrapRemark::where('scrap_id', $request->search)->where('scrap_field', $request->field);
 
-        $remarks = ScrapRemark::where('scrap_id', $request->search)->where('scrap_field', $request->field)->get();
+        if(in_array($request->field, ["scraper_start_time","server_id","status"])) {
+            $remarks = $remarks->where(function($q) {
+                $q->orWhere("old_value","!=","")->orWhere("new_value","!=","");
+            });
+        }
+
+        $remarks = $remarks->get();
 
         return response()->json($remarks, 200);
     }
@@ -247,7 +254,14 @@ class ScrapStatisticsController extends Controller
     {
         $name = $request->input('name');
 
-        $remarks  = ScrapRemark::where('scraper_name', $name)->latest()->get();
+        $remarks  = ScrapRemark::where('scraper_name', $name)->where("user_name","!=","");
+
+        if($request->get("auto") == "true") {
+            $remarks  = $remarks->whereNull("scrap_field");
+        }
+
+        $remarks  = $remarks->latest()->get();
+
         $download = $request->input('download');
         return response()->json($remarks, 200);
     }
@@ -335,6 +349,9 @@ class ScrapStatisticsController extends Controller
                 'remark'       => "{$fieldName} updated old value was $oldValue and new value is $newValue",
                 'user_name'    => Auth::user()->name,
                 'scrap_field'  => $fieldName,
+                'old_value'    => $oldValue,
+                'new_value'    => $newValue,
+                'scrap_id'    => $suplier->id
             ]);
 
         }
@@ -391,6 +408,8 @@ class ScrapStatisticsController extends Controller
                 'remark'       => "{$fieldName} updated old value was $oldValue and new value is $newValue",
                 'user_name'    => Auth::user()->name,
                 'scrap_field'  => $fieldName,
+                'old_value'    => $oldValue,
+                'new_value'    => $newValue,
             ]);
 
         }
