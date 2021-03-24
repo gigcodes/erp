@@ -1,12 +1,20 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Purchase extends Model
 {
+   /**
+     * @var string
+     * @SWG\Property(property="communication",type="string")
+     * @SWG\Property(property="whatsapp_number",type="string")
+    
+     */
   use SoftDeletes;
 
   // protected $appends = ['communication'];

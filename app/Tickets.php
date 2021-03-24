@@ -1,11 +1,36 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class Tickets extends Model {
+
+         /**
+     * @var string
+      * @SWG\Property(property="tickets",type="string")
+      * @SWG\Property(property="customer_id",type="integer")
+      * @SWG\Property(property="ticket_id",type="integer")
+      * @SWG\Property(property="subject",type="string")
+      * @SWG\Property(property="message",type="string")
+      * @SWG\Property(property="assigned_to",type="integer")
+      * @SWG\Property(property="source_of_ticket",type="integer")
+      * @SWG\Property(property="status_id",type="integer")
+      * @SWG\Property(property="date",type="datetime")
+      * @SWG\Property(property="name",type="string")
+      * @SWG\Property(property="email",type="string")
+      * @SWG\Property(property="phone_no",type="string")
+      * @SWG\Property(property="type_of_inquiry",type="string")
+      * @SWG\Property(property="order_no",type="string")
+      * @SWG\Property(property="country",type="string")
+      * @SWG\Property(property="last_name",type="string")
+      * @SWG\Property(property="notify_on",type="string")
+      * @SWG\Property(property="amount",type="float")
+      * @SWG\Property(property="sku",type="string")
+     */
 
     protected $table = 'tickets';
     protected $fillable = [

@@ -3163,20 +3163,40 @@ public function submitInvoice(Request $request) {
           if($estimated_delivery_histories->save()){
             $oldOrderDelData->update(['estimated_delivery_date'=>$newdeldate]);
             return response()->json(["code" => 200 , "data" => [], "message" => "Delivery Date Updated Successfully"]);
-        }
+          }
         return response()->json(["code" => 500 , "data" => [], "message" => "Something went wrong"]);
-    }
-    public function viewEstDelDateHistory(request $request){
-        $orderid = $request->input('order_id');
-        $estimated_delivery_histories = \App\EstimatedDeliveryHistory::select('estimated_delivery_histories.*','users.name')
-        ->where('order_id',$orderid)
-        ->where('estimated_delivery_histories.field','estimated_delivery_date')
-        ->leftJoin('users','users.id','estimated_delivery_histories.updated_by')
-        ->orderByDesc('estimated_delivery_histories.created_at')
-        ->get();
-        $html = view('partials.modals.estimated-delivery-date-histories')->with('estimated_delivery_histories', $estimated_delivery_histories)->render(); 
-        return response()->json(["code" => 200 , "html" => $html, "message" => "Something went wrong"]);
-    }
+      }
+
+      public function viewEstDelDateHistory(request $request){
+          $orderid = $request->input('order_id');
+          $estimated_delivery_histories = \App\EstimatedDeliveryHistory::select('estimated_delivery_histories.*','users.name')
+          ->where('order_id',$orderid)
+          ->where('estimated_delivery_histories.field','estimated_delivery_date')
+          ->leftJoin('users','users.id','estimated_delivery_histories.updated_by')
+          ->orderByDesc('estimated_delivery_histories.created_at')
+          ->get();
+          $html = view('partials.modals.estimated-delivery-date-histories')->with('estimated_delivery_histories', $estimated_delivery_histories)->render(); 
+          return response()->json(["code" => 200 , "html" => $html, "message" => "Something went wrong"]);
+      }
+
+    /**
+     * @SWG\Get(
+     *   path="/customer/order-details",
+     *   tags={"Customer"},
+     *   summary="Get customer order details",
+     *   operationId="get-customer-order-details",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
 
     public function customerOrderDetails(Request $request) {
         $token = $request->token;
@@ -3277,13 +3297,14 @@ public function submitInvoice(Request $request) {
             }
 
             $order->status_histories = array_reverse($return_histories);
-        }
-        $orders = $orders->toArray();
-        // $orders = json_encode($orders);
-        $message = $this->generate_erp_response("customer.order.success",$store_website->id, $default = "Orders Fetched successfully", request('lang_code'));
-        return response()->json(['message' => $message,'status' => 200, 'data' => $orders]);
 
+          }
+          $orders = $orders->toArray();
+          // $orders = json_encode($orders);
+          $message = $this->generate_erp_response("customer.order.success",$store_website->id, $default = "Orders Fetched successfully", request('lang_code'));
+          return response()->json(['message' => $message,'status' => 200, 'data' => $orders]);
     }
+    
     public function addNewReply(request $request){
         if($request->reply){
         $replyData = [];

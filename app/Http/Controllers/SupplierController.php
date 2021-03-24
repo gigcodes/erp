@@ -1279,6 +1279,24 @@ class SupplierController extends Controller
         }
     }
 
+    /**
+     * @SWG\Post(
+     *   path="/supplier/brands-raw",
+     *   tags={"Supplier"},
+     *   summary="post supplier brands",
+     *   operationId="post-supplier-brands",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function apiBrandsRaw(Request $request)
     {
         // Get supplier ID

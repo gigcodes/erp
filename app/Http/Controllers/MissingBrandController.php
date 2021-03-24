@@ -10,6 +10,24 @@ use Auth;
 
 class MissingBrandController extends Controller
 {
+    /**
+     * @SWG\Get(
+     *   path="/missing-brand/save",
+     *   tags={"Missing Brand"},
+     *   summary="Save missing brand",
+     *   operationId="save-missing-brand",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function saveMissingBrand(Request $request)
     {
     	$name = $request->name;

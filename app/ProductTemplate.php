@@ -1,12 +1,30 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
 
 class ProductTemplate extends Model
 {
+         /**
+     * @var string
+     * @SWG\Property(property="template_no",type="string")
+     * @SWG\Property(property="product_title",type="string")
+     * @SWG\Property(property="text",type="string")
+     * @SWG\Property(property="font_style",type="string")
+     * @SWG\Property(property="font_size",type="string")
+     * @SWG\Property(property="background_color",type="string")
+     * @SWG\Property(property="brand_id",type="integer")
+     * @SWG\Property(property="currency",type="string")
+     * @SWG\Property(property="price",type="float")
+     * @SWG\Property(property="discounted_price",type="float")
+     * @SWG\Property(property="product_id",type="integer")
+     * @SWG\Property(property="is_processed",type="integer")
+     * @SWG\Property(property="store_website_id",type="integer")
+     */
     use Mediable;
     protected $fillable = [
         'template_no',

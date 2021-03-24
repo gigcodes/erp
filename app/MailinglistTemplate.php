@@ -1,11 +1,26 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 
 class MailinglistTemplate extends Model
 {
+      /**
+     * @var string
+     * @SWG\Property(property="name",type="string")
+     * @SWG\Property(property="mail_class",type="string")
+     * @SWG\Property(property="mail_tpl",type="string")
+     * @SWG\Property(property="image_count",type="integer")
+     * @SWG\Property(property="text_count",type="integer")
+     * @SWG\Property(property="example_image",type="string")
+     * @SWG\Property(property="subject",type="string")
+     * @SWG\Property(property="static_template",type="string")
+     * @SWG\Property(property="category_id",type="integer")
+     * @SWG\Property(property="store_website_id",type="integer")
+     */
     protected $fillable = ['name', 'mail_class', 'mail_tpl', 'image_count', 'text_count', 'example_image', 'subject', 'static_template', 'category_id', 'store_website_id'];
 
     public function file()

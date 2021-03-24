@@ -8,6 +8,31 @@ use Illuminate\Http\Request;
 class ScrapeController extends Controller
 {
     /**
+     * @SWG\Get(
+     *   path="/scrape/queue",
+     *   tags={"Scrape"} ,
+     *   summary="Scrape Queue list",
+     *   operationId="scrape-queue",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="email",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+            @SWG\Parameter(
+     *          name="website",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+   /**
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -94,6 +119,31 @@ class ScrapeController extends Controller
         return response()->json($arData[ rand(0, count($arData) - 1) ]);
     }
 
+
+    /**
+     * @SWG\Get(
+     *   path="/scrape/process",
+     *   tags={"Scrape"} ,
+     *   summary="Scrape process",
+     *   operationId="scrape-process",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="email",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+            @SWG\Parameter(
+     *          name="website",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function processDataFromScraper()
     {
         return response()->json(['result' => 'ok']);

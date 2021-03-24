@@ -1,15 +1,16 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 
 class SimplyDutyCurrency extends Model
 {
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
+     /**
+     * @var string
+     * @SWG\Property(property="currency",type="string")
      */
     protected $fillable = ['currency'];
 }

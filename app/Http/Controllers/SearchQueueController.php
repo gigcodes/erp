@@ -13,6 +13,26 @@ class SearchQueueController extends Controller
   public function __construct(){
     $this->supported_file_types=['png','jpg','jpeg','gif'];
   }
+
+
+  /**
+   * @SWG\Get(
+   *   path="/search/{type}",
+   *   tags={"Search"},
+   *   summary="get search",
+   *   operationId="get-search",
+   *   @SWG\Response(response=200, description="successful operation"),
+   *   @SWG\Response(response=406, description="not acceptable"),
+   *   @SWG\Response(response=500, description="internal server error"),
+   *      @SWG\Parameter(
+   *          name="mytest",
+   *          in="path",
+   *          required=true, 
+   *          type="string" 
+   *      ),
+   * )
+   *
+   */
   public function index($type){
       $validator=Validator::make(['search_type'=>$type], [
         'search_type' =>'required|exists:search_queues,search_type'
@@ -42,6 +62,24 @@ class SearchQueueController extends Controller
       //echo "<pre>";print_r($list);exit;
   }
 
+  /**
+   * @SWG\Post(
+   *   path="/search/{type}",
+   *   tags={"Search"},
+   *   summary="upload content",
+   *   operationId="upload-content",
+   *   @SWG\Response(response=200, description="successful operation"),
+   *   @SWG\Response(response=406, description="not acceptable"),
+   *   @SWG\Response(response=500, description="internal server error"),
+   *      @SWG\Parameter(
+   *          name="mytest",
+   *          in="path",
+   *          required=true, 
+   *          type="string" 
+   *      ),
+   * )
+   *
+   */
   public function upload_content(Request $request){
     set_time_limit(0);
     $validator=Validator::make($request->all(), [

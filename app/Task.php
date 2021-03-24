@@ -1,7 +1,9 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
@@ -10,6 +12,34 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Mediable;
 
 class Task extends Model {
+	    /**
+     * @var string
+      * @SWG\Property(property="category",type="string")
+      * @SWG\Property(property="task_details",type="string")
+      * @SWG\Property(property="task_subject",type="string")
+      * @SWG\Property(property="completion_date",type="datetime")
+      * @SWG\Property(property="assign_from",type="datetime")
+      * @SWG\Property(property="assign_to",type="datetime")
+      * @SWG\Property(property="is_statutory",type="boolean")
+      * @SWG\Property(property="sending_time",type="string")
+      * @SWG\Property(property="recurring_type",type="string")
+      * @SWG\Property(property="statutory_id",type="integer")
+      * @SWG\Property(property="model_type",type="string")
+      * @SWG\Property(property="model_id",type="integer")
+      * @SWG\Property(property="general_category_id",type="integer")
+     
+      * @SWG\Property(property="cost",type="string")
+      * @SWG\Property(property="is_milestone",type="boolean")
+      * @SWG\Property(property="no_of_milestone",type="string")
+      * @SWG\Property(property="milestone_completed",type="string")
+       * @SWG\Property(property="customer_id",type="integer")
+       * @SWG\Property(property="hubstaff_task_id",type="integer")
+       * @SWG\Property(property="master_user_id",type="integer")
+       * @SWG\Property(property="lead_hubstaff_task_id",type="integer")
+       * @SWG\Property(property="due_date",type="datetime")
+       * @SWG\Property(property="site_developement_id",type="integer")
+       * @SWG\Property(property="priority_no",type="integer")
+     */
 
 	use SoftDeletes;
 	use Mediable;

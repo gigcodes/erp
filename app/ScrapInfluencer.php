@@ -1,11 +1,37 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 
 class ScrapInfluencer extends Model
 {
+
+    /**
+     * @var string
+     * @SWG\Property(property="post_id",type="integer")
+     * @SWG\Property(property="post_caption",type="string")
+     * @SWG\Property(property="instagram_user_id",type="integer")
+     * @SWG\Property(property="post_media_type",type="string")
+     * @SWG\Property(property="post_code",type="string")
+     * @SWG\Property(property="post_location",type="string")
+     * @SWG\Property(property="post_hashtag_id",type="interger")
+     * @SWG\Property(property="post_likes",type="string")
+     * @SWG\Property(property="post_comments_count",type="string")
+     * @SWG\Property(property="post_media_url",type="string")
+     * @SWG\Property(property="posted_at",type="datetime")
+     * @SWG\Property(property="comment_user_id",type="integer")
+     * @SWG\Property(property="comment_user_full_name",type="string")
+     * @SWG\Property(property="comment_username",type="string")
+     * @SWG\Property(property="instagram_post_id",type="integer")
+     * @SWG\Property(property="comment_id",type="integer")
+     * @SWG\Property(property="comment",type="string")
+     * @SWG\Property(property="comment_profile_pic_url",type="string")
+     * @SWG\Property(property="comment_posted_at",type="datetime")
+     */
+
     protected $fillable = [
         'post_id',
         'post_caption',

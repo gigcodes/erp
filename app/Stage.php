@@ -1,16 +1,13 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mustafaflexwala
- * Date: 17/08/18
- * Time: 1:14 PM
- */
 
 namespace App;
 
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 class Stage extends ReadOnlyBase {
 
+ 
 	protected $data =[
 		'Selection' => '1',
 		'Searcher' => '1',

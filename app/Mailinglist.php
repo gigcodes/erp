@@ -1,12 +1,23 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use App\StoreWebsite;
 use Illuminate\Database\Eloquent\Model;
 
 class Mailinglist extends Model
 {
+    /**
+     * @var string
+     * @SWG\Property(property="id",type="integer")
+     * @SWG\Property(property="name",type="string")
+     * @SWG\Property(property="remote_id",type="integer")
+     * @SWG\Property(property="service_id",type="integer")
+     * @SWG\Property(property="website_id",type="integer")
+     * @SWG\Property(property="email",type="string")
+     */
     protected $fillable = ['id', 'name', 'remote_id', 'service_id','website_id','email'];
 
     /**

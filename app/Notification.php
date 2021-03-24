@@ -1,13 +1,29 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class Notification extends Model
 {
+
+		/**
+     * @var string
+   * @SWG\Property(property="message",type="string")
+     * @SWG\Property(property="role",type="string")
+
+        * @SWG\Property(property="product_id",type="integer")
+     * @SWG\Property(property="user_id",type="integer")
+     * @SWG\Property(property="sent_to",type="integer")
+     * @SWG\Property(property="sale_id",type="integer")
+     * @SWG\Property(property="task_id",type="integer")
+     * @SWG\Property(property="message_id",type="integer")
+     * @SWG\Property(property="reminder",type="string")
+     */
 	protected $fillable = [
 		"message",
 		"role",

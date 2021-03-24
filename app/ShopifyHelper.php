@@ -1,7 +1,9 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use App\Customer;
 use App\Helpers\OrderHelper;
 use App\Http\Controllers\GoogleTranslateController;

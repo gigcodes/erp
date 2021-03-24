@@ -30,6 +30,24 @@ class UserLogController extends Controller
     }
 
     /**
+     * @SWG\Post(
+     *   path="/userLogs",
+     *   tags={"Userlog"},
+     *   summary="store user logs",
+     *   operationId="save user logs",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request

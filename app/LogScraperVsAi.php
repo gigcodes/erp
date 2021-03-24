@@ -1,13 +1,19 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use App\Category;
 use seo2websites\GoogleVision\LogGoogleVision;
 
 class LogScraperVsAi extends Model
 {
+    /**
+     * @var string
+     * @SWG\Property(property="log_scraper_vs_ai",type="string")
+     */
     protected $table = 'log_scraper_vs_ai';
 
     public static function getAiKeywordsFromResults( $results )

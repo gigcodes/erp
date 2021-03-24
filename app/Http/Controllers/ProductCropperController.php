@@ -365,6 +365,24 @@ class ProductCropperController extends Controller
 
     }
 
+    /**
+     * @SWG\Get(
+     *   path="/crop/amends",
+     *   tags={"Crop"},
+     *   summary="Get Crop amends",
+     *   operationId="get-crop-amends",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function giveAmends()
     {
         $amend = CropAmends::where('status', 1)->first();
@@ -373,6 +391,24 @@ class ProductCropperController extends Controller
         return response()->json($amend);
     }
 
+    /**
+     * @SWG\Post(
+     *   path="/crop/amends",
+     *   tags={"Crop"},
+     *   summary="Save Crop amends",
+     *   operationId="save-crop-amends",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function saveAmends(Request $request)
     {
         $this->validate($request, [
