@@ -11,18 +11,15 @@
       <div class="modal-body">
 
         <?php if((!empty($type) && ($type == 'scrap' || $type == 'email'))) {  ?>
-          <table class="table fixed_header">
+          <table class="table fixed_header table-bordered">
               <thead class="thead-dark">
                 <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Comment</th>
-                  <th scope="col">Created By</th>
-                  <th scope="col">Created At</th>
+                  <th width="50%">Comment</th>
+                  <th width="10%">Created By</th>
+                  <th width="10%">Created At</th>
                 </tr>
               </thead>
-              <tbody id="remark-list">
-
-              </tbody>
+              <tbody id="remark-list"></tbody>
             </table>
         <?php } else{ ?>
         <div class="list-unstyled" id="remark-list">

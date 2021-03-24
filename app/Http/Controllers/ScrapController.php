@@ -1632,4 +1632,42 @@ class ScrapController extends Controller
 
         return response()->json(["code" => 200, "data" => [], "message" => "History saved successfully"]);
     }
+
+    public function getLatestLog(Request $request)
+    {
+        if ($request->name && $request->server_id) {
+            $scraper = Scraper::where('scraper_name', $request->name)->first();
+            if (!$scraper->parent_id) {
+                $name = $scraper->scraper_name;
+            } else {
+                $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
+            }
+
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/send-position?website=' . $name;
+
+            $curl = curl_init();
+            
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+            
+            if (!empty($response)) {
+                $response = json_decode($response);
+                if($response->status == "Didn't able to find file of given scrapper" || empty($response->log)) {
+                    abort(404);
+                }else{
+                    $file = "$request->server_id-$scraper->scraper_name.txt";
+                    header('Content-Description: File Transfer');
+                    header("Content-type: application/octet-stream");
+                    header("Content-disposition: attachment; filename= ".$file."");
+                    echo base64_decode($response->log);
+                }
+            } else {
+                abort(404);
+            }
+        }
+    }
 }

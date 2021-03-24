@@ -26,25 +26,14 @@
         }
 
         .fixed_header tbody {
-            display: block;
             width: 100%;
             overflow: auto;
             height: 250px;
         }
 
-        .fixed_header thead tr {
-            display: block;
-        }
-
         .fixed_header thead {
             background: black;
             color: #fff;
-        }
-
-        .fixed_header th, .fixed_header td {
-            padding: 5px;
-            text-align: left;
-            width: 200px;
         }
     </style>
 @endsection
@@ -286,6 +275,11 @@
                                 <a style="padding:3px;" class="btn  d-inline btn-image" href="{{ get_server_last_log_file($supplier->scraper_name,$supplier->server_id) }}" id="link" target="-blank"><img src="/images/view.png" /></a>
                                 <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="restartScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )"><img width="2px;" src="/images/resend2.png"/></button>
                                 <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="getRunningStatus('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )"><img width="2px;" src="/images/resend.png"/></button>
+                                <a href="<?php echo route("scraper.get.log.list"); ?>?name=<?php echo $supplier->scraper_name ?>&server_id=<?php echo $supplier->server_id ?>" target="__blank">
+                                    <button style="padding:3px;" type="button" class="btn btn-image d-inline">
+                                        <i class="fa fa-bars"></i>
+                                    </button>
+                                </a>
                                 <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-screenshot">
                                      <i class="fa fa-desktop"></i>
                                 </button>
@@ -764,7 +758,7 @@
                 var no = 1;
                 if(response.code == 200) {
                     $.each(response.data, function (index, value) {
-                        html += '<tr><th scope="row">' + no + '</th><td>' + value.scraper_name + '</td><td>' + moment(value.created_at).format('DD-M H:mm') + '</td><td>' + value.user_name + '</td><td>' + value.remark + '</td></tr>';
+                        html += '<tr><td>' + value.scraper_name + '</td><td>' + moment(value.created_at).format('DD-M H:mm') + '</td><td>' + value.user_name + '</td><td>' + value.remark + '</td></tr>';
                         no++;
                     });
                     $("#latestRemark").find('.show-list-records').html(html);
@@ -799,7 +793,7 @@
                 $.each(response, function (index, value) {
                     /*html += '<li><span class="float-left">' + value.remark + '</span><span class="float-right"><small>' + value.user_name + ' updated on ' + moment(value.created_at).format('DD-M H:mm') + ' </small></span></li>';
                     html + "<hr>";*/
-                    html += '<tr><th scope="row">' + no + '</th><td>' + value.remark + '</td><td>' + value.user_name + '</td><td>' + moment(value.created_at).format('DD-M H:mm') + '</td></tr>';
+                    html += '<tr><td>' + value.remark + '</td><td>' + value.user_name + '</td><td>' + moment(value.created_at).format('DD-M H:mm') + '</td></tr>';
                     no++;
                 });
                 $("#makeRemarkModal").find('#remark-list').html(html);
@@ -829,7 +823,7 @@
                 html + "<hr>";
 */
                 var no = $("#remark-list").find("tr").length + 1;
-                html = '<tr><th scope="row">' + no + '</th><td>' + remark + '</td><td>You</td><td>' + moment().format('DD-M H:mm') + '</td></tr>';
+                html = '<tr><td>' + remark + '</td><td>You</td><td>' + moment().format('DD-M H:mm') + '</td></tr>';
                 $("#makeRemarkModal").find('#remark-list').append(html);
             }).fail(function (response) {
                 alert('Could not fetch remarks');
