@@ -101,6 +101,7 @@ class Product extends Model
         'dmeasurement',
         'size',
         'color',
+        'suggested_color',
         'last_brand'
     ];
 
@@ -596,7 +597,7 @@ class Product extends Model
 
     public function suggestions()
     {
-        return $this->belongsToMany('App\Suggestion', 'suggestion_products', 'product_id', 'suggestion_id');
+        return $this->belongsToMany('App\SuggestedProduct', 'suggested_product_lists', 'product_id', 'suggested_products_id');
     }
 
     public function amends()
@@ -1131,6 +1132,7 @@ class Product extends Model
             'products.sku',
             'products.size',
             'products.color',
+            'products.suggested_color',
             'products.composition',
             'products.size_eu',
             'psu.size_system',

@@ -519,6 +519,9 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ route('supplier.index') }}">Supplier List</a></a>
                                         </li>
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('supplier.product.history') }}">Supplier Product History</a></a>
+                                        </li>
+                                        <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('supplier/category/permission') }}">Supplier Category <br> Permission</a></a>
                                         </li>
                                     </ul>
@@ -579,6 +582,10 @@ $metaData = '';
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('LaravelLogController@index') }}">Laravel Log</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('api-log-list') }}">Laravel API Log</a>
+                                        </li>
+                                       
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('LaravelLogController@liveLogs') }}">Live Laravel Log</a>
                                         </li>
@@ -1425,6 +1432,12 @@ $metaData = '';
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.category-seo.index') }}">Category seo</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.cancellation') }}">Cancellation Policy</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('logging.magento.product.api.call') }}">Magento API call</a>
+                                    </li>
                                 </ul>
                             </li>
                         @endif
@@ -1553,6 +1566,11 @@ $metaData = '';
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('email-addresses.index') }}">Email Addresses</a>
                                 </li>
+
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('api-response-message') }}">Api Response Messages</a>
+                                </li>
+
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('services') }}">Services</a>
                                 </li>
@@ -2052,6 +2070,7 @@ $metaData = '';
 
                                     @endforeach
 
+
                                 </ul>
                             </div>
                             <div class="card-footer"></div>
@@ -2219,6 +2238,10 @@ $metaData = '';
                 format: 'HH:mm'
             });
 
+            $('#repeat_end').datetimepicker({
+                format: 'YYYY-MM-DD'
+            });
+
             $(".selectx-vendor").select2({tags :true});
         });
         window.token = "{{ csrf_token() }}";
@@ -2254,6 +2277,18 @@ $metaData = '';
 
         $('.notification-button').on('click', function() {
             $("#quick-user-event-notification-modal").modal("show");
+        });
+
+        $('select[name="repeat"]').on('change', function () {
+            $(this).val() == 'weekly' ? $('#repeat_on').removeClass('hide') : $('#repeat_on').addClass('hide');
+        });
+
+        $('select[name="ends_on"]').on('change', function () {
+            $(this).val() == 'on' ? $('#repeat_end_date').removeClass('hide') : $('#repeat_end_date').addClass('hide');
+        });
+
+        $('select[name="repeat"]').on('change', function () {
+            $(this).val().length > 0 ? $('#ends_on').removeClass('hide') : $('#ends_on').addClass('hide');
         });
 
         $(document).on("submit","#notification-submit-form",function(e){
@@ -2487,7 +2522,6 @@ $metaData = '';
 
         gtag('js', new Date());
         //gtag('config', 'UA-171553493-1');
-        gtag('config', '{{ $account_id }}');
     </script>
     @endif
     <script>

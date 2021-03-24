@@ -62,6 +62,7 @@
         "seo2websites/laravel-zoom": "dev-master",
         "seo2websites/magento-helper": "dev-master",
         "seo2websites/price-comparison-scraper": "dev-master",
+        "googleads/google-ads-php": "master",
         "shweshi/laravel-unsplash-wrapper": "^3.0",
         "skovmand/mailchimp-laravel": "^1.0",
         "spatie/laravel-activitylog": "^2.8",
@@ -142,6 +143,10 @@
         {
             "type": "vcs",
             "url": "git@github.com:ludxb/laravel-mail-editor.git"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:umeshghediya/google-ads-php"
         }
     ],
     "scripts": {

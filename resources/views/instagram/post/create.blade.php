@@ -57,6 +57,9 @@
         <div class="pull-left cls_filter_box">
             <form class="form-inline" action="{{ url('instagram/post/create') }}" method="GET">
                 <div class="form-group ml-3 cls_filter_inputbox">
+                    <input type="text" id="select_date" name="select_date" value="Select Date"  class="form-control">
+                </div>
+                <div class="form-group ml-3 cls_filter_inputbox">
                     <select name="acc" class="form-control">
                         <option value="">Select Account</option>
                         @foreach($accounts as $account)
@@ -112,6 +115,7 @@
                             <th width="5%">Type</th>
                             <th width="8%">Location</th>
                             <th width="20%">Instagram Link</th>
+                            <th width="20%">Status</th>
                             <th>Action</th>
                         </tr>
                         @foreach ($posts as $post)
@@ -145,6 +149,7 @@
                                 </td>
                                 <td>{{$post->location}}</td>
                                 <!--td>{{$post->ig}}</td-->
+                               
                                 <td>
                                     @foreach($accounts as $account)
                                         @if($post->account_id==$account->id)
@@ -155,6 +160,7 @@
                                         @endif
                                     @endforeach
                                 </td>
+                                <td>{{$post->status == 1 ? "Published" : "Not Published"}}</td>
                                 <td>
                                     <a href="{{url('instagram/post/publish-post')}}/{{$post->id}}" class="btn btn-primary" >Publish</a>
                                     <!--button type="button" class="btn-post-save" data-toggle="modal" title="" data-id="{{$post->id}}">Update</button-->
@@ -269,9 +275,24 @@
 <script src="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
 <script src="{{ asset('js/bootstrap-notify.js') }}"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script>
+    $("#select_date").datepicker({
+    format: 'yyyy-mm-dd'
+});
+</script>
 
 <script>
 $(document).ready(function(){
+
+    @if(isset($imagesHtml) && $imagesHtml)
+      $('#add-vendor-info-modal').modal('show');
+      $('#add-vendor-info-modal').addClass('in');
+        $attachImages='{!!$imagesHtml!!}';
+        console.log( $attachImages );
+      $('.media-files-container').prepend($attachImages);
+
+    @endif
    
      $(".btn-modal-hashtag").on("click",function(){
         var hashtag = $(this).data("hashtag");
@@ -479,13 +500,15 @@ $(document).ready(function(){
             }
         });
     }
+
+    
     $('.attachInstagramMedia').on('click', function()
     {
-        if($('#add-vendor-info-modal').hasClass('in')){
-        $('#add-vendor-info-modal').removeClass('in');
-        $('#instagramAttachmentMedia').modal('show');
-        $('#instagramAttachmentMedia').addClass('in');
-        }
+        // if($('#add-vendor-info-modal').hasClass('in')){
+        // $('#add-vendor-info-modal').removeClass('in');
+        // $('#instagramAttachmentMedia').modal('show');
+        // $('#instagramAttachmentMedia').addClass('in');
+        // }
     });
     $('#instagramAttachmentMedia').on('hidden.bs.modal', function () {
         if(!$('#add-vendor-info-modal').hasClass('in')){
@@ -505,7 +528,10 @@ $(document).ready(function(){
         var file_name = selectedMedia.data('file_name');
 
         $media_container = $('.media-manager .media-files-container');
-        $media_container.empty();
+
+         $media_container.empty();
+        
+       
         if(id !=''){
             $media_container.append(
 	                              '<div class="media-file">'

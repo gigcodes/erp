@@ -33,7 +33,8 @@ class PushFcmNotificationController extends Controller
             'website'=>'exists:store_websites,website'
         ]);
         if ($validator->fails()) {
-            return response()->json(['status' => 'failed', 'message' => 'Please check validation errors !', 'errors' => $validator->errors()], 400);
+            $message = $this->generate_erp_response("notification.failed.validation",0, $default = 'Please check validation errors !', request('lang_code'));
+            return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
         }
         $storeweb = StoreWebsite::where('website', $request->website)->first();
         $token_data = [
@@ -43,8 +44,10 @@ class PushFcmNotificationController extends Controller
         ];
         $insert = FcmToken::create($token_data);
         if(!$insert){
-            return response()->json(['status' => 'failed', 'message' => 'Unable to create notification !'], 500);    
+            $message = $this->generate_erp_response("notification.failed",$storeweb->id, $default = 'Unable to create notification !', request('lang_code'));
+            return response()->json(['status' => 'failed', 'message' => $message], 500);    
         }
-        return response()->json(['status' => 'success', 'message' => 'Notification created successfully !'], 200);
+        $message = $this->generate_erp_response("notification.success",$storeweb->id, $default = 'Notification created successfully !', request('lang_code'));
+        return response()->json(['status' => 'success', 'message' => $message], 200);
     }
 }

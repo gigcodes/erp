@@ -134,7 +134,7 @@ class Model
 
     }
 
-    public static function pushQuestion($id, $oldValue = null)
+    public static function pushQuestion($id, $oldValue = null, $watson_account_id = null)
     {
         if (env("PUSH_WATSON", true) == false) {
             return true;
@@ -196,12 +196,17 @@ class Model
 
 //                ManageWatson::dispatch('intent',$question, $storeParams, 'update');
                 ManageWatson::dispatch($question->keyword_or_question, $question, $storeParams, 'update','value',false, $oldValue)->onQueue('watson_push');
+                ChatbotQuestion::where( 'id', $question->id )->update([ 'watson_status' => 'watson sended' ]);
             } else {
                 // $result                 = $watson->create($workSpaceId, $storeParams);
                 $question->workspace_id = $workSpaceId;
                 $question->save();
 
-                $wotson_account_ids = WatsonAccount::pluck('id')->toArray();
+                if( !empty($watson_account_id) ){
+                    $wotson_account_ids = WatsonAccount::where( 'id', $watson_account_id )->pluck('id')->toArray();
+                }else{
+                    $wotson_account_ids = WatsonAccount::pluck('id')->toArray();
+                }
 
                 foreach ($wotson_account_ids as $id) {
                     $data_to_insert[] = [
@@ -214,6 +219,7 @@ class Model
                 WatsonWorkspace::insert($data_to_insert);
 
 //                ManageWatson::dispatch('intent',$question, $storeParams, 'create');
+                ChatbotQuestion::where( 'id', $question->id )->update([ 'watson_status' => 'watson sended' ]);
                 ManageWatson::dispatch($question->keyword_or_question, $question, $storeParams, 'create', 'value',false, $oldValue)->onQueue('watson_push');
 
             }
@@ -531,15 +537,15 @@ class Model
     }
 
 
-    public static function sendMessage(Customer $customer, $inputText, $contextReset = false, $message_application_id = null , $messageModel = false)
+    public static function sendMessage($customer, $inputText, $contextReset = false, $message_application_id = null , $messageModel = false, $userType = null)
     {
-        ManageWatsonAssistant::dispatch($customer, $inputText, $contextReset, $message_application_id,$messageModel)->onQueue('watson_push');
+        ManageWatsonAssistant::dispatch($customer, $inputText, $contextReset, $message_application_id,$messageModel, $userType)->onQueue('watson_push');
 
         return true;
 
     }
 
-    public static function sendMessageFromJob(Customer $customer, $account, $assistant, $inputText, $contextReset = false, $message_application_id = null, $messageModel = null)
+    public static function sendMessageFromJob($customer, $account, $assistant, $inputText, $contextReset = false, $message_application_id = null, $messageModel = null, $userType = null)
     {
         if (env("PUSH_WATSON", true) == false) {
             return true;
@@ -568,7 +574,7 @@ class Model
         if (!empty($customer->chat_session_id)) {
             // now sending message to the watson
             $result = self::sendMessageCustomer($customer, $assistantID, $assistant, $inputText, $contextReset);
-            if (!empty($result->code) && $result->code == 404 && $result->error == "Invalid Session") {
+            if (!empty($result->code) && ($result->code == 403 || $result->code == 404) ) {
                 $customer = self::createSession($customer, $assistant, $assistantID);
                 if ($customer) {
                     $result = self::sendMessageCustomer($customer, $assistantID, $assistant, $inputText, $contextReset);
@@ -614,10 +620,10 @@ class Model
                                 self::sendMessageFromJob($customer, $account, $assistant, "image_has_been_found", true);
 
                                 if (!empty($brands) || !empty($category)) {
-                                    $suggestion = \App\Suggestion::create([
+                                    $suggestion = \App\SuggestedProduct::create([
                                         "customer_id" => $customer->id,
-                                        "brand" => json_encode($brands),
-                                        "category" => json_encode($category),
+                                        "brands" => json_encode($brands),
+                                        "categories" => json_encode($category),
                                         "number" => 30,
                                     ]);
 
@@ -632,6 +638,7 @@ class Model
                                         "number" => null,
                                         "message_application_id" => $message_application_id,
                                         "is_chatbot" => isset($params["is_chatbot"]) ? $params["is_chatbot"] : 0,
+                                        'is_email' => (!empty($messageModel)) ? $messageModel->is_email : 0
                                     ];
 
                                     $chatMessage = ChatMessage::create($insertParams);
@@ -693,7 +700,7 @@ class Model
 
     }
 
-    public static function createSession(Customer $customer, AssistantService $assistant, $assistantID)
+    public static function createSession($customer, AssistantService $assistant, $assistantID)
     {
         if (env("PUSH_WATSON", true) == false) {
             return true;
@@ -776,7 +783,7 @@ class Model
         return false;
     }
 
-    public static function sendMessageCustomer(Customer $customer, $assistantID,  AssistantService $assistant, $inputText, $contextReset = false)
+    public static function sendMessageCustomer($customer, $assistantID,  AssistantService $assistant, $inputText, $contextReset = false)
     {
         if (env("PUSH_WATSON", true) == false) {
             return true;

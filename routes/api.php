@@ -30,6 +30,8 @@ Route::post('mailinglist/add', 'Api\v1\MailinglistController@add');
 
 Route::get('scrape/queue', 'Products\ScrapeController@getUrlFromQueue');
 Route::get('scrape/process', 'Products\ScrapeController@processDataFromScraper');
+Route::post('scrape/send-screenshot', 'ScrapController@sendScreenshot');
+Route::post('scrape/send-position', 'ScrapController@sendPosition');
 
 Route::get('messages/{thread}', 'InstagramController@getThread');
 Route::post('messages/{thread}', 'InstagramController@replyToThread');
@@ -203,3 +205,23 @@ Route::post('notification/create','\App\Http\Controllers\Api\v1\PushFcmNotificat
 
 //Saving Not Found Brand
 Route::get('missing-brand/save','MissingBrandController@saveMissingBrand');
+<<<<<<< HEAD
+=======
+
+//Store data into the laravel_logs
+Route::post('laravel-logs/save','LaravelLogController@saveNewLogData');
+
+
+
+
+Route::post('templates/create/webhook','TemplatesController@createWebhook');
+Route::post('product/templates/update/webhook','ProductTemplatesController@updateWebhook')->name('api.product.update.webhook');
+
+//check for order cancellation
+Route::post('order/check-cancellation','\App\Http\Controllers\Api\v1\ProductController@checkCancellation');
+
+Route::post('magento/order-create','MagentoCustomerReferenceController@createOrder');
+
+
+
+>>>>>>> 7c635bcdedbfb98304d13794f4b58ca268978aee

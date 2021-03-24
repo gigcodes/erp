@@ -135,18 +135,20 @@
 					  <div class="form-group">
 					  	<div class="row">
 					         <label class="col-sm-12" for="password">Password</label>
-					         <div class="col-sm-9 sub-pass">
-					         	<input type="password" name="password" value="{{if prop}}{{:prop.password}}{{/if}}" class="form-control user-password" id="password" placeholder="Enter Password" style="float:left;width:87%">
-					         	<span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password" style="margin-top:10px;margin-left:-25px;cursor:pointer"></span>
-					         	<button type="button" data-id="{{>prop.id}}" class="btn btn-password-history" style="margin-left:4px">
-					        		<i title="View History" class="fa fa-file-text" aria-hidden="true"></i>
-					        	</button>
+					         <div class="col-sm-7 sub-pass">
+					         	<input type="password" name="password" value="{{if prop}}{{:prop.password}}{{/if}}" class="form-control user-password" id="password" placeholder="Enter Password">
 					         </div>
-					         <div class="col-sm-3">
-						        <button type="button" data-id="{{>prop.id}}" class="btn btn-edit-magento-user" style="border:1px solid">
+					         <div class="col-sm-5">
+					         	<button type="button" data-id="" class="btn btn-show-password btn-sm" style="border:1px solid">
+					        		<i class="fa fa-eye" aria-hidden="true"></i>
+					        	</button>
+						        <button type="button" data-id="" class="btn btn-copy-password btn-sm" style="border:1px solid">
+					        		<i class="fa fa-clone" aria-hidden="true"></i>
+					        	</button>
+						        <button type="button" data-id="{{>prop.id}}" class="btn btn-edit-magento-user btn-sm" style="border:1px solid">
 					        		<i class="fa fa-check" aria-hidden="true"></i>
 					        	</button>
-					        	<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-magento-user" style="border:1px solid">
+					        	<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-magento-user btn-sm" style="border:1px solid">
 					        		<i class="fa fa-trash" aria-hidden="true"></i>
 					        	</button>
 					         </div>
@@ -183,15 +185,20 @@
 					  <div class="form-group">
 					  	<div class="row">
 					         <label class="col-sm-12" for="password">Password</label>
-					         <div class="col-sm-9 sub-pass">
-					         	<input type="password" name="password" value="" class="form-control user-password" id="password" placeholder="Enter Password" style="float:left;width:90%">
-					         	<span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password" style="margin-top:10px;margin-left:-25px;cursor:pointer"></span>
+					         <div class="col-sm-7 sub-pass">
+					         	<input type="password" name="password" value="" class="form-control user-password" id="password" placeholder="Enter Password">
 					         </div>
-					         <div class="col-sm-3">
-						        <button type="button" data-id="" class="btn btn-edit-magento-user" style="border:1px solid">
+					         <div class="col-sm-5">
+					         	<button type="button" data-id="" class="btn btn-show-password btn-sm" style="border:1px solid">
+					        		<i class="fa fa-eye" aria-hidden="true"></i>
+					        	</button>
+						        <button type="button" data-id="" class="btn btn-copy-password btn-sm" style="border:1px solid">
+					        		<i class="fa fa-clone" aria-hidden="true"></i>
+					        	</button>
+						        <button type="button" data-id="" class="btn btn-edit-magento-user btn-sm" style="border:1px solid">
 					        		<i class="fa fa-check" aria-hidden="true"></i>
 					        	</button>
-					        	<button type="button" data-id="" class="btn btn-delete-magento-user" style="border:1px solid">
+					        	<button type="button" data-id="" class="btn btn-delete-magento-user btn-sm" style="border:1px solid">
 					        		<i class="fa fa-trash" aria-hidden="true"></i>
 					        	</button>
 					         </div>

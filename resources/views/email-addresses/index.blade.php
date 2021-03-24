@@ -15,6 +15,29 @@
 
     @include('partials.flash_messages')
 
+    <div class="row">
+        <div class="col-xs-12">
+            <form class="form-search-data">
+                <div class="row">
+                    <div class="col-xs-12 col-md-3 pd-2">
+                        <div class="form-group cls_task_subject">
+                            <input type="text" name="keyword" placeholder="Search Keyword" class="form-control input-sm" value="{{ request('keyword') }}">
+                        </div>
+                    </div>
+                    <!-- Language Selection -->
+                    <div class="col-xs-12 col-md-3 pd-2">
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                        </div>
+                    </div>
+                    <!-- Search Network -->
+                    
+                </div>
+                <!-- FILTERS -->
+            </form>
+        </div>
+    </div>
+
     <div class="mt-3 col-md-12">
       <table class="table table-bordered table-striped">
         <thead>
@@ -67,11 +90,12 @@
               </td>
               <td>@if($server->is_success == 1) {{ 'Success' }} @elseif(isset($server->is_success)) {{'Error'}} @else {{'-'}} @endif</td>
               <td>
-                  <button type="button" class="btn btn-image edit-email-addresses d-inline" data-toggle="modal" data-target="#emailAddressEditModal" data-email-addresses="{{ json_encode($server) }}"><img src="/images/edit.png" /></button>
+                  <button type="button" class="btn btn-image edit-email-addresses d-inline"  data-toggle="modal" data-target="#emailAddressEditModal" data-email-addresses="{{ json_encode($server) }}"><img src="/images/edit.png" /></button>
                   <button type="button" class="btn btn-image view-email-history d-inline" data-id="{{ $server->id }}"><img width="2px;" src="/images/view.png"/></button>
                   {!! Form::open(['method' => 'DELETE','route' => ['email-addresses.destroy', $server->id],'style'=>'display:inline']) !!}
                     <button type="submit" class="btn btn-image d-inline"><img src="/images/delete.png" /></button>
                   {!! Form::close() !!}
+                   <a href="javascript:;" data-id="{{ $server->from_address }}" class="show-related-accounts">Show Account</a>
               </td>
             </tr>
           @endforeach
@@ -314,6 +338,23 @@
   </div>
 </div>
 
+<div id="show-content-model-table" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h4 class="modal-title"></h4>
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+              </div>
+              <div class="modal-body">
+                 
+              </div>
+          </div>
+      </div>
+</div>
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+         50% 50% no-repeat;display:none;">
+</div>
+
 @endsection
 
 @section('scripts')
@@ -359,5 +400,29 @@
           $("#loading-image").hide();
         });
     });
+
+
+    $(document).on("click",".show-related-accounts",function(e){
+        var id = $(this).data('id');
+        $.ajax({
+          url: '/email/get-related-account/'+id,
+          type: 'get',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done( function(response) {
+          // Show data in modal
+         
+          var model  = $("#show-content-model-table");
+              model.find(".modal-title").html("Email Used Places");
+              model.find(".modal-body").html(response);
+              model.modal("show");
+
+          $("#loading-image").hide();
+        }).fail(function(errObj) {
+          $("#loading-image").hide();
+        });
+    });
+
   </script>
 @endsection

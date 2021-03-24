@@ -38,6 +38,9 @@
                         <button type="button" title="Language" data-id="{{>prop.id}}" class="btn btn-translate-for-other-language">
                             <i class="fa fa-language" aria-hidden="true"></i>
                         </button>
+                        <button type="button" title="History" data-id="{{>prop.id}}" class="btn btn-history-list">
+                            <i class="fa fa-history" aria-hidden="true"></i>
+                        </button>
                     </td>
                   </tr>
                 {{/props}}

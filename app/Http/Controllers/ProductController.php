@@ -323,6 +323,7 @@ class ProductController extends Controller
         if (!auth()->user()->isAdmin()) {
             $newProducts = $newProducts->whereNull("pvu.product_id");
         }
+        $newProducts = $newProducts->where('isUploaded',0);
 
         $newProducts = $newProducts->select(["products.*"])->paginate(20);
         if (!auth()->user()->isAdmin()) {
@@ -1740,64 +1741,6 @@ class ProductController extends Controller
                     // Update the product so it doesn't show up in final listing
                     $product->isUploaded = 1;
                     $product->save();
-                    //return json_encode([$product]);
-                    //translate product title and description
-    //                $languages = ['hi','ar'];
-                    $languages = Language::pluck('locale')->where("status",1)->toArray();
-                    $isDefaultAvailable = Product_translation::whereIN('locale', $languages)->where('product_id', $product->id)->first();
-                    if (!$isDefaultAvailable) {
-                        $product_translation = new Product_translation;
-                        $product_translation->title = isset($product->name) ? $product->name : "";
-                        $product_translation->description = isset($product->short_description) ? $product->short_description : "";
-                        $product_translation->product_id = $product->id;
-                        $product_translation->locale = 'en';
-                        $product_translation->save();
-                    }else{
-                        $msg = 'Product translation data not exists';
-
-                        $logId = LogListMagento::log($product->id, $msg, 'info');
-                        ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-                        $this->updateLogUserId($logId);
-                    }
-                    if(count($languages) > 0){
-                        foreach ($languages as $language) {
-                            $isLocaleAvailable = Product_translation::where('locale', $language)->where('product_id', $product->id)->first();
-                            if (!$isLocaleAvailable) {
-                                $product_translation = new Product_translation;
-                                $googleTranslate = new GoogleTranslate();
-                                $title = $googleTranslate->translate($language, $product->name);
-                                $description = $googleTranslate->translate($language, $product->short_description);
-                                if ($title && $description) {
-                                    $product_translation->title = $title;
-                                    $product_translation->description = $description;
-                                    $product_translation->product_id = $product->id;
-                                    $product_translation->locale = $language;
-                                    $product_translation->save();
-                                }else{
-                                    $msg = 'Title and description are not available';
-                                    
-                                    $logId = LogListMagento::log($product->id, $msg, 'info');
-                                    ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-                                    $this->updateLogUserId($logId);
-                                }
-                            }else{
-                                $msg = 'Locale data not exists';
-                                $logId = LogListMagento::log($product->id, $msg, 'info');
-                                ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-                                $this->updateLogUserId($logId);
-                            }
-                        }
-                    }else{
-                        $msg = 'Languages data not exists';
-                        
-                        $logId = LogListMagento::log($product->id, $msg, 'info');
-                        ProductPushErrorLog::log("",$product->id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
-                        $this->updateLogUserId($logId);
-                    }
-                    
-                    // Update the product so it doesn't show up in final listing
-                    $product->isUploaded = 1;
-                    $product->save();
                     // Return response
                     return response()->json([
                         'result' => 'queuedForDispatch',
@@ -2305,6 +2248,8 @@ class ProductController extends Controller
         $products = (new Product())->newQuery()->latest();
         $products->where("has_mediables", 1);
 
+
+
         if (isset($request->brand[0])) {
             if ($request->brand[0] != null) {
                 $products = $products->whereIn('brand', $request->brand);
@@ -2659,6 +2604,15 @@ class ProductController extends Controller
             $msg = $inserted.' Products attached successfully';
             return response()->json(['code' => 200, 'message' => $msg]);
         }
+
+        $mailEclipseTpl = mailEclipse::getTemplates()->where('template_dynamic',FALSE);;
+        $rViewMail      = [];
+        if (!empty($mailEclipseTpl)) {
+            foreach ($mailEclipseTpl as $mTpl) {
+                $rViewMail[$mTpl->template_slug] = $mTpl->template_name . " [" . $mTpl->template_description . "]";
+            }
+        }
+
         if ($request->ajax()) {
             $html = view('partials.image-load', [
                 'products' => $products,
@@ -2670,6 +2624,7 @@ class ProductController extends Controller
                 'countSuppliers' => $countSuppliers,
                 'customerId' => $customerId,
                 'categoryArray' => $categoryArray,
+                'rViewMail' => $rViewMail
             ])->render();
 
             if (!empty($from) && $from == "attach-image") {
@@ -2687,15 +2642,6 @@ class ProductController extends Controller
 
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         //\Log::info(print_r(\DB::getQueryLog(),true));
-
-        $mailEclipseTpl = mailEclipse::getTemplates()->where('template_dynamic',FALSE);;
-        $rViewMail      = [];
-        if (!empty($mailEclipseTpl)) {
-            foreach ($mailEclipseTpl as $mTpl) {
-                $rViewMail[$mTpl->template_slug] = $mTpl->template_name . " [" . $mTpl->template_description . "]";
-            }
-        }
-
         return view('partials.image-grid', compact(
             'products',
             'products_count',
@@ -2718,7 +2664,7 @@ class ProductController extends Controller
             'countCategory',
             'countSuppliers',
             'customerId',
-            'categoryArray',
+           // 'categoryArray',
             'term',
             'rViewMail'
         ));
@@ -3186,7 +3132,7 @@ class ProductController extends Controller
 
             $productMediacount = ($productMediacount * $multi);
 
-            \Log::info(json_encode(["Media Crop",$product->id,$multi,$totalM,$productMediacount,$cropCount]));
+            //\Log::info(json_encode(["Media Crop",$product->id,$multi,$totalM,$productMediacount,$cropCount]));
 
             if ($productMediacount <= $cropCount) {
                 $product->cropped_at = Carbon::now()->toDateTimeString();
@@ -4808,7 +4754,6 @@ class ProductController extends Controller
             $term = $lastSuggestion->keyword;
             $limit = $lastSuggestion->total;
         }
-
         /* $remove_ids = \App\SuggestedProductList::where('customer_id',$customerId)->pluck('product_id as id'); */
 
         $remove_ids = \App\SuggestedProductList::where('suggested_products_id',$suggested_products_id)->pluck('product_id as id');
@@ -4843,6 +4788,9 @@ class ProductController extends Controller
                                 array_push($category_children, $child->id);
                             }
                         }
+
+                        array_push($category_children, $category);
+
                     } else {
                         array_push($category_children, $category);
                     }
@@ -4879,7 +4827,6 @@ class ProductController extends Controller
         
         // select fields..
         $products = $products->select(['products.id', 'name', 'short_description', 'color', 'sku', 'products.category', 'products.size', 'price_eur_special', 'price_inr_special', 'supplier', 'purchase_status', 'products.created_at']);
-
 
         $products = $products->paginate($limit);
 
@@ -4928,7 +4875,7 @@ class ProductController extends Controller
         if (empty($perPageLimit)) {
             $perPageLimit = Setting::get('pagination');
         }
-        $suggestedProducts = \App\SuggestedProduct::join('suggested_product_lists','suggested_products.customer_id','suggested_product_lists.customer_id')->where('chat_message_id','!=',NULL);
+        $suggestedProducts = \App\SuggestedProduct::join('suggested_product_lists','suggested_products.customer_id','suggested_product_lists.customer_id')->where('suggested_products.chat_message_id','!=',NULL);
         if($customerId) {
             $suggestedProducts = $suggestedProducts->where('suggested_products.customer_id',$customerId);
         }

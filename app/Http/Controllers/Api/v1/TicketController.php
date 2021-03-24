@@ -72,10 +72,12 @@ class TicketController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['status' => 'failed', 'message' => 'Please check the errors in validation!', 'errors' => $validator->errors()], 400);
+            $message = $this->generate_erp_response("ticket.failed.validation", 0, $default = "Please check the errors in validation!", request('lang_code'));
+            return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
         }
         if(isset($request->notify_on) && $request->notify_on!='email' && $request->notify_on!='phone'){
-            return response()->json(['status' => 'failed', 'message' => 'notify_on field must be either email or phone!', 'errors' => $validator->errors()], 400);            
+            $message = $this->generate_erp_response("ticket.failed.email_or_phone", 0, $default = "notify_on field must be either email or phone!", request('lang_code'));
+            return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);            
         }
 
         $data = $request->all();
@@ -83,9 +85,11 @@ class TicketController extends Controller
         $data['status_id'] = 1;
         $success = Tickets::create($data);
         if (!is_null($success)) {
-            return response()->json(['status' => 'success', 'data' => ["id" => $data['ticket_id']], 'message' => 'Ticket #' . $data['ticket_id'] . ' created successfully'], 200);
+            $message = $this->generate_erp_response("ticket.success", 0, $default = 'Ticket #' . $data['ticket_id'] . ' created successfully', request('lang_code'));
+            return response()->json(['status' => 'success', 'data' => ["id" => $data['ticket_id']], 'message' => $message], 200);
         }
-        return response()->json(['status' => 'success', 'message' => 'Unable to create ticket'], 500);
+        $message = $this->generate_erp_response("ticket.failed", 0, $default = 'Unable to create ticket', request('lang_code'));
+        return response()->json(['status' => 'error', 'message' => $message], 500);
     }
 
     /**
@@ -157,10 +161,12 @@ class TicketController extends Controller
             'website' => 'required'
         ]);
         if ($Validator->fails()) {
-            return response()->json(['status' => 'failed', 'message' => 'Please check validation errors !', 'errors' => $Validator->errors()], 400);
+            $message = $this->generate_erp_response("ticket.send.failed.validation", 0, $default = 'Please check validation errors !', request('lang_code'));
+            return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $Validator->errors()], 400);
         }
         if(empty($request->email) && empty($request->ticket_id)){
-            return response()->json(['status' => 'failed', 'message' => 'Please input either email or ticket_id !', ], 400);            
+            $message = $this->generate_erp_response("ticket.send.failed.ticket_or_email", 0, $default = 'Please input either email or ticket_id !', request('lang_code'));
+            return response()->json(['status' => 'failed', 'message' => $message, ], 400);            
         }
         $tickets = Tickets::select('tickets.*','ts.name as status')->where('source_of_ticket',$request->website);
         if($request->email!=null){
@@ -175,7 +181,8 @@ class TicketController extends Controller
         }
         $tickets = $tickets->join('ticket_statuses as ts','ts.id', 'tickets.status_id')->paginate($per_page);
         if(empty($tickets)){
-            return response()->json(['status' => 'failed', 'message' => 'Tickets not found for customer !', ], 404);    
+            $message = $this->generate_erp_response("ticket.send.failed", 0, $default = 'Tickets not found for customer !', request('lang_code'));
+            return response()->json(['status' => 'failed', 'message' => $message, ], 404);    
         }
         return response()->json(['status' => 'success', 'tickets' => $tickets ], 200);
     }

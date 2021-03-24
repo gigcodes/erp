@@ -37,7 +37,10 @@ class ProductsCreator
         if ($supplierModel == null) {
             // Debug
             Log::channel('productUpdates')->debug("[Error] Supplier is null " . $image->website);
-
+            // check if the object is related to scraped product then we will add the error over there
+            $image->validated = 0;
+            $image->validation_result = "[Error] Supplier is null " . $image->website." while adding sku ".$image->sku;
+            $image->save();
             // Return false
             return false;
         } else {
@@ -56,6 +59,12 @@ class ProductsCreator
         ]);
 
         // Get color
+        $isWithColor = false;
+        if (isset($image->properties['color'])) {
+            if(!empty($image->properties['color'])) {
+                $isWithColor = true;
+            }
+        }
         $color = ColorNamesReference::getProductColorFromObject($image);
 
         $composition = $formattedDetails['composition'];
@@ -98,7 +107,9 @@ class ProductsCreator
             if (!$product) {
                 // Debug
                 Log::channel('productUpdates')->debug("[Error] No product!");
-
+                $image->validated = 0;
+                $image->validation_result = "[Error] No product! " . $image->website." while adding sku ".$image->sku;
+                $image->save();
                 // Return false
                 return false;
             }
@@ -324,6 +335,9 @@ class ProductsCreator
 
         if ($product === null) {
             Log::channel('productUpdates')->debug("[Skipped] Product is null");
+            $image->validated = 0;
+            $image->validation_result = "[Skipped] Product is null " . $image->website." while adding sku ".$image->sku;
+            $image->save();
             return;
         }
         // Changed status to auto crop now
@@ -342,7 +356,6 @@ class ProductsCreator
         $product->is_on_sale = $image->is_sale ? 1 : 0;
 
         $product->composition = $composition;
-        $product->color = ColorNamesReference::getProductColorFromObject($image);
         $product->size = $formattedDetails[ 'size' ];
         $product->lmeasurement = (int)$formattedDetails[ 'lmeasurement' ];
         $product->hmeasurement = (int)$formattedDetails[ 'hmeasurement' ];
@@ -355,6 +368,15 @@ class ProductsCreator
         }else{
             $product->status_id = \App\Helpers\StatusHelper::$unknownCategory;
         }
+
+        // color has been updating from here
+        if($isWithColor) {
+           $product->color = $color;
+        }else{
+           $product->suggested_color = $color;
+           $product->status_id = \App\Helpers\StatusHelper::$unknownColor;
+        }
+
         // start to update the eu size
         if(!empty($product->size)) {
             $sizeExplode = explode(",", $product->size);
@@ -411,6 +433,11 @@ class ProductsCreator
         } catch (\Exception $exception) {
             Log::channel('productUpdates')->alert("[Exception] Couldn't create product");
             Log::channel('productUpdates')->alert($exception->getMessage());
+
+            $image->validated = 0;
+            $image->validation_result = "[Exception] Couldn't create product " . $exception->getMessage()." while adding sku ".$image->sku;
+            $image->save();
+
             return;
         }
 

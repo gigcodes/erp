@@ -27,7 +27,7 @@
     <?php foreach ($pendingApprovalMsg as $pam) {?>
     <tr>
         <td>{{ $pam->customer_id }}[{{ $pam->chat_id }}]</td>
-        <td>{{ $pam->customer_name }}</td>
+        <td>{{  ($pam->vendor_id > 0 ) ? $pam->vendors_name : $pam->customer_name }}</td>
         <td>{{ $pam->website_title }}</td>
         <td class="user-input">{{ $pam->question }}</td>
         <td class="boat-replied">{{ $pam->answer }}</td>
@@ -45,16 +45,13 @@
         <td class="images-layout">
             <form class="remove-images-form" action="{{ route('chatbot.messages.remove-images') }}" method="post">
                 {{ csrf_field() }}
-                @if($pam->hasMedia(config('constants.media_tags')))
-                    @foreach($pam->getMedia(config('constants.media_tags')) as $medias)
-                        <div class="panel-img-shorts">
-                            <input type="checkbox" name="delete_images[]"
-                                   value="{{ $medias->pivot->mediable_id.'_'.$medias->id }}" class="remove-img"
-                                   data-media-id="{{ $medias->id }}"
-                                   data-mediable-id="{{ $medias->pivot->mediable_id }}">
-                            <img width="50px" heigh="50px" src="{{ $medias->getUrl() }}">
-                        </div>
-                    @endforeach
+                @php
+                    $botMessage = \App\ChatMessage::find($pam->chat_id);
+                @endphp
+                @if(isset($botMessage))
+                    @if($botMessage->hasMedia(config('constants.media_tags')))
+                        {{ $botMessage->getMedia(config('constants.media_tags'))->count() }}
+                    @endif
                 @endif
             </form>
         </td>

@@ -89,6 +89,61 @@
 		isOpenCreateFrom : '<?php echo !empty($productArr) ? 'true' : 'false'; ?>',
 		ddlSelectProduct : {!! json_encode($productArr) !!},
 	});
+
+
+	$(document).ready(function()
+	{
+		$(document).on('change','.template-dropdown-function',function()
+		{
+            var id=$(this).val();
+    	
+    	var templateRow={};
+    	$('.special').html('');
+    	$.each(templatesData,(function(k,v)
+    	{
+    		if(v.id==id)
+    		{
+    			templateRow=v;
+    		}
+    	})
+    	)
+
+    	if(templateRow.modifications.length)
+    	{
+    		$.each(templateRow.modifications,function(k,v)
+    		{ 
+    			
+           
+                if(typeof templateRow.modifications[k+1] !=='undefined' &&v.row_index==templateRow.modifications[k+1].row_index && templateRow.modifications[k+1].tag=='image_url')
+                {
+                	
+                	return;
+                }
+                  
+
+                    //console.log(v);
+
+    			if(v.tag !=='image_url')
+    			{
+    				$('.special').append('<div class="form-group row"> <label for="'+v.tag+'" class="col-sm-3 col-form-label">'+v.tag+'</label><div class="col-sm-6"> <input type="text" name="modifications_array['+v.row_index+']['+v.tag+']" class="form-control" id="'+v.tag+v.row_index+'" value="'+v.value+'"></div></div>');
+    			}
+
+    			
+
+            
+
+    			
+    		$('.special').append('<hr>');
+
+
+    		})
+    	}
+		})
+	})
+
+	var templatesData=JSON.parse('{!!json_encode($templatesJSON)!!}');
+
+    console.log(templatesData);
 </script>
 
 @endsection

@@ -115,7 +115,7 @@ class TaskModuleController extends Controller {
 			$isCompleteWhereClose = ' AND is_verified IS NULL ';
 
 			if(!Auth::user()->isAdmin()) {
-				$isCompleteWhereClose = ' AND is_completed IS NULL AND is_verified IS NULL ';
+				$isCompleteWhereClose = ' AND is_verified IS NULL ';
 			}
 			if($request->filter_by == 1) {
 				$isCompleteWhereClose = ' AND is_completed IS NULL ';
@@ -142,7 +142,7 @@ class TaskModuleController extends Controller {
 				  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
 			  ) as chat_messages  ON chat_messages.task_id = tasks.id
 			) AS tasks
-			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$isCompleteWhereClose.' AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.'; ');
+			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$isCompleteWhereClose.' AND (assign_from = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.'; ');
 
 
 			foreach ($data['task']['pending'] as $task) {
@@ -1033,12 +1033,7 @@ class TaskModuleController extends Controller {
         $tokens = $this->getTokens();
        // echo '<pre>';print_r($tokens);
 
-        if(time() > $tokens->token_life)
-        {
-        	$this->refreshTokens();
-
-            $tokens = $this->getTokens();
-        }
+        
 
        
 

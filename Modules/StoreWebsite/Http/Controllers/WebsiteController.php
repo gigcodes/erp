@@ -457,14 +457,13 @@ class WebsiteController extends Controller
         $copyStoreWebsiteID  = $request->to_store_website_id;
 
         if (!empty($copyStoreWebsiteID)) {
-            $allWebsites = Website::where("store_website_id", $storeWebsiteId)->where('is_finished',1)->get();
+            $allWebsites = Website::where("store_website_id", $storeWebsiteId)->get();
             if(!$allWebsites->isEmpty()) {
                 foreach ($allWebsites as $key => $cWebsite) {
                     $isExist = Website::where("code", replace_dash($cWebsite->code))->where('store_website_id',$copyStoreWebsiteID)->first();
                     if($isExist) {
                         continue;
                     }
-
 
                     $website                   = new Website;
                     $website->name             = $cWebsite->name;

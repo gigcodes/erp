@@ -89,6 +89,7 @@
                 <form action="{{ url()->current() }}" method="GET" id="searchForm" class="form-inline align-items-start">
                     <input type="hidden" name="source_of_search" value="attach_media">
                     <input type="hidden" name="return_url" value="{{ request('return_url') }}">
+                    <input type="hidden" name="from_account" value="{{ request('from_account') }}">
                     <input type="hidden" name="selected_products" id="selected_products" value="{{ request('selected_products') }}">
                     <div class="form-group mr-3 mb-3">
                         <input name="term" type="text" class="form-control" id="product-search"
@@ -291,6 +292,10 @@
         } else if ($model_type == 'newsletters'){
             $action =  route('newsletters.save');
         }
+        else if($model_type=='instagram-post')
+        {
+            $action =route('instagram.post.images');
+        }
     @endphp
     <form action="{{ $action }}" data-model-type="{{$model_type}}" method="POST" id="attachImageForm">
         @csrf
@@ -302,6 +307,9 @@
         
         @if (request()->get('return_url'))
             <input type="hidden" name="return_url" value="{{ request()->get('return_url') }}"/>
+        @endif
+        @if (request()->get('from_account'))
+            <input type="hidden" name="from_account" value="{{ request()->get('from_account') }}"/>
         @endif
 
         <input type="hidden" name="images" id="images" value="">

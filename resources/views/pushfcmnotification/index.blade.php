@@ -71,6 +71,24 @@
     {!! $data->render() !!}
 
 
+    <div id="show-content-model-table" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title"></h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                       
+                    </div>
+                </div>
+            </div>
+      </div>
+    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+               50% 50% no-repeat;display:none;">
+    </div>
+
+
 @endsection
 
 @section('scripts')
@@ -149,6 +167,29 @@
     	$(this).parent('.alltext').prev('.lesstext').show();
 
     });
+
+    $(document).on("click",".fcm-notification-list",function (e){
+        e.preventDefault();
+        var id = $(this).data("id");
+        $.ajax({
+            url: '/pushfcmnotification/error-list',
+            type: 'GET',
+            data: {id: id},
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function(response) {
+            $("#loading-image").hide();
+            var model  = $("#show-content-model-table");
+            model.find(".modal-title").html("Error notification log");
+            model.find(".modal-body").html(response);
+            model.modal("show");
+        }).fail(function() {
+            $("#loading-image").hide();
+            alert('Please check laravel log for more information')
+        });
+    });
+
 </script>
 
 @endsection

@@ -218,7 +218,7 @@
                     <button type="button" class='btn btn-image whatsapp-group pd-5' data-id="{{ $task->id }}" data-toggle='modal' data-target='#whatsAppMessageModal'><img src="{{asset('images/whatsapp.png')}}" /></button>
                 @endif
 
-                @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
+                @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id() || $task->master_user_id == Auth::id())
                     <button type="button" title="Complete the task by user" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png"/></button>
                     @if ($task->assign_from == Auth::id())
                         <button type="button" title="Verify the task by admin" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/completed-green.png"/></button>
@@ -227,10 +227,6 @@
                     @endif
 
                     <button type="button" class='btn btn-image ml-1 reminder-message pd-5' data-id="{{ $task->message_id }}" data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png'/></button>
-
-                    @if ($task->is_statutory != 3)
-                        <button type="button" class='btn btn-image ml-1 convert-task-appointment pd-5' data-id="{{ $task->id }}"><img src='/images/details.png'/></button>
-                    @endif
 
                     <button type="button"  data-id="{{ $task->id }}" class="btn btn-file-upload pd-5">
                         <i class="fa fa-upload" aria-hidden="true"></i>

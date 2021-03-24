@@ -131,8 +131,9 @@ var page = {
     },
 
     editRecord : function(ele) {
+        var value = $(ele).closest('tr').children('td:eq(1)').text();
         var _z = {
-            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/category-seo/"+ele.data("id")+"/edit",
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/category-seo/" + ele.data("id") + "/edit?category="+value,
             method: "get",
         }
         this.sendAjax(_z, 'editResult');
@@ -144,6 +145,11 @@ var page = {
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
+            $('input[name="meta_keyword"]').trigger('change');
+            $('textarea[name="meta_description"]').trigger('change');
+
+            $('input[name="meta_keyword"]').trigger('change');
+            $('textarea[name="meta_description"]').trigger('change');
 
             $('#google_translate_element').summernote();
 
@@ -230,31 +236,67 @@ $(document).on('change', '#meta_title', function () {
 });
 
 $(document).on('click', '#extra-keyword-search-btn', function () {
+    $(document).find('.suggestList').hide();
     getGoogleKeyWord($('#extra-keyword-search').val());
 });
 
-$(document).on('click', '.suggestList > li', function () {
+$(document).on('click', '#keyword-search-btn', function () {
+    $(document).find('.suggestList').hide();
+    getGoogleKeyWord($('#meta_title').val());
+});
 
-    if ($(this).hasClass('badge-green')) {
-        $('#meta_keywords').val($('#meta_keywords').val().replace("," + $(this).text(), ""));
-        $(this).removeClass('badge-green').find('i').remove()
-    } else {
-        $('#meta_keywords').val($('#meta_keywords').val() + ',' + $(this).text());
-        $(this).addClass('badge-green').append('<i class="fa fa-remove pl-2"></i>')
+$(document).on('click', '.keyword-list', function () {
+    var keywords = $(this).text();
+    
+    if (keywords) {
+        if ($(this).hasClass('badge-green')) {
+            $('#meta_keywords').val($('#meta_keywords').val().replace("," + keywords, ""));
+            $(this).removeClass('badge-green').find('i').remove()
+        } else {
+            $('#meta_keywords').val($('#meta_keywords').val() + ',' + keywords);
+            $(this).addClass('badge-green').append('<i class="fa fa-remove pl-2"></i>')
+        }
     }
+
+    $('input[name="meta_keyword"]').trigger('change');
+
+});
+
+// $(document).on('click', '.suggestList > li', function () {
+//     var keywords = $(this).data('keyword');
+
+//     if ( keywords ) {
+//         if ($(this).hasClass('badge-green')) {
+//             $('#meta_keywords').val($('#meta_keywords').val().replace("," + keywords, ""));
+//             $(this).removeClass('badge-green').find('i').remove()
+//         } else {
+//             $('#meta_keywords').val($('#meta_keywords').val() + ',' + keywords);
+//             $(this).addClass('badge-green').append('<i class="fa fa-remove pl-2"></i>')
+//         }
+//     }
+
+//     $('input[name="meta_keyword"]').trigger('change');
+
+// });
+
+
+$(document).on('change , keyup', 'input[name="meta_keyword"]', function () {
+    $('#meta_keywords_count').text( 'Length: '+ $(this).val().length);
+});
+
+$(document).on('change , keyup', 'textarea[name="meta_description"]', function () {
+    $('#meta_desc_count').text('Length: ' + $(this).val().length);
 });
 
 function getGoogleKeyWord(title) {
-
-    $(document).find('.suggestList').empty();
-    $(document).find('.suggestList').removeClass('width-fix');
+    $(document).find('.suggestList-table').empty();
     var lan = $('.website-language-change').val();
 
     $.ajax({
        
         type: 'get',
-        url: '/google-keyword-search',
-        data: { keyword: title, language: lan, google_search: 'true' },
+        url: '/google-keyword-search-v6',
+        data: { keyword: title, google_search: 'true' },
 
         beforeSend: function () {
             $("#loading-image").show();
@@ -263,10 +305,14 @@ function getGoogleKeyWord(title) {
             if (response.length > 0) {
                 $(document).find('#extra-keyword-search-btn').removeClass('hide');
                 $(document).find('#extra-keyword-search').removeClass('hide');
-                $(document).find('.suggestList').addClass('width-fix');
+                var t = '';
                 $.each(response, function (index, data) {
-                    $(document).find('.suggestList').append('<li class="badge badge-primary">' + data.keyword + '</i>');
+                    t += `<tr><td class="keyword-list">` + data.keyword + `</td>`;
+                    t += `<td>` + data.avg_monthly_searches + `</td>`;
+                    t += `<td>` + data.competition + `</td></tr>`;
                 });
+                $(document).find('.suggestList-table').html(t);
+                $(document).find('.suggestList').show();
             } else {
                 $(document).find('#extra-keyword-search-btn,#extra-keyword-search').hide();
             }
@@ -277,3 +323,39 @@ function getGoogleKeyWord(title) {
         },
     });
 }
+
+$(document).on("click", ".btn-history-list", function (e) {
+    console.log($(this).data());
+    // e.preventDefault();
+    var product_id = $(this).data("id");
+    $.ajax({
+        url: '/store-website/category-seo/'+ product_id + '/history',
+        type: 'get',
+        dataType: 'json',
+        beforeSend: function () {
+            $("#loading-image").show();
+        },
+        success: function (result) {
+            console.log(result);
+            $("#loading-image").hide();
+
+            if (result.code == 200) {
+                var t = '';
+                $.each(result.data, function (k, v) {
+                    t += `<tr><td>` + v.id + `</td>`;
+                    t += `<td>` + v.old_keywords + `</td>`;
+                    t += `<td>` + v.new_keywords + `</td>`;
+                    t += `<td>` + v.old_description + `</td>`;
+                    t += `<td>` + v.new_description + `</td>`;
+                    t += `<td>` + v.user_name + `</td>`;
+                    t += `<td>` + v.created_at + `</td></tr>`;
+                });
+            }
+            $("#category-history-modal").find(".show-list-records").html(t);
+            $("#category-history-modal").modal("show");
+        },
+        error: function () {
+            $("#loading-image").hide();
+        }
+    });
+});

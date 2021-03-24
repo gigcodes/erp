@@ -1,4 +1,5 @@
 <script type="text/x-jsrender" id="template-create-website">
+
     
         <div class="modal-content">
            
@@ -40,8 +41,13 @@
               </div>
               <div class="form-row">
                   <div class="form-group col-md-6">
-                    <label for="name">Title</label>
-                    <input type="text" name="title" id="title-page" value="{{if data}}{{:data.title}}{{/if}}" class="form-control" placeholder="Enter title">
+					  <div class="d-flex justify-content-between">
+						  <label for="name">Title</label>
+						  <button type="button" class="btn btn-primary btn-sm" id="keyword-search-btn"> <l class="fa fa-search"></i> </button>
+					  </div>
+					<div class="input-group">
+						<input type="text" name="title" id="title-page" value="{{if data}}{{:data.title}}{{/if}}" class="form-control" placeholder="Enter title">
+					</div>
                   </div>
                   <div class="form-group col-md-6">
                     <label for="meta_title">Meta Title</label>
@@ -50,9 +56,11 @@
               </div>
               <div class="form-row">
                 <div class="form-group col-md-6">
-                  <label for="meta_keywords">Meta Keywords</label>
+				<div class="d-flex justify-content-between">
+					<label for="meta_keywords">Meta Keywords</label>
+					<span id="meta_keywords_count"></span>
+				</div>
                   <input type="text" name="meta_keywords" value="{{if data}}{{:data.meta_keywords}}{{/if}}" class="form-control" id="meta_keywords" placeholder="Enter Keywords">
-							
 					  <div class="form-group">
 						<div class="justify-content-end pt-4 input-group">
 							<input type="text" value="" class="hide form-control  w-50" id="extra-keyword-search">
@@ -60,14 +68,26 @@
 								<button type="button" class="hide btn btn-primary" id="extra-keyword-search-btn"> <l class="fa fa-search"></i> </button>
 							</div>
 						</div>
-						<div class="row pt-3">
-							<ul class="suggestList pl-4"></ul>
+						<div class="row pt-3 height-fix suggestList" style="display:none">
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Keywords</th>
+										<th>Avg. monthly</th>
+										<th>Competition</th>
+									</tr>
+								</thead>
+								<tbody class="suggestList-table"></tbody>
+							</table>
 						</div>
 					   </div>
 				   
                 </div>
                 <div class="form-group col-md-6">
-                  <label for="meta_description">Meta Description</label>
+					<div class="d-flex justify-content-between">
+						<label for="meta_description">Meta Description</label>
+						<span id="meta_desc_count"></span>
+					</div>
                   <textarea name="meta_description" class="form-control" placeholder="Enter meta description">{{if data}}{{:data.meta_description}}{{/if}}</textarea>
                 </div>
               </div>

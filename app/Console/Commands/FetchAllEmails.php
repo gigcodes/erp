@@ -9,12 +9,10 @@ use App\EmailAddress;
 use App\EmailRunHistories;
 use App\Supplier;
 use Carbon\Carbon;
-use Illuminate\Console\Command;
-use Webklex\IMAP\Client;
 use EmailReplyParser\Parser\EmailParser;
-use App\ChatMessagesQuickData;
-use App\ChatMessage;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Webklex\IMAP\Client;
 
 /**
  * @author Sukhwinder <sukhwinder@sifars.com>
@@ -55,7 +53,6 @@ class FetchAllEmails extends Command
      */
     public function handle()
     {
-
         $report = CronJobReport::create([
             'signature'  => $this->signature,
             'start_time' => Carbon::now(),
@@ -141,6 +138,7 @@ class FetchAllEmails extends Command
 
                         // check if email has already been received
 
+                        $textContent = $email->getTextBody();
                         if ($email->hasHTMLBody()) {
                             $content = $email->getHTMLBody();
                         } else {
@@ -148,7 +146,7 @@ class FetchAllEmails extends Command
                         }
 
                         $email_subject = $email->getSubject();
-                        \Log::channel('customer')->info("Subject  => ".$email_subject);
+                        \Log::channel('customer')->info("Subject  => " . $email_subject);
 
                         //if (!$latest_email_date || $email->getDate()->timestamp > $latest_email_date->timestamp) {
                         $attachments_array = [];
@@ -162,11 +160,11 @@ class FetchAllEmails extends Command
                             $attachments_array[] = $path;
 
                             /*start 3215 attachment fetch from DHL mail */
-                            \Log::channel('customer')->info("Match Start  => ".$email_subject);
+                            \Log::channel('customer')->info("Match Start  => " . $email_subject);
 
                             $findFromEmail = explode('@', $fromThis);
                             if (strpos(strtolower($email_subject), "your copy invoice") !== false && isset($findFromEmail[1]) && (strtolower($findFromEmail[1]) == 'dhl.com')) {
-                                \Log::channel('customer')->info("Match Found  => ".$email_subject);
+                                \Log::channel('customer')->info("Match Found  => " . $email_subject);
                                 $this->getEmailAttachedFileData($attachment->name);
                             }
                             /*end 3215 attachment fetch from DHL mail */
@@ -217,59 +215,67 @@ class FetchAllEmails extends Command
                         //                            dump("Received from: ". $email->getFrom()[0]->mail);
                         Email::create($params);
 
-                        $historyParam = [
-                            'email_address_id'        => $emailAddress->id,
-                            'is_success'              => 1,
-                        ];
-                        EmailRunHistories::create($historyParam);
-
                         if ($type['type'] == 'incoming') {
-                            $message = trim($content);
 
-                            $reply    = \App\WatsonAccount::getReply($message);
+                            $message = trim($textContent);
 
-                            $reply    = (new EmailParser())->parse($reply);
+                            $reply = (new EmailParser())->parse($message) ;
+
                             $fragment = current($reply->getFragments());
                             
+                            $pattern = '(On[^abc,]*, (Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)\s+\d{1,2},\s+\d{4}, (1[0-2]|0?[1-9]):([0-5][0-9]) ([AaPp][Mm]))';
+
+                            $reply = strip_tags($fragment);
+
+                            $reply = preg_replace( $pattern, " ", $reply );
+                            
                             if ($reply) {
-                                $params = [
-                                    'model_id' => $model_id,
-                                    'model_type' => $model_type,
-                                    'origin_id' => $origin_id,
-                                    'reference_id' => $reference_id,
-                                    'type' => 'outgoing',
-                                    'seen' => $email->getFlags()['seen'],
-                                    'from' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                                    'to' => $email->getFrom()[0]->mail,
-                                    'subject' => $email->getSubject(),
-                                    'message' => $fragment->getContent(),
-                                    'template' => 'customer-simple',
-                                    'additional_data' => json_encode(['attachment' => []]),
-                                    'created_at' => $email->getDate(),
-                                    'approve_mail' => 1,
-                                ];
-                                Email::create($params);
+                                $customer = \App\Customer::where('email', $from)->first();
+                                if (!empty($customer)) {
+                                    // store the main message
+                                    $params = [
+                                        'number'      => $customer->phone,
+                                        'message'     => $reply,
+                                        'media_url'   => null,
+                                        'approved'    => 0,
+                                        'status'      => 0,
+                                        'contact_id'  => null,
+                                        'erp_user'    => null,
+                                        'supplier_id' => null,
+                                        'task_id'     => null,
+                                        'dubizzle_id' => null,
+                                        'vendor_id'   => null,
+                                        'customer_id' => $customer->id,
+                                        'is_email'    => 1
+                                    ];
+                                    $messageModel = \App\ChatMessage::create($params);
+                                    \App\Helpers\MessageHelper::whatsAppSend($customer, $reply, null, null, $isEmail = true);
+                                    \App\Helpers\MessageHelper::sendwatson($customer, $reply, null, $messageModel, $params , $isEmail = true);
+                                }
                             }
                         }
-                        /*$customer = \App\customers::where( 'email' , $email->getFrom()[0]->mail )->get();
 
-                        if ( !empty( $customer ) ) {
-                            \App\Helpers\MessageHelper::whatsAppSend( $customer , $fragment->getContent() );
-                            \App\Helpers\MessageHelper::sendwatson( $customer , $fragment->getContent() );
-                        }*/
                         //}
                     }
                 }
+
+                $historyParam = [
+                    'email_address_id' => $emailAddress->id,
+                    'is_success'       => 1,
+                ];
+
+                EmailRunHistories::create($historyParam);
 
                 dump('__________');
 
                 $report->update(['end_time' => Carbon::now()]);
             } catch (\Exception $e) {
+
                 \Log::channel('customer')->info($e->getMessage());
                 $historyParam = [
-                    'email_address_id'        => $emailAddress->id,
-                    'is_success'              => 0,
-                    'message'                 => $e->getMessage()
+                    'email_address_id' => $emailAddress->id,
+                    'is_success'       => 0,
+                    'message'          => $e->getMessage(),
                 ];
                 EmailRunHistories::create($historyParam);
                 \App\CronJob::insertLastError($this->signature, $e->getMessage());
@@ -410,15 +416,15 @@ class FetchAllEmails extends Command
                             ])->save();
 
                         }
-                    }catch(\Exception $e) {
-                        \Log::error("Error from the dhl invoice : ".$e->getMessage());
+                    } catch (\Exception $e) {
+                        \Log::error("Error from the dhl invoice : " . $e->getMessage());
                     }
-                    
+
                 }
             }
             $rowincrement++;
         }
         fclose($file);
     }
-    
+
 }

@@ -32,6 +32,17 @@
                 </div>
               </div>
               <div class="form-group row">
+                <label for="email" class="col-4 col-form-label">{{ __('Email') }}</label>
+                <div class="col-8">
+                  <input id="email" name="email" placeholder="Email" type="text" class="form-control {{ $errors->has('email') ? ' is-invalid' : '' }}" value="{{old('email') ?? $storeWebsiteAnalyticData->email}}" required="required" autofocus>
+                  @if ($errors->has('email'))
+                    <span class="invalid-feedback">
+                      <strong>{{ $errors->first('email') }}</strong>
+                    </span>
+                  @endif
+                </div>
+              </div>
+              <div class="form-group row">
                 <label for="account_id" class="col-4 col-form-label">{{ __('Account Id') }}</label>
                 <div class="col-8">
                   <input id="account_id" name="account_id" placeholder="Account Id" type="text" class="form-control {{ $errors->has('account_id') ? ' is-invalid' : '' }}" value="{{old('account_id') ?? $storeWebsiteAnalyticData->account_id}}" required="required" autofocus>

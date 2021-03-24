@@ -529,7 +529,6 @@
                             @foreach($data['task']['pending'] as $task)
                             @php $task->due_date='';
                                  $task->lead_hubstaff_task_id=0;
-                                 $task->master_user_id=0;
                                  $task->status=1;
                                 @endphp
                                 <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} {{ !$task->due_date ? 'no-due-date' : '' }} {{ $task->due_date && (date('Y-m-d H:i') > $task->due_date && !$task->is_completed) ? 'over-due-date' : '' }} {{ $task->is_statutory == 3 ? 'row-highlight' : '' }}" id="task_{{ $task->id }}">
@@ -793,7 +792,7 @@
                                                     
                                                 @endif
 
-                                                @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
+                                                @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id()  || $task->master_user_id == Auth::id())
                                                     <button type="button" title="Complete the task by user" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png"/></button>
                                                     @if ($task->assign_from == Auth::id())
                                                         <button type="button" title="Verify the task by admin" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/completed-green.png"/></button>
@@ -802,10 +801,6 @@
                                                     @endif
 
                                                     <button type="button" class='btn btn-image ml-1 reminder-message pd-5' data-id="{{ $task->message_id }}" data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png'/></button>
-
-                                                    @if ($task->is_statutory != 3)
-                                                        <button type="button" class='btn btn-image ml-1 convert-task-appointment pd-5' data-id="{{ $task->id }}"><img src='/images/details.png'/></button>
-                                                    @endif
 
                                                     <button type="button"  data-id="{{ $task->id }}" class="btn btn-file-upload pd-5">
                                                         <i class="fa fa-upload" aria-hidden="true"></i>

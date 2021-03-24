@@ -79,7 +79,7 @@
             @if(auth()->user()->isAdmin())
                     <button type="button" class='btn btn-image whatsapp-group pd-5' data-id="{{ $task->id }}" data-toggle='modal' data-target='#whatsAppMessageModal'><img src='/images/whatsapp.png'/></button>
             @endif
-            @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
+            @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id() || $task->master_user_id == Auth::id())
                     @if ($task->is_completed == '')
                         <button type="button" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png"/></button>
                     @else
@@ -92,9 +92,6 @@
 
                     <button type="button" class='btn btn-image ml-1 reminder-message pd-5' data-id="{{ $task->message_id }}" data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png'/></button>
 
-                    @if ($task->is_statutory != 3)
-                        <button type="button" class='btn btn-image ml-1 convert-task-appointment pd-5' data-id="{{ $task->id }}"><img src='/images/details.png'/></button>
-                    @endif
             @endif
             @if ((!$special_task->users->contains(Auth::id()) && $special_task->contacts()->count() == 0))
                 @if ($task->is_private == 1)

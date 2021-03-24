@@ -75,7 +75,8 @@ class ReferaFriend extends Controller
             'website' => 'required|exists:store_websites,website',
         ]);
         if ($validator->fails()) {
-            return response()->json(['status' => 'failed', 'message' => 'Please check validation errors !', 'errors' => $validator->errors()], 400);
+            $message = $this->generate_erp_response("refera.friend.failed.validation", $storeweb->id, $default = 'Please check validation errors !', request('lang_code'));
+            return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
         }
         $storeweb = StoreWebsite::where('website',$request->input('website'))->first(); 
         
@@ -84,10 +85,11 @@ class ReferaFriend extends Controller
         //$uuid = isset($customer->id)?md5($customer->id):'';
         $uuid = md5(Str::random(15));
         if(!$uuid){
+            $message = $this->generate_erp_response("refera.friend.failed", $storeweb->id, $default = 'Referrer does not exist in records', request('lang_code'));
             return response()->json(
                 [
                     'status' => 'failed',
-                    'message' => 'Referrer does not exist in records',
+                    'message' => $message,
                 ],
                 404
             );
@@ -104,16 +106,18 @@ class ReferaFriend extends Controller
             $refferal_data['store_website_id'] = $storeweb->id;
             return $this->createCoupon($refferal_data);
         }
-        return response()->json(['status' => 'failed', 'message' => 'Unable to create referral at the moment. Please try later !'], 500);
+        $message = $this->generate_erp_response("refera.friend.failed", $storeweb->id, $default = 'Unable to create referral at the moment. Please try later !', request('lang_code'));
+        return response()->json(['status' => 'failed', 'message' => $message], 500);
     }
     public function createCoupon($data = null)
     {
 
         if (!isset($data) || $data == '') {
+            $message = $this->generate_erp_response("coupon.failed", $data['store_website_id'], $default = 'Unable to create coupon', request('lang_code'));
             return response()->json(
                 [
                     'status' => 'failed',
-                    'message' => 'Unable to create coupon',
+                    'message' => $message,
                 ],
                 500
             );
@@ -123,10 +127,11 @@ class ReferaFriend extends Controller
         $referee_coupon = Str::random(15);
         $refferal_program = ReferralProgram::where(['name'=>'signup_referral','store_website_id'=>$data['store_website_id']])->first();
         if(!$refferal_program){
+            $message = $this->generate_erp_response("coupon.failed.refferal_program", $data['store_website_id'], $default = 'refferal program for website does not exists !', request('lang_code'));
             return response()->json(
                 [
                     'status' => 'failed',
-                    'message' => 'refferal program for website does not exists !',
+                    'message' => $message,
                 ],
                 404
             );
@@ -181,18 +186,21 @@ class ReferaFriend extends Controller
                 $mailData['referlink'] =  $referlink;
                 $mailData['referee_coupon'] =  $referee_coupon;
                 $this->sendMail($mailData);
+                $message = $this->generate_erp_response("refera.friend.success", 0, $default = 'refferal created successfully', request('lang_code'));
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'refferal created successfully',
+                    'message' => $message,
                     'referrer_code' => $referrer_coupon,
                     //'referee_code' => $referee_coupon,
                     'referrer_email' => $data['referrer_email'],
                     'referee_email' => $data['referee_email']
                 ], 200);
             }
+
+            $message = $this->generate_erp_response("coupon.failed", $data['store_website_id'], $default = 'Unable to create coupon', request('lang_code'));
             return response()->json([
                 'status' => 'failed',
-                'message' => 'Unable to create coupon',
+                'message' => $message,
             ], 500);
             /* return response()->json([
                 'status' => 'success',
@@ -259,9 +267,13 @@ class ReferaFriend extends Controller
     }
     public function sendMail($data=null)
     {
-        if($data){
-            $to = $data['referee_email'];
-            Mail::to($to)->send(new SendReferralMail($data));    
+        try{
+            if($data){
+                $to = $data['referee_email'];
+                Mail::to($to)->send(new SendReferralMail($data));    
+            }
+        }catch(\Exception $e){
+            \Log::error($e);
         }
         return true;
     }

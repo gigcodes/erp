@@ -252,7 +252,7 @@ class BrandController extends Controller
      */
     public function brandReference()
     {
-        $brands = Brand::select('name','references')->where('magento_id', '>', 0)->get();
+        $brands = Brand::select('name','references')->get();
         foreach ($brands as $brand) {
             $referenceArray[] = $brand->name;
             if(!empty($brand->references)){
@@ -433,7 +433,7 @@ class BrandController extends Controller
                     $newBrand->save();
                 }
             } else {
-                return response()->json(['message' => 'Brand already exist!'], 422);
+                return response()->json(['message' => 'Brand unmerged successfully'], 200);
             }
             Activity::create([
                 'subject_type' => "Brand",
@@ -441,7 +441,7 @@ class BrandController extends Controller
                 'causer_id' => Auth::user()->id,
                 'description' => Auth::user()->name ." has unmerged ".$fromBrand->name. " to ".$request->brand_name
             ]);
-            return response()->json(["data" => []], 200);
+            return response()->json(['message' => 'Brand unmerged successfully',  "data" => []], 200);
         }
 
         return response()->json(["code" => 500 , "data" => [],"message" => "Please check valid brand exist"]);
@@ -466,5 +466,16 @@ class BrandController extends Controller
     public function activites(Request $request, $id) {
         $activites = Activity::where('subject_id',$id)->where('subject_type','Brand')->get();
         return view()->make('brand.activities', compact('activites'));
+    }
+
+    public function priority(Request $request)
+    {
+        $brand = Brand::find($request->id);
+      $brand->priority = $request->priority;
+      if($brand->save())
+      {
+        return response()->json(['message' => 'Brand priority updated'], 200);
+      }
+      
     }
 }

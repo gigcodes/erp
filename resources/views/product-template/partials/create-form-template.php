@@ -11,15 +11,17 @@
              <div class="form-group row">
                 <label for="template_no" class="col-sm-3 col-form-label">Template No</label>
                 <div class="col-sm-6">
-                    <select class="form-control template_no valid" name="template_no" aria-invalid="false">
+                    <select class="form-control template-dropdown-function template_no valid" name="template_no" aria-invalid="false">
                         <?php 
                             foreach ($templateArr as $template) {
-                                $media = $template->lastMedia(config('constants.media_tags'));
-                                echo '<option value="'.$template->id.'" data-image="'.(($media) ? $media->getUrl() : "").'" data-no-of-images="'.$template->no_of_images.'">'.$template->name.'</option>';
+                               $media = $template->lastMedia(config('constants.media_tags'));
+                                echo '<option value="'.$template->id.'" data-image="'.(($media) ? $media->getUrl():"").'" data-no-of-images="'.$template->no_of_images.'">'.$template->name.'</option>';
                             }
                        ?>
                     </select>
                 </div>
+
+
                 <div class="col-sm-3">
                   <div class="image_template_no" style="position: absolute; width: 85%;">
                   </div>
@@ -45,40 +47,8 @@
                     </div>
                 </div>
              </div>
-             <div class="form-group row">
-                <label for="product_title" class="col-sm-3 col-form-label">Product Title</label>
-                <div class="col-sm-6">
-                   <?php echo Form::text("product_title",null,["class" => "form-control product_title"]); ?>
-                </div>
-             </div>
-
-             <div class="form-group row">
-                <label for="text" class="col-sm-3 col-form-label">Text</label>
-                <div class="col-sm-6">
-                   <?php echo Form::select("text",["" => ""] + $texts , null ,["class" => "form-control text select2"]); ?>
-                </div>
-             </div>
-
-             <div class="form-group row">
-                <label for="font_style" class="col-sm-3 col-form-label">Font Style</label>
-                <div class="col-sm-6">
-                   <?php echo Form::text("font_style",null ,["class" => "form-control"]); ?>
-                </div>
-             </div>
-
-             <div class="form-group row">
-                <label for="font_size" class="col-sm-3 col-form-label">Font Size</label>
-                <div class="col-sm-6">
-                   <?php echo Form::text("font_size",null ,["class" => "form-control"]); ?>
-                </div>
-             </div>
-
-             <div class="form-group row">
-                <label for="background_color" class="col-sm-3 col-form-label">Background color</label>
-                <div class="col-sm-6">
-                   <?php echo Form::select("background_color[]",$backgroundColors,null ,["class" => "form-control select2","multiple" => "true"]); ?>
-                </div>
-             </div>
+           
+           <div class="special"> </div>
 
              <div class="form-group row">
                 <label for="brand_id" class="col-sm-3 col-form-label">Brand</label>

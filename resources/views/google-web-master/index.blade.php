@@ -159,6 +159,7 @@
 
                               <select class="form-control select-multiple" id="web-select" tabindex="-1" aria-hidden="true" name="country" onchange="//showStores(this)">
                                     <option value="">Select Country</option>
+                                    <option value="all">All</option>
 
                                     @foreach($countries as $country)
 
@@ -200,7 +201,11 @@
                 
                      <!--  <span><a class="btn btn-secondary pull-right m-2" href="{{route('googlewebmaster.get-access-token')}}"> Refresh Record</a></span> -->
                       
+    @php 
+         $currentQueries = $request->query();
 
+
+    @endphp
 
                     <tr>
                         <th>S.N</th>
@@ -210,7 +215,79 @@
                         <th>Query</th>
                         <th>Search Apperiance</th>
                         <th>Page</th>
-                        <th>Clicks</th>
+                        @php
+                          $clickType=$ctrType=$positionType=$impressionsType='asc';
+
+                        if(isset($request->clicks) && $request->clicks=='asc'):
+                        $clickType='desc';
+                        endif;
+
+                        if(isset($request->ctr) && $request->ctr=='asc'):
+                        $ctrType='desc';
+                        endif;
+
+                        if(isset($request->position) && $request->position=='asc'):
+                        $positionType='desc';
+                        endif;
+
+                        if(isset($request->impression) && $request->impression=='asc'):
+                        $impressionsType='desc';
+                        endif;
+
+                        
+
+
+                        $allQueries=array_merge($currentQueries,['clicks'=>$clickType,]);
+
+                        $ctrURL=$request->fullUrlWithQuery(array_merge($currentQueries,['ctr'=>$ctrType]));
+
+                        $positionURL=$request->fullUrlWithQuery(array_merge($currentQueries,['position'=>$positionType]));
+
+                        $impressionsURL=$request->fullUrlWithQuery(array_merge($currentQueries,['impression'=>$impressionsType]));
+
+                        $clicksURL=$request->fullUrlWithQuery($allQueries);
+
+                        @endphp
+                        <th style="text-align:center;">Clicks
+                          <a style="color:black;" href="{{$clicksURL}}">
+                          @if($clickType=='asc')
+
+                          <i class="fa fa-angle-down" ></i>
+                          @else
+                          <i class="fa fa-angle-up"></i>
+                          @endif
+                        </a>
+                      </th>
+                       <th style="text-align:center;">Ctr
+                          <a style="color:black;" href="{{$ctrURL}}">
+                          @if($ctrType=='asc')
+
+                          <i class="fa fa-angle-down" ></i>
+                          @else
+                          <i class="fa fa-angle-up"></i>
+                          @endif
+                        </a>
+                      </th>
+                        <th style="text-align:center;">Position
+                          <a style="color:black;" href="{{$positionURL}}">
+                          @if($positionType=='asc')
+
+                          <i class="fa fa-angle-down" ></i>
+                          @else
+                          <i class="fa fa-angle-up"></i>
+                          @endif
+                        </a>
+                      </th>
+                        <th style="text-align:center;">Impression
+                          <a style="color:black;" href="{{$impressionsURL}}">
+                          @if($impressionsType=='asc')
+
+                          <i class="fa fa-angle-down" ></i>
+                          @else
+                          <i class="fa fa-angle-up"></i>
+                          @endif
+                        </a>
+                      </th>
                         
                         <th>Date</th>
 
@@ -231,6 +308,11 @@
 
                       <td>{{$row->page}}</td>
                       <td>{{$row->clicks}}</td>
+                      <td>{{$row->ctr}}</td>
+                      <td>{{$row->position}}</td>
+                      <td>{{$row->impressions}}</td>
+
+
                       <td>{{$row->date}}</td>
 
                      
@@ -243,10 +325,59 @@
                     @endforeach
 
                     <tr>
-    <td colspan="4">
+    <td colspan="12">
         {{ $sitesData->appends(request()->except("page"))->links() }}
     </td>
 </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+<div class="row">
+        <div class="col-md-12">
+            <h2 class="page-heading">Sites Logs</h2>
+        </div>
+
+        <div class="col-12">
+          <div class="pull-left"></div>
+
+          <div class="pull-right">
+            <div class="form-group">
+              &nbsp;
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+          
+            <table id="table" class="table table-striped table-bordered">
+                <thead>
+                
+                      
+         
+
+                    <tr>
+                        <th>S.N</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                      
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($logs as $key=> $log ) 
+                    <tr>
+                      <td>{{$log->id}}</td>
+                      <td>{{$log->log_name}}</td>
+                     
+                      <td>{{$log->description}}</td>
+                     
+                    </tr>
+
+                    @endforeach
                 </tbody>
             </table>
         </div>

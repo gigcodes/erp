@@ -47,7 +47,10 @@ class Customer extends Model
         'reminder_last_reply',
         'wedding_anniversery',
         'dob',
-        'do_not_disturb'
+        'do_not_disturb',
+        'store_name',
+        'language',
+        'newsletter'
     ];
 
     protected $casts = [
@@ -96,7 +99,7 @@ class Customer extends Model
 
     public function suggestion()
     {
-        return $this->hasOne('App\Suggestion');
+        return $this->hasOne('App\SuggestedProduct');
     }
 
     public function instructions()

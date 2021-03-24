@@ -179,7 +179,8 @@ var page = {
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
-
+            $('input[name="meta_keywords"]').trigger('change');
+            $('textarea[name="meta_description"]').trigger('change');
             $('#google_translate_element').summernote();
 
         //new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
@@ -452,32 +453,67 @@ $(document).on('change', '#title-page', function () {
 });
 
 $(document).on('click', '#extra-keyword-search-btn', function () {
+    $(document).find('.suggestList').hide();
     getGoogleKeyWord($('#extra-keyword-search').val());
 });
 
-$(document).on('click', '.suggestList > li', function () {
+$(document).on('click', '#keyword-search-btn', function () {
+    $(document).find('.suggestList').hide();
+    getGoogleKeyWord($('#title-page').val());
+});
 
-    if ($(this).hasClass('badge-green')) {
-        $('#meta_keywords').val($('#meta_keywords').val().replace("," + $(this).text(), ""));
-        $(this).removeClass('badge-green').find('i').remove()
-        // $(this+' i').remove()
-    } else {
-        $('#meta_keywords').val($('#meta_keywords').val() + ',' + $(this).text());
-        $(this).addClass('badge-green').append('<i class="fa fa-remove pl-2"></i>')
+$(document).on('click', '.keyword-list', function () {
+
+    var keywords = $(this).text();
+    if (keywords ) {
+        if ($(this).hasClass('badge-green')) {
+            $('#meta_keywords').val($('#meta_keywords').val().replace("," + keywords, ""));
+            $(this).removeClass('badge-green').find('i').remove()
+            // $(this+' i').remove()
+        } else {
+            $('#meta_keywords').val($('#meta_keywords').val() + ',' + keywords);
+            $(this).addClass('badge-green').append('<i class="fa fa-remove pl-2"></i>')
+        }
     }
+    $('input[name="meta_keywords"]').trigger('change');
+
+});
+
+// $(document).on('click', '.suggestList > li', function () {
+
+//     var keywords = $(this).data('keyword');
+//     if (keywords ) {
+//         if ($(this).hasClass('badge-green')) {
+//             $('#meta_keywords').val($('#meta_keywords').val().replace("," + keywords, ""));
+//             $(this).removeClass('badge-green').find('i').remove()
+//             // $(this+' i').remove()
+//         } else {
+//             $('#meta_keywords').val($('#meta_keywords').val() + ',' + keywords);
+//             $(this).addClass('badge-green').append('<i class="fa fa-remove pl-2"></i>')
+//         }
+//     }
+
+//     $('input[name="meta_keywords"]').trigger('change');
+// });
+
+$(document).on('change , keyup', 'input[name="meta_keywords"]', function () {
+    $('#meta_keywords_count').text( 'Length: '+ $( this ).val().length );
+});
+
+$(document).on('change , keyup', 'textarea[name="meta_description"]', function () {
+    $('#meta_desc_count').text( 'Length: '+ $(this).val().length );
 });
 
 function getGoogleKeyWord(title) {
 
-    $(document).find('.suggestList').empty();
-    $(document).find('.suggestList').removeClass('width-fix');
+    $(document).find('.suggestList-table').empty();
     var lan = $('.website-language-change').val();
 
     $.ajax({
        
         type: 'get',
-        url: '/google-keyword-search',
-        data: { keyword: title, language: lan, google_search: 'true' },
+        url: '/google-keyword-search-v6',
+        data: { keyword: title, google_search: 'true' },
 
         beforeSend: function () {
             $("#loading-image").show();
@@ -486,10 +522,14 @@ function getGoogleKeyWord(title) {
             if (response.length > 0) {
                 $(document).find('#extra-keyword-search-btn').removeClass('hide');
                 $(document).find('#extra-keyword-search').removeClass('hide');
-                $(document).find('.suggestList').addClass('width-fix');
+                var t = '';
                 $.each(response, function (index, data) {
-                    $(document).find('.suggestList').append('<li class="badge badge-primary">' + data.keyword + '</i>');
+                    t += `<tr><td class="keyword-list">` + data.keyword + `</td>`;
+                    t += `<td>` + data.avg_monthly_searches + `</td>`;
+                    t += `<td>` + data.competition + `</td></tr>`;
                 });
+                $(document).find('.suggestList-table').html(t);
+                $(document).find('.suggestList').show();
             } else {
 
                 $(document).find('#extra-keyword-search-btn,#extra-keyword-search').hide();

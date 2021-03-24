@@ -14,6 +14,7 @@ return array(
     'media_original_tag' => ['original'],
     'media_gallery_tag' => 'gallery',
     'media_barcode_tag' => ['barcode'],
+    'media_screenshot_tag' => ['screenshot'],
     'media_barcode_path' => "/uploads/product-barcode/",
     'paginate' => '10',
     'image_per_folder' => '10000',

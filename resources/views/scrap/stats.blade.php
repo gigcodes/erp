@@ -88,10 +88,9 @@
             </div>
             <div class="form-group mb-3 col-md-3">
                 <select name="scrapers_status" class="form-control form-group">
-                    <option value="">Status</option>
-                    <option <?php echo request()->get('scrapers_status','') == 'Ok' ? 'selected=selected' : '' ?> value="Ok">Ok</option>
-                    <option <?php echo request()->get('scrapers_status','') == 'Rework' ? 'selected=selected' : '' ?> value="Rework">Rework</option>
-                    <option <?php echo request()->get('scrapers_status','') == 'In Process'? 'selected=selected' : '' ?> value="In Process">In Process</option>
+                    @foreach(\App\Scraper::STATUS as $k => $v)
+                        <option <?php echo request()->get('scrapers_status','') == $k ? 'selected=selected' : '' ?> value="<?php echo $k; ?>"><?php echo $v; ?></option>
+                    @endforeach
                 </select>
             </div>
             <div class="form-group mr-3 mb-3 col-md-3">
@@ -101,15 +100,11 @@
     </form>
     <div class="row">
         <div class="col col-md-7">
-            <div class="col-md-4">
-                Status Ok count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'Ok')->where('supplier_status_id', 1)->count()}}
-            </div>
-            <div class="col-md-4">
-                Status Rework count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'Rework')->where('supplier_status_id', 1)->count()}}
-            </div>
-            <div class="col-md-4">
-                Status In Process count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'In Process')->where('supplier_status_id', 1)->count()}}
-            </div>
+            @foreach(\App\Scraper::STATUS as $k => $v)
+                <div class="col-md-4">
+                    Status {{$v}} count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', $v)->where('supplier_status_id', 1)->count()}}
+                </div>
+            @endforeach
         </div>    
         <div class="col col-md-5">
             <div class="row">
@@ -192,12 +187,12 @@
                                 $hasWarning = false;
                                 if ( (!empty($data) && $data->running == 0) || $data == null ) {
                                     $hasError =  true;
-                                    echo '<tr class="history-item-scrap" data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'">';
+                                    echo '<tr class="history-item-scrap" data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'" data-eleid="'.$supplier->id.'">';
                                 } elseif ( $percentage > 25 ) {
                                     $hasWarning = true;
-                                    echo '<tr class="history-item-scrap" data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'">';
+                                    echo '<tr class="history-item-scrap" data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'" data-eleid="'.$supplier->id.'">';
                                 } else {
-                                    echo '<tr class="history-item-scrap" data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'">';
+                                    echo '<tr class="history-item-scrap" data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'" data-eleid="'.$supplier->id.'">';
                                 }
 
                                 if($status == 1 && !$hasError) {
@@ -268,7 +263,14 @@
                                 {{ isset(\App\Helpers\StatusHelper::getStatus()[$supplier->next_step_in_product_flow]) ? \App\Helpers\StatusHelper::getStatus()[$supplier->next_step_in_product_flow] : "N/A" }}
                             </td> -->
                             <td width="10%">
-                                {{ !empty($supplier->scrapers_status) ? $supplier->scrapers_status : "N/A" }}
+                                <div class="form-group">
+                                    <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->scrapers_status, ["class" => "form-control scrapers_status", "style" => "width:100%;"]); ?>
+                                </div>
+                                <br>
+                                @php
+                                    $hasTask = $supplier->developerTask();
+                                @endphp
+                                {{ ($hasTask) ? "Task-Available" : "No-Task" }}
                             </td>
                             <td width="10%">
                                 <?php
@@ -284,7 +286,15 @@
                                 <a style="padding:3px;" class="btn  d-inline btn-image" href="{{ get_server_last_log_file($supplier->scraper_name,$supplier->server_id) }}" id="link" target="-blank"><img src="/images/view.png" /></a>
                                 <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="restartScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )"><img width="2px;" src="/images/resend2.png"/></button>
                                 <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="getRunningStatus('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )"><img width="2px;" src="/images/resend.png"/></button>
-                                
+                                <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-screenshot">
+                                     <i class="fa fa-desktop"></i>
+                                </button>
+                                <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-tasks-remote">
+                                     <i class="fa fa-tasks"></i>
+                                </button>
+                                <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-position-history">
+                                     <i class="fa fa-address-card"></i>
+                                </button>
                             </td>
                             </tr>
                             <tr class="hidden_row_{{ $supplier->id  }} dis-none" data-eleid="{{ $supplier->id }}">
@@ -335,7 +345,7 @@
                                 <td colspan="2">
                                     <label>Status:</label>
                                     <div class="form-group">
-                                        <?php echo Form::select("status", ['' => "N/A", 'Ok' => 'Ok', 'Rework' => 'Rework', 'In Process' => 'In Process'], $supplier->scrapers_status, ["class" => "form-control scrapers_status", "style" => "width:100%;"]); ?>
+                                        <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->scrapers_status, ["class" => "form-control scrapers_status", "style" => "width:100%;"]); ?>
                                     </div>
                                 </td>
                             </tr>
@@ -481,7 +491,7 @@
                                         <td colspan="2">
                                             <label>Status:</label>
                                             <div class="form-group">
-                                                <?php echo Form::select("status", ['' => "N/A", 'Ok' => 'Ok', 'Rework' => 'Rework', 'In Process' => 'In Process'], $childSupplier->scrapers_status, ["class" => "form-control scrapers_status", "style" => "width:100%;"]); ?>
+                                                <?php echo Form::select("status", \App\Scraper::STATUS, $childSupplier->scrapers_status, ["class" => "form-control scrapers_status", "style" => "width:100%;"]); ?>
                                             </div>
                                         </td>
                                      </tr>
@@ -676,6 +686,40 @@
                 </div>
             </div>
       </div>
+      <div id="show-content-model-table" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title"></h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                       
+                    </div>
+                </div>
+            </div>
+      </div>
+      <div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+                    <input type="hidden" id="chat_obj_type" name="chat_obj_type">
+                    <input type="hidden" id="chat_obj_id" name="chat_obj_id">
+                    <button type="submit" class="btn btn-default downloadChatMessages">Download</button>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+               50% 50% no-repeat;display:none;">
+    </div>
 @endsection
 
 @section('scripts')
@@ -1100,5 +1144,163 @@
             model.find(".modal-body").html(html);
             model.modal("show");
         });
+
+        $(document).on("click",".get-screenshot",function (e){
+            e.preventDefault();
+            var id = $(this).data("id");
+            $.ajax({
+                url: '/scrap/screenshot',
+                type: 'GET',
+                data: {id: id},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Scraper screenshots");
+                model.find(".modal-body").html(response);
+                model.modal("show");
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+
+        $(document).on("click",".get-tasks-remote",function (e){
+            e.preventDefault();
+            var id = $(this).data("id");
+            $.ajax({
+                url: '/scrap/task-list',
+                type: 'GET',
+                data: {id: id},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Task List");
+                model.find(".modal-body").html(response);
+                model.modal("show");
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+
+
+        $(document).on("click",".get-position-history",function (e){
+            e.preventDefault();
+            var id = $(this).data("id");
+            $.ajax({
+                url: '/scrap/position-history',
+                type: 'GET',
+                data: {id: id},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Scraper Position History");
+                model.find(".modal-body").html(response);
+                model.modal("show");
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+
+
+
+        $(document).on("click",".btn-create-task",function (e){
+            e.preventDefault();
+            var $this = $(this).closest("form");
+            $.ajax({
+                url: $this.attr("action"),
+                type: $this.attr("method"),
+                data: $this.serialize(),
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Task List");
+                model.find(".modal-body").html(response);
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+        
+
+        
+
+        $(document).on("click","#show-content-model-table li",function (e){
+            e.preventDefault();
+            var a = $(this).find("a");
+            if(typeof a != "undefined") {
+                $.ajax({
+                    url: a.attr("href"),
+                    type: 'GET',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    }
+                }).done(function(response) {
+                     $("#loading-image").hide();
+                    var model  = $("#show-content-model-table");
+                    model.find(".modal-body").html(response);
+                }).fail(function() {
+                    $("#loading-image").hide();
+                    alert('Please check laravel log for more information')
+                });
+            }
+        });
+
+
+        $(document).on('click', '.send-message1', function () {
+            var thiss = $(this);
+            var data = new FormData();
+            var task = $(this).data('task-id');
+            var message = $("#messageid_"+task).val();
+            data.append("issue_id", task);
+            data.append("message", message);
+            data.append("status", 1);
+
+            if (message.length > 0) {
+                if (!$(this).is(':disabled')) {
+                    $.ajax({
+                        url: BASE_URL+'/whatsapp/sendMessage/issue',
+                        type: 'POST',
+                        "dataType": 'json',           // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function () {
+                            $(thiss).attr('disabled', true);
+                            $("#loading-image").show();
+                        }
+                    }).done(function (response) {
+                        //thiss.closest('tr').find('.message-chat-txt').html(thiss.siblings('textarea').val());
+                        $("#message-chat-txt-"+task).html(response.message.message);
+                        $("#messageid_"+task).val('');
+                        $("#loading-image").hide();
+                        $(this).attr('disabled', false);
+                    }).fail(function (errObj) {
+                        $(this).attr('disabled', false);
+
+                        alert("Could not send message");
+                        console.log(errObj);
+                        $("#loading-image").hide();
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+        });
+
     </script>
 @endsection

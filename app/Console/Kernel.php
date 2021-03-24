@@ -128,6 +128,10 @@ use App\Console\Commands\DeleteStoreWebsiteCategory;
 use App\Console\Commands\RunGoogleAnalytics;
 use App\Console\Commands\scrappersImages;
 use App\Console\Commands\scrappersImagesDelete;
+use App\Console\Commands\InstagramHandler;
+use App\Console\Commands\SendDailyReports;
+use App\Console\Commands\InsertPleskEmail;
+use App\Console\Commands\SendDailyPlannerNotification;
 
 class Kernel extends ConsoleKernel
 {
@@ -252,7 +256,11 @@ class Kernel extends ConsoleKernel
         RunGoogleAnalytics::class,
 		RunGoogleAnalytics::class,
         scrappersImages::class,
-        scrappersImagesDelete::class
+        scrappersImagesDelete::class,
+        InstagramHandler::class,
+        SendDailyReports::class,
+        SendDailyPlannerNotification::class,
+        InsertPleskEmail::class
     ];
 
     /**
@@ -503,13 +511,14 @@ class Kernel extends ConsoleKernel
 		$schedule->command('routes:sync')->hourly()->withoutOverlapping();
 
 		$schedule->command('command:assign_incomplete_products')->dailyAt('01:30');
+		$schedule->command('send:daily-reports')->dailyAt('23:00');
 
 		
         //update order way billtrack histories
         $schedule->command('command:waybilltrack')->dailyAt("1:00");
        
 		//update directory manager to db
-	    $schedule->command('project_directory:manager')->dailyAt("1:00");
+	    //$schedule->command('project_directory:manager')->dailyAt("1:00");
 
 
          // make payment receipt for hourly associates on daily basis.
@@ -542,6 +551,8 @@ class Kernel extends ConsoleKernel
 		// Cron for scrapper images.
 		$schedule->command("scrappersImages")->daily();
         $schedule->command("scrappersImagesDelete")->daily();
+        //cron for instagram handler daily basis
+        $schedule->command("instagram:handler")->everyMinute()->withoutOverlapping();
     }
 
     /**

@@ -65,7 +65,7 @@ class Vendor extends Model
         'reminder_from',
         'updated_by',
         'status',
-        'frequency_of_payment', 'bank_name', 'bank_address', 'city', 'country', 'ifsc_code', 'remark'
+        'frequency_of_payment', 'bank_name', 'bank_address', 'city', 'country', 'ifsc_code', 'remark','chat_session_id'
     ];
 
     protected static function boot()

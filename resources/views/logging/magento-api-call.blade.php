@@ -26,6 +26,10 @@
    ,thead tr th:nth-child(15),thead tr th:nth-child(16),thead tr th:nth-child(17),thead tr th:nth-child(18),thead tr th:nth-child(19),thead tr th:nth-child(20){
     width: 80px !important;
   }
+
+  #magento_list_tbl_895_wrapper{
+    padding : 10px;
+  }
 </style>
 @endsection
 
@@ -41,7 +45,7 @@
     <div class="panel panel-default">
       <div class="panel-body p-0">
         <div class="table-responsive">
-          <table id="magento_list_tbl_895" class="table table-bordered table-hover" style="table-layout:fixed;">
+          <table id="magento_list_tbl_895" class="table table-bordered table-hover" style="table-layout:fixed;padding:10px">
             <thead>
               <th>Website</th>
               <th>Product SKU</th>
@@ -63,6 +67,7 @@
               <th>Korean</th>
               <th>Russian</th>
               <th>Chinese</th>
+              <th>Status</th>
               </thead>
             </table>
             <div class="text-center">
@@ -130,7 +135,7 @@
           },{
             mRender: function (data, type, row)
             {
-            return '<input type="text" style="width:90%" class="bulk_listing_codes_class" name="bulk_listing_codes" value=""/>'
+            return row.size_chart_url ? row.size_chart_url : "No"
             }
           },{
             mRender: function (data, type, row)
@@ -200,6 +205,11 @@
             mRender: function (data, type, row)
             {
               return row.chinese
+            }
+          },{
+            mRender: function (data, type, row)
+            {
+              return row.success ? "Success" : "Product not found in Website."
             }
           }
         ]

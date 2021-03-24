@@ -140,4 +140,12 @@ class FcmNotificationController extends Controller
 		return redirect()->route('pushfcmnotification.list')
 			->with('success', 'Notification deleted successfully');
     }
+
+
+    public function errorList(Request $request)
+    {
+        $errors = \App\PushFcmNotificationHistory::where("notification_id",$request->id)->where("success",0)->latest()->get();
+
+        return view("pushfcmnotification.partials.error-list", compact('errors'));
+    }
 }
