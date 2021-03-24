@@ -1656,7 +1656,8 @@ class ScrapController extends Controller
             
             if (!empty($response)) {
                 $response = json_decode($response);
-                if($response->status == "Didn't able to find file of given scrapper" || empty($response->log)) {
+                \Log::info(print_r($response,true));
+                if((isset($response->status) && $response->status == "Didn't able to find file of given scrapper") || empty($response->log)) {
                     abort(404);
                 }else{
                     $file = "$request->server_id-$scraper->scraper_name.txt";
