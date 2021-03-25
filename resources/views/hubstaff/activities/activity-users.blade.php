@@ -97,7 +97,7 @@
                             <?php 
                                 @list($taskid,$devtask) = explode("||",$ut);
                             ?>
-                            <a class="show-task-histories" data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}}</a>
+                            <a class="show-task-histories" data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}}</a><br>
                         <?php } ?>
                   <?php } ?>
               </td>
