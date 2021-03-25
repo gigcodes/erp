@@ -20,7 +20,7 @@
 								<input id="edit-notification-date" name="date" value="{{ $edit->date ?? null }}" class="form-control" type="text">
 							</div>
 							<input type="hidden" name="daily_activity_id" value="{{ $edit->daily_activity_id }}">
-							<input type="hidden" name="edit_id" value="{{ $edit->id }}">
+							<input type="hidden" name="edit_id" value="{{ $edit->id ?? null }}">
 							<div class="form-group">
 								<label for="notification-time">Time</label>
 								<input id="edit-notification-time" name="time" value="{{ $edit->time ?? null }}" class="form-control" type="text">
@@ -75,8 +75,8 @@
 							<div class="form-group">
 								<label for="notification-participants">Participants(vendor)</label>
 								<select name="vendors[]" id="vendors" class="form-control selectx-vendor" multiple style="width:100%">
-									@foreach (\App\Vendor::all()->pluck("name","id")->toArray() as $item)
-										<option value="{{ $item->id }}" {{ in_array( $item->id , $edit->attendees->pluck('id')->toArray() ) }}> {{ $item->name }} </option>
+									@foreach (\App\Vendor::all()->pluck("name","id")->toArray() as $key => $item)
+										<option value="{{ $key }}" {{ in_array( $key , $vendor) ? 'selected' : '' }}> {{ $item }} </option>
 									@endforeach
 								</select>
 								
