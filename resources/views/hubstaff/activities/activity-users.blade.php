@@ -466,6 +466,7 @@ let r_s = jQuery('input[name="start_date"]').val();
         $(document).on("click",".show-task-histories",function(e) {
             e.preventDefault();
             var $this = $(this);
+            thisRaw = $this;
             $.ajax({
                 url: '/hubstaff-activities/activities/task-activity',
                 type: 'GET',
