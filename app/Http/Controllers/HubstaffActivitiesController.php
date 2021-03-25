@@ -523,8 +523,8 @@ class HubstaffActivitiesController extends Controller
             $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id);
 
             $totalTracked = $query->sum('tracked');
-            $activity = $query->select('hubstaff_members.user_id')->first();
-            $user_id = $activity->user_id;
+            //$activity = $query->select('hubstaff_members.user_id')->first();
+            $user_id = $request->user_id;
             $rejected = $totalTracked - $approved;
             $rejectedArr = $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id)->whereNotIn('hubstaff_activities.id',$approvedArr)->pluck('hubstaff_activities.id')->toArray();
 
