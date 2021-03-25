@@ -167,7 +167,12 @@ class UserEventController extends Controller
         }
 
         $edit = UserEvent::where('daily_activity_id', $id)->with('attendees')->first();
-        return view('dailyplanner.edit-event',compact('edit'));
+        if( empty( $edit ) ){
+            return redirect()->back()->with('error','Not record found');
+        }
+
+        $vendor = UserEventParticipant::where('user_event_id',$edit->id)->pluck('object_id')->toArray();
+        return view('dailyplanner.edit-event',compact('edit','vendor'));
     }
 
     public function UpdateEvent( Request $request ){

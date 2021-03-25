@@ -180,7 +180,9 @@
 							@endif
 							<button type="button" class="btn btn-image task-resend p-0 m-0" data-id="{{ $task->id }}" title="Resend"> <i class="fa fa-send"></i> </button>
 							<button type="button" class="btn btn-image task-history p-0 m-0" data-id="{{ $task->id }}" title="History"> <i class="fa fa-history"></i> </button>
-							<a href="{{ route('calendar.event.edit',$task->id) }}" class="btn btn-image p-0 m-0"  title="Edit" > <i class="fa fa-edit"></i> </a>
+							@if( !empty( $task->id ) )
+								<a href="{{ route('calendar.event.edit',$task->id) }}" class="btn btn-image p-0 m-0"  title="Edit" > <i class="fa fa-edit"></i> </a>
+							@endif
 						</td>
                       </tr>
                   @endforeach
