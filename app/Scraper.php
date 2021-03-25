@@ -98,8 +98,8 @@ class Scraper extends Model
         return \App\ScrapRemark::where("scraper_name", $this->scraper_name)->latest()->first();
     }
 
-    public function developerTask()
+    public function developerTask($id)
     {
-        return \App\DeveloperTask::where("scraper_id", $this->id)->latest()->first();
+        return \App\DeveloperTask::where("scraper_id", $id)->first();
     }
 }

@@ -258,7 +258,7 @@
                                 </div>
                                 <br>
                                 @php
-                                    $hasTask = $supplier->developerTask();
+                                    $hasTask = $supplier->developerTask($supplier->scrapper_id);
                                 @endphp
                                 {{ ($hasTask) ? "Task-Available" : "No-Task" }}
                             </td>

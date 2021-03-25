@@ -110,7 +110,7 @@ class ScrapStatisticsController extends Controller
             JOIN
                 scrapers sc
             ON
-                sc.supplier_id = s.id
+                sc.scraper_name=ls.website
             JOIN
                 scraped_products ls
             ON
