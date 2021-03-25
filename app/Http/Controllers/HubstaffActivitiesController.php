@@ -1072,7 +1072,7 @@ class HubstaffActivitiesController extends Controller
         if(!$isAdmin && !$isTeamLeader) {
             $taskOwner = true;
         }
-        $date = $request->date;
+        //$date = $request->date;
 
         $member = HubstaffMember::where('hubstaff_user_id',$request->user_id)->first();
         return view("hubstaff.activities.activity-records", compact('activityrecords','user_id','date','hubActivitySummery','teamLeaders','admins','users','isAdmin','isTeamLeader','taskOwner','member'));
