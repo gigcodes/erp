@@ -97,7 +97,7 @@
                             <?php 
                                 @list($taskid,$devtask) = explode("||",$ut);
                             ?>
-                            <a class="show-task-histories" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}}</a>
+                            <a class="show-task-histories" data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}}</a>
                         <?php } ?>
                   <?php } ?>
               </td>
@@ -470,14 +470,17 @@ let r_s = jQuery('input[name="start_date"]').val();
                 url: '/hubstaff-activities/activities/task-activity',
                 type: 'GET',
                 data: {
-                    task_id : $this.data("task-id")
+                    "task_id":$this.data("task-id"),
+                    "user_id":$this.data("user-id")
                 },
                 beforeSend: function() {
                     $("#loading-image").show();
                 }
             }).done( function(response) {
                 $("#loading-image").hide();
-                //window.location.reload();
+                $("#loading-image").hide();
+                $('#records-modal').modal('show');
+                $('#record-content').html(response);
             }).fail(function(errObj) {
                 $("#loading-image").hide();
                 if(errObj.responseJSON) {

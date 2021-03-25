@@ -30,10 +30,18 @@
                 @foreach ($record->activities as $a)
                     @if(!empty($a->taskSubject)) 
                       <?php 
-                        list($type, $id) = explode("-",$a->taskSubject);
+                        $listOFtask[] = $a->taskSubject;
                       ?>
-                      <a href="javascript:;" data-id="{{$a->task_id}}" class="show-task-history">{{$a->taskSubject}}</a><br>
                     @endif
+                @endforeach
+                @foreach (array_unique($listOFtask) as $l)
+                  @if(!empty($l)) 
+                      <?php 
+                        list($type, $id) = explode("-",$l);
+                      ?>
+                      <a href="javascript:;">{{$a->taskSubject}}</a><br>
+                    @endif
+
                 @endforeach
               </td>
               <td>
@@ -156,7 +164,7 @@
     @if($hubActivitySummery)
     <div class="form-group">
         <label for="">Previous remarks</label>
-        <textarea class="form-control" cols="30" rows="5" name="previous_remarks" placeholder="Rejection note...">@if($hubActivitySummery){{$hubActivitySummery->rejection_note}}@endif</textarea>
+        <textarea class="form-control" cols="30" rows="5" name="previous_remarks" placeholder="Rejection note...">@if($hubActivitySummery && isset($hubActivitySummery->rejection_note)){{$hubActivitySummery->rejection_note}}@endif</textarea>
     </div>
     @endif
     <div class="form-group">

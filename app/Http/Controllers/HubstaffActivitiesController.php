@@ -204,12 +204,12 @@ class HubstaffActivitiesController extends Controller
                         }
                     }
                     else {
-                        $task = DeveloperTask::first();
+                        $task = DeveloperTask::where('hubstaff_task_id',$ar->task_id)->orWhere('lead_hubstaff_task_id',$ar->task_id)->first();
                         if($task) {
                             $taskSubject =  $ar->task_id.'||#DEVTASK-'.$task->id.'-'.$task->subject;
                         }
                         else {
-                            $task = Task::first();
+                            $task = Task::where('hubstaff_task_id',$ar->task_id)->orWhere('lead_hubstaff_task_id',$ar->task_id)->first();
                             if($task) {
                                 $taskSubject = $ar->task_id.'||#TASK-'.$task->id.'-'.$task->task_subject;
                             }
@@ -449,12 +449,12 @@ class HubstaffActivitiesController extends Controller
                         }
                     }
                     else {
-                        $task = DeveloperTask::first();
+                        $task = DeveloperTask::where('hubstaff_task_id',$a->task_id)->orWhere('lead_hubstaff_task_id',$a->task_id)->first();
                         if($task) {
                             $taskSubject = '#DEVTASK-'.$task->id.'-'.$task->subject;
                         }
                         else {
-                            $task = Task::first();
+                            $task = Task::where('hubstaff_task_id',$a->task_id)->orWhere('lead_hubstaff_task_id',$a->task_id)->first();
                             if($task) {
                                 $taskSubject = '#TASK-'.$task->id.'-'.$task->task_subject;
                             }
@@ -931,17 +931,151 @@ class HubstaffActivitiesController extends Controller
     public function taskActivity(Request $request)
     {
         $task_id = $request->task_id;
+        $user_id = $request->user_id;
 
-        $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->where('hubstaff_activities.task_id', '=',$task_id);
+        /*$query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->where('hubstaff_activities.task_id', '=',$task_id);
 
         $activities  = $query->select(DB::raw("
             hubstaff_activities.user_id,
-            SUM(hubstaff_activities.tracked) as total_tracked,DATE(hubstaff_activities.starts_at) as date,hubstaff_members.user_id as system_user_id")
-        )->where("task_id",$task_id)->groupBy('task_id','user_id')->orderBy('date','desc')->get();
+            SUM(hubstaff_activities.tracked) as total_tracked,
+            DATE(hubstaff_activities.starts_at) as date,
+            hubstaff_members.user_id as system_user_id
+            ")
+        )->where("task_id",$task_id)
+        ->where("hubstaff_activities.user_id",$user_id)
+        ->groupBy('task_id')
+        ->orderBy('date','desc')
+        ->get();*/
 
-        echo "<pre>"; print_r($activities);  echo "</pre>";die;
+        // check the task created date 
+        $task = \App\DeveloperTask::where(function($q) use($task_id) {
+            $q->orWhere("hubstaff_task_id",$task_id)->orWhere("lead_hubstaff_task_id",$task_id)->orWhere("team_lead_hubstaff_task_id",$task_id)->orWhere("tester_hubstaff_task_id",$task_id);
+        })->first();
+
+        if(!$task) {
+            $task = \App\Task::where(function($q) use($task_id) {
+                $q->orWhere("hubstaff_task_id",$task_id)->orWhere("lead_hubstaff_task_id",$task_id);
+            })->first();
+        }
+
+        $date = ($task) ? $task->created_at : date("1998-02-02");
+
+        $activityrecords = DB::select( DB::raw("SELECT CAST(starts_at as date) AS OnDate,  SUM(tracked) AS total_tracked, hour( starts_at ) as onHour
+        FROM hubstaff_activities where task_id = '".$task_id."' and user_id = ".$user_id."
+        GROUP BY hour( starts_at ) , day( starts_at )"));
+        // $activityrecords  = HubstaffActivity::whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id)->select('hubstaff_activities.*')->get();
 
 
+        $admins = User::join('role_user','role_user.user_id','users.id')->join('roles','roles.id','role_user.role_id')
+        ->where('roles.name','Admin')->select('users.name','users.id')->get();
+
+        $teamLeaders =  [];
+
+        $users = User::select('name','id')->get();
+
+        $hubstaff_member = HubstaffMember::where('hubstaff_user_id',$user_id)->first();
+        $hubActivitySummery = null;
+        if($hubstaff_member) {
+            $system_user_id = $hubstaff_member->user_id;
+            $hubActivitySummery = HubstaffActivitySummary::whereDate('date',">=",$date)->where('user_id',$system_user_id)->orderBy('created_at','DESC')->get();
+            $teamLeaders = User::join('teams','teams.user_id','users.id')->join('team_user','team_user.team_id','teams.id')->where('team_user.user_id',$system_user_id)->distinct()->select('users.name','users.id')->get();
+        }
+        $approved_ids = [0]; 
+        if($hubActivitySummery) {
+            if(!$hubActivitySummery->isEmpty()) {
+                foreach($hubActivitySummery as $hubA) {
+                    if($hubActivitySummery->approved_ids) {
+                        $approved_idsArr = json_decode($hubActivitySummery->approved_ids);   
+                        if(!empty($approved_idsArr) && is_array($approved_idsArr)) {
+                            $approved_ids = array_merge($approved_ids, $approved_idsArr);
+                        }
+                    }
+                }
+            }
+        }
+
+        foreach($activityrecords as $record) {
+            
+            $activities = DB::select( DB::raw("SELECT hubstaff_activities.* FROM hubstaff_activities where task_id = ".$task_id." and DATE(starts_at) = '".$record->OnDate."' and user_id = ".$user_id." and hour(starts_at) = ".$record->onHour.""));
+            
+            $totalApproved = 0;
+            $isAllSelected = 0;
+            
+            foreach($activities as $a) {
+                
+                if(in_array($a->id, $approved_ids)) {
+                    
+                    $isAllSelected = $isAllSelected + 1;
+                    $a->status = 1;
+                    
+                    $hubAct = HubstaffActivity::where('id',$a->id)->first();
+                    if($hubAct) {
+                        $totalApproved = $totalApproved + $a->tracked;
+                    }
+                    
+                    $a->totalApproved = $a->tracked;
+                } else {
+                    $a->status = 0;
+                    $a->totalApproved = 0;
+                }
+
+                $taskSubject = '';
+                if($a->task_id) {
+                    if($a->is_manual) {
+                        $task = DeveloperTask::where('id',$a->task_id)->first();
+                        if($task) {
+                            $taskSubject = '#DEVTASK-'.$task->id.'-'.$task->subject;
+                        }
+                        else {
+                            $task = Task::where('id',$a->task_id)->first();
+                            if($task) {
+                                $taskSubject = '#TASK-'.$task->id.'-'.$task->task_subject;
+                            }
+                        }
+                    }else {
+                        $task = DeveloperTask::where('hubstaff_task_id',$a->task_id)->orWhere('lead_hubstaff_task_id',$a->task_id)->first();
+                        if($task) {
+                            $taskSubject = '#DEVTASK-'.$task->id.'-'.$task->subject;
+                        }
+                        else {
+                            $task = Task::where('hubstaff_task_id',$a->task_id)->orWhere('lead_hubstaff_task_id',$a->task_id)->first();
+                            if($task) {
+                                $taskSubject = '#TASK-'.$task->id.'-'.$task->task_subject;
+                            }
+                        }
+                    }
+                    
+                }
+    
+                $a->taskSubject = $taskSubject;
+            }
+            if($isAllSelected == count($activities)) {
+                $record->sample = 1;
+            }
+            else {
+                $record->sample = 0;
+            }
+            $record->activities = $activities;
+            $record->totalApproved = $totalApproved;
+        }
+        $user_id = $request->user_id;
+        $isAdmin = false;
+        if(Auth::user()->isAdmin()) {
+            $isAdmin = true;
+        }
+        $isTeamLeader = false;
+        $isLeader = Team::where('user_id',Auth::user()->id)->first();
+        if($isLeader) {
+            $isTeamLeader = true;
+        }
+        $taskOwner = false;
+        if(!$isAdmin && !$isTeamLeader) {
+            $taskOwner = true;
+        }
+        $date = $request->date;
+
+        $member = HubstaffMember::where('hubstaff_user_id',$request->user_id)->first();
+        return view("hubstaff.activities.activity-records", compact('activityrecords','user_id','date','hubActivitySummery','teamLeaders','admins','users','isAdmin','isTeamLeader','taskOwner','member'));
 
     }
 }
