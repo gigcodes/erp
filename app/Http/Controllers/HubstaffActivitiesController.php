@@ -962,7 +962,7 @@ class HubstaffActivitiesController extends Controller
 
         $activityrecords = DB::select( DB::raw("SELECT CAST(starts_at as date) AS OnDate,  SUM(tracked) AS total_tracked, hour( starts_at ) as onHour
         FROM hubstaff_activities where task_id = '".$task_id."' and user_id = ".$user_id."
-        GROUP BY hour( starts_at ) , day( starts_at )"));
+        GROUP BY hour( starts_at ) , day( starts_at ) order by OnDate desc"));
         // $activityrecords  = HubstaffActivity::whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id)->select('hubstaff_activities.*')->get();
 
 
