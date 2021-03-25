@@ -82,7 +82,7 @@ class SendFcmNotification extends Command
                     $success = false;
                     $errorMessage = "";
                     if ($downstreamResponse->numberSuccess()) {
-                        PushFcmNotification::where('id', $Notification->id)->update(['sent_on' => date('Y-m-d H:i')]);
+                        //PushFcmNotification::where('id', $Notification->id)->update(['sent_on' => date('Y-m-d H:i')]);
                         $this->info('Message Sent Succesfully');
                         $success = true;
                     } elseif ($downstreamResponse->numberFailure()) {
@@ -94,6 +94,9 @@ class SendFcmNotification extends Command
                     $success = false;
                     $errorMessage = $e->getMessage();
                 }
+
+                $Notification->sent_on = date('Y-m-d H:i');
+                $Notification->save();
 
                 \App\PushFcmNotificationHistory::create([
                     "token"           => $token,
