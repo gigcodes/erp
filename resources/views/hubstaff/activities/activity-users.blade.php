@@ -79,6 +79,7 @@
           <th>Date</th>
           <th>User</th>
           <th>Time tracked (Minutes)</th>
+          <th>Tasks</th>
           <th>Time approved</th>
           <th>Pending payment time</th>
           <th>Status</th>
@@ -90,6 +91,16 @@
             <td>{{ \Carbon\Carbon::parse($user['date'])->format('d-m') }} </td>
               <td>{{ $user['userName'] }}</td>
               <td>{{number_format($user['total_tracked'] / 60,2,".",",")}}</td>
+              <td>
+                  <?php if(!empty($user['tasks'])) { ?>
+                        <?php foreach($user['tasks'] as $ut) { ?>
+                            <?php 
+                                @list($taskid,$devtask) = explode("||",$ut);
+                            ?>
+                            <a class="show-task-histories" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}}</a>
+                        <?php } ?>
+                  <?php } ?>
+              </td>
               <td><span class="replaceme">{{number_format($user['totalApproved'] / 60,2,".",",")}}</span> </td>
               <td><span>{{number_format($user['totalNotPaid'] / 60,2,".",",")}}</td>
               <td>{{$user['status']}}</td>
@@ -451,6 +462,30 @@ let r_s = jQuery('input[name="start_date"]').val();
         $(document).on('click', '.expand-row-btn', function () {
             $(this).closest("tr").find(".expand-col").toggleClass('dis-none');
         });
+
+        $(document).on("click",".show-task-histories",function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            $.ajax({
+                url: '/hubstaff-activities/activities/task-activity',
+                type: 'GET',
+                data: {
+                    task_id : $this.data("task-id")
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            }).done( function(response) {
+                $("#loading-image").hide();
+                //window.location.reload();
+            }).fail(function(errObj) {
+                $("#loading-image").hide();
+                if(errObj.responseJSON) {
+                    toastr['error'](errObj.responseJSON.message, 'error');
+                }
+            });
+        });
+
 
 </script>
 @endsection

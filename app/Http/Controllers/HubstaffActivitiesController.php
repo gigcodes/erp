@@ -148,6 +148,11 @@ class HubstaffActivitiesController extends Controller
 
             $efficiencyObj = HubstaffTaskEfficiency::where('user_id',$activity->user_id)->first();
 
+            // all activities 
+
+
+
+
             if(isset($efficiencyObj->id) && $efficiencyObj->id > 0)
             {
                 $a['admin_efficiency'] = $efficiencyObj->admin_input;
@@ -176,6 +181,46 @@ class HubstaffActivitiesController extends Controller
             else {
                 $activity->userName = '';
             }
+
+            // send hubstaff activities 
+            $ac = DB::select( DB::raw("SELECT hubstaff_activities.* FROM hubstaff_activities where DATE(starts_at) = '".$activity->date."' and user_id = ".$activity->user_id));
+            $totalApproved = 0;
+            $isAllSelected = 0;
+            $a['tasks'] = [];
+            $lsTask = [];
+            foreach($ac as $ar) {
+                $taskSubject = '';
+                if($ar->task_id) {
+                    if($ar->is_manual) {
+                        $task = DeveloperTask::where('id',$ar->task_id)->first();
+                        if($task) {
+                            $taskSubject = $ar->task_id.'||#DEVTASK-'.$task->id.'-'.$task->subject;
+                        }
+                        else {
+                            $task = Task::where('id',$ar->task_id)->first();
+                            if($task) {
+                                $taskSubject = $ar->task_id.'||#TASK-'.$task->id.'-'.$task->task_subject;
+                            }
+                        }
+                    }
+                    else {
+                        $task = DeveloperTask::first();
+                        if($task) {
+                            $taskSubject =  $ar->task_id.'||#DEVTASK-'.$task->id.'-'.$task->subject;
+                        }
+                        else {
+                            $task = Task::first();
+                            if($task) {
+                                $taskSubject = $ar->task_id.'||#TASK-'.$task->id.'-'.$task->task_subject;
+                            }
+                        }
+                    }
+                }
+                $lsTask[] = $taskSubject;
+            }
+
+            $a['tasks'] = array_unique($lsTask); 
+
             $hubActivitySummery = HubstaffActivitySummary::where('date',$activity->date)->where('user_id',$activity->system_user_id)->orderBy('created_at','desc')->first();
                 if($request->status == 'approved') {
                     if($hubActivitySummery && $hubActivitySummery->final_approval == 1) {
@@ -398,19 +443,18 @@ class HubstaffActivitiesController extends Controller
                         }
                         else {
                             $task = Task::where('id',$a->task_id)->first();
-                            dd($task);
                             if($task) {
                                 $taskSubject = '#TASK-'.$task->id.'-'.$task->task_subject;
                             }
                         }
                     }
                     else {
-                        $task = DeveloperTask::where('hubstaff_task_id',$a->task_id)->orWhere('lead_hubstaff_task_id',$a->task_id)->first();
+                        $task = DeveloperTask::first();
                         if($task) {
                             $taskSubject = '#DEVTASK-'.$task->id.'-'.$task->subject;
                         }
                         else {
-                            $task = Task::where('hubstaff_task_id',$a->task_id)->orWhere('lead_hubstaff_task_id',$a->task_id)->first();
+                            $task = Task::first();
                             if($task) {
                                 $taskSubject = '#TASK-'.$task->id.'-'.$task->task_subject;
                             }
@@ -881,5 +925,23 @@ class HubstaffActivitiesController extends Controller
         }
 
         return response()->json(['message' => 'Successful'],200);
+    }
+
+
+    public function taskActivity(Request $request)
+    {
+        $task_id = $request->task_id;
+
+        $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->where('hubstaff_activities.task_id', '=',$task_id);
+
+        $activities  = $query->select(DB::raw("
+            hubstaff_activities.user_id,
+            SUM(hubstaff_activities.tracked) as total_tracked,DATE(hubstaff_activities.starts_at) as date,hubstaff_members.user_id as system_user_id")
+        )->where("task_id",$task_id)->groupBy('task_id','user_id')->orderBy('date','desc')->get();
+
+        echo "<pre>"; print_r($activities);  echo "</pre>";die;
+
+
+
     }
 }

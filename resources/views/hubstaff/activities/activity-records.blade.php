@@ -25,7 +25,17 @@
             <td>{{ $record->OnDate }} {{$record->onHour}}:00:00 </td>
               <td>{{ number_format($record->total_tracked / 60,2,".",",") }}</td>
               <td>{{ number_format($record->totalApproved / 60,2,".",",") }}</td>
-              <td></td>
+              <td>
+                <?php $listOFtask = []; ?>
+                @foreach ($record->activities as $a)
+                    @if(!empty($a->taskSubject)) 
+                      <?php 
+                        list($type, $id) = explode("-",$a->taskSubject);
+                      ?>
+                      <a href="javascript:;" data-id="{{$a->task_id}}" class="show-task-history">{{$a->taskSubject}}</a><br>
+                    @endif
+                @endforeach
+              </td>
               <td>
               <div class="form-group" style="margin:0px;">
                    @if(isset($member))
@@ -172,4 +182,20 @@
     $('#date_of_payment').datetimepicker({
       format: 'YYYY-MM-DD'
     });
+
+    $(document).on("click",".show-task-history",function() {
+        var taskid = $(this).data("id");
+        $.ajax({
+              type: 'GET',
+              url: '/hubstaff-activities/activities/task-history',
+              data: {
+                  task_id: taskid
+              }
+          }).done(response => {
+              console.log(response);
+          }).fail(function (response) {
+              
+          });
+    });
+
 </script>
