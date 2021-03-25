@@ -5,7 +5,6 @@ namespace App;
  */
 use Illuminate\Database\Eloquent\Model;
 use App\Loggers\LogScraper;
-use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
 
 class ScrapRemark extends Model

@@ -206,12 +206,9 @@ Route::post('notification/create','\App\Http\Controllers\Api\v1\PushFcmNotificat
 
 //Saving Not Found Brand
 Route::get('missing-brand/save','MissingBrandController@saveMissingBrand');
-<<<<<<< HEAD
-=======
 
 //Store data into the laravel_logs
 Route::post('laravel-logs/save','LaravelLogController@saveNewLogData');
-
 
 
 
@@ -222,7 +219,3 @@ Route::post('product/templates/update/webhook','ProductTemplatesController@updat
 Route::post('order/check-cancellation','\App\Http\Controllers\Api\v1\ProductController@checkCancellation');
 
 Route::post('magento/order-create','MagentoCustomerReferenceController@createOrder');
-
-
-
->>>>>>> 7c635bcdedbfb98304d13794f4b58ca268978aee
