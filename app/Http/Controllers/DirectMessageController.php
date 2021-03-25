@@ -69,6 +69,7 @@ class DirectMessageController extends Controller
     {
     	$accounts = Account::where('platform','instagram')->whereNotNull('proxy')->get();
 
+        $messege = [] ;
     	foreach ($accounts as $account) {
             
     		try {
@@ -77,8 +78,8 @@ class DirectMessageController extends Controller
 				   $instagram->login($account->last_name, $account->password);
 				   $this->instagram = $instagram;
                 } catch (\Exception $e) {
-                    dd($e);
-                    echo "ERROR $account->last_name \n";
+                   \Log::error($account->last_name.' :: '.$e->getMessage());
+                    array_push($messege, $account->last_name.' :: '.$e->getMessage());
                     continue;
                 }
                 //getting inbpx
@@ -145,13 +146,15 @@ class DirectMessageController extends Controller
     	if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('instagram.direct.data', compact('threads','accounts'))->render(),
-                'links' => (string)$threads->render()
+                'links' => (string)$threads->render(),
+                'message' => (string)implode("\n", $messege),
             ], 200);
         }
 
     	return response()->json([
-            	'status' => 'success'
-        		]);	
+            	'status' => 'success',
+                'message' => (string)implode("\n", $messege),
+        ]);	
 
     }
     public function getDirectMessagesFromAccounts()
@@ -165,6 +168,7 @@ class DirectMessageController extends Controller
 				    $instagram->login($account->last_name, $account->password);
 				    $this->instagram = $instagram;
                 } catch (\Exception $e) {
+                    \Log::error($account->last_name.'::'.$e->getMessage());
                     echo "ERROR $account->last_name \n";
                     continue;
                 }
@@ -452,6 +456,7 @@ class DirectMessageController extends Controller
         	$i->setProxy($proxy);
             $i->login($sender, $password);
         } catch (\Exception $exception) {
+            \Log::error( $sender.'::'.$exception->getMessage() );
             return false;
         }
 
