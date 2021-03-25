@@ -1,12 +1,26 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use App\Library\Watson\Model as WatsonManager;
 use App\ChatbotQuestion;
 class WatsonAccount extends Model
 {
+
+        /**
+     * @var string
+     
+      * @SWG\Property(property="store_website_id",type="integer")
+      * @SWG\Property(property="work_space_id",type="integer")
+      * @SWG\Property(property="assistant_id",type="integer")
+      * @SWG\Property(property="url",type="string")
+      * @SWG\Property(property="api_key",type="string")
+      * @SWG\Property(property="watson_push",type="string")
+      * @SWG\Property(property="is_active",type="integer")
+     */
     protected $fillable = [
         'store_website_id',
         'api_key',

@@ -140,6 +140,24 @@ class PermissionController extends Controller
         return view('permissions.users',compact('users','permissions'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
+    /**
+     * @SWG\Get(
+     *   path="/users/updatePermission",
+     *   tags={"Permission"},
+     *   summary="update permission",
+     *   operationId="update-permission",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function  updatePermission(Request $request){
        $user_id =  $request->user_id;
        $permission_id = $request->permission_id;

@@ -9,16 +9,28 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Nestable\NestableTrait;
 
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 class Category extends Model
 {
 
     CONST UNKNOWN_CATEGORIES = 143;
 
     use NestableTrait;
-
+    
     protected $parent = 'parent_id';
+    /**
+     * @var string
+     * @SWG\Property(property="id",type="integer")
+     * @SWG\Property(property="title",type="string")
+     * @SWG\Property(property="parent_id",type="integer")
+     * @SWG\Property(property="status_after_autocrop",type="string")
+     * @SWG\Property(property="magento_id",type="integer")
+     * @SWG\Property(property="show_all_id",type="integer")
 
+     */
+  
     public $fillable = [ 'id','title', 'parent_id','status_after_autocrop','magento_id', 'show_all_id' ];
 
     /**

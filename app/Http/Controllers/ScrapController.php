@@ -111,6 +111,25 @@ class ScrapController extends Controller
 
     }
 
+    /**
+     * @SWG\Post(
+     *   path="/scrap-products/add",
+     *   tags={"Product"},
+     *   summary="Add Product",
+     *   operationId="post-product",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+
     public function syncProductsFromNodeApp(Request $request)
     {
 
@@ -550,6 +569,24 @@ class ScrapController extends Controller
 
     }
 
+    /**
+     * @SWG\Post(
+     *   path="/save-supplier",
+     *   tags={"Product"},
+     *   summary="Product save supplier",
+     *   operationId="product-save-supplier",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function saveSupplier(Request $request)
     {
         $this->validate($request, [
@@ -585,6 +622,24 @@ class ScrapController extends Controller
 
     }
 
+    /**
+     * @SWG\Post(
+     *   path="/products/new-supplier",
+     *   tags={"Products"},
+     *   summary="Add procuct supplier",
+     *   operationId="add-procuct-supplier",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     /**
      * Save incoming data from scraper
      * @param Request $request
@@ -874,6 +929,24 @@ class ScrapController extends Controller
         ], 400);
     }
 
+    /**
+     * @SWG\Post(
+     *   path="/scrape/process-product-links",
+     *   tags={"Scrape"},
+     *   summary="Process procuct links",
+     *   operationId="process-procuct-links",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function processProductLinks(Request $request)
     {
         $pendingUrl = array();
@@ -1127,6 +1200,63 @@ class ScrapController extends Controller
         return view('scrap.scraped_url', compact('logs', 'response', 'summeryRecords', 'users'));
     }
 
+    /**
+     * @SWG\Get(
+     *   path="/products/auto-rejected",
+     *   tags={"Products"},
+     *   summary="Get auto rejected products",
+     *   operationId="products-route",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+
+    /**
+     * @SWG\Get(
+     *   path="/products/get-products-to-scrape",
+     *   tags={"Products"},
+     *   summary="Get Products to scrape",
+     *   operationId="products-route",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+
+    /**
+     * @SWG\Get(
+     *   path="/products/new-supplier",
+     *   tags={"Products"},
+     *   summary="Get Products new supplier",
+     *   operationId="products-route",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+
     public function getProductsToScrape()
     {
         // Set empty value of productsToPush
@@ -1325,6 +1455,24 @@ class ScrapController extends Controller
         return response()->json(['success'], 200);
     }
 
+    /**
+     * @SWG\Get(
+     *   path="/scraper/next",
+     *   tags={"Scrape​r"},
+     *   summary="procuct send details",
+     *   operationId="procuct-send-details",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function sendScrapDetails()
     {
 
@@ -1364,6 +1512,25 @@ class ScrapController extends Controller
 
     }
 
+
+    /**
+     * @SWG\Post(
+     *   path="/scraper/endtime",
+     *   tags={"Scrape​r"},
+     *   summary="Save procuct details",
+     *   operationId="save-procuct-details",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function recieveScrapDetails(Request $request)
     {
         $id      = $request->id;
@@ -1396,6 +1563,24 @@ class ScrapController extends Controller
     }
 
     /**
+     * @SWG\Post(
+     *   path="/scraper/ready",
+     *   tags={"Scrape​r"},
+     *   summary="Screpper Ready",
+     *   operationId="scrapper-ready",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+    /**
      * Store scraper starting time
      */
     public function scraperReady(Request $request)
@@ -1409,6 +1594,24 @@ class ScrapController extends Controller
     }
 
     /**
+     * @SWG\Post(
+     *   path="/scraper/completed",
+     *   tags={"Scrape​r"},
+     *   summary="Screpper completed",
+     *   operationId="scrapper-completed",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+    /**
      * Store scraper completed time
      */
     public function scraperCompleted(Request $request)
@@ -1421,6 +1624,24 @@ class ScrapController extends Controller
         return response()->json(['success'], 200);
     }
 
+    /**
+     * @SWG\Get(
+     *   path="/scraper/need-to-start",
+     *   tags={"Scrape​r"},
+     *   summary="Scraper need to start",
+     *   operationId="scraper-need-start",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function needToStart(Request $request)
     {
         if ($request->server_id != null) {
@@ -1442,6 +1663,24 @@ class ScrapController extends Controller
         }
     }
 
+     /**
+     * @SWG\Get(
+     *   path="/scraper-needed-products",
+     *   tags={"Scrape​r"},
+     *   summary="Scraper needed products",
+     *   operationId="scraper-needed-product",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function scraperNeeded(Request $request)
     {
         $products = Product::where("status_id", StatusHelper::$requestForExternalScraper)
@@ -1465,6 +1704,24 @@ class ScrapController extends Controller
         return response()->json($products);
     }
 
+        /**
+     * @SWG\Post(
+     *   path="/node/restart-script",
+     *   tags={"Node"},
+     *   summary="Product restart node",
+     *   operationId="procuct-restart-node",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function restartNode(Request $request)
     {
         if ($request->name && $request->server_id) {
@@ -1493,6 +1750,24 @@ class ScrapController extends Controller
         }
     }
 
+    /**
+     * @SWG\Post(
+     *   path="/node/get-status",
+     *   tags={"Node"},
+     *   summary="procuct get status",
+     *   operationId="procuct-get-status",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function getStatus(Request $request)
     {
         if ($request->name && $request->server_id) {

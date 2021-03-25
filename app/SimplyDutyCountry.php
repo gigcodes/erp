@@ -1,15 +1,18 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 
 class SimplyDutyCountry extends Model
 {
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
+      /**
+     * @var string
+     * @SWG\Property(property="country_code",type="string")
+     * @SWG\Property(property="country_name",type="string")
+     * @SWG\Property(property="default_duty",type="string")
      */
     protected $fillable = ['country_code','country_name', 'default_duty'];
 

@@ -1,6 +1,9 @@
 <?php
 
 namespace App;
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -8,8 +11,25 @@ use Plank\Mediable\Mediable;
 
 class ErpLeads extends Model
 {
-    //
-//    use SoftDeletes;
+ /**
+     * @var string
+   
+     * @SWG\Property(property="lead_status_id",type="integer")
+     * @SWG\Property(property="customer_id",type="integer")
+     * @SWG\Property(property="product_id",type="integer")
+     * @SWG\Property(property="brand_id",type="integer")
+     * @SWG\Property(property="category_id",type="integer")
+     * @SWG\Property(property="color",type="string")
+     * @SWG\Property(property="size",type="string")
+     * @SWG\Property(property="min_price",type="float")
+     * @SWG\Property(property="max_price",type="float")
+     * @SWG\Property(property="brand_segment",type="string")
+     * @SWG\Property(property="gender",type="string")
+     * @SWG\Property(property="created_at",type="datetime")
+     * @SWG\Property(property="updated_at",type="datetime")
+   
+
+     */
     use Mediable;
     protected $fillable = [
         'lead_status_id',

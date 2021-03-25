@@ -3,10 +3,16 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 class ColorNamesReference extends Model
 {
-
+    /**
+     * @var string
+        * @SWG\Property(property="color_code",type="string")
+      * @SWG\Property(property="color_name",type="string")
+     */
     protected $fillable = ['color_code','color_name'];
 
     // Get product color from text

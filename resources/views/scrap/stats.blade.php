@@ -254,10 +254,11 @@
                             <td width="10%">
                                 <div class="form-group">
                                     <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->scrapers_status, ["class" => "form-control scrapers_status", "style" => "width:100%;"]); ?>
+                                    <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="status" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
                                 </div>
                                 <br>
                                 @php
-                                    $hasTask = $supplier->developerTask();
+                                    $hasTask = $supplier->developerTask($supplier->scrapper_id);
                                 @endphp
                                 {{ ($hasTask) ? "Task-Available" : "No-Task" }}
                             </td>
@@ -551,7 +552,7 @@
     </div>
 
     <div id="addRemarkModal" class="modal fade" role="dialog">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
@@ -592,7 +593,7 @@
 
 
       <div id="remarkHistory" class="modal fade" role="dialog">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
@@ -774,8 +775,6 @@
 
             var name = $(this).data('name');
 
-            console.log(name)
-            
             $('#add-remark input[name="id"]').val(name);
 
             $.ajax({
@@ -786,6 +785,32 @@
                 url: '{{ route('scrap.getremark') }}',
                 data: {
                     name: name
+                },
+            }).done(response => {
+                var html = '';
+                var no = 1;
+                $.each(response, function (index, value) {
+                    /*html += '<li><span class="float-left">' + value.remark + '</span><span class="float-right"><small>' + value.user_name + ' updated on ' + moment(value.created_at).format('DD-M H:mm') + ' </small></span></li>';
+                    html + "<hr>";*/
+                    html += '<tr><td>' + value.remark + '</td><td>' + value.user_name + '</td><td>' + moment(value.created_at).format('DD-M H:mm') + '</td></tr>';
+                    no++;
+                });
+                $("#makeRemarkModal").find('#remark-list').html(html);
+            });
+        });
+
+        $(document).on('click', '.filter-auto-remark', function (e) {
+            var name = $('#add-remark input[name="id"]').val();
+            var auto = $(this).is(":checked");
+            $.ajax({
+                type: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: '{{ route('scrap.getremark') }}',
+                data: {
+                    name: name,
+                    auto : auto
                 },
             }).done(response => {
                 var html = '';
@@ -922,10 +947,10 @@
             }).done(function (response) {
                 $("#remarkHistory").modal("show");
                 var table = '';
-                table = table + '<table class="table table-bordered table-striped" ><tr><th>From/To</th><th>Date</th><th>By</th></tr>';
+                table = table + '<table class="table table-bordered table-striped" ><tr><th>From</th><th>To</th><th>Date</th><th>By</th></tr>';
 
                 for(var i=0;i<response.length;i++) {
-                    table = table + '<tr><td>'+response[i].remark+'</td><td>'+response[i].created_at+'</td><td>'+response[i].user_name+'</td></tr>';
+                    table = table + '<tr><td>'+response[i].old_value+'</td><td>'+response[i].new_value+'</td></td><td>'+response[i].created_at+'</td><td>'+response[i].user_name+'</td></tr>';
                 }
                 table = table + '</table>';
 

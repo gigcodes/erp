@@ -139,6 +139,24 @@ class ProductTemplatesController extends Controller
         return response()->json(["code" => 1, "message" => "Product Template Deleted successfully!"]);
     }
 
+    /**
+     * @SWG\Get(
+     *   path="/product-template",
+     *   tags={"Product Template"},
+     *   summary="Get Product Template",
+     *   operationId="get-product-template",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function apiIndex(Request $request)
     {
         $record = \App\ProductTemplate::latest()->first();
@@ -215,6 +233,24 @@ class ProductTemplatesController extends Controller
 
     }
 
+    /**
+     * @SWG\Post(
+     *   path="/product-template",
+     *   tags={"Product Template"},
+     *   summary="Save Product Template",
+     *   operationId="save-product-template",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function apiSave(Request $request)
     {
         // Try to get ID from 'product_id' (this will be changed to id)

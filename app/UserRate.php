@@ -1,12 +1,20 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use DB;
 
 class UserRate extends Model
 {
+         /**
+     * @var string
+      * @SWG\Property(property="user_id",type="integer")
+   
+      * @SWG\Property(property="start_date",type="datetime")
+     */
   protected $fillable = [
     'user_id', 'start_date'
   ];

@@ -1,12 +1,33 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use App\Helpers\StatusHelper;
 use Illuminate\Database\Eloquent\Model;
 
 class LandingPageProduct extends Model
 {
+
+    /**
+     * @var string
+     * @SWG\Property(property="name",type="string")
+     * @SWG\Property(property="product_id",type="integer")
+     * @SWG\Property(property="description",type="string")
+     * @SWG\Property(property="price",type="float")
+     * @SWG\Property(property="shopify_id",type="integer")
+     * @SWG\Property(property="stock_status",type="string")
+     * @SWG\Property(property="store_website_id",type="integer")
+     * @SWG\Property(property="status",type="sting")
+      * @SWG\Property(property="landing_page_status_id",type="integer")
+     * @SWG\Property(property="start_date",type="datetime")
+     * @SWG\Property(property="end_date",type="datetime")
+     * @SWG\Property(property="created_at",type="datetime")
+     * @SWG\Property(property="updated_at",type="datetime")
+   
+     */
+
     const STATUS = [
         "De-active",
         "Active",

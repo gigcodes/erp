@@ -1,12 +1,18 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use App\SiteDevelopment;
 
 class SiteDevelopmentCategory extends Model
 {
+      /**
+     * @var string
+
+     */
     protected $fillable = ['title'];
 
 

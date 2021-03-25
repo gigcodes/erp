@@ -149,6 +149,24 @@ class GoogleAffiliateController extends Controller
     }
 
     /**
+     * @SWG\Get(
+     *   path="/google/affiliate/keywords",
+     *   tags={"Google"},
+     *   summary="Get google affiliate keywords",
+     *   operationId="get-google-affiliate-keywords",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+    /**
     * function to get keywords to api
     *
     * @return json response with keywords
@@ -159,6 +177,24 @@ class GoogleAffiliateController extends Controller
         return response()->json($keywords);
     }
 
+    /**
+     * @SWG\Get(
+     *   path="/google/affiliate/search-results",
+     *   tags={"Google"},
+     *   summary="store google affiliate search result",
+     *   operationId="store-google-affiliate-search-result",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     /**
     * function to store google search results sent from scrapper
     *

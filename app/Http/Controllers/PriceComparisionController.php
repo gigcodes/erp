@@ -10,6 +10,25 @@ use App\Product;
 
 class PriceComparisionController extends Controller
 {
+
+    /**
+     * @SWG\Get(
+     *   path="/price_comparision/{type}",
+     *   tags={"Price Comparision"},
+     *   summary="Price Comparision",
+     *   operationId="price-comparision",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function index($name)
     {
     	if(empty($name)){
@@ -36,7 +55,24 @@ class PriceComparisionController extends Controller
     	}
     }
 
-
+    /**
+     * @SWG\Post(
+     *   path="/price_comparision/store",
+     *   tags={"Price Comparision"},
+     *   summary="Store Price Comparision",
+     *   operationId="store-price-comparision",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function storeComparision(Request $request)
     {
     	$name = $request->name;
@@ -148,6 +184,25 @@ class PriceComparisionController extends Controller
     	
     }
 
+
+    /**
+     * @SWG\Post(
+     *   path="/price_comparision/details",
+     *   tags={"Price Comparision"},
+     *   summary="Send Price Comparision",
+     *   operationId="send-price-comparision",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function sendDetails(Request $request)
     {
         //checking if we getting proper request 

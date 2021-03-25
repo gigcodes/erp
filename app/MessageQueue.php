@@ -1,11 +1,25 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 
 class MessageQueue extends Model
 {
+   /**
+     * @var string
+       * @SWG\Property(property="user_id",type="integer")
+     * @SWG\Property(property="customer_id",type="integer")
+     * @SWG\Property(property="phone",type="string")
+     * @SWG\Property(property="whatsapp_number",type="string")
+   * @SWG\Property(property="type",type="string")
+     * @SWG\Property(property="data",type="datetime")
+     * @SWG\Property(property="sending_time",type="datetime")
+     * @SWG\Property(property="group_id",type="integer")
+      
+     */
     protected $fillable = [
         'user_id', 'customer_id', 'phone', 'whatsapp_number', 'type', 'data', 'sending_time', 'group_id',
     ];

@@ -2,6 +2,9 @@
 
 namespace App;
 
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use App\Helpers\StatusHelper;
 use Dompdf\Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -38,10 +41,36 @@ class Product extends Model
 
     CONST BAGS_CATEGORY_IDS = [11,39,50,192,210];
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
+   /**
+     * @var string
+     * @SWG\Property(property="name",type="string")
+     * @SWG\Property(property="brand",type="string")
+     * @SWG\Property(property="category",type="string")
+     * @SWG\Property(property="short_description",type="string")
+     * @SWG\Property(property="price",type="string")
+     * @SWG\Property(property="sku",type="string")
+     * @SWG\Property(property="has_mediables",type="string")
+     * @SWG\Property(property="status_id",type="integer")
+     * @SWG\Property(property="id",type="integer")
+     * @SWG\Property(property="is_barcode_check",type="boolean")
+     * @SWG\Property(property="size_eu",type="string")
+     * @SWG\Property(property="supplier",type="string")
+     * @SWG\Property(property="supplier_id",type="integer")
+     * @SWG\Property(property="user_id",type="integer")
+     * @SWG\Property(property="shopify_id",type="integer")
+     * @SWG\Property(property="stock_status",type="string")
+     * @SWG\Property(property="scrap_priority",type="string")
+     * @SWG\Property(property="assigned_to",type="integer")
+     * @SWG\Property(property="quick_product",type="string")
+     * @SWG\Property(property="approved_by",type="integer")
+     * @SWG\Property(property="supplier_link",type="string")
+     * @SWG\Property(property="composition",type="string")
+     * @SWG\Property(property="lmeasurement",type="string")
+     * @SWG\Property(property="hmeasurement",type="string")
+     * @SWG\Property(property="dmeasurement",type="string")
+     * @SWG\Property(property="size",type="string")
+     * @SWG\Property(property="color",type="string")
+     * @SWG\Property(property="last_brand",type="string")
      */
     protected $fillable = [
         'name',
@@ -53,6 +82,8 @@ class Product extends Model
         'id',
         'sku',
         'is_barcode_check',
+
+
         'has_mediables',
         'size_eu',
         'supplier',

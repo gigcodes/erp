@@ -1,11 +1,28 @@
 <?php
 
 namespace App;
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use App\StoreWebsite;
 use Illuminate\Database\Eloquent\Model;
 
 class EmailAddress extends Model
 {
+      /**
+     * @var string
+     * @SWG\Property(property="from_name",type="string")
+     * @SWG\Property(property="from_address",type="string")
+     * @SWG\Property(property="driver",type="string")
+     * @SWG\Property(property="host",type="string")
+     * @SWG\Property(property="port",type="string")
+     * @SWG\Property(property="encryption",type="string")
+     * @SWG\Property(property="username",type="string")
+     * @SWG\Property(property="template",type="string")
+     * @SWG\Property(property="additional_data",type="string")
+     * @SWG\Property(property="password",type="datetime")
+     * @SWG\Property(property="store_website_id",type="integer")
+     */
   
   protected $fillable = [
     'from_name',

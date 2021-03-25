@@ -11,6 +11,22 @@ use App\GoogleTranslate;
 use App\WebsiteStoreView;
 use App\Language;
 
+
+/**
+ * @SWG\Swagger(
+ *	 schemes={"http" , "https"},
+ *   basePath="/api" ,
+ *   @SWG\Info(
+ *     title="API Documentation",
+ *     version="1.0",
+ *	   
+ *     description="This API documentation list all API endpoints available in applicaiton. Documentation also list Modules and variable available in each Modules",
+ *     @SWG\Contact(
+ *         email="xyz@xyz.com"
+ *     )
+ *   )
+ * )
+ */
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;

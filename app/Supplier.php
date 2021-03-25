@@ -1,12 +1,40 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Supplier extends Model
 {
+               /**
+     * @var string
+      * @SWG\Property(property="is_updated",type="boolean")
+         * @SWG\Property(property="supplier",type="string")
+      * @SWG\Property(property="size_system_id",type="integer")
+      
+      * @SWG\Property(property="address",type="string")
+   
+     * @SWG\Property(property="phone",type="string")
+     * @SWG\Property(property="default_phone",type="string")
+     * @SWG\Property(property="whatsapp_number",type="string")
+     * @SWG\Property(property="email",type="string")
+     * @SWG\Property(property="default_email",type="string")
+     * @SWG\Property(property="social_handle",type="string")
+     * @SWG\Property(property="instagram_handle",type="string")
+     * @SWG\Property(property="website",type="string")
+     * @SWG\Property(property="gst",type="string")
+     * @SWG\Property(property="status",type="string")
+     * @SWG\Property(property="supplier_category_id",type="integer")
+     * @SWG\Property(property="supplier_sub_category_id",type="integer")
+     * @SWG\Property(property="scrapper",type="string")
+     * @SWG\Property(property="supplier_status_id",type="integer")
+     * @SWG\Property(property="is_blocked",type="boolean")
+     * @SWG\Property(property="supplier_price_range_id",type="integer")
+      * @SWG\Property(property="est_delivery_time",type="datetime")
+     */
 
     use SoftDeletes;
 

@@ -1,11 +1,33 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 
 class Scraper extends Model
 {
+    /**
+     * @var string
+     * @SWG\Property(property="supplier_id",type="integer")
+     * @SWG\Property(property="parent_supplier_id",type="integer")
+     * @SWG\Property(property="scraper_name",type="string")
+     * @SWG\Property(property="scraper_type",type="string")
+     * @SWG\Property(property="scraper_total_urls",type="string")
+     * @SWG\Property(property="scraper_new_urls",type="string")
+     * @SWG\Property(property="scraper_existing_urls",type="string")
+
+     * @SWG\Property(property="scraper_start_time",type="datetime")
+     * @SWG\Property(property="scraper_logic",type="string")
+     * @SWG\Property(property="scraper_made_by",type="string")
+     * @SWG\Property(property="scraper_priority",type="string")
+     * @SWG\Property(property="next_step_in_product_flow",type="string")
+     * @SWG\Property(property="status",type="string")
+     * @SWG\Property(property="has_sku",type="string")
+     * @SWG\Property(property="last_completed_at",type="datetime")
+     * @SWG\Property(property="last_started_at",type="datetime")
+     */
 
     const STATUS = [
         ''                        => "N/A",
@@ -76,8 +98,8 @@ class Scraper extends Model
         return \App\ScrapRemark::where("scraper_name", $this->scraper_name)->latest()->first();
     }
 
-    public function developerTask()
+    public function developerTask($id)
     {
-        return \App\DeveloperTask::where("scraper_id", $this->id)->latest()->first();
+        return \App\DeveloperTask::where("scraper_id", $id)->first();
     }
 }

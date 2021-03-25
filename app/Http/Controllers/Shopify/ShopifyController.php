@@ -93,6 +93,24 @@ class ShopifyController extends Controller
         //
     }
 
+     /**
+     * @SWG\Post(
+     *   path="/shopify/order/create",
+     *   tags={"Shopify"},
+     *   summary="Create Shopify Order",
+     *   operationId="shopify-create-order",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     /**
      * Get a webhook event and create orders out of it
      *
@@ -127,6 +145,25 @@ class ShopifyController extends Controller
         ShopifyHelper::syncShopifyOrders($store_id, $order);
         return response()->json(['success'], 200);
     }
+
+     /**
+     * @SWG\Post(
+     *   path="/shopify/customer/create",
+     *   tags={"Shopify"},
+     *   summary="Shopify create customer",
+     *   operationId="shopify-create-customer",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
 
     /**
      * Get a webhook event and create customers out of it

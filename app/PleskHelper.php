@@ -1,6 +1,9 @@
 <?php
 
 namespace App;
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use App\plesk\PleskServer;
 use App\plesk\PleskClient;
 

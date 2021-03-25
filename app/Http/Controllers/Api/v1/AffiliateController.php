@@ -31,6 +31,42 @@ class AffiliateController extends Controller
     }
 
     /**
+     * @SWG\Post(
+     *   path="/affiliate/add",
+     *   tags={"Affiliate"},
+     *   summary="store affiliate",
+     *   operationId="store-affiliate",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+    /**
+     * @SWG\Post(
+     *   path="/influencer/add",
+     *   tags={"Influencer"},
+     *   summary="store influencer",
+     *   operationId="store-influencer",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request

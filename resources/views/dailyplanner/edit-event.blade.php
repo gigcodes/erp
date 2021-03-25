@@ -17,13 +17,13 @@
 							{{ csrf_field() }}    
 							<div class="form-group">
 								<label for="notification-date">Date</label>
-								<input id="edit-notification-date" name="date" value="{{ $edit->date }}" class="form-control" type="text">
+								<input id="edit-notification-date" name="date" value="{{ $edit->date ?? null }}" class="form-control" type="text">
 							</div>
 							<input type="hidden" name="daily_activity_id" value="{{ $edit->daily_activity_id }}">
-							<input type="hidden" name="edit_id" value="{{ $edit->id }}">
+							<input type="hidden" name="edit_id" value="{{ $edit->id ?? null }}">
 							<div class="form-group">
 								<label for="notification-time">Time</label>
-								<input id="edit-notification-time" name="time" value="{{ $edit->time }}" class="form-control" type="text">
+								<input id="edit-notification-time" name="time" value="{{ $edit->time ?? null }}" class="form-control" type="text">
 							</div>    
 							<div class="row">
 								{{-- <div class="form-group col-6">
@@ -64,19 +64,22 @@
 							</div>
 							<div class="form-group">
 								<label for="notification-subject">Subject</label>
-								<input id="notification-subject" name="subject" value="{{ $edit->subject }}" class="form-control" type="text">
+								<input id="notification-subject" name="subject" value="{{ $edit->subject ?? null }}" class="form-control" type="text">
 								<span id="subject_error" class="text-danger"></span>
 							</div>
 							<div class="form-group">
 								<label for="notification-description">Description</label>
-								<input id="notification-description" name="description" value="{{ $edit->description }}" class="form-control" type="text">
+								<input id="notification-description" name="description" value="{{ $edit->description ?? null }}" class="form-control" type="text">
 								<span id="description_error" class="text-danger"></span>
 							</div>
 							<div class="form-group">
 								<label for="notification-participants">Participants(vendor)</label>
-								<?php echo Form::select("vendors[]",\App\Vendor::all()->pluck("name","id")->toArray(),$edit->attendees->pluck('id')->toArray(),[
-									"id" => "vendors" , "class" => "form-control selectx-vendor", "multiple" => true , "style" => "width:100%"
-								]); ?>
+								<select name="vendors[]" id="vendors" class="form-control selectx-vendor" multiple style="width:100%">
+									@foreach (\App\Vendor::all()->pluck("name","id")->toArray() as $key => $item)
+										<option value="{{ $key }}" {{ in_array( $key , $vendor) ? 'selected' : '' }}> {{ $item }} </option>
+									@endforeach
+								</select>
+								
 							</div>
 							<div class="form-group">
 								<label for="check"> Edit all next recurring events </label>

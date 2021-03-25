@@ -1,11 +1,24 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 
 class OldIncoming extends Model
 {
+         /**
+     * @var string
+     * @SWG\Property(property="serial_no",type="integer")
+     * @SWG\Property(property="name",type="string")
+     * @SWG\Property(property="description",type="string")
+     * @SWG\Property(property="amount",type="float")
+     * @SWG\Property(property="commitment",type="string")
+     * @SWG\Property(property="communication",type="string")
+     * @SWG\Property(property="created_at",type="datetime")
+     * @SWG\Property(property="updated_at",type="datetime")
+     */
     protected $primaryKey = 'serial_no';
    /**
      * Fillables for the database

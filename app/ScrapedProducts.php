@@ -1,7 +1,9 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use App\Brand;
@@ -11,6 +13,28 @@ use App\Helpers\ProductHelper;
 
 class ScrapedProducts extends Model
 {
+/**
+     * @var string
+     * @SWG\Property(property="images",type="string")
+     * @SWG\Property(property="properties",type="string")
+     * @SWG\Property(property="sku",type="string")
+     * @SWG\Property(property="product_id",type="interger")
+     * @SWG\Property(property="website",type="string")
+     * @SWG\Property(property="title",type="string")
+     * @SWG\Property(property="brand_id",type="interger")
+     * @SWG\Property(property="description",type="string")
+     * @SWG\Property(property="url",type="string")
+     * @SWG\Property(property="is_properly_updated",type="boolean")
+     * @SWG\Property(property="is_price_updated",type="boolean")
+     * @SWG\Property(property="is_enriched",type="boolean")
+     * @SWG\Property(property="has_sku",type="string")
+     * @SWG\Property(property="price",type="float")
+     * @SWG\Property(property="can_be_deleted",type="boolean")
+     * @SWG\Property(property="categories",type="string")
+     * @SWG\Property(property="color",type="string")
+     * @SWG\Property(property="composition",type="string")
+     */
+
     protected $casts = [
         'images' => 'array',
         'properties' => 'array',

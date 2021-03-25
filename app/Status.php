@@ -2,7 +2,9 @@
 
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 
 class Status extends ReadOnlyBase {
 

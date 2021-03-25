@@ -1,7 +1,9 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
@@ -10,7 +12,34 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 
 class Leads extends Model {
-	//
+	  /**
+     * @var string
+     * @SWG\Property(property="customer_id",type="integer")
+     * @SWG\Property(property="client_name",type="string")
+     * @SWG\Property(property="city",type="string")
+     * @SWG\Property(property="contactno",type="string")
+     * @SWG\Property(property="solophone",type="string")
+     * @SWG\Property(property="rating",type="string")
+     * @SWG\Property(property="instahandler",type="string")
+     * @SWG\Property(property="status",type="string")
+     * @SWG\Property(property="userid",type="integer")
+
+     * @SWG\Property(property="comments",type="sting")
+     * @SWG\Property(property="assigned_user",type="sting")
+     * @SWG\Property(property="selected_product",type="sting")
+     * @SWG\Property(property="size",type="sting")
+     * @SWG\Property(property="address",type="sting")
+     * @SWG\Property(property="email",type="sting")
+     * @SWG\Property(property="source",type="sting")
+     * @SWG\Property(property="brand",type="sting")
+     * @SWG\Property(property="leadsourcetxt",type="sting")
+     * @SWG\Property(property="multi_brand",type="sting")
+     * @SWG\Property(property="multi_category",type="sting")
+     * @SWG\Property(property="remark",type="sting")
+     * @SWG\Property(property="whatsapp_number",type="integer")
+     * @SWG\Property(property="created_at",type="datetime")
+     * @SWG\Property(property="communication",type="sting")
+     */
 	use Mediable;
 	use SoftDeletes;
 	protected $fillable = [

@@ -9,7 +9,14 @@
       </div>
 
       <div class="modal-body">
-
+        <?php if((!empty($type) && ($type == 'scrap' || $type == 'email'))) {  ?>
+          <form id="filter-module-remark">
+            <div class="form-group">
+              <label for="filter_auto">Remove auto</label>
+              <input type="checkbox" name="filter_auto" class="filter-auto-remark">
+            </div>
+          </form>
+        <?php } ?>
         <?php if((!empty($type) && ($type == 'scrap' || $type == 'email'))) {  ?>
           <table class="table fixed_header table-bordered">
               <thead class="thead-dark">

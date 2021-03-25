@@ -1,12 +1,23 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use App\ChatMessage;
 
 class Suggestion extends Model
 {
+        /**
+     * @var string
+      * @SWG\Property(property="customer_id",type="integer")
+      * @SWG\Property(property="chat_message_id",type="integer")
+      * @SWG\Property(property="category",type="string")
+      * @SWG\Property(property="size",type="string")
+      * @SWG\Property(property="supplier",type="string")
+     * @SWG\Property(property="number",type="string")
+     */
     protected $fillable = [
         'customer_id', 'brand', 'category', 'size', 'supplier', 'number', 'chat_message_id',
     ];

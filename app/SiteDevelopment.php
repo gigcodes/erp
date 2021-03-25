@@ -1,7 +1,9 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use App\SiteDevelopmentCategory;
 use App\ChatMessage;
@@ -10,6 +12,24 @@ use Plank\Mediable\Mediable;
 
 class SiteDevelopment extends Model
 {
+
+    /**
+     * @var string
+     * @SWG\Property(property="site_development_category_id",type="integer")
+     * @SWG\Property(property="status",type="string")
+ 
+     * @SWG\Property(property="title",type="string")
+     * @SWG\Property(property="brand_id",type="interger")
+     * @SWG\Property(property="description",type="string")
+     * @SWG\Property(property="developer_id",type="integer")
+     * @SWG\Property(property="designer_id",type="integer")
+     * @SWG\Property(property="website_id",type="integer")
+
+     * @SWG\Property(property="html_designer",type="string")
+     * @SWG\Property(property="artwork_status",type="string")
+     * @SWG\Property(property="tester_id",type="integer")
+
+     */
     use Mediable;
 
     protected $fillable = ['site_development_category_id','status','title','description','developer_id','designer_id','website_id','html_designer','artwork_status','tester_id'];

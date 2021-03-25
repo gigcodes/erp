@@ -3,9 +3,19 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 
 class Compositions extends Model
 {
+
+    /**
+     * @var string
+   
+     * @SWG\Property(property="name",type="string")
+     * @SWG\Property(property="replace_with",type="string")
+     */
     //
     protected $fillable = [
         'name',

@@ -57,10 +57,13 @@ class SendFcmNotification extends Command
             ->get();
         if (!$Notifications->isEmpty()) {
             foreach ($Notifications as $Notification) {
+                $errorMessage = "";
+                $token = "";
                 try{
                     
-                    config(['FCM_SERVER_KEY' => $Notification['push_web_key']]);
-                    config(['FCM_SENDER_ID' => $Notification['push_web_id']]);
+                    config(['fcm.http.sender_id' => $Notification['push_web_id']]);
+                    config(['fcm.http.server_key' => $Notification['push_web_key']]);
+
                     $optionBuilder = new OptionsBuilder();
                     $optionBuilder->setTimeToLive(60 * 20);
 
@@ -80,13 +83,12 @@ class SendFcmNotification extends Command
                     $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
 
                     $success = false;
-                    $errorMessage = "";
                     if ($downstreamResponse->numberSuccess()) {
-                        PushFcmNotification::where('id', $Notification->id)->update(['sent_on' => date('Y-m-d H:i')]);
+                        //PushFcmNotification::where('id', $Notification->id)->update(['sent_on' => date('Y-m-d H:i')]);
                         $this->info('Message Sent Succesfully');
                         $success = true;
                     } elseif ($downstreamResponse->numberFailure()) {
-                        $this->info($downstreamResponse->tokensWithError());
+                        $this->info(json_encode($downstreamResponse->tokensWithError()));
                         $errorMessage = json_encode($downstreamResponse->tokensWithError());
                     }
 
@@ -94,6 +96,9 @@ class SendFcmNotification extends Command
                     $success = false;
                     $errorMessage = $e->getMessage();
                 }
+
+                $Notification->sent_on = date('Y-m-d H:i');
+                $Notification->save();
 
                 \App\PushFcmNotificationHistory::create([
                     "token"           => $token,

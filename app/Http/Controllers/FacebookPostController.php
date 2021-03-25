@@ -61,6 +61,24 @@ class FacebookPostController extends Controller
         return response()->json(['message' => 'Successfull','code' => 200]);
     }
 
+    /**
+     * @SWG\Post(
+     *   path="/facebook/account",
+     *   tags={"Facebook"},
+     *   summary="facbook posts details",
+     *   operationId="facbook-posts-details",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function getPost(Request $request) {
         $account = Account::where('email', $request->email)->first();
         if(!$account) {
@@ -90,6 +108,24 @@ class FacebookPostController extends Controller
         return response()->json(['data' => $data,'code' => 200]);
     }
 
+    /**
+     * @SWG\Post(
+     *   path="/facebook/post/status",
+     *   tags={"Facebook"},
+     *   summary="Set facbook post status",
+     *   operationId="set-facbook-post-status",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function setPostStatus(Request $request) {
         $post = FacebookPost::where('id', $request->queueNumber)->first();
         if(!$post) {
