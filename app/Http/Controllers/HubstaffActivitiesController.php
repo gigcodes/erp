@@ -984,7 +984,7 @@ class HubstaffActivitiesController extends Controller
         if($hubActivitySummery) {
             if(!$hubActivitySummery->isEmpty()) {
                 foreach($hubActivitySummery as $hubA) {
-                    if($hubActivitySummery->approved_ids) {
+                    if(isset($hubActivitySummery->approved_ids)) {
                         $approved_idsArr = json_decode($hubActivitySummery->approved_ids);   
                         if(!empty($approved_idsArr) && is_array($approved_idsArr)) {
                             $approved_ids = array_merge($approved_ids, $approved_idsArr);
