@@ -59,8 +59,9 @@ class SendFcmNotification extends Command
             foreach ($Notifications as $Notification) {
                 try{
                     
-                    config(['FCM_SERVER_KEY' => $Notification['push_web_key']]);
-                    config(['FCM_SENDER_ID' => $Notification['push_web_id']]);
+                    config(['fcm.http.sender_id' => $Notification['push_web_id']]);
+                    config(['fcm.http.server_key' => $Notification['push_web_key']]);
+
                     $optionBuilder = new OptionsBuilder();
                     $optionBuilder->setTimeToLive(60 * 20);
 
