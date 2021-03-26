@@ -47,6 +47,7 @@ class SendFcmNotification extends Command
         $todate        = date('Y-m-d H:i', $newtimestamp);
         echo $fromdate."#".$todate;
         echo PHP_EOL;
+        \Log::info("fcm:send was started to run");
         $Notifications = PushFcmNotification::select('sw.push_web_key', 'sw.push_web_id', 'ft.token', 'push_fcm_notifications.*')
             ->leftJoin('fcm_tokens as ft', 'ft.store_website_id', '=', 'push_fcm_notifications.store_website_id')
             ->leftJoin('store_websites as sw', 'sw.id', '=', 'push_fcm_notifications.store_website_id')
@@ -55,7 +56,9 @@ class SendFcmNotification extends Command
             ->where('sw.push_web_id', '!=', '')
             ->whereBetween('push_fcm_notifications.sent_at', [$fromdate, $todate])
             ->get();
+        \Log::info("fcm:send query was finished");    
         if (!$Notifications->isEmpty()) {
+            \Log::info("fcm:send record was found");    
             foreach ($Notifications as $Notification) {
                 $errorMessage = "";
                 $token = "";
@@ -63,6 +66,7 @@ class SendFcmNotification extends Command
                     
                     config(['fcm.http.sender_id' => $Notification['push_web_id']]);
                     config(['fcm.http.server_key' => $Notification['push_web_key']]);
+                    \Log::info("fcm:send sender_id was ".$Notification['push_web_id']." found with key ".$Notification['push_web_key']);
 
                     $optionBuilder = new OptionsBuilder();
                     $optionBuilder->setTimeToLive(60 * 20);
@@ -86,15 +90,18 @@ class SendFcmNotification extends Command
                     if ($downstreamResponse->numberSuccess()) {
                         //PushFcmNotification::where('id', $Notification->id)->update(['sent_on' => date('Y-m-d H:i')]);
                         $this->info('Message Sent Succesfully');
+                        \Log::info("fcm:send Message Sent Succesfully");
                         $success = true;
                     } elseif ($downstreamResponse->numberFailure()) {
                         $this->info(json_encode($downstreamResponse->tokensWithError()));
                         $errorMessage = json_encode($downstreamResponse->tokensWithError());
+                        \Log::info("fcm:send Message Error message =>".$errorMessage);
                     }
 
                 }catch(\Exception $e){
                     $success = false;
                     $errorMessage = $e->getMessage();
+                    \Log::info("fcm:send Exception Error message =>".$errorMessage);
                 }
 
                 $Notification->sent_on = date('Y-m-d H:i');
@@ -109,6 +116,7 @@ class SendFcmNotification extends Command
 
             }
         } else {
+            \Log::info("fcm:send Exception No notification available for sending at the moment");
             $this->info('No notification available for sending at the moment');
         }
     }
