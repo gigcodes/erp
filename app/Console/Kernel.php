@@ -543,7 +543,7 @@ class Kernel extends ConsoleKernel
         $schedule->command("assetsmanagerduedate:pay")->daily();
         
         //cron for fcm push notifications
-        $schedule->command("fcm:send")->everyFiveMinutes();
+        //$schedule->command("fcm:send")->everyFiveMinutes();
         //cron for influencers start stop
         $schedule->command('influencers:startstop')->hourly();
         //cron for price check api daily basis
