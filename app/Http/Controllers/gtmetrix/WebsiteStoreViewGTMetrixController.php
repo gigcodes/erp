@@ -19,7 +19,27 @@ class WebsiteStoreViewGTMetrixController extends Controller
      */
     public function index(Request $request)
     {
-        $list       = StoreViewsGTMetrix::orderBy('created_at','desc')->paginate(30);
+        $query  = StoreViewsGTMetrix::select(\DB::raw('store_views_gt_metrix.*'));
+
+        if ( request('date') ) {
+            $query->whereDate('created_at',request('date'));
+        }
+        
+        if ( request('status') ) {
+            $query->where('status',request('status'));
+        }
+
+        $columns = ['error','report_url','report_url','html_load_time','html_bytes','page_load_time','page_bytes','page_elements','pagespeed_score','yslow_score'];
+        if( request('keyword') ){
+            foreach($columns as $column){
+                $query->orWhere('store_views_gt_metrix.'.$column, 'LIKE', '%' . request('keyword') . '%');
+            }
+        }
+
+        $list = $query->from(\DB::raw('(SELECT MAX( id) as id,  store_view_id, html_load_time FROM store_views_gt_metrix GROUP BY store_views_gt_metrix.store_view_id) as t'))
+                ->leftJoin('store_views_gt_metrix','t.id','=', 'store_views_gt_metrix.id')
+                ->paginate(30);
+
         $cronStatus = Setting::where('name',"gtmetrixCronStatus")->get()->first();
         $cronTime   = Setting::where('name',"gtmetrixCronType")->get()->first();
         return view('gtmetrix.index',compact('list','cronStatus','cronTime'));
@@ -70,4 +90,17 @@ class WebsiteStoreViewGTMetrixController extends Controller
         }
         return redirect()->back()->with('success','Success');
     }
+
+    /**
+     * Show the store view history.
+     *
+     * @return \Illuminate\Http\Response
+     */
+	public function history( Request $request ){
+
+		if( $request->id ){
+			$history = StoreViewsGTMetrix::where( 'store_view_id', $request->id )->orderBy("created_at","desc")->get();
+			return response()->json( ["code" => 200 , "data" => $history] );
+		}
+	}
 }

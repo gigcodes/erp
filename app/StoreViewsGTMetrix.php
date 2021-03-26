@@ -29,4 +29,8 @@ class StoreViewsGTMetrix extends Model
         'yslow_score',
         'resources'
     ];
+
+     protected $casts = [
+        'resources' => 'array',
+    ];
 }
