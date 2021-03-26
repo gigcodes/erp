@@ -661,7 +661,7 @@ class HubstaffActivitiesController extends Controller
                 }
 
                 return response()->json([
-                    'totalApproved' => $totalApproved / 60,
+                    'totalApproved' => (float)$totalApproved / 60,
                 ], 200);
             } else {
                 $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', $request->date)->where('hubstaff_activities.user_id', $request->user_id);
