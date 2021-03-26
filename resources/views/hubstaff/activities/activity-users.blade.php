@@ -79,6 +79,7 @@
           <th>Date</th>
           <th>User</th>
           <th>Time tracked (Minutes)</th>
+          <th>Tasks</th>
           <th>Time approved</th>
           <th>Pending payment time</th>
           <th>Status</th>
@@ -90,6 +91,20 @@
             <td>{{ \Carbon\Carbon::parse($user['date'])->format('d-m') }} </td>
               <td>{{ $user['userName'] }}</td>
               <td>{{number_format($user['total_tracked'] / 60,2,".",",")}}</td>
+              <td>
+                  <?php if(!empty($user['tasks'])) { ?>
+                        <?php foreach($user['tasks'] as $ut) { ?>
+                            <?php 
+                                @list($taskid,$devtask) = explode("||",$ut);
+                            ?>
+                            <?php if(Auth::user()->isAdmin()) { ?> 
+                               <a class="show-task-histories " data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}}</a><br>
+                            <?php }else{ ?>
+                                <a class="" data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}}</a><br>
+                            <?php } ?>    
+                        <?php } ?>
+                  <?php } ?>
+              </td>
               <td><span class="replaceme">{{number_format($user['totalApproved'] / 60,2,".",",")}}</span> </td>
               <td><span>{{number_format($user['totalNotPaid'] / 60,2,".",",")}}</td>
               <td>{{$user['status']}}</td>
@@ -410,14 +425,14 @@ let r_s = jQuery('input[name="start_date"]').val();
                 $("#loading-image").show();
             }
             }).done( function(response) {
-            $("#loading-image").hide();
-            thisRaw.closest("tr").find('.replaceme').html(response.totalApproved);
-            $('#records-modal').modal('hide');
-            // $(".show-activities").css("display", "none");
-            thisRaw.closest("tr").find('.show-activities').css("display", "none");
+                $("#loading-image").hide();
+                thisRaw.closest("tr").find('.replaceme').html(response.totalApproved);
+                $('#records-modal').modal('hide');
+                // $(".show-activities").css("display", "none");
+                thisRaw.closest("tr").find('.show-activities').css("display", "none");
             }).fail(function(errObj) {
                 toastr['error'](errObj.responseJSON.message, 'error');
-            $("#loading-image").hide();
+                $("#loading-image").hide();
             });
         });
 
@@ -451,6 +466,34 @@ let r_s = jQuery('input[name="start_date"]').val();
         $(document).on('click', '.expand-row-btn', function () {
             $(this).closest("tr").find(".expand-col").toggleClass('dis-none');
         });
+
+        $(document).on("click",".show-task-histories",function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            thisRaw = $this;
+            $.ajax({
+                url: '/hubstaff-activities/activities/task-activity',
+                type: 'GET',
+                data: {
+                    "task_id":$this.data("task-id"),
+                    "user_id":$this.data("user-id")
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            }).done( function(response) {
+                $("#loading-image").hide();
+                $("#loading-image").hide();
+                $('#records-modal').modal('show');
+                $('#record-content').html(response);
+            }).fail(function(errObj) {
+                $("#loading-image").hide();
+                if(errObj.responseJSON) {
+                    toastr['error'](errObj.responseJSON.message, 'error');
+                }
+            });
+        });
+
 
 </script>
 @endsection

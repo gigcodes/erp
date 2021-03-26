@@ -4,6 +4,7 @@
 
     <input type="hidden" name="user_id" value="{{$user_id}}">
     <input type="hidden" name="date" value="{{$date}}">
+    <input type="hidden" name="isTaskWise" value="{{isset($isTaskWise) ? $isTaskWise : false}}">
 
     <div class="modal-header">
         <h4 class="modal-title"></h4>
@@ -25,7 +26,25 @@
             <td>{{ $record->OnDate }} {{$record->onHour}}:00:00 </td>
               <td>{{ number_format($record->total_tracked / 60,2,".",",") }}</td>
               <td>{{ number_format($record->totalApproved / 60,2,".",",") }}</td>
-              <td></td>
+              <td>
+                <?php $listOFtask = []; ?>
+                @foreach ($record->activities as $a)
+                    @if(!empty($a->taskSubject)) 
+                      <?php 
+                        $listOFtask[] = $a->taskSubject;
+                      ?>
+                    @endif
+                @endforeach
+                @foreach (array_unique($listOFtask) as $l)
+                  @if(!empty($l)) 
+                      <?php 
+                        list($type, $id) = explode("-",$l);
+                      ?>
+                      <a href="javascript:;">{{$a->taskSubject}}</a><br>
+                    @endif
+
+                @endforeach
+              </td>
               <td>
               <div class="form-group" style="margin:0px;">
                    @if(isset($member))
@@ -146,7 +165,7 @@
     @if($hubActivitySummery)
     <div class="form-group">
         <label for="">Previous remarks</label>
-        <textarea class="form-control" cols="30" rows="5" name="previous_remarks" placeholder="Rejection note...">@if($hubActivitySummery){{$hubActivitySummery->rejection_note}}@endif</textarea>
+        <textarea class="form-control" cols="30" rows="5" name="previous_remarks" placeholder="Rejection note...">@if($hubActivitySummery && isset($hubActivitySummery->rejection_note)){{$hubActivitySummery->rejection_note}}@endif</textarea>
     </div>
     @endif
     <div class="form-group">
@@ -172,4 +191,20 @@
     $('#date_of_payment').datetimepicker({
       format: 'YYYY-MM-DD'
     });
+
+    $(document).on("click",".show-task-history",function() {
+        var taskid = $(this).data("id");
+        $.ajax({
+              type: 'GET',
+              url: '/hubstaff-activities/activities/task-history',
+              data: {
+                  task_id: taskid
+              }
+          }).done(response => {
+              console.log(response);
+          }).fail(function (response) {
+              
+          });
+    });
+
 </script>

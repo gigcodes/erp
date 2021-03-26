@@ -1375,6 +1375,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('/approved/pending-payments', 'HubstaffActivitiesController@approvedPendingPayments')->name('hubstaff-acitivties.pending-payments');
             Route::post('/approved/payment', 'HubstaffActivitiesController@submitPaymentRequest')->name("hubstaff-acitivties.payment-request.submit");
             Route::post('/add-efficiency', 'HubstaffActivitiesController@AddEfficiency')->name('hubstaff-acitivties.efficiency.save');
+            Route::get('/task-activity', 'HubstaffActivitiesController@taskActivity')->name('hubstaff-acitivties.acitivties.task-activity');
         });
 
         Route::post('save', 'HubstaffPaymentController@save')->name('hubstaff-payment.save');
