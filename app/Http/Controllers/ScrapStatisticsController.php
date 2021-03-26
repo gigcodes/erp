@@ -629,4 +629,15 @@ class ScrapStatisticsController extends Controller
 
     }
 
+    public function autoRestart(Request $request)
+    {
+        if($request->status == "on") {
+            $affected = \DB::table('scrapers')->update(array('auto_restart' => 1));
+        }else{
+            $affected = \DB::table('scrapers')->update(array('auto_restart' => 0));
+        }
+
+        return redirect()->back();
+    }
+
 }

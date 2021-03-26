@@ -1185,3 +1185,30 @@ POST https://erp.theluxuryunlimited.com/api/scrape/send-position
     "message": "Error message"
 }
 ```
+
+
+## check auto restart scraper
+**Request:**
+
+```json
+GET https://erp.theluxuryunlimited.com/api/scraper/auto-restart?website=giglio
+{
+    "website": "giglio"
+}
+```
+
+**Successful Response:**
+```json
+{
+    "code": 200,
+    "auto_restart": 1
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```

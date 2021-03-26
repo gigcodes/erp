@@ -1860,7 +1860,7 @@ class ScrapController extends Controller
         $scraper = \App\Scraper::where("scraper_name", $request->website)->first();
 
         if (!$scraper) {
-            return response()->json(["code" => 500, "data" => [], "message" => "website (scraper name) is is wrong"]);
+            return response()->json(["code" => 500, "data" => [], "message" => "website (scraper name) is wrong"]);
         }
 
         $media = MediaUploader::fromSource($request->file('screenshot'))
@@ -1893,7 +1893,7 @@ class ScrapController extends Controller
         $scraper = \App\Scraper::where("scraper_name", $request->website)->first();
 
         if (!$scraper) {
-            return response()->json(["code" => 500, "data" => [], "message" => "website (scraper name) is is wrong"]);
+            return response()->json(["code" => 500, "data" => [], "message" => "website (scraper name) is wrong"]);
         }
 
         $history = new \App\ScraperPositionHistory;
@@ -1948,5 +1948,22 @@ class ScrapController extends Controller
                 abort(404);
             }
         }
+    }
+
+    public function needToAutoRestart(Request $request)
+    {
+
+        if (empty($request->website)) {
+            return response()->json(["code" => 500, "data" => [], "message" => "website (scraper name) is required field"]);
+        }
+
+        $scraper = \App\Scraper::where("scraper_name", $request->website)->first();
+
+        if (!$scraper) {
+            return response()->json(["code" => 500, "data" => [], "message" => "website (scraper name) is  wrong"]);
+        }
+
+        return response()->json(["code" => 200, "auto_restart" => $scraper->auto_restart]);
+
     }
 }
