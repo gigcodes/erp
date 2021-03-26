@@ -2857,3 +2857,8 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
 });
 
 
+Route::get('gtmetrix', 'gtmetrix\WebsiteStoreViewGTMetrixController@index')->name('gt-metrix');
+Route::get('gtmetrix/status/{status}', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronStatus')->name('gt-metrix.status');
+Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
+
+
