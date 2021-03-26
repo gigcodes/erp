@@ -421,14 +421,14 @@ let r_s = jQuery('input[name="start_date"]').val();
                 $("#loading-image").show();
             }
             }).done( function(response) {
-            $("#loading-image").hide();
-            thisRaw.closest("tr").find('.replaceme').html(response.totalApproved);
-            $('#records-modal').modal('hide');
-            // $(".show-activities").css("display", "none");
-            thisRaw.closest("tr").find('.show-activities').css("display", "none");
+                $("#loading-image").hide();
+                thisRaw.closest("tr").find('.replaceme').html(response.totalApproved);
+                $('#records-modal').modal('hide');
+                // $(".show-activities").css("display", "none");
+                thisRaw.closest("tr").find('.show-activities').css("display", "none");
             }).fail(function(errObj) {
                 toastr['error'](errObj.responseJSON.message, 'error');
-            $("#loading-image").hide();
+                $("#loading-image").hide();
             });
         });
 

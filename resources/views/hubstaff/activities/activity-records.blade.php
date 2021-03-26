@@ -4,6 +4,7 @@
 
     <input type="hidden" name="user_id" value="{{$user_id}}">
     <input type="hidden" name="date" value="{{$date}}">
+    <input type="hidden" name="isTaskWise" value="{{isset($isTaskWise) ? $isTaskWise : false}}">
 
     <div class="modal-header">
         <h4 class="modal-title"></h4>
