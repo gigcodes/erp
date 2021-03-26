@@ -14,7 +14,7 @@
     }
      .height-fix {
         height: 220px;
-        display: inline-block;
+        /* display: inline-block; */
         overflow: auto;
         
     }

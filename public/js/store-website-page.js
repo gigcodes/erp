@@ -182,6 +182,7 @@ var page = {
             $('input[name="meta_keywords"]').trigger('change');
             $('textarea[name="meta_description"]').trigger('change');
             $('#google_translate_element').summernote();
+            $('#keyword-search-btn').trigger('click');
 
         //new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
     },

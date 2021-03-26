@@ -150,7 +150,8 @@ var page = {
 
             $('input[name="meta_keyword"]').trigger('change');
             $('textarea[name="meta_description"]').trigger('change');
-
+            
+            $('#keyword-search-btn').trigger('click');
             $('#google_translate_element').summernote();
 
         //new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
