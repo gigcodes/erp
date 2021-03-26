@@ -29,11 +29,11 @@ class GoogleWebMasterController extends Controller
 
 
 
-		$getSites =  GoogleWebMasters::all();
+		$getSites =  GoogleWebMasters::paginate(Setting::get('pagination'),['*'],'crawls_per_page');
 
         $sites=Site::select('id','site_url')->get();
 
-        $logs=Activity::where('log_name','v3_sites')->orWhere('log_name','v3_search_analytics')->latest()->get();
+        $logs=Activity::where('log_name','v3_sites')->orWhere('log_name','v3_search_analytics')->latest()->paginate(Setting::get('pagination'),['*'],'logs_per_page');
 
      
 
