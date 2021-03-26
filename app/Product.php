@@ -937,13 +937,13 @@ class Product extends Model
         $brandID = 0;
         if(isset($brandM) && $brandM) {
             $brandID = $brandM->id;
-        }  
+        }
 
         // category discount
-        if(!empty($product->category)) {
-            $catdiscount  = \App\Category::join("category_segments as cs","cs.id","categories.category_segment_id")
+        if(!empty($this->category)) {
+            $catdiscount  = \DB::table("categories")->join("category_segments as cs","cs.id","categories.category_segment_id")
             ->join("category_segment_discounts as csd","csd.category_segment_id","cs.id")
-            ->where('categories.id',$product->category)
+            ->where('categories.id',$this->category)
             ->where('csd.brand_id',$brandID)
             ->select("csd.*")
             ->first();
