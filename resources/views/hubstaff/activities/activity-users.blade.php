@@ -97,7 +97,7 @@
                             <?php 
                                 @list($taskid,$devtask) = explode("||",$ut);
                             ?>
-                            <?php if(Auth::user()->isAdmin()) { ?>
+                            <?php if(Auth::user()->isAdmin()) { ?> 
                                <a class="show-task-histories " data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}}</a><br>
                             <?php }else{ ?>
                                 <a class="" data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}}</a><br>
