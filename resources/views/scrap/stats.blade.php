@@ -60,12 +60,6 @@
             <div class="form-group mb-3 col-md-3">
                 <?php echo Form::select("scraper_type", ['' => '-- Select Type --'] + \App\Helpers\DevelopmentHelper::scrapTypes(), request("scraper_type"), ["class" => "form-control select2"]) ?>
             </div>
-            <div class="form-group mb-3 col-md-3">
-                <select name="status" class="form-control form-group select2">
-                    <option <?php echo $status == '' ? 'selected=selected' : '' ?> value="">-- Select Status --</option>
-                    <option <?php echo $status == 1 ? 'selected=selected' : '' ?> value="1">Has Error ?</option>
-                </select>
-            </div>
         </div>
         <div class="row">
             <div class="form-group mb-3 col-md-3">
@@ -107,6 +101,13 @@
                       <span class="glyphicon glyphicon-th-plus"></span> Add Note
                     </button>
                 </div>
+                <div class="col-md-4 mt-1">
+                    <a href="{{ route('scrap.auto-restart') }}?status=on">
+                        <button type="button" class="btn btn-default btn-sm auto-restart-all">
+                            <span class="glyphicon glyphicon-th-list"></span> Auto Restart On
+                        </button>
+                    </a>
+                </div>
             </div>
             <div class="row">
                 <div class="col-md-4 mt-1">
@@ -118,6 +119,13 @@
                     <a href="{{ route('scrap.latest-remark') }}?download=true">
                         <button type="button" class="btn btn-default btn-sm download-latest-remark">
                           <span class="glyphicon glyphicon-th-list"></span> Download Latest Remarks
+                        </button>
+                    </a>
+                </div>
+                <div class="col-md-4 mt-1">
+                    <a href="{{ route('scrap.auto-restart') }}?status=off">
+                        <button type="button" class="btn btn-default btn-sm auto-restart-all">
+                            <span class="glyphicon glyphicon-th-list"></span> Auto Restart Off
                         </button>
                     </a>
                 </div>
@@ -188,7 +196,7 @@
                                     continue;
                                 }
 
-                                $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$supplier->scraper_name)->orderBy('created_at','desc')->first();
+                                $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$supplier->scraper_name)->whereNull("scrap_field")->where('user_name','!=','')->orderBy('created_at','desc')->first();
                             @endphp
                             <td width="1%">{{ ++$i }} <br>@if($supplier->getChildrenScraperCount($supplier->scraper_name) != 0) <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-link"><i class="fa fa-caret-down" style="font-size:24px"></i>  </button> @endif</td>
                             <td width="8%"><a href="/supplier/{{$supplier->id}}">{{ ucwords(strtolower($supplier->supplier)) }}<br>{{ \App\Helpers\ProductHelper::getScraperIcon($supplier->scraper_name) }}</a>
@@ -204,19 +212,22 @@
                             </td>
                             <!-- <td width="10%">{{ !empty($data) ? $data->ip_address : '' }}</td> -->
                             <td width="10%">
-                            <div class="form-group">
-                                    <select style="width:80% !important;" name="server_id" class="form-control select2 scraper_field_change" data-id="{{$supplier->scrapper_id}}" data-field="server_id">
-                                        <option value="">Select</option>
-                                        @foreach($serverIds as $serverId)
-                                        <option value="{{$serverId}}" {{$supplier->server_id == $serverId ? 'selected' : ''}}>{{$serverId}}</option>
-                                        @endforeach
-                                    </select>
-                                      <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="server_id" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
-                            </div>
+                                <div class="form-group">
+                                        <select style="width:80% !important;" name="server_id" class="form-control select2 scraper_field_change" data-id="{{$supplier->scrapper_id}}" data-field="server_id">
+                                            <option value="">Select</option>
+                                            @foreach($serverIds as $serverId)
+                                            <option value="{{$serverId}}" {{$supplier->server_id == $serverId ? 'selected' : ''}}>{{$serverId}}</option>
+                                            @endforeach
+                                        </select>
+                                        <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="server_id" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
+                                </div>
+                                <div class="form-group">
+                                    <?php echo Form::select("auto_restart",[0 => "Auto Restart - Off", 1 => "Auto Restart - On"], $supplier->auto_restart, ["class" => "form-control auto_restart select2", "style" => "width:100%;"]); ?>
+                                </div>
                             </td>
                             <td width="10%" style="text-right">
                                 <div class="form-group">
-                                        <select style="width:85% !important;display:inline;" name="scraper_start_time" class="form-control scraper_field_change" data-id="{{$supplier->scrapper_id}}" data-field="scraper_start_time">
+                                        <select style="width:85% !important;display:inline;" name="scraper_start_time" class="form-control scraper_field_change select2" data-id="{{$supplier->scrapper_id}}" data-field="scraper_start_time">
                                         <option value="">Select</option>
                                         @for($i=1; $i<=24;$i++)
                                         <option value="{{$i}}" {{$supplier->scraper_start_time == $i ? 'selected' : ''}}>{{$i}} h</option>
@@ -253,10 +264,9 @@
                             </td> -->
                             <td width="10%">
                                 <div class="form-group">
-                                    <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->scrapers_status, ["class" => "form-control scrapers_status", "style" => "width:100%;"]); ?>
+                                    <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->scrapers_status, ["class" => "form-control scrapers_status select2", "style" => "width:100%;"]); ?>
                                     <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="status" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
                                 </div>
-                                <br>
                                 @php
                                     $hasTask = $supplier->developerTask($supplier->scrapper_id);
                                 @endphp
@@ -264,7 +274,6 @@
                             </td>
                             <td width="10%">
                                 <?php
-                                    $remark = $supplier->scraperRemark();
                                     if($remark) {
                                         echo (strlen($remark->remark) > 15) ? substr($remark->remark, 0, 15).".." : $remark->remark;
                                     }
@@ -338,9 +347,9 @@
                                     </div>
                                 </td>
                                 <td colspan="2">
-                                    <label>Status:</label>
+                                    <label>Full scrap:</label>
                                     <div class="form-group">
-                                        <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->scrapers_status, ["class" => "form-control scrapers_status", "style" => "width:100%;"]); ?>
+                                        <?php echo Form::select("full_scrape",[0 => "No", 1 => "Yes"], $supplier->full_scrape, ["class" => "form-control full_scrape select2", "style" => "width:100%;"]); ?>
                                     </div>
                                 </td>
                             </tr>
@@ -484,9 +493,9 @@
                                             </div>
                                         </td>
                                         <td colspan="2">
-                                            <label>Status:</label>
+                                            <label>Full scrap:</label>
                                             <div class="form-group">
-                                                <?php echo Form::select("status", \App\Scraper::STATUS, $childSupplier->scrapers_status, ["class" => "form-control scrapers_status", "style" => "width:100%;"]); ?>
+                                                <?php echo Form::select("full_scrape",[0 => "No", 1 => "Yes"], $childSupplier->full_scrape, ["class" => "form-control full_scrape", "style" => "width:100%;"]); ?>
                                             </div>
                                         </td>
                                      </tr>
@@ -1053,6 +1062,41 @@
             });
         });
 
+        $(document).on("change", ".full_scrape", function () {
+            var tr = $(this).closest("tr");
+            var id = tr.data("eleid");
+            $.ajax({
+                type: 'GET',
+                url: '/scrap/statistics/update-field',
+                data: {
+                    search: id,
+                    field: "full_scrape",
+                    field_value: tr.find(".full_scrape").val()
+                },
+            }).done(function (response) {
+                toastr['success']('Data updated Successfully', 'success');
+            }).fail(function (response) {
+
+            });
+        });
+
+        $(document).on("change", ".auto_restart", function () {
+            var tr = $(this).closest("tr");
+            var id = tr.data("eleid");
+            $.ajax({
+                type: 'GET',
+                url: '/scrap/statistics/update-field',
+                data: {
+                    search: id,
+                    field: "auto_restart",
+                    field_value: tr.find(".auto_restart").val()
+                },
+            }).done(function (response) {
+                toastr['success']('Data updated Successfully', 'success');
+            }).fail(function (response) {
+
+            });
+        });
 
         $(document).on("change", ".parent_supplier_id", function () {
             var tr = $(this).closest("tr");
