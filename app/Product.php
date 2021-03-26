@@ -927,22 +927,55 @@ class Product extends Model
     * Get price calculation
     * @return float
     **/
-    public function getPrice($websiteId,$countryId = null, $countryGroup = null,$isOvveride = false)
+    public function getPrice($websiteId,$countryId = null, $countryGroup = null,$isOvveride = false, $dutyPrice = 0)
     {
         $website        = is_object($websiteId) ? $websiteId : \App\StoreWebsite::find($websiteId);
         $priceRecords   = null;
 
-        if($isOvveride) {
-            $productPrice = \App\Product::getIvaPrice($this->price);
-        }else{
-            $productPrice = $this->price;
+        $brandM   = @$this->brands; 
+        $productPrice = $this->price;
+        $brandID = 0;
+        if(isset($brandM) && $brandM) {
+            $brandID = $brandM->id;
+        }  
+
+        // category discount
+        if(!empty($product->category)) {
+            $catdiscount  = \App\Category::join("category_segments as cs","cs.id","categories.category_segment_id")
+            ->join("category_segment_discounts as csd","csd.category_segment_id","cs.id")
+            ->where('categories.id',$product->category)
+            ->where('csd.brand_id',$brandID)
+            ->select("csd.*")
+            ->first();
+
+            if($catdiscount) {
+                if($catdiscount->amount_type == "percentage") {
+                    $percentage = $catdiscount->amount;
+                    $percentageA = ($productPrice * $percentage) / 100;
+                    $productPrice = $productPrice - $percentageA;
+                }else{
+                    $productPrice = $productPrice - $catdiscount->amount;
+                }
+            }
         }
+
+
+
+        if($isOvveride) {
+            $productPrice = \App\Product::getIvaPrice($productPrice);
+        }
+
+        // add a product price duty
+        $productPrice += $dutyPrice;
+
 
         if($website) {
 
            $brand    = @$this->brands->brand_segment;
            $category = $this->category;
            $country  = $countryId;
+
+           
 
            $priceModal = \App\PriceOverride::where("store_website_id",$website->id);
            $priceCModal = clone $priceModal;
@@ -1351,7 +1384,7 @@ class Product extends Model
     {
         $percentage = self::IVA_PERCENTAGE;
         $percentageA = ($price * $percentage) / 100;
-        return $price + $percentageA;
+        return $price - $percentageA;
     }
 
     public function productstatushistory()
