@@ -61,26 +61,7 @@
 					<span id="meta_keywords_count"></span>
 				</div>
                   <input type="text" name="meta_keywords" value="{{if data}}{{:data.meta_keywords}}{{/if}}" class="form-control" id="meta_keywords" placeholder="Enter Keywords">
-					  <div class="form-group">
-						<div class="justify-content-end pt-4 input-group">
-							<input type="text" value="" class="hide form-control  w-50" id="extra-keyword-search">
-							<div class="input-group-append">
-								<button type="button" class="hide btn btn-primary" id="extra-keyword-search-btn"> <l class="fa fa-search"></i> </button>
-							</div>
-						</div>
-						<div class="row pt-3 height-fix suggestList" style="display:none">
-							<table class="table table-bordered">
-								<thead>
-									<tr>
-										<th>Keywords</th>
-										<th>Avg. monthly</th>
-										<th>Competition</th>
-									</tr>
-								</thead>
-								<tbody class="suggestList-table"></tbody>
-							</table>
-						</div>
-					   </div>
+					  
 				   
                 </div>
                 <div class="form-group col-md-6">
@@ -91,6 +72,31 @@
                   <textarea name="meta_description" class="form-control" placeholder="Enter meta description">{{if data}}{{:data.meta_description}}{{/if}}</textarea>
                 </div>
               </div>
+              <div class="form-row">
+				  <div class="form-group col-md-12">
+						<div class="form-group">
+							<div class="justify-content-end pt-4 input-group">
+								<input type="text" value="" class="hide form-control  w-50" id="extra-keyword-search">
+								<div class="input-group-append">
+									<button type="button" class="hide btn btn-primary" id="extra-keyword-search-btn"> <l class="fa fa-search"></i> </button>
+								</div>
+							</div>
+							<div class="pt-3 height-fix suggestList" style="display:none">
+								<table class="table table-bordered">
+									<thead class="thead-dark">
+										<tr>
+											<th>Keywords</th>
+											<th>Avg. monthly</th>
+											<th>Competition</th>
+										</tr>
+									</thead>
+									<tbody class="suggestList-table"></tbody>
+								</table>
+							</div>
+					   </div>
+				  </div>
+              </div>
+
               <div class="form-row">
                   <div class="form-group col-md-6">
                     <label for="content_heading">Content heading</label>
