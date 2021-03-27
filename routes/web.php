@@ -2864,4 +2864,7 @@ Route::get('gtmetrix/status/{status}', 'gtmetrix\WebsiteStoreViewGTMetrixControl
 Route::post('gtmetrix/history', 'gtmetrix\WebsiteStoreViewGTMetrixController@history')->name('gtmetrix.hitstory');
 Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 
+Route::get('product-pricing', 'product_price\ProductPriceController@index')->name('product.pricing');
+// Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
+
 
