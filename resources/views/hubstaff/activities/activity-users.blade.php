@@ -25,15 +25,19 @@
                 <div class="h" style="margin-bottom:10px;">
                     <form class="form-inline" action="{{route('hubstaff-acitivties.activities')}}" method="get">
                       <div class="row">
-                        <div class="form-group">
+                        <div class="form-group col-md-3">
                             <label for="keyword">User:</label>
                             <?php echo Form::select("user_id",["" => "-- Select User --"]+$users,$user_id,["class" => "form-control select2"]); ?>
                         </div>
-                        <div class="form-group">
-                            <label for="keyword">Task id:</label>
-                            <?php echo Form::number("task_id",$task_id,["class" => "form-control"]); ?>
+                        <div class="form-group col-md-2">
+                            <label for="keyword">Developer Task id:</label>
+                            <?php echo Form::text("developer_task_id",request('developer_task_id'),["class" => "form-control","placeholder" => "Enter Developer Task ID"]); ?>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group col-md-2">
+                            <label for="keyword">Task id:</label>
+                            <?php echo Form::text("task_id",request('task_id'),["class" => "form-control","placeholder" => "Enter Task ID"]); ?>
+                        </div>
+                        <div class="form-group col-md-2">
                             <strong>Date Range</strong>
                             <input type="text" value="{{$start_date}}" name="start_date" hidden/>
                             <input type="text" value="{{$end_date}}" name="end_date" hidden/>
@@ -81,15 +85,28 @@
           <th>Time tracked (Minutes)</th>
           <th>Tasks</th>
           <th>Time approved</th>
+          <th>User Requested</th>
           <th>Pending payment time</th>
           <th>Status</th>
           <th>Note</th>
           <th width="10%" colspan="2" class="text-center">Action</th>
         </tr>
+          @php
+            $totalTracked = 0;
+            $totalApproved = 0;
+            $totalUserRequested = 0;
+            $totalPaymentPending = 0;
+          @endphp  
           @foreach ($activityUsers as $user)
             <tr>
             <td>{{ \Carbon\Carbon::parse($user['date'])->format('d-m') }} </td>
               <td>{{ $user['userName'] }}</td>
+              @php
+                $totalTracked +=  $user['total_tracked'];
+                $totalApproved +=  $user['totalApproved'];
+                $totalUserRequested +=  $user['totalUserRequest'];
+                $totalPaymentPending +=  $user['totalNotPaid'];
+              @endphp
               <td>{{number_format($user['total_tracked'] / 60,2,".",",")}}</td>
               <td>
                   <?php if(!empty($user['tasks'])) { ?>
@@ -106,6 +123,7 @@
                   <?php } ?>
               </td>
               <td><span class="replaceme">{{number_format($user['totalApproved'] / 60,2,".",",")}}</span> </td>
+              <td><span>{{number_format($user['totalUserRequest'] / 60,2,".",",")}}</span> </td>
               <td><span>{{number_format($user['totalNotPaid'] / 60,2,".",",")}}</td>
               <td>{{$user['status']}}</td>
               <td>{{$user['note']}}</td>
@@ -127,6 +145,18 @@
                 @endif
               </td>
           @endforeach
+          <tr>
+          <th>Total</th>
+          <th></th>
+          <th>{{number_format($totalTracked / 60,2,".","")}}</th>
+          <th></th>
+          <th>{{number_format($totalApproved / 60,2,".","")}}</th>
+          <th>{{number_format($totalUserRequested / 60,2,".","")}}</th>
+          <th>{{number_format($totalPaymentPending / 60,2,".","")}}</th>
+          <th></th>
+          <th></th>
+          <th width="10%" colspan="2" class="text-center"></th>
+        </tr>
       </table>
     </div>
         </div>
