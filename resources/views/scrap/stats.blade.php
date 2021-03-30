@@ -299,6 +299,7 @@
                                 <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-position-history">
                                      <i class="fa fa-address-card"></i>
                                 </button>
+                                <button style="padding-right:0px;" type="button" class="btn btn-image d-inline show-history" data-field="update-restart-time" data-id="{{ $supplier->scrapper_id }}"><i class="fa fa-clock-o"></i></button>
                             </td>
                             </tr>
                             <tr class="hidden_row_{{ $supplier->id  }} dis-none" data-eleid="{{ $supplier->id }}">
@@ -444,7 +445,21 @@
                                         <a class="btn  d-inline btn-image" href="{{ get_server_last_log_file($childSupplier->scraper_name,$childSupplier->server_id) }}" id="link" target="-blank"><img src="/images/view.png" /></a>
                                         <button type="button" class="btn btn-image d-inline" onclick="restartScript('{{ $childSupplier->scraper_name }}' , '{{ $childSupplier->server_id }}' )"><img width="2px;" src="/images/resend2.png"/></button>
                                         <button type="button" class="btn btn-image d-inline" onclick="getRunningStatus('{{ $childSupplier->scraper_name }}' , '{{ $childSupplier->server_id }}' )"><img width="2px;" src="/images/resend2.png"/></button>
-                                        
+                                        <a href="<?php echo route("scraper.get.log.list"); ?>?name=<?php echo $childSupplier->scraper_name ?>&server_id=<?php echo $childSupplier->server_id ?>" target="__blank">
+                                            <button style="padding:3px;" type="button" class="btn btn-image d-inline">
+                                                <i class="fa fa-bars"></i>
+                                            </button>
+                                        </a>
+                                        <button style="padding: 3px" data-id="{{ $childSupplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-screenshot">
+                                             <i class="fa fa-desktop"></i>
+                                        </button>
+                                        <button style="padding: 3px" data-id="{{ $childSupplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-tasks-remote">
+                                             <i class="fa fa-tasks"></i>
+                                        </button>
+                                        <button style="padding: 3px" data-id="{{ $childSupplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-position-history">
+                                             <i class="fa fa-address-card"></i>
+                                        </button>
+
                                     </td>
                                     </tr>
                                     <tr class="hidden_row_{{ $childSupplier->id  }} dis-none" data-eleid="{{ $childSupplier->id }}">
@@ -721,6 +736,31 @@
             </div>
         </div>
     </div>
+    <div id="remark-confirmation-box" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Add Note</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <form action="?" method="POST" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        @csrf
+                        <div class="form-group">
+                            <label>Note</label>
+                            <textarea id="confirmation-remark-note" rows="2" name="remark" class="form-control" placeholder="Note" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-default btn-confirm-remark">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+      </div>
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
                50% 50% no-repeat;display:none;">
     </div>
@@ -956,10 +996,18 @@
             }).done(function (response) {
                 $("#remarkHistory").modal("show");
                 var table = '';
-                table = table + '<table class="table table-bordered table-striped" ><tr><th>From</th><th>To</th><th>Date</th><th>By</th></tr>';
+                if( field == "update-restart-time") {
+                    table = table + '<table class="table table-bordered table-striped" ><tr><th>Date</th></tr>';
+                }else{
+                    table = table + '<table class="table table-bordered table-striped" ><tr><th>From</th><th>To</th><th>Date</th><th>By</th></tr>';
+                }
 
                 for(var i=0;i<response.length;i++) {
-                    table = table + '<tr><td>'+response[i].old_value+'</td><td>'+response[i].new_value+'</td></td><td>'+response[i].created_at+'</td><td>'+response[i].user_name+'</td></tr>';
+                    if( field == "update-restart-time") {
+                        table = table + '<tr><td>'+response[i].new_value+'</td></tr>';
+                    }else{
+                        table = table + '<tr><td>'+response[i].old_value+'</td><td>'+response[i].new_value+'</td></td><td>'+response[i].created_at+'</td><td>'+response[i].user_name+'</td></tr>';
+                    }    
                 }
                 table = table + '</table>';
 
@@ -967,8 +1015,6 @@
             }).fail(function (response) {
             });
         });
-
-
         
 
         $(document).on("click", ".submit-logic", function () {
@@ -1047,19 +1093,24 @@
         $(document).on("change", ".scrapers_status", function () {
             var tr = $(this).closest("tr");
             var id = tr.data("eleid");
-            $.ajax({
-                type: 'GET',
-                url: '/scrap/statistics/update-field',
-                data: {
-                    search: id,
-                    field: "status",
-                    field_value: tr.find(".scrapers_status").val()
-                },
-            }).done(function (response) {
-                toastr['success']('Data updated Successfully', 'success');
-            }).fail(function (response) {
-
+            $("#remark-confirmation-box").modal("show").on("click",".btn-confirm-remark",function() {
+                 var remark =  $("#confirmation-remark-note").val();
+                 $.ajax({
+                    type: 'GET',
+                    url: '/scrap/statistics/update-field',
+                    data: {
+                        search: id,
+                        field: "status",
+                        field_value: tr.find(".scrapers_status").val(),
+                        remark : remark    
+                    },
+                }).done(function (response) {
+                    toastr['success']('Data updated Successfully', 'success');
+                }).fail(function (response) {
+                });
             });
+
+            return false;
         });
 
         $(document).on("change", ".full_scrape", function () {

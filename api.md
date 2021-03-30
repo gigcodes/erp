@@ -1212,3 +1212,29 @@ GET https://erp.theluxuryunlimited.com/api/scraper/auto-restart?website=giglio
     "message": "Error message"
 }
 ```
+
+## set restart time on erp
+**Request:**
+
+```json
+GET https://erp.theluxuryunlimited.com/api/scraper/update-restart-time?website=giglio
+{
+    "website": "giglio"
+}
+```
+
+**Successful Response:**
+```json
+{
+    "code": 200,
+    "auto_restart": 1
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```

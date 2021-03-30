@@ -307,6 +307,7 @@ class ScrapStatisticsController extends Controller
         $fieldName  = request()->get("field");
         $fieldValue = request()->get("field_value");
         $search     = request()->get("search");
+        $remark     = request()->get("remark");
         //dd($search);
         $suplier = \App\Scraper::where("supplier_id", $search)->first();
 
@@ -354,6 +355,14 @@ class ScrapStatisticsController extends Controller
                 'scrap_id'    => $suplier->id
             ]);
 
+            if(!empty($remark)) {
+                $remark_entry = ScrapRemark::create([
+                    'scraper_name' => $suplier->scraper_name,
+                    'remark'       => $remark,
+                    'user_name'    => Auth::user()->name,
+                    'scrap_id'    => $suplier->id
+                ]);
+            }
         }
 
         return response()->json(["code" => 200]);
