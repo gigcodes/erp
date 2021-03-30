@@ -159,6 +159,7 @@ Route::prefix('v1')->group(function () {
 Route::post('scraper/ready','ScrapController@scraperReady');
 Route::post('scraper/completed','ScrapController@scraperCompleted');
 Route::get('scraper/need-to-start','ScrapController@needToStart');
+Route::get('scraper/update-restart-time','ScrapController@updateRestartTime');
 Route::get('scraper/auto-restart','ScrapController@needToAutoRestart');
 Route::get('scraper-needed-products','ScrapController@scraperNeeded');
 

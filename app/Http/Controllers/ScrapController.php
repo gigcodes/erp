@@ -1966,4 +1966,29 @@ class ScrapController extends Controller
         return response()->json(["code" => 200, "auto_restart" => $scraper->auto_restart]);
 
     }
+
+    public function updateRestartTime(Request $request)
+    {
+        if (empty($request->website)) {
+            return response()->json(["code" => 500, "data" => [], "message" => "website (scraper name) is required field"]);
+        }
+
+        $scraper = \App\Scraper::where("scraper_name", $request->website)->first();
+
+        if (!$scraper) {
+            return response()->json(["code" => 500, "data" => [], "message" => "website (scraper name) is wrong"]);
+        }
+
+        $remark_entry = \App\ScrapRemark::create([
+            'scraper_name' => $scraper->scraper_name,
+            'scrap_field'  => 'update-restart-time',
+            'new_value'    => date("Y-m-d H:i:s"),
+            'scrap_id'    => $scraper->id
+        ]);
+
+        return response()->json(["code" => 200, "data" => [], "message" => "History saved successfully"]);
+    }
+
+
+
 }
