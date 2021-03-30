@@ -1438,6 +1438,9 @@ $metaData = '';
                                     <li class="nav-item dropdown">
                                         <a class="dropdown-item" href="{{ route('logging.magento.product.api.call') }}">Magento API call</a>
                                     </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('product.pricing') }}">Magento Product Pricing</a>
+                                    </li>
                                 </ul>
                             </li>
                         @endif

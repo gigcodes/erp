@@ -31,7 +31,10 @@ class ProductPriceController extends Controller
                     return redirect()->back()->with('error','No product found');
                 }
                 foreach ($storeWebsites as $key => $value) {
-                    $price = $product->getPrice( $value['id'], $request->country_code );
+                    $dutyPrice = $product->getDuty( $request->country_code );
+                    $price = $product->getPrice( $value['id'], $request->country_code,null, true,$dutyPrice);
+                    $ivaPercentage = \App\Product::IVA_PERCENTAGE;
+
                     $product_list[] = [
                         'getPrice'     => $price,
                         'id'           => $product->id,
@@ -39,12 +42,12 @@ class ProductPriceController extends Controller
                         'brand'        => $product->brands->name,
                         'segment'      => $product->brands->brand_segment,
                         'website'      => $value['website'],
-                        'eur_price'    => $product->price_eur_special,
-                        'seg_discount' => $product->price_eur_discounted,
-                        'iva'          => Product::getIvaPrice($product->price),
-                        'add_duty'     => $product->getDuty( $request->country_code ),
-                        'add_profit'   => $price['promotion'],
-                        'final_price'  => $price['total'],
+                        'eur_price'    => number_format($price['original_price'],2,'.',''),
+                        'seg_discount' => (float)$price['segment_discount'],
+                        'iva'          => \App\Product::IVA_PERCENTAGE."%",
+                        'add_duty'     => $product->getDuty( $request->country_code)."%",
+                        'add_profit'   => number_format($price['promotion'],2,'.',''),
+                        'final_price'  => number_format($price['total'],2,'.',''),
                     ];
                 }
         }

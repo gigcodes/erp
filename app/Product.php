@@ -940,6 +940,7 @@ class Product extends Model
         }
 
         // category discount
+        $segmentDiscount = 0;
         if(!empty($this->category)) {
             $catdiscount  = \DB::table("categories")->join("category_segments as cs","cs.id","categories.category_segment_id")
             ->join("category_segment_discounts as csd","csd.category_segment_id","cs.id")
@@ -952,13 +953,14 @@ class Product extends Model
                 if($catdiscount->amount_type == "percentage") {
                     $percentage = $catdiscount->amount;
                     $percentageA = ($productPrice * $percentage) / 100;
+                    $segmentDiscount = $percentageA;
                     $productPrice = $productPrice - $percentageA;
                 }else{
+                    $segmentDiscount = $catdiscount->amount;
                     $productPrice = $productPrice - $catdiscount->amount;
                 }
             }
         }
-
 
 
         if($isOvveride) {
@@ -966,7 +968,10 @@ class Product extends Model
         }
 
         // add a product price duty
-        $productPrice += $dutyPrice;
+        if($dutyPrice > 0) {
+            $totalAmount    = $productPrice * $dutyPrice / 100;
+            $productPrice   = $productPrice + $totalAmount;
+        }
 
 
         if($website) {
@@ -1016,23 +1021,23 @@ class Product extends Model
               if($priceRecords->calculated == "+") {
                  if($priceRecords->type == "PERCENTAGE")  {
                     $price = ($productPrice * $priceRecords->value) / 100;
-                    return ["original_price" => $productPrice , "promotion" => $price , "total" =>  $productPrice + $price];
+                    return ["original_price" => $this->price , "promotion" => $price,'segment_discount' => $segmentDiscount , "total" =>  $productPrice + $price];
                  }else{
-                    return ["original_price" => $productPrice , "promotion" => $priceRecords->value , "total" =>  $productPrice + $priceRecords->value];
+                    return ["original_price" => $this->price , "promotion" => $priceRecords->value,'segment_discount' => $segmentDiscount , "total" =>  $productPrice + $priceRecords->value];
                  }
               }
               if($priceRecords->calculated == "-") {
                  if($priceRecords->type == "PERCENTAGE")  {
                     $price = ($productPrice * $priceRecords->value) / 100;
-                    return ["original_price" => $productPrice , "promotion" => -$price , "total" =>  $productPrice - $price];
+                    return ["original_price" => $this->price , "promotion" => -$price ,'segment_discount' => $segmentDiscount, "total" =>  $productPrice - $price];
                  }else{
-                    return ["original_price" => $productPrice , "promotion" => - $priceRecords->value , "total" =>  $productPrice - $priceRecords->value];
+                    return ["original_price" => $this->price , "promotion" => - $priceRecords->value,'segment_discount' => $segmentDiscount , "total" =>  $productPrice - $priceRecords->value];
                  }
               }
            }
         }
 
-        return ["original_price" => $productPrice , "promotion" => "0.00", "total" =>  $productPrice];
+        return ["original_price" => $this->price , "promotion" => "0.00",'segment_discount' => $segmentDiscount , "total" =>  $productPrice];
     }
 
     public function getDuty($countryCode , $withtype = false)
