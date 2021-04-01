@@ -466,7 +466,9 @@ $(document).on('click', '#keyword-search-btn', function () {
 $(document).on('click', '.keyword-list', function () {
 
     var keywords = $(this).text();
-    if (keywords ) {
+    keywords.replace(/ \,/g, ',')
+    console.log("," + keywords);
+    if (keywords) {
         if ($(this).hasClass('badge-green')) {
             $('#meta_keywords').val($('#meta_keywords').val().replace("," + keywords, ""));
             $(this).removeClass('badge-green').find('i').remove()
@@ -480,22 +482,6 @@ $(document).on('click', '.keyword-list', function () {
 
 });
 
-// $(document).on('click', '.suggestList > li', function () {
-
-//     var keywords = $(this).data('keyword');
-//     if (keywords ) {
-//         if ($(this).hasClass('badge-green')) {
-//             $('#meta_keywords').val($('#meta_keywords').val().replace("," + keywords, ""));
-//             $(this).removeClass('badge-green').find('i').remove()
-//             // $(this+' i').remove()
-//         } else {
-//             $('#meta_keywords').val($('#meta_keywords').val() + ',' + keywords);
-//             $(this).addClass('badge-green').append('<i class="fa fa-remove pl-2"></i>')
-//         }
-//     }
-
-//     $('input[name="meta_keywords"]').trigger('change');
-// });
 
 $(document).on('change , keyup', 'input[name="meta_keywords"]', function () {
     $('#meta_keywords_count').text( 'Length: '+ $( this ).val().length );
@@ -509,6 +495,9 @@ function getGoogleKeyWord(title) {
 
     $(document).find('.suggestList-table').empty();
     var lan = $('.website-language-change').val();
+
+    var words = $(document).find('#meta_keywords').val();
+    words = words.split(',');
 
     $.ajax({
        
@@ -525,9 +514,15 @@ function getGoogleKeyWord(title) {
                 $(document).find('#extra-keyword-search').removeClass('hide');
                 var t = '';
                 $.each(response, function (index, data) {
-                    t += `<tr><td class="keyword-list">` + data.keyword + `</td>`;
+
+                    if ($.inArray(data.keyword, words) > -1) {
+                        t += `<tr><td class="keyword-list badge-green">`+data.keyword+`<i class="fa fa-remove pl-2"></i></td>`;
+                    }else{
+                        t += `<tr><td class="keyword-list">`+data.keyword+`</td>`;
+                    }
                     t += `<td>` + data.avg_monthly_searches + `</td>`;
-                    t += `<td>` + data.competition + `</td></tr>`;
+                    t += `<td>` + data.competition + `</td>`;
+                    t += `<td>` + data.translate_text + `</td></tr>`;
                 });
                 $(document).find('.suggestList-table').html(t);
                 $(document).find('.suggestList').show();

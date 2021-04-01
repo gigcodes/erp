@@ -34,6 +34,7 @@ use GuzzleHttp\RequestOptions;
 use Storage;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\Helpers\HubstaffTrait;
+use App\GoogleTranslate;
 
 use GetOpt\GetOpt;
 // use Google\Ads\GoogleAds\Examples\Utils\ArgumentNames;
@@ -220,12 +221,20 @@ class googleAddsV6Controller extends Controller
 
         $finalData = [];
         // Iterate over the results and print its detail.
+		$googleTranslate = new GoogleTranslate();
+
         foreach ($response->iterateAllElements() as $result) {
             /** @var GenerateKeywordIdeaResult $result */
             // dd( $result );
             // Note that the competition printed below is enum value.
             // For example, a value of 2 will be returned when the competition is 'LOW'.
             // A mapping of enum names to values can be found at KeywordPlanCompetitionLevel.php.
+
+			$translateText = '--';
+			if(strlen($result->getText()) != mb_strlen($result->getText(), 'utf-8'))
+			{ 	
+				$translateText = $googleTranslate->translate( 'en', $result->getText() );
+			}
             $finalData[] = [
                 'keyword' => $result->getText(),
                 // 'monthly_search_volumes' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->MonthlySearchVolume(),
@@ -233,6 +242,7 @@ class googleAddsV6Controller extends Controller
                 'competition' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getCompetition(),
                 'low_top' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getLowTopOfPageBidMicros(),
                 'high_top' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getHighTopOfPageBidMicros(),
+                'translate_text' => $translateText,
                 // 'getMonthlySearches' => is_null($result->getKeywordIdeaMetrics()) ? 0 : $result->getKeywordIdeaMetrics()->getMonthlySearches(),
                 
             ];
