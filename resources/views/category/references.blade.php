@@ -31,7 +31,7 @@
                     @foreach($fillerCategories as $category)
                         <tr>
                             <td>
-                                {{ $category->title }}
+                                {{ $category->title }} <button style="padding-right:0px;" type="button" class="btn btn-xs show-history-btn" title="Show History" data-id="{{ $category->id }}"><i class="fa fa-info-circle"></i></button>
                             </td>
                             <td>
                                 <div data-cat-id="{{ $category->id }}" class="col-md-8 category-mov-btn">
@@ -74,7 +74,7 @@
                     @foreach($categories as $category)
                         <tr>
                             <td>
-                                {{ $category->title }}
+                                {{ $category->title }} <button style="padding-right:0px;" type="button" class="btn btn-xs show-history-btn" title="Show History" data-id="{{ $category->id }}"><i class="fa fa-info-circle"></i></button>
                             </td>
                             <td>
                                 <div data-cat-id="{{ $category->id }}" class="col-md-8 category-mov-btn">
@@ -115,7 +115,7 @@
                             @foreach($subcategories as $subcategory)
                                 <tr>
                                     <td>
-                                        {{ $category->title }} &gt; {{ $subcategory->title }}
+                                        {{ $category->title }} &gt; {{ $subcategory->title }} <button style="padding-right:0px;" type="button" class="btn btn-xs show-history-btn" title="Show History" data-id="{{ $subcategory->id }}"><i class="fa fa-info-circle"></i></button>
                                     </td>
                                     <td>
                                         <div data-cat-id="{{ $subcategory->id }}" class="col-md-8 category-mov-btn">
@@ -155,7 +155,7 @@
                                     @foreach($sscategories as $sscategory)
                                         <tr>
                                             <td>
-                                                {{ $category->title }} &gt; {{ $subcategory->title }} &gt; {{ $sscategory->title }}
+                                                {{ $category->title }} &gt; {{ $subcategory->title }} &gt; {{ $sscategory->title }} <button style="padding-right:0px;" type="button" class="btn btn-xs show-history-btn" title="Show History" data-id="{{ $sscategory->id }}"><i class="fa fa-info-circle"></i></button>
                                             </td>
                                             <td>
                                                 <div data-cat-id="{{ $sscategory->id }}" class="col-md-8 category-mov-btn">
@@ -416,6 +416,25 @@
                 location.reload();
             });
         });*/
+
+        $(document).on("click",".show-history-btn",function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            $.ajax({
+                type: 'GET',
+                url: '/category/'+$this.data("id")+'/history',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function (response) {
+                $("#loading-image").hide();
+                $(".show-listing-exe-records").find('.modal-dialog').html(response);
+                $(".show-listing-exe-records").modal('show');
+            }).fail(function (response) {
+                $("#loading-image").hide();
+                toastr['error']('Sorry no record found', 'error');
+            });
+        }); 
 
     </script>
 @endsection

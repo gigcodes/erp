@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-    Compositions 
+    New Category Reference 
 @endsection
 @section('content')
 <style type="text/css">
@@ -60,7 +60,7 @@
                         </td>
                         
                         <td>
-                            <span class="call-used-product"  data-type="name">{{ $unKnownCategory }}</span> <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $unKnownCategory }}" ><img src="/images/add.png"></button>
+                            <span class="call-used-product" data-id="{{ $unKnownCategory }}"  data-type="name">{{ $unKnownCategory }}</span> <!-- <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $unKnownCategory }}" ><img src="/images/add.png"></button> -->
                         </td>
                         
                         <td>
@@ -97,12 +97,13 @@
                 var $this = $(this);
                 $.ajax({
                     type: 'GET',
-                    url: '/compositions/'+$this.data("id")+'/used-products',
+                    url: '/category/references/used-products',
                     beforeSend: function () {
                         $("#loading-image").show();
                     },
                     data: {
-                        _token: "{{ csrf_token() }}"
+                        _token: "{{ csrf_token() }}",
+                        q : $this.data("id")
                     },
                     dataType: "json"
                 }).done(function (response) {

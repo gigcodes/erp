@@ -151,6 +151,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('compositions/update-composition', 'CompositionsController@updateComposition');
     Route::post('compositions/update-multiple-composition', 'CompositionsController@updateMultipleComposition');
     Route::post('compositions/replace-composition', 'CompositionsController@replaceComposition')->name('compositions.replace');
+    Route::get('compositions/{id}/history', 'CompositionsController@history')->name('compositions.history');
 
     Route::resource('compositions', 'CompositionsController');
 
@@ -395,6 +396,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //new category reference
 
     Route::get('category/new-references', 'CategoryController@newCategoryReferenceIndex');
+    Route::get('category/{id}/history', 'CategoryController@history');
 
     Route::get('sizes/references', 'SizeController@sizeReference');
     Route::get('sizes/{id}/used-products', 'SizeController@usedProducts');
