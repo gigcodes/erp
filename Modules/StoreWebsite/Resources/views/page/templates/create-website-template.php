@@ -88,6 +88,7 @@
 											<th>Keywords</th>
 											<th>Avg. monthly</th>
 											<th>Competition</th>
+											<th>Translation</th>
 										</tr>
 									</thead>
 									<tbody class="suggestList-table"></tbody>
