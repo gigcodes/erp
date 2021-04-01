@@ -96,6 +96,15 @@ var page = {
             page.showRemarks("instagram_remarks",$(this).data("id"),$(this).data("value"));
         });
 
+        page.config.bodyView.on("click",".btn-seo-format",function(e) {
+            e.preventDefault();
+            //page.showRemarks("instagram_remarks",$(this).data("id"),$(this).data("value"));
+            page.editSeoRecord($(this));
+        });
+
+
+        
+
         $(".common-modal").on("click",".add-attached-brands",function(e) {
             e.preventDefault();
             page.submitAttachedBrands($(this));
@@ -108,6 +117,13 @@ var page = {
                 page.deleteAttachedBrands($(this));
             }
         });
+
+        $(".common-modal").on("click",".update-seo-format",function(e) {
+            e.preventDefault();
+            page.updateSeoFormat($(this));
+        });
+
+        
 
         $(document).on("change","select.select-searchable",function() {
             // now need to call for getting child 
@@ -223,6 +239,46 @@ var page = {
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
     },
+
+    editSeoRecord : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/"+ele.data("id")+"/seo-format",
+            method: "get",
+        }
+        this.sendAjax(_z, 'afterSeoFormat');
+    },
+
+    afterSeoFormat: function(response) {
+        var createWebTemplate = $.templates("#template-edit-seo");
+        var tplHtml = createWebTemplate.render(response);
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
+    },
+
+    updateSeoFormat : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/"+ele.data("id")+"/seo-format/save",
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "afterUpdateSeo");
+    },
+
+    afterUpdateSeo : function(response) {
+        if(response.code  == 200) {
+            $("#loading-image").hide();
+            $(".common-modal").modal("hide");
+            toastr["success"]("Added successfully","");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+
     editCancellationRecord : function(ele) {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/"+ele.data("id")+"/edit-cancellation",

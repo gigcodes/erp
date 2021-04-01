@@ -74,6 +74,11 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
                 Route::post('remarks', 'GoalController@storeRemarks')->name("store-website.goal.remarks.store");
             });
         });
+
+        Route::prefix('seo-format')->group(function () {
+            Route::get('/', 'SeoController@index')->name("store-website.seo.index");
+            Route::post('save', 'SeoController@save')->name("store-website.seo.save");
+        });
     });
 
     Route::prefix('brand')->group(function () {
