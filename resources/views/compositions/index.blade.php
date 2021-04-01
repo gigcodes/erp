@@ -100,7 +100,11 @@
                             <button class="btn btn-secondary small-field-btn" onclick="return confirm('Are you sure you want to delete ?')">
                                 <i class="fa fa-trash" type="submit"></i>
                             </button>
+                            <button data-id="{{$composition->id}}" class="btn btn-secondary show-history-btn small-field-btn">
+                                <i class="fa fa-bars"></i>
+                            </button>
                         </form>
+
                     </td>
                 </tr>
             @endforeach
@@ -146,6 +150,27 @@
                     toastr['error']('Sorry no product founds', 'error');
                 });
             });
+
+            $(document).on("click",".show-history-btn",function(e) {
+                e.preventDefault();
+                var $this = $(this);
+                $.ajax({
+                    type: 'GET',
+                    url: '/compositions/'+$this.data("id")+'/history',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    }
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    $(".show-listing-exe-records").find('.modal-dialog').html(response);
+                    $(".show-listing-exe-records").modal('show');
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    toastr['error']('Sorry no record found', 'error');
+                });
+            });
+
+            
 
             $(document).on("change",".change-list-compostion",function() {
                 var $this = $(this);

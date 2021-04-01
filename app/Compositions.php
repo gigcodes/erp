@@ -76,6 +76,6 @@ class Compositions extends Model
 
     public static function products($name)
     {
-        return \App\ScrapedProducts::where('composition',$name)->count();
+        return \App\ScrapedProducts::where('composition',"LIKE",$name)->count();
     }
 }

@@ -477,6 +477,15 @@ class CategoryController extends Controller
             if($new) {
                $existingRef = explode(",",$new->references);
                $existingRef[] = $from;
+
+               $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
+                    'old_value'      => $new->references,
+                    'new_value'      => implode(",",array_unique($existingRef)),
+                    'attribute_name' => 'category',
+                    'attribute_id'   => $new->id,
+                    'user_id'        => \Auth::user()->id,
+                ]);
+
                $new->references = implode(",",$existingRef);
                $new->save();
             }
@@ -529,6 +538,15 @@ class CategoryController extends Controller
                     if($new) {
                        $existingRef = explode(",",$new->references);
                        $existingRef[] = $f;
+
+                        $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
+                            'old_value'      => $new->references,
+                            'new_value'      => implode(",",array_unique($existingRef)),
+                            'attribute_name' => 'category',
+                            'attribute_id'   => $new->id,
+                            'user_id'        => \Auth::user()->id,
+                        ]);
+
                        $new->references = implode(",",array_unique($existingRef));
                        $new->save();
                     }
@@ -603,6 +621,12 @@ class CategoryController extends Controller
         $items = $items->sortByDesc("cat_product_count");
 
         return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
+    }
+
+    public function history(Request $request , $id)
+    {
+        $records = \App\UserUpdatedAttributeHistory::where("attribute_id",$id)->where("attribute_name","category")->latest()->get();
+        return view("compositions.partials.show-update-history",compact('records'));
     }
 
 }
