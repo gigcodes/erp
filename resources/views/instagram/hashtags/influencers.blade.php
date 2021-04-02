@@ -124,8 +124,10 @@
                     <button class="btn btn-secondary btn-sm" onclick="sortData()">Sort Data</button> 
                 </div>        
                 <div class="form-group mr-3 mb-3">
-                        <input name="name" type="text" class="form-control" id="keywordname"
-                               placeholder="New Keyword">
+                     <input name="name" type="text" class="form-control" id="keywordname" placeholder="New Keyword">
+                </div>
+                <div class="form-group mr-3 mb-3">
+                     <?php echo Form::select('instagram_account_id',["" => "N/A"] + App\Marketing\InstagramConfig::pluck('username','id')->toArray(),null, ["class" => "form-control","id" => 'instagram_account_id']); ?>
                 </div>
                 <div class="form-group mr-3 mb-3">
                     <button type="button" class="btn btn-image" onclick="submitKeywork()"><img src="/images/add.png"/></button> 
@@ -158,13 +160,19 @@
                                 <thead>
                                 <tr>
                                     <th>Name</th>
+                                    <th>Account</th>
                                     <th>Action</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                @foreach($keywords as $keyword)     
-                                <tr>
+                                <tr data-keyword-id="{{$keyword->id}}" data-keyword-name="{{ $keyword->name }}">
                                    <td>{{ $keyword->name }}</td>
+                                   <td>
+                                        <div class="form-group mr-3 mb-3">
+                                             <?php echo Form::select('instagram_account_id',["" => "N/A"] + App\Marketing\InstagramConfig::pluck('username','id')->toArray(),$keyword->instagram_account_id, ["class" => "form-control","id" => 'instagram_account_id_change']); ?>
+                                        </div>
+                                   </td>
                                    <td><button class="btn btn-link" onclick="getImage('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Image From Scrapper"><i class="fa fa-barcode"></i></button>
                                    <button  class="btn btn-link" title="Get Status" onclick="getStatus('{{ $keyword->name }}')" title="Get Status Of Scrapper"><i class="fa fa-history" aria-hidden="true"></i></button> 
                                    <button class="btn btn-link" onclick="startScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Start Script"><i class="fa fa-refresh"></i></button> 
@@ -371,16 +379,40 @@
             }).fail(function (jqXHR, ajaxOptions, thrownError) {
                 alert('No response from server');
             });
-     } 
+     }
 
-     function submitKeywork() {
-           name = $('#keywordname').val();
+     $(document).on("change","#instagram_account_id_change",function() {
+           name = $(this).closest("tr").data("keyword-name");
+           instagram_account_id = $(this).val();
            $.ajax({
                url: '{{ route('influencers.keyword.save') }}',
                type: 'POST',
                dataType: 'json',
                data: {
                     name: name,
+                    instagram_account_id: instagram_account_id,
+                    "_token": "{{ csrf_token() }}",
+                },
+           })
+           .done(function(response) {
+               alert(response.message);
+               //location.reload();
+           })
+           .fail(function() {
+               console.log("error");
+           });
+     }); 
+
+     function submitKeywork() {
+           name = $('#keywordname').val();
+           instagram_account_id = $('#instagram_account_id').val();
+           $.ajax({
+               url: '{{ route('influencers.keyword.save') }}',
+               type: 'POST',
+               dataType: 'json',
+               data: {
+                    name: name,
+                    instagram_account_id: instagram_account_id,
                     "_token": "{{ csrf_token() }}",
                 },
            })
@@ -392,7 +424,6 @@
            .fail(function() {
                console.log("error");
            });
-           
         } 
 
      function getImage(name) {

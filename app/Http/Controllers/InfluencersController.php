@@ -113,7 +113,13 @@ class InfluencersController extends Controller
         if(!$keywordCheck){
             $keyword = new InfluencerKeyword();
             $keyword->name = $name;
+            $keyword->instagram_account_id = $request->get('instagram_account_id',null);
             $keyword->save();
+            return response()->json(['message' => 'Influencer Keyword Saved']); 
+        }else{
+            $keywordCheck->name = $name;
+            $keywordCheck->instagram_account_id = $request->get('instagram_account_id',null);
+            $keywordCheck->save();
             return response()->json(['message' => 'Influencer Keyword Saved']); 
         }
         
