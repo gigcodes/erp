@@ -15,6 +15,13 @@
     <div class="col-md-12">
         <h2 class="page-heading">New Category Reference ({{ $unKnownCategories->total() }})</h2>
     </div>
+    @if ($message = Session::get('success'))
+         <div class="col-md-12">
+            <div class="alert alert-success">
+                <p>{{ $message }}</p>
+            </div>
+         </div>   
+    @endif
     <div class="col-md-12">
         <form>
             <div class="form-group col-md-3">
@@ -32,7 +39,10 @@
             </select>
         </div>
         <div class="form-group col-md-4">
-            <button type="button" class="btn btn-secondary update-category-selected col-md-3">Update</button>
+            <button type="button" class="btn btn-secondary update-category-selected col-md-3">Update</button>&nbsp;
+            <a target="__blank" href="{{ route('category.delete.unused') }}">
+                <button type="button" class="btn btn-secondary delete-not-used">Delete not used</button>
+            </a>
         </div>
     </div>
     <div class="col-md-12 mt-5">

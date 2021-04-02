@@ -152,7 +152,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('compositions/update-multiple-composition', 'CompositionsController@updateMultipleComposition');
     Route::post('compositions/replace-composition', 'CompositionsController@replaceComposition')->name('compositions.replace');
     Route::get('compositions/{id}/history', 'CompositionsController@history')->name('compositions.history');
-
+    Route::get('compositions/delete-unused', 'CompositionsController@deleteUnused')->name('compositions.delete.unused');
     Route::resource('compositions', 'CompositionsController');
 
     Route::post('descriptions/store', 'ChangeDescriptionController@store')->name('descriptions.store');
@@ -393,6 +393,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('category/update-field', 'CategoryController@updateField');
     Route::post('category/reference', 'CategoryController@saveReference');
     Route::post('category/save-form', 'CategoryController@saveForm')->name("category.save.form");
+    Route::get('category/delete-unused', 'CategoryController@deleteUnused')->name('category.delete.unused');
     //new category reference
 
     Route::get('category/new-references', 'CategoryController@newCategoryReferenceIndex');
