@@ -81,7 +81,7 @@ class ScrapStatisticsController extends Controller
             $activeSuppliers->where("scraper_type", $scrapeType);
         }
 
-        $activeSuppliers = $activeSuppliers->orderby('s.supplier', 'asc')->get();
+        $activeSuppliers = $activeSuppliers->orderby('scrapers.flag', 'desc')->orderby('s.supplier', 'asc')->get();
         // Get scrape data
         $sql = '
             SELECT
@@ -365,7 +365,7 @@ class ScrapStatisticsController extends Controller
             }
         }
 
-        return response()->json(["code" => 200]);
+        return response()->json(["code" => 200,"data" => $suplier]);
 
     }
 

@@ -300,6 +300,11 @@
                                      <i class="fa fa-address-card"></i>
                                 </button>
                                 <button style="padding-right:0px;" type="button" class="btn btn-image d-inline show-history" data-field="update-restart-time" data-id="{{ $supplier->scrapper_id }}"><i class="fa fa-clock-o"></i></button>
+                                @if ($supplier->flag == 1)
+                                    <button type="button" class="btn btn-image flag-scraper" data-flag="0" data-id="{{ $supplier->scrapper_id }}"><img src="/images/flagged.png" /></button>
+                                @else
+                                    <button type="button" class="btn btn-image flag-scraper" data-flag="1" data-id="{{ $supplier->scrapper_id }}"><img src="/images/unflagged.png" /></button>
+                                @endif
                             </td>
                             </tr>
                             <tr class="hidden_row_{{ $supplier->id  }} dis-none" data-eleid="{{ $supplier->id }}">
@@ -1372,6 +1377,39 @@
                 });
             }
         });
+
+        $(document).on("click",".flag-scraper",function (e){
+            e.preventDefault();
+            var flag = $(this).data("flag");
+            var id = $(this).data("id");
+            var $this =  $(this);
+            $.ajax({
+                url: "/scrap/statistics/update-field",
+                type: 'GET',
+                data: {
+                    search: id,
+                    field: "flag",
+                    field_value: flag
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                 $("#loading-image").hide();
+                 if(response.data.flag == 1) {
+                    $this.closest("td").append('<button type="button" class="btn btn-image flag-scraper" data-flag="0" data-id="'+response.data.id+'"><img src="/images/flagged.png" /></button>');
+                 }else{
+                    $this.closest("td").append('<button type="button" class="btn btn-image flag-scraper" data-flag="1" data-id="'+response.data.id+'"><img src="/images/unflagged.png" /></button>');
+                 }
+                 $this.remove();
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+
+
+        
 
 
         $(document).on('click', '.send-message1', function () {
