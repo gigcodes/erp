@@ -301,9 +301,9 @@
                                 </button>
                                 <button style="padding-right:0px;" type="button" class="btn btn-image d-inline show-history" data-field="update-restart-time" data-id="{{ $supplier->scrapper_id }}"><i class="fa fa-clock-o"></i></button>
                                 @if ($supplier->flag == 1)
-                                    <button type="button" class="btn btn-image flag-scraper" data-flag="0" data-id="{{ $supplier->scrapper_id }}"><img src="/images/flagged.png" /></button>
+                                    <button type="button" class="btn btn-image flag-scraper" data-flag="0" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
                                 @else
-                                    <button type="button" class="btn btn-image flag-scraper" data-flag="1" data-id="{{ $supplier->scrapper_id }}"><img src="/images/unflagged.png" /></button>
+                                    <button type="button" class="btn btn-image flag-scraper" data-flag="1" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
                                 @endif
                             </td>
                             </tr>
@@ -1397,9 +1397,9 @@
             }).done(function(response) {
                  $("#loading-image").hide();
                  if(response.data.flag == 1) {
-                    $this.closest("td").append('<button type="button" class="btn btn-image flag-scraper" data-flag="0" data-id="'+response.data.id+'"><img src="/images/flagged.png" /></button>');
+                    $this.closest("td").append('<button type="button" class="btn btn-image flag-scraper" data-flag="0" data-id="'+response.data.supplier_id+'"><img src="/images/flagged.png" /></button>');
                  }else{
-                    $this.closest("td").append('<button type="button" class="btn btn-image flag-scraper" data-flag="1" data-id="'+response.data.id+'"><img src="/images/unflagged.png" /></button>');
+                    $this.closest("td").append('<button type="button" class="btn btn-image flag-scraper" data-flag="1" data-id="'+response.data.supplier_id+'"><img src="/images/unflagged.png" /></button>');
                  }
                  $this.remove();
             }).fail(function() {
