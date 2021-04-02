@@ -1417,4 +1417,9 @@ class Product extends Model
             return true;
         }
     }
+
+    public function useCommaKeywords()
+    {
+        return str_replace(" ", ",", $this->title);
+    }
 }
