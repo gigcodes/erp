@@ -255,10 +255,51 @@ class PageController extends Controller
                 return response()->json(["code" => 200, "content" => !empty($translateDescription) ? $translateDescription : $page->content]);
 
             } else {
-                return response()->json(["code" => 200, "content" => $page->content]);
+                return response()->json(["code" => 200, "content" => $page->content, "meta_title" => $page->meta_title, "meta_keyword" => $page->meta_keywords, "meta_desc" => $page->meta_description]);
             }
         }
 
+    }
+
+    public function copyTo(Request $request)
+    {   
+        $validator = Validator::make($request->all(), [
+            'page'    => 'required',
+            'to_page' => 'different:page',
+        ]);
+
+        if (!$validator->passes()) {
+            return response()->json(['error'=>$validator->errors()->all()]);
+        }
+
+        $page = StoreWebsitePage::where("id", $request->page )->first();
+
+        if ($page) {
+
+            if( ! empty( $request->to_page ) || ! empty( $request->site_urls ) ){
+                $updateData = [];
+
+                if($request->cttitle == 'true'){
+                    $updateData['meta_title'] = $page->meta_title;
+                }
+                if($request->ctkeyword  == 'true'){
+                    $updateData['meta_keywords'] = $page->meta_keywords;
+                }
+                if($request->ctdesc  == 'true'){
+                    $updateData['meta_description'] = $page->meta_description;
+                }
+                if( $updateData ){
+                    if( $request->to_page ){
+                        StoreWebsitePage::where("id", $request->to_page )->update( $updateData );
+                    }
+                    if( $request->site_urls == 'true' ){
+                        StoreWebsitePage::where("url_key", $page->url_key )->update( $updateData );
+                    }
+                    return response()->json(["code" => 200, "success" => 'Success']);
+                }
+            }
+        }
+        return response()->json(["code" => 200, "error" => 'Page not found']);
     }
 
     public function pageHistory(Request $request, $page)

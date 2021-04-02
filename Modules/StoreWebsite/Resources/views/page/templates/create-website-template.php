@@ -14,15 +14,41 @@
             <?php echo csrf_field(); ?>
            
            <div class="modal-body">
+		   		{{if data}}
+					<div class="form-row">
+						<div class="form-group col-md-12">
+							<label >Copy To Page</label>
+							<select class="form-control" id="website-page-copy-to">
+							<option value="">-- Select --</option>
+								<?php foreach($pages as $k => $page) { ?>
+									<option value="<?php echo $k; ?>"><?php echo $page; ?></option>
+								<?php } ?>
+							</select>
+							<input type="checkbox" name="cttitle" id="cttitle"> <label for="cttitle"> Meta title </label>
+							<input type="checkbox" name="ctkeyword" id="ctkeyword"> <label for="ctkeyword"> Meta Keywords </label>
+							<input type="checkbox" name="ctdesc" id="ctdesc"> <label for="ctdesc">Meta Description</label>
+							<br>
+							<input type="checkbox" name="site_url" id="site_urls"> <label for="site_urls"> Entire site urls </label>
+							<button class="btn btn-secondary btn-xs copy-to-btn" title="Copy to" type="button"><i class="fa fa-clone" ></i> Copy</button>
+						</div>
+						
+					</div>
+					<hr>
+				{{/if}}
+
                   <div class="form-row">
                     <div class="form-group col-md-6">
-                      <label for="page">Copy Page</label>
+                      <label for="page">Copy From Page</label>
                       <select name="page" class="form-control website-page-change">
                         <option value="">-- Select --</option>
                           <?php foreach($pages as $k => $page) { ?>
                             <option value="<?php echo $k; ?>"><?php echo $page; ?></option>
                           <?php } ?>
                       </select>  
+					  <input type="checkbox" name="ctitle" id="ctitle"> <label for="ctitle"> Meta title </label>
+					  <input type="checkbox" name="ckeyword" id="ckeyword"> <label for="ckeyword"> Meta Keywords </label>
+					  <input type="checkbox" name="cdesc" id="cdesc"> <label for="cdesc">Meta Description</label>
+					  <button class="btn btn-secondary btn-xs reload-page-data" title="Reload page data" type="button"><i class="fa fa-refresh" ></i></button>
                     </div>
                     <div class="form-group col-md-6">
                         <label for="language">Language</label>

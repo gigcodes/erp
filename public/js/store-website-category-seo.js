@@ -59,6 +59,11 @@ var page = {
             page.pushPageInLive($(this));
         });
 
+        $(document).on("change", ".website-form-page", function (e) {
+            e.preventDefault();
+            page.loadPage($(this));
+        });
+
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -227,6 +232,32 @@ var page = {
         }else{
             toastr["error"](response.message,"");
         }
+    },
+    loadPage: function (ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/category-seo/" + ele.val() + "/load-page",
+            method: "get",
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, 'afterLoadPage');
+    },
+    afterLoadPage: function (response) {
+        if (response.code == 200) {
+            $("#loading-image").hide();
+            if ($('#ctitle').is(':checked')) {
+                $('#meta_title').empty().val(response.meta_title);
+            }
+
+            if ($('#ckeyword').is(':checked')) {
+                $('#meta_keywords').empty().val(response.meta_keyword);
+            }
+
+            if ($('#cdesc').is(':checked')) {
+                $('textarea[name="meta_description"]').empty().text(response.meta_desc);
+            }
+        }
     }
 }
 
@@ -263,6 +294,65 @@ $(document).on('click', '.keyword-list', function () {
 
 });
 
+$(document).on('click', '.copy-to-btn', function () {
+    console.log($(this));
+    console.log($('#website-page-copy-to').val());
+    var entire_category = 'false';
+    var cttitle = 'false';
+    var ctkeyword = 'false';
+    var ctdesc = 'false';
+    if ($('#entire_category').is(':checked')) {
+        entire_category = 'true';
+    }
+    if ($('#cttitle').is(':checked')) {
+        cttitle = 'true';
+    }
+    if ($('#ctkeyword').is(':checked')) {
+        ctkeyword = 'true';
+    }
+    if ($('#ctdesc').is(':checked')) {
+        ctdesc = 'true';
+    }
+
+    $.ajax({
+
+        type   : 'POST',
+        url    : '/store-website/category-seo/copy-to',
+        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+        data   : {
+            entire_category: entire_category,
+            to_page  : $('#store_copy_id').val(),
+            page     : $('input[name="id"]').val(),
+            cttitle  : cttitle,
+            ctkeyword: ctkeyword,
+            ctdesc   : ctdesc
+        },
+
+        beforeSend: function () {
+            $("#loading-image").show();
+        },
+        success: function (data) {
+            $("#loading-image").hide();
+            if (data.error) {
+                toastr['error'](data.error, 'Error');
+            }
+            if (!$.isEmptyObject(data.error)) {
+                $.each(data.error, function (key, value) {
+                    toastr['error'](value, 'Error');
+                });
+            } else {
+                toastr['success'](data.success, 'Success');
+            }
+        },
+        complete: function () {
+            $("#loading-image").hide();
+        },
+    });
+});
+
+$(document).on('click', '.reload-page-data', function () {
+    $('.website-form-page').trigger('change');
+});
 
 $(document).on('change , keyup', 'input[name="meta_keyword"]', function () {
     $('#meta_keywords_count').text( 'Length: '+ $(this).val().length);
