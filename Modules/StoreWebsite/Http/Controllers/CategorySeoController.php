@@ -28,6 +28,7 @@ class CategorySeoController extends Controller
         $categories = Category::all();
         $categories_list = Category::pluck('title', 'id')->toArray();
         $store_list = StoreWebsite::pluck('title', 'id')->toArray();
+        $categroy_seos_list = StoreWebsiteCategorySeo::select('meta_title','id')->orderBy('id','desc')->get();
         return view('storewebsite::category-seo.index',[
             'title' => $title,
             'storeWebsites' => $storeWebsites,
@@ -35,6 +36,7 @@ class CategorySeoController extends Controller
             'categories_list' => $categories_list,
             'languages' => $languages,
             'store_list' => $store_list,
+            'categroy_seos_list' => $categroy_seos_list,
         ]);
     }
 
@@ -276,5 +278,57 @@ class CategorySeoController extends Controller
     	->get();
 
         return response()->json(["code" => 200 , "data" => $histories]);
+    }
+
+    public function loadPage(Request $request, $id)
+    {
+        $page = \App\StoreWebsiteCategorySeo::find($id);
+
+        if ($page) {
+            return response()->json(["code" => 200, "content" => $page->content, "meta_title" => $page->meta_title, "meta_keyword" => $page->meta_keyword, "meta_desc" => $page->meta_description]);
+        }
+
+    }
+
+    public function copyTo(Request $request)
+    {   
+        $validator = Validator::make($request->all(), [
+            'page'    => 'required',
+            'to_page' => 'different:page',
+        ]);
+
+        if (!$validator->passes()) {
+            return response()->json(['error'=>$validator->errors()->all()]);
+        }
+
+        $page = StoreWebsiteCategorySeo::where("id", $request->page )->first();
+
+        if ($page) {
+
+            if( ! empty( $request->to_page ) || ! empty( $request->entire_category ) ){
+                $updateData = [];
+
+                if($request->cttitle == 'true'){
+                    $updateData['meta_title'] = $page->meta_title;
+                }
+                if($request->ctkeyword  == 'true'){
+                    $updateData['meta_keyword'] = $page->meta_keyword;
+                }
+                if($request->ctdesc  == 'true'){
+                    $updateData['meta_description'] = $page->meta_description;
+                }
+                dump( $updateData );
+                if( $updateData ){
+                    if( $request->to_page ){
+                        StoreWebsiteCategorySeo::where("id", $request->to_page )->update( $updateData );
+                    }
+                    if( $request->entire_category == 'true' ){
+                        StoreWebsiteCategorySeo::where("category_id", $page->category_id )->update( $updateData );
+                    }
+                    return response()->json(["code" => 200, "success" => 'Success']);
+                }
+            }
+        }
+        return response()->json(["code" => 200, "error" => 'Page not found']);
     }
 }

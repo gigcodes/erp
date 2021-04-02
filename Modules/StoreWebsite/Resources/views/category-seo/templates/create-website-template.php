@@ -13,6 +13,38 @@
             <?php echo csrf_field(); ?>
            
               <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                      <label >Copy from</label>
+                      <select class="form-control website-form-page">
+                        <option value="">-- Select --</option>
+                          <?php foreach($categroy_seos_list as $item) { ?>
+                            <option value="<?php echo $item->id; ?>"><?php echo $item->id.' - '.$item->meta_title; ?></option>
+                          <?php } ?>
+                      </select>
+					  <input type="checkbox" name="ctitle" id="ctitle"> <label for="ctitle"> Meta title </label>
+					  <input type="checkbox" name="ckeyword" id="ckeyword"> <label for="ckeyword"> Meta Keywords </label>
+					  <input type="checkbox" name="cdesc" id="cdesc"> <label for="cdesc">Meta Description</label>
+					  <button class="btn btn-secondary btn-xs reload-page-data" title="Reload page data" type="button"><i class="fa fa-refresh" ></i></button>
+                    </div>
+                    <div class="form-group col-md-6">
+						<label for="store_copy_id">Copy to</label>
+						<select id="store_copy_id" class="form-control">
+							<option value="">-- Select --</option>
+							<?php foreach($categroy_seos_list as $item) { ?>
+								<option value="<?php echo $item->id; ?>"><?php echo $item->id.' - '.$item->meta_title; ?></option>
+							<?php } ?>
+						</select>
+						<input type="checkbox" name="cttitle" id="cttitle"> <label for="cttitle"> Meta title </label>
+						<input type="checkbox" name="ctkeyword" id="ctkeyword"> <label for="ctkeyword"> Meta Keywords </label>
+						<input type="checkbox" name="ctdesc" id="ctdesc"> <label for="ctdesc">Meta Description</label>
+						<br>
+						<input type="checkbox" name="entire_category" id="entire_category"> <label for="entire_category"> Entire category </label>
+						<button class="btn btn-secondary btn-xs copy-to-btn" title="Copy to" type="button"><i class="fa fa-clone" ></i> Copy</button>
+					  
+                    </div>
+              	</div>
+				  <hr>
                   <div class="form-row">
                     <div class="form-group col-md-6">
                       <label for="category_id">Category</label>

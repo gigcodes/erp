@@ -293,6 +293,18 @@ var page = {
             $("#loading-image").hide();
             $('#google_translate_element').summernote('reset');
             $('#google_translate_element').summernote('insertText', response.content);
+
+            if ($('#ctitle').is(':checked') ) {
+                $('#meta_title').empty().val(response.meta_title);
+            }
+
+            if ($('#ckeyword').is(':checked') ) {
+                $('#meta_keywords').empty().val(response.meta_keyword);
+            }
+
+            if ($('#cdesc').is(':checked') ) {
+                $('textarea[name="meta_description"]').empty().text(response.meta_desc);
+            }
         }
     },
     loadTranslation : function(ele) {
@@ -485,6 +497,65 @@ $(document).on('click', '.keyword-list', function () {
 
 $(document).on('change , keyup', 'input[name="meta_keywords"]', function () {
     $('#meta_keywords_count').text( 'Length: '+ $( this ).val().length );
+});
+
+$(document).on('click', '.reload-page-data', function () {
+    $('.website-page-change').trigger('change');
+});
+
+$(document).on('click', '.copy-to-btn', function () {
+    console.log($(this));
+    console.log( $('#website-page-copy-to').val() );
+    var site_urls = 'false';
+    var cttitle   = 'false';
+    var ctkeyword = 'false';
+    var ctdesc    = 'false';
+    if ($('#site_urls').is(':checked')) {
+        site_urls = 'true';
+    }
+    if ($('#cttitle').is(':checked')) {
+        cttitle = 'true';
+    }
+    if ($('#ctkeyword').is(':checked')) {
+        ctkeyword = 'true';
+    }
+    if ($('#ctdesc').is(':checked')) {
+        ctdesc = 'true';
+    }
+
+    $.ajax({
+
+        type: 'POST',
+        url: '/store-website/page/copy-to',
+        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+        data: { site_urls: site_urls,
+            to_page  : $('#website-page-copy-to').val(),
+            page     : $('input[name="id"]').val(),
+            cttitle  : cttitle,
+            ctkeyword: ctkeyword,
+            ctdesc   : ctdesc
+        },
+
+        beforeSend: function () {
+            $("#loading-image").show();
+        },
+        success: function (data) {
+            $("#loading-image").hide();
+            if (data.error){
+                toastr['error'](data.error, 'Error');
+            }
+            if (!$.isEmptyObject(data.error) ) {
+                $.each(data.error, function (key, value) {
+                    toastr['error'](value, 'Error');
+                });
+            }else{
+                toastr['success'](data.success, 'Success');
+            }
+        },
+        complete: function () {
+            $("#loading-image").hide();
+        },
+    });
 });
 
 $(document).on('change , keyup', 'textarea[name="meta_description"]', function () {
