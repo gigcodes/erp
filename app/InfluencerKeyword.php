@@ -30,6 +30,6 @@ class InfluencerKeyword extends Model
 
     public function instagramAccount()
     {
-        return $this->hasOne(\App\Marketing\InstagramConfig::class,'id','instagram_account_id');
+        return $this->hasOne(\App\Account::class,'id','instagram_account_id');
     }
 }

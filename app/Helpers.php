@@ -352,7 +352,7 @@ class Helpers
             // check keyword account
             $instagram = $keyword->instagramAccount;
             if ($instagram) {
-                $extravars = "&ig_uname={$instagram->username}&ig_pswd={$instagram->password}";
+                $extravars = "&ig_uname={$instagram->first_name}&ig_pswd={$instagram->password}";
             }
         }
         return $extravars;

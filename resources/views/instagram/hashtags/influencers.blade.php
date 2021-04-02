@@ -126,8 +126,11 @@
                 <div class="form-group mr-3 mb-3">
                      <input name="name" type="text" class="form-control" id="keywordname" placeholder="New Keyword">
                 </div>
+                @php
+                    $accountsList = ["" => "N/A"] + \App\Account::where('platform','instagram')->where('email',"!=",'')->get()->pluck('email','id')->toArray();
+                @endphp
                 <div class="form-group mr-3 mb-3">
-                     <?php echo Form::select('instagram_account_id',["" => "N/A"] + App\Marketing\InstagramConfig::pluck('username','id')->toArray(),null, ["class" => "form-control","id" => 'instagram_account_id']); ?>
+                     <?php echo Form::select('instagram_account_id',$accountsList,null, ["class" => "form-control select2","id" => 'instagram_account_id']); ?>
                 </div>
                 <div class="form-group mr-3 mb-3">
                     <button type="button" class="btn btn-image" onclick="submitKeywork()"><img src="/images/add.png"/></button> 
@@ -170,7 +173,7 @@
                                    <td>{{ $keyword->name }}</td>
                                    <td>
                                         <div class="form-group mr-3 mb-3">
-                                             <?php echo Form::select('instagram_account_id',["" => "N/A"] + App\Marketing\InstagramConfig::pluck('username','id')->toArray(),$keyword->instagram_account_id, ["class" => "form-control","id" => 'instagram_account_id_change']); ?>
+                                             <?php echo Form::select('instagram_account_id',$accountsList,$keyword->instagram_account_id, ["class" => "form-control select2","id" => 'instagram_account_id_change']); ?>
                                         </div>
                                    </td>
                                    <td><button class="btn btn-link" onclick="getImage('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Image From Scrapper"><i class="fa fa-barcode"></i></button>
