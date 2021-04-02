@@ -629,5 +629,11 @@ class CategoryController extends Controller
         return view("compositions.partials.show-update-history",compact('records'));
     }
 
+    public function deleteUnused()
+    {
+        \Artisan::call("delete-categories:with-no-products");
+        return redirect()->back()->with('success', 'Your request has been finished successfully!');;
+    }
+
 }
  

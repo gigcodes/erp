@@ -313,4 +313,10 @@ class CompositionsController extends Controller
         $records = \App\UserUpdatedAttributeHistory::where("attribute_id",$id)->where("attribute_name","compositions")->latest()->get();
         return view("compositions.partials.show-update-history",compact('records'));
     }
+
+    public function deleteUnused()
+    {
+        \Artisan::call("delete-composition:with-no-products");
+        return redirect()->back()->with('success', 'Your request has been finished successfully!');;
+    }
 }

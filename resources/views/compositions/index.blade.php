@@ -21,6 +21,13 @@
     <div class="col-md-12">
         <h2 class="page-heading">Compositions ({{$compositions->total()}})</h2>
     </div>
+     @if ($message = Session::get('success'))
+         <div class="col-md-12">
+            <div class="alert alert-success">
+                <p>{{ $message }}</p>
+            </div>
+         </div>   
+    @endif
     <div class="col-md-6 mt-5">
         {!! Form::open(["class" => "form-inline" , "route" => 'compositions.store',"method" => "POST"]) !!}    
           <div class="form-group">
@@ -67,6 +74,9 @@
                 ["class" => "form-control change-list-all-compostion select2", 'style' => 'width:400px']
             ); ?>
             <button type="button" class="btn btn-secondary update-composition-selected">Update Selected</button>
+            <a target="__blank" href="{{ route('compositions.delete.unused') }}">
+                <button type="button" class="btn btn-secondary delete-not-used">Delete not used</button>
+            </a>
         </div>
     </div>
     <div class="col-md-12 mt-5">
@@ -308,7 +318,6 @@
                 });
 
             });
-
     </script>
 @endsection
 @endsection
