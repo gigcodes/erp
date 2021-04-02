@@ -7,6 +7,7 @@
  */
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -298,9 +299,9 @@ class Helpers
 
     public static function selectSupplierList($none = true)
     {
-        $list = \App\Supplier::pluck("supplier","id")->toArray();
+        $list = \App\Supplier::pluck("supplier", "id")->toArray();
 
-        if($none) {
+        if ($none) {
             return ["" => "None"] + $list;
         }
 
@@ -309,18 +310,18 @@ class Helpers
 
     public static function selectCategoryList($defaultVal = false)
     {
-        return \App\Category::attr([ 
-            'name' => 'category',
+        return \App\Category::attr([
+            'name'  => 'category',
             'class' => 'form-control-sm form-control select2',
-            'style' => 'width:200px '
+            'style' => 'width:200px ',
         ])->selected($defaultVal)->renderAsDropdown();
     }
 
-    public static function selectBrandList($none = true) 
+    public static function selectBrandList($none = true)
     {
-        $list = \App\Brand::pluck("name","id")->toArray();
+        $list = \App\Brand::pluck("name", "id")->toArray();
 
-        if($none) {
+        if ($none) {
             return ["" => "None"] + $list;
         }
 
@@ -329,18 +330,32 @@ class Helpers
 
     public static function selectStatusList()
     {
-        return ["" => "None"] + \App\Helpers\StatusHelper::getStatus();
+        return ["" => "None"]+\App\Helpers\StatusHelper::getStatus();
     }
 
-    public static function quickSellGroupList($none = true) 
+    public static function quickSellGroupList($none = true)
     {
-        $list = \App\QuickSellGroup::pluck("name","id")->toArray();
+        $list = \App\QuickSellGroup::pluck("name", "id")->toArray();
 
-        if($none) {
+        if ($none) {
             return ["" => "None"] + $list;
         }
 
         return $list;
+    }
+
+    public static function getInstagramVars($name)
+    {
+        $keyword   = \App\InfluencerKeyword::where("name", $name)->first();
+        $extravars = "";
+        if ($keyword) {
+            // check keyword account
+            $instagram = $keyword->instagramAccount;
+            if ($instagram) {
+                $extravars = "&ig_uname={$instagram->first_name}&ig_pswd={$instagram->password}";
+            }
+        }
+        return $extravars;
     }
 
 }

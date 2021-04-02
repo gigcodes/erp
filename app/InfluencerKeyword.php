@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -9,14 +10,26 @@ use Illuminate\Database\Eloquent\Model;
 
 class InfluencerKeyword extends Model
 {
-    public function next(){
+    protected $fillable = [
+        'name',
+        'instagram_account_id',
+    ];
+
+    public function next()
+    {
         // get next keyword
-        return InfluencerKeyword::where('id', '>', $this->id)->orderBy('id','asc')->first();
+        return InfluencerKeyword::where('id', '>', $this->id)->orderBy('id', 'asc')->first();
 
     }
-    public  function previous(){
+    public function previous()
+    {
         // get previous  keyword
-        return InfluencerKeyword::where('id', '<', $this->id)->orderBy('id','desc')->first();
+        return InfluencerKeyword::where('id', '<', $this->id)->orderBy('id', 'desc')->first();
 
+    }
+
+    public function instagramAccount()
+    {
+        return $this->hasOne(\App\Account::class,'id','instagram_account_id');
     }
 }
