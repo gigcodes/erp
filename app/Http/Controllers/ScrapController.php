@@ -272,7 +272,7 @@ class ScrapController extends Controller
             $scrapedProduct->categories        = $categoryForScrapedProducts;
             $scrapedProduct->color             = $colorForScrapedProducts;
             $scrapedProduct->composition       = $compositionForScrapedProducts;
-            $scrapedProduct->material_used       = isset($requestedProperties['material_used']) ? $requestedProperties['material_used'] : null;
+            $scrapedProduct->material_used       = $compositionForScrapedProducts;
             $scrapedProduct->supplier      = isset($requestedProperties['supplier']) ? $requestedProperties['supplier'] : null;
             $scrapedProduct->country       = isset($requestedProperties['country']) ? $requestedProperties['country'] : null;
             $scrapedProduct->size = (isset($requestedProperties['sizes']) && is_array($requestedProperties['sizes'])) ? implode(",", $requestedProperties['sizes']) : null;
@@ -319,7 +319,7 @@ class ScrapController extends Controller
             $scrapedProduct->categories  = $categoryForScrapedProducts;
             $scrapedProduct->color       = $colorForScrapedProducts;
             $scrapedProduct->composition = $compositionForScrapedProducts;
-            $scrapedProduct->material_used       = isset($requestedProperties['material_used']) ? $requestedProperties['material_used'] : null;
+            $scrapedProduct->material_used       = $compositionForScrapedProducts;
             $scrapedProduct->supplier      = isset($requestedProperties['supplier']) ? $requestedProperties['supplier'] : null;
             $scrapedProduct->country       = isset($requestedProperties['country']) ? $requestedProperties['country'] : null;
             $scrapedProduct->size = (isset($requestedProperties['sizes']) && is_array($requestedProperties['sizes'])) ? implode(",", $requestedProperties['sizes']) : null;
