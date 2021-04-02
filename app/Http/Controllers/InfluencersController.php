@@ -130,8 +130,8 @@ class InfluencersController extends Controller
     public function getScraperImage(Request $request)
     {
      $name = $request->name;
-
-     $name = str_replace(" ","",$name);
+     $extraVars = \App\Helpers::getInstagramVars($name);
+     $name = str_replace(" ","",$name).$extraVars;
 
      $cURLConnection = curl_init();
 
@@ -164,7 +164,10 @@ class InfluencersController extends Controller
     {
        $name = $request->name;
 
-       $name = str_replace(" ","",$name);
+       // get keyword name  
+       $extraVars = \App\Helpers::getInstagramVars($name);
+       $name = str_replace(" ","",$name).$extraVars;
+
 
        $cURLConnection = curl_init();
         $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/get-status?'.$name;
@@ -186,8 +189,8 @@ class InfluencersController extends Controller
     public function startScraper(Request $request)
     {
        $name = $request->name;
-
-       $name = str_replace(" ","",$name);
+       $extraVars = \App\Helpers::getInstagramVars($name);
+       $name = str_replace(" ","",$name).$extraVars;
 
        $cURLConnection = curl_init();
 
@@ -216,8 +219,8 @@ class InfluencersController extends Controller
     public function getLogFile(Request $request)
     {
         $name = $request->name;
-
-        $name = str_replace(" ","",$name);
+        $extraVars = \App\Helpers::getInstagramVars($name);
+        $name = str_replace(" ","",$name).$extraVars;
 
         $cURLConnection = curl_init();
 
@@ -248,8 +251,8 @@ class InfluencersController extends Controller
     public function restartScript(Request $request)
     {
        $name = $request->name;
-
-       $name = str_replace(" ","",$name);
+       $extraVars = \App\Helpers::getInstagramVars($name);
+       $name = str_replace(" ","",$name).$extraVars;
 
        $cURLConnection = curl_init();
 
@@ -276,8 +279,8 @@ class InfluencersController extends Controller
     public function stopScript(Request $request)
     {
        $name = $request->name;
-
-       $name = str_replace(" ","",$name);
+       $extraVars = \App\Helpers::getInstagramVars($name);
+       $name = str_replace(" ","",$name).$extraVars;
 
        $cURLConnection = curl_init();
         $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/stop-script?'.$name;
