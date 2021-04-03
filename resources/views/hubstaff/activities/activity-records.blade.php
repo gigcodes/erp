@@ -12,7 +12,7 @@
     </div>
     <div class="modal-body">
     <div>
-        <table class="table table-bordered" style="table-layout:fixed;">
+        <table class="table table-bordered" >
         <tr>
           <th style="width:20%">Date & time</th>
           <th style="width:15%">Time tracked</th>
@@ -91,7 +91,7 @@
 					@endif
 				</td>
               <td>
-              &nbsp;<input type="checkbox" name="sample" {{$record->sample ? 'checked' : ''}}  data-id="{{ $record->OnDate }}{{$record->onHour}}" class="selectall"/>
+              &nbsp;<input type="checkbox" name="sample" {{$record->sample && $record->status != 2 ? 'checked' : ''}}  data-id="{{ $record->OnDate }}{{$record->onHour}}" class="selectall"/>
                 <a data-toggle="collapse" href="#collapse_{{ $record->OnDate }}{{$record->onHour}}"><img style="height:15px;" src="/images/forward.png"></a>
               </td>
             </tr>
@@ -106,7 +106,7 @@
                   <td style="width:25%">{{ $a->taskSubject}}</td>
                   <td style="width:20%"></td>
                   <td style="width:7%">
-                    <input type="checkbox" class="{{ $record->OnDate }}{{$record->onHour}}" value="{{$a->id}}" name="activities[]" {{$a->status ? 'checked' : ''}}>
+                    <input type="checkbox" class="{{ $record->OnDate }}{{$record->onHour}}" value="{{$a->id}}" name="activities[]" {{$a->status && $record->status != 2 ? 'checked' : ''}}>
                   </td>
                 </tr>
               @endforeach
@@ -186,8 +186,8 @@
     <div class="modal-footer">
     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
     @if($isAdmin)
-    <button type="submit" class="btn btn-danger final-submit-record" data-status="1">Approve</button>
-    <button type="submit" class="btn btn-info final-submit-record" data-status="2">Pending</button>
+    <button type="submit" class="btn btn-secondary final-submit-record" data-status="1">Approve</button>
+    <button type="submit" class="btn btn-secondary final-submit-record" data-status="2">Pending</button>
     @if(count($teamLeaders) > 0)
     <button type="submit" class="btn btn-danger submit-record">Forword</button>
     @endif

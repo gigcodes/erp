@@ -21,24 +21,20 @@
     <br>
     <div class="col-lg-12 margin-tb">
         <div class="row">
-            <div class="col">
-                <div class="h" style="margin-bottom:10px;">
-                    <form class="form-inline" action="{{route('hubstaff-acitivties.activities')}}" method="get">
-                      <div class="row">
-                        <div class="form-group col-md-3">
-                            <label for="keyword">User:</label>
+            <div class="col-md-12 margin-tb">
+                <div class="row">
+                    <form class="form-check-inline" action="{{route('hubstaff-acitivties.activities')}}" method="get">
+                        <div class="form-group col-md-2">
                             <?php echo Form::select("user_id",["" => "-- Select User --"]+$users,$user_id,["class" => "form-control select2"]); ?>
                         </div>
                         <div class="form-group col-md-2">
-                            <label for="keyword">Developer Task id:</label>
                             <?php echo Form::text("developer_task_id",request('developer_task_id'),["class" => "form-control","placeholder" => "Enter Developer Task ID"]); ?>
                         </div>
                         <div class="form-group col-md-2">
-                            <label for="keyword">Task id:</label>
+                            
                             <?php echo Form::text("task_id",request('task_id'),["class" => "form-control","placeholder" => "Enter Task ID"]); ?>
                         </div>
-                        <div class="form-group col-md-2">
-                            <strong>Date Range</strong>
+                        <div class="form-group col-md-3">
                             <input type="text" value="{{$start_date}}" name="start_date" hidden/>
                             <input type="text" value="{{$end_date}}" name="end_date" hidden/>
                             <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
@@ -46,119 +42,115 @@
                                 <span></span> <i class="fa fa-caret-down"></i>
                             </div>
                         </div>
-                        <!-- <div class="form-group">
-                            <strong>Date Range</strong>
-                            <input type="text" value="{{$start_date}}" name="start_date" hidden/>
-                            <input type="text" value="{{$end_date}}" name="end_date" hidden/>
-                            <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
-                                <i class="fa fa-calendar"></i>&nbsp;
-                                <span></span> <i class="fa fa-caret-down"></i>
-                            </div>
-                        </div> -->
-                        <div class="form-group">
-                            <label for="keyword">Status:</label>
+                       
+                        <div class="form-group col-md-2">
                             <select name="status" id="" class="form-control">
                             <option value="">Select</option>
                             <option value="new" {{$status == 'new' ? 'selected' : ''}}>New</option>
                             <option value="forwarded_to_admin" {{$status == 'forwarded_to_admin' ? 'selected' : ''}}>Forwarded to admin</option>
                             <option value="forwarded_to_lead" {{$status == 'forwarded_to_lead' ? 'selected' : ''}}>Forwarded to team lead</option>
                             <option value="approved" {{$status == 'approved' ? 'selected' : ''}}>Approved by admin</option>
+                            <option value="pending" {{$status == 'pending' ? 'selected' : ''}}>Pending by admin</option>
                             </select>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group col-md-2">
                             <label for="button">&nbsp;</label>
                             <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
                                 <img src="/images/search.png" style="cursor: default;">
                             </button>
                         </div>  
-                      </div>    
                     </form> 
+                </div>    
+                
+            </div>
+        
+            <div class="col-md-12 margin-tb">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <tr>
+                        <th width="4%">Date</th>
+                        <th>User</th>
+                        <th>Time tracked (Minutes)</th>
+                        <th>Tasks</th>
+                        <th>Time approved</th>
+                        <th>Time Pending</th>
+                        <th>User Requested</th>
+                        <th>Pending payment time</th>
+                        <th>Status</th>
+                        <th width="30%">Note</th>
+                        <th width="10%" colspan="2" class="text-center">Action</th>
+                        </tr>
+                        @php
+                            $totalTracked = 0;
+                            $totalApproved = 0;
+                            $totalUserRequested = 0;
+                            $totalPaymentPending = 0;
+                        @endphp  
+                        @foreach ($activityUsers as $user)
+                            <tr>
+                            <td>{{ \Carbon\Carbon::parse($user['date'])->format('d-m') }} </td>
+                            <td>{{ $user['userName'] }}</td>
+                            @php
+                                $totalTracked +=  $user['total_tracked'];
+                                $totalApproved +=  $user['totalApproved'];
+                                $totalUserRequested +=  $user['totalUserRequest'];
+                                $totalPaymentPending +=  $user['totalNotPaid'];
+                            @endphp
+                            <td>{{number_format($user['total_tracked'] / 60,2,".",",")}}</td>
+                            <td>
+                                <?php if(!empty($user['tasks'])) { ?>
+                                        <?php foreach($user['tasks'] as $ut) { ?>
+                                            <?php 
+                                                @list($taskid,$devtask) = explode("||",$ut);
+                                                $trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $taskid)->first()->tracked
+                                            ?>
+                                            <?php if(Auth::user()->isAdmin()) { ?> 
+                                            <a class="show-task-histories " data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}} {{ (isset($trackedTime) && $devtask ) ? '-'.$trackedTime : '' }}</a><br>
+                                            <?php }else{ ?>
+                                                <a class="" data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}} {{ (isset($trackedTime) && $devtask ) ? '-'.$trackedTime : '' }} </a><br>
+                                            <?php } ?>    
+                                        <?php } ?>
+                                <?php } ?>
+                            </td>
+                            <td><span class="replaceme">{{number_format($user['totalApproved'] / 60,2,".",",")}}</span> </td>
+                            <td>{{ ( number_format($user['totalApproved'] / 60,2,".",",") - number_format($user['total_tracked'] / 60,2,".",",")) }}</td>
+                            <td><span>{{number_format($user['totalUserRequest'] / 60,2,".",",")}}</span> </td>
+                            <td><span>{{number_format($user['totalNotPaid'] / 60,2,".",",")}}</td>
+                            <td>{{$user['status']}}</td>
+                            <td>{{$user['note']}}</td>
+                            
+                            <td>
+                                @if($user['forworded_to'] == Auth::user()->id && !$user['final_approval'])
+                                <form action="">
+                                    <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
+                                    <input type="hidden" class="date" name="date" value="{{$user['date']}}">
+                                    <a class="btn btn-secondary show-activities">+</a>
+                                </form>
+                                @endif
+                                @if(Auth::user()->isAdmin() && $user['final_approval'])
+                                <form action="">
+                                    <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
+                                    <input type="hidden" class="date" name="date" value="{{$user['date']}}">
+                                    <a class="btn btn-secondary show-activities"><i class="fa fa-check" aria-hidden="true"></i></a>
+                                </form>
+                                @endif
+                            </td>
+                        @endforeach
+                        <tr>
+                        <th>Total</th>
+                        <th></th>
+                        <th>{{number_format($totalTracked / 60,2,".","")}}</th>
+                        <th></th>
+                        <th>{{number_format($totalApproved / 60,2,".","")}}</th>
+                        <th>{{number_format($totalUserRequested / 60,2,".","")}}</th>
+                        <th>{{number_format($totalPaymentPending / 60,2,".","")}}</th>
+                        <th></th>
+                        <th></th>
+                        <th width="10%" colspan="2" class="text-center"></th>
+                        </tr>
+                    </table>
                 </div>
             </div>
-        </div>  
-        <div class="col-md-12 margin-tb">
-        <div class="table-responsive">
-        <table class="table table-bordered">
-        <tr>
-          <th>Date</th>
-          <th>User</th>
-          <th>Time tracked (Minutes)</th>
-          <th>Tasks</th>
-          <th>Time approved</th>
-          <th>User Requested</th>
-          <th>Pending payment time</th>
-          <th>Status</th>
-          <th>Note</th>
-          <th width="10%" colspan="2" class="text-center">Action</th>
-        </tr>
-          @php
-            $totalTracked = 0;
-            $totalApproved = 0;
-            $totalUserRequested = 0;
-            $totalPaymentPending = 0;
-          @endphp  
-          @foreach ($activityUsers as $user)
-            <tr>
-            <td>{{ \Carbon\Carbon::parse($user['date'])->format('d-m') }} </td>
-              <td>{{ $user['userName'] }}</td>
-              @php
-                $totalTracked +=  $user['total_tracked'];
-                $totalApproved +=  $user['totalApproved'];
-                $totalUserRequested +=  $user['totalUserRequest'];
-                $totalPaymentPending +=  $user['totalNotPaid'];
-              @endphp
-              <td>{{number_format($user['total_tracked'] / 60,2,".",",")}}</td>
-              <td>
-                  <?php if(!empty($user['tasks'])) { ?>
-                        <?php foreach($user['tasks'] as $ut) { ?>
-                            <?php 
-                                @list($taskid,$devtask) = explode("||",$ut);
-                            ?>
-                            <?php if(Auth::user()->isAdmin()) { ?> 
-                               <a class="show-task-histories " data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}}</a><br>
-                            <?php }else{ ?>
-                                <a class="" data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}}</a><br>
-                            <?php } ?>    
-                        <?php } ?>
-                  <?php } ?>
-              </td>
-              <td><span class="replaceme">{{number_format($user['totalApproved'] / 60,2,".",",")}}</span> </td>
-              <td><span>{{number_format($user['totalUserRequest'] / 60,2,".",",")}}</span> </td>
-              <td><span>{{number_format($user['totalNotPaid'] / 60,2,".",",")}}</td>
-              <td>{{$user['status']}}</td>
-              <td>{{$user['note']}}</td>
-              
-              <td>
-                @if($user['forworded_to'] == Auth::user()->id && !$user['final_approval'])
-                <form action="">
-                    <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
-                    <input type="hidden" class="date" name="date" value="{{$user['date']}}">
-                    <a class="btn btn-secondary show-activities">+</a>
-                </form>
-                @endif
-                @if(Auth::user()->isAdmin() && $user['final_approval'])
-                <form action="">
-                    <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
-                    <input type="hidden" class="date" name="date" value="{{$user['date']}}">
-                    <a class="btn btn-secondary show-activities"><i class="fa fa-check" aria-hidden="true"></i></a>
-                </form>
-                @endif
-              </td>
-          @endforeach
-          <tr>
-          <th>Total</th>
-          <th></th>
-          <th>{{number_format($totalTracked / 60,2,".","")}}</th>
-          <th></th>
-          <th>{{number_format($totalApproved / 60,2,".","")}}</th>
-          <th>{{number_format($totalUserRequested / 60,2,".","")}}</th>
-          <th>{{number_format($totalPaymentPending / 60,2,".","")}}</th>
-          <th></th>
-          <th></th>
-          <th width="10%" colspan="2" class="text-center"></th>
-        </tr>
-      </table>
-    </div>
         </div>
     </div>
 </div>
@@ -166,7 +158,7 @@
           50% 50% no-repeat;display:none;">
 </div>
 <div id="records-modal" class="modal" role="dialog">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-lg" role="document" style="max-width: 1200px !important; width: 100% !important;">
       <div class="modal-content" id="record-content">
 
       </div>
@@ -242,6 +234,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 
 <script type="text/javascript">
+
+$(document).on('click', '.expand-row', function () {
+    var selection = window.getSelection();
+    if (selection.toString().length === 0) {
+        $(this).find('.td-mini-container').toggleClass('hidden');
+        $(this).find('.td-full-container').toggleClass('hidden');
+    }
+});
 
 $(document).on('change', '.task_efficiency', function(e) 
 {

@@ -220,6 +220,7 @@ class HubstaffActivitiesController extends Controller
                             }
                         }
                     } else {
+                        $tracked = $ar->tracked;
                         $task = DeveloperTask::where('hubstaff_task_id', $ar->task_id)->orWhere('lead_hubstaff_task_id', $ar->task_id)->first();
                         if ($task) {
                             $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
@@ -246,6 +247,30 @@ class HubstaffActivitiesController extends Controller
                         $totalApproved  = $hubActivitySummery->accepted;
                         $totalUserRequest  = $hubActivitySummery->user_requested;
                         $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 1)->where('paid', 0)->sum('tracked');
+                        $forworded_to   = $hubActivitySummery->receiver;
+                        $final_approval = 1;
+
+                        $a['user_id']        = $activity->user_id;
+                        $a['total_tracked']  = $activity->total_tracked;
+                        $a['date']           = $activity->date;
+                        $a['userName']       = $activity->userName;
+                        $a['forworded_to']   = $forworded_to;
+                        $a['status']         = $status;
+                        $a['totalApproved']  = $totalApproved;
+                        $a['totalUserRequest']   = $totalUserRequest;
+                        $a['totalNotPaid']   = $totalNotPaid;
+                        $a['final_approval'] = $final_approval;
+                        $a['note']           = $hubActivitySummery->rejection_note;
+                        $activityUsers->push($a);
+                    }
+                }
+            } else if ($request->status == 'pending') {
+                if ($hubActivitySummery && $hubActivitySummery->final_approval == 1) {
+                    if ($hubActivitySummery->forworded_person == 'admin') {
+                        $status         = 'Pending by admin';
+                        $totalApproved  = $hubActivitySummery->accepted;
+                        $totalUserRequest  = $hubActivitySummery->user_requested;
+                        $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 2)->where('paid', 0)->sum('tracked');
                         $forworded_to   = $hubActivitySummery->receiver;
                         $final_approval = 1;
 
