@@ -397,7 +397,7 @@ class HubstaffActivitiesController extends Controller
             return response()->json(['message' => '']);
         }
 
-        $activityrecords = DB::select(DB::raw("SELECT CAST(starts_at as date) AS OnDate,  SUM(tracked) AS total_tracked, hour( starts_at ) as onHour
+        $activityrecords = DB::select(DB::raw("SELECT CAST(starts_at as date) AS OnDate,  SUM(tracked) AS total_tracked, hour( starts_at ) as onHour, status
         FROM hubstaff_activities where DATE(starts_at) = '" . $request->date . "' and user_id = " . $request->user_id . "
         GROUP BY hour( starts_at ) , day( starts_at )"));
         // $activityrecords  = HubstaffActivity::whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id)->select('hubstaff_activities.*')->get();
@@ -629,7 +629,7 @@ class HubstaffActivitiesController extends Controller
             $dateWise = [];
             foreach ($request->activities as $id) {
                 $hubActivity = HubstaffActivity::where('id', $id)->first();
-                $hubActivity->update(['status' => 1]);
+                $hubActivity->update(['status' => $request->status]);
                 $approved               = $approved + $hubActivity->tracked;
                 $approvedArr[]          = $id;
                 if($request->isTaskWise) {
@@ -666,7 +666,7 @@ class HubstaffActivitiesController extends Controller
 
                         foreach ($dateW as $dw) {
                             if(!in_array($dw->id, $approveIDs) && !in_array($dw->id, $rejectedIds)) {
-                                $dw->update(['status' => 1]);
+                                $dw->update(['status' => $request->status]);
                                 $approved      = $approved + $dw->tracked;
                                 $approvedArr[] = $dw->id;
                             }

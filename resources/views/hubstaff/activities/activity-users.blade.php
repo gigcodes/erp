@@ -443,14 +443,20 @@ let r_s = jQuery('input[name="start_date"]').val();
 
         $(document).on('click', '.final-submit-record', function(e) {
         e.preventDefault();
+        var status = $(this).data('status');
+        // return false;
         var form = $(this).closest("form");
         var thiss = $(this);
         var type = 'POST';
+        var data = form.serializeArray();
+        data.push({name: 'status', value: status});
+
             $.ajax({
             url: '/hubstaff-activities/activities/final-submit',
             type: type,
             dataType: 'json',
-            data: form.serialize(),
+            // data: form.serialize(),
+            data: data,
             beforeSend: function() {
                 $("#loading-image").show();
             }

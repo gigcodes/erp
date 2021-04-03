@@ -19,11 +19,12 @@
           <th style="width:15%">Time Approved</th>
           <th style="width:25%">Task</th>
           <th style="width:18%">Efficiency</th>
+          <th style="width:18%">Status</th>
           <th style="width:7%" class="text-center">Action</th>
         </tr>
           @foreach ($activityrecords as $record)
             <tr>
-            <td>{{ $record->OnDate }} {{$record->onHour}}:00:00 </td>
+            <td>{{ $record->OnDate }} {{$record->onHour}}:00:00</td>
               <td>{{ number_format($record->total_tracked / 60,2,".",",") }}</td>
               <td>{{ number_format($record->totalApproved / 60,2,".",",") }}</td>
               <td>
@@ -80,6 +81,15 @@
                     @endif
                 </div>
               </td>
+				<td> 
+					@if ( $record->status == 1 )
+						Approved
+					@elseif ( $record->status == 2 )
+						Pending
+					@else
+						New
+					@endif
+				</td>
               <td>
               &nbsp;<input type="checkbox" name="sample" {{$record->sample ? 'checked' : ''}}  data-id="{{ $record->OnDate }}{{$record->onHour}}" class="selectall"/>
                 <a data-toggle="collapse" href="#collapse_{{ $record->OnDate }}{{$record->onHour}}"><img style="height:15px;" src="/images/forward.png"></a>
@@ -176,7 +186,8 @@
     <div class="modal-footer">
     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
     @if($isAdmin)
-    <button type="submit" class="btn btn-danger final-submit-record">Approve</button>
+    <button type="submit" class="btn btn-danger final-submit-record" data-status="1">Approve</button>
+    <button type="submit" class="btn btn-info final-submit-record" data-status="2">Pending</button>
     @if(count($teamLeaders) > 0)
     <button type="submit" class="btn btn-danger submit-record">Forword</button>
     @endif
