@@ -1855,6 +1855,7 @@ Route::prefix('comments')->middleware('auth')->group(function () {
 
 Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('screenshot', 'ScrapStatisticsController@getScreenShot');
+    Route::get('server-status-history', 'ScrapStatisticsController@serverStatusHistory');
     Route::get('position-history', 'ScrapStatisticsController@positionHistory');
     Route::get('statistics/update-field', 'ScrapStatisticsController@updateField');
     Route::get('statistics/update-scrap-field', 'ScrapStatisticsController@updateScrapperField');

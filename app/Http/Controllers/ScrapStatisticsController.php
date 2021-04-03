@@ -649,4 +649,13 @@ class ScrapStatisticsController extends Controller
         return redirect()->back();
     }
 
+    
+
+    public function serverStatusHistory(Request $request)
+    {
+        $statusHistory = \App\ScraperServerStatusHistory::whereDate("created_at", $request->date)->latest()->get();
+
+        return view("scrap.partials.status-history", compact('statusHistory'));
+    }
+
 }

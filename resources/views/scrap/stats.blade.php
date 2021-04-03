@@ -131,8 +131,28 @@
                 </div>
             </div>
          </div>   
-    </div>
-    <?php $totalCountedUrl = 0; ?>
+   </div>
+   <div class="row no-gutters mt-3">
+        <div class="col-md-12">
+            <table class="table table-bordered table-striped sort-priority-scrapper">
+                <thead>
+                <tr>
+                    <th>Scraper History</th>
+                    <?php for ($i=0; $i < 7; $i++) { 
+                        
+                        if(!isset($date)) {
+                            $date = date("Y-m-d");
+                        }
+                        echo '<th>'.$date.' <button style="padding-right:0px;" type="button" class="btn btn-xs show-scraper-history" title="Show Scraper server history"  data-date="'.$date.'"><i class="fa fa-info-circle"></i></button></th>';
+                        $date = date("Y-m-d",strtotime('-1 day', strtotime($date)));
+                        # code...
+                    } ?>
+                </tr>
+                </thead>
+            </table>
+        </div>    
+   </div>
+   <?php $totalCountedUrl = 0; ?>
     <div class="row no-gutters mt-3">
         <div class="col-md-12" id="plannerColumn">
             <div class="">
@@ -1285,6 +1305,30 @@
                 alert('Please check laravel log for more information')
             });
         });
+
+        $(document).on("click",".show-scraper-history",function (e){
+            e.preventDefault();
+            var date = $(this).data("date");
+            $.ajax({
+                url: '/scrap/server-status-history',
+                type: 'GET',
+                data: {date: date},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Server status history");
+                model.find(".modal-body").html(response);
+                model.modal("show");
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+
+        
 
         $(document).on("click",".get-tasks-remote",function (e){
             e.preventDefault();
