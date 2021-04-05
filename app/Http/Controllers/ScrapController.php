@@ -1864,6 +1864,7 @@ class ScrapController extends Controller
         }
 
         $media = MediaUploader::fromSource($request->file('screenshot'))
+            ->useFilename(uniqid(true))
             ->toDirectory('scraper-screenshot/' . floor($scraper->id / config('constants.image_per_folder')))
             ->upload();
 
