@@ -46,11 +46,11 @@
                             <div class="row">
                                 <div class="col-md-12 form-inline cls_remove_rightpadding">
                                     <div class="row cls_textarea_subbox">
-                                        <div class="col-md-8 cls_remove_rightpadding">
+                                        <div class="col-md-7 cls_remove_rightpadding">
                                             <textarea rows="1" cols="25" class="form-control quick-message-field cls_quick_message" id="messageid_{{ $developerTask->id }}" name="message" placeholder="Message"></textarea>
                                             <div    id="message-chat-txt-{{ $developerTask->id }}">{{ substr($message,0,15) }}</div>
                                         </div>
-                                        <div class="col-md-1 cls_remove_allpadding">
+                                        <div class="col-md-5 cls_remove_allpadding">
                                             <?php echo Form::select("send_message_".$developerTask->id,[
                                                   "to_developer" => "Send To Developer",
                                                   "to_master" => "Send To Master Developer",

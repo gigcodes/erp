@@ -59,78 +59,78 @@
     <?php $excelOnly = request()->get('excelOnly', ''); ?>
     <form class="" action="/scrap/statistics">
         <div class="row">
-            <div class="form-group mb-3 col-md-3">
+            <div class="form-group mb-3 col-md-2">
                 <input name="term" type="text" class="form-control" id="product-search" value="{{ request()->get('term','') }}" placeholder="Enter Supplier name">
             </div>
-            <div class="form-group mb-3 col-md-3">
+            <div class="form-group mb-3 col-md-2">
                 <?php echo Form::select("scraper_made_by", ['' => '-- Select Made By --'] + \App\User::all()->pluck("name", "id")->toArray(), request("scraper_made_by"), ["class" => "form-control select2"]) ?>
             </div>
-            <div class="form-group mb-3 col-md-3">
+            <div class="form-group mb-3 col-md-2">
                 <?php echo Form::select("scraper_type", ['' => '-- Select Type --'] + \App\Helpers\DevelopmentHelper::scrapTypes(), request("scraper_type"), ["class" => "form-control select2"]) ?>
             </div>
-        </div>
-        <div class="row">
-            <div class="form-group mb-3 col-md-3">
+            <div class="form-group mb-3 col-md-2">
                 <select name="excelOnly" class="form-control form-group select2">
                     <option <?php echo $excelOnly == '' ? 'selected=selected' : '' ?> value="">All scrapers</option>
                     <option <?php echo $excelOnly == -1 ? 'selected=selected' : '' ?> value="-1">Without Excel</option>
                     <option <?php echo $excelOnly == 1 ? 'selected=selected' : '' ?> value="1">Excel only</option>
                 </select>
             </div>
-            <div class="form-group mb-3 col-md-3">
+            <div class="form-group mb-3 col-md-2">
                 <select name="scrapers_status" class="form-control form-group">
                     @foreach(\App\Scraper::STATUS as $k => $v)
                         <option <?php echo request()->get('scrapers_status','') == $k ? 'selected=selected' : '' ?> value="<?php echo $k; ?>"><?php echo $v; ?></option>
                     @endforeach
                 </select>
             </div>
-            <div class="form-group mr-3 mb-3 col-md-3">
+            <div class="form-group mb-3 col-md-2">
                 <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
             </div>
         </div>
     </form>
     <div class="row">
-        <div class="col col-md-7">
+        <div class="col col-md-12">
             @foreach(\App\Scraper::STATUS as $k => $v)
-                <div class="col-md-4">
+                <div class="col-md-2">
                     Status {{$v}} count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', $v)->where('supplier_status_id', 1)->count()}}
                 </div>
             @endforeach
         </div>    
-        <div class="col col-md-5">
+    </div><br>
+    <div class="row">
+        <div class="col col-md-12">
             <div class="row">
-                <div class="col-md-4 mt-1">
+                <div class="col-md-2 mt-1">
                     <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addChildScraper">
                       <span class="glyphicon glyphicon-th-plus"></span> Add Child Scraper
                     </button>
                 </div>
-                <div class="col-md-4 mt-1">
+                <div class="col-md-2 mt-1">
                     <button type="button" class="btn btn-default btn-sm add-remark" data-toggle="modal" data-target="#addRemarkModal">
                       <span class="glyphicon glyphicon-th-plus"></span> Add Note
                     </button>
                 </div>
-                <div class="col-md-4 mt-1">
+                <div class="col-md-2 mt-1">
                     <a href="{{ route('scrap.auto-restart') }}?status=on">
                         <button type="button" class="btn btn-default btn-sm auto-restart-all">
                             <span class="glyphicon glyphicon-th-list"></span> Auto Restart On
                         </button>
                     </a>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-md-4 mt-1">
+            {{-- </div>
+            <div class="row"> --}}
+                <div class="col-md-2 mt-1">
                     <button type="button" class="btn btn-default btn-sm get-latest-remark">
                       <span class="glyphicon glyphicon-th-list"></span> Latest Remarks
                     </button>
                 </div>
-                <div class="col-md-4 mt-1">
+                <div class="col-md-2 mt-1">
                     <a href="{{ route('scrap.latest-remark') }}?download=true">
                         <button type="button" class="btn btn-default btn-sm download-latest-remark">
                           <span class="glyphicon glyphicon-th-list"></span> Download Latest Remarks
                         </button>
                     </a>
                 </div>
-                <div class="col-md-4 mt-1">
+                <div class="col-md-2 mt-1">
                     <a href="{{ route('scrap.auto-restart') }}?status=off">
                         <button type="button" class="btn btn-default btn-sm auto-restart-all">
                             <span class="glyphicon glyphicon-th-list"></span> Auto Restart Off
@@ -140,6 +140,7 @@
             </div>
          </div>   
    </div>
+   <br>
    <div class="row no-gutters mt-3">
         <div class="col-md-12">
             <table class="table table-bordered table-striped sort-priority-scrapper">
@@ -171,11 +172,12 @@
                         <th>Supplier</th>
                         <!-- <th>Server</th> -->
                         <th>Server ID</th>
+                        <th>Auto Restart</th>
                         <th>Run Time</th>
                         <th>Start Scrap</th>
                         <th>Stock</th>
                         <th>URL Count</th>
-                        <th>Yesterday New</th>
+                        <th>YDay New</th>
                         <!-- <th>Errors</th>
                         <th>Warnings</th> -->
                         <th>URL Count Scraper</th>
@@ -187,6 +189,9 @@
                         <th>Next Step</th> -->
                         <th>Status</th>
                         <th>Remarks</th>
+                        {{-- <th>Devtask</th>
+                        <th>Logs</th> --}}
+                        <th>Full scrap</th>
                         <th>Functions</th>
                     </tr>
                     </thead>
@@ -228,8 +233,8 @@
                                 $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$supplier->scraper_name)->whereNull("scrap_field")->where('user_name','!=','')->orderBy('created_at','desc')->first();
                                 $chatMessage = $supplier->latestMessage();
                             @endphp
-                            <td width="1%">{{ ++$i }} <br>@if($supplier->getChildrenScraperCount($supplier->scraper_name) != 0) <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-link"><i class="fa fa-caret-down" style="font-size:24px"></i>  </button> @endif</td>
-                            <td width="8%"><a href="/supplier/{{$supplier->id}}">{{ ucwords(strtolower($supplier->supplier)) }}<br>{{ \App\Helpers\ProductHelper::getScraperIcon($supplier->scraper_name) }}</a>
+                            <td width="1%">{{ ++$i }}&nbsp; @if($supplier->getChildrenScraperCount($supplier->scraper_name) != 0) <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-link"><i class="fa fa-caret-down" style="font-size:24px"></i>  </button> @endif</td>
+                            <td width="8%"><a href="/supplier/{{$supplier->id}}">{{ ucwords(strtolower($supplier->supplier)) }}&nbsp; {{ \App\Helpers\ProductHelper::getScraperIcon($supplier->scraper_name) }}</a>
                                 @if(substr(strtolower($supplier->supplier), 0, 6)  == 'excel_')
                                     &nbsp;<i class="fa fa-file-excel-o" aria-hidden="true"></i>
                                 @endif
@@ -241,9 +246,9 @@
                                 <?php } ?>
                             </td>
                             <!-- <td width="10%">{{ !empty($data) ? $data->ip_address : '' }}</td> -->
-                            <td width="5%">
+                            <td width="8%">
                                 <div class="form-group">
-                                        <select style="width:80% !important;" name="server_id" class="form-control select2 scraper_field_change" data-id="{{$supplier->scrapper_id}}" data-field="server_id">
+                                        <select style="width:60% !important;" name="server_id" class="form-control select2 scraper_field_change" data-id="{{$supplier->scrapper_id}}" data-field="server_id">
                                             <option value="">Select</option>
                                             @foreach($serverIds as $serverId)
                                             <option value="{{$serverId}}" {{$supplier->server_id == $serverId ? 'selected' : ''}}>{{$serverId}}</option>
@@ -251,13 +256,16 @@
                                         </select>
                                         <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="server_id" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
                                 </div>
+                            </td>
+                            <td width="4%">
                                 <div class="form-group">
-                                    <?php echo Form::select("auto_restart",[0 => "Auto Restart - Off", 1 => "Auto Restart - On"], $supplier->auto_restart, ["class" => "form-control auto_restart select2", "style" => "width:100%;"]); ?>
+                                    <?php echo Form::select("auto_restart",[0 => "Off", 1 => "On"], $supplier->auto_restart, ["class" => "form-control auto_restart select2", "style" => "width:100%;"]); ?>
                                 </div>
                             </td>
-                            <td width="3%" style="text-right">
+
+                            <td width="7%" style="text-right">
                                 <div class="form-group">
-                                        <select style="width:85% !important;display:inline;" name="scraper_start_time" class="form-control scraper_field_change select2" data-id="{{$supplier->scrapper_id}}" data-field="scraper_start_time">
+                                        <select style="width:70% !important;display:inline;" name="scraper_start_time" class="form-control scraper_field_change select2" data-id="{{$supplier->scrapper_id}}" data-field="scraper_start_time">
                                         <option value="">Select</option>
                                         @for($i=1; $i<=24;$i++)
                                         <option value="{{$i}}" {{$supplier->scraper_start_time == $i ? 'selected' : ''}}>{{$i}} h</option>
@@ -293,8 +301,8 @@
                             <td width="10%">
                                 {{ isset(\App\Helpers\StatusHelper::getStatus()[$supplier->next_step_in_product_flow]) ? \App\Helpers\StatusHelper::getStatus()[$supplier->next_step_in_product_flow] : "N/A" }}
                             </td> -->
-                            <td width="5%">
-                                <div class="form-group">
+                            <td width="8%">
+                                <div class="form-group" style="display: inline">
                                     <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->scrapers_status, ["class" => "form-control scrapers_status select2", "style" => "width:100%;"]); ?>
                                     <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="status" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
                                 </div>
@@ -303,7 +311,7 @@
                                 @endphp
                                 {{ ($hasTask) ? "Task-Available" : "No-Task" }}
                             </td>
-                            <td width="15%">
+                            <td width="25%">
                                 <span class="toggle-title-box has-small" data-small-title="<?php echo ($remark) ? substr($remark->remark, 0, 40) : '' ?>" data-full-title="<?php echo ($remark) ? $remark->remark : '' ?>">
                                     <?php
                                         if($remark) {
@@ -312,7 +320,6 @@
                                      ?>
                                  </span>
                                 <button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
-                                <br>
                                 <span class="toggle-title-box has-small" data-small-title="<?php echo ($chatMessage) ? substr($chatMessage->message, 0, 40) : '' ?>" data-full-title="<?php echo ($chatMessage) ? $chatMessage->message : '' ?>">
                                     <?php
                                         if($chatMessage) {
@@ -326,7 +333,16 @@
                                     }
                                  ?>
                             </td>
-                            <td width="10%">
+                            {{-- <td width="8%">
+                            </td>
+                            <td width="8%">
+                            </td> --}}
+                            <td width="5%">
+                                <div class="form-group">
+                                    <?php echo Form::select("full_scrape",[0 => "No", 1 => "Yes"], $supplier->full_scrape, ["class" => "form-control full_scrape select2", "style" => "width:100%;"]); ?>
+                                </div>
+                            </td>
+                            <td width="14%">
                                 <button style="padding:3px;" type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}"><img width="2px;" src="/images/forward.png"/></button>
                                 <a style="padding:3px;" class="btn  d-inline btn-image" href="{{ get_server_last_log_file($supplier->scraper_name,$supplier->server_id) }}" id="link" target="-blank"><img src="/images/view.png" /></a>
                                 <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="restartScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )"><img width="2px;" src="/images/resend2.png"/></button>
@@ -413,12 +429,7 @@
                                         <button class="btn btn-sm btn-image server-id-update-btn" data-vendorid="<?php echo $supplier->id; ?>"><img src="/images/filled-sent.png" style="cursor: default;"></button>
                                     </div>
                                 </td>
-                                <td colspan="2">
-                                    <label>Full scrap:</label>
-                                    <div class="form-group">
-                                        <?php echo Form::select("full_scrape",[0 => "No", 1 => "Yes"], $supplier->full_scrape, ["class" => "form-control full_scrape select2", "style" => "width:100%;"]); ?>
-                                    </div>
-                                </td>
+                               
                             </tr>
                             @if($supplier->getChildrenScraper($supplier->scraper_name))
                                 @if(count($supplier->getChildrenScraper($supplier->scraper_name)) != 0)
@@ -497,12 +508,12 @@
                                     <td width="3%">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
                                     <?php $totalCountedUrl += !empty($data) ? $data->total : 0; ?>
                                     <td width="3%">{{ !empty($data) ? $data->total : '' }}</td>
-                                    <td width="3%">{{ !empty($data) ? $data->errors : '' }}</td>
-                                    <td width="3%">{{ !empty($data) ? $data->warnings : '' }}</td>
+                                    {{-- <td width="3%">{{ !empty($data) ? $data->errors : '' }}</td>
+                                    <td width="3%">{{ !empty($data) ? $data->warnings : '' }}</td> --}}
                                     <td width="3%">{{ $childSupplier->scraper_total_urls }}</td>
                                     <td width="3%">{{ $childSupplier->scraper_existing_urls }}</td>
                                     <td width="3%">{{  $childSupplier->scraper_new_urls }}</td>
-                                    <td width="10%">
+                                    <td width="6%">
                                         {{ !empty($childSupplier->scrapers_status) ? $childSupplier->scrapers_status : "N/A" }}
                                     </td>
                                     <td width="10%">
@@ -573,12 +584,7 @@
                                                 <button class="btn btn-sm btn-image server-id-update-btn" data-vendorid="<?php echo $childSupplier->id; ?>"><img src="/images/filled-sent.png" style="cursor: default;"></button>
                                             </div>
                                         </td>
-                                        <td colspan="2">
-                                            <label>Full scrap:</label>
-                                            <div class="form-group">
-                                                <?php echo Form::select("full_scrape",[0 => "No", 1 => "Yes"], $childSupplier->full_scrape, ["class" => "form-control full_scrape", "style" => "width:100%;"]); ?>
-                                            </div>
-                                        </td>
+                                        
                                      </tr>
                                     @endforeach
                                    
