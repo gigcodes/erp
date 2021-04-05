@@ -172,6 +172,7 @@
                         <th>Start Scrap</th>
                         <th>Stock</th>
                         <th>URL Count</th>
+                        <th>Yesterday New</th>
                         <!-- <th>Errors</th>
                         <th>Warnings</th> -->
                         <th>URL Count Scraper</th>
@@ -273,6 +274,7 @@
                             <td width="3%">{{ !empty($data) ? $data->total : '' }}</td>
                             <!-- <td width="3%">{{ !empty($data) ? $data->errors : '' }}</td>
                             <td width="3%">{{ !empty($data) ? $data->warnings : '' }}</td> -->
+                            <td width="3%">{{ !empty($data) ? $data->total_new_product : '' }}</td>
                             <td width="3%">{{ !empty($data) ? $data->scraper_total_urls : '' }}</td>
                             <td width="3%">{{ !empty($data) ? $data->scraper_existing_urls : '' }}</td>
                             <td width="3%">{{ !empty($data) ? $data->scraper_new_urls : '' }}</td>
@@ -341,17 +343,22 @@
                                      <i class="fa fa-address-card"></i>
                                 </button>
                                 <button style="padding-right:0px;" type="button" class="btn btn-image d-inline show-history" data-field="update-restart-time" data-id="{{ $supplier->scrapper_id }}"><i class="fa fa-clock-o"></i></button>
+                                <button style="padding-right:0px;" type="button" class="btn btn-image d-inline get-scraper-server-timing" data-name="{{ $supplier->scraper_name }}"><i class="fa fa-info-circle"></i></button>
                                 @if($isAdmin)
-                                    @if ($supplier->flag == 1)
-                                        <button type="button" class="btn btn-image flag-scraper" data-flag="0" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
-                                    @else
-                                        <button type="button" class="btn btn-image flag-scraper" data-flag="1" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
-                                    @endif
-                                    @if ($supplier->developer_flag == 1)
-                                        <button type="button" class="btn btn-image flag-scraper-developer" data-flag="0" data-id="{{ $supplier->id }}"><img src="/images/flagged-green.png" /></button>
-                                    @else
-                                        <button type="button" class="btn btn-image flag-scraper-developer" data-flag="1" data-id="{{ $supplier->id }}"><img src="/images/flagged-yellow.png" /></button>
-                                    @endif
+                                    <div class="flag-scraper-div" style="float: left"> 
+                                        @if ($supplier->flag == 1)
+                                            <button type="button" class="btn btn-image flag-scraper" data-flag="0" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
+                                        @else
+                                            <button type="button" class="btn btn-image flag-scraper" data-flag="1" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
+                                        @endif
+                                    </div>
+                                    <div class="flag-scraper-developer-div" style="float: left"> 
+                                        @if ($supplier->developer_flag == 1)
+                                            <button type="button" class="btn btn-image flag-scraper-developer" data-flag="0" data-id="{{ $supplier->id }}"><img src="/images/flagged-green.png" /></button>
+                                        @else
+                                            <button type="button" class="btn btn-image flag-scraper-developer" data-flag="1" data-id="{{ $supplier->id }}"><img src="/images/flagged-yellow.png" /></button>
+                                        @endif
+                                    </div>
                                 @endif
                             </td>
                             </tr>
@@ -1403,6 +1410,28 @@
             });
         });
 
+        $(document).on("click",".get-scraper-server-timing",function (e){
+            e.preventDefault();
+            var scraper_name = $(this).data("name");
+            $.ajax({
+                url: '/scrap/get-server-scraper-timing',
+                type: 'GET',
+                data: {scraper_name: scraper_name},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Scraper Server History");
+                model.find(".modal-body").html(response);
+                model.modal("show");
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+
 
 
         $(document).on("click",".btn-create-task",function (e){
@@ -1469,9 +1498,9 @@
             }).done(function(response) {
                  $("#loading-image").hide();
                  if(response.data.flag == 1) {
-                    $this.closest("td").append('<button type="button" class="btn btn-image flag-scraper" data-flag="0" data-id="'+response.data.supplier_id+'"><img src="/images/flagged.png" /></button>');
+                    $this.closest(".flag-scraper-div").append('<button type="button" class="btn btn-image flag-scraper" data-flag="0" data-id="'+response.data.supplier_id+'"><img src="/images/flagged.png" /></button>');
                  }else{
-                    $this.closest("td").append('<button type="button" class="btn btn-image flag-scraper" data-flag="1" data-id="'+response.data.supplier_id+'"><img src="/images/unflagged.png" /></button>');
+                    $this.closest(".flag-scraper-div").append('<button type="button" class="btn btn-image flag-scraper" data-flag="1" data-id="'+response.data.supplier_id+'"><img src="/images/unflagged.png" /></button>');
                  }
                  $this.remove();
             }).fail(function() {
@@ -1499,9 +1528,9 @@
             }).done(function(response) {
                  $("#loading-image").hide();
                  if(response.data.developer_flag == 1) {
-                    $this.closest("td").append('<button type="button" class="btn btn-image flag-scraper-developer" data-flag="0" data-id="'+response.data.supplier_id+'"><img src="/images/flagged-green.png" /></button>');
+                    $this.closest(".flag-scraper-developer-div").append('<button type="button" class="btn btn-image flag-scraper-developer" data-flag="0" data-id="'+response.data.supplier_id+'"><img src="/images/flagged-green.png" /></button>');
                  }else{
-                    $this.closest("td").append('<button type="button" class="btn btn-image flag-scraper-developer" data-flag="1" data-id="'+response.data.supplier_id+'"><img src="/images/flagged-yellow.png" /></button>');
+                    $this.closest(".flag-scraper-developer-div").append('<button type="button" class="btn btn-image flag-scraper-developer" data-flag="1" data-id="'+response.data.supplier_id+'"><img src="/images/flagged-yellow.png" /></button>');
                  }
                  $this.remove();
             }).fail(function() {
