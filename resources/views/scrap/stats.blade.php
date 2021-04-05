@@ -189,8 +189,8 @@
                         <th>Next Step</th> -->
                         <th>Status</th>
                         <th>Remarks</th>
-                        <th>Devtask</th>
-                        <th>Logs</th>
+                        {{-- <th>Devtask</th>
+                        <th>Logs</th> --}}
                         <th>Full scrap</th>
                         <th>Functions</th>
                     </tr>
@@ -311,7 +311,7 @@
                                 @endphp
                                 {{ ($hasTask) ? "Task-Available" : "No-Task" }}
                             </td>
-                            <td width="9%">
+                            <td width="25%">
                                 <span class="toggle-title-box has-small" data-small-title="<?php echo ($remark) ? substr($remark->remark, 0, 40) : '' ?>" data-full-title="<?php echo ($remark) ? $remark->remark : '' ?>">
                                     <?php
                                         if($remark) {
@@ -320,9 +320,6 @@
                                      ?>
                                  </span>
                                 <button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
-                                
-                            </td>
-                            <td width="8%">
                                 <span class="toggle-title-box has-small" data-small-title="<?php echo ($chatMessage) ? substr($chatMessage->message, 0, 40) : '' ?>" data-full-title="<?php echo ($chatMessage) ? $chatMessage->message : '' ?>">
                                     <?php
                                         if($chatMessage) {
@@ -336,8 +333,10 @@
                                     }
                                  ?>
                             </td>
-                            <td width="8%">
+                            {{-- <td width="8%">
                             </td>
+                            <td width="8%">
+                            </td> --}}
                             <td width="5%">
                                 <div class="form-group">
                                     <?php echo Form::select("full_scrape",[0 => "No", 1 => "Yes"], $supplier->full_scrape, ["class" => "form-control full_scrape select2", "style" => "width:100%;"]); ?>
