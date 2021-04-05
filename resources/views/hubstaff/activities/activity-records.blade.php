@@ -17,6 +17,7 @@
           <th style="width:20%">Date & time</th>
           <th style="width:15%">Time tracked</th>
           <th style="width:15%">Time Approved</th>
+          <th style="width:15%">Time Pending</th>
           <th style="width:25%">Task</th>
           <th style="width:18%">Efficiency</th>
           <th style="width:18%">Status</th>
@@ -27,6 +28,7 @@
             <td>{{ $record->OnDate }} {{$record->onHour}}:00:00</td>
               <td>{{ number_format($record->total_tracked / 60,2,".",",") }}</td>
               <td>{{ number_format($record->totalApproved / 60,2,".",",") }}</td>
+              <td>{{ number_format($record->totalPending / 60,2,".",",") }}</td>
               <td>
                 <?php $listOFtask = []; ?>
                 @foreach ($record->activities as $a)

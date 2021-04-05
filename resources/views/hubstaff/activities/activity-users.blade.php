@@ -83,6 +83,7 @@
                         @php
                             $totalTracked = 0;
                             $totalApproved = 0;
+                            $totalPending = 0;
                             $totalUserRequested = 0;
                             $totalPaymentPending = 0;
                         @endphp  
@@ -93,6 +94,7 @@
                             @php
                                 $totalTracked +=  $user['total_tracked'];
                                 $totalApproved +=  $user['totalApproved'];
+                                $totalPending +=  $user['totalPending'];
                                 $totalUserRequested +=  $user['totalUserRequest'];
                                 $totalPaymentPending +=  $user['totalNotPaid'];
                             @endphp
@@ -102,18 +104,18 @@
                                         <?php foreach($user['tasks'] as $ut) { ?>
                                             <?php 
                                                 @list($taskid,$devtask) = explode("||",$ut);
-                                                $trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $taskid)->first()->tracked
+                                                $trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $taskid)->first()->tracked;
                                             ?>
                                             <?php if(Auth::user()->isAdmin()) { ?> 
-                                            <a class="show-task-histories " data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}} {{ (isset($trackedTime) && $devtask ) ? '-'.$trackedTime : '' }}</a><br>
+                                                <a class="show-task-histories " data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}} {{ (isset($trackedTime) && $devtask ) ? '-'.$trackedTime.' Min' : '' }}</a><br>
                                             <?php }else{ ?>
-                                                <a class="" data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}} {{ (isset($trackedTime) && $devtask ) ? '-'.$trackedTime : '' }} </a><br>
+                                                <a class="" data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}} {{ (isset($trackedTime) && $devtask ) ? '-'.$trackedTime.' Min' : '' }} </a><br>
                                             <?php } ?>    
                                         <?php } ?>
                                 <?php } ?>
                             </td>
                             <td><span class="replaceme">{{number_format($user['totalApproved'] / 60,2,".",",")}}</span> </td>
-                            <td>{{ ( number_format($user['totalApproved'] / 60,2,".",",") - number_format($user['total_tracked'] / 60,2,".",",")) }}</td>
+                            <td>{{ number_format($user['totalPending'] / 60,2,".",",") }}</td>
                             <td><span>{{number_format($user['totalUserRequest'] / 60,2,".",",")}}</span> </td>
                             <td><span>{{number_format($user['totalNotPaid'] / 60,2,".",",")}}</td>
                             <td>{{$user['status']}}</td>
@@ -142,6 +144,7 @@
                         <th>{{number_format($totalTracked / 60,2,".","")}}</th>
                         <th></th>
                         <th>{{number_format($totalApproved / 60,2,".","")}}</th>
+                        <th>{{number_format($totalPending / 60,2,".","")}}</th>
                         <th>{{number_format($totalUserRequested / 60,2,".","")}}</th>
                         <th>{{number_format($totalPaymentPending / 60,2,".","")}}</th>
                         <th></th>
