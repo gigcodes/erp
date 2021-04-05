@@ -347,6 +347,9 @@
                                 </button>
                                 <button style="padding-right:0px;" type="button" class="btn btn-image d-inline show-history" data-field="update-restart-time" data-id="{{ $supplier->scrapper_id }}"><i class="fa fa-clock-o"></i></button>
                                 <button style="padding-right:0px;" type="button" class="btn btn-image d-inline get-scraper-server-timing" data-name="{{ $supplier->scraper_name }}"><i class="fa fa-info-circle"></i></button>
+                                <button style="padding-right:0px;" type="button" class="btn btn-image d-inline get-last-errors" data-id="{{ $supplier->scrapper_id }}" data-name="{{ $supplier->scraper_name }}">
+                                    <i class="fa fa-list-ol"></i>
+                                </button>
                                 @if($isAdmin)
                                     <div class="flag-scraper-div" style="float: left"> 
                                         @if ($supplier->flag == 1)
@@ -1343,6 +1346,30 @@
                 alert('Please check laravel log for more information')
             });
         });
+
+        $(document).on("click",".get-last-errors",function (e){
+            e.preventDefault();
+            var id = $(this).data("id");
+            $.ajax({
+                url: '/scrap/get-last-errors',
+                type: 'GET',
+                data: {id: id},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Last Errors");
+                model.find(".modal-body").html(response);
+                model.modal("show");
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+
+        
 
         $(document).on("click",".show-scraper-history",function (e){
             e.preventDefault();
