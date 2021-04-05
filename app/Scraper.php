@@ -102,4 +102,13 @@ class Scraper extends Model
     {
         return \App\DeveloperTask::where("scraper_id", $id)->first();
     }
+
+    public function latestMessage()
+    {
+        return self::join("developer_tasks as dt","dt.scraper_id","scrapers.id")
+        ->join("chat_messages as cm","cm.developer_task_id","dt.id")
+        ->whereNotIn('cm.status', ['7', '8', '9', '10'])
+        ->orderBy("cm.id","desc")
+        ->first();
+    }
 }

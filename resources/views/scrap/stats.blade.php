@@ -39,6 +39,11 @@
 @endsection
 
 @section('large_content')
+        @php
+            $user = auth()->user();
+            $isAdmin = $user->isAdmin();
+            $hod = $user->hasRole('HOD of CRM');
+        @endphp
 
     <div class="row mb-5">
         <div class="col-lg-12 margin-tb">
@@ -167,8 +172,8 @@
                         <th>Start Scrap</th>
                         <th>Stock</th>
                         <th>URL Count</th>
-                        <th>Errors</th>
-                        <th>Warnings</th>
+                        <!-- <th>Errors</th>
+                        <th>Warnings</th> -->
                         <th>URL Count Scraper</th>
                         <th>Existing URLs</th>
                         <th>New URLs</th>
@@ -217,6 +222,7 @@
                                 }
 
                                 $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$supplier->scraper_name)->whereNull("scrap_field")->where('user_name','!=','')->orderBy('created_at','desc')->first();
+                                $chatMessage = $supplier->latestMessage();
                             @endphp
                             <td width="1%">{{ ++$i }} <br>@if($supplier->getChildrenScraperCount($supplier->scraper_name) != 0) <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-link"><i class="fa fa-caret-down" style="font-size:24px"></i>  </button> @endif</td>
                             <td width="8%"><a href="/supplier/{{$supplier->id}}">{{ ucwords(strtolower($supplier->supplier)) }}<br>{{ \App\Helpers\ProductHelper::getScraperIcon($supplier->scraper_name) }}</a>
@@ -231,7 +237,7 @@
                                 <?php } ?>
                             </td>
                             <!-- <td width="10%">{{ !empty($data) ? $data->ip_address : '' }}</td> -->
-                            <td width="10%">
+                            <td width="5%">
                                 <div class="form-group">
                                         <select style="width:80% !important;" name="server_id" class="form-control select2 scraper_field_change" data-id="{{$supplier->scrapper_id}}" data-field="server_id">
                                             <option value="">Select</option>
@@ -245,7 +251,7 @@
                                     <?php echo Form::select("auto_restart",[0 => "Auto Restart - Off", 1 => "Auto Restart - On"], $supplier->auto_restart, ["class" => "form-control auto_restart select2", "style" => "width:100%;"]); ?>
                                 </div>
                             </td>
-                            <td width="10%" style="text-right">
+                            <td width="3%" style="text-right">
                                 <div class="form-group">
                                         <select style="width:85% !important;display:inline;" name="scraper_start_time" class="form-control scraper_field_change select2" data-id="{{$supplier->scrapper_id}}" data-field="scraper_start_time">
                                         <option value="">Select</option>
@@ -256,7 +262,7 @@
                                         <button style="padding-right:0px;width:10%;display:inline-block;" type="button" class="btn btn-xs show-history" title="Show History" data-field="scraper_start_time" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
                                 </div>
                             </td>
-                            <td width="10%" data-start-time="@if($supplier->last_started_at){{$supplier->last_started_at }}@endif" data-end-time="@if($supplier->last_completed_at){{$supplier->last_completed_at }}@endif" class="show-scraper-detail">
+                            <td width="5%" data-start-time="@if($supplier->last_started_at){{$supplier->last_started_at }}@endif" data-end-time="@if($supplier->last_completed_at){{$supplier->last_completed_at }}@endif" class="show-scraper-detail">
                                 @if(isset($supplier->scraper_name) && !empty($supplier->scraper_name) &&  isset($lastRunAt[$supplier->scraper_name]))
                                     {!! str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($lastRunAt[$supplier->scraper_name]))) !!}
                                     <br/>
@@ -265,8 +271,8 @@
                             <td width="3%">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
                             <?php $totalCountedUrl += !empty($data) ? $data->total : 0; ?>
                             <td width="3%">{{ !empty($data) ? $data->total : '' }}</td>
-                            <td width="3%">{{ !empty($data) ? $data->errors : '' }}</td>
-                            <td width="3%">{{ !empty($data) ? $data->warnings : '' }}</td>
+                            <!-- <td width="3%">{{ !empty($data) ? $data->errors : '' }}</td>
+                            <td width="3%">{{ !empty($data) ? $data->warnings : '' }}</td> -->
                             <td width="3%">{{ !empty($data) ? $data->scraper_total_urls : '' }}</td>
                             <td width="3%">{{ !empty($data) ? $data->scraper_existing_urls : '' }}</td>
                             <td width="3%">{{ !empty($data) ? $data->scraper_new_urls : '' }}</td>
@@ -282,7 +288,7 @@
                             <td width="10%">
                                 {{ isset(\App\Helpers\StatusHelper::getStatus()[$supplier->next_step_in_product_flow]) ? \App\Helpers\StatusHelper::getStatus()[$supplier->next_step_in_product_flow] : "N/A" }}
                             </td> -->
-                            <td width="10%">
+                            <td width="5%">
                                 <div class="form-group">
                                     <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->scrapers_status, ["class" => "form-control scrapers_status select2", "style" => "width:100%;"]); ?>
                                     <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="status" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
@@ -292,15 +298,30 @@
                                 @endphp
                                 {{ ($hasTask) ? "Task-Available" : "No-Task" }}
                             </td>
-                            <td width="10%">
-                                <?php
-                                    if($remark) {
-                                        echo (strlen($remark->remark) > 15) ? substr($remark->remark, 0, 15).".." : $remark->remark;
+                            <td width="15%">
+                                <span class="toggle-title-box has-small" data-small-title="<?php echo ($remark) ? substr($remark->remark, 0, 40) : '' ?>" data-full-title="<?php echo ($remark) ? $remark->remark : '' ?>">
+                                    <?php
+                                        if($remark) {
+                                            echo (strlen($remark->remark) > 35) ? substr($remark->remark, 0, 40).".." : $remark->remark;
+                                        }
+                                     ?>
+                                 </span>
+                                <button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
+                                <br>
+                                <span class="toggle-title-box has-small" data-small-title="<?php echo ($chatMessage) ? substr($chatMessage->message, 0, 40) : '' ?>" data-full-title="<?php echo ($chatMessage) ? $chatMessage->message : '' ?>">
+                                    <?php
+                                        if($chatMessage) {
+                                            echo (strlen($chatMessage->message) > 35) ? substr($chatMessage->message, 0, 40).".." : $chatMessage->message;
+                                        }
+                                     ?>
+                                 </span>
+                                 <?php 
+                                    if($chatMessage) {
+                                        echo '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="'.$isAdmin.'" data-is_hod_crm="'.$hod.'" data-object="developer_task" data-id="'.$chatMessage->developer_task_id.'" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>';
                                     }
                                  ?>
-                                <button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
                             </td>
-                            <td width="15%">
+                            <td width="10%">
                                 <button style="padding:3px;" type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}"><img width="2px;" src="/images/forward.png"/></button>
                                 <a style="padding:3px;" class="btn  d-inline btn-image" href="{{ get_server_last_log_file($supplier->scraper_name,$supplier->server_id) }}" id="link" target="-blank"><img src="/images/view.png" /></a>
                                 <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="restartScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )"><img width="2px;" src="/images/resend2.png"/></button>
@@ -320,15 +341,17 @@
                                      <i class="fa fa-address-card"></i>
                                 </button>
                                 <button style="padding-right:0px;" type="button" class="btn btn-image d-inline show-history" data-field="update-restart-time" data-id="{{ $supplier->scrapper_id }}"><i class="fa fa-clock-o"></i></button>
-                                @if ($supplier->flag == 1)
-                                    <button type="button" class="btn btn-image flag-scraper" data-flag="0" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
-                                @else
-                                    <button type="button" class="btn btn-image flag-scraper" data-flag="1" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
-                                @endif
-                                @if ($supplier->developer_flag == 1)
-                                    <button type="button" class="btn btn-image flag-scraper-developer" data-flag="0" data-id="{{ $supplier->id }}"><img src="/images/flagged-green.png" /></button>
-                                @else
-                                    <button type="button" class="btn btn-image flag-scraper-developer" data-flag="1" data-id="{{ $supplier->id }}"><img src="/images/flagged-yellow.png" /></button>
+                                @if($isAdmin)
+                                    @if ($supplier->flag == 1)
+                                        <button type="button" class="btn btn-image flag-scraper" data-flag="0" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
+                                    @else
+                                        <button type="button" class="btn btn-image flag-scraper" data-flag="1" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
+                                    @endif
+                                    @if ($supplier->developer_flag == 1)
+                                        <button type="button" class="btn btn-image flag-scraper-developer" data-flag="0" data-id="{{ $supplier->id }}"><img src="/images/flagged-green.png" /></button>
+                                    @else
+                                        <button type="button" class="btn btn-image flag-scraper-developer" data-flag="1" data-id="{{ $supplier->id }}"><img src="/images/flagged-yellow.png" /></button>
+                                    @endif
                                 @endif
                             </td>
                             </tr>
@@ -1488,12 +1511,6 @@
         });
 
 
-        
-
-
-        
-
-
         $(document).on('click', '.send-message1', function () {
             var thiss = $(this);
             var data = new FormData();
@@ -1533,6 +1550,17 @@
                 }
             } else {
                 alert('Please enter a message first');
+            }
+        });
+
+        $(document).on("click",".toggle-title-box",function(ele) {
+            var $this = $(this);
+            if($this.hasClass("has-small")){
+                $this.html($this.data("full-title"));
+                $this.removeClass("has-small")
+            }else{
+                $this.addClass("has-small")
+                $this.html($this.data("small-title"));
             }
         });
 

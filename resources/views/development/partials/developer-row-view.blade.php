@@ -161,8 +161,8 @@
         @endif
     </td>
     <td>
-    @if (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0)
-    Developer : {{ formatDuration($issue->timeSpent->tracked) }}
+        @if (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0)
+        Developer : {{ formatDuration($issue->timeSpent->tracked) }}
         <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
         @endif
 
