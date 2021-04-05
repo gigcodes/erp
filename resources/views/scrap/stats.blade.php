@@ -300,7 +300,7 @@
                                  ?>
                                 <button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
                             </td>
-                            <td width="10%">
+                            <td width="15%">
                                 <button style="padding:3px;" type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}"><img width="2px;" src="/images/forward.png"/></button>
                                 <a style="padding:3px;" class="btn  d-inline btn-image" href="{{ get_server_last_log_file($supplier->scraper_name,$supplier->server_id) }}" id="link" target="-blank"><img src="/images/view.png" /></a>
                                 <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="restartScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )"><img width="2px;" src="/images/resend2.png"/></button>
@@ -324,6 +324,11 @@
                                     <button type="button" class="btn btn-image flag-scraper" data-flag="0" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
                                 @else
                                     <button type="button" class="btn btn-image flag-scraper" data-flag="1" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
+                                @endif
+                                @if ($supplier->developer_flag == 1)
+                                    <button type="button" class="btn btn-image flag-scraper-developer" data-flag="0" data-id="{{ $supplier->id }}"><img src="/images/flagged-green.png" /></button>
+                                @else
+                                    <button type="button" class="btn btn-image flag-scraper-developer" data-flag="1" data-id="{{ $supplier->id }}"><img src="/images/flagged-yellow.png" /></button>
                                 @endif
                             </td>
                             </tr>
@@ -1451,6 +1456,39 @@
                 alert('Please check laravel log for more information')
             });
         });
+
+        $(document).on("click",".flag-scraper-developer",function (e){
+            e.preventDefault();
+            var flag = $(this).data("flag");
+            var id = $(this).data("id");
+            var $this =  $(this);
+            $.ajax({
+                url: "/scrap/statistics/update-field",
+                type: 'GET',
+                data: {
+                    search: id,
+                    field: "developer_flag",
+                    field_value: flag
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                 $("#loading-image").hide();
+                 if(response.data.developer_flag == 1) {
+                    $this.closest("td").append('<button type="button" class="btn btn-image flag-scraper-developer" data-flag="0" data-id="'+response.data.supplier_id+'"><img src="/images/flagged-green.png" /></button>');
+                 }else{
+                    $this.closest("td").append('<button type="button" class="btn btn-image flag-scraper-developer" data-flag="1" data-id="'+response.data.supplier_id+'"><img src="/images/flagged-yellow.png" /></button>');
+                 }
+                 $this.remove();
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+
+
+        
 
 
         
