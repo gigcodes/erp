@@ -35,6 +35,9 @@
             background: black;
             color: #fff;
         }
+        .modal-lg{
+            max-width: 1500px !important; 
+        }
     </style>
 @endsection
 
@@ -1548,6 +1551,7 @@
             data.append("issue_id", task);
             data.append("message", message);
             data.append("status", 1);
+            data.append("sendTo", $(".send-message-number-"+task).val());
 
             if (message.length > 0) {
                 if (!$(this).is(':disabled')) {

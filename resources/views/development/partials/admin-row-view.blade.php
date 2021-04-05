@@ -43,7 +43,8 @@
                         "to_master" => "Send To Master Developer",
                         "to_team_lead" => "Send To Team Lead",
                         "to_tester" => "Send To Tester"
-                    ],null,["class" => "form-control send-message-number", "style" => "width:30% !important;display: inline;"]); ?>
+                    ],null,["class" => "form-control send-message-number", "style" => "width:30% !important;display: inline;"]); 
+    ?>
     <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message"  data-id="{{$issue->id}}" ><img src="/images/filled-sent.png"/></button>
 
         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="margin-top:-0%;margin-left: -3%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
