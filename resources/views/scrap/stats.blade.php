@@ -189,8 +189,10 @@
                         <th>Next Step</th> -->
                         <th>Status</th>
                         <th>Remarks</th>
-                        {{-- <th>Devtask</th>
-                        <th>Logs</th> --}}
+                        <?php /*
+                        <th>Devtask</th>
+                        <th>Logs</th>
+                        */ ?>
                         <th>Full scrap</th>
                         <th>Functions</th>
                     </tr>
@@ -333,10 +335,26 @@
                                     }
                                  ?>
                             </td>
-                            {{-- <td width="8%">
+                            <?php /*
+                            <td width="8%">
+                                
                             </td>
                             <td width="8%">
-                            </td> --}}
+                                <?php
+                                    $log = $supplier->latestLog();
+                                    if(!empty($latestLog)) {
+
+                                    }
+                                ?>
+                                <span class="toggle-title-box has-small" data-small-title="<?php echo ($log) ? substr($log->remark, 0, 40) : '' ?>" data-full-title="<?php echo ($log) ? $chatMessage->remark : '' ?>">
+                                    <?php
+                                        if($log) {
+                                            echo (strlen($log->remark) > 35) ? substr($log->remark, 0, 40).".." : $log->remark;
+                                        }
+                                     ?>
+                                 </span>
+                            </td>
+                            */ ?>
                             <td width="5%">
                                 <div class="form-group">
                                     <?php echo Form::select("full_scrape",[0 => "No", 1 => "Yes"], $supplier->full_scrape, ["class" => "form-control full_scrape select2", "style" => "width:100%;"]); ?>
@@ -363,6 +381,9 @@
                                 </button>
                                 <button style="padding-right:0px;" type="button" class="btn btn-image d-inline show-history" data-field="update-restart-time" data-id="{{ $supplier->scrapper_id }}"><i class="fa fa-clock-o"></i></button>
                                 <button style="padding-right:0px;" type="button" class="btn btn-image d-inline get-scraper-server-timing" data-name="{{ $supplier->scraper_name }}"><i class="fa fa-info-circle"></i></button>
+                                <button style="padding-right:0px;" type="button" class="btn btn-image d-inline get-last-errors" data-id="{{ $supplier->scrapper_id }}" data-name="{{ $supplier->scraper_name }}">
+                                    <i class="fa fa-list-ol"></i>
+                                </button>
                                 @if($isAdmin)
                                     <div class="flag-scraper-div" style="float: left"> 
                                         @if ($supplier->flag == 1)
@@ -1164,6 +1185,10 @@
             var id = tr.data("eleid");
             $("#remark-confirmation-box").modal("show").on("click",".btn-confirm-remark",function() {
                  var remark =  $("#confirmation-remark-note").val();
+                 if($.trim(remark) == "") {
+                    alert("Please Enter remark");
+                    return false;
+                 }
                  $.ajax({
                     type: 'GET',
                     url: '/scrap/statistics/update-field',
@@ -1349,6 +1374,30 @@
                 alert('Please check laravel log for more information')
             });
         });
+
+        $(document).on("click",".get-last-errors",function (e){
+            e.preventDefault();
+            var id = $(this).data("id");
+            $.ajax({
+                url: '/scrap/get-last-errors',
+                type: 'GET',
+                data: {id: id},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Last Errors");
+                model.find(".modal-body").html(response);
+                model.modal("show");
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+
+        
 
         $(document).on("click",".show-scraper-history",function (e){
             e.preventDefault();
