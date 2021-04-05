@@ -189,8 +189,10 @@
                         <th>Next Step</th> -->
                         <th>Status</th>
                         <th>Remarks</th>
-                        {{-- <th>Devtask</th>
-                        <th>Logs</th> --}}
+                        <?php /*
+                        <th>Devtask</th>
+                        <th>Logs</th>
+                        */ ?>
                         <th>Full scrap</th>
                         <th>Functions</th>
                     </tr>
@@ -333,10 +335,26 @@
                                     }
                                  ?>
                             </td>
-                            {{-- <td width="8%">
+                            <?php /*
+                            <td width="8%">
+                                
                             </td>
                             <td width="8%">
-                            </td> --}}
+                                <?php
+                                    $log = $supplier->latestLog();
+                                    if(!empty($latestLog)) {
+
+                                    }
+                                ?>
+                                <span class="toggle-title-box has-small" data-small-title="<?php echo ($log) ? substr($log->remark, 0, 40) : '' ?>" data-full-title="<?php echo ($log) ? $chatMessage->remark : '' ?>">
+                                    <?php
+                                        if($log) {
+                                            echo (strlen($log->remark) > 35) ? substr($log->remark, 0, 40).".." : $log->remark;
+                                        }
+                                     ?>
+                                 </span>
+                            </td>
+                            */ ?>
                             <td width="5%">
                                 <div class="form-group">
                                     <?php echo Form::select("full_scrape",[0 => "No", 1 => "Yes"], $supplier->full_scrape, ["class" => "form-control full_scrape select2", "style" => "width:100%;"]); ?>
@@ -1167,6 +1185,10 @@
             var id = tr.data("eleid");
             $("#remark-confirmation-box").modal("show").on("click",".btn-confirm-remark",function() {
                  var remark =  $("#confirmation-remark-note").val();
+                 if($.trim(remark) == "") {
+                    alert("Please Enter remark");
+                    return false;
+                 }
                  $.ajax({
                     type: 'GET',
                     url: '/scrap/statistics/update-field',

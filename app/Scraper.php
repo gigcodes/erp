@@ -111,4 +111,10 @@ class Scraper extends Model
         ->orderBy("cm.id","desc")
         ->first();
     }
+
+    public function latestLog()
+    {
+        return \App\ScrapRemark::where("scraper_name",$this->scraper_name)->where("scrap_field", 'last_line_error')->latest()->first();
+    }
+
 }
