@@ -620,7 +620,7 @@ class ScrapStatisticsController extends Controller
             $requestData->request->add([
                 'priority'    => 1,
                 'issue'       => $request->task_description,
-                'status'      => 'Planned',
+                'status'      => 'In Progress',
                 'module'      => 'Scraper',
                 'subject'     => $scraper->scraper_name." - ".$request->task_subject,
                 'assigned_to' => $request->get('assigned_to'),
