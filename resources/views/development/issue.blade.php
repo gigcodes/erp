@@ -680,9 +680,8 @@
                 url: "{{ route('development/time/history') }}",
                 data: {id: issueId},
                 success: function (data) {
-                    
                     if(data != 'error') {
-                        $("#developer_task_id").val(issueId);
+                        $('input[name="developer_task_id"]').val(issueId);
                         $.each(data, function(i, item) {
                             if(item['is_approved'] == 1) {
                                 var checked = 'checked';
@@ -779,7 +778,7 @@
                     toastr['success']('Successfully approved', 'success');
                     $('#time_history_modal').modal('hide');
                 },
-                error: function () {
+                error: function (error) {
                     toastr["error"](error.responseJSON.message);
                 }
             });

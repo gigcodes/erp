@@ -1119,7 +1119,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
     Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
-    Route::post('development/time/history/approve', 'DevelopmentController@approveTimeHistory')->name('development/time/history/approve');
+    //Route::post('development/time/history/approve', 'DevelopmentController@approveTimeHistory')->name('development/time/history/approve');
     Route::post('development/time/history/approve', 'DevelopmentController@approveTimeHistory')->name('development/time/history/approve');
     Route::post('development/date/history/approve', 'DevelopmentController@approveDateHistory')->name('development/date/history/approve');
     Route::post('development/lead/time/history/approve', 'DevelopmentController@approveLeadTimeHistory')->name('development/lead/time/history/approve');
