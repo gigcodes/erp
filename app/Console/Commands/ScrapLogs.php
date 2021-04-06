@@ -62,7 +62,7 @@ class ScrapLogs extends Command
                 $file = file($file_path_new);
 
                 $log_msg = "";
-                for ($i = max(0, 0); $i < count($file); $i++) {
+                for ($i = max(0, count($file)-100); $i < count($file); $i++) {
                   $log_msg.=$file[$i];
                 }
                 if($log_msg == "")
