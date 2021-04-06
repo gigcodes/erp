@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use App\Email;
 use App\ScrapRemark;
+use App\CronJobReport;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 
