@@ -38,6 +38,12 @@
         .modal-lg{
             max-width: 1500px !important; 
         }
+
+        .remark-width{
+            white-space: nowrap;
+            overflow-x: auto;
+            max-width: 20px;
+        }
     </style>
 @endsection
 
@@ -165,7 +171,7 @@
     <div class="row no-gutters mt-3">
         <div class="col-md-12" id="plannerColumn">
             <div class="">
-                <table class="table table-bordered table-striped sort-priority-scrapper">
+                <table class="table table-bordered table-striped sort-priority-scrapper table-responsive">
                     <thead>
                     <tr>
                         <th>#</th>
@@ -180,7 +186,7 @@
                         <th>YDay New</th>
                         <!-- <th>Errors</th>
                         <th>Warnings</th> -->
-                        <th>URL Count Scraper</th>
+                        <th>URL Count Scrap</th>
                         <th>Existing URLs</th>
                         <th>New URLs</th>
                         <!-- <th>Made By</th>
@@ -236,7 +242,7 @@
                                 $chatMessage = $supplier->latestMessage();
                             @endphp
                             <td width="1%">{{ ++$i }}&nbsp; @if($supplier->getChildrenScraperCount($supplier->scraper_name) != 0) <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-link"><i class="fa fa-caret-down" style="font-size:24px"></i>  </button> @endif</td>
-                            <td width="8%"><a href="/supplier/{{$supplier->id}}">{{ ucwords(strtolower($supplier->supplier)) }}&nbsp; {{ \App\Helpers\ProductHelper::getScraperIcon($supplier->scraper_name) }}</a>
+                            <td width="6%"><a href="/supplier/{{$supplier->id}}">{{ ucwords(strtolower($supplier->supplier)) }}&nbsp; {{ \App\Helpers\ProductHelper::getScraperIcon($supplier->scraper_name) }}</a>
                                 @if(substr(strtolower($supplier->supplier), 0, 6)  == 'excel_')
                                     &nbsp;<i class="fa fa-file-excel-o" aria-hidden="true"></i>
                                 @endif
@@ -248,14 +254,14 @@
                                 <?php } ?>
                             </td>
                             <!-- <td width="10%">{{ !empty($data) ? $data->ip_address : '' }}</td> -->
-                            <td width="8%">
+                            <td width="5%">
                                 <div class="form-group">
-                                        <select style="width:60% !important;" name="server_id" class="form-control select2 scraper_field_change" data-id="{{$supplier->scrapper_id}}" data-field="server_id">
+                                        <select style="width:100% !important;" name="server_id" class="form-control select2 scraper_field_change" data-id="{{$supplier->scrapper_id}}" data-field="server_id">
                                             <option value="">Select</option>
                                             @foreach($serverIds as $serverId)
                                             <option value="{{$serverId}}" {{$supplier->server_id == $serverId ? 'selected' : ''}}>{{$serverId}}</option>
                                             @endforeach
-                                        </select>
+                                        </select><br>
                                         <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="server_id" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
                                 </div>
                             </td>
@@ -265,14 +271,14 @@
                                 </div>
                             </td>
 
-                            <td width="7%" style="text-right">
+                            <td width="5%" style="text-right">
                                 <div class="form-group">
-                                        <select style="width:70% !important;display:inline;" name="scraper_start_time" class="form-control scraper_field_change select2" data-id="{{$supplier->scrapper_id}}" data-field="scraper_start_time">
+                                        <select style="width:100% !important;display:inline;" name="scraper_start_time" class="form-control scraper_field_change select2" data-id="{{$supplier->scrapper_id}}" data-field="scraper_start_time">
                                         <option value="">Select</option>
                                         @for($i=1; $i<=24;$i++)
                                         <option value="{{$i}}" {{$supplier->scraper_start_time == $i ? 'selected' : ''}}>{{$i}} h</option>
                                         @endfor
-                                        </select>
+                                        </select><br>
                                         <button style="padding-right:0px;width:10%;display:inline-block;" type="button" class="btn btn-xs show-history" title="Show History" data-field="scraper_start_time" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
                                 </div>
                             </td>
@@ -288,7 +294,7 @@
                             <!-- <td width="3%">{{ !empty($data) ? $data->errors : '' }}</td>
                             <td width="3%">{{ !empty($data) ? $data->warnings : '' }}</td> -->
                             <td width="3%">{{ !empty($data) ? $data->total_new_product : '' }}</td>
-                            <td width="3%">{{ !empty($data) ? $data->scraper_total_urls : '' }}</td>
+                            <td width="2%">{{ !empty($data) ? $data->scraper_total_urls : '' }}</td>
                             <td width="3%">{{ !empty($data) ? $data->scraper_existing_urls : '' }}</td>
                             <td width="3%">{{ !empty($data) ? $data->scraper_new_urls : '' }}</td>
                             <!-- <td width="10%">
@@ -303,8 +309,8 @@
                             <td width="10%">
                                 {{ isset(\App\Helpers\StatusHelper::getStatus()[$supplier->next_step_in_product_flow]) ? \App\Helpers\StatusHelper::getStatus()[$supplier->next_step_in_product_flow] : "N/A" }}
                             </td> -->
-                            <td width="8%">
-                                <div class="form-group" style="display: inline">
+                            <td width="6%">
+                                <div class="form-group" style="display: inline" >
                                     <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->scrapers_status, ["class" => "form-control scrapers_status select2", "style" => "width:100%;"]); ?>
                                     <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="status" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
                                 </div>
@@ -313,19 +319,20 @@
                                 @endphp
                                 {{ ($hasTask) ? "Task-Available" : "No-Task" }}
                             </td>
-                            <td width="25%">
-                                <span class="toggle-title-box has-small" data-small-title="<?php echo ($remark) ? substr($remark->remark, 0, 40) : '' ?>" data-full-title="<?php echo ($remark) ? $remark->remark : '' ?>">
+                            <td width="0%" class="" style="font-size: 12px">
+                                <span class="toggle-title-box has-small " data-small-title="<?php echo ($remark) ? substr($remark->remark, 0, 20) : '' ?>" data-full-title="<?php echo ($remark) ? $remark->remark : '' ?>">
                                     <?php
                                         if($remark) {
-                                            echo (strlen($remark->remark) > 35) ? substr($remark->remark, 0, 40).".." : $remark->remark;
+                                            echo (strlen($remark->remark) > 35) ? substr($remark->remark, 0, 20).".." : $remark->remark;
                                         }
                                      ?>
                                  </span>
-                                <button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
-                                <span class="toggle-title-box has-small" data-small-title="<?php echo ($chatMessage) ? substr($chatMessage->message, 0, 40) : '' ?>" data-full-title="<?php echo ($chatMessage) ? $chatMessage->message : '' ?>">
+                                 <button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
+                                <br>
+                                <span class="toggle-title-box has-small" data-small-title="<?php echo ($chatMessage) ? substr($chatMessage->message, 0, 20) : '' ?>" data-full-title="<?php echo ($chatMessage) ? $chatMessage->message : '' ?>">
                                     <?php
                                         if($chatMessage) {
-                                            echo (strlen($chatMessage->message) > 35) ? substr($chatMessage->message, 0, 40).".." : $chatMessage->message;
+                                            echo (strlen($chatMessage->message) > 35) ? substr($chatMessage->message, 0, 20).".." : $chatMessage->message;
                                         }
                                      ?>
                                  </span>
