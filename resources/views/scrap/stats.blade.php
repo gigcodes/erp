@@ -328,7 +328,7 @@
                                      ?>
                                  </span>
                                  <button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
-                                <br>
+                                <hr style="margin-top: 0px;margin-bottom: 0px;background-color: #808080;height: 1px;">
                                 <span class="toggle-title-box has-small" data-small-title="<?php echo ($chatMessage) ? substr($chatMessage->message, 0, 20) : '' ?>" data-full-title="<?php echo ($chatMessage) ? $chatMessage->message : '' ?>">
                                     <?php
                                         if($chatMessage) {
@@ -339,8 +339,10 @@
                                  <?php 
                                     if($chatMessage) {
                                         echo '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="'.$isAdmin.'" data-is_hod_crm="'.$hod.'" data-object="developer_task" data-id="'.$chatMessage->developer_task_id.'" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>';
+                                        echo '<hr style="margin-top: 0px;margin-bottom: 0px;background-color: #808080;height: 1px;">';
                                     }
                                  ?>
+                                 
                             </td>
                             <?php /*
                             <td width="8%">
