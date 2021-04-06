@@ -49,7 +49,24 @@
                                         <div class="col-md-7 cls_remove_rightpadding">
                                             <textarea rows="1" cols="25" class="form-control quick-message-field cls_quick_message" id="messageid_{{ $developerTask->id }}" name="message" placeholder="Message"></textarea>
                                             <div    id="message-chat-txt-{{ $developerTask->id }}">{{ substr($message,0,15) }}</div>
+                                            <div class="d-flex">
+                                                <select class="form-control quickComments select2-quick-reply" name="quickComment" style="width: 100%;" >
+                                                    <option  data-vendorid="{{ $developerTask->id }}"  value="">Auto Reply</option>
+                                                    <?php
+                                                    foreach ($replies as $key_r => $value_r) { ?>
+                                                        <option title="<?php echo $value_r;?>" data-developerTask="{{ $developerTask->id }}" value="<?php echo $key_r;?>">
+                                                            <?php
+                                                            $reply_msg = strlen($value_r) > 12 ? substr($value_r, 0, 12) : $value_r;
+                                                            echo $reply_msg;
+                                                            ?>
+                                                        </option>
+                                                    <?php }
+                                                    ?>
+                                                </select>
+                                                <a class="btn btn-image delete_quick_comment-scrapp"><img src="<?php echo url('/');?>/images/delete.png" style="cursor: default; width: 16px;"></a>
+                                            </div>
                                         </div>
+                                        
                                         <div class="col-md-5 cls_remove_allpadding">
                                             <?php echo Form::select("send_message_".$developerTask->id,[
                                                   "to_developer" => "Send To Developer",
@@ -60,6 +77,9 @@
                                             ?>
                                             <button class="btn btn-sm btn-image send-message1" data-task-id="{{ $developerTask->id }}"><img src="/images/filled-sent.png"></button>
                                             <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="1" data-is_hod_crm="" data-object="developer_task" data-id="{{ $developerTask->id }}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
+                                        </div>
+                                        <div class="col-md-4">
+                                            
                                         </div>
                                     </div>
                                 </div>
@@ -74,3 +94,8 @@
            </tbody>
         </table> 
     </div>
+    <script>
+    $(".select2-quick-reply").select2( { tags: true } );
+
+       
+    </script>

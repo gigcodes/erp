@@ -870,6 +870,75 @@
 
         $(".total-info").html("({{$totalCountedUrl}})");
 
+         $(document).on("change", ".quickComments", function (e) {
+            var message = $(this).val();
+            var select = $(this);
+
+            if ($.isNumeric(message) == false) {
+                $.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "/scrap/statistics/reply/add",
+                    dataType: "json",
+                    method: "POST",
+                    data: {reply: message}
+                }).done(function (data) {
+                    var vendors_id =$(select).find("option[value='']").data("vendorid");
+                    var message_re = data.data.reply;
+                    $("textarea#messageid_"+vendors_id).val(message_re);
+
+                    console.log(data)
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });
+            }
+            //$(this).closest("td").find(".quick-message-field").val($(this).find("option:selected").text());
+            var vendors_id =$(select).find("option[value='']").data("vendorid");
+            var message_re = $(this).find("option:selected").html();
+
+            $("textarea#messageid_"+vendors_id).val($.trim(message_re));
+
+        });
+
+        $(document).on("click", ".delete_quick_comment-scrapp", function (e) {
+            var deleteAuto = $(this).closest(".d-flex").find(".quickComments").find("option:selected").val();
+            if (typeof deleteAuto != "undefined") {
+                $.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: BASE_URL+"/scrap/statistics/reply/delete",
+                    dataType: "json",
+                    method: "POST",
+                    data: {id: deleteAuto}
+                }).done(function (data) {
+                    if (data.code == 200) {
+                        // $(".quickComment ")
+                        //     .find('option').not(':first').remove();
+
+                        $(".quickComment").each(function(){
+                        var selecto=  $(this)
+                            $(this).children("option").not(':first').each(function(){
+                            $(this).remove();
+
+
+                            });
+                            $.each(data.data, function (k, v) {
+                                $(selecto).append("<option  value='" + k + "'>" + v + "</option>");
+                            });
+                            $(selecto).select2({tags: true});
+                        });
+
+
+                    }
+
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });
+            }
+        });
+
         $(document).on("click", ".toggle-class", function () {
             $(".hidden_row_" + $(this).data("id")).toggleClass("dis-none");
         });
