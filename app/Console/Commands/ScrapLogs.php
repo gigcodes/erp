@@ -60,8 +60,9 @@ class ScrapLogs extends Command
             if(str_contains(end($day_of_file), $yesterdayDate) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
                 $file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
                 $file = file($file_path_new);
+
                 $log_msg = "";
-                for ($i = max(0, count($file)-3); $i < count($file); $i++) {
+                for ($i = max(0, 0); $i < count($file); $i++) {
                   $log_msg.=$file[$i];
                 }
                 if($log_msg == "")
