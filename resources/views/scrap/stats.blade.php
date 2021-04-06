@@ -1002,7 +1002,7 @@
 
         });
 
-        $(".sort-priority-scrapper").sortable({
+        /*$(".sort-priority-scrapper").sortable({
             items: $(".sort-priority-scrapper").find(".history-item-scrap"),
             start: function (event, ui) {
                 //console.log(ui.item);
@@ -1032,7 +1032,7 @@
                 }).fail(function (response) {
                 });
             }
-        });
+        });*/
 
         $(document).on("click", ".btn-set-priorities", function () {
 
