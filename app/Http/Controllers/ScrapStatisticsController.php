@@ -669,8 +669,9 @@ class ScrapStatisticsController extends Controller
         }
 
         $developerTasks = \App\DeveloperTask::where("scraper_id", $request->id)->latest()->get();
+        $replies = \App\Reply::where("model", "scrap-statistics")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
 
-        return view("scrap.partials.task", compact('developerTasks', 'id'));
+        return view("scrap.partials.task", compact('developerTasks', 'id','replies'));
 
     }
 

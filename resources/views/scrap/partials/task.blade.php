@@ -53,6 +53,7 @@
                                                 <select class="form-control quickComments select2-quick-reply" name="quickComment" style="width: 100%;" >
                                                     <option  data-vendorid="{{ $developerTask->id }}"  value="">Auto Reply</option>
                                                     <?php
+                                                    if(isset($replies)) {
                                                     foreach ($replies as $key_r => $value_r) { ?>
                                                         <option title="<?php echo $value_r;?>" data-developerTask="{{ $developerTask->id }}" value="<?php echo $key_r;?>">
                                                             <?php
@@ -60,7 +61,7 @@
                                                             echo $reply_msg;
                                                             ?>
                                                         </option>
-                                                    <?php }
+                                                    <?php } }
                                                     ?>
                                                 </select>
                                                 <a class="btn btn-image delete_quick_comment-scrapp"><img src="<?php echo url('/');?>/images/delete.png" style="cursor: default; width: 16px;"></a>
