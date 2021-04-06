@@ -201,6 +201,7 @@ class HubstaffActivitiesController extends Controller
             // send hubstaff activities
             $ac            = DB::select(DB::raw("SELECT hubstaff_activities.* FROM hubstaff_activities where DATE(starts_at) = '" . $activity->date . "' and user_id = " . $activity->user_id));
             $totalApproved = 0;
+            $totalPending = 0;
             $isAllSelected = 0;
             $a['tasks']    = [];
             $lsTask        = [];
@@ -220,6 +221,7 @@ class HubstaffActivitiesController extends Controller
                             }
                         }
                     } else {
+                        $tracked = $ar->tracked;
                         $task = DeveloperTask::where('hubstaff_task_id', $ar->task_id)->orWhere('lead_hubstaff_task_id', $ar->task_id)->first();
                         if ($task) {
                             $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
@@ -244,8 +246,60 @@ class HubstaffActivitiesController extends Controller
                     if ($hubActivitySummery->forworded_person == 'admin') {
                         $status         = 'Approved by admin';
                         $totalApproved  = $hubActivitySummery->accepted;
+                        $totalPending  = $hubActivitySummery->pending;
                         $totalUserRequest  = $hubActivitySummery->user_requested;
                         $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 1)->where('paid', 0)->sum('tracked');
+                        $forworded_to   = $hubActivitySummery->receiver;
+                        $final_approval = 1;
+
+                        $a['user_id']        = $activity->user_id;
+                        $a['total_tracked']  = $activity->total_tracked;
+                        $a['date']           = $activity->date;
+                        $a['userName']       = $activity->userName;
+                        $a['forworded_to']   = $forworded_to;
+                        $a['status']         = $status;
+                        $a['totalApproved']  = $totalApproved;
+                        $a['totalPending']  = $totalPending;
+                        $a['totalUserRequest']   = $totalUserRequest;
+                        $a['totalNotPaid']   = $totalNotPaid;
+                        $a['final_approval'] = $final_approval;
+                        $a['note']           = $hubActivitySummery->rejection_note;
+                        $activityUsers->push($a);
+                    }
+                }
+            } else if ($request->status == 'pending') {
+                if ($hubActivitySummery && $hubActivitySummery->final_approval == 1) {
+                    if ($hubActivitySummery->forworded_person == 'admin') {
+                        $status         = 'Pending by admin';
+                        $totalApproved  = $hubActivitySummery->accepted;
+                        $totalPending  = $hubActivitySummery->pending;
+                        $totalUserRequest  = $hubActivitySummery->user_requested;
+                        $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 2)->where('paid', 0)->sum('tracked');
+                        $forworded_to   = $hubActivitySummery->receiver;
+                        $final_approval = 1;
+
+                        $a['user_id']        = $activity->user_id;
+                        $a['total_tracked']  = $activity->total_tracked;
+                        $a['date']           = $activity->date;
+                        $a['userName']       = $activity->userName;
+                        $a['forworded_to']   = $forworded_to;
+                        $a['status']         = $status;
+                        $a['totalApproved']  = $totalApproved;
+                        $a['totalPending']  = $totalPending;
+                        $a['totalUserRequest']   = $totalUserRequest;
+                        $a['totalNotPaid']   = $totalNotPaid;
+                        $a['final_approval'] = $final_approval;
+                        $a['note']           = $hubActivitySummery->rejection_note;
+                        $activityUsers->push($a);
+                    }
+                }
+            } else if ($request->status == 'pending') {
+                if ($hubActivitySummery && $hubActivitySummery->final_approval == 1) {
+                    if ($hubActivitySummery->forworded_person == 'admin') {
+                        $status         = 'Pending by admin';
+                        $totalApproved  = $hubActivitySummery->accepted;
+                        $totalUserRequest  = $hubActivitySummery->user_requested;
+                        $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 2)->where('paid', 0)->sum('tracked');
                         $forworded_to   = $hubActivitySummery->receiver;
                         $final_approval = 1;
 
@@ -268,6 +322,7 @@ class HubstaffActivitiesController extends Controller
                     if ($hubActivitySummery->forworded_person == 'team_lead' && $hubActivitySummery->final_approval == 0) {
                         $status         = 'Pending for team lead approval';
                         $totalApproved  = $hubActivitySummery->accepted;
+                        $totalPending  = $hubActivitySummery->pending;
                         $totalUserRequest  = $hubActivitySummery->user_requested;
                         $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 1)->where('paid', 0)->sum('tracked');
                         $forworded_to   = $hubActivitySummery->receiver;
@@ -280,6 +335,7 @@ class HubstaffActivitiesController extends Controller
                         $a['forworded_to']   = $forworded_to;
                         $a['status']         = $status;
                         $a['totalApproved']  = $totalApproved;
+                        $a['totalPending']  = $totalPending;
                         $a['totalUserRequest']   = $totalUserRequest;
                         $a['totalNotPaid']   = $totalNotPaid;
                         $a['final_approval'] = $final_approval;
@@ -292,6 +348,7 @@ class HubstaffActivitiesController extends Controller
                     if ($hubActivitySummery->forworded_person == 'admin' && $hubActivitySummery->final_approval == 0) {
                         $status         = 'Pending for admin approval';
                         $totalApproved  = $hubActivitySummery->accepted;
+                        $totalPending  = $hubActivitySummery->pending;
                         $totalUserRequest  = $hubActivitySummery->user_requested;
                         $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 1)->where('paid', 0)->sum('tracked');
                         $forworded_to   = $hubActivitySummery->receiver;
@@ -304,6 +361,7 @@ class HubstaffActivitiesController extends Controller
                         $a['forworded_to']   = $forworded_to;
                         $a['status']         = $status;
                         $a['totalApproved']  = $totalApproved;
+                        $a['totalPending']  = $totalPending;
                         $a['totalUserRequest']   = $totalUserRequest;
                         $a['totalNotPaid']   = $totalNotPaid;
                         $a['final_approval'] = $final_approval;
@@ -315,6 +373,7 @@ class HubstaffActivitiesController extends Controller
                 if (!$hubActivitySummery) {
                     $status         = 'New';
                     $totalApproved  = 0;
+                    $totalPending  = 0;
                     $totalNotPaid   = 0;
                     $totalUserRequest   = 0;
                     $forworded_to   = Auth::user()->id;
@@ -327,6 +386,7 @@ class HubstaffActivitiesController extends Controller
                     $a['forworded_to']   = $forworded_to;
                     $a['status']         = $status;
                     $a['totalApproved']  = $totalApproved;
+                    $a['totalPending']  = $totalPending;
                     $a['totalUserRequest'] = $totalUserRequest;
                     $a['totalNotPaid']   = $totalNotPaid;
                     $a['final_approval'] = $final_approval;
@@ -350,6 +410,7 @@ class HubstaffActivitiesController extends Controller
                     }
 
                     $totalApproved = $hubActivitySummery->accepted;
+                    $totalPending = $hubActivitySummery->pending;
                     $totalUserRequest  = $hubActivitySummery->user_requested;
                     $totalNotPaid  = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 1)->where('paid', 0)->sum('tracked');
                     $forworded_to  = $hubActivitySummery->receiver;
@@ -363,6 +424,7 @@ class HubstaffActivitiesController extends Controller
                     $forworded_to   = Auth::user()->id;
                     $status         = 'New';
                     $totalApproved  = 0;
+                    $totalPending  = 0;
                     $totalNotPaid   = 0;
                     $totalUserRequest  = 0;
                     $final_approval = 0;
@@ -375,6 +437,7 @@ class HubstaffActivitiesController extends Controller
                 $a['forworded_to']   = $forworded_to;
                 $a['status']         = $status;
                 $a['totalApproved']  = $totalApproved;
+                $a['totalPending']  = $totalPending;
                 $a['totalUserRequest'] = $totalUserRequest;
                 $a['totalNotPaid']   = $totalNotPaid;
                 $a['final_approval'] = $final_approval;
@@ -397,7 +460,7 @@ class HubstaffActivitiesController extends Controller
             return response()->json(['message' => '']);
         }
 
-        $activityrecords = DB::select(DB::raw("SELECT CAST(starts_at as date) AS OnDate,  SUM(tracked) AS total_tracked, hour( starts_at ) as onHour
+        $activityrecords = DB::select(DB::raw("SELECT CAST(starts_at as date) AS OnDate,  SUM(tracked) AS total_tracked, hour( starts_at ) as onHour, status
         FROM hubstaff_activities where DATE(starts_at) = '" . $request->date . "' and user_id = " . $request->user_id . "
         GROUP BY hour( starts_at ) , day( starts_at )"));
         // $activityrecords  = HubstaffActivity::whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id)->select('hubstaff_activities.*')->get();
@@ -417,9 +480,13 @@ class HubstaffActivitiesController extends Controller
             $teamLeaders = User::join('teams', 'teams.user_id', 'users.id')->join('team_user', 'team_user.team_id', 'teams.id')->where('team_user.user_id', $system_user_id)->distinct()->select('users.name', 'users.id')->get();
         }
         $approved_ids = [0];
+        $pending_ids = [0];
         if ($hubActivitySummery) {
             if ($hubActivitySummery->approved_ids) {
                 $approved_ids = json_decode($hubActivitySummery->approved_ids);
+            }
+            if ($hubActivitySummery->pending_ids) {
+                $pending_ids = json_decode($hubActivitySummery->pending_ids);
             }
 
             if ($hubActivitySummery->final_approval) {
@@ -435,6 +502,7 @@ class HubstaffActivitiesController extends Controller
             $activities = DB::select(DB::raw("SELECT hubstaff_activities.*
             FROM hubstaff_activities where DATE(starts_at) = '" . $request->date . "' and user_id = " . $request->user_id . " and hour(starts_at) = " . $record->onHour . ""));
             $totalApproved = 0;
+            $totalPending = 0;
             $isAllSelected = 0;
             foreach ($activities as $a) {
                 if (in_array($a->id, $approved_ids)) {
@@ -448,6 +516,19 @@ class HubstaffActivitiesController extends Controller
                 } else {
                     $a->status        = 0;
                     $a->totalApproved = 0;
+                }
+
+                if (in_array($a->id, $pending_ids)) {
+                    $isAllSelected = $isAllSelected + 1;
+                    $a->status     = 2;
+                    $hubAct        = HubstaffActivity::where('id', $a->id)->first();
+                    if ($hubAct) {
+                        $totalPending = $totalPending + $a->tracked;
+                    }
+                    $a->totalPending = $a->tracked;
+                } else {
+                    $a->status        = 0;
+                    $a->totalPending = 0;
                 }
                 $taskSubject = '';
                 if ($a->task_id) {
@@ -484,6 +565,7 @@ class HubstaffActivitiesController extends Controller
             }
             $record->activities    = $activities;
             $record->totalApproved = $totalApproved;
+            $record->totalPending = $totalPending;
         }
         $user_id = $request->user_id;
         $isAdmin = false;
@@ -599,7 +681,9 @@ class HubstaffActivitiesController extends Controller
     {
         $approvedArr = [];
         $rejectedArr = [];
+        $pendingArr = [];
         $approved    = 0;
+        $pending    = 0;
         $member      = HubstaffMember::where('hubstaff_user_id', $request->user_id)->first();
 
         if (!$member) {
@@ -629,9 +713,16 @@ class HubstaffActivitiesController extends Controller
             $dateWise = [];
             foreach ($request->activities as $id) {
                 $hubActivity = HubstaffActivity::where('id', $id)->first();
-                $hubActivity->update(['status' => 1]);
-                $approved               = $approved + $hubActivity->tracked;
-                $approvedArr[]          = $id;
+                $hubActivity->update(['status' => $request->status]);
+
+                if( $request->status == '2' ){
+                    $pending      = $pending + $hubActivity->tracked;
+                    $pendingArr[] = $id;
+                }else{
+                    $approved               = $approved + $hubActivity->tracked;
+                    $approvedArr[]          = $id;
+                }
+                
                 if($request->isTaskWise) {
                     $superDate              = date("Y-m-d", strtotime($hubActivity->starts_at));
                     $dateWise[$superDate][] = $hubActivity;
@@ -641,10 +732,13 @@ class HubstaffActivitiesController extends Controller
             // started to check date wiser
             if (!empty($dateWise)) {
                 $totalApproved = 0;
+                $totalPending = 0;
                 foreach ($dateWise as $dk => $dateW) {
                     if (!empty($dateW)) {
                         $approvedArr = [];
+                        $pendingArr = [];
                         $approved    = 0;
+                        $pending    = 0;
                         $totalTracked    = 0;
 
                         $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')
@@ -659,24 +753,36 @@ class HubstaffActivitiesController extends Controller
                         $hubActivitySummery = HubstaffActivitySummary::where('user_id', $user_id)->where('date', $dk)->first();
                         $approveIDs = [];
                         $rejectedIds = [];
+                        $pendingIds = [];
                         if($hubActivitySummery) {
                             $approveIDs = json_decode($hubActivitySummery->approved_ids);
                             $rejectedIds = json_decode($hubActivitySummery->rejected_ids);
+                            $pendingIds = json_decode($hubActivitySummery->pending_ids);
                         }
 
                         foreach ($dateW as $dw) {
-                            if(!in_array($dw->id, $approveIDs) && !in_array($dw->id, $rejectedIds)) {
-                                $dw->update(['status' => 1]);
-                                $approved      = $approved + $dw->tracked;
-                                $approvedArr[] = $dw->id;
+                            if(!in_array($dw->id, $approveIDs) && !in_array($dw->id, $rejectedIds) && !in_array($dw->id, $pendingIds)) {
+                                $dw->update(['status' => $request->status]);
+                                if( $request->status == '2' ){
+                                    $pending      = $pending + $dw->tracked;
+                                    $pendingArr[] = $dw->id;
+                                }else{
+                                    $approved      = $approved + $dw->tracked;
+                                    $approvedArr[] = $dw->id;
+                                }
                             }
                         }
 
                         $totalApproved += $approved;
+                        $totalPending += $pending;
 
                         $approvedJson = null;
+                        $pendingJson = null;
                         if (count($approvedArr) > 0) {
                             $approvedJson = json_encode($approvedArr);
+                        }
+                        if (count($pendingArr) > 0) {
+                            $pendingJson = json_encode($pendingArr);
                         }
 
                         
@@ -684,10 +790,13 @@ class HubstaffActivitiesController extends Controller
                         if ($hubActivitySummery) {
 
                             $aprids = array_merge($approveIDs, $approvedArr);
+                            $pendids = array_merge($pendingIds, $pendingArr);
 
                             $hubActivitySummery->tracked      = $totalTracked;
                             $hubActivitySummery->accepted     = $hubActivitySummery->accepted + $approved;
+                            $hubActivitySummery->pending      = $hubActivitySummery->pending + $pending;
                             $hubActivitySummery->approved_ids = json_encode($aprids);
+                            $hubActivitySummery->pending_ids  = json_encode($pendids);
                             $hubActivitySummery->sender       = Auth::user()->id;
                             $hubActivitySummery->receiver     = Auth::user()->id;
                             $hubActivitySummery->rejection_note = $rejection_note.PHP_EOL.$hubActivitySummery->rejection_note;
@@ -699,7 +808,9 @@ class HubstaffActivitiesController extends Controller
                             $hubActivitySummery->tracked          = $totalTracked;
                             $hubActivitySummery->user_requested   = $approved;
                             $hubActivitySummery->accepted         = $approved;
+                            $hubActivitySummery->pending          = $pending;
                             $hubActivitySummery->approved_ids     = $approvedJson;
+                            $hubActivitySummery->pending_ids      = $pendingJson;
                             $hubActivitySummery->sender           = Auth::user()->id;
                             $hubActivitySummery->receiver         = Auth::user()->id;
                             $hubActivitySummery->forworded_person = 'admin';
@@ -751,16 +862,74 @@ class HubstaffActivitiesController extends Controller
             $rejectedJson = null;
         }
 
-        
+        if (count($pendingArr) > 0) {
+            $pendingJson = json_encode($pendingArr);
+        } else {
+            $pendingJson = null;
+        }
 
         $hubActivitySummery = HubstaffActivitySummary::where('user_id', $user_id)->where('date', $request->date)->first();
+        $unApproved = 0;
+        $unPending  = 0;
+        
+        foreach ($request->activities as $index => $id) {
+            $hubActivity = HubstaffActivity::where('id', $id)->first();
+            
+            if( $request->status == '2' ){
+                $approved = $hubActivitySummery->accepted;
+                if( $hubActivitySummery->accepted > 0 && $hubActivitySummery->approved_ids ){
+                    $arrayIds = json_decode($hubActivitySummery->approved_ids);
+                    if( in_array( $id, $arrayIds ) ){
+                        $unApproved = $unApproved + $hubActivity->tracked;
+                    }
+                }
+            }
+            if( $request->status == '1' ){
+                $pending = $hubActivitySummery->pending;
+                if( $hubActivitySummery->pending > 0 && $hubActivitySummery->pending_ids ){
+                    $arrayIds = json_decode($hubActivitySummery->pending_ids);
+                    if(  in_array( $id, $arrayIds ) ){
+                        if($index == 0){
+                            $unPending = $hubActivitySummery->pending;
+                        }
+                        $unPending = $unPending + $hubActivity->tracked;
+                    }
+                }
+            }
 
+        }
+
+        if( $unApproved > 0){
+            $approved = $approved - $unApproved;
+            $approved = ( $approved < 0 ) ? 0 : $approved ;
+        }
+        
+        if( $unPending > 0){
+            $pending = $pending - $unPending;
+            $pending = ( $pending < 0 ) ? 0 : $pending; 
+        }
+        
+       
         if ($hubActivitySummery) {
+            // if( $request->status = '2' ){  
+                $approved_ids = json_decode( $hubActivitySummery->approved_ids );
+                if( $approved_ids && $pendingArr ){
+                    $approvedJson = json_encode( array_values($this->array_except( $approved_ids, json_decode($pendingJson) ) ) );
+                }
+            // }else{
+                $pending_ids = json_decode( $hubActivitySummery->pending_ids );
+                if( $pending_ids && $approvedArr){
+                    $pendingJson = json_encode( array_values( $this->array_except( $pending_ids, json_decode($approvedJson) ) ) );
+                }
+            // }
+            
             $hubActivitySummery->tracked        = $totalTracked;
             $hubActivitySummery->accepted       = $approved;
             $hubActivitySummery->rejected       = $rejected;
+            $hubActivitySummery->pending        = $pending;
             $hubActivitySummery->approved_ids   = $approvedJson;
             $hubActivitySummery->rejected_ids   = $rejectedJson;
+            $hubActivitySummery->pending_ids    = $pendingJson;
             $hubActivitySummery->sender         = Auth::user()->id;
             $hubActivitySummery->receiver       = Auth::user()->id;
             $hubActivitySummery->rejection_note = $rejection_note;
@@ -773,8 +942,10 @@ class HubstaffActivitiesController extends Controller
             $hubActivitySummery->user_requested   = $approved;
             $hubActivitySummery->accepted         = $approved;
             $hubActivitySummery->rejected         = $rejected;
+            $hubActivitySummery->pending          = $pending;
             $hubActivitySummery->approved_ids     = $approvedJson;
             $hubActivitySummery->rejected_ids     = $rejectedJson;
+            $hubActivitySummery->pending_ids      = $pendingJson;
             $hubActivitySummery->sender           = Auth::user()->id;
             $hubActivitySummery->receiver         = Auth::user()->id;
             $hubActivitySummery->forworded_person = 'admin';
@@ -797,6 +968,15 @@ class HubstaffActivitiesController extends Controller
         return response()->json([
             'message' => 'Can not update data',
         ], 500);
+    }
+
+    private function array_except($array, $keys){
+        foreach($array as $key => $value){
+            if( in_array( $value , $keys) ){
+                unset($array[$key]);
+            }
+        }
+        return $array;
     }
 
     public function approvedPendingPayments(Request $request)
