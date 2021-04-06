@@ -161,4 +161,53 @@ class ProductController extends Controller
         $message = $this->generate_erp_response("order.return-check.failed.website_missing", 0, $default = "website is missing.", request('lang_code'));
         return response()->json(["code" => 500, "message" => $message, "data" => []]);
     }
+
+    public function wishList(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'website'          => 'required|exists:store_websites,website',
+            'customer_name'    => 'required',
+            'customer_email'   => 'required',
+            'language_code'    => 'required',
+            'product_sku'      => 'required',
+            'product_name'     => 'required',
+            'product_price'    => 'required',
+            'product_currency' => 'required',
+        ]);
+
+        $storeweb = StoreWebsite::where('website', $request->website)->first();
+        if ($validator->fails()) {
+            $message = $this->generate_erp_response("wishlist.failed.validation", isset($storeweb) ? $storeweb->id : null, $default = 'please check validation errors !', request('lang_code'));
+            return response()->json(['status' => '500', 'message' => $message, 'errors' => $validator->errors()], 200);
+        }
+
+        $customer = \App\Customer::where("email", $request->customer_email)->where("store_website_id", $storeweb->id)->first();
+        $basket   = \App\CustomerBasket::where("email")->first();
+        if (!$basket) {
+            $basket                   = new \App\CustomerBasket;
+            $basket->customer_name    = $request->customer_name;
+            $basket->customer_email   = $request->customer_email;
+            $basket->store_website_id = $request->store_website_id;
+            $basket->language_code    = $request->language_code;
+            $basket->save();
+        }
+
+        $sku = explode("-", $request->product_sku);
+
+        $product = \App\Product::where("sku", $sku[0])->first();
+
+        $basketProduct = \App\CustomerBasketProduct::where("customer_basket_id", $basket->id)->where("product_sku", $sku[0])->first();
+        if (!$basketProduct) {
+            $basketProduct->customer_basket_id = $basket->id;
+            $basketProduct->product_id         = $product->id;
+            $product_sku->product_id           = $product->sku;
+            $product_sku->product_name         = $request->product_name;
+            $product_sku->product_price        = $request->product_price;
+            $product_sku->product_currency     = $request->product_currency;
+            $product_sku->save();
+        }
+
+        return response()->json(['status' => '200', 'message' => "Wishlist created successfully"], 200);
+
+    }
 }
