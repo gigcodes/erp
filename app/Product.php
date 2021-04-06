@@ -719,7 +719,6 @@ class Product extends Model
 
     public function attachImagesToProduct($arrImages = null)
     {
-
         // check media exist or
         $mediaRecords = false;
         if ($this->hasMedia(\Config('constants.media_original_tag'))) {
@@ -729,7 +728,7 @@ class Product extends Model
                 }
             }
         }
-        
+
         if (!$mediaRecords || is_array($arrImages)) {
             // images given
             if (is_array($arrImages) && count($arrImages) > 0) {
@@ -769,7 +768,7 @@ class Product extends Model
                         if($scrapedProduct && is_object($scrapedProduct)) {
                             $lastScraper = ScrapedProducts::where("sku", $this->sku)->latest()->first();
                             if($lastScraper) {
-                                $lastScraper->validation_result = $lastScraper->validation_result.PHP_EOL."[error] One or more images has an invalid URL : ".$image.PHP_EOL;
+                                $lastScraper->validation_result = $lastScraper->validation_result.PHP_EOL."[error] ".$e->getMessage()." One or more images has an invalid URL : ".$image.PHP_EOL;
                                 $lastScraper->save();
                             }
                         }
