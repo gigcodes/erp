@@ -176,12 +176,13 @@
                                              <?php echo Form::select('instagram_account_id',$accountsList,$keyword->instagram_account_id, ["class" => "form-control select2","id" => 'instagram_account_id_change']); ?>
                                         </div>
                                    </td>
-                                   <td><button class="btn btn-link" onclick="getImage('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Image From Scrapper"><i class="fa fa-barcode"></i></button>
-                                   <button  class="btn btn-link" title="Get Status" onclick="getStatus('{{ $keyword->name }}')" title="Get Status Of Scrapper"><i class="fa fa-history" aria-hidden="true"></i></button> 
-                                   <button class="btn btn-link" onclick="startScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Start Script"><i class="fa fa-refresh"></i></button> 
+                                   <td><button class="btn btn-link" onclick="getImage('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Image From Scrapper"><i class="fa fa-picture-o"></i></button>
+                                   <button  class="btn btn-link" title="Get Status" onclick="getStatus('{{ $keyword->name }}')" title="Get Status Of Scrapper"><i class="fa fa-info-circle" aria-hidden="true"></i></button> 
+                                   <button class="btn btn-link" onclick="startScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Start Script"><i class="fa fa-play"></i></button> 
+                                   <button class="btn btn-link" onclick="stopScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Stop Script From Server"><i class="fa fa-pause"></i></button> 
+                                   <button class="btn btn-link" onclick="restartScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Restart Script From Server"><i class="fa fa-refresh"></i></button> 
                                    <button class="btn btn-link" onclick="getLog('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Get Log From Server"><i class="fa fa-history"></i></button>
-                                   <button class="btn btn-link" onclick="restartScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Restart Script From Server"><i class="fa fa-stop"></i></button> 
-                                   <button class="btn btn-link" onclick="stopScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Stop Script From Server"><i class="fa fa-stop"></i></button> 
+                                   <button class="btn btn-link task-history" data-id="{{ $keyword->name }}" data-placement="top" title="Show server history"><i class="fa fa-history"></i></button>
                                    </td>
                                 </tr>
                                 @endforeach
@@ -209,6 +210,7 @@
                     <thead >
                     <tr>
 
+                        <th style="width:3%">#</th>
                         <th style="width:7%">Date</th>
                         <th style="width:10%">Username</th>
                         <th style="width:10%">Email</th>
@@ -229,6 +231,7 @@
                    </thead>
                      <tbody>
                    @include('instagram.hashtags.partials.influencer-data')
+                   
                     </tbody>
                 </table>
                 
@@ -303,9 +306,103 @@
 </div>
 @endsection
 @include("marketing.whatsapp-configs.partials.image")
+@include('instagram.hashtags.partials.influencer-history')
 @section('scripts')
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script type="text/javascript">
+
+        $(".select2-quick-reply").select2( { tags: true } );
+
+        $(document).on("change", ".quickComments", function (e) {
+            var message = $(this).val();
+            var select = $(this);
+            if ($.isNumeric(message) == false) {
+                $.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "/instagram/influencers/reply/add",
+                    dataType: "json",
+                    method: "POST",
+                    data: {reply: message}
+                }).done(function (data) {
+                    var vendors_id =$(select).find("option[value='']").data("vendorid");
+                    var message_re = data.data.reply;
+                    $("textarea#message"+vendors_id).val(message_re);
+                    console.log(data)
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });
+            }
+            var vendors_id =$(select).find("option[value='']").data("vendorid");
+            var message_re = $(this).find("option:selected").html();
+            $("textarea#message"+vendors_id).val($.trim(message_re));
+        });
+
+        $(document).on("click", ".delete_quick_comment", function (e) {
+            var deleteAuto = $(this).closest(".d-flex").find(".quickComments").find("option:selected").val();
+            if (typeof deleteAuto != "undefined") {
+                $.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: BASE_URL+"/instagram/influencers/reply/delete",
+                    dataType: "json",
+                    method: "POST",
+                    data: {id: deleteAuto}
+                }).done(function (data) {
+                    if (data.code == 200) {
+                        $(".quickComment").each(function(){
+                        var selecto=  $(this)
+                            $(this).children("option").not(':first').each(function(){
+                            $(this).remove();
+                            });
+                            $.each(data.data, function (k, v) {
+                                $(selecto).append("<option  value='" + k + "'>" + v + "</option>");
+                            });
+                            $(selecto).select2({tags: true});
+                        });
+                    }
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });
+            }
+        });
+
+        $(document).on("click",".task-history",function(e) {
+            e.preventDefault();
+            var id = $(this).data("id");
+            $.ajax({
+                url: '/instagram/influencers/history',
+                type: 'POST',
+                data : { _token: "{{ csrf_token() }}", id : id },
+                dataType: 'json',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function(result){
+                    $("#loading-image").hide();
+                    if(result.code == 200) {
+                        var t = '';
+                        $.each(result.data,function(k,v) {
+                            t += `<tr><td>`+v.influencers_name+`</td>`;
+                            t += `<td>`+v.title+`</td>`;
+                            t += `<td>`+v.description+`</td>`;
+                            t += `<td>`+v.created_at+`</td></tr>`;
+                        });
+                        if( t == '' ){
+                            t = '<tr><td colspan="5" class="text-center">No data found</td></tr>';
+                        }
+                    }
+                    $("#category-history-modal").find(".show-list-records").html(t);
+                    $("#category-history-modal").modal("show");
+                },
+                error: function (){
+                    $("#loading-image").hide();
+                }
+            });
+        });
+
         $(document).on('click', '.expand-row', function () {
             var selection = window.getSelection();
             if (selection.toString().length === 0) {

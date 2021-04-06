@@ -1774,6 +1774,9 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('hashtag/queue/status', 'HashtagController@checkStatusCommand')->name('hashtag.command.status');
     Route::get('hashtags/grid', 'InstagramController@hashtagGrid');
     Route::get('influencers', 'HashtagController@influencer')->name('influencers.index');
+    Route::post('influencers/history', 'HashtagController@history')->name('influencers.index.history');
+    Route::post('influencers/reply/add', 'HashtagController@addReply')->name('influencers.reply.add');
+    Route::post('influencers/reply/delete', 'HashtagController@deleteReply')->name('influencers.reply.delete');
 
     
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Influencers;
 use App\InfluencersDM;
 use App\InfluencerKeyword;
+use App\InfluencersHistory;
 use Illuminate\Http\Request;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
@@ -150,6 +151,13 @@ class InfluencersController extends Controller
 
      $b64 = $jsonArrayResponse->status;
 
+     $history = array(
+        'influencers_name' => $name,
+        'title'            => 'Getting image',
+        'description'      => $b64,
+    );
+    InfluencersHistory::insert( $history );
+
      if($jsonArrayResponse->status == 'Something Went Wrong'){
         return \Response::json(array('success' => false,'message' => 'No Image Available')); 
     } 
@@ -181,6 +189,13 @@ class InfluencersController extends Controller
         $jsonArrayResponse = json_decode($phoneList);
 
         $b64 = $jsonArrayResponse->status;
+        
+        $history = array(
+            'influencers_name' => $name,
+            'title'            => 'Check status',
+            'description'      => $b64,
+        );
+        InfluencersHistory::insert( $history );
 
         return \Response::json(array('success' => true,'message' => $b64));
        
@@ -212,6 +227,13 @@ class InfluencersController extends Controller
 
         $b64 = $jsonArrayResponse->status;
 
+        $history = array(
+            'influencers_name' => $name,
+            'title'            => 'starting script',
+            'description'      => $b64,
+        );
+        InfluencersHistory::insert( $history );
+
         return \Response::json(array('success' => true,'message' => $b64));
        
     }
@@ -242,6 +264,13 @@ class InfluencersController extends Controller
         } 
         $content = base64_decode($b64);
 
+        $history = array(
+            'influencers_name' => $name,
+            'title'            => 'Getting log file',
+            'description'      => $b64,
+        );
+        InfluencersHistory::insert( $history );
+
         $media = MediaUploader::fromString($content)->toDirectory('/influencer')->useFilename($name)->upload();
     
         return \Response::json(array('success' => true,'message' => $media->getUrl()));
@@ -271,6 +300,13 @@ class InfluencersController extends Controller
         $jsonArrayResponse = json_decode($phoneList);
 
         $b64 = $jsonArrayResponse->status;
+        
+        $history = array(
+            'influencers_name' => $name,
+            'title'            => 'Restrt script',
+            'description'      => $b64,
+        );
+        InfluencersHistory::insert( $history );
 
         return \Response::json(array('success' => true,'message' => $b64));
        
@@ -295,6 +331,13 @@ class InfluencersController extends Controller
         $jsonArrayResponse = json_decode($phoneList);
 
         $b64 = $jsonArrayResponse->status;
+
+        $history = array(
+            'influencers_name' => $name,
+            'title'            => 'Stop script',
+            'description'      => $b64,
+        );
+        InfluencersHistory::insert( $history );
 
         return \Response::json(array('success' => true,'message' => $b64));
        

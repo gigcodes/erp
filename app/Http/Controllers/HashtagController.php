@@ -7,6 +7,7 @@ use App\CommentsStats;
 use App\FlaggedInstagramPosts;
 use App\HashTag;
 use App\InstagramPosts;
+use App\InfluencersHistory;
 use App\Services\Instagram\Hashtags;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -690,9 +691,51 @@ class HashtagController extends Controller
                 'total' => $influencers->total(),
             ], 200);
         }
+        
+        $replies = \App\Reply::where("model", "influencers")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
 
-         return view('instagram.hashtags.influencers', compact('accounts','influencers','keywords','posts','followers','following','term'));
+         return view('instagram.hashtags.influencers', compact('accounts','replies','influencers','keywords','posts','followers','following','term'));
     }
+
+    public function addReply(Request $request)
+    {
+        $reply = $request->get("reply");
+        $autoReply = [];
+        if (!empty($reply)) {
+            $autoReply = \App\Reply::updateOrCreate(
+                ['reply' => $reply, 'model' => 'influencers', "category_id" => 1],
+                ['reply' => $reply]
+            );
+        }
+        return response()->json(["code" => 200, 'data' => $autoReply]);
+    }
+
+    public function deleteReply(Request $request)
+    {
+        $id = $request->get("id");
+
+        if ($id > 0) {
+            $autoReply = \App\Reply::where("id", $id)->first();
+            if ($autoReply) {
+                $autoReply->delete();
+            }
+        }
+
+        return response()->json([
+            "code" => 200, "data" => \App\Reply::where("model", "influencers")
+                ->whereNull("deleted_at")
+                ->pluck("reply", "id")
+                ->toArray()
+        ]);
+    }
+
+    public function history( Request $request ){
+
+		if( $request->id ){
+			$history = InfluencersHistory::where( 'influencers_name', $request->id )->orderBy("created_at","desc")->get();
+			return response()->json( ["code" => 200 , "data" => $history] );
+		}
+	}
 
     public function showGridUsers($id = null,Request $request)
     {
