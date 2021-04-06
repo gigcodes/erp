@@ -65,20 +65,22 @@ class StoreLogScraper extends Command
                 $needed = explode('-', $file->getFilename());
                 if (isset($needed[1])) {
                     $day      = explode('.', $needed[1]);
-                    $filePath = $root . '/' . $file->getRelativePath() . '/' . $needed[0] . '-' . $day[0] . '.' . $day[1];
-                    if ($day[0] === $yesterdayDate) {
-                        $result   = File::get($filePath);
-                        $lines    = array_filter(explode("\n", $result));
-                        $lastLine = end($lines);
-                        $scraper  = \App\Scraper::where("scraper_name", $needed[0])->first();
-                        if (!is_null($scraper)) {
-                            ScrapRemark::create([
-                                'scraper_name' => $needed[0],
-                                'scrap_id'     => $scraper->id,
-                                'module_type'  => '',
-                                'scrap_field'  => 'last_line_error',
-                                'remark'       => $lastLine,
-                            ]);
+                    if(isset($day[0]) && isset($day[1])) {
+                        $filePath = $root . '/' . $file->getRelativePath() . '/' . $needed[0] . '-' . $day[0] . '.' . $day[1];
+                        if ($day[0] === $yesterdayDate) {
+                            $result   = File::get($filePath);
+                            $lines    = array_filter(explode("\n", $result));
+                            $lastLine = end($lines);
+                            $scraper  = \App\Scraper::where("scraper_name", $needed[0])->first();
+                            if (!is_null($scraper)) {
+                                ScrapRemark::create([
+                                    'scraper_name' => $needed[0],
+                                    'scrap_id'     => $scraper->id,
+                                    'module_type'  => '',
+                                    'scrap_field'  => 'last_line_error',
+                                    'remark'       => $lastLine,
+                                ]);
+                            }
                         }
                     }
                 }
