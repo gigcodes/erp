@@ -320,27 +320,29 @@
                                 {{ ($hasTask) ? "Task-Available" : "No-Task" }}
                             </td>
                             <td width="0%" class="" style="font-size: 12px">
-                                <span class="toggle-title-box has-small " data-small-title="<?php echo ($remark) ? substr($remark->remark, 0, 20) : '' ?>" data-full-title="<?php echo ($remark) ? $remark->remark : '' ?>">
+                                <span class="toggle-title-box has-small " data-small-title="<?php echo ($remark) ? substr($remark->remark, 0, 19) : '' ?>" data-full-title="<?php echo ($remark) ? $remark->remark : '' ?>">
                                     <?php
                                         if($remark) {
-                                            echo (strlen($remark->remark) > 35) ? substr($remark->remark, 0, 20).".." : $remark->remark;
+                                            echo (strlen($remark->remark) > 35) ? substr($remark->remark, 0, 19).".." : $remark->remark;
                                         }
                                      ?>
                                  </span>
                                  <button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
-                                <br>
-                                <span class="toggle-title-box has-small" data-small-title="<?php echo ($chatMessage) ? substr($chatMessage->message, 0, 20) : '' ?>" data-full-title="<?php echo ($chatMessage) ? $chatMessage->message : '' ?>">
+                                <hr style="margin-top: 0px;margin-bottom: 0px;background-color: #808080;height: 1px;">
+                                <span class="toggle-title-box has-small" data-small-title="<?php echo ($chatMessage) ? substr($chatMessage->message, 0, 19) : '' ?>" data-full-title="<?php echo ($chatMessage) ? $chatMessage->message : '' ?>">
                                     <?php
                                         if($chatMessage) {
-                                            echo (strlen($chatMessage->message) > 35) ? substr($chatMessage->message, 0, 20).".." : $chatMessage->message;
+                                            echo (strlen($chatMessage->message) > 35) ? substr($chatMessage->message, 0, 19).".." : $chatMessage->message;
                                         }
                                      ?>
                                  </span>
                                  <?php 
                                     if($chatMessage) {
                                         echo '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="'.$isAdmin.'" data-is_hod_crm="'.$hod.'" data-object="developer_task" data-id="'.$chatMessage->developer_task_id.'" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>';
+                                        echo '<hr style="margin-top: 0px;margin-bottom: 0px;background-color: #808080;height: 1px;">';
                                     }
                                  ?>
+                                 
                             </td>
                             <?php /*
                             <td width="8%">
@@ -869,6 +871,75 @@
     <script type="text/javascript">
 
         $(".total-info").html("({{$totalCountedUrl}})");
+
+         $(document).on("change", ".quickComments", function (e) {
+            var message = $(this).val();
+            var select = $(this);
+
+            if ($.isNumeric(message) == false) {
+                $.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "/scrap/statistics/reply/add",
+                    dataType: "json",
+                    method: "POST",
+                    data: {reply: message}
+                }).done(function (data) {
+                    var vendors_id =$(select).find("option[value='']").data("vendorid");
+                    var message_re = data.data.reply;
+                    $("textarea#messageid_"+vendors_id).val(message_re);
+
+                    console.log(data)
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });
+            }
+            //$(this).closest("td").find(".quick-message-field").val($(this).find("option:selected").text());
+            var vendors_id =$(select).find("option[value='']").data("vendorid");
+            var message_re = $(this).find("option:selected").html();
+
+            $("textarea#messageid_"+vendors_id).val($.trim(message_re));
+
+        });
+
+        $(document).on("click", ".delete_quick_comment-scrapp", function (e) {
+            var deleteAuto = $(this).closest(".d-flex").find(".quickComments").find("option:selected").val();
+            if (typeof deleteAuto != "undefined") {
+                $.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: BASE_URL+"/scrap/statistics/reply/delete",
+                    dataType: "json",
+                    method: "POST",
+                    data: {id: deleteAuto}
+                }).done(function (data) {
+                    if (data.code == 200) {
+                        // $(".quickComment ")
+                        //     .find('option').not(':first').remove();
+
+                        $(".quickComment").each(function(){
+                        var selecto=  $(this)
+                            $(this).children("option").not(':first').each(function(){
+                            $(this).remove();
+
+
+                            });
+                            $.each(data.data, function (k, v) {
+                                $(selecto).append("<option  value='" + k + "'>" + v + "</option>");
+                            });
+                            $(selecto).select2({tags: true});
+                        });
+
+
+                    }
+
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });
+            }
+        });
 
         $(document).on("click", ".toggle-class", function () {
             $(".hidden_row_" + $(this).data("id")).toggleClass("dis-none");

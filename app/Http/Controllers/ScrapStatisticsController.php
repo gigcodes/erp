@@ -604,9 +604,46 @@ class ScrapStatisticsController extends Controller
     {
         $id             = $request->id;
         $developerTasks = \App\DeveloperTask::where("scraper_id", $request->id)->latest()->get();
-
-        return view("scrap.partials.task", compact('developerTasks', 'id'));
+        $replies = \App\Reply::where("model", "scrap-statistics")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
+        return view("scrap.partials.task", compact('developerTasks', 'id','replies'));
     }
+
+    public function addReply(Request $request)
+  {
+    $reply = $request->get("reply");
+    $autoReply = [];
+    // add reply from here 
+    if (!empty($reply)) {
+
+      $autoReply = \App\Reply::updateOrCreate(
+        ['reply' => $reply, 'model' => 'scrap-statistics', "category_id" => 1],
+        ['reply' => $reply]
+      );
+
+
+    }
+
+    return response()->json(["code" => 200, 'data' => $autoReply]);
+  }
+
+  public function deleteReply(Request $request)
+  {
+    $id = $request->get("id");
+
+    if ($id > 0) {
+      $autoReply = \App\Reply::where("id", $id)->first();
+      if ($autoReply) {
+        $autoReply->delete();
+      }
+    }
+
+    return response()->json([
+      "code" => 200, "data" => \App\Reply::where("model", "scrap-statistics")
+        ->whereNull("deleted_at")
+        ->pluck("reply", "id")
+        ->toArray()
+    ]);
+  }
 
     public function taskCreate(Request $request, $id)
     {
