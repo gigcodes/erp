@@ -3007,8 +3007,12 @@ class ProductController extends Controller
 
         } else {
             // Set new status
-            $product->status_id = StatusHelper::$isBeingCropped;
-            $product->save();
+            $debug = request("debug",false);
+            if(empty($debug)) {
+                $product->status_id = StatusHelper::$isBeingCropped;
+                $product->save();
+            }
+
             // Return product
             return response()->json([
                 'product_id' => $product->id,
