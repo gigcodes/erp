@@ -1,6 +1,7 @@
 @foreach($influencers as $influencer)
 <tr>
-    <td><input type="checkbox" class="selectedInfluencers" name="selectedInfluencers" value="{{$influencer->id}}"> {{date('d-m-y', strtotime($influencer->created_at))}}</td>
+    <td><input type="checkbox" class="selectedInfluencers" name="selectedInfluencers" value="{{$influencer->id}}"></td>
+	  <td>{{date('d-m-y', strtotime($influencer->created_at))}}</td>
     <td><a href="{{ $influencer->url }}" target="_blank">{{ $influencer->name }}</a></td>
     <td class="expand-row-msg" data-name="email" data-id="{{$influencer->id}}">
 		<span class="show-short-email-{{$influencer->id}}">{{ str_limit($influencer->email, 12, '...')}}</span>
@@ -37,7 +38,7 @@
         @endif
         @endif
        <div class="row" style="margin:0px;padding:0px;">
-       <div class="form-group mr-3" style="width: 100%; margin-bottom: 2px;">
+       <div class="form-group mr-3" style="width: 7	0%; margin-bottom: 2px;">
             <select class="form-control account-search-{{$influencer->id}} select2" name="account_id" data-placeholder="Sender...">
                 <option value="">Select sender...</option>
                   @foreach ($accounts as $key => $account)
@@ -54,15 +55,31 @@
             <div class="col-md-3 cls_remove_padding" tyle="padding:0px;">
                 <div class="input-group-append">
                     @if($thread)
-                    <a href="{{ route('attachImages', ['direct', @$thread->id, 1]) .'?'.http_build_query(['return_url' => 'instagram/influencers'])}}" class="btn btn-image px-1"><img src="{{asset('images/attach.png')}}"/></a>
+                    	<a href="{{ route('attachImages', ['direct', @$thread->id, 1]) .'?'.http_build_query(['return_url' => 'instagram/influencers'])}}" class="btn btn-image px-1"><img src="{{asset('images/attach.png')}}"/></a>
                     @endif
-                    <a class="btn btn-image px-1" href="javascript:;"><span class="send_btn" data-id="{{$influencer->id}}"><i class="fa fa-location-arrow"></i></span></a>
+                    <a class="btn btn-image " href="javascript:;"><span class="send_btn" data-id="{{$influencer->id}}"><img src="{{asset('images/filled-sent.png')}}"/></span></a>
                     @if($thread)
-                    <button type="button" class="btn btn-xs btn-image load-direct-chat-model" data-object="direct" data-id="{{ $thread->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    	<button type="button" class="btn btn-xs btn-image load-direct-chat-model" data-object="direct" data-id="{{ $thread->id  }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                     @endif
                 </div>
             </div>                                          
         </div>
+		<div class="d-flex">
+			<select class="form-control quickComments select2-quick-reply" name="quickComment" style="width: 100%;" >
+				<option  data-vendorid="{{ $influencer->id }}"  value="">Auto Reply</option>
+				<?php
+				foreach ($replies ?? [] as $key_r => $value_r) { ?>
+					<option title="<?php echo $value_r;?>" data-vendorid="{{ $influencer->id }}" value="<?php echo $key_r;?>">
+						<?php
+						$reply_msg = strlen($value_r) > 12 ? substr($value_r, 0, 12) : $value_r;
+						echo $reply_msg;
+						?>
+					</option>
+				<?php }
+				?>
+			</select>
+			<a class="btn btn-image delete_quick_comment"><img src="<?php echo url('/');?>/images/delete.png" style="cursor: default; width: 16px;"></a>
+		</div>
     </td> 
     <td>
     <div class="d-flex">
@@ -94,5 +111,6 @@
 </td>
 </tr> 
 @endforeach
+
 
 

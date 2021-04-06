@@ -36,7 +36,7 @@ class InfluencersStartStop extends Command
      * @return mixed
      */
     public function handle()
-    {
+    {   
         //get all keywords
         $keywords = InfluencerKeyword::all();
         //check scrapper
