@@ -1238,3 +1238,33 @@ GET https://erp.theluxuryunlimited.com/api/scraper/update-restart-time?website=g
     "message": "Error message"
 }
 ```
+
+## Check Return refund request
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/order/check-return
+{
+   "website":"https://www.farfetch.com",
+   "product_sku" :"5I246C959F0118-*"
+}
+```
+
+**Successful Response:**
+```json
+{
+    "code": 200,
+    "message": "Success",
+    "data": {
+        "has_return_request": false
+    }
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```
