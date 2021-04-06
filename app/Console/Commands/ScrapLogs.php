@@ -98,8 +98,8 @@ class ScrapLogs extends Command
                         "folder_name"=>$val->getRelativepath(),
                         "file_name"=>$val->getFilename(),
                         "log_messages"=>$log_msg,
-                        "created_date"=>date("Y-m-d H:i:s"),
-                        "updated_date"=>date("Y-m-d H:i:s")
+                        "created_at"=>date("Y-m-d H:i:s"),
+                        "updated_at"=>date("Y-m-d H:i:s")
                     ); 
                     DB::table('scrap_logs')->insert($file_list_data);
                 }
