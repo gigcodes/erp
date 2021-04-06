@@ -107,6 +107,7 @@ class Scraper extends Model
     {
         return self::join("developer_tasks as dt","dt.scraper_id","scrapers.id")
         ->join("chat_messages as cm","cm.developer_task_id","dt.id")
+        ->where("dt.scraper_id",$this->scrapper_id)
         ->whereNotIn('cm.status', ['7', '8', '9', '10'])
         ->orderBy("cm.id","desc")
         ->first();
