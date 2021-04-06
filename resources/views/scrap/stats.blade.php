@@ -320,19 +320,19 @@
                                 {{ ($hasTask) ? "Task-Available" : "No-Task" }}
                             </td>
                             <td width="0%" class="" style="font-size: 12px">
-                                <span class="toggle-title-box has-small " data-small-title="<?php echo ($remark) ? substr($remark->remark, 0, 20) : '' ?>" data-full-title="<?php echo ($remark) ? $remark->remark : '' ?>">
+                                <span class="toggle-title-box has-small " data-small-title="<?php echo ($remark) ? substr($remark->remark, 0, 19) : '' ?>" data-full-title="<?php echo ($remark) ? $remark->remark : '' ?>">
                                     <?php
                                         if($remark) {
-                                            echo (strlen($remark->remark) > 35) ? substr($remark->remark, 0, 20).".." : $remark->remark;
+                                            echo (strlen($remark->remark) > 35) ? substr($remark->remark, 0, 19).".." : $remark->remark;
                                         }
                                      ?>
                                  </span>
                                  <button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
                                 <hr style="margin-top: 0px;margin-bottom: 0px;background-color: #808080;height: 1px;">
-                                <span class="toggle-title-box has-small" data-small-title="<?php echo ($chatMessage) ? substr($chatMessage->message, 0, 20) : '' ?>" data-full-title="<?php echo ($chatMessage) ? $chatMessage->message : '' ?>">
+                                <span class="toggle-title-box has-small" data-small-title="<?php echo ($chatMessage) ? substr($chatMessage->message, 0, 19) : '' ?>" data-full-title="<?php echo ($chatMessage) ? $chatMessage->message : '' ?>">
                                     <?php
                                         if($chatMessage) {
-                                            echo (strlen($chatMessage->message) > 35) ? substr($chatMessage->message, 0, 20).".." : $chatMessage->message;
+                                            echo (strlen($chatMessage->message) > 35) ? substr($chatMessage->message, 0, 19).".." : $chatMessage->message;
                                         }
                                      ?>
                                  </span>
