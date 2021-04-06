@@ -171,7 +171,7 @@
     <div class="row no-gutters mt-3">
         <div class="col-md-12" id="plannerColumn">
             <div class="">
-                <table class="table table-bordered table-striped sort-priority-scrapper table-responsive">
+                <table class="table table-bordered table-striped sort-priority-scrapper">
                     <thead>
                     <tr>
                         <th>#</th>
