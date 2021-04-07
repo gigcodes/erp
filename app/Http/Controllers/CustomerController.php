@@ -1455,8 +1455,7 @@ class CustomerController extends Controller
         if ($customer->facebook_id) {
             $facebookMessages = $customer->facebookMessages()->get();
         }
-		
-		
+        
         return view('customers.show', [
             'customer_ids' => json_encode($customer_ids),
             'previous_customer_id' => $previous_customer_id,

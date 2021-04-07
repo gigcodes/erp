@@ -2437,8 +2437,37 @@
       </div>
     </div>
 
+    @if($customer->wishListBasket)
+      @php
+        $basket = $customer->wishListBasket;
+        $basketProducts = $customer->wishListBasket->basketProducts;
+      @endphp
+      <div class="tab-content mt-3 mb-3">
+        <div class="table-responsive">
+            <table class="table table-bordered m-0">
+                <tr>
+                  <th>Product name</th>
+                  <th>Sku</th>
+                  <th>Price</th>
+                  <th>Currency</th>
+                  <th>Website</th>
+                  <th>Created At</th>
+                </tr>
+                @foreach($basketProducts as $basketProduct)
+                  <tr>
+                    <td>{{$basketProduct->product_name}}</td>
+                    <td>{{$basketProduct->product_sku}}</td>
+                    <td>{{$basketProduct->product_price}}</td>
+                    <td>{{$basketProduct->product_currency}}</td>
+                    <td>{{$basket->storeWebsite->website}}</td>
+                    <td>{{$basket->created_at}}</td>
+                  </tr>
+                @endforeach
+            </table>
+          </div>
+      </div>  
+    @endif
     @include('customers.partials.modal-remark')
-
   </div>
 </div>
 
