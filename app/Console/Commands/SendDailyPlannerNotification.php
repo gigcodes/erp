@@ -50,7 +50,8 @@ class SendDailyPlannerNotification extends Command
             ]);
 
             // get the events which has 30  OR 05 Min left
-            $events = UserEvent::havingRaw("TIMESTAMPDIFF(MINUTE,now() , start) >= 30 and TIMESTAMPDIFF(MINUTE, now(), start) <= 35 OR TIMESTAMPDIFF(MINUTE, now(), start) = 05 ")->get();
+            // $events = UserEvent::havingRaw("TIMESTAMPDIFF(MINUTE,now() , start) >= 30 AND TIMESTAMPDIFF(MINUTE, now(), start) <= 35 OR TIMESTAMPDIFF(MINUTE, now(), start) = 05 ")->get();
+            $events = UserEvent::havingRaw("TIMESTAMPDIFF(MINUTE,now() , start) = 30 OR TIMESTAMPDIFF(MINUTE, now(), start) = 05 ")->get();
 
             $userWise           = [];
             $vendorParticipants = [];
