@@ -1280,7 +1280,7 @@ POST https://erp.theluxuryunlimited.com/api/wishlist/create
 {
    "website":"WWW.SOLOLUXURY.COM",
    "product_sku" :"5I246C959F0118-*",
-   "customer_name" : "Pravin Solanki",
+   "customer_name" : "Customer name",
    "customer_email" : "info@solo.com",
    "language_code" : "es-ca",
    "product_name" : "some name",
