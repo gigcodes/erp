@@ -1859,6 +1859,7 @@ Route::prefix('comments')->middleware('auth')->group(function () {
 Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('screenshot', 'ScrapStatisticsController@getScreenShot');
     Route::get('get-last-errors', 'ScrapStatisticsController@getLastErrors');
+    Route::get('log-details', 'ScrapStatisticsController@logDetails')->name('scrap.log-details');
     Route::get('server-status-history', 'ScrapStatisticsController@serverStatusHistory');
     Route::get('get-server-scraper-timing', 'ScrapStatisticsController@getScraperServerTiming');
     Route::get('position-history', 'ScrapStatisticsController@positionHistory');

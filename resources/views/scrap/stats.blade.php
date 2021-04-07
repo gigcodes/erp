@@ -240,6 +240,7 @@
 
                                 $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$supplier->scraper_name)->whereNull("scrap_field")->where('user_name','!=','')->orderBy('created_at','desc')->first();
                                 $chatMessage = $supplier->latestMessage();
+                                $lastError = $supplier->lastErrorFromScrapLog();
                             @endphp
                             <td width="1%">{{ ++$i }}&nbsp; @if($supplier->getChildrenScraperCount($supplier->scraper_name) != 0) <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-link"><i class="fa fa-caret-down" style="font-size:24px"></i>  </button> @endif</td>
                             <td width="6%"><a href="/supplier/{{$supplier->id}}">{{ ucwords(strtolower($supplier->supplier)) }}&nbsp; {{ \App\Helpers\ProductHelper::getScraperIcon($supplier->scraper_name) }}</a>
@@ -342,7 +343,17 @@
                                         echo '<hr style="margin-top: 0px;margin-bottom: 0px;background-color: #808080;height: 1px;">';
                                     }
                                  ?>
-                                 
+                                 <hr style="margin-top: 0px;margin-bottom: 0px;background-color: #808080;height: 1px;">
+                                 <span class="toggle-title-box has-small">
+                                    <?php
+                                        if($lastError) {
+                                            $allMessage = explode("\n",$lastError->log_messages);
+                                            $items = array_slice($allMessage, -5);
+                                            echo "SCRAP LOG :".implode("\n", $items);
+                                            echo  '<button style="padding:3px;" type="button" class="btn btn-image scraper-log-details" data-scrapper-id="'.$supplier->scrapper_id.'"><img width="2px;" src="/images/remark.png"/></button>';
+                                        }
+                                     ?>
+                                 </span>
                             </td>
                             <?php /*
                             <td width="8%">
@@ -1585,6 +1596,30 @@
                 var model  = $("#show-content-model-table");
                 model.find(".modal-title").html("Task List");
                 model.find(".modal-body").html(response);
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+
+
+        $(document).on("click",".scraper-log-details",function(e) {
+            var $this = $(this);
+            $.ajax({
+                type: 'GET',
+                url: '{{ route('scrap.log-details') }}',
+                data: {
+                    scrapper_id : $this.data("scrapper-id")
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Log History");
+                model.find(".modal-body").html(response);
+                model.modal("show");
             }).fail(function() {
                 $("#loading-image").hide();
                 alert('Please check laravel log for more information')
