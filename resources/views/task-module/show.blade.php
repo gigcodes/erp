@@ -2756,7 +2756,7 @@
                     // }
 
                     if(data != 'error') {
-                        $("#developer_task_id").val(issueId);
+                        $('input[name="developer_task_id"]').val(issueId);
                         $.each(data, function(i, item) {
                             if(item['is_approved'] == 1) {
                                 var checked = 'checked';
