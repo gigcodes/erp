@@ -324,4 +324,9 @@ class Customer extends Model
             'default' => "Default"
         );
     }
+
+    public function wishListBasket()
+    {
+        return $this->hasOne(\App\CustomerBasket::class, 'customer_id', 'id');
+    }
 }
