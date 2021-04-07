@@ -118,4 +118,9 @@ class Scraper extends Model
         return \App\ScrapRemark::where("scraper_name",$this->scraper_name)->where("scrap_field", 'last_line_error')->latest()->first();
     }
 
+    public function lastErrorFromScrapLog()
+    {
+        return \App\ScrapLog::where("scraper_id",$this->scrapper_id)->latest()->first();
+    }
+
 }

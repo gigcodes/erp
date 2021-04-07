@@ -709,4 +709,11 @@ class ScrapStatisticsController extends Controller
         return view("scrap.partials.scrap-remarks", compact('remarks'));
     }
 
+    public function logDetails(Request $request) 
+    {
+        $logDetails = \App\ScrapLog::where("scraper_id",$request->scrapper_id)->latest()->get();
+
+        return view("scrap.partials.log-details", compact('logDetails'));
+    }
+
 }
