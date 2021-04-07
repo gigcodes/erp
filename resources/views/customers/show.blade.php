@@ -2443,6 +2443,7 @@
         $basketProducts = $customer->wishListBasket->basketProducts;
       @endphp
       <div class="tab-content mt-3 mb-3">
+        <h4>Wishlist</h4>
         <div class="table-responsive">
             <table class="table table-bordered m-0">
                 <tr>
