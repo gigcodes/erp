@@ -408,6 +408,7 @@ class UserEventController extends Controller
         ];
         DailyActivitiesHistories::insert( $history );
 
+        \Log::error( 'Daily activities ::',DailyActivitiesHistories::where( 'daily_activities_id', $dailyActivities->id )->get()->toArray() );
         return response()->json([
             "code"    => 200, 
             'message' => 'Event added successfully',
