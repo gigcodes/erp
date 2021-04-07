@@ -1268,3 +1268,72 @@ POST https://erp.theluxuryunlimited.com/api/order/check-return
     "message": "Error message"
 }
 ```
+
+## Create wish list request
+
+Key : wishlist.failed.validation, wishlist.create.success
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/wishlist/create
+{
+   "website":"WWW.SOLOLUXURY.COM",
+   "product_sku" :"5I246C959F0118-*",
+   "customer_name" : "Pravin Solanki",
+   "customer_email" : "solanki7492@gmail.com",
+   "language_code" : "es-ca",
+   "product_name" : "some name",
+   "product_price" : "250",
+   "product_currency" : "USD"
+}
+```
+
+**Successful Response:**
+```json
+{
+    "status": "200",
+    "message": "Wishlist created successfully"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```
+
+
+## Remove wish list request
+
+Key : wishlist.failed.validation, wishlist.remove.success, wishlist.remove.no_product
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/wishlist/create
+{
+   "website":"WWW.SOLOLUXURY.COM",
+   "product_sku" :"5I246C959F0118-*",
+   "customer_email" : "solanki7492@gmail.com"
+}
+```
+
+**Successful Response:**
+```json
+{
+    "status": "200",
+    "message": "Wishlist removed successfully"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```
+
