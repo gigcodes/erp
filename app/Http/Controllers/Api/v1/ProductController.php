@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Order;
 use App\Product;
 use App\ProductCancellationPolicie;
+use App\StoreWebsite;
 use App\StoreWebsiteOrder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use \Carbon\Carbon;
 
 class ProductController extends Controller
@@ -160,5 +162,90 @@ class ProductController extends Controller
         }
         $message = $this->generate_erp_response("order.return-check.failed.website_missing", 0, $default = "website is missing.", request('lang_code'));
         return response()->json(["code" => 500, "message" => $message, "data" => []]);
+    }
+
+    public function wishList(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'website'          => 'required|exists:store_websites,website',
+            'customer_name'    => 'required',
+            'customer_email'   => 'required',
+            'language_code'    => 'required',
+            'product_sku'      => 'required',
+            'product_name'     => 'required',
+            'product_price'    => 'required',
+            'product_currency' => 'required',
+        ]);
+
+        $storeweb = StoreWebsite::where('website', $request->website)->first();
+        if ($validator->fails()) {
+            $message = $this->generate_erp_response("wishlist.failed.validation", isset($storeweb) ? $storeweb->id : null, $default = 'please check validation errors !', request('lang_code'));
+            return response()->json(['status' => '500', 'message' => $message, 'errors' => $validator->errors()], 200);
+        }
+
+        $customer = \App\Customer::where("email", $request->customer_email)->where("store_website_id", $storeweb->id)->first();
+        $basket   = \App\CustomerBasket::where("customer_email", $request->customer_email)->first();
+        if (!$basket) {
+            $basket                   = new \App\CustomerBasket;
+            $basket->customer_name    = $request->customer_name;
+            $basket->customer_email   = $request->customer_email;
+            $basket->store_website_id = $storeweb->id;
+            $basket->language_code    = $request->language_code;
+            $basket->save();
+        }
+
+        $sku = explode("-", $request->product_sku);
+
+        $product = \App\Product::where("sku", $sku[0])->first();
+
+        $basketProduct = \App\CustomerBasketProduct::where("customer_basket_id", $basket->id)->where("product_sku", $sku[0])->first();
+        if (!$basketProduct) {
+            $basketProduct                     = new \App\CustomerBasketProduct;
+            $basketProduct->customer_basket_id = $basket->id;
+            $basketProduct->product_id         = $product->id;
+            $basketProduct->product_sku        = $product->sku;
+            $basketProduct->product_name       = $request->product_name;
+            $basketProduct->product_price      = $request->product_price;
+            $basketProduct->product_currency   = $request->product_currency;
+            $basketProduct->save();
+        }
+
+        $message = $this->generate_erp_response("wishlist.create.success", isset($storeweb) ? $storeweb->id : null, $default = 'Wishlist created successfully', request('lang_code'));
+
+        return response()->json(['status' => '200', 'message' => $message], 200);
+
+    }
+
+    public function wishListRemove(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'website'        => 'required|exists:store_websites,website',
+            'customer_email' => 'required',
+            'product_sku'    => 'required',
+        ]);
+
+        $storeweb = StoreWebsite::where('website', $request->website)->first();
+        if ($validator->fails()) {
+            $message = $this->generate_erp_response("wishlist.failed.validation", isset($storeweb) ? $storeweb->id : null, $default = 'please check validation errors !', request('lang_code'));
+            return response()->json(['status' => '500', 'message' => $message, 'errors' => $validator->errors()], 200);
+        }
+
+        $sku = explode("-", $request->product_sku);
+
+        $basketProduct = \App\CustomerBasketProduct::join("customer_baskets as cb", "cb.id", "customer_basket_products.customer_basket_id")
+            ->where("cb.customer_email", $request->customer_email)->where("customer_basket_products.product_sku", $sku[0])
+            ->where("cb.store_website_id",$storeweb->id)
+            ->first();
+
+        if ($basketProduct) {
+            $basketProduct->delete();
+            $message = $this->generate_erp_response("wishlist.remove.success", isset($storeweb) ? $storeweb->id : null, $default = 'Product removed successfully from wishlist', request('lang_code'));
+            return response()->json(['status' => '200', 'message' => $message], 200);
+
+        }
+
+        $message = $this->generate_erp_response("wishlist.remove.no_product", isset($storeweb) ? $storeweb->id : null, $default = 'Sorry there is no product available in wishlist', request('lang_code'));
+        return response()->json(['status' => '500', 'message' => $message], 200);
+
     }
 }
