@@ -1313,7 +1313,7 @@ Key : wishlist.failed.validation, wishlist.remove.success, wishlist.remove.no_pr
 **Request:**
 
 ```json
-POST https://erp.theluxuryunlimited.com/api/wishlist/create
+POST https://erp.theluxuryunlimited.com/api/wishlist/remove
 {
    "website":"WWW.SOLOLUXURY.COM",
    "product_sku" :"5I246C959F0118-*",
