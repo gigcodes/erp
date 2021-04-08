@@ -25,6 +25,7 @@ Route::get('/test/deleteProductImages', 'TmpTaskController@deleteProductImages')
 
 
 Route::get('/test/analytics', 'AnalyticsController@cronShowData');
+Route::get('/test/analytics-user', 'AnalyticsController@cronGetUserShowData')->name('test.google.analytics');
 
 Route::get('/test/dhl', 'TmpTaskController@test');
 
