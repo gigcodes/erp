@@ -7,6 +7,7 @@ use App\Analytics;
 use App\AnalyticsSummary;
 use App\AnalyticsCustomerBehaviour;
 use App\StoreWebsiteAnalytic;
+use App\GoogleAnalytics;
 use Spatie\Analytics\Period;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Input;
@@ -22,52 +23,32 @@ class AnalyticsController extends Controller
     public function showData(Request $request)
     {
         $visitors = ['New Visitor' => 'New Visitor', 'Returning Visitor' => 'Returning Visitor'];
+        $dimensionsList = GoogleAnalytics::groupBy('dimensions')->pluck('dimensions');
+        $data = GoogleAnalytics::query();
+        $data->select('google_analytics.*','store_website_analytics.website');
+        $data->leftJoin('store_website_analytics','google_analytics.website_analytics_id','=','store_website_analytics.id');
 
-        $data = Analytics::query();
-
-        if (!empty($_GET[ 'location' ])) {
-            $location = $_GET[ 'location' ];
-            $data = $data->where('country', 'like', '%' . $location . '%');
+        if ( request('dimensionsList') ) {
+            $data = $data->where('dimensions',request('dimensionsList'));
         } 
 
-        if (!empty($_GET[ 'user' ])) {
-            $data = $data->where('user_type', $request[ 'user' ]);
-        } 
+        // if (!empty($_GET[ 'user' ])) {
+        //     $data = $data->where('user_type', $request[ 'user' ]);
+        // } 
 
-        if (!empty($_GET[ 'device_os' ])) {
-            $data = $data->where(function($q) use($request) {
-                $q->where('operatingSystem', 'like', '%' . $request[ 'device_os' ] . '%')->orWhere('device_info', 'like', '%' . $request[ 'device_os' ] . '%');
-            });
-        }
-
-        if (!empty($_GET[ 'start_date' ]) && !empty($_GET[ 'end_date' ])) {
-            $data = $data->where('date', '>=', $_GET[ 'start_date' ])->where('date', '<=', $_GET[ 'end_date' ]);
-        }
-
-        $data = $data->orderBy('date','desc')->get()->toArray();
-        // Analytics::get()->toArray();
-        // foreach ($data as $key => $new_item) {
-        // DB::table('analytics')->insert(
-        //       [
-        //             "operatingSystem" => $new_item['operatingSystem'],
-        //             "user_type" => $new_item['user_type'],
-        //             "time" => $new_item['time'],
-        //             "page_path" => $new_item['page_path'],
-        //             "country" => $new_item['country'],
-        //             "city" => $new_item['city'],
-        //             "social_network" => $new_item['social_network'],
-        //             "date" => $new_item['date'],
-        //             "device_info" => $new_item['device_info'],
-        //             "sessions" => $new_item['sessions'],
-        //             "pageviews" => $new_item['pageviews'],
-        //             "bounceRate" => $new_item['bounceRate'],
-        //             "avgSessionDuration" => $new_item['avgSessionDuration'],
-        //             "timeOnPage" => $new_item['timeOnPage'],
-
-        //       ]
-        //    );
+        // if (!empty($_GET[ 'device_os' ])) {
+        //     $data = $data->where(function($q) use($request) {
+        //         $q->where('operatingSystem', 'like', '%' . $request[ 'device_os' ] . '%')->orWhere('device_info', 'like', '%' . $request[ 'device_os' ] . '%');
+        //     });
         // }
-        return View('analytics.index', compact('data', 'visitors'));
+
+        // if (!empty($_GET[ 'start_date' ]) && !empty($_GET[ 'end_date' ])) {
+        //     $data = $data->where('date', '>=', $_GET[ 'start_date' ])->where('date', '<=', $_GET[ 'end_date' ]);
+        // }
+
+        $data = $data->orderBy('created_at','desc')->paginate(30);
+        
+        return View('analytics.index-new', compact('data', 'visitors', 'dimensionsList'));
     }
 
     public function analyticsDataSummary(Request $request)
@@ -200,6 +181,48 @@ class AnalyticsController extends Controller
                 $ERPlogArray['response'] = $e->getMessage();
             }
             storeERPLog($ERPlogArray);
+        }
+    }
+
+    public function cronGetUserShowData(){
+
+        \Log::channel('daily')->info("Google Analytics User Started running ...");
+        $analyticsDataArr = [];
+
+        include(app_path() . '/Functions/Analytics_user.php');
+        $data = StoreWebsiteAnalytic::all()->toArray();
+        // $data = StoreWebsiteAnalytic::limit(1)->get()->toArray();
+        // dd( $data);
+        foreach ($data as $value) {
+
+            $ERPlogArray = [
+                'model_id' => $value['id'],
+                'url'      => 'https://www.googleapis.com/auth/analytics.readonly',
+                'model'    => StoreWebsiteAnalytic::class,
+                'type'     => 'success',
+                'request'  => $value,
+            ];
+
+            try {
+                
+                // $response   = getReport($analytics, $value);
+                $response   = getReportRequest($analytics, $value);
+                extract($response);
+                $dimensionArr = ['ga:operatingSystem','ga:browser','ga:country','ga:pagePath','ga:userType'];
+                foreach ($dimensionArr as $key => $dimensionValue) {
+                    $resultData = getDimensionWiseData( $analyticsObj ,$requestObj, $dimensionValue);
+                    $resultData = printResults( $resultData , $value['id']);
+                    // dd( $resultData );
+                    if( $resultData ){
+                        GoogleAnalytics::insert($resultData);
+                    }
+                }
+
+                return redirect()->back()->with('success','success');
+            }catch(\Exception  $e) {
+                return redirect()->back()->with('error',$e->getMessage());
+            }
+            return redirect()->back();
         }
     }
 }
