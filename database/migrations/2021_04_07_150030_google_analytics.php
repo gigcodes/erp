@@ -12,15 +12,18 @@ class GoogleAnalytics extends Migration
      * @return void
      */
     public function up()
-    {
-        Schema::create('google_analytics', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('website_analytics_id')->nullable();
-            $table->text('dimensions')->nullable();
-            $table->text('dimensions_name')->nullable();
-            $table->text('dimensions_value')->nullable();
-            $table->timestamps();
-        });
+    {   
+        if (!Schema::hasTable('google_analytics')) {
+            // Code to create table
+            Schema::create('google_analytics', function (Blueprint $table) {
+                $table->increments('id');
+                $table->integer('website_analytics_id')->nullable();
+                $table->text('dimensions')->nullable();
+                $table->text('dimensions_name')->nullable();
+                $table->text('dimensions_value')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

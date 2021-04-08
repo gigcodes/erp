@@ -96,7 +96,7 @@
         "psr-4": {
             "App\\": "app/",
             "Modules\\": "Modules/",
-            "InstagramAPI\\": "vendors/mgp25/instagram-php/src"
+            "InstagramAPI\\": "app/Library/mgp25/instagram-php/src"
         },
         "files": [
             "Modules/BookStack/helpers.php",

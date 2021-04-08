@@ -7,7 +7,11 @@ use App\Analytics;
 use App\AnalyticsSummary;
 use App\AnalyticsCustomerBehaviour;
 use App\StoreWebsiteAnalytic;
-use App\GoogleAnalytics;
+// use App\GoogleAnalytics;
+use App\GoogleAnalyticsPageTracking;
+use App\GoogleAnalyticsPlatformDevice;
+use App\GoogleAnalyticsGeoNetwork;
+use App\GoogleAnalyticsUser;
 use Spatie\Analytics\Period;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Input;
@@ -23,15 +27,35 @@ class AnalyticsController extends Controller
     public function showData(Request $request)
     {
         $visitors = ['New Visitor' => 'New Visitor', 'Returning Visitor' => 'Returning Visitor'];
-        $dimensionsList = GoogleAnalytics::groupBy('dimensions')->pluck('dimensions');
-        $data = GoogleAnalytics::query();
-        $data->select('google_analytics.*','store_website_analytics.website');
-        $data->leftJoin('store_website_analytics','google_analytics.website_analytics_id','=','store_website_analytics.id');
+        // $dimensionsList = GoogleAnalytics::groupBy('dimensions')->pluck('dimensions');
+        // $data = GoogleAnalytics::query();
+        // $data->select('google_analytics.*','store_website_analytics.website');
+        // $data->leftJoin('store_website_analytics','google_analytics.website_analytics_id','=','store_website_analytics.id');
 
-        if ( request('dimensionsList') ) {
-            $data = $data->where('dimensions',request('dimensionsList'));
-        } 
+        // if ( request('dimensionsList') ) {
+        //     $data = $data->where('dimensions',request('dimensionsList'));
+        // } 
 
+        // $data = $data->orderBy('created_at','desc')->get()->toArray();
+
+        $pageTrackingData = GoogleAnalyticsPageTracking::select('google_analytics_page_tracking.*','store_website_analytics.website')
+                            ->leftJoin('store_website_analytics','google_analytics_page_tracking.website_analytics_id','=','store_website_analytics.id')->get()->toArray();
+
+        $PlatformDeviceData = GoogleAnalyticsPlatformDevice::select('google_analytics_platform_device.*','store_website_analytics.website')
+                            ->leftJoin('store_website_analytics','google_analytics_platform_device.website_analytics_id','=','store_website_analytics.id')->get()->toArray();
+
+        $geoNetworkData = GoogleAnalyticsGeoNetwork::select('google_analytics_geo_network.*','store_website_analytics.website')
+                            ->leftJoin('store_website_analytics','google_analytics_geo_network.website_analytics_id','=','store_website_analytics.id')->get()->toArray();
+
+        $usersData = GoogleAnalyticsUser::select('google_analytics_user.*','store_website_analytics.website')
+                            ->leftJoin('store_website_analytics','google_analytics_user.website_analytics_id','=','store_website_analytics.id')->get()->toArray();
+        $setData = [];
+
+        // foreach ($data as $key => $value) {
+        //     $setData[$key][$value['dimensions_name']] = $value['dimensions_value'];
+        // }
+
+        // dd( $setData );
         // if (!empty($_GET[ 'user' ])) {
         //     $data = $data->where('user_type', $request[ 'user' ]);
         // } 
@@ -46,9 +70,9 @@ class AnalyticsController extends Controller
         //     $data = $data->where('date', '>=', $_GET[ 'start_date' ])->where('date', '<=', $_GET[ 'end_date' ]);
         // }
 
-        $data = $data->orderBy('created_at','desc')->paginate(30);
+        // $data = $data->orderBy('created_at','desc')->paginate(30);
         
-        return View('analytics.index-new', compact('data', 'visitors', 'dimensionsList'));
+        return View('analytics.index-new', compact('visitors','pageTrackingData','PlatformDeviceData','geoNetworkData','usersData'));
     }
 
     public function analyticsDataSummary(Request $request)
@@ -208,21 +232,38 @@ class AnalyticsController extends Controller
                 // $response   = getReport($analytics, $value);
                 $response   = getReportRequest($analytics, $value);
                 extract($response);
-                $dimensionArr = ['ga:operatingSystem','ga:browser','ga:country','ga:pagePath','ga:userType'];
-                foreach ($dimensionArr as $key => $dimensionValue) {
-                    $resultData = getDimensionWiseData( $analyticsObj ,$requestObj, $dimensionValue);
-                    $resultData = printResults( $resultData , $value['id']);
-                    // dd( $resultData );
-                    if( $resultData ){
-                        GoogleAnalytics::insert($resultData);
-                    }
+
+                $resultData             = getPageTrackingData( $analyticsObj ,$requestObj);
+                $resultPageTrackingData = printPageTrackingResults( $resultData , $value['id']);
+
+                $resultData           = getPlatformDeviceData( $analyticsObj ,$requestObj);
+                $ResultPlatformDevice = printPlatformDeviceResults( $resultData , $value['id']);
+
+                $resultData           = getGeoNetworkData( $analyticsObj ,$requestObj);
+                $ResultPlatformDevice = printGeoNetworkResults( $resultData , $value['id']);
+
+                $resultData  = getUsersData( $analyticsObj ,$requestObj);
+                $UsersDevice = printUsersResults( $resultData , $value['id']);
+
+                if(  $resultPageTrackingData ) {
+                    // GoogleAnalyticsPageTracking::insert( $resultPageTrackingData );
                 }
+                
+                // $dimensionArr = ['ga:operatingSystem','ga:browser','ga:country','ga:pagePath','ga:userType'];
+                // foreach ($dimensionArr as $key => $dimensionValue) {
+                //     $resultData = getDimensionWiseData( $analyticsObj ,$requestObj, $dimensionValue);
+                //     $resultData = printResults( $resultData , $value['id']);
+                //     // dd( $resultData );
+                //     if( $resultData ){
+                //         GoogleAnalytics::insert($resultData);
+                //     }
+                // }
 
                 return redirect()->back()->with('success','success');
             }catch(\Exception  $e) {
                 return redirect()->back()->with('error',$e->getMessage());
             }
-            return redirect()->back();
+            // return redirect()->back();
         }
     }
 }

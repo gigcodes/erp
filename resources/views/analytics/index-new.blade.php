@@ -28,96 +28,199 @@
 </div>
 
 
-<div class="row">
+<div class="row ">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Analytics Data</h2>
     </div>
-    <form action="{{route('filteredAnalyticsResults')}}" method="get" class="">
-    <div class="" style="">
-        {{-- <div class="col-md-4">
-                <div class="form-group col-md-6">
-                    <input name="start_date" type="date" placeholder="Start Date" class="form-control"
-                        value="{{!empty(request()->start_date) ? request()->start_date : ''}}">
-                </div>
-                <div class="form-group col-md-6">
-                    <input name="end_date" type="date" placeholder="End Date" class="form-control"
-                        value="{{!empty(request()->end_date) ? request()->end_date : ''}}">
-                </div>
-        </div> --}}
-        <div class="col-md-12">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <select name="dimensionsList" class="form-control">
-                            <option value=""> Select dimensions </option>
-                            @foreach ($dimensionsList as $item)
-                                <option value="{{$item}}" {{ request('dimensionsList') == $item ? 'selected' : ''  }} > {{ $item }} </option>
-                            @endforeach
-                        </select>
+    <form action="{{route('filteredAnalyticsResults')}}" method="get" class="d-none">
+        <div class="" style="">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <select name="dimensionsList" class="form-control">
+                                <option value=""> Select dimensions </option>
+                                @foreach ($dimensionsList ?? [] as $item)
+                                    <option value="{{$item}}" {{ request('dimensionsList') == $item ? 'selected' : ''  }} > {{ $item }} </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
-                </div>
-                {{-- <div class="col-md-3">
-                    <div class="form-group">
-                        <input name="device_os" type="text" placeholder="Device/OS" class="form-control"
-                            value="{{!empty(request()->device_os) ? request()->device_os : ''}}" style="width:100%">
+                    <div class="form-group col-md-3 " style="text-align:right">
+                        <button class="btn btn-default">Submit</button>
                     </div>
-                </div> --}}
-                <div class="form-group col-md-3 " style="text-align:right">
-                    <button class="btn btn-default">Submit</button>
                 </div>
             </div>
         </div>
+    </form>
+    <div class="col-md-12" style="text-align:end">
+        <a href="{{ route('test.google.analytics') }}" class="btn btn-secondary">Get new record</a>
     </div>
-</form>
-<div class="col-md-12" style="text-align:end">
-    <a href="{{ route('test.google.analytics') }}" class="btn btn-secondary">Get new record</a>
-</div>
-    {{-- <form action="{{route('filteredAnalyticsResults')}}" method="get" class="form-inline float-right">
-    <div class="form-group">
-        <div class="col-md-4 col-lg-6 col-xl-6">
-            <input name="location" type="text" placeholder="City/Country" class="form-control"
-                value="{{!empty(request()->location) ? request()->location : ''}}">
-        </div>
-    </div>
-    <div class="form-group">
-        <div class="col-md-4 col-lg-6 col-xl-6">
-            <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
-        </div>
-    </div>
-    </form> --}}
 </div>
 @include('partials.flash_messages')
-<div class="row mt-5">
-    <div class="container-fluid">
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <thead>
-                    <tr>
-                        <th scope="col" class="text-center">Website</th>
-                        <th scope="col" class="text-center">Dimensions</th>
-                        <th class="text-center">Name</th>
-                        <th scope="col" class="text-center">Value</th>
-                        <th scope="col" class="text-center">Created at</th>
-                        
-                    </tr>
-                </thead>
-                <tbody>
 
-                    @foreach ($data as $key => $item)
-                    <tr>
-                        <td>{{ $item['website'] }}</td>
-                        <td>{{ $item['dimensions'] }}</td>
-                        <td width="10%">{{ $item['dimensions_name'] }}</td>
-                        <td>{{ $item['dimensions_value'] }}</td>
-                        <td>{{$item['created_at']}}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            <div class="col-md-12 text-center">
-                {!! $data->links() !!}
+<div class="col-md-12">
+    <div id="exTab2" >
+        <ul class="nav nav-tabs">
+            <li class="{{ request('logs_per_page') || request('crawls_per_page') ? '' : 'active' }}"><a  href="#browser" data-toggle="tab">Platform or Device</a></li>
+            <li class="{{ request('logs_per_page') ? 'active' : '' }}"><a href="#geoNetworkData" data-toggle="tab">Geo Network</a>
+            <li class="{{ request('crawls_per_page') ? 'active' : '' }}"><a href="#usersData" data-toggle="tab">Users</a>
+            {{-- <li class="{{ request('crawls_per_page') ? 'active' : '' }}"><a href="#userType" data-toggle="tab">User Type</a> --}}
+            <li class="{{ request('crawls_per_page') ? 'active' : '' }}"><a href="#pageTrackingData" data-toggle="tab">Page Tracking</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="tab-content" >
+    <div class="tab-pane active" id="browser"> 
+        <div class="container-fluid">
+            <div class="table-responsive ">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="text-center">Website</th>
+                            <th scope="col" class="text-center">Browser</th>
+                            <th class="text-center">Opreation system</th>
+                            <th scope="col" class="text-center">Session</th>
+                            <th scope="col" class="text-center">Created at</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach ($PlatformDeviceData as $key => $item)
+                        <tr>
+                            <td>{{ $item['website'] }}</td>
+                            <td>{{ $item['browser'] }}</td>
+                            <td width="10%">{{ $item['os'] }}</td>
+                            <td>{{ $item['session'] }}</td>
+                            <td>{{$item['created_at']}}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                {{-- <div class="col-md-12 text-center">
+                    {!! $data->links() !!}
+                </div> --}}
             </div>
         </div>
+    </div>
+
+    <div class="tab-pane" id="geoNetworkData"> 
+        <div class="container-fluid">
+            <div class="table-responsive ">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="text-center">Website</th>
+                            <th scope="col" class="text-center">Country</th>
+                            <th class="text-center">country ISO Code</th>
+                            <th scope="col" class="text-center">Sessions</th>
+                            <th scope="col" class="text-center">Created at</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach ($geoNetworkData as $key => $item)
+                        <tr>
+                            <td>{{ $item['website'] }}</td>
+                            <td>{{ $item['country'] }}</td>
+                            <td width="10%">{{ $item['iso_code'] }}</td>
+                            <td>{{ $item['session'] }}</td>
+                            <td>{{$item['created_at']}}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                {{-- <div class="col-md-12 text-center">
+                    {!! $data->links() !!}
+                </div> --}}
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane" id="usersData"> 
+        <div class="container-fluid">
+            <div class="table-responsive ">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="text-center">Website</th>
+                            <th scope="col" class="text-center">User type</th>
+                            <th scope="col" class="text-center">Sessions</th>
+                            <th scope="col" class="text-center">Created at</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach ($usersData as $key => $item)
+                        <tr>
+                            <td>{{ $item['website'] }}</td>
+                            <td>{{ $item['user_type'] }}</td>
+                            <td width="10%">{{ $item['session'] }}</td>
+                            <td>{{$item['created_at']}}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                {{-- <div class="col-md-12 text-center">
+                    {!! $data->links() !!}
+                </div> --}}
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane " id="userType"> 
+
+    </div>
+
+    <div class="tab-pane " id="pageTrackingData"> 
+        <div class="container-fluid">
+            <div class="">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="text-center">Website</th>
+                            <th scope="" class="text-center">Page</th>
+                            <th class="text-center">Avg time page</th>
+                            <th scope="col" class="text-center">Page views</th>
+                            <th scope="col" class="text-center">Unique page views</th>
+                            <th scope="col" class="text-center">Exit rate</th>
+                            <th scope="col" class="text-center">Entrances</th>
+                            <th scope="col" class="text-center">Entrance Rate</th>
+                            <th scope="col" class="text-center">Created at</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach ($pageTrackingData as $key => $item)
+                        <tr>
+                            <td>{{ $item['website'] }}</td>
+                            <td width="5%" title="{{$item['page']}}">{{ substr($item['page'], 0, 30)}}</td>
+                            <td>{{ $item['avg_time_page'] }}</td>
+                            <td width="10%">{{ $item['page_views'] }}</td>
+                            <td>{{ $item['unique_page_views'] }}</td>
+                            <td>{{ $item['exit_rate'] }}</td>
+                            <td>{{ $item['entrances'] }}</td>
+                            <td>{{ $item['entrance_rate'] }}</td>
+                            <td>{{$item['created_at']}}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                {{-- <div class="col-md-12 text-center">
+                    {!! $data->links() !!}
+                </div> --}}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mt-5">
+    <div class="container-fluid">
+        
     </div>
 </div>
 @endsection
