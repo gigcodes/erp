@@ -989,7 +989,7 @@ class ScrapController extends Controller
                     $scrapedProduct->url               = $link;
                     $scrapedProduct->last_inventory_at = Carbon::now();
                     $scrapedProduct->save();
-                    $pendingUrl[] = $link;
+                    //$pendingUrl[] = $link;
                 } else {
                     $pendingUrl[] = $link;
                 }
