@@ -24,6 +24,32 @@ class ColorController extends Controller
         $title = "Colors | Store Website";
         $store_colors = StoreWebsiteColor::all();
 
+
+        if ($request->get("push") == 1) {
+            $website    = \App\StoreWebsite::where("website_source", "magento")->where("id",$request->get("store_website_id"))->where("api_token", "!=", "")->get();
+            $colorsData = \App\ColorNamesReference::groupBy('erp_name')->get();
+            if (!$colorsData->isEmpty()) {
+                foreach ($colorsData as $cd) {
+                    foreach ($website as $web) {
+                        $checkSite = \App\StoreWebsiteColor::where("erp_color", $cd->erp_name)->where("store_website_id", $web->id)->where("platform_id", ">", 0)->first();
+                        if (!$checkSite) {
+                            $id = \seo2websites\MagentoHelper\MagentoHelper::addColor($cd->erp_name, $web);
+                            if (!empty($id)) {
+                                \App\StoreWebsiteColor::where("erp_color", $cd->erp_name)->where("store_website_id", $web->id)->delete();
+                                $swc                   = new \App\StoreWebsiteColor;
+                                $swc->erp_color        = $cd->erp_name;
+                                $swc->store_website_id = $web->id;
+                                $swc->platform_id      = $id;
+                                $swc->save();
+                            }
+                        }
+                    }
+                }
+            }
+
+            return redirect()->back()->with('success','Color Request finished successfully');;
+        }
+
         // Check for keyword search
         if ($request->keyword != null) {
             $store_colors = $store_colors->where("erp_color", "like", "%" . $request->keyword . "%");
