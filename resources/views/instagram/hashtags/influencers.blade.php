@@ -210,7 +210,7 @@
                     <thead >
                     <tr>
 
-                        <th style="width:3%">#</th>
+                        <th style="width:2%">#</th>
                         <th style="width:7%">Date</th>
                         <th style="width:10%">Username</th>
                         <th style="width:10%">Email</th>
@@ -218,9 +218,9 @@
                         <th style="width:5%">Posts</th>
                         <th style="width:7%">Followers</th>
                         <th style="width:7%">Following</th>
-                        <th style="width:7%">Country</th>
+                        <th style="width:8%">Country</th>
                         <th style="width:10%">Description</th>
-                        <th style="width:21%">Communication</th>
+                        <th style="width:41%">Communication</th>
                         <th style="width:6%">Action</th>
                         <!-- <th>Phone</th>
                         <th>Website</th>

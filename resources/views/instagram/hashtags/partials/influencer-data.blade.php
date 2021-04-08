@@ -27,6 +27,7 @@
 		<span style="word-break:break-all;" class="show-full-description-{{$influencer->id}} hidden">{{$influencer->description}}</span>
     </td>  
     <td>
+		<div class="d-flex">
         @php 
         $thread =\App\InstagramThread::where('scrap_influencer_id', $influencer->id)->first();
         @endphp
@@ -37,22 +38,22 @@
         </div>
         @endif
         @endif
-       <div class="row" style="margin:0px;padding:0px;">
-       <div class="form-group mr-3" style="width: 7	0%; margin-bottom: 2px;">
-            <select class="form-control account-search-{{$influencer->id}} select2" name="account_id" data-placeholder="Sender...">
-                <option value="">Select sender...</option>
-                  @foreach ($accounts as $key => $account)
-                    <option value="{{ $key }}" {{ isset($thread) && $thread->account_id == $key ? 'selected' : '' }}>{{ $account }}</option>
-                  @endforeach
-            </select>
-        </div>
+		<div class="row" style="margin:0px;padding:0px;">
+		<div class="form-group mr-3" style="width: 70%; margin-bottom: 2px;">
+				<select class="form-control account-search-{{$influencer->id}} select2" name="account_id" data-placeholder="Sender...">
+					<option value="">Select sender...</option>
+					@foreach ($accounts as $key => $account)
+						<option value="{{ $key }}" {{ isset($thread) && $thread->account_id == $key ? 'selected' : '' }}>{{ $account }}</option>
+					@endforeach
+				</select>
+			</div>
        </div>
         <div class="row" style="margin:0px;padding:0px;">
             <div class="col-md-9 cls_remove_rightpadding" style="padding:0px;">
                 <textarea name="" class="form-control type_msg message_textarea cls_message_textarea" placeholder="Type your message..." id="message{{ $influencer->id }}"></textarea>
                 <input type="hidden" id="message-id" name="message-id" />
             </div>
-            <div class="col-md-3 cls_remove_padding" tyle="padding:0px;">
+            <div class="col-md-3 " tyle="padding:0px;">
                 <div class="input-group-append">
                     @if($thread)
                     	<a href="{{ route('attachImages', ['direct', @$thread->id, 1]) .'?'.http_build_query(['return_url' => 'instagram/influencers'])}}" class="btn btn-image px-1"><img src="{{asset('images/attach.png')}}"/></a>
@@ -64,8 +65,8 @@
                 </div>
             </div>                                          
         </div>
-		<div class="d-flex">
-			<select class="form-control quickComments select2-quick-reply" name="quickComment" style="width: 100%;" >
+		
+			<select class="form-control quickComments select2-quick-reply" name="quickComment" style="width: 40%;" >
 				<option  data-vendorid="{{ $influencer->id }}"  value="">Auto Reply</option>
 				<?php
 				foreach ($replies ?? [] as $key_r => $value_r) { ?>
