@@ -312,7 +312,7 @@
                             </td> -->
                             <td width="6%">
                                 <div class="form-group" style="display: inline" >
-                                    <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->scrapers_status, ["class" => "form-control scrapers_status select2", "style" => "width:100%;"]); ?>
+                                    <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->scrapers_status, ["class" => "form-control scrapers_status select2", "style" => "width:60%;"]); ?>
                                     <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="status" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
                                 </div>
                                 @php
@@ -381,27 +381,27 @@
                                 </div>
                             </td>
                             <td width="14%">
-                                <button style="padding:3px;" type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}"><img width="2px;" src="/images/forward.png"/></button>
-                                <a style="padding:3px;" class="btn  d-inline btn-image" href="{{ get_server_last_log_file($supplier->scraper_name,$supplier->server_id) }}" id="link" target="-blank"><img src="/images/view.png" /></a>
-                                <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="restartScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )"><img width="2px;" src="/images/resend2.png"/></button>
-                                <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="getRunningStatus('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )"><img width="2px;" src="/images/resend.png"/></button>
+                                <button style="padding:3px;" type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}" title="Expand more data"><img width="2px;" src="/images/forward.png"/></button>
+                                <a style="padding:3px;" class="btn  d-inline btn-image" href="{{ get_server_last_log_file($supplier->scraper_name,$supplier->server_id) }}" id="link" target="-blank" title="View log"><img src="/images/view.png" /></a>
+                                <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="restartScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )" title="Restart script"><img width="2px;" src="/images/resend2.png"/></button>
+                                <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="getRunningStatus('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )" title="Check running status"><img width="2px;" src="/images/resend.png"/></button>
                                 <a href="<?php echo route("scraper.get.log.list"); ?>?name=<?php echo $supplier->scraper_name ?>&server_id=<?php echo $supplier->server_id ?>" target="__blank">
-                                    <button style="padding:3px;" type="button" class="btn btn-image d-inline">
+                                    <button style="padding:3px;" type="button" class="btn btn-image d-inline" title="API call">
                                         <i class="fa fa-bars"></i>
                                     </button>
                                 </a>
-                                <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-screenshot">
+                                <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-screenshot" title="Get screenshot">
                                      <i class="fa fa-desktop"></i>
                                 </button>
-                                <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-tasks-remote">
+                                <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-tasks-remote" title="Task list">
                                      <i class="fa fa-tasks"></i>
                                 </button>
-                                <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-position-history">
+                                <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-position-history" title="Histories">
                                      <i class="fa fa-address-card"></i>
                                 </button>
-                                <button style="padding-right:0px;" type="button" class="btn btn-image d-inline show-history" data-field="update-restart-time" data-id="{{ $supplier->scrapper_id }}"><i class="fa fa-clock-o"></i></button>
-                                <button style="padding-right:0px;" type="button" class="btn btn-image d-inline get-scraper-server-timing" data-name="{{ $supplier->scraper_name }}"><i class="fa fa-info-circle"></i></button>
-                                <button style="padding-right:0px;" type="button" class="btn btn-image d-inline get-last-errors" data-id="{{ $supplier->scrapper_id }}" data-name="{{ $supplier->scraper_name }}">
+                                <button style="padding-right:0px;" type="button" class="btn btn-image d-inline show-history" data-field="update-restart-time" data-id="{{ $supplier->scrapper_id }}" title="Remark history" ><i class="fa fa-clock-o"></i></button>
+                                <button style="padding-right:0px;" type="button" class="btn btn-image d-inline get-scraper-server-timing" data-name="{{ $supplier->scraper_name }}" title="Get scraper server timing"><i class="fa fa-info-circle"></i></button>
+                                <button style="padding-right:0px;" type="button" class="btn btn-image d-inline get-last-errors" data-id="{{ $supplier->scrapper_id }}" data-name="{{ $supplier->scraper_name }}" title="Last errors">
                                     <i class="fa fa-list-ol"></i>
                                 </button>
                                 @if($isAdmin)
@@ -951,6 +951,9 @@
                 });
             }
         });
+
+
+        $(".scrapers_status").select2();
 
         $(document).on("click", ".toggle-class", function () {
             $(".hidden_row_" + $(this).data("id")).toggleClass("dis-none");
