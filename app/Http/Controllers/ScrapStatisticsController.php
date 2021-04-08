@@ -697,7 +697,7 @@ class ScrapStatisticsController extends Controller
     {
         \Artisan::call("check:scraper-running-status");
 
-        $statusHistory = \App\ScraperServerStatusHistory::whereDate("scraper_name", $request->scraper_name)->latest()->get();
+        $statusHistory = \App\ScraperServerStatusHistory::where("scraper_name", $request->scraper_name)->latest()->get();
 
         return view("scrap.partials.status-history", compact('statusHistory'));
     }
