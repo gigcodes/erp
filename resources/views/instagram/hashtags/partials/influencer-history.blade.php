@@ -1,6 +1,6 @@
 <div id="category-history-modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
-      <div class="modal-content" style="height: 80%;">
+      <div class="modal-content" style="height: 80%; overflow-y: auto;">
         <div class="modal-header">
           <h4 class="modal-title">History</span></h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
