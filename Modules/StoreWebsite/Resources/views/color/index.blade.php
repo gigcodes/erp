@@ -15,14 +15,34 @@
         <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
     </div>
     <br>
+     @if(session()->has('success'))
+	    <div class="col-lg-12 margin-tb">
+		    <div class="alert alert-success">
+		        {{ session()->get('success') }}
+		    </div>
+		</div>    
+	@endif
     <div class="col-lg-12 margin-tb">
     	<div class="row">
 	    	<div class="col col-md-9">
 		    	<div class="row">
-
 	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action" data-toggle="modal" data-target="#colorCreateModal">
 		  				<img src="/images/add.png" style="cursor: default;">
 		  			</button>
+		  			<form class="form-inline message-search-handler" action="?" method="get">
+		  				<input type="hidden" name="push" value="1">
+				  		<div class="form-group">
+						    <label for="keyword">Store Wesbite:</label>
+						    <?php echo Form::select("store_website_id",\App\StoreWebsite::pluck('title','id')->toArray(),request("store_website_id"),["class"=> "form-control select2","placeholder" => "Select Website"]) ?>
+					  	</div>
+					  	&nbsp;
+						<div class="form-group">
+					  		<label for="button">&nbsp;</label>
+					  		<button type="submit" class="btn btn-secondary">
+					  			Push Color
+					  		</button>
+					  	</div>		
+			  		</form>
 				 </div>
 		    </div>
 		    <div class="col">
