@@ -179,7 +179,7 @@ class InfluencersController extends Controller
 
 
             $cURLConnection = curl_init();
-            $url = env('INFLUENCER_SCRIPT_URL').'54:'.env('INFLUENCER_SCRIPT_PORT').'/get-status?'.$name;
+            $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/get-status?'.$name;
             
             curl_setopt($cURLConnection, CURLOPT_URL, $url);
             curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
