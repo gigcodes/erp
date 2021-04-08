@@ -89,6 +89,35 @@ class BrandController extends Controller
 
     public function list(Request $request) {
         $title = "Store Brand";
+
+        if ($request->get("push") == 1) {
+            // brand push changes 
+            $brands = \App\Product::join("brands as b","b.id","products.brand")->groupBy("b.id")->select(["b.*"])->get();
+            $webLimit = explode(",", $request->get("store_website_id"));
+            $storeWebsites = \App\StoreWebsite::whereIn("id",$webLimit)->where("api_token", "!=", "")->where("website_source", "magento")->get();
+            if(!$brands->isEmpty()) {
+                foreach($brands as $brand) {
+                    if(!$storeWebsites->isEmpty()) {
+                        foreach($storeWebsites as $storeWeb) {
+                            $magentoBrandId = MagentoHelper::addBrand($brand,$storeWeb);
+                            if(!empty($magentoBrandId)){
+                                $brandStore = \App\StoreWebsiteBrand::where("brand_id", $brand->id)->where("store_website_id", $storeWeb->id)->first();
+                                if(!$brandStore) {
+                                   $brandStore =  new \App\StoreWebsiteBrand;
+                                   $brandStore->brand_id = $brand->id;
+                                   $brandStore->store_website_id = $storeWeb->id;
+                                }
+                                $brandStore->magento_value = $magentoBrandId;
+                                $brandStore->save();
+                            }
+                        }
+                    }
+                }
+            }
+
+            return redirect()->back()->with('success','Brand Request finished successfully');;
+        }
+
         $query = Brand::leftJoin('products', 'products.brand', '=', 'brands.id')->groupBy('brands.id')->select('brands.*', DB::raw('count(products.id) as counts'));
 
         $query = $query->whereNull("brands.deleted_at");
