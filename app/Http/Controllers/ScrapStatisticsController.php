@@ -595,7 +595,7 @@ class ScrapStatisticsController extends Controller
 
     public function positionHistory(Request $request)
     {
-        $histories = \App\ScraperPositionHistory::where("scraper_id", $request->id)->latest()->paginate(1);
+        $histories = \App\ScraperPositionHistory::where("scraper_id", $request->id)->latest()->paginate(15);
 
         return view("scrap.partials.position-history", compact('histories'));
     }
