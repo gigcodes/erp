@@ -43,6 +43,7 @@ class DeleteDatabaseItems extends Command
         \App\ScraperPositionHistory::whereDate("created_at","<=",$datebeforetenday)->delete();
         // delete scraper screenshot
         \App\ScraperScreenshotHistory::whereDate("created_at","<=",$datebeforetenday)->delete();
+        \App\ScraperServerStatusHistory::whereDate("created_at","<=",$datebeforetenday)->delete();
 
     }
 }
