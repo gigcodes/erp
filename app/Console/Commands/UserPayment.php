@@ -53,13 +53,13 @@ class UserPayment extends Command
             $bigining = date('Y-m-d');
         }
         foreach($users as $user) {
-            $lastPayment = PaymentReceipt::where('user_id',$user->id)->orderBy('date','DESC')->first();
+            //$lastPayment = PaymentReceipt::where('user_id',$user->id)->orderBy('date','DESC')->first();
             $start =  $bigining;
             $end =  date('Y-m-d');
-            if($lastPayment) {
-                $start = date('Y-m-d',strtotime($lastPayment->date));
+            //if($lastPayment) {
+                //$start = date('Y-m-d',strtotime($lastPayment->date));
                 //$end =  $start;
-            }
+            //}
             /*if($user->payment_frequency == 'fornightly') {
                 
             }
@@ -83,7 +83,7 @@ class UserPayment extends Command
             }*/
             $yesterday = date('Y-m-d',strtotime("-1 days"));
 
-            echo PHP_EOL . "=====Checking $start - $end ====" . PHP_EOL;
+            echo PHP_EOL . "=====Checking $start - $end for $user->id ====" . PHP_EOL;
 
             $activityrecords  = HubstaffActivity::getTrackedActivitiesBetween($start, $end, $user->id);
 
