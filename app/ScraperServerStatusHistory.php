@@ -14,5 +14,6 @@ class ScraperServerStatusHistory extends Model
         'scraper_name',
         'scraper_string',
         'server_id',
+        'start_time'
     ];
 }

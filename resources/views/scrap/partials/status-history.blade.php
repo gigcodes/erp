@@ -2,6 +2,7 @@
     <thead>
         <tr>
             <th>Server Id</th>
+            <th>Start Time</th>
             <th>Scraper name</th>
             <th>Full Path</th>
             <th>Created at</th>
@@ -11,6 +12,7 @@
         @foreach ($statusHistory as $statusHist)
             <tr>
                 <td>{{ $statusHist->server_id }}</td>
+                <td>{{ $statusHist->start_time }}</td>
                 <td>{{ $statusHist->scraper_name }}</td>
                 <td>{{ $statusHist->scraper_string }}</td>
                 <td>{{ $statusHist->created_at }}</td>
