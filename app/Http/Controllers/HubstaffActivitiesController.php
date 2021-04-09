@@ -212,12 +212,12 @@ class HubstaffActivitiesController extends Controller
                         $task = DeveloperTask::where('id', $ar->task_id)->first();
                         if ($task) {
                             $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
-                            $taskSubject = $ar->task_id . '||#DEVTASK-' . $task->id . '-' . $task->subject." (".$estMinutes." Est.Minute)";;
+                            $taskSubject = $ar->task_id . '||#DEVTASK-' . $task->id . '-' . $task->subject.'-('.$task->status.")||#DEVTASK-$task->id||$estMinutes";
                         } else {
                             $task = Task::where('id', $ar->task_id)->first();
                             if ($task) {
                                 $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
-                                $taskSubject = $ar->task_id . '||#TASK-' . $task->id . '-' . $task->task_subject." (".$estMinutes." Est.Minute)";;
+                                $taskSubject = $ar->task_id . '||#TASK-' . $task->id . '-' . $task->task_subject.'-('.$task->status.") ||#TASK-$task->id||$estMinutes";
                             }
                         }
                     } else {
@@ -225,12 +225,12 @@ class HubstaffActivitiesController extends Controller
                         $task = DeveloperTask::where('hubstaff_task_id', $ar->task_id)->orWhere('lead_hubstaff_task_id', $ar->task_id)->first();
                         if ($task) {
                             $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
-                            $taskSubject = $ar->task_id . '||#DEVTASK-' . $task->id . '-' . $task->subject." (".$estMinutes." Est.Minute)";
+                            $taskSubject = $ar->task_id . '||#DEVTASK-' . $task->id . '-' . $task->subject.'-('.$task->status.")||#DEVTASK-$task->id||$estMinutes";
                         } else {
                             $task = Task::where('hubstaff_task_id', $ar->task_id)->orWhere('lead_hubstaff_task_id', $ar->task_id)->first();
                             if ($task) {
                                 $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
-                                $taskSubject = $ar->task_id . '||#TASK-' . $task->id . '-' . $task->task_subject." (".$estMinutes." Est.Minute)";
+                                $taskSubject = $ar->task_id . '||#TASK-' . $task->id . '-' . $task->task_subject.'-('.$task->status.")||#TASK-$task->id||$estMinutes";
                             }
                         }
                     }
@@ -542,6 +542,7 @@ class HubstaffActivitiesController extends Controller
                                 $taskSubject = '#TASK-' . $task->id . '-' . $task->task_subject;
                             }
                         }
+                        $taskStatus = $task->status ?? null;
                     } else {
                         $task = DeveloperTask::where('hubstaff_task_id', $a->task_id)->orWhere('lead_hubstaff_task_id', $a->task_id)->first();
                         if ($task) {
@@ -552,11 +553,12 @@ class HubstaffActivitiesController extends Controller
                                 $taskSubject = '#TASK-' . $task->id . '-' . $task->task_subject;
                             }
                         }
+                        $taskStatus = $task->status ?? null;
                     }
-
                 }
 
                 $a->taskSubject = $taskSubject;
+                $a->taskStatus = $taskStatus ?? null;
             }
             if ($isAllSelected == count($activities)) {
                 $record->sample = 1;

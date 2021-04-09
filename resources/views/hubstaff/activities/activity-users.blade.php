@@ -70,15 +70,18 @@
                         <tr>
                         <th width="4%">Date</th>
                         <th>User</th>
-                        <th>Time tracked (Minutes)</th>
-                        <th>Tasks</th>
+                        <th width="4%">Time tracked (Minutes)</th>
+                        <th width="10%">Tasks</th>
+                        <th width="11%">Time tracked (Minutes)</th>
+                        <th width="11%">Time Estimation (Minutes)</th>
+                        <th width="12%" title="Time Diffrent">Time Diff. (Minutes)</th>
                         <th>Time approved</th>
                         <th>Time Pending</th>
                         <th>User Requested</th>
                         <th>Pending payment time</th>
                         <th>Status</th>
-                        <th width="30%">Note</th>
-                        <th width="10%" colspan="2" class="text-center">Action</th>
+                        <th width="8%">Note</th>
+                        <th width="5%" colspan="2" class="text-center">Action</th>
                         </tr>
                         @php
                             $totalTracked = 0;
@@ -87,7 +90,7 @@
                             $totalUserRequested = 0;
                             $totalPaymentPending = 0;
                         @endphp  
-                        @foreach ($activityUsers as $user)
+                        @foreach ($activityUsers as $index => $user)
                             <tr>
                             <td>{{ \Carbon\Carbon::parse($user['date'])->format('d-m') }} </td>
                             <td>{{ $user['userName'] }}</td>
@@ -106,12 +109,56 @@
                                                 @list($taskid,$devtask) = explode("||",$ut);
                                                 $trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $taskid)->first()->tracked;
                                             ?>
-                                            <?php if(Auth::user()->isAdmin()) { ?> 
-                                                <a class="show-task-histories " data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}} {{ (isset($trackedTime) && $devtask ) ? '-'.$trackedTime.' Min' : '' }}</a><br>
-                                            <?php }else{ ?>
-                                                <a class="" data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}} {{ (isset($trackedTime) && $devtask ) ? '-'.$trackedTime.' Min' : '' }} </a><br>
-                                            <?php } ?>    
+                                            @if ( $taskid )
+                                                <?php if(Auth::user()->isAdmin()) { ?> 
+                                                    <a class="show-task-histories " style="color:#333333;" data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}}</a><br>
+                                                <?php }else{ ?>
+                                                    <a class="" data-user-id="{{$user['user_id']}}" style="color:#333333;" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}} </a><br>
+                                                <?php } ?>    
+                                            @endif
                                         <?php } ?>
+                                <?php } ?>
+                            </td>
+                            <td>
+                                <?php if(!empty($user['tasks'])) {?>
+                                        <?php foreach($user['tasks'] as $ut) { ?>
+                                            <?php 
+                                                @list($taskid,$devtask,$taskName) = explode("||",$ut);
+                                                $trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $taskid)->first()->tracked;
+                                            ?>
+                                            @if ($taskName)
+                                                {{$taskName}} {{ (isset($trackedTime) && $devtask ) ? ':'.$trackedTime : '' }}<br>
+                                            @endif
+                                        <?php } ?>
+                                <?php } ?>
+                            </td>
+                            <td>
+                                <?php if(!empty($user['tasks'])) {?>
+                                    <?php foreach($user['tasks'] as $ut) { ?>
+                                        <?php 
+                                            @list($taskid,$devtask,$taskName,$estimation) = explode("||",$ut);
+                                        ?>  
+                                        @if ($taskName)
+                                            {{$taskName}} : {{ $estimation }}<br>
+                                        @endif
+                                    <?php } ?>
+                                <?php } ?>
+                            </td>
+                            <td>
+                                <?php if(!empty($user['tasks'])) {?>
+                                    <?php foreach($user['tasks'] as $ut) { ?>
+                                        <?php 
+                                            @list($taskid,$devtask,$taskName,$estimation) = explode("||",$ut);
+                                            $trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $taskid)->first()->tracked;
+                                        ?>  
+                                        @if ( $taskName )
+                                            @if (is_numeric($estimation) && $trackedTime && $taskName)
+                                                {{$taskName}} : {{ $estimation - $trackedTime}}<br>
+                                            @else
+                                                {{$taskName}} : N/A
+                                            @endif
+                                        @endif
+                                    <?php } ?>
                                 <?php } ?>
                             </td>
                             <td><span class="replaceme">{{number_format($user['totalApproved'] / 60,2,".",",")}}</span> </td>
@@ -119,7 +166,10 @@
                             <td><span>{{number_format($user['totalUserRequest'] / 60,2,".",",")}}</span> </td>
                             <td><span>{{number_format($user['totalNotPaid'] / 60,2,".",",")}}</td>
                             <td>{{$user['status']}}</td>
-                            <td>{{$user['note']}}</td>
+                            <td class="expand-row-msg" data-name="note" data-id="{{$index}}">
+                                <span class="show-short-note-{{$index}}">{{ str_limit($user['note'], 12, '...')}}</span>
+		                        <span style="word-break:break-all;" class="show-full-note-{{$index}} hidden">{{$user['note']}}</span>
+                            </td>
                             
                             <td>
                                 @if($user['forworded_to'] == Auth::user()->id && !$user['final_approval'])
@@ -142,6 +192,9 @@
                         <th>Total</th>
                         <th></th>
                         <th>{{number_format($totalTracked / 60,2,".","")}}</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
                         <th></th>
                         <th>{{number_format($totalApproved / 60,2,".","")}}</th>
                         <th>{{number_format($totalPending / 60,2,".","")}}</th>
@@ -237,6 +290,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 
 <script type="text/javascript">
+
+$(document).on('click', '.expand-row-msg', function () {
+    var name = $(this).data('name');
+    var id = $(this).data('id');
+    var full = '.expand-row-msg .show-short-'+name+'-'+id;
+    var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+    $(full).toggleClass('hidden');
+    $(mini).toggleClass('hidden');
+});
 
 $(document).on('click', '.expand-row', function () {
     var selection = window.getSelection();
