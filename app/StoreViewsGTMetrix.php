@@ -19,7 +19,7 @@ class StoreViewsGTMetrix extends Model
         'status',
         'error',
         'report_url',
-        'report_url',
+        'website_url',
         'html_load_time',
         'html_bytes',
         'page_load_time',
