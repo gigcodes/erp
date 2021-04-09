@@ -791,4 +791,45 @@ class Category extends Model
         return \App\ScrapedProducts::where('categories',$name)->count();
     }
 
+    public static function updateCategoryAuto($name)
+    {
+        $expression = explode("/",$name);
+        $matched = null;
+        if(!empty($expression)) {
+            foreach($expression as $exr) {
+                 if($exr == "woman") {
+                    $exr = "Women";
+                 }elseif($exr == "man") {
+                    $exr = "Men";
+                 }
+
+                 $category = self::where("title",$exr);
+
+                 if($matched) {
+                    $category = $category->where("parent_id",$matched->id);
+                 }
+
+                 $category = $category->first();
+
+                 if($category) {
+                    $matched = $category;
+                 }
+            }
+        }
+
+        // now check that last matched has more then three leavle
+        if($matched) {
+            $levelone = $matched->parentM;
+            if($levelone) {
+                $leveltwo =  $levelone->parentM;
+                if($leveltwo) {
+                    return $matched;
+                    // now as this is matched we can send this category to that it is matched
+                }
+            }
+        }
+
+        return false;
+    }
+
 }
