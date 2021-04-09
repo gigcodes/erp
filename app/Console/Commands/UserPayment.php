@@ -46,13 +46,12 @@ class UserPayment extends Command
         try {
         DB::beginTransaction();
         $users = User::where('fixed_price_user_or_job',2)->get();
-        /*$firstEntryInActivity = HubstaffActivity::orderBy('starts_at')->first();
+        $firstEntryInActivity = HubstaffActivity::orderBy('starts_at')->first();
         if($firstEntryInActivity) {
             $bigining = date('Y-m-d',strtotime($firstEntryInActivity->starts_at));
         }else {
-            
-        }*/
-        $bigining =  date('Y-m-d');
+            $bigining = date('Y-m-d');
+        }
         foreach($users as $user) {
             $lastPayment = PaymentReceipt::where('user_id',$user->id)->orderBy('date','DESC')->first();
             $start =  $bigining;
