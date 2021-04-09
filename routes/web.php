@@ -398,6 +398,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //new category reference
 
     Route::get('category/new-references', 'CategoryController@newCategoryReferenceIndex');
+    Route::get('category/fix-autosuggested', 'CategoryController@fixAutoSuggested')->name("category.fix-autosuggested");
     Route::get('category/{id}/history', 'CategoryController@history');
 
     Route::get('sizes/references', 'SizeController@sizeReference');

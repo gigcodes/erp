@@ -43,6 +43,9 @@
             <a target="__blank" href="{{ route('category.delete.unused') }}">
                 <button type="button" class="btn btn-secondary delete-not-used">Delete not used</button>
             </a>
+            <a href="{{ route('category.fix-autosuggested') }}" class="fix-autosuggested">
+                <button type="button" class="btn btn-secondary">Fix Auto Suggested</button>
+            </a>
         </div>
     </div>
     <div class="col-md-12 mt-5">
@@ -238,6 +241,32 @@
                 $(".categories-checkbox").trigger("click");
             });
 
+            $(document).on("click",".fix-autosuggested",function(e) {
+                var $this = $(this);
+                e.preventDefault();
+                $.ajax({
+                    type: 'GET',
+                    url: $this.attr("href"),
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        if(response.html != "") {
+                            $(".show-listing-exe-records").find('.modal-dialog').html(response.html);
+                            $(".show-listing-exe-records").modal('show');
+                        }else{
+                            toastr['error']('Sorry no response fetched', 'error');
+                        }
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    toastr['error']('Sorry, something went wrong', 'error');
+                    $(".show-listing-exe-records").modal('hide');
+                });
+            });
 
             $(document).on('click','.update-category-selected',function() {
                 var changeto = $(".change-list-categories").val();
