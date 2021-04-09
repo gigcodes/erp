@@ -478,15 +478,17 @@ $(document).on('click', '#keyword-search-btn', function () {
 $(document).on('click', '.keyword-list', function () {
 
     var keywords = $(this).text();
+    var avg = $(this).data('avg');
     keywords.replace(/ \,/g, ',')
-    console.log("," + keywords);
+    
     if (keywords) {
         if ($(this).hasClass('badge-green')) {
             $('#meta_keywords').val($('#meta_keywords').val().replace("," + keywords, ""));
             $(this).removeClass('badge-green').find('i').remove()
-            // $(this+' i').remove()
+            $('#meta_keyword_avg_monthly').val($('#meta_keyword_avg_monthly').val().replace("," + keywords+'-'+avg, ""));
         } else {
             $('#meta_keywords').val($('#meta_keywords').val() + ',' + keywords);
+            $('#meta_keyword_avg_monthly').val($('#meta_keyword_avg_monthly').val() + ',' + keywords + '-' + avg);
             $(this).addClass('badge-green').append('<i class="fa fa-remove pl-2"></i>')
         }
     }
@@ -587,9 +589,9 @@ function getGoogleKeyWord(title) {
                 $.each(response, function (index, data) {
 
                     if ($.inArray(data.keyword, words) > -1) {
-                        t += `<tr><td class="keyword-list badge-green">`+data.keyword+`<i class="fa fa-remove pl-2"></i></td>`;
+                        t += `<tr><td class="keyword-list badge-green" data-avg="` + data.avg_monthly_searches +`">`+data.keyword+`<i class="fa fa-remove pl-2"></i></td>`;
                     }else{
-                        t += `<tr><td class="keyword-list">`+data.keyword+`</td>`;
+                        t += `<tr><td class="keyword-list" data-avg="` + data.avg_monthly_searches +`" >`+data.keyword+`</td>`;
                     }
                     t += `<td>` + data.avg_monthly_searches + `</td>`;
                     t += `<td>` + data.competition + `</td>`;

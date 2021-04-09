@@ -81,15 +81,23 @@
                   </div>
               </div>
               <div class="form-row">
-                <div class="form-group col-md-6">
-				<div class="d-flex justify-content-between">
-					<label for="meta_keywords">Meta Keywords</label>
-					<span id="meta_keywords_count"></span>
-				</div>
+                <div class="form-group col-md-12">
+					<div class="d-flex justify-content-between">
+						<label for="meta_keywords">Meta Keywords</label>
+						<span id="meta_keywords_count"></span>
+					</div>
                   <input type="text" name="meta_keywords" value="{{if data}}{{:data.meta_keywords}}{{/if}}" class="form-control" id="meta_keywords" placeholder="Enter Keywords">
-					  
-				   
                 </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-12">
+					<div class="d-flex justify-content-between">
+						<label for="meta_keyword_avg_monthly">Meta Keywords avg.monthly</label>
+					</div>
+                  <input type="text" name="meta_keyword_avg_monthly" value="{{if data}}{{:data.meta_keyword_avg_monthly}}{{/if}}" class="form-control" id="meta_keyword_avg_monthly" readOnly>
+                </div>
+              </div>
+              <div class="form-row">
                 <div class="form-group col-md-6">
 					<div class="d-flex justify-content-between">
 						<label for="meta_description">Meta Description</label>
