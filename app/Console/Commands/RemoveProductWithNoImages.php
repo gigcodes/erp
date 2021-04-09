@@ -38,7 +38,7 @@ class RemoveProductWithNoImages extends Command
     public function handle()
     {
         //
-        $products = \App\Product::where("is_barcode_check",1)->limit(1000)->get();
+        $products = \App\Product::where("is_barcode_check",1)->limit(10000)->get();
         if(!$products->isEmpty()) {
             foreach($products as $product) {
                 $medias = $product->getAllMediaByTag();
