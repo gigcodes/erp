@@ -12,9 +12,14 @@ class HubstaffPaymentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $title = "Hubstaff Payment";
+
+        if(isset($request->run_command) && $request->run_command == true) {
+            \Artisan::call("users:payment");
+            return redirect()->back();
+        }
 
         return view("hubstaff.payment.index", compact('title'));
 

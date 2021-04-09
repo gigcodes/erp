@@ -24,7 +24,7 @@ class StoreWebsiteColor extends Model
      */
     public function storeWebsite()
     {
-        return $this->belongsTo('App\StoreWebsite');
+        return $this->hasOne(\App\StoreWebsite::class, 'id','store_website_id');
     }
 
 }
