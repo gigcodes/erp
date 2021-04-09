@@ -24,6 +24,11 @@
 	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action">
 		  				<img src="/images/add.png" style="cursor: default;">
 		  			</button>
+		  			<a href="?run_command=true">
+			  			<button class="btn btn-sm btn-secondary">
+			  				Run Payment Command
+			  			</button>
+			  		</a>
 		  		</div>
 		    </div>
 		    <div class="col">
