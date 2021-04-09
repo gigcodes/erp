@@ -91,7 +91,7 @@
  					      <tr>
 					      	<td><?php echo $color->id; ?></td>
 					      	<td><?php echo $color->erp_color; ?></td>
-					      	<td><?php echo $color->storeWebsite->title; ?></td>
+					      	<td><?php echo ($color->storeWebsite) ? $color->storeWebsite->title : "N/A"; ?></td>
 					      	<td><?php echo $color->store_color; ?></td>
 					      	<td>
 									<button type="button" class="btn btn-image edit-color d-inline" data-toggle="modal" data-target="#colorEditModal" data-color="{{ json_encode($color) }}"><img src="/images/edit.png" /></button>
