@@ -69,11 +69,10 @@
                 <table class="table table-bordered table-striped table-responsive">
                     <thead>
                         <tr>
-                            <th>Store view id</th>
+                            <th>Website</th>
                             <th>Test id</th>
                             <th>Status</th>
                             <th>Error</th>
-                            <th>Website</th>
                             <th>Report URL</th>
                             <th>Html load time</th>
                             <th>Html bytes</th>
@@ -90,11 +89,10 @@
                     <tbody>
                         @foreach ($list as $key)
                             <tr>
-                                <td>{{ $key->store_view_id }}</td>
+                                <td><a href="{{ $key->website_url }}" target="_blank" title="Goto website"> {{ !empty($key->website_url) ? $key->website_url : $key->store_view_id }} </a></td>
                                 <td>{{ $key->test_id }}</td>
                                 <td>{{ $key->status }}</td>
                                 <td>{{ $key->error }}</td>
-                                <td><a href="{{$key->website_url}}" target="_blank" title="Goto website"> Website </a></td>
                                 <td><a href="{{$key->report_url}}" target="_blank" title="Show report"> Reprot </a></td>
                                 <td>{{ $key->html_load_time }}</td>
                                 <td>{{ $key->html_bytes }}</td>
