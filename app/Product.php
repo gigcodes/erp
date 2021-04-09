@@ -1089,11 +1089,11 @@ class Product extends Model
         }else if(empty($this->composition) || empty($this->color) || empty($this->category || $this->category < 1)) {
 
             if(empty($this->composition)) {
-                $this->status_id = StatusHelper::$unknownComposition;
+                $this->status_id = StatusHelper::$requestForExternalScraper;
             }else if(empty($this->color)) {
-                $this->status_id = StatusHelper::$unknownColor;
+                $this->status_id = StatusHelper::$requestForExternalScraper;
             }else {
-                $this->status_id = StatusHelper::$unknownCategory;
+                $this->status_id = StatusHelper::$requestForExternalScraper;
             }
             
             $this->save();
