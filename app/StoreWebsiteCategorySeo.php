@@ -19,7 +19,7 @@ class StoreWebsiteCategorySeo extends Model
      * @SWG\Property(property="updated_at",type="datetime")
      */
     protected $fillable = [
-        'category_id','store_website_id', 'meta_title', 'meta_description', 'meta_keyword', 'created_at', 'updated_at','language_id'
+        'category_id','store_website_id', 'meta_title', 'meta_description', 'meta_keyword', 'created_at', 'updated_at','language_id','meta_keyword_avg_monthly'
     ];
 
      public static function boot()

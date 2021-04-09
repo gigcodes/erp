@@ -29,6 +29,7 @@ class StoreWebsitePage extends Model
         'title',
         'meta_title',
         'meta_keywords',
+        'meta_keyword_avg_monthly',
         'meta_description',
         'content_heading',
         'content',
