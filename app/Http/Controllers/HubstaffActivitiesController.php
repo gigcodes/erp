@@ -884,23 +884,27 @@ class HubstaffActivitiesController extends Controller
             $hubActivity = HubstaffActivity::where('id', $id)->first();
             
             if( $request->status == '2' ){
-                $approved = $hubActivitySummery->accepted;
-                if( $hubActivitySummery->accepted > 0 && $hubActivitySummery->approved_ids ){
-                    $arrayIds = json_decode($hubActivitySummery->approved_ids);
-                    if( in_array( $id, $arrayIds ) ){
-                        $unApproved = $unApproved + $hubActivity->tracked;
+                if($hubActivitySummery) {
+                    $approved = $hubActivitySummery->accepted;
+                    if( $hubActivitySummery->accepted > 0 && $hubActivitySummery->approved_ids ){
+                        $arrayIds = json_decode($hubActivitySummery->approved_ids);
+                        if( in_array( $id, $arrayIds ) ){
+                            $unApproved = $unApproved + $hubActivity->tracked;
+                        }
                     }
                 }
             }
             if( $request->status == '1' ){
-                $pending = $hubActivitySummery->pending;
-                if( $hubActivitySummery->pending > 0 && $hubActivitySummery->pending_ids ){
-                    $arrayIds = json_decode($hubActivitySummery->pending_ids);
-                    if(  in_array( $id, $arrayIds ) ){
-                        if($index == 0){
-                            $unPending = $hubActivitySummery->pending;
+                if($hubActivitySummery) {
+                    $pending = $hubActivitySummery->pending;
+                    if( $hubActivitySummery->pending > 0 && $hubActivitySummery->pending_ids ){
+                        $arrayIds = json_decode($hubActivitySummery->pending_ids);
+                        if(  in_array( $id, $arrayIds ) ){
+                            if($index == 0){
+                                $unPending = $hubActivitySummery->pending;
+                            }
+                            $unPending = $unPending + $hubActivity->tracked;
                         }
-                        $unPending = $unPending + $hubActivity->tracked;
                     }
                 }
             }
