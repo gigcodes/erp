@@ -56,9 +56,9 @@ class UserPayment extends Command
         foreach($users as $user) {
             $lastPayment = PaymentReceipt::where('user_id',$user->id)->orderBy('date','DESC')->first();
             $start =  $bigining;
-            $end =  date('Y-m-d',strtotime("-1 days"));
+            $end =  date('Y-m-d');
             if($lastPayment) {
-                $start = date('Y-m-d',strtotime($lastPayment->date . "+1 days"));
+                $start = date('Y-m-d',strtotime($lastPayment->date));
                 //$end =  $start;
             }
             /*if($user->payment_frequency == 'fornightly') {
@@ -84,32 +84,35 @@ class UserPayment extends Command
             }*/
             $yesterday = date('Y-m-d',strtotime("-1 days"));
 
-            if($end == $yesterday) {
-                    $activityrecords  = HubstaffActivity::getTrackedActivitiesBetween($start, $end, $user->id);
-                    $total = 0;
-                    $minutes = 0;
-                    foreach($activityrecords as $record) {
-                        $latestRatesOnDate = UserRate::latestRatesOnDate($record->starts_at,$user->id);
-                        if($record->tracked > 0 && $latestRatesOnDate && $latestRatesOnDate->hourly_rate > 0) {
-                            $total = $total + ($record->tracked/60)/60 * $latestRatesOnDate->hourly_rate;
-                            $minutes = $minutes + $record->tracked/60;
-                            $record->paid = 1;
-                            $record->save(); 
-                        }
-                    }
-                    if($total > 0) {
-                        $total = number_format($total,2);
-                        $paymentReceipt = new PaymentReceipt;
-                        $paymentReceipt->worked_minutes = $minutes;
-                        $paymentReceipt->status = 'Pending';
-                        $paymentReceipt->rate_estimated = $total;
-                        $paymentReceipt->date = $end;
-                        $paymentReceipt->user_id = $user->id;
-                        $paymentReceipt->billing_start_date = $start;
-                        $paymentReceipt->billing_end_date = $end;
-                        $paymentReceipt->currency = ''; //we need to change this.
-                        $paymentReceipt->save();
-                    }
+            echo PHP_EOL . "=====Checking $start - $end ====" . PHP_EOL;
+
+            $activityrecords  = HubstaffActivity::getTrackedActivitiesBetween($start, $end, $user->id);
+
+            echo PHP_EOL . "===== Result found ".count($activityrecords)." ====" . PHP_EOL;
+
+            $total = 0;
+            $minutes = 0;
+            foreach($activityrecords as $record) {
+                $latestRatesOnDate = UserRate::latestRatesOnDate($record->starts_at,$user->id);
+                if($record->tracked > 0 && $latestRatesOnDate && $latestRatesOnDate->hourly_rate > 0) {
+                    $total = $total + ($record->tracked/60)/60 * $latestRatesOnDate->hourly_rate;
+                    $minutes = $minutes + $record->tracked/60;
+                    $record->paid = 1;
+                    $record->save(); 
+                }
+            }
+            if($total > 0) {
+                $total = number_format($total,2);
+                $paymentReceipt = new PaymentReceipt;
+                $paymentReceipt->worked_minutes = $minutes;
+                $paymentReceipt->status = 'Pending';
+                $paymentReceipt->rate_estimated = $total;
+                $paymentReceipt->date = $end;
+                $paymentReceipt->user_id = $user->id;
+                $paymentReceipt->billing_start_date = $start;
+                $paymentReceipt->billing_end_date = $end;
+                $paymentReceipt->currency = ''; //we need to change this.
+                $paymentReceipt->save();
             }
         }
         DB::commit();
