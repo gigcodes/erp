@@ -697,6 +697,12 @@ class HubstaffActivitiesController extends Controller
             ], 500);
         }
 
+        if ( empty($request->activities)) {
+            return response()->json([
+                'message' => 'Please choose at least one record',
+            ], 500);
+        }
+
         $rejection_note = '';
         $prev           = '';
         if ($request->previous_remarks) {
