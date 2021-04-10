@@ -18,6 +18,9 @@
         overflow: auto;
         
     }
+    textarea {
+        overflow: hidden;
+    }
 </style>
 <link href="//cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
 <div class="row" id="common-page-layout">
