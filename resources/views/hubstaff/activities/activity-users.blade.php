@@ -179,7 +179,7 @@
                                     <a class="btn btn-secondary show-activities">+</a>
                                 </form>
                                 @endif
-                                @if(Auth::user()->isAdmin() && $user['final_approval'])
+                                @if(Auth::user()->isAdmin())
                                 <form action="">
                                     <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
                                     <input type="hidden" class="date" name="date" value="{{$user['date']}}">
