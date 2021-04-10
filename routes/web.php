@@ -154,6 +154,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('compositions/replace-composition', 'CompositionsController@replaceComposition')->name('compositions.replace');
     Route::get('compositions/{id}/history', 'CompositionsController@history')->name('compositions.history');
     Route::get('compositions/delete-unused', 'CompositionsController@deleteUnused')->name('compositions.delete.unused');
+    Route::post('compositions/update-name', 'CompositionsController@updateName')->name('compositions.update.name');
     Route::resource('compositions', 'CompositionsController');
 
     Route::post('descriptions/store', 'ChangeDescriptionController@store')->name('descriptions.store');

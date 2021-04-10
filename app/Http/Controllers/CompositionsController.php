@@ -43,7 +43,7 @@ class CompositionsController extends Controller
             $compositions = $compositions->whereIn('id', $matchedArray);
         }
 
-        $listcompostions = ["" => "-- Select --"] + Compositions::where('replace_with', '!=', '')->groupBy('replace_with')->pluck('replace_with', 'replace_with')->toArray();
+        $listcompostions = Compositions::where('replace_with', '!=', '')->groupBy('replace_with')->pluck('replace_with', 'replace_with')->toArray();
 
         if ($request->with_ref == 1) {
             $compositions = $compositions->where(function ($q) use ($request) {
@@ -122,6 +122,38 @@ class CompositionsController extends Controller
     public function update(Request $request, Compositions $compositions, $id)
     {
         //
+        $c = $compositions->find($id);
+        if ($c) {
+            $c->fill($request->all());
+            $c->save();
+        }
+
+        if ($request->ajax()) {
+            return response()->json(["code" => 200, "data" => []]);
+        }
+
+        return redirect()->back();
+    }
+
+    public function updateName(Request $request)
+    {
+        //
+        $validator = \Validator::make($request->all(), [
+            'id'   => 'required',
+            'name' => 'required',
+        ]);
+
+        if (!$validator->passes()) {
+            return response()->json(["code" => 500, 'message' => $validator->errors()->all()]);
+        }
+
+        try {
+            Compositions::where('id',$request->id)->update(['name'=> $request->name]);
+            return response()->json(["code" => 200, 'message' => 'Successfully updated']);
+
+        } catch (\Throwable $th) {
+            return response()->json(["code" => 500, 'message' => $th->getMessage()]);
+        }
         $c = $compositions->find($id);
         if ($c) {
             $c->fill($request->all());
