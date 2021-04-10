@@ -89,7 +89,7 @@
 						<label for="meta_keywords">Meta Keywords</label>
 						<span id="meta_keywords_count">  </span>
 					</div>
-                  <input type="text" name="meta_keyword" value="{{if data}}{{:data.meta_keyword}}{{/if}}" class="form-control" id="meta_keywords" placeholder="Enter Keywords">
+					<textarea name="meta_keyword" oninput="auto_grow(this)" class="form-control" id="meta_keywords" placeholder="Enter Keywords"> {{if data}}{{:data.meta_keyword}}{{/if}} </textarea>
 					</div>
 				</div>
 				<div class="form-row">
@@ -97,7 +97,7 @@
 						<div class="d-flex justify-content-between">
 							<label for="meta_keywords_avg">Meta Keywords avg.monthly</label>
 						</div>
-						<input type="text" name="meta_keyword_avg_monthly" value="{{if data}}{{:data.meta_keyword_avg_monthly}}{{/if}}" class="form-control" id="meta_keyword_avg_monthly" placeholder="Enter Keywords" readonly>
+						<textarea oninput="auto_grow(this)" name="meta_keyword_avg_monthly" class="form-control" id="meta_keyword_avg_monthly" placeholder="Enter Keywords" readonly> {{if data}}{{:data.meta_keyword_avg_monthly}}{{/if}} </textarea>
 					</div>
 				</div>
               <div class="row">

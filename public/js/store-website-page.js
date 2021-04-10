@@ -179,10 +179,12 @@ var page = {
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
-            $('input[name="meta_keywords"]').trigger('change');
+            $('textarea[name="meta_keywords"]').trigger('change');
             $('textarea[name="meta_description"]').trigger('change');
             $('#google_translate_element').summernote();
             $('#keyword-search-btn').trigger('click');
+            $('textarea[name="meta_keyword"]').trigger('input');
+            $('textarea[name="meta_keyword_avg_monthly"]').trigger('input');
 
         //new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
     },
@@ -461,6 +463,11 @@ var page = {
 
 $.extend(page, common);
 
+function auto_grow(element) {
+    element.style.height = "5px";
+    element.style.height = (element.scrollHeight + 1) + "px";
+}
+
 $(document).on('change', '#title-page', function () {
     getGoogleKeyWord($('#title-page').val());
 });
@@ -493,6 +500,8 @@ $(document).on('click', '.keyword-list', function () {
         }
     }
     $('input[name="meta_keywords"]').trigger('change');
+    $('textarea[name="meta_keywords"]').trigger('input');
+    $('textarea[name="meta_keyword_avg_monthly"]').trigger('input');
 
 });
 
