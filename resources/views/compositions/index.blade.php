@@ -91,16 +91,40 @@
             @foreach($compositions as $key=>$composition)
                 <tr>
                     <td><input type="checkbox" name="composition[]" value="{{ $composition->id }}" class="composition-checkbox">&nbsp;{{ $composition->id }} </td>
-                    <td><span class="call-used-product"  data-id="{{ $composition->id }}" data-type="name">{{ $composition->name }}</span> <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $composition->name }}" data-id="{{ $composition->id }}"><img src="/images/add.png"></button></td>
+                    <td>
+                        <div class="d-flex">
+                            <input type="text" class="col-10" id="{{ $composition->id }}" value="{{ $composition->name }}"> 
+                            <button class="btn btn-secondary btn-sm composition-name-update" data-id="{{ $composition->id }}" title="Update"><i class="fa fa-save"></i></button>
+
+                            <span class="call-used-product d-none"  data-id="{{ $composition->id }}" data-type="name">{{ $composition->name }}</span> 
+                            <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $composition->name }}" data-id="{{ $composition->id }}"><img src="/images/add.png"></button>
+                        </div>
+                    </td>
                     <td>{{ $composition->products($composition->name) }}</td>
                     <td>
                         <div class="form-group small-field">
-                            <?php echo Form::select(
-                                'replace_with', 
-                                $listcompostions , 
-                                $composition->replace_with, 
-                                ["class" => "form-control change-list-compostion select2",'data-name' => $composition->name, 'data-id' => $composition->id, 'style' => 'width:400px','id' => 'select'.$composition->id]
-                            ); ?>
+                            <select name="replace_with" class="form-control change-list-compostion select2" style="width:400px" data-name="{{$composition->name}}" id="select{{$composition->id}}" data-id="{{ $composition->id }}">
+                                <option value="">-- Select --</option>
+                                @php
+                                    $selected = false;
+                                @endphp
+                                @foreach ($listcompostions as $item)
+                                    @php
+                                        $itemArr  = array_filter(explode(' ', preg_replace("/[^a-zA-Z]+/", " ", $item)));
+                                        $exitsArr = array_filter(explode(' ', preg_replace("/[^a-zA-Z]+/", " ", $composition->name)));
+                                    @endphp
+                                    <option value="{{ $item }}" @php if( array_intersect($itemArr, $exitsArr) && $selected == false ){ $selected = true; echo 'selected'; } @endphp > {{ $item }} </option>
+                                @endforeach
+                            </select>
+                            <button class="btn btn-secondary btn-xs change-selectbox" data-id="{{$composition->id}}"><i class="fa fa-save"></i></button>
+                            <?php 
+                            // Form::select(
+                            //     'replace_with', 
+                            //     $listcompostions , 
+                            //     $composition->replace_with, 
+                            //     ["class" => "form-control change-list-compostion select2",'data-name' => $composition->name, 'data-id' => $composition->id, 'style' => 'width:400px',]
+                            // );
+                             ?>
                         </div>
                     </td>
                     <td>
@@ -133,6 +157,11 @@
     <script type="text/javascript">
             $(".select2").select2({"tags" : true});
 
+
+            $(document).on("click",".change-selectbox",function() {
+                $('#select'+$(this).data('id')).trigger('change');
+            });
+            
             $(document).on("click",".call-used-product",function() {
                 var $this = $(this);
                 $.ajax({
@@ -158,6 +187,39 @@
                 }).fail(function (response) {
                     $("#loading-image").hide();
                     toastr['error']('Sorry no product founds', 'error');
+                });
+            });
+
+            $(document).on("click",".composition-name-update",function() {
+                var $this = $(this);
+                var id = $this.data('id');
+                var text = $('#'+id).val();
+                
+                if( text == '' || id == '' ){
+                    return false;
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: '/compositions/update-name',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        id : id,
+                        name : text
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        toastr['success']('Successfully updated', 'Success');    
+                    }else{
+                        toastr['error']('Something went wrong', 'Error');    
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    toastr['error']('Sorry, something went wrong', 'Error');
                 });
             });
 
