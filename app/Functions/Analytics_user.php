@@ -67,10 +67,8 @@ function getReportRequest($analytics, $request)
 
     // Create the DateRange object.
     $dateRange = new Google_Service_AnalyticsReporting_DateRange();
-    // $dateRange->setStartDate(!empty($request) && !empty($request['start_date']) ? $request['start_date'] : "28DaysAgo");
-    $dateRange->setStartDate(!empty($request) && !empty($request['start_date']) ? $request['start_date'] : '2021-02-01');
-    //$dateRange->setEndDate(!empty($request) && !empty($request['end_date']) ? $request['end_date'] : "1DaysAgo");
-    $dateRange->setEndDate(!empty($request) && !empty($request['end_date']) ? $request['end_date'] : '2021-04-01');
+    $dateRange->setStartDate('today');
+    $dateRange->setEndDate('today');
 
     // Create the ReportRequest object.
     $request = new Google_Service_AnalyticsReporting_ReportRequest();
@@ -202,6 +200,22 @@ function getUsersData( $analytics, $request){
     return $analytics->reports->batchGet($body);
 }
 
+function getAudiencesData( $analytics, $request){
+
+    // Create the Dimensions object.
+    $dimension = new Google_Service_AnalyticsReporting_Dimension();
+    $dimension->setName('ga:userAgeBracket');
+
+    $userGender = new Google_Service_AnalyticsReporting_Dimension();
+    $userGender->setName('ga:userGender');
+
+    $request->setDimensions(array( $dimension, $userGender ));
+
+    $body = new Google_Service_AnalyticsReporting_GetReportsRequest();
+    $body->setReportRequests(array($request));
+    return $analytics->reports->batchGet($body);
+}
+
 /**
  * Parses and prints the Analytics Reporting API V4 response.
  *
@@ -264,17 +278,13 @@ function printPageTrackingResults($reports, $websiteAnalyticsId)
                 $data[$key]['entrances']         = $m_value['values'][4];
                 $data[$key]['entrance_rate']     = $m_value['values'][5];
             }
+
             \App\GoogleAnalyticsPageTracking::insert( $data );
             $data = null;
         }
-
         return true;
-        if (!empty($data)) {
-            return $data;
-        } else {
-            return false;
-        }
     }
+    
 }
 
 function printPlatformDeviceResults($reports, $websiteAnalyticsId)
@@ -296,11 +306,7 @@ function printPlatformDeviceResults($reports, $websiteAnalyticsId)
             $data = null;
         }
         return true;
-        if (!empty($data)) {
-            return $data;
-        } else {
-            return false;
-        }
+        
     }
 }
 
@@ -323,11 +329,7 @@ function printGeoNetworkResults($reports, $websiteAnalyticsId)
             $data = null;
         }
         return true;
-        if (!empty($data)) {
-            return $data;
-        } else {
-            return false;
-        }
+        
     }
 }
 
@@ -351,10 +353,26 @@ function printUsersResults($reports, $websiteAnalyticsId)
             $data = null;
         }
         return true;
-        if (!empty($data)) {
-            return $data;
-        } else {
-            return false;
+    }
+}
+
+function printAudienceResults($reports, $websiteAnalyticsId)
+{   
+    for ($reportIndex = 0; $reportIndex < $reports->count(); $reportIndex++) {
+        $report = $reports[$reportIndex];
+        $rows   = $report->getData()->getRows();
+        foreach ($rows as $key => $value) {
+
+            $data[$key]['website_analytics_id'] = $websiteAnalyticsId;
+            $data[$key]['age']                  = $value['dimensions']['0'];
+            $data[$key]['gender']               = $value['dimensions']['1'];
+
+            foreach ($value['metrics'] as $m_key => $m_value) {
+                $data[$key]['session']     = $m_value['values'][0];
+            }
+            \App\GoogleAnalyticsAudience::insert( $data );
+            $data = null;
         }
+        return true;
     }
 }

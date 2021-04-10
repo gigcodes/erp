@@ -32,48 +32,59 @@
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Analytics Data</h2>
     </div>
-    <form action="{{route('filteredAnalyticsResults')}}" method="get" class="d-none">
-        <div class="" style="">
-            <div class="col-md-12">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <select name="dimensionsList" class="form-control">
-                                <option value=""> Select dimensions </option>
-                                @foreach ($dimensionsList ?? [] as $item)
-                                    <option value="{{$item}}" {{ request('dimensionsList') == $item ? 'selected' : ''  }} > {{ $item }} </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group col-md-3 " style="text-align:right">
-                        <button class="btn btn-default">Submit</button>
-                    </div>
-                </div>
+</div>
+<form action="" method="get">
+    <div class="row ">
+        <div class="col-md-2">
+            <label > Select website: </label>
+            <div class="form-group">
+                <select name="website" class="form-control">
+                    <option value="">Select website</option>
+                    @foreach ($website_list as $item)
+                        <option value="{{ $item['id'] }}" {{ request('website') == $item['id'] ? 'selected' : null }}> {{ $item['website'] }} </option>
+                    @endforeach
+                </select>
             </div>
         </div>
-    </form>
-    <div class="col-md-12" style="text-align:end">
-        <a href="{{ route('test.google.analytics') }}" class="btn btn-secondary">Get new record</a>
+        <div class="col-md-2">
+            <label >Start date : </label>
+            <div class="form-group">
+                <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-control">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <label >End date : </label>
+            <div class="form-group">
+                <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control">
+            </div>
+        </div>
+        <div class="form-group col-md-3 pt-4" style="">
+            <label >  </label>
+            <button class="btn btn-secondary">Search</button>
+            <a href="{{ url('/display/analytics-data') }}" class="btn btn-secondary">
+                Clear
+            </a>
+        </div>
     </div>
-</div>
+</form>
+
 @include('partials.flash_messages')
 
 <div class="col-md-12">
     <div id="exTab2" >
         <ul class="nav nav-tabs">
-            <li class="{{ request('logs_per_page') || request('crawls_per_page') ? '' : 'active' }}"><a  href="#browser" data-toggle="tab">Platform or Device</a></li>
-            <li class="{{ request('logs_per_page') ? 'active' : '' }}"><a href="#geoNetworkData" data-toggle="tab">Geo Network</a>
-            <li class="{{ request('crawls_per_page') ? 'active' : '' }}"><a href="#usersData" data-toggle="tab">Users</a>
-            {{-- <li class="{{ request('crawls_per_page') ? 'active' : '' }}"><a href="#userType" data-toggle="tab">User Type</a> --}}
-            <li class="{{ request('crawls_per_page') ? 'active' : '' }}"><a href="#pageTrackingData" data-toggle="tab">Page Tracking</a>
+            <li class="{{ request('geo-network') || request('audience-per-page') || request('user-per-page') || request('tracking-per-page') ? '' : 'active' }}"><a  href="#browser" data-toggle="tab">Platform or Device</a></li>
+            <li class="{{ request('geo-network') ? 'active' : '' }}"><a href="#geoNetworkData" data-toggle="tab">Geo Network</a>
+            <li class="{{ request('user-per-page') ? 'active' : '' }}"><a href="#usersData" data-toggle="tab">Users</a>
+            <li class="{{ request('tracking-per-page') ? 'active' : '' }}"><a href="#pageTrackingData" data-toggle="tab">Page Tracking</a>
+            <li class="{{ request('audience-per-page') ? 'active' : '' }}"><a href="#Audience" data-toggle="tab">Audience</a>
             </li>
         </ul>
     </div>
 </div>
 
 <div class="tab-content" >
-    <div class="tab-pane active" id="browser"> 
+    <div class="tab-pane {{ request('geo-network') || request('audience-per-page') || request('user-per-page') || request('tracking-per-page') ? '' : 'active' }}" id="browser"> 
         <div class="container-fluid">
             <div class="table-responsive ">
                 <table class="table table-bordered table-hover">
@@ -100,14 +111,14 @@
                         @endforeach
                     </tbody>
                 </table>
-                {{-- <div class="col-md-12 text-center">
-                    {!! $data->links() !!}
-                </div> --}}
+                <div class="col-md-12 text-center">
+                    {!! $PlatformDeviceData->appends(request()->query())->links() !!}
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="tab-pane" id="geoNetworkData"> 
+    <div class="tab-pane {{ request('geo-network') ? 'active' : '' }}" id="geoNetworkData"> 
         <div class="container-fluid">
             <div class="table-responsive ">
                 <table class="table table-bordered table-hover">
@@ -134,14 +145,14 @@
                         @endforeach
                     </tbody>
                 </table>
-                {{-- <div class="col-md-12 text-center">
-                    {!! $data->links() !!}
-                </div> --}}
+                <div class="col-md-12 text-center">
+                    {!! $geoNetworkData->appends(request()->query())->links() !!}
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="tab-pane" id="usersData"> 
+    <div class="tab-pane {{ request('user-per-page') ? 'active' : '' }}" id="usersData"> 
         <div class="container-fluid">
             <div class="table-responsive ">
                 <table class="table table-bordered table-hover">
@@ -166,18 +177,14 @@
                         @endforeach
                     </tbody>
                 </table>
-                {{-- <div class="col-md-12 text-center">
-                    {!! $data->links() !!}
-                </div> --}}
+                <div class="col-md-12 text-center">
+                    {!! $usersData->appends(request()->query())->links() !!}
+                </div>
             </div>
         </div>
     </div>
-
-    <div class="tab-pane " id="userType"> 
-
-    </div>
-
-    <div class="tab-pane " id="pageTrackingData"> 
+    
+    <div class="tab-pane {{ request('tracking-per-page') ? 'active' : '' }}" id="pageTrackingData"> 
         <div class="container-fluid">
             <div class="">
                 <table class="table table-bordered table-hover">
@@ -211,12 +218,47 @@
                         @endforeach
                     </tbody>
                 </table>
-                {{-- <div class="col-md-12 text-center">
-                    {!! $data->links() !!}
-                </div> --}}
+                <div class="col-md-12 text-center">
+                    {!! $pageTrackingData->appends(request()->query())->links() !!}
+                </div>
             </div>
         </div>
     </div>
+    
+    <div class="tab-pane {{ request('audience-per-page') ? 'active' : '' }}" id="Audience"> 
+        <div class="container-fluid">
+            <div class="">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="text-center">Website</th>
+                            <th scope="col" class="text-center">Age</th>
+                            <th scope="col" class="text-center">Gender</th>
+                            <th scope="col" class="text-center">Session</th>
+                            <th scope="col" class="text-center">Created at</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach ($audienceData as $key => $item)
+                        <tr>
+                            <td>{{ $item['website'] }}</td>
+                            <td>{{ $item['age'] }}</td>
+                            <td>{{ $item['gender'] }}</td>
+                            <td>{{ $item['session'] }}</td>
+                            <td>{{$item['created_at']}}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                <div class="col-md-12 text-center">
+                    {!! $audienceData->appends(request()->query())->links() !!}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
 </div>
 <div class="row mt-5">
     <div class="container-fluid">
