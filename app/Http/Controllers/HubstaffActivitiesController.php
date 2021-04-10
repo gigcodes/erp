@@ -1231,7 +1231,7 @@ class HubstaffActivitiesController extends Controller
 
         $date = ($task) ? $task->created_at : date("1998-02-02");
 
-        $activityrecords = DB::select(DB::raw("SELECT CAST(starts_at as date) AS OnDate,  SUM(tracked) AS total_tracked, hour( starts_at ) as onHour
+        $activityrecords = DB::select(DB::raw("SELECT CAST(starts_at as date) AS OnDate,  SUM(tracked) AS total_tracked, hour( starts_at ) as onHour,status
         FROM hubstaff_activities where task_id = '" . $task_id . "' and user_id = " . $user_id . "
         GROUP BY hour( starts_at ) , day( starts_at ) order by OnDate desc"));
         // $activityrecords  = HubstaffActivity::whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id)->select('hubstaff_activities.*')->get();
@@ -1252,6 +1252,7 @@ class HubstaffActivitiesController extends Controller
         }
 
         $approved_ids = [0];
+        $pending_ids = [0];
         if ($hubActivitySummery) {
             if (!$hubActivitySummery->isEmpty()) {
                 foreach ($hubActivitySummery as $hubA) {
@@ -1260,6 +1261,9 @@ class HubstaffActivitiesController extends Controller
                         if (!empty($approved_idsArr) && is_array($approved_idsArr)) {
                             $approved_ids = array_merge($approved_ids, $approved_idsArr);
                         }
+                    }
+                    if ($hubA->pending_ids) {
+                        $pending_ids = json_decode($hubA->pending_ids);
                     }
                 }
             }
@@ -1271,6 +1275,7 @@ class HubstaffActivitiesController extends Controller
 
             $totalApproved = 0;
             $isAllSelected = 0;
+            $totalPending = 0;
 
             foreach ($activities as $a) {
 
@@ -1290,6 +1295,19 @@ class HubstaffActivitiesController extends Controller
                     $a->totalApproved = 0;
                 }
 
+                if (in_array($a->id, $pending_ids)) {
+                    $isAllSelected = $isAllSelected + 1;
+                    $a->status     = 2;
+                    $hubAct        = HubstaffActivity::where('id', $a->id)->first();
+                    if ($hubAct) {
+                        $totalPending = $totalPending + $a->tracked;
+                    }
+                    $a->totalPending = $a->tracked;
+                } else {
+                    $a->status        = 0;
+                    $a->totalPending = 0;
+                }
+
                 $taskSubject = '';
                 if ($a->task_id) {
                     if ($a->is_manual) {
@@ -1302,6 +1320,7 @@ class HubstaffActivitiesController extends Controller
                                 $taskSubject = '#TASK-' . $task->id . '-' . $task->task_subject;
                             }
                         }
+                        $taskStatus = $task->status ?? null;
                     } else {
                         $task = DeveloperTask::where('hubstaff_task_id', $a->task_id)->orWhere('lead_hubstaff_task_id', $a->task_id)->first();
                         if ($task) {
@@ -1312,11 +1331,13 @@ class HubstaffActivitiesController extends Controller
                                 $taskSubject = '#TASK-' . $task->id . '-' . $task->task_subject;
                             }
                         }
+                        $taskStatus = $task->status ?? null;
                     }
 
                 }
 
                 $a->taskSubject = $taskSubject;
+                $a->taskStatus = $taskStatus ?? null;
             }
             if ($isAllSelected == count($activities)) {
                 $record->sample = 1;
@@ -1325,6 +1346,7 @@ class HubstaffActivitiesController extends Controller
             }
             $record->activities    = $activities;
             $record->totalApproved = $totalApproved;
+            $record->totalPending = $totalPending;
         }
         $user_id = $request->user_id;
         $isAdmin = false;
