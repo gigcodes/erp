@@ -1176,7 +1176,7 @@ class Product extends Model
             'status_id',
             'products.created_at',
             'inventory_status_histories.date as history_date',
-            \DB::raw('count(products.id) as total_product')
+            \DB::raw('count(distinct psu.id) as total_product')
         );
         $query =  \App\Product::leftJoin("brands as b",function($q){
                 $q->on("b.id","products.brand");
