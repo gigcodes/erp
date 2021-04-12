@@ -404,7 +404,7 @@ class VoucherController extends Controller
 
         $payment_method              = PaymentMethod::find($input['payment_method_id']);
         $input['payment_receipt_id'] = $preceipt->id;
-        $message['message']          = "Admin has given the payment of amount " . $request->amount . " " . $request->currency . " through " . $payment_method->name . " \n Note: " . $request->note;
+        $message['message']          = "Admin has given the payment of Payment Receipt #" . $preceipt->id . " and amount " . $request->amount . " " . $request->currency . " through " . $payment_method->name . " \n Note: " . $request->note;
         $message['user_id']          = $request->user_id;
         $message['status']           = 1;
 
