@@ -641,6 +641,9 @@ class CategoryController extends Controller
 
         $input             = preg_quote($request->get('search'), '~');
         $unKnownCategories = preg_grep('~' . $input . '~', $unKnownCategories);
+
+        //$unKnownCategories[] = "women/clothing/trousers/trousers/alexander mcqueen prince of wales trousers";
+        //$unKnownCategories[] = "women/clothing/tops/tops/alexander mcqueen flounced top";
         
         $unKnownCategories = $this->paginate($unKnownCategories,50);
         $unKnownCategories->setPath($request->url());

@@ -795,36 +795,57 @@ class Category extends Model
     {
         $expression = explode("/",$name);
         $matched = null;
+
+        $liForMen = ['MAN', 'MEN', 'UOMO', 'MALE'];
+        $liForWoMen = ['WOMAN', 'WOMEN', 'DONNA', 'FEMALE'];
+        $liForKids = ['KIDS'];
+
+        $mainCategory = false;
+
+
         if(!empty($expression)) {
             foreach($expression as $exr) {
-                 if($exr == "woman") {
-                    $exr = "Women";
-                 }elseif($exr == "man") {
-                    $exr = "Men";
-                 }
+                foreach($liForMen as $li){
+                    if(strtolower($li) == strtolower($exr)) {
+                        $mainCategory = 3;
+                    }
+                }
 
-                 $category = self::where("title",$exr);
+                foreach($liForWoMen as $li){
+                    if(strtolower($li) == strtolower($exr)) {
+                        $mainCategory = 2;
+                    }
+                }
 
-                 if($matched) {
-                    $category = $category->where("parent_id",$matched->id);
-                 }
+                foreach($liForKids as $li){
+                    if(strtolower($li) == strtolower($exr)) {
+                        $mainCategory = 146;
+                    }
+                }
 
-                 $category = $category->first();
+                $category = self::where("title","LIKE",$exr);
 
-                 if($category) {
+                $category = $category->get();
+
+                 if(!$category->isEmpty()) {
                     $matched = $category;
                  }
             }
         }
 
+
         // now check that last matched has more then three leavle
-        if($matched) {
-            $levelone = $matched->parentM;
-            if($levelone) {
-                $leveltwo =  $levelone->parentM;
-                if($leveltwo) {
-                    return $matched;
-                    // now as this is matched we can send this category to that it is matched
+        if($matched && !$matched->isEmpty()) { 
+            foreach($matched as $match) {
+                $levelone = $match->parentM;
+                if($levelone) {
+                    $leveltwo =  $levelone->parentM;
+                    if($leveltwo) {
+                        if($leveltwo->id = $mainCategory || $leveltwo->parent_id = $mainCategory) {
+                            return $match;
+                        }
+                        // now as this is matched we can send this category to that it is matched
+                    }
                 }
             }
         }
