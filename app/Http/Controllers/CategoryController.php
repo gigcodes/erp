@@ -579,7 +579,7 @@ class CategoryController extends Controller
         //     $mainArr[] = $subArr;
         // }
 
-        $unKnownCategories = $this->paginate($unKnownCategories);
+        $unKnownCategories = $this->paginate($unKnownCategories,50);
         $unKnownCategories->setPath($request->url());
 
         //check if the items is not empty
@@ -639,80 +639,87 @@ class CategoryController extends Controller
         $unKnownCategories = explode(',', $unKnownCategory->references);
         $unKnownCategories = array_unique($unKnownCategories);
 
+        $input             = preg_quote($request->get('search'), '~');
+        $unKnownCategories = preg_grep('~' . $input . '~', $unKnownCategories);
+        
         $unKnownCategories = $this->paginate($unKnownCategories,50);
         $unKnownCategories->setPath($request->url());
 
 
         $links = [];
         if (!$unKnownCategories->isEmpty()) {
-            foreach ($unKnownCategories as $unkc) {
+            foreach ($unKnownCategories as $i => $unkc) {
                 $filter = \App\Category::updateCategoryAuto($unkc);
-                if ($filter) {
-                    $old         = $unKnownCategory->id;
-                    $from        = $unkc;
-                    $to          = $filter->id;
-                    $change      = 'yes';
-                    $wholeString = $unkc;
-                    if ($change == 'yes') {
-                        \App\Jobs\UpdateProductCategoryFromErp::dispatch([
-                            "from"    => $from,
-                            "to"      => $to,
-                            "user_id" => \Auth::user()->id,
-                        ])->onQueue("supplier_products");
-                    }
-                    $c = Category::where("id", $old)->first();
-                    if ($c) {
-                        $allrefernce = explode(",", $c->references);
-                        $newRef      = [];
-                        if (!empty($allrefernce)) {
-                            foreach ($allrefernce as $ar) {
-                                if ($ar != $wholeString) {
-                                    $newRef[] = $ar;
-                                }
-                            }
-                        }
-                        $c->references = implode(",", $newRef);
-                        $c->save();
-                        // new category reference store
-                        if ($filter) {
-                            $existingRef   = explode(",", $filter->references);
-                            $existingRef[] = $from;
-
-                            $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
-                                'old_value'      => $filter->references,
-                                'new_value'      => implode(",", array_unique($existingRef)),
-                                'attribute_name' => 'category',
-                                'attribute_id'   => $filter->id,
-                                'user_id'        => \Auth::user()->id,
-                            ]);
-
-                            $filter->references = implode(",", $existingRef);
-                            $filter->save();
-
-                            $updatedto = [];
-                            $updatedto[] = $filter->title;
-                            $parent = $filter->parentM;
-                            if($parent) {
-                                $updatedto[] = $parent->title;
-                                $parent = $parent->parentM; 
-                                if($parent) {
-                                    $updatedto[] = $parent->title;
-                                }
-                            }
-
-                            $links[] = [
-                                "from" => $unkc,
-                                "to"   => implode(" >> ",array_reverse($updatedto)),
-                            ];
-                        }
-                    }
-                }
+                $links[] = [
+                    "from" => $unkc,
+                    "to"   => ($filter) ? $filter->id : null,
+                ];
             }
         }
 
         $view = (string) view("category.partials.preview-categories", compact('links'));
         return response()->json(["code" => 200, "html" => $view]);
 
+    }
+
+    public function saveCategoryReference(Request $request)
+    {
+        $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
+        $items = $request->updated_category;
+        if(!empty($items)) {
+            foreach($items as $k => $item) {
+                if($item != 1) {
+                    $filter = Category::find($item);
+                    if ($filter) {
+                        $old         = $unKnownCategory->id;
+                        $from        = $k;
+                        $to          = $item;
+                        $change      = 'yes';
+                        $wholeString = $k;
+                        if ($change == 'yes') {
+                            \App\Jobs\UpdateProductCategoryFromErp::dispatch([
+                                "from"    => $from,
+                                "to"      => $to,
+                                "user_id" => \Auth::user()->id,
+                            ])->onQueue("supplier_products");
+                        }
+                        $c = $unKnownCategory;
+                        if ($c) {
+                            $allrefernce = explode(",", $c->references);
+                            $newRef      = [];
+                            if (!empty($allrefernce)) {
+                                foreach ($allrefernce as $ar) {
+                                    if ($ar != $wholeString) {
+                                        $newRef[] = $ar;
+                                    }
+                                }
+                            }
+                            $c->references = implode(",", $newRef);
+                            $c->save();
+                            // new category reference store
+                            if ($filter) {
+
+                                $existingRef   = explode(",", $filter->references);
+                                $existingRef[] = $from;
+
+                                $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
+                                    'old_value'      => $filter->references,
+                                    'new_value'      => implode(",", array_unique($existingRef)),
+                                    'attribute_name' => 'category',
+                                    'attribute_id'   => $filter->id,
+                                    'user_id'        => \Auth::user()->id,
+                                ]);
+
+                                $filter->references = implode(",", array_unique($existingRef));
+                                $filter->save();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return response()->json(["code" => 200, "message" => "Category updated successfully"]);
     }
 
 }
