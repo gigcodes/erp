@@ -56,12 +56,13 @@ class UpdateInventory extends Command
             // find all product first
             $products = \App\Supplier::join("scrapers as sc", "sc.supplier_id", "suppliers.id")
                 ->join("scraped_products as sp", "sp.website", "sc.scraper_name")
+                ->join("products as p", "p.sku", "sp.sku")
                 ->where(function($q) {
                     $q->whereDate("last_cron_check","!=",date("Y-m-d"))->orWhereNull('last_cron_check');
                 })
                 ->limit(100)
                 ->where("suppliers.supplier_status_id", 1)
-                ->select("sp.last_inventory_at", "sp.sku", "sc.inventory_lifetime","sp.product_id","suppliers.id as supplier_id","sp.id as sproduct_id")->get()->groupBy("sku")->toArray();
+                ->select("sp.last_inventory_at", "sp.sku", "sc.inventory_lifetime","p.id as product_id","suppliers.id as supplier_id","sp.id as sproduct_id")->get()->groupBy("sku")->toArray();
                 
             if (!empty($products)) {  
                 $zeroStock=[];
