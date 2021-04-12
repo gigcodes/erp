@@ -107,24 +107,33 @@
                                 <option value="">-- Select --</option>
                                 @php
                                     $selected = false;
+                                    $optionSelected = null;
                                 @endphp
                                 @foreach ($listcompostions as $item)
                                     @php
+                                        $selected = false;
+                                        $optionSelected = null;
                                         $itemArr  = array_filter(explode(' ', preg_replace("/[^a-zA-Z]+/", " ", $item)));
                                         $exitsArr = array_filter(explode(' ', preg_replace("/[^a-zA-Z]+/", " ", $composition->name)));
+                                        
+                                        if($exitsArr){
+                                            if( sizeof( $exitsArr ) > 2 ){
+                                                if( in_array( $exitsArr[2], $itemArr) && $selected == false ){
+                                                    $selected = true; 
+                                                    $optionSelected =  'selected'; 
+                                                }
+                                            }else {
+                                                if( array_intersect($itemArr, $exitsArr) && $selected == false ){ 
+                                                    $selected = true; 
+                                                    $optionSelected =  'selected'; 
+                                                }
+                                            }
+                                        }
                                     @endphp
-                                    <option value="{{ $item }}" @php if( array_intersect($itemArr, $exitsArr) && $selected == false ){ $selected = true; echo 'selected'; } @endphp > {{ $item }} </option>
+                                    <option value="{{ $item }}" {{ $optionSelected }} > {{ $item }} </option>
                                 @endforeach
                             </select>
                             <button class="btn btn-secondary btn-xs change-selectbox" data-id="{{$composition->id}}"><i class="fa fa-save"></i></button>
-                            <?php 
-                            // Form::select(
-                            //     'replace_with', 
-                            //     $listcompostions , 
-                            //     $composition->replace_with, 
-                            //     ["class" => "form-control change-list-compostion select2",'data-name' => $composition->name, 'data-id' => $composition->id, 'style' => 'width:400px',]
-                            // );
-                             ?>
                         </div>
                     </td>
                     <td>
