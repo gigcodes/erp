@@ -700,7 +700,7 @@ class CategoryController extends Controller
                             if ($filter) {
 
                                 $existingRef   = explode(",", $filter->references);
-                                $existingRef[] = $to;
+                                $existingRef[] = $from;
 
                                 $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
                                     'old_value'      => $filter->references,
