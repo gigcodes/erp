@@ -43,7 +43,7 @@
             <a target="__blank" href="{{ route('category.delete.unused') }}">
                 <button type="button" class="btn btn-secondary delete-not-used">Delete not used</button>
             </a>
-            <a href="{{ route('category.fix-autosuggested') }}" class="fix-autosuggested">
+            <a href="{{ route('category.fix-autosuggested',request()->all()) }}" class="fix-autosuggested">
                 <button type="button" class="btn btn-secondary">Fix Auto Suggested</button>
             </a>
         </div>
@@ -306,6 +306,37 @@
                     $(".show-listing-exe-records").modal('hide');
                 });
 
+            });
+
+
+            $(document).on("submit",".update-reference-category-form",function(event){
+                event.preventDefault();
+                var $this = $(this);
+                $.ajax({
+                    type: $this.attr("method"),
+                    url: $this.attr("action"),
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    data: $this.serialize(),
+                    dataType: "json"
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        if(response.html != "") {
+                            toastr['success'](response.message, 'success');
+                            location.reload();
+                        }else{
+                            toastr['error']('Sorry, something went wrong', 'error');
+                        }
+                        $(".show-listing-exe-records").modal('hide');
+                        location.reload();
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    toastr['error']('Sorry, something went wrong', 'error');
+                    $(".show-listing-exe-records").modal('hide');
+                });
             });
 
     </script>
