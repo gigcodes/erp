@@ -644,6 +644,7 @@ class CategoryController extends Controller
 
         //$unKnownCategories[] = "women/clothing/trousers/trousers/alexander mcqueen prince of wales trousers";
         //$unKnownCategories[] = "women/clothing/tops/tops/alexander mcqueen flounced top";
+        //$unKnownCategories[] = "men/bags/business and travel bags/prada document holder in saffiano";
         
         $unKnownCategories = $this->paginate($unKnownCategories,50);
         $unKnownCategories->setPath($request->url());
