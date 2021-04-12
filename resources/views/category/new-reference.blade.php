@@ -257,6 +257,7 @@
                         if(response.html != "") {
                             $(".show-listing-exe-records").find('.modal-dialog').html(response.html);
                             $(".show-listing-exe-records").modal('show');
+                            $(".show-listing-exe-records").find(".select2").select2({"tags" : false});
                         }else{
                             toastr['error']('Sorry no response fetched', 'error');
                         }
