@@ -46,6 +46,7 @@
             <div class="pull-right">
               @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                 <a class="btn btn-secondary manual-payment-btn" href="#">Manual payment</a>
+                <a class="btn btn-secondary paid-selected-payment-btn" href="javascript:;">Paid Selected</a>
               @endif
               <a class="btn btn-secondary manual-request-btn" href="javascript:void(0);">Manual request</a>
               <!-- <a class="btn btn-secondary" href="{{ route('voucher.create') }}">+</a> -->
@@ -100,6 +101,7 @@
     <div class="table-responsive">
         <table class="table table-bordered">
         <tr>
+          <th width="2%">-</th>
           <th width="10%">User</th>
           <th width="8%">Date</th>
           <th width="25%">Details</th>
@@ -118,6 +120,7 @@
           @endphp
           @foreach ($tasks as $task)
             <tr>
+              <td><input type="checkbox" class="paid-all-payment" name="paid_all[]" value="{{$task->id}}"></td>
               <td>@if(isset($task->user)) {{  $task->user->name }} @endif </td>
               <td>{{ \Carbon\Carbon::parse($task->date)->format('d-m') }}</td>
               <td>{{ str_limit($task->details, $limit = 100, $end = '...') }}</td>
@@ -286,6 +289,15 @@
 
         </div>
     </div>
+
+    <div id="pay-selected-payment" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                
+            </div>
+        </div>
+    </div>
+
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
           50% 50% no-repeat;display:none;">
     </div>
@@ -553,6 +565,57 @@
           });
         }
       });
+
+    $(document).on("click",".paid-selected-payment-btn",function(e) {
+          e.preventDefault();
+          var ids = [];
+          $(".paid-all-payment").each(function(k, v) {
+              if($(v).is(":checked")) {
+                 ids.push($(v).val());
+              }
+          });
+          $.ajax({
+            url: '/voucher/paid-selected-payment',
+            type: 'POST',
+            headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+            data: { ids : ids},
+            beforeSend: function() {
+              $("#loading-image").show();
+            }
+          }).done(function (data) {
+            $("#loading-image").hide();
+            $("#pay-selected-payment").find(".modal-content").html(data);
+            $("#pay-selected-payment").modal("show");
+            $("#pay-selected-payment").find(".currency-select2").select2({width: '100%',tags:true});
+            $("#pay-selected-payment").find(".payment-method-select2").select2({width: '100%',tags:true});
+          }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            toastr["error"]("Oops,something went wrong");
+            $("#loading-image").hide();
+          });
+    });
+
+    $(document).on("submit","#vendor-payment-receipt-form",function(e) {
+        e.preventDefault();
+        var $this = $(this);
+          $.ajax({
+            url: $this.attr("action"),
+            type: $this.attr("method"),
+            headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+            data: $this.serialize(),
+            dataType:"json",
+            beforeSend: function() {
+              $("#loading-image").show();
+            }
+          }).done(function (data) {
+            $("#loading-image").hide();
+            toastr["success"](data.message);
+          }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            toastr["error"]("Oops,something went wrong");
+            $("#loading-image").hide();
+          });
+    });
+
+    
 
     // $(document).on('click', '.submit-manual-receipt', function(e) {
     //   e.preventDefault();
