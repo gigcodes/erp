@@ -984,6 +984,7 @@ class ScrapController extends Controller
 
                 // Load scraped product and update last_inventory_at
                 $scrapedProduct = ScrapedProducts::where('url', $link)->where('website', $website)->first();
+                
                 if ($scrapedProduct != null) {
                     Log::channel('productUpdates')->debug("[scraped_product] Found existing product with sku " . ProductHelper::getSku($scrapedProduct->sku));
                     $scrapedProduct->url               = $link;

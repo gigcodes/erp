@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
 use App\CronJobReport;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class CheckScraperRunningStatus extends Command
@@ -41,16 +41,15 @@ class CheckScraperRunningStatus extends Command
     {
 
         $report = CronJobReport::create([
-        'signature'  => $this->signature,
-        'start_time' => Carbon::now(),
+            'signature'  => $this->signature,
+            'start_time' => Carbon::now(),
         ]);
 
-        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') .'scrapper-running.sh 2>&1';
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'scrapper-running.sh 2>&1';
 
-        $allOutput = array();
+        $allOutput   = array();
         $allOutput[] = $cmd;
-        $result = exec($cmd, $allOutput);
-         
+        $result      = exec($cmd, $allOutput);
 
         /*$allOutput   = [];
         $allOutput[] = "";
@@ -59,6 +58,9 @@ class CheckScraperRunningStatus extends Command
 
         $serverId       = null;
         $scraperNamestr = null;
+        $totalMemory    = null;
+        $usedMemory     = null;
+        $inPercentage   = null;
 
         if (!empty($allOutput)) {
             foreach ($allOutput as $k => $allO) {
@@ -74,6 +76,27 @@ class CheckScraperRunningStatus extends Command
                             $serverId = trim($serverNameArr[0]);
                             continue;
                         }
+                    }
+                }
+
+                if (strpos($allO, "Total Memory = ") !== false) {
+                    $memoryArr = explode("Total Memory = ", $allO);
+                    if (!empty($memoryArr[1])) {
+                        $totalMemory = $memoryArr[1];
+                    }
+                }
+
+                if (strpos($allO, "Used Memory = ") !== false) {
+                    $memoryArr = explode("Used Memory = ", $allO);
+                    if (!empty($memoryArr[1])) {
+                        $usedMemory = $memoryArr[1];
+                    }
+                }
+
+                if (strpos($allO, "Used Memory in Percentage = ") !== false) {
+                    $memoryArr = explode("Used Memory in Percentage = ", $allO);
+                    if (!empty($memoryArr[1])) {
+                        $inPercentage = $memoryArr[1];
                     }
                 }
 
@@ -100,6 +123,9 @@ class CheckScraperRunningStatus extends Command
                         "scraper_string" => $allO,
                         "server_id"      => $serverId,
                         "start_time"     => $scraperStarTime,
+                        "total_memory"   => $totalMemory,
+                        "used_memory"    => $usedMemory,
+                        "in_percentage"  => $inPercentage,
                     ]);
                 }
             }
