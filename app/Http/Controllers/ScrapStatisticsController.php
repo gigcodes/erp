@@ -732,7 +732,7 @@ class ScrapStatisticsController extends Controller
                 foreach($scrapers as $s) {
                     $listOfServerUsed["$tms"][$s->server_id][] = [
                         "scraper_name" => $s->scraper_name,
-                        "time"  => 0
+                        "memory_string"  => "T : ".$s->total_memory." U:".$s->used_memory." P:".$s->in_percentage
                     ];
                 }
             }

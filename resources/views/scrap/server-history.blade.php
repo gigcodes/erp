@@ -42,7 +42,7 @@
                                         if(isset($listOfServerUsed[$k]) && isset($listOfServerUsed[$k][$totalServer])) {
                                             $loops = $listOfServerUsed[$k][$totalServer];
                                             foreach($loops as $l) {
-                                                echo '<span class="badge badge-secondary">'.$l['scraper_name'].'</span><br>';
+                                                echo '<span class="badge badge-secondary">'.$l['scraper_name'].$l['memory_string'].'</span><br>';
                                             }
                                         }
                                   ?>
