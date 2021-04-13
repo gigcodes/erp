@@ -604,46 +604,45 @@ class ScrapStatisticsController extends Controller
     {
         $id             = $request->id;
         $developerTasks = \App\DeveloperTask::where("scraper_id", $request->id)->latest()->get();
-        $replies = \App\Reply::where("model", "scrap-statistics")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
-        return view("scrap.partials.task", compact('developerTasks', 'id','replies'));
+        $replies        = \App\Reply::where("model", "scrap-statistics")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
+        return view("scrap.partials.task", compact('developerTasks', 'id', 'replies'));
     }
 
     public function addReply(Request $request)
-  {
-    $reply = $request->get("reply");
-    $autoReply = [];
-    // add reply from here 
-    if (!empty($reply)) {
+    {
+        $reply     = $request->get("reply");
+        $autoReply = [];
+        // add reply from here
+        if (!empty($reply)) {
 
-      $autoReply = \App\Reply::updateOrCreate(
-        ['reply' => $reply, 'model' => 'scrap-statistics', "category_id" => 1],
-        ['reply' => $reply]
-      );
+            $autoReply = \App\Reply::updateOrCreate(
+                ['reply' => $reply, 'model' => 'scrap-statistics', "category_id" => 1],
+                ['reply' => $reply]
+            );
 
+        }
 
+        return response()->json(["code" => 200, 'data' => $autoReply]);
     }
 
-    return response()->json(["code" => 200, 'data' => $autoReply]);
-  }
+    public function deleteReply(Request $request)
+    {
+        $id = $request->get("id");
 
-  public function deleteReply(Request $request)
-  {
-    $id = $request->get("id");
+        if ($id > 0) {
+            $autoReply = \App\Reply::where("id", $id)->first();
+            if ($autoReply) {
+                $autoReply->delete();
+            }
+        }
 
-    if ($id > 0) {
-      $autoReply = \App\Reply::where("id", $id)->first();
-      if ($autoReply) {
-        $autoReply->delete();
-      }
+        return response()->json([
+            "code" => 200, "data" => \App\Reply::where("model", "scrap-statistics")
+                ->whereNull("deleted_at")
+                ->pluck("reply", "id")
+                ->toArray(),
+        ]);
     }
-
-    return response()->json([
-      "code" => 200, "data" => \App\Reply::where("model", "scrap-statistics")
-        ->whereNull("deleted_at")
-        ->pluck("reply", "id")
-        ->toArray()
-    ]);
-  }
 
     public function taskCreate(Request $request, $id)
     {
@@ -669,9 +668,9 @@ class ScrapStatisticsController extends Controller
         }
 
         $developerTasks = \App\DeveloperTask::where("scraper_id", $request->id)->latest()->get();
-        $replies = \App\Reply::where("model", "scrap-statistics")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
+        $replies        = \App\Reply::where("model", "scrap-statistics")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
 
-        return view("scrap.partials.task", compact('developerTasks', 'id','replies'));
+        return view("scrap.partials.task", compact('developerTasks', 'id', 'replies'));
 
     }
 
@@ -704,16 +703,44 @@ class ScrapStatisticsController extends Controller
 
     public function getLastErrors(Request $request)
     {
-        $remarks = \App\ScrapRemark::where("scrap_field","last_line_error")->where("scrap_id",$request->id)->get();
+        $remarks = \App\ScrapRemark::where("scrap_field", "last_line_error")->where("scrap_id", $request->id)->get();
 
         return view("scrap.partials.scrap-remarks", compact('remarks'));
     }
 
-    public function logDetails(Request $request) 
+    public function logDetails(Request $request)
     {
-        $logDetails = \App\ScrapLog::where("scraper_id",$request->scrapper_id)->latest()->get();
+        $logDetails = \App\ScrapLog::where("scraper_id", $request->scrapper_id)->latest()->get();
 
         return view("scrap.partials.log-details", compact('logDetails'));
+    }
+
+    public function serverHistory(Request $request)
+    {
+        $requestedDate = request("planned_at",date("Y-m-d"));
+
+        $totalServers = \App\ScraperServerStatusHistory::groupBy('server_id')->pluck('server_id')->toArray();
+
+        $timeSlots = [];
+        $listOfServerUsed = [];
+        for ($i=0; $i < 24; $i++) { 
+            $tms = strlen($i) > 1 ? $i : "0".$i;
+            $timeSlots["$tms"] = $tms;
+            // check the scrapper which run on current time
+            $scrapers = \App\ScraperServerStatusHistory::runOnGiveTime($requestedDate,$tms);
+            if(!$scrapers->isEmpty()){
+                foreach($scrapers as $s) {
+                    $listOfServerUsed["$tms"][$s->server_id][] = [
+                        "scraper_name" => $s->scraper_name,
+                        "time"  => 0
+                    ];
+                }
+            }
+        }
+
+        //echo "<pre>"; print_r($listOfServerUsed);  echo "</pre>";die;
+
+        return view("scrap.server-history", compact('totalServers','timeSlots','requestedDate','listOfServerUsed'));
     }
 
 }
