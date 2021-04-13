@@ -154,6 +154,11 @@ class Supplier extends Model
         return $this->hasOne('App\Scraper',"supplier_id","id");
     }
 
+    public function scrapers()
+    {
+        return $this->hasMany('App\Scraper',"supplier_id","id");
+    }
+
     public function getSupplierExcelFromSupplierEmail(){
 
         if($this->scraper != null){
