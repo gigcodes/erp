@@ -582,6 +582,12 @@ class VoucherController extends Controller
         return view("vouchers.partials.modal-payment-receipt-paid", compact('paymentReceipt', 'currencies', 'paymentMethods'));
     }
 
+    public function paidSelectedPaymentList(Request $request)
+    {
+        $payments = \App\Payment::where("payment_receipt_id", $request->payment_receipt_id)->get();
+        return view("vouchers.partials.payment-receipt-list", compact('payments'));
+    }
+
     public function payMultiple(Request $request)
     {
         $this->validate($request, [

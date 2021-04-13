@@ -1950,6 +1950,7 @@ class WhatsAppController extends FindByNumberController
             'site_development_id' => 'sometimes|nullable|numeric',
             'social_strategy_id' => 'sometimes|nullable|numeric',
             'store_social_content_id' => 'sometimes|nullable|numeric',
+            'payment_receipt_id' => 'sometimes|nullable|numeric',
         ]);
         $data = $request->except('_token');
         // set if there is no queue defaut for all pages
@@ -2798,6 +2799,31 @@ class WhatsAppController extends FindByNumberController
                     $params['status'] = 2;
 
                     $chat_message = ChatMessage::create($params);
+                    $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'],null , $chat_message->id);
+
+                    return response()->json(['message' => $chat_message]);
+
+                } elseif ($context == 'payment-receipts') {
+                    $user = null;    
+                    $paymentReceipt = \App\PaymentReceipt::find($request->get('payment_receipt_id'));
+                    if($paymentReceipt) {
+                        if(auth()->user()->isAdmin()) {
+                            $user = User::find($paymentReceipt->user_id);
+                        }
+                    }
+                    if(!$user) {
+                        $user = User::find(6);
+                    }
+                    
+                    $params['erp_user'] = $user->id;
+                    $params['user_id'] = $user->id;
+                    $params['message'] = $request->get('message');
+                    $params['payment_receipt_id'] = $request->get('payment_receipt_id');
+                    $params['approved'] = 1;
+                    $params['status'] = 2;
+                    
+                    $chat_message = ChatMessage::create($params);
+
                     $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'],null , $chat_message->id);
 
                     return response()->json(['message' => $chat_message]);
