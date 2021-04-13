@@ -102,16 +102,17 @@
         <table class="table table-bordered">
         <tr>
           <th width="2%">-</th>
-          <th width="10%">User</th>
-          <th width="8%">Date</th>
-          <th width="25%">Details</th>
-          <th width="8%">Category</th>
-          <th width="7%">Time Spent</th>
+          <th width="5%">User</th>
+          <th width="5%">Date</th>
+          <th width="20%">Details</th>
+          <th width="5%">Category</th>
+          <th width="5%">Time Spent</th>
           <th width="7%">Amount</th>
           <th width="7%">Currency</th>
-          <th width="8%">Amount Paid</th>
+          <th width="5%">Amount Paid</th>
           <th width="10%">Balance</th>
-          <th width="10%" colspan="2" class="text-center">Action</th>
+          <th width="15%">Communication</th>
+          <th width="15%" colspan="2" class="text-center">Action</th>
         </tr>
           @php
             $totalRateEstimate = 0;
@@ -130,6 +131,29 @@
               <td>{{ $task->currency }}</td>
               <td>{{ $task->paid_amount }}</td>
               <td>{{ $task->balance }}</td>
+              <td>
+                <div class="row">
+                    <div class="col-md-12 form-inline cls_remove_rightpadding">
+                          <textarea rows="1" class="form-control quick-message-field cls_quick_message" id="messageid_{{ $task->id }}" name="message" placeholder="Message"></textarea>
+                          <button class="btn btn-sm btn-image send-message1" data-payment-receipt-id="{{ $task->id }}"><img src="/images/filled-sent.png"/></button>
+                          <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="payment-receipts" data-id="{{$task->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    </div>
+                </div>
+                <div class="row cls_mesg_box">
+                  <div class="col-md-12">
+                      <div class="col-md-12 expand-row" style="padding: 3px;">
+                      @if(isset($task->chat_messages[0]))
+                          <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $task->id }}">
+                          {{ strlen($task->chat_messages[0]->message) > 30 ? substr($task->chat_messages[0]->message, 0, 30) . '...' : $task->chat_messages[0]->message }}
+                          </span>
+                          <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $task->id }}">
+                            {{ $task->chat_messages[0]->message }}
+                          </span>
+                      @endif
+                      </div>
+                  </div>
+              </div>
+              </td>
               @php
                 $totalRateEstimate += is_numeric(str_replace(",","",$task->rate_estimated)) ? str_replace(",","",$task->rate_estimated) : 0;
                 $totalPaid += is_numeric(str_replace(",","",$task->paid_amount)) ? str_replace(",","",$task->paid_amount) : 0;
@@ -145,6 +169,9 @@
                 <button type="button" data-payment-receipt-id="{{$task->id}}" data-toggle="tooltip" title="List of Files" class="btn btn-file-list pd-5">
                     <i class="fa fa-list" aria-hidden="true"></i>
                 </button>
+                <button type="button" data-payment-receipt-id="{{$task->id}}" data-toggle="tooltip" title="Payment" class="btn btn-payment-list pd-5">
+                    <i class="fa fa-globe" aria-hidden="true"></i>
+                </button>
                 <?php /* ?>
                 <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-store-development-remark pd-5">
                     <i class="fa fa-comment" aria-hidden="true"></i>
@@ -155,8 +182,10 @@
           @endforeach
           <tr>
             <td colspan="6" width="10%" style="text-align: right;"><b>TOTAL Amount : {{$totalRateEstimate}}</b></td>
-            <td colspan="2" width="8%" style="text-align: right;"><b>TOTAL Amount Paid : {{$totalPaid}}</b></td>
-            <td colspan="2" width="25%"><b>TOTAL Balance : {{$totalBalance}}</b></td>
+            <td colspan="2" width="10%" style="text-align: right;"><b>TOTAL Amount Paid : {{$totalPaid}}</b></td>
+            <td colspan="2" width="20%"><b>TOTAL Balance : {{$totalBalance}}</b></td>
+            <td></td>
+            <td></td>
           </tr>
       </table>
       {{$tasks->links()}}
@@ -291,9 +320,28 @@
     </div>
 
     <div id="pay-selected-payment" class="modal fade" role="dialog">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 
+            </div>
+        </div>
+    </div>
+
+    <div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+                    <input type="hidden" id="chat_obj_type" name="chat_obj_type">
+                    <input type="hidden" id="chat_obj_id" name="chat_obj_id">
+                    <button type="submit" class="btn btn-default downloadChatMessages">Download</button>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
@@ -594,6 +642,32 @@
           });
     });
 
+    $(document).on("click",".btn-payment-list",function(e) {
+          e.preventDefault();
+          var $this = $(this);
+          $.ajax({
+            url: '/voucher/paid-selected-payment-list',
+            type: 'GET',
+            headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+            data: { payment_receipt_id : $this.data("payment-receipt-id")},
+            beforeSend: function() {
+              $("#loading-image").show();
+            }
+          }).done(function (data) {
+            $("#loading-image").hide();
+            $("#pay-selected-payment").find(".modal-content").html(data);
+            $("#pay-selected-payment").modal("show");
+            $("#pay-selected-payment").find(".currency-select2").select2({width: '100%',tags:true});
+            $("#pay-selected-payment").find(".payment-method-select2").select2({width: '100%',tags:true});
+          }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            toastr["error"]("Oops,something went wrong");
+            $("#loading-image").hide();
+          });
+    });
+
+
+    
+
     $(document).on("submit","#vendor-payment-receipt-form",function(e) {
         e.preventDefault();
         var $this = $(this);
@@ -613,6 +687,54 @@
             toastr["error"]("Oops,something went wrong");
             $("#loading-image").hide();
           });
+    });
+
+    $(document).on('click', '.send-message1', function () {
+        var thiss = $(this);
+        var data = new FormData();
+        var payment_receipt_id = $(this).data('payment-receipt-id');
+
+        var message = $("#messageid_"+payment_receipt_id).val();
+        data.append("payment_receipt_id", payment_receipt_id);
+        data.append("message", message);
+        data.append("status", 1);
+
+        if (message.length > 0) {
+            if (!$(thiss).is(':disabled')) {
+                $.ajax({
+                    url: BASE_URL+'/whatsapp/sendMessage/payment-receipts',
+                    type: 'POST',
+                    "dataType": 'json',           // what to expect back from the PHP script, if anything
+                    "cache": false,
+                    "contentType": false,
+                    "processData": false,
+                    "data": data,
+                    beforeSend: function () {
+                        $(thiss).attr('disabled', true);
+                    }
+                }).done(function (response) {
+                    //thiss.closest('tr').find('.message-chat-txt').html(thiss.siblings('textarea').val());
+                    if(message.length > 30)
+                    {
+                        var res_msg = message.substr(0, 27)+"..."; 
+                        $("#message-chat-txt-"+payment_receipt_id).html(res_msg);
+                        $("#message-chat-fulltxt-"+payment_receipt_id).html(message);    
+                    }else{
+                        $("#message-chat-txt-"+payment_receipt_id).html(message); 
+                        $("#message-chat-fulltxt-"+payment_receipt_id).html(message);      
+                    }
+
+                    $("#messageid_"+payment_receipt_id).val('');
+                    $(thiss).attr('disabled', false);
+                }).fail(function (errObj) {
+                    $(thiss).attr('disabled', false);
+                    alert("Could not send message");
+                    console.log(errObj);
+                });
+            }
+        } else {
+            alert('Please enter a message first');
+        }
     });
 
     

@@ -1011,6 +1011,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('/voucher/manual-payment', 'VoucherController@viewManualPaymentModal')->name("voucher.payment.manual-payment");
     Route::post('/voucher/manual-payment', 'VoucherController@manualPaymentSubmit')->name("voucher.payment.manual-payment-submit");
     Route::post('/voucher/paid-selected-payment', 'VoucherController@paidSelected')->name("voucher.payment.paid-selected");
+    Route::get('/voucher/paid-selected-payment-list', 'VoucherController@paidSelectedPaymentList')->name("voucher.payment.paid-selected-payment-list");
     Route::post('/voucher/pay-multiple', 'VoucherController@payMultiple')->name("voucher.payment.pay-multiple");
 
     Route::resource('voucher', 'VoucherController');
