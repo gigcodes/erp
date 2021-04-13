@@ -73,7 +73,7 @@ class CheckScraperRunningStatus extends Command
                     if (!empty($serverArray[1])) {
                         $serverNameArr = explode("################### Server Load ", $serverArray[1]);
                         if (!empty(trim($serverNameArr[0]))) {
-                            $serverId = trim($serverNameArr[0]);
+                            $serverId = trim(str_replace("#", "", $serverNameArr[0]));
                             continue;
                         }
                     }
