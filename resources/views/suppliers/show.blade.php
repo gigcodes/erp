@@ -238,7 +238,17 @@
                             </div>
 
                             <div class="form-group">
-                                <input type="text" name="scraper_name" id="supplier_scraper_name" class="form-control input-sm" placeholder="Scraper Name" value="{{ ($supplier->scraper) ? $supplier->scraper->scraper_name : '' }}">
+                                @php
+
+                                    $scrapersList = [];
+                                    if(!$supplier->scrapers->isEmpty()) {
+                                        foreach($supplier->scrapers as $ssc) {
+                                            $scrapersList[] = $ssc->scraper_name;
+                                        }
+                                    }
+
+                                @endphp
+                                <input type="text" name="scraper_name" id="supplier_scraper_name" class="form-control input-sm" placeholder="Scraper Name" value="{{ implode(',',$scrapersList) }}">
                             </div>
 
                             <div class="form-group">
