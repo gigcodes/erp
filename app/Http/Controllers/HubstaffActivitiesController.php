@@ -766,6 +766,15 @@ class HubstaffActivitiesController extends Controller
                             $approveIDs = json_decode($hubActivitySummery->approved_ids);
                             $rejectedIds = json_decode($hubActivitySummery->rejected_ids);
                             $pendingIds = json_decode($hubActivitySummery->pending_ids);
+                            if(empty($pendingIds)) {
+                                $pendingIds = [];
+                            }
+                            if(empty($rejectedIds)) {
+                                $rejectedIds = [];
+                            }
+                            if(empty($approveIDs)) {
+                                $approveIDs = [];
+                            }
                         }
 
                         foreach ($dateW as $dw) {

@@ -64,7 +64,8 @@ class User extends Authenticatable
         'auth_token_hubstaff',
         'payment_frequency',
         'fixed_price_user_or_job',
-        'approve_login'
+        'approve_login',
+        'billing_frequency_day'
     ];
 
     public function getIsAdminAttribute()
