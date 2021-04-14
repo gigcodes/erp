@@ -54,6 +54,8 @@ class UpdateInventory extends Command
             $arrInventory = [];
 
             // find all product first
+            $time_start = microtime(true); 
+
             $products = \App\Supplier::join("scrapers as sc", "sc.supplier_id", "suppliers.id")
                 ->join("scraped_products as sp", "sp.website", "sc.scraper_name")
                 ->join("products as p", "p.sku", "sp.sku")
@@ -64,8 +66,16 @@ class UpdateInventory extends Command
                 ->where("suppliers.supplier_status_id", 1)
                 ->select("sp.last_inventory_at", "sp.sku", "sc.inventory_lifetime","p.id as product_id","suppliers.id as supplier_id","sp.id as sproduct_id")->get()->groupBy("sku")->toArray();
                 
-            if (!empty($products)) {  
+                $time_end = microtime(true);
+                $execution_time = ($time_end - $time_start);
+                
+                \Log::info('inventory:update :: Getting products data Total Execution Time => '.($execution_time*1000).' Milliseconds');
+                
+
+                if (!empty($products)) {
                 $zeroStock=[];
+
+                $time_start = microtime(true); 
                 foreach ($products as $sku => $skuRecords) {
                     
                     $hasInventory = false;
@@ -127,12 +137,26 @@ class UpdateInventory extends Command
                     if (!$hasInventory && !empty($productId)) {
                         \DB::statement("update `products` set `stock` = 0, `updated_at` = '" . date("Y-m-d H:i:s") . "' where `id` = '" . $productId . "' and `products`.`deleted_at` is null");
                     }
-                } 
+                }
+
+                $time_end = microtime(true);
+                $execution_time = ($time_end - $time_start);
+                
+                \Log::info('inventory:update :: History update -Total Execution Time => '.($execution_time*1000).' Milliseconds');
+
                 if(!empty($zeroStock)){
                     try{
+
+                        $time_start = microtime(true); 
+
                         if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
                                 MagentoHelper::callHelperForZeroStockQtyUpdate($zeroStock);
                         }
+
+                        $time_end = microtime(true);
+                        $execution_time = ($time_end - $time_start);
+                        
+                        \Log::info('inventory:update :: MagentoHelper HelperForZeroStockQtyUpdate -Total Execution Time => '.($execution_time*1000).' Milliseconds');
                     }catch(\Exception $e) {
 
                     }
@@ -174,7 +198,6 @@ class UpdateInventory extends Command
             // TODO: Update stock in Magento
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
-            dd($e);
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
