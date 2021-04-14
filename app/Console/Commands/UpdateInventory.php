@@ -12,6 +12,7 @@ use App\StoreWebsite;
 use seo2websites\MagentoHelper\MagentoHelper;
 use Illuminate\Support\Facades\Log;
 use App\ProductPushErrorLog;
+use App\Jobs\CallHelperForZeroStockQtyUpdate;
 
 class UpdateInventory extends Command
 {
@@ -54,7 +55,6 @@ class UpdateInventory extends Command
             $arrInventory = [];
 
             // find all product first
-            $time_start = microtime(true); 
 
             $products = \App\Supplier::join("scrapers as sc", "sc.supplier_id", "suppliers.id")
                 ->join("scraped_products as sp", "sp.website", "sc.scraper_name")
@@ -66,16 +66,9 @@ class UpdateInventory extends Command
                 ->where("suppliers.supplier_status_id", 1)
                 ->select("sp.last_inventory_at", "sp.sku", "sc.inventory_lifetime","p.id as product_id","suppliers.id as supplier_id","sp.id as sproduct_id")->get()->groupBy("sku")->toArray();
                 
-                $time_end = microtime(true);
-                $execution_time = ($time_end - $time_start);
-                
-                \Log::info('inventory:update :: Getting products data Total Execution Time => '.($execution_time*1000).' Milliseconds');
-                
-
                 if (!empty($products)) {
                 $zeroStock=[];
 
-                $time_start = microtime(true); 
                 foreach ($products as $sku => $skuRecords) {
                     
                     $hasInventory = false;
@@ -139,27 +132,23 @@ class UpdateInventory extends Command
                     }
                 }
 
-                $time_end = microtime(true);
-                $execution_time = ($time_end - $time_start);
-                
-                \Log::info('inventory:update :: History update -Total Execution Time => '.($execution_time*1000).' Milliseconds');
-
                 if(!empty($zeroStock)){
                     try{
 
                         $time_start = microtime(true); 
 
-                        if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                                MagentoHelper::callHelperForZeroStockQtyUpdate($zeroStock);
-                        }
+                        CallHelperForZeroStockQtyUpdate::dispatch($zeroStock)->onQueue('MagentoHelperForZeroStockQtyUpdate');;
+                        
+                        // if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                        //         MagentoHelper::callHelperForZeroStockQtyUpdate($zeroStock);
+                        // }
 
                         $time_end = microtime(true);
-                        $execution_time = ($time_end - $time_start);
-                        
-                        \Log::info('inventory:update :: MagentoHelper HelperForZeroStockQtyUpdate -Total Execution Time => '.($execution_time*1000).' Milliseconds');
-                    }catch(\Exception $e) {
+                        \Log::info('inventory:update :: ForZeroStockQtyUpdate -Total Execution Time => '.($execution_time));
 
-                    }
+                    }catch(\Exception $e) {
+                        \Log::error('inventory:update :: CallHelperForZeroStockQtyUpdate :: '. $e->getMessage());
+                    }   
                 }
                 
             }
