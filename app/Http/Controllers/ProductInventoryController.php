@@ -1356,6 +1356,8 @@ class ProductInventoryController extends Controller
 						set products.brand = sp.brand_id , products.last_brand = products.brand
 						where b1.name = ? and b2.name = ?',[$originalBrand,$scraperBrand]);
 
+		}else{
+			return redirect()->back()->with('error', 'Please enter product brand and scraper brand');
 		}
 
 		return redirect()->back()->with('message', 'Product(s) updated successfully');

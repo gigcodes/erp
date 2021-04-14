@@ -58,7 +58,13 @@
                   {{ session()->get('message') }}
               </div>
           @endif
-          
+
+          @if(session()->has('error'))
+              <div class="alert alert-danger">
+                  {{ session()->get('error') }}
+              </div>
+          @endif
+
         	<form action="?" method="GET" class="form-inline align-items-start">
         		<div class="form-group mr-3 mb-3">
         			<input name="term" type="text" class="form-control" id="product-search" value="{{ request('term','') }}" placeholder="sku,brand,category,status,stage">
