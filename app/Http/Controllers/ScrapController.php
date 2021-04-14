@@ -974,6 +974,8 @@ class ScrapController extends Controller
                 }
             }
 
+            $brands = [];
+
             foreach ($links as $link) {
                 //$logScraper = LogScraper::where('url', $link)->where('website', $website)->first();
 
@@ -983,20 +985,47 @@ class ScrapController extends Controller
                 //$logScraper->save();
 
                 // Load scraped product and update last_inventory_at
-                $scrapedProduct = ScrapedProducts::where('url', $link)->where('website', $website)->first();
+                $scrapedProduct = ScrapedProducts::where('url', $link->link)->where('website', $website)->first();
                 
                 if ($scrapedProduct != null) {
                     Log::channel('productUpdates')->debug("[scraped_product] Found existing product with sku " . ProductHelper::getSku($scrapedProduct->sku));
-                    $scrapedProduct->url               = $link;
+                    $scrapedProduct->url               = $link->link;
                     $scrapedProduct->last_inventory_at = Carbon::now();
                     $scrapedProduct->save();
+
+                    $product = \App\Product::where("sku",$scrapedProduct->sku)->first();
+                    if($product) {
+                        $product->stock = $product->stock + 1; 
+                    }
+                    $product->save();
                     //$pendingUrl[] = $link;
                 } else {
-                    $pendingUrl[] = $link;
+                    $pendingUrl[] = $link->link;
                 }
+
+                 if(isset($brands[$link->brand])) {
+                    $brands[$link->brand] = $brands[$link->brand]+1;
+                 }else{
+                    $brands[$link->brand] = 1;
+                 }   
+
                 //} else {
                 //$pendingUrl[] = $link;
                 //}
+            }
+
+            if(!empty($brands)){
+                foreach($brands as $bn => $t) {
+                    $brandM = \App\Brand::where("name",$bn)->first();
+                    if($brandM) {
+                        $bscraperResult                = new \App\BrandScraperResult();
+                        $bscraperResult->date          = date("Y-m-d");
+                        $bscraperResult->scraper_name  = $website;
+                        $bscraperResult->total_urls    = $t;
+                        $bscraperResult->brand_id      = $brandM->id;
+                        $bscraperResult->save();
+                    }
+                }
             }
 
             //Getting Supplier by Scraper name
