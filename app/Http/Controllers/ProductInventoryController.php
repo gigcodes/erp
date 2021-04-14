@@ -1343,4 +1343,23 @@ class ProductInventoryController extends Controller
 
 		return view("product-inventory.brand-history",compact('inventory'));
 	}
+
+	public function mergeScrapBrand(Request $request)
+	{
+		$scraperBrand 	= $request->get("scraper_brand");
+		$originalBrand  = $request->get("product_brand");
+
+		if(!empty($scraperBrand) && !empty($originalBrand)) {
+			$updateQuery = \DB::statement('update products join scraped_products as sp on sp.sku = products.sku 
+						join brands as b1 on b1.id = products.brand
+						join brands as b2 on b2.id = sp.brand_id
+						set products.brand = sp.brand_id , products.last_brand = products.brand
+						where b1.name = ? and b2.name = ?',[$originalBrand,$scraperBrand]);
+
+		}
+
+		return redirect()->back()->with('message', 'Product(s) updated successfully');
+
+	}
+
 }
