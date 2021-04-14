@@ -260,7 +260,7 @@ class UserManagementController extends Controller
         //     "userRate" => $userRate,
         // ]);
 
-        return view('usermanagement::templates.edit-user', compact('user','userRole', 'users', 'roles', 'edit', 'agent_roles', 'user_agent_roles', 'api_keys', 'customers_all', 'permission', 'userPermission', 'userRate'));
+        return view('usermanagement::templates.edit-user', compact('user','userRole', 'users', 'roles', 'agent_roles', 'user_agent_roles', 'api_keys', 'customers_all', 'permission', 'userPermission', 'userRate'));
     }
 
 

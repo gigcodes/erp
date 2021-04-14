@@ -110,9 +110,10 @@
           <th width="7%">Amount</th>
           <th width="7%">Currency</th>
           <th width="5%">Amount Paid</th>
-          <th width="10%">Balance</th>
+          <th width="7%">Balance</th>
+          <th width="11%">Billing Date</th>
           <th width="15%">Communication</th>
-          <th width="15%" colspan="2" class="text-center">Action</th>
+          <th width="20%" colspan="2" class="text-center">Action</th>
         </tr>
           @php
             $totalRateEstimate = 0;
@@ -122,7 +123,9 @@
           @foreach ($tasks as $task)
             <tr>
               <td><input type="checkbox" class="paid-all-payment" name="paid_all[]" value="{{$task->id}}"></td>
-              <td>@if(isset($task->user)) {{  $task->user->name }} @endif </td>
+              <td>
+                @if(isset($task->user)) {{  $task->user->name }} @endif
+              </td>
               <td>{{ \Carbon\Carbon::parse($task->date)->format('d-m') }}</td>
               <td>{{ str_limit($task->details, $limit = 100, $end = '...') }}</td>
               <td>@if($task->task_id) Task #{{$task->task_id}} @elseif($task->developer_task_id) Devtask #{{$task->developer_task_id}} @else Manual @endif </td>
@@ -131,6 +134,7 @@
               <td>{{ $task->currency }}</td>
               <td>{{ $task->paid_amount }}</td>
               <td>{{ $task->balance }}</td>
+              <td>Start Date : {{ $task->billing_start_date }}<br>End Date : {{ $task->billing_end_date }}<br>Due Date : {{ $task->billing_due_date }}<br></td>
               <td>
                 <div class="row">
                     <div class="col-md-12 form-inline cls_remove_rightpadding">

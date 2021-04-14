@@ -61,7 +61,7 @@ class UserPayment extends Command
                 //$start = date('Y-m-d',strtotime($lastPayment->date));
                 //$end =  $start;
             //}
-            $billingStartDate = ($lastPayment && !empty($lastPayment->billing_start_date)) ? $lastPayment->billing_start_date : date("Y-m-d");
+            $billingStartDate = ($lastPayment && !empty($lastPayment->billing_start_date)) ? $lastPayment->billing_start_date : date("Y-m-d",strtotime("-1 day"));
             if($user->payment_frequency == 'fornightly') {
                 $billingEndDate   = date('Y-m-d',strtotime($billingStartDate . "+1 days"));  
                 if(strtotime($billingEndDate) > strtotime(date("Y-m-d"))){
@@ -120,7 +120,12 @@ class UserPayment extends Command
                 $paymentReceipt->billing_start_date = isset($billingStartDate) ? $billingStartDate : null;
                 $paymentReceipt->billing_end_date = isset($billingEndDate) ? $billingEndDate : $end;
                 $paymentReceipt->currency = ''; //we need to change this.
+                if($user->billing_frequency_day > 0) {
+                    $paymentReceipt->billing_due_date = date("Y-m-d",strtotime($paymentReceipt->billing_end_date." +".$user->billing_frequency_day));
+                }
                 $paymentReceipt->save();
+
+
             }
         }
         DB::commit();
