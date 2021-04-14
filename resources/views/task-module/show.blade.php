@@ -1077,7 +1077,8 @@
 					        <th>Sl no</th>
 					        <th>Files</th>
 					        <th>Send to</th>
-					        <th>Action</th>
+					        <th>Created at</th>
+                            <th>Action</th>
 					      </tr>
 					    </thead>
 					    <tbody class="task-image-list-view">
