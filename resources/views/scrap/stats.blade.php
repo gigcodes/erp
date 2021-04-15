@@ -209,7 +209,7 @@
                         @if ( (stristr($supplier->scraper_name, '_excel') && (int) $excelOnly > -1 ) || (!stristr($supplier->scraper_name, '_excel') && (int) $excelOnly < 1 ) )
                             @php $data = null; @endphp
                             @foreach($scrapeData as $tmpData)
-                                @if ( !empty($tmpData->website) && $tmpData->website == $supplier->scraper_name )
+                                @if ( !empty($tmpData->website) && strtolower($tmpData->website) == strtolower($supplier->scraper_name) )
                                     @php $data = $tmpData; $arMatchedScrapers[] = $supplier->scraper_name @endphp
                                 @endif
                             @endforeach
