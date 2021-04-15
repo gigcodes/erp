@@ -1041,8 +1041,37 @@ class ProductInventoryController extends Controller
         //$products_categories = \App\Product::getPruductsCategories();
         $products_categories = Category::attr(['name' => 'product_categories[]','data-placeholder' => 'Select a Category','class' => 'form-control select-multiple2', 'multiple' => true])->selected(request('product_categories',[]))->renderAsDropdown();
         $products_sku        = \App\Product::getPruductsSku();
-        if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more", compact('inventory_data'));
+        if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more-new", compact('inventory_data'));
         return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku','status_list','inventory_data_count','supplier_list','reportData'));
+    }
+
+    public function inventoryListNew( Request $request ){
+    	$filter_data = $request->input();
+		$inventory_data = \App\Product::getProducts($filter_data);
+
+        $inventory_data_count = $inventory_data->total();
+        $status_list = \App\Helpers\StatusHelper::getStatus();
+        $supplier_list = \App\Supplier::pluck('supplier','id')->toArray();
+
+        foreach ($inventory_data as $product) {
+            $product['medias'] =  \App\Mediables::getMediasFromProductId($product['id']);
+			$product_history   =  \App\ProductStatusHistory::getStatusHistoryFromProductId($product['id']);
+			foreach ($product_history as $each) {
+                $each['old_status'] = isset($status_list[$each['old_status']]) ? $status_list[$each['old_status']]  : 0;
+                $each['new_status'] = isset($status_list[$each['new_status']]) ? $status_list[$each['new_status']] : 0;
+            }
+			$product['status_history'] = $product_history;
+		
+        }
+
+        //for filter
+        $brands_names        = \App\Brand::getAll();
+        $products_names      = \App\Product::getPruductsNames();
+        //$products_categories = \App\Product::getPruductsCategories();
+        $products_categories = Category::attr(['name' => 'product_categories[]','data-placeholder' => 'Select a Category','class' => 'form-control select-multiple2', 'multiple' => true])->selected(request('product_categories',[]))->renderAsDropdown();
+        $products_sku        = \App\Product::getPruductsSku();
+        if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more-new", compact('inventory_data'));
+        return view('product-inventory.inventory-list-new',compact('inventory_data','brands_names','products_names','products_categories','products_sku','status_list','inventory_data_count','supplier_list'));
     }
 
     public function downloadReport() {

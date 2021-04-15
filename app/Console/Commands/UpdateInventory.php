@@ -69,6 +69,9 @@ class UpdateInventory extends Command
                 if (!empty($products)) {
                 $zeroStock=[];
 
+                $sproductIdArr    = [];
+                $StatusHistoryArr = [];
+
                 foreach ($products as $sku => $skuRecords) {
                     
                     $hasInventory = false;
@@ -77,7 +80,9 @@ class UpdateInventory extends Command
                     
                     foreach ($skuRecords as $records) {
                         
-                        \DB::statement("update `scraped_products` set `last_cron_check` = now() where `id` = '" . $records['sproduct_id'] . "'");
+                        array_push( $sproductIdArr, $records['sproduct_id'] )
+
+                        // \DB::statement("update `scraped_products` set `last_cron_check` = now() where `id` = '" . $records['sproduct_id'] . "'");
 
                         $inventoryLifeTime = isset($records["inventory_lifetime"]) && is_numeric($records["inventory_lifetime"])
                         ? $records["inventory_lifetime"]
@@ -96,13 +101,22 @@ class UpdateInventory extends Command
                                 $history->update(['in_stock' => $new_in_stock, 'prev_in_stock' => $prev_in_stock]);
                             }
                             else {
-                                $history = new \App\InventoryStatusHistory;
-                                $history->product_id  = $records["product_id"];
-                                $history->supplier_id  = $records["supplier_id"];
-                                $history->date  = $today;
-                                $history->in_stock  = $new_in_stock;
-                                $history->prev_in_stock  = $prev_in_stock;
-                                $history->save();
+
+                                $StatusHistoryArr[] = array(
+                                    'product_id'    => $records["product_id"], 
+                                    'supplier_id'   => $records["supplier_id"],
+                                    'date'          => $today,
+                                    'in_stock'      => $new_in_stock,
+                                    'prev_in_stock' => $prev_in_stock
+                                );
+
+                                // $history = new \App\InventoryStatusHistory;
+                                // $history->product_id  = $records["product_id"];
+                                // $history->supplier_id  = $records["supplier_id"];
+                                // $history->date  = $today;
+                                // $history->in_stock  = $new_in_stock;
+                                // $history->prev_in_stock  = $prev_in_stock;
+                                // $history->save();
                             }
                             $productId = $records["product_id"];
                         }
@@ -130,6 +144,15 @@ class UpdateInventory extends Command
                     if (!$hasInventory && !empty($productId)) {
                         \DB::statement("update `products` set `stock` = 0, `updated_at` = '" . date("Y-m-d H:i:s") . "' where `id` = '" . $productId . "' and `products`.`deleted_at` is null");
                     }
+                }
+
+                if( !empty( $sproductIdArr ) ){
+                    \DB::statement("update `scraped_products` set `last_cron_check` = now() where `id` IN ('" . $sproductIdArr . "')");
+                }
+
+                
+                if( !empty( $StatusHistoryArr ) ){
+                    \App\InventoryStatusHistory::insert( $StatusHistoryArr );
                 }
 
                 if(!empty($zeroStock)){
@@ -187,6 +210,9 @@ class UpdateInventory extends Command
             // TODO: Update stock in Magento
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+
+            \Log::error( $e->getMessage() );
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
