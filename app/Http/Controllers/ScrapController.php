@@ -1032,6 +1032,9 @@ class ScrapController extends Controller
 
     public function processProductLinksByBrand(Request $request)
     {
+
+        set_time_limit(0);
+
         $pendingUrl = array();
         $links      = $request->links;
         $website    = $request->website;
