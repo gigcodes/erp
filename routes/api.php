@@ -72,6 +72,7 @@ Route::post('products/enhance', 'Products\ProductEnhancementController@store');
 Route::post('users/updatePermission', 'PermissionController@updatePermission');
 Route::post('userLogs', 'UserLogController@store');
 Route::post('scrape/process-product-links', 'ScrapController@processProductLinks');
+Route::post('scrape/process-product-links-by-brand', 'ScrapController@processProductLinksByBrand');
 Route::post('values-as-per-user', 'DocumentController@getDataByUserType')->name('getDataByUserType');
 Route::post('values-as-per-category', 'ResourceImgController@getSubCategoryByCategory')->name('imageResourceSubcategory');
 Route::post('get-customers', 'QuickSellController@getCustomers')->name('getCustomers'); // This function is not found in controller
