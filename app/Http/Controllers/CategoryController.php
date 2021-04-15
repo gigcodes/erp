@@ -666,6 +666,39 @@ class CategoryController extends Controller
 
     }
 
+    public function fixAutoSuggestedString(Request $request)
+    {
+        $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
+        $unKnownCategories = explode(',', $unKnownCategory->references);
+        $unKnownCategories = array_unique($unKnownCategories);
+
+        $input             = preg_quote($request->get('search'), '~');
+        $unKnownCategories = preg_grep('~' . $input . '~', $unKnownCategories);
+
+        //$unKnownCategories[] = "woman/small gg marmont shoulder bag";
+        //$unKnownCategories[] = "women/clothing/tops/tops/alexander mcqueen flounced top";
+        //$unKnownCategories[] = "men/bags/business and travel bags/prada document holder in saffiano";
+        
+        $unKnownCategories = $this->paginate($unKnownCategories,50);
+        $unKnownCategories->setPath($request->url());
+
+
+        $links = [];
+        if (!$unKnownCategories->isEmpty()) {
+            foreach ($unKnownCategories as $i => $unkc) {
+                $filter = \App\Category::updateCategoryAutoSpace($unkc);
+                $links[] = [
+                    "from" => $unkc,
+                    "to"   => ($filter) ? $filter->id : null,
+                ];
+            }
+        }
+
+        $view = (string) view("category.partials.preview-categories", compact('links'));
+        return response()->json(["code" => 200, "html" => $view]);
+
+    }
+
     public function saveCategoryReference(Request $request)
     {
         $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
