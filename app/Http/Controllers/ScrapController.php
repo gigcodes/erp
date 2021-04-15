@@ -1030,6 +1030,118 @@ class ScrapController extends Controller
         return $pendingUrl;
     }
 
+    public function processProductLinksByBrand(Request $request)
+    {
+        $pendingUrl = array();
+        $links      = $request->links;
+        $website    = $request->website;
+
+        if (empty($website)) {
+            $rawJson = json_decode($request->instance()->getContent());
+            $website = isset($rawJson->website) ? $rawJson->website : null;
+        }
+        if (is_string($links)) {
+            $links = json_decode($links);
+        } else {
+            $rawJson = json_decode($request->instance()->getContent());
+            $links   = isset($rawJson->links) ? $rawJson->links : null;
+        }
+
+        if (is_array($links)) {
+            $scraper = Scraper::where('scraper_name', $website)->first();
+            if (!empty($scraper)) {
+                if ($scraper->full_scrape == 1) {
+                    $scraper->full_scrape = 0;
+                    $scraper->save();
+                    return $links;
+                }
+            }
+
+            $brands = [];
+
+            foreach ($links as $link) {
+                //$logScraper = LogScraper::where('url', $link)->where('website', $website)->first();
+
+                //if ($logScraper != null) {
+                //Log::channel('productUpdates')->debug("[log_scraper] Found existing product with url " . $link);
+                //$logScraper->touch();
+                //$logScraper->save();
+
+                // Load scraped product and update last_inventory_at
+                $scrapedProduct = ScrapedProducts::where('url', $link->link)->where('website', $website)->first();
+                
+                if ($scrapedProduct != null) {
+                    Log::channel('productUpdates')->debug("[scraped_product] Found existing product with sku " . ProductHelper::getSku($scrapedProduct->sku));
+                    $scrapedProduct->url               = $link->link;
+                    $scrapedProduct->last_inventory_at = Carbon::now();
+                    $scrapedProduct->save();
+
+                    $product = \App\Product::where("sku",$scrapedProduct->sku)->first();
+                    if($product) {
+                        $product->stock = $product->stock + 1; 
+                    }
+                    $product->save();
+                    //$pendingUrl[] = $link;
+                } else {
+                    $pendingUrl[] = $link->link;
+                }
+
+                 if(isset($brands[$link->brand])) {
+                    $brands[$link->brand] = $brands[$link->brand]+1;
+                 }else{
+                    $brands[$link->brand] = 1;
+                 }   
+
+                //} else {
+                //$pendingUrl[] = $link;
+                //}
+            }
+
+            if(!empty($brands)){
+                foreach($brands as $bn => $t) {
+                    $brandM = \App\Brand::where("name",$bn)->first();
+                    if($brandM) {
+                        $bscraperResult                = new \App\BrandScraperResult();
+                        $bscraperResult->date          = date("Y-m-d");
+                        $bscraperResult->scraper_name  = $website;
+                        $bscraperResult->total_urls    = $t;
+                        $bscraperResult->brand_id      = $brandM->id;
+                        $bscraperResult->save();
+                    }
+                }
+            }
+
+            //Getting Supplier by Scraper name
+            try {
+                $scraper       = Scraper::where('scraper_name', $website)->first();
+                $totalLinks    = count($links);
+                $pendingLinks  = count($pendingUrl);
+                $existingLinks = ($totalLinks - $pendingLinks);
+
+                if ($scraper != '' && $scraper != null) {
+                    $scraper->scraper_total_urls    = $totalLinks;
+                    $scraper->scraper_existing_urls = $existingLinks;
+                    $scraper->scraper_new_urls      = $pendingLinks;
+                    $scraper->update();
+                }
+
+                $scraperResult                = new ScraperResult();
+                $scraperResult->date          = date("Y-m-d");
+                $scraperResult->scraper_name  = $website;
+                $scraperResult->total_urls    = $totalLinks;
+                $scraperResult->existing_urls = $existingLinks;
+                $scraperResult->new_urls      = $pendingLinks;
+                $scraperResult->save();
+
+            } catch (Exception $e) {
+
+            }
+
+        }
+
+        return $pendingUrl;
+    }
+
     public function scrapedUrls(Request $request)
     {
         $totalSkuRecords       = 0;
