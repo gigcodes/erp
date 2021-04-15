@@ -53,7 +53,7 @@ class UpdateAutoSuggestedCategory extends Command
 
         if (!empty($unKnownCategories)) {
             foreach ($unKnownCategories as $i => $unkc) {
-                $filter = \App\Category::updateCategoryAuto($unkc);
+                $filter = \App\Category::updateCategoryAutoSpace($unkc);
                 if ($filter) {
                     $old         = $unKnownCategory->id;
                     $from        = $unkc;
