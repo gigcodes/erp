@@ -74,3 +74,4 @@ class WatsonBrandCategoryGenerate extends Command
                 
     }
 }
+
