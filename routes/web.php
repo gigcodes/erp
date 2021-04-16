@@ -151,6 +151,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('compositions/affected-product', 'CompositionsController@affectedProduct');
     Route::post('compositions/update-composition', 'CompositionsController@updateComposition');
     Route::post('compositions/update-multiple-composition', 'CompositionsController@updateMultipleComposition');
+    Route::post('compositions/update-all-composition', 'CompositionsController@updateAllComposition');
     Route::post('compositions/replace-composition', 'CompositionsController@replaceComposition')->name('compositions.replace');
     Route::get('compositions/{id}/history', 'CompositionsController@history')->name('compositions.history');
     Route::get('compositions/delete-unused', 'CompositionsController@deleteUnused')->name('compositions.delete.unused');

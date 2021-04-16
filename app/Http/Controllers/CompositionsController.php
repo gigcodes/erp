@@ -55,7 +55,7 @@ class CompositionsController extends Controller
             });
         }
 
-        $compositions = $compositions->orderBy('id', 'desc')->paginate(50);
+        $compositions = $compositions->orderBy('id', 'desc')->paginate(200);
 
         return view('compositions.index', compact('compositions', 'listcompostions'));
     }
@@ -283,6 +283,44 @@ class CompositionsController extends Controller
 
         return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
 
+    }
+
+    public function updateAllComposition( Request $request ){
+
+        $from = $request->from;
+        $to   = $request->to;
+
+        if (!empty($from) && is_array($from)) {
+            foreach ($from as $key => $f  ) {
+                
+                if ( empty( $to[$key] ) ) {
+                    continue;
+                }
+
+                $c = Compositions::find($f);
+                if ($c) {
+                    \App\Jobs\UpdateProductCompositionFromErp::dispatch([
+                        "from"    => $c->name,
+                        "to"      => $to[$key],
+                        "user_id" => \Auth::user()->id,
+                    ])->onQueue("supplier_products");
+
+                    //once it is save let's store to the user updated attributes table as well
+                    $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
+                        'old_value'      => $c->replace_with,
+                        'new_value'      => $to[$key],
+                        'attribute_name' => 'compositions',
+                        'attribute_id'   => $c->id,
+                        'user_id'        => \Auth::user()->id,
+                    ]);
+
+                    $c->replace_with = $to[$key];
+                    $c->save();
+                }
+            }
+        }
+
+        return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
     }
 
     public function replaceComposition(Request $request)
