@@ -1172,6 +1172,7 @@ class Product extends Model
             'products.suggested_color',
             'products.composition',
             'products.size_eu',
+            'products.stock',
             'psu.size_system',
             'status_id',
             'products.created_at',
@@ -1206,6 +1207,10 @@ class Product extends Model
         }
         if(isset($filter_data['date'])) {
             $query = $query->where('inventory_status_histories.date',$filter_data['date']);
+        }
+
+        if( isset($filter_data['start_date']) && isset($filter_data['end_date']) ) {
+            $query = $query->whereBetween('inventory_status_histories.date',[ $filter_data['start_date'], $filter_data['end_date'] ] );
         }
 
         if(isset($filter_data['date'])) {

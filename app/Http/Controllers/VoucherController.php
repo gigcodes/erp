@@ -51,6 +51,14 @@ class VoucherController extends Controller
             $tasks = $tasks->where('user_id', Auth::id())->where('date', '>=', $start)->where('date', '<=', $end);
         }
 
+        if($request->range_due_start) {
+            $tasks = $tasks->whereDate('billing_due_date', '>=', $request->range_due_start);
+        }
+
+        if($request->range_due_end) {
+            $tasks = $tasks->whereDate('billing_due_date', '<=', $request->range_due_end);
+        }
+
         $limit = request('limit');
         if (!empty($limit)) {
             if ($limit == "all") {

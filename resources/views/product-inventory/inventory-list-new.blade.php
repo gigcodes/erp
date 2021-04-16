@@ -18,7 +18,7 @@
 @section('content')
 <div class="row">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Inventory Data ({{ $inventory_data_count }})</h2>
+        <h2 class="page-heading">Inventory List ({{ $inventory_data_count }})</h2>
     </div>
 </div>
 
@@ -39,40 +39,19 @@
 </div>
 @endif
 <div class="col-lg-12 margin-tb">
-    <form action="{{ url('productinventory/inventory-list') }}" method="GET" class="form-inline align-items-start">
-        <div class="form-group mr-pd col-md-2">
-            {!! Form::text('term',request("term"), ['placeholder' => 'Search by product, sku, brand, category','class' => 'form-control','style' => 'width: 100%;']) !!}
-        </div>
-        <div class="form-group mr-pd col-md-2">
-            {!! Form::select('brand_names[]',$brands_names, request("brand_names",[]), ['data-placeholder' => 'Select a Brand','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
-        </div>
-        <div class="form-group mr-pd col-md-2">
-            {!! $products_categories !!}
-        </div>
-        <div class="form-group mr-pd col-md-2">
-            {!! Form::select('in_stock',["" => "--All--" , "1" => "In Stock", "2" => "Out Of Stock"], request("in_stock",null), ['data-placeholder' => 'Select a In Stock','class' => 'form-control']) !!}
-        </div>
-        <div class="form-group mr-3 mb-3">
-            {!! Form::select('supplier[]',$supplier_list, request("supplier",[]), ['data-placeholder' => 'Select a Supplier','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
-        </div>
-        <!-- <div class="form-group mr-3 mb-3">
-                {!! Form::select('product_sku[]',$products_sku, request("product_sku",[]), ['data-placeholder' => 'Select a Sku','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
-            </div> -->
-        <div class="form-group mr-pd col-md-1">
-            {!! Form::select('product_status[]',$status_list, request("product_status",[]), ['data-placeholder' => 'Select a Status','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
-        </div>
-        <div class="form-group mr-pd col-md-1">
-            {!! Form::checkbox('no_category',"on",request("no_category"), ['class' => 'form-control']) !!} No Category
-        </div>
-        <div class="form-group mr-pd col-md-1">
-            {!! Form::checkbox('no_size',"on",request("no_size"), ['class' => 'form-control']) !!} No Size
-        </div>
-        <div class="form-group mr-pd col-md-2">
-            {!! Form::text('supplier_count',request("supplier_count"), ['class' => 'form-control', 'placeholder' => 'Supplier count']) !!}
-        </div>
+    <form action="{{ url('productinventory/new-inventory-list') }}" method="GET" class="form-inline align-items-start">
+        
         <div class="form-group mr-pd col-md-2">
             <div class='input-group date' id='filter-date'>
-                <input type='text' class="form-control" name="date" value="{{ request('date','') }}" placeholder="date" />
+                <input type='text' class="form-control" name="start_date" value="{{ request('start_date','') }}" placeholder="Start date" />
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+            </div>
+        </div>
+        <div class="form-group mr-pd col-md-2">
+            <div class='input-group date' id='filter-date-end'>
+                <input type='text' class="form-control" name="end_date" value="{{ request('end_date','') }}" placeholder="End date" />
                 <span class="input-group-addon">
                     <span class="glyphicon glyphicon-calendar"></span>
                 </span>
@@ -81,22 +60,7 @@
         <div class="form-group mr-pd col-md-1">
             <button type="submit" class="btn btn-secondary"><i class="fa fa-filter"></i>Filter</button>
         </div>
-        <div class="form-group mr-pd col-md-2">
-            {!! Form::select('size_system',["" => "Select Size Sytem"] + \App\SystemSize::pluck('name','name')->toArray(), request("size_system"), ['data-placeholder' => 'Select a Size System','class' => 'form-control change-selectable-size']) !!}
-        </div>
-        <div class="form-group mr-pd col-md-2">    
-            <button type="button" class="btn btn-secondary btn-change-size-system"></i>Change Size System</button>
-        </div>
     </form>
-    <div class="form-group mr-pd col-md-2">
-        {!! Form::select('size_system',["" => "Select status"] + \App\Helpers\StatusHelper::getStatus(), request("status"), ['data-placeholder' => 'Select status','class' => 'form-control change-status']) !!}
-    </div>
-    <div class="form-group mr-pd col-md-2">    
-        <button type="button" class="btn btn-secondary btn-change-status"></i>Change status</button>
-    </div>
-    <div class="form-group mr-pd col-md-2">    
-        <button type="button" data-toggle="modal" data-target="#missing-report-modal" class="btn btn-secondary"></i>Report</button>
-    </div>
 </div>
 <div class="table-responsive" id="inventory-data">
     <table class="table table-bordered infinite-scroll">
@@ -105,22 +69,15 @@
                 <th><input type="checkbox" class="chk-select-call" name="select-all">&nbsp;ID</th>
                 <th>Sku</th>
                 <th>Name</th>
-                <th>Category</th>
                 <th>Brand</th>
                 <th>Supplier</th>
-                <th>Color</th>
-                <th>S.Color</th>
-                <th>Composition</th>
-                <th>Size system</th>
-                <th>Size</th>
-                <th>Size(IT)</th>
-                <th>Status</th>
+                <th>Stock</th>
                 <th>Created Date</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            @include("product-inventory.inventory-list-partials.grid")
+            @include("product-inventory.inventory-list-partials.grid-new")
         </tbody>
     </table>
 </div>
@@ -200,46 +157,7 @@
     </div>
 </div>
 
-<div id="missing-report-modal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Report</h4>
-                <div style="width: 90%; text-align: right;"> <a href="{{route('download-report')}}" class="btn btn-secondary">Download Report</a></div>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <table class="table table-bordered infinite-scroll">
-                    <thead>
-                        <tr>
-                            <th>Supplier</th>
-                            <th>Missing Category</th>
-                            <th>Missing Color</th>
-                            <th>Missing Composition</th>
-                            <th>Missing Name</th>
-                            <th>Missing Short Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($reportData as $value)
-                        <tr>
-                            <td>{{$value->supplier}}</td>
-                            <td>{{$value->missing_category}}</td>
-                            <td>{{$value->missing_color}}</td>
-                            <td>{{$value->missing_composition}}</td>
-                            <td>{{$value->missing_name}}</td>
-                            <td>{{$value->missing_short_description}}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
