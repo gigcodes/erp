@@ -44,4 +44,25 @@ class InventoryStatusHistory extends Model
         //return self::select('product_id')->distinct()->get();
         return $this->hasMany('App\InventoryStatusHistory','supplier_id','supplier_id');
     }
+
+    public function totalBrandsLink($date, $brandID = 0)
+    {
+        $supplier = $this->supplier;
+        $scps = [];
+        if($supplier) {
+            $scrapers = $this->scrapers;
+            if(!$scrapers->isEmpty())  {
+                foreach($scrapers as $scraper) {
+                    $scps[] = $scraper->scraper_name;
+                }
+            }
+        }
+
+        $brandStatus = \App\BrandScraperResult::whereDate("date",$date)->where("brand_id",$brandID)->whereIn("scraper_name",$scps)->groupBy("date")->select(\DB::raw("SUM(total_urls) as count"))->first();
+        
+        return $brandStatus ? $brandStatus->count : 0;
+
+    }
+
 }
+ 

@@ -147,9 +147,9 @@ class LogScraper extends Model
         }
 
         // Check for length
-        if (strlen($sku) < 5) {
+        /*if (strlen($sku) < 5) {
             return "[error] SKU must be at least five characters\n";
-        }
+        }*/
 
         // Return an empty string
         return "";
