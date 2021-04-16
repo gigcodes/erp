@@ -29,6 +29,13 @@
         @endif
       @endforeach
      </td>
+     <td>
+      @foreach(\App\Helpers\StatusHelper::getStatus() as $key => $status)
+        @if($key==$data['sub_status_id'])
+          {{ $status }}
+        @endif
+      @endforeach
+     </td>
     <td>{{ isset($data['history_date']) ? $data['history_date'] : $data['created_at'] }}</td>
     <td>
       <a  title="show medias" class="btn btn-image show-medias-modal des-pd" data-id="{{ $data['id'] }}" aria-expanded="false"><i class="fa fa-picture-o" aria-hidden="true"></i></a>

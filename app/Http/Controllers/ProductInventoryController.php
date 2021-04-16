@@ -998,6 +998,7 @@ class ProductInventoryController extends Controller
 
 	public function inventoryList(Request $request)
     {
+    	ini_set("memory_limit", -1);
     	$filter_data = $request->input();
 		$inventory_data = \App\Product::getProducts($filter_data);
 

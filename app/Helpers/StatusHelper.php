@@ -50,6 +50,9 @@ class StatusHelper extends Model
     public static $unknownMeasurement = 40;
     public static $priceCheck = 41;
     public static $autoReject = 42;
+    public static $unknownTitle = 43;
+    public static $unknownDescription = 44;
+    public static $unknownPrice = 45;
 
     public static function getStatus()
     {
@@ -95,9 +98,25 @@ class StatusHelper extends Model
             39 => 'Unknown Composition',
             40 => 'Unknown Measurement',
             41 => 'Price Check',
-            42 => 'Auto rejected'
+            42 => 'Auto rejected',
+            43 => 'Unknown Title',
+            44 => 'Unknown Description',
+            45 => 'Unknown Price'
         ];
     }
+
+    public static function subStatus()
+    {
+        $status = self::getStatus();
+        $r = [];
+        foreach($status as $k => $s) {
+            if(in_array($k, [36,37,38,39,40,43,44,45])) {
+                $r[$k] = $s;
+            }
+        }
+        return $r;
+    }
+
     public static function updateStatus(\App\Product $product, $newStatus = 0)
     {
         // Update status to AI
