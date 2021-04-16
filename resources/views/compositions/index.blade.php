@@ -79,6 +79,10 @@
             </a>
         </div>
     </div>
+    <div class="col-md-2 mt-2">
+        <button class="btn btn-secondary approve-all">Approve all</button>
+        
+    </div>
     <div class="col-md-12 mt-5">
         <table class="table table-bordered">
             <tr>
@@ -166,6 +170,45 @@
     <script type="text/javascript">
             $(".select2").select2({"tags" : true});
 
+            $(document).on("click",".approve-all",function() {
+
+                var changesFrom = $(".composition-checkbox:checked");
+                var ids = [];
+                var values = [];
+                $.each(changesFrom,function(k,v) {
+                    ids.push( $(v).val() );
+                    values.push( $('#select'+$(v).val()).val() );
+                });
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/compositions/update-all-composition',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        from : ids,
+                        to : values
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        if(response.html != "") {
+                            toastr['success'](response.message, 'success');
+                        }else{
+                            toastr['error']('Sorry, something went wrong', 'error');
+                        }
+                        $(".show-listing-exe-records").modal('hide');
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    toastr['error']('Sorry, something went wrong', 'error');
+                    $(".show-listing-exe-records").modal('hide');
+                });
+
+            });
 
             $(document).on("click",".change-selectbox",function() {
                 $('#select'+$(this).data('id')).trigger('change');
