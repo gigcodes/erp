@@ -3,11 +3,16 @@
 namespace App\Console\Commands;
 
 use App\CronJobReport;
-use App\Jobs\CallHelperForZeroStockQtyUpdate;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use App\Product;
+use App\Helpers\ProductHelper;
+use App\StoreWebsite;
+use seo2websites\MagentoHelper\MagentoHelper;
 use Illuminate\Support\Facades\Log;
+use App\ProductPushErrorLog;
+use App\Jobs\CallHelperForZeroStockQtyUpdate;
 
 class UpdateInventory extends Command
 {
@@ -54,56 +59,55 @@ class UpdateInventory extends Command
             $products = \App\Supplier::join("scrapers as sc", "sc.supplier_id", "suppliers.id")
                 ->join("scraped_products as sp", "sp.website", "sc.scraper_name")
                 ->join("products as p", "p.sku", "sp.sku")
-                ->where(function ($q) {
-                    $q->whereDate("last_cron_check", "!=", date("Y-m-d"))->orWhereNull('last_cron_check');
+                ->where(function($q) {
+                    $q->whereDate("last_cron_check","!=",date("Y-m-d"))->orWhereNull('last_cron_check');
                 })
                 ->limit(100)
                 ->where("suppliers.supplier_status_id", 1)
-                ->select("sp.last_inventory_at", "sp.sku", "sc.inventory_lifetime", "p.id as product_id", "suppliers.id as supplier_id", "sp.id as sproduct_id", "p.isUploaded")->get()->groupBy("sku")->toArray();
+                ->select("sp.last_inventory_at", "sp.sku", "sc.inventory_lifetime","p.id as product_id","suppliers.id as supplier_id","sp.id as sproduct_id")->get()->groupBy("sku")->toArray();
+                
+                if (!empty($products)) {
+                $zeroStock=[];
 
-            if (!empty($products)) {
-                $zeroStock = [];
-
-                $sproductIdArr = [];
-                $statusHistory = [];
-                $needToCheck   = [];
-                $productIdsArr = [];
+                $sproductIdArr    = [];
+                $StatusHistoryArr = [];
 
                 foreach ($products as $sku => $skuRecords) {
-
+                    
                     $hasInventory = false;
-                    $today        = date('Y-m-d');
-                    $productId    = null;
-
+                    $today = date('Y-m-d');
+                    $productId = null;
+                    
                     foreach ($skuRecords as $records) {
-
-                        array_push($sproductIdArr, $records['sproduct_id']);
+                        
+                        array_push( $sproductIdArr, $records['sproduct_id'] )
 
                         // \DB::statement("update `scraped_products` set `last_cron_check` = now() where `id` = '" . $records['sproduct_id'] . "'");
+
                         $inventoryLifeTime = isset($records["inventory_lifetime"]) && is_numeric($records["inventory_lifetime"])
                         ? $records["inventory_lifetime"]
                         : 0;
-
-                        if (isset($records["product_id"]) && isset($records["supplier_id"])) {
-                            $history     = \App\InventoryStatusHistory::where('date', $today)->where('product_id', $records["product_id"])->where('supplier_id', $records["supplier_id"])->first();
-                            $lasthistory = \App\InventoryStatusHistory::where('date', '<', $today)->where('product_id', $records["product_id"])->where('supplier_id', $records["supplier_id"])->orderBy('created_at', 'desc')->first();
-
+                        
+                        if(isset($records["product_id"]) && isset($records["supplier_id"])) {
+                            $history = \App\InventoryStatusHistory::where('date', $today)->where('product_id',$records["product_id"])->where('supplier_id',$records["supplier_id"])->first();
+                            $lasthistory = \App\InventoryStatusHistory::where('date', '<=', $today)->where('product_id',$records["product_id"])->where('supplier_id',$records["supplier_id"])->orderBy('created_at','desc')->first();
                             $prev_in_stock = 0;
-                            $new_in_stock  = 1;
-                            if ($lasthistory) {
+                            $new_in_stock = 1;
+                            if($lasthistory) {
                                 $prev_in_stock = $lasthistory->in_stock;
-                                $new_in_stock  = $lasthistory->in_stock + 1;
+                                $new_in_stock = $lasthistory->in_stock + 1;
                             }
-                            if ($history) {
+                            if($history) {
                                 $history->update(['in_stock' => $new_in_stock, 'prev_in_stock' => $prev_in_stock]);
-                            } else {
+                            }
+                            else {
 
-                                $statusHistory[] = array(
-                                    'product_id'    => $records["product_id"],
+                                $StatusHistoryArr[] = array(
+                                    'product_id'    => $records["product_id"], 
                                     'supplier_id'   => $records["supplier_id"],
                                     'date'          => $today,
                                     'in_stock'      => $new_in_stock,
-                                    'prev_in_stock' => $prev_in_stock,
+                                    'prev_in_stock' => $prev_in_stock
                                 );
 
                                 // $history = new \App\InventoryStatusHistory;
@@ -116,50 +120,62 @@ class UpdateInventory extends Command
                             }
                             $productId = $records["product_id"];
                         }
-
+                        
                         if (is_null($records["last_inventory_at"]) || strtotime($records["last_inventory_at"]) < strtotime('-' . $inventoryLifeTime . ' days')) {
-                            if ($records["isUploaded"] == 1) {
-                                $needToCheck[] = ["id" => $product->id, "sku" => $sku . $product->color];
+                            $product = Product::where('isUploaded',1)->where('id',$records["product_id"])->first();
+                            if($product){
+                                $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+                                if(count($websiteArrays) > 0){
+                                    foreach ($websiteArrays as $websiteArray) {
+                                        $zeroStock[$websiteArray]['stock'][]=array('sku'=>$sku . $product->color,'qty'=>0);  
+                                    }
+                                }
+                                 
                             }
                             continue;
                         }
-
+                  
                         $hasInventory = true;
 
-                        dump("Scraped Product updated : " . $records['sproduct_id']);
-
+                        dump("Scraped Product updated : ".$records['sproduct_id']);
+                        
                     }
-
+                    
                     if (!$hasInventory && !empty($productId)) {
-                        $productIdsArr[] = $productId;
-
+                        \DB::statement("update `products` set `stock` = 0, `updated_at` = '" . date("Y-m-d H:i:s") . "' where `id` = '" . $productId . "' and `products`.`deleted_at` is null");
                     }
                 }
 
-                if (!empty($sproductIdArr)) {
-                    \DB::table('scraped_products')->whereIn('id', $sproductIdArr)->update(array('last_cron_check' => date("Y-m-d H:i:s")));
-                }
-                if (!empty($productIdsArr)) {
-                    \DB::table('products')->whereIn('ids', $productIdsArr)->update(array('stock' => 0, 'updated_at' => date("Y-m-d H:i:s")));
+                if( !empty( $sproductIdArr ) ){
+                    \DB::statement("update `scraped_products` set `last_cron_check` = now() where `id` IN ('" . $sproductIdArr . "')");
                 }
 
-                if (!empty($statusHistory)) {
-                    \App\InventoryStatusHistory::insert($statusHistory);
+                
+                if( !empty( $StatusHistoryArr ) ){
+                    \App\InventoryStatusHistory::insert( $StatusHistoryArr );
                 }
 
-                if (!empty($needToCheck)) {
-                    try {
-                        $time_start = microtime(true);
-                        CallHelperForZeroStockQtyUpdate::dispatch($needToCheck)->onQueue('MagentoHelperForZeroStockQtyUpdate');
+                if(!empty($zeroStock)){
+                    try{
+
+                        $time_start = microtime(true); 
+
+                        CallHelperForZeroStockQtyUpdate::dispatch($zeroStock)->onQueue('MagentoHelperForZeroStockQtyUpdate');;
+                        
+                        // if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                        //         MagentoHelper::callHelperForZeroStockQtyUpdate($zeroStock);
+                        // }
+
                         $time_end = microtime(true);
-                        \Log::info('inventory:update :: ForZeroStockQtyUpdate -Total Execution Time => ' . ($execution_time));
-                    } catch (\Exception $e) {
-                        \Log::error('inventory:update :: CallHelperForZeroStockQtyUpdate :: ' . $e->getMessage());
-                    }
+                        \Log::info('inventory:update :: ForZeroStockQtyUpdate -Total Execution Time => '.($execution_time));
+
+                    }catch(\Exception $e) {
+                        \Log::error('inventory:update :: CallHelperForZeroStockQtyUpdate :: '. $e->getMessage());
+                    }   
                 }
-
+                
             }
-
+            
             // Update all products in database to inventory = 0
             //Product::where('id', '>', 0)->update(['stock' => 0]);
 
@@ -195,7 +211,7 @@ class UpdateInventory extends Command
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
 
-            \Log::error($e->getMessage());
+            \Log::error( $e->getMessage() );
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
