@@ -124,9 +124,9 @@ class ProductInventoryController extends Controller
 					if ($category !== NULL && $category->parent_id != 0) {
 						$parent = $category->parent;
 						if (isset($parent->parent_id) && $parent->parent_id != 0) {
-							//$inventory_data[$brand_name][$supplier_name][$parent->parent_id][$parent->id] += count($products);
+							$inventory_data[$brand_name][$supplier_name][$parent->parent_id][$parent->id] += count($products);
 						} else {
-							//$inventory_data[$brand_name][$supplier_name][$parent->id][$category->id] += count($products);
+							$inventory_data[$brand_name][$supplier_name][$parent->id][$category->id] += count($products);
 						}
 					}
 				}
