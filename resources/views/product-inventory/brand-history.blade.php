@@ -6,6 +6,14 @@
                 <th width="1%">Brand ID</th>
                 <th width="5%">Brand</th>
                 <th width="15%">Total</th>
+                <?php 
+                $date = date("Y-m-d");
+                $listdates = [];
+                for ($i=0; $i < 3; $i++) { 
+                    $listdates[] = $date;
+                    echo '<th>'.$date.'</th>';
+                    $date = date("Y-m-d",strtotime($date." -1 day"));
+                } ?>
             </tr>
             <tbody class="">
                 <?php foreach($inventory as $c => $i) { ?>
@@ -14,6 +22,9 @@
                         <td><?php echo $i->brand ?></td>  
                         <td><?php echo $i->name ?></td>  
                         <td><?php echo $i->total ?></td>  
+                        <?php foreach($listdates as $d) {  ?>
+                               <td><?php echo $i->totalBrandsLink($d,$i->brand); ?></td>   
+                        <?php } ?> 
                     </tr>
                 <?php } ?>
             </tbody>

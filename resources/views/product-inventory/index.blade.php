@@ -19,7 +19,7 @@
         </div>
         @if(auth()->user()->isAdmin())
           @if( $roletype != 'Selection' && $roletype != 'Sale' )
-          	  	<div class="col-lg-12 margin-tb">	
+          	  	<div class="col-lg-6 margin-tb">	
 	              	<div class="pt-2 pb-3">
 	              		<a href="{{ route('pending',$roletype) }}"><strong>Pending: </strong> {{ \App\Product::getPendingProductsCount($roletype) }}</a>
 	              	</div>
@@ -35,7 +35,36 @@
         		</div>
           @endif
         @endif
+        @if(auth()->user()->isAdmin())
+          <div class="col-lg-6 margin-tb"> 
+              <form class="form-inline mb-3" action="{{ route('productinventory.merge-scrap-brand') }}" method="POST">
+                  @csrf
+                  <div class="form-group">
+                    <label for="scraper_brand">Scraper Brand</label>
+                    <input type="text" name="scraper_brand" placeholder="Enter scraper Brand" class="form-control" required>
+                  </div>
+                  &nbsp;
+                  <div class="form-group">
+                    <label for="product_brand">Product Brand</label>
+                    <input type="text" name="product_brand" placeholder="Enter product brand" class="form-control" required>
+                  </div>
+                  <button type="submit" class="btn btn-secondary ml-3">Update Brand</button>
+              </form>
+          </div>
+        @endif
         <div class="col-lg-12 margin-tb">
+          @if(session()->has('message'))
+              <div class="alert alert-success">
+                  {{ session()->get('message') }}
+              </div>
+          @endif
+
+          @if(session()->has('error'))
+              <div class="alert alert-danger">
+                  {{ session()->get('error') }}
+              </div>
+          @endif
+
         	<form action="?" method="GET" class="form-inline align-items-start">
         		<div class="form-group mr-3 mb-3">
         			<input name="term" type="text" class="form-control" id="product-search" value="{{ request('term','') }}" placeholder="sku,brand,category,status,stage">

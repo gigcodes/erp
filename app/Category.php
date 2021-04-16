@@ -860,4 +860,96 @@ class Category extends Model
         return false;
     }
 
+    public static function updateCategoryAutoSpace($name)
+    {
+        //$expression = explode(" ",$name);
+        $categories = \App\Category::where("id","!=",143)->get();
+        $matchedWords = [];
+        foreach($categories as $cat) {
+            if(strpos(strtolower($name),strtolower($cat->title)) !== false) {
+                $matchedWords[$cat->id] = $cat->title;
+            }else{
+                $referencesWords = explode(",",$cat->references);
+                foreach($referencesWords as $referencesWord) {
+                    if(!empty($referencesWord)) {
+                        if(strpos(strtolower($name),strtolower($referencesWord)) !== false) {
+                            $matchedWords[$cat->id] = $cat->title;
+                        }
+                    }
+                }
+
+            }
+        }
+
+        $latestMatch = $matchedWords;
+
+        //ksort($matchedWords);
+        
+        $liForMen = ['MAN', 'MEN', 'UOMO', 'MALE'];
+        $liForWoMen = ['WOMAN', 'WOMEN', 'DONNA', 'FEMALE'];
+        $liForKids = ['KIDS'];
+
+        $mainCategory = false;
+
+        if(!empty($matchedWords)) {
+            foreach($matchedWords as $matchedWord) {
+                foreach($liForMen as $li){
+                    if(strtolower($li) == strtolower($matchedWord)) {
+                        if(!$mainCategory) {
+                            $mainCategory = 3;
+                        }
+                    }
+                }
+
+                foreach($liForWoMen as $li){
+                    if(strtolower($li) == strtolower($matchedWord)) {
+                        if(!$mainCategory) {
+                            $mainCategory = 2;
+                        }
+                    }
+                }
+
+                foreach($liForKids as $li){
+                    if(strtolower($li) == strtolower($matchedWord)) {
+                        if(!$mainCategory) {
+                            $mainCategory = 146;
+                        }
+                    }
+                }
+            }
+        }
+
+        
+        $rv = array_reverse($matchedWords, true);
+        
+        if(!empty($rv)) {
+            foreach ($rv as $key => $value) {
+                $category = \App\Category::find($key);
+                if($category) {
+                    $levelone = $category->parentM;
+                    if($levelone) {
+                        $leveltwo =  $levelone->parentM;
+                        if($leveltwo) {
+                            if($leveltwo->id == $mainCategory || $leveltwo->parent_id == $mainCategory) {
+                                return $category;
+                            }
+                            // now as this is matched we can send this category to that it is matched
+                        }else{
+                            if($levelone->id == $mainCategory || $levelone->parent_id == $mainCategory) {
+                                return $category;
+                            }
+                        }
+                    }else{
+                        if($category ->id == $mainCategory || $category ->parent_id == $mainCategory) {
+                            return $category ;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
 }
+ 

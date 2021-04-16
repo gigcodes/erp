@@ -18,15 +18,21 @@
                         <strong>Category</strong>
                         {!! $category_suggestion !!}
                     </div>
-
                     <div class="form-group">
                         <strong>Brand</strong>
-
                         <select class="form-control select-multiple" name="brand[]" multiple>
                             <option value="">Select a Brand</option>
-
                             @foreach ($brands as $brand)
                             <option value="{{ $brand['id'] }}">{{ $brand['name'] }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <strong>Supplier</strong>
+                        <select class="form-control select-multiple" name="supplier[]" multiple>
+                            <option value="">Select a Supplier</option>
+                            @foreach (\App\Supplier::all() as $supplier)
+                            <option value="{{ $supplier->id }}">{{ $supplier->supplier }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -35,7 +41,7 @@
                         <input type="number" name="total_images" class="form-control" required>
                     </div>
                     <div class="form-group">
-                        <strong>Keyord</strong>
+                        <strong>Keyword</strong>
                         <input type="text" name="term" class="form-control">
                     </div>
                     <div class="form-group mr-3">

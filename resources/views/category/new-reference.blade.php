@@ -47,6 +47,11 @@
                 <button type="button" class="btn btn-secondary">Fix Auto Suggested</button>
             </a>
         </div>
+        <div class="form-group col-md-4">
+            <a href="{{ route('category.fix-autosuggested-via-str',request()->all()) }}" class="fix-autosuggested">
+                <button type="button" class="btn btn-secondary">Fix Auto Suggested(2)</button>
+            </a>
+        </div>
     </div>
     <div class="col-md-12 mt-5">
         <table class="table table-bordered">
