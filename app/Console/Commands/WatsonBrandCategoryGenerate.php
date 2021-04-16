@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Brand;
+use App\Product;
 use App\Category;
 use App\ChatbotQuestion;
 use App\ChatbotQuestionExample;
@@ -44,26 +45,26 @@ class WatsonBrandCategoryGenerate extends Command
     {   
         try {
             
-            $chatQuestion =  ChatbotQuestion::where(['keyword_or_question' => 'intent','value' => 'Product_Availability'])->first();
+            \Log::info( $this->signature .'Starting..' );
 
-            $category = Category::where('categories.title', '!=', null)->leftjoin("categories as sub_cat", "sub_cat.id", "categories.parent_id")
-                        ->leftjoin("categories as main_cat", "main_cat.id", "sub_cat.parent_id")
-                        ->select("categories.title", "sub_cat.title as sub_category", "main_cat.title as main_category")
-                        ->get()->toArray();
-            
-            \DB::table('brands')->whereNotNull('name')->select('name')->orderBy('created_at','desc')->chunk(1, function( $brandQuery) use ( $category, $chatQuestion){
+            \DB::table('products')->where('products.name','!=',null)->join("brands", "products.brand", "brands.id")
+                    ->join("categories as cat", "cat.id", "products.category")
+                    ->leftjoin("categories as sub_cat", "sub_cat.id", "cat.parent_id")
+                    ->leftjoin("categories as main_cat", "main_cat.id", "sub_cat.parent_id")
+                    ->select("cat.title", "products.id as id", "brands.name as brand", "sub_cat.title as sub_category", "main_cat.title as main_category")->orderBy('products.id','asc')->chunk(100, function( $Query ){
+
                 $chatQueArr = [];
 
-                foreach ($brandQuery as $bvalue) {
-                    foreach ($category as $key => $value) {
-                        $chatQueArr[] = array( 
-                            'question' => $bvalue->name.' '.$value['main_category'].' '.$value['sub_category'].' '.$value['title'],
-                            'chatbot_question_id' => $chatQuestion->id,
-                        );
-                    }
+                foreach ($Query as $key => $value) {
+                    $chatQueArr[] = array( 
+                        'question' => $value->brand.' '.$value->main_category.' '.$value->sub_category.' '.$value->title,
+                        'chatbot_question_id' => 117,
+                    );
                 }
+                
                 ChatbotQuestionExample::insert( $chatQueArr );
                 $chatQueArr = [];
+
             });
 
             \Log::info( $this->signature .'Run success' );
