@@ -61,7 +61,27 @@ class UserPayment extends Command
                 //$start = date('Y-m-d',strtotime($lastPayment->date));
                 //$end =  $start;
             //}
-            $billingStartDate = ($lastPayment && !empty($lastPayment->billing_start_date)) ? $lastPayment->billing_start_date : date("Y-m-d",strtotime("-1 day"));
+            $yesterday = date('Y-m-d',strtotime("-1 days"));
+            echo PHP_EOL . "=====Checking $start - $end for $user->id ====" . PHP_EOL;
+
+            $activityrecords  = HubstaffActivity::getTrackedActivitiesBetween($start, $end, $user->id);
+            echo PHP_EOL . "===== Result found ".count($activityrecords)." ====" . PHP_EOL;
+
+            $total = 0;
+            $minutes = 0;
+            $startsAt = null;
+            foreach($activityrecords as $record) {
+                $latestRatesOnDate = UserRate::latestRatesOnDate($record->starts_at,$user->id);
+                if($record->tracked > 0 && $latestRatesOnDate && $latestRatesOnDate->hourly_rate > 0) {
+                    $total = $total + ($record->tracked/60)/60 * $latestRatesOnDate->hourly_rate;
+                    $minutes = $minutes + $record->tracked/60;
+                    $record->paid = 1;
+                    $record->save(); 
+                    $startsAt = $record->starts_at;
+                }
+            }
+
+            /*$billingStartDate = ($lastPayment && !empty($startsAt)) ? $startsAt : date("Y-m-d",strtotime("-1 day"));
             if($user->payment_frequency == 'fornightly') {
                 $billingEndDate   = date('Y-m-d',strtotime($billingStartDate . "+1 days"));  
                 if(strtotime($billingEndDate) > strtotime(date("Y-m-d"))){
@@ -88,40 +108,22 @@ class UserPayment extends Command
                     $billingStartDate = date('Y-m-d',strtotime(date("Y-m-d") . "+1 days"));
                     $billingEndDate   = date('Y-m-d',strtotime($billingStartDate . "+30 days"));  
                 }
-            }
+            }*/
+            
 
-            $yesterday = date('Y-m-d',strtotime("-1 days"));
-
-            echo PHP_EOL . "=====Checking $start - $end for $user->id ====" . PHP_EOL;
-
-            $activityrecords  = HubstaffActivity::getTrackedActivitiesBetween($start, $end, $user->id);
-
-            echo PHP_EOL . "===== Result found ".count($activityrecords)." ====" . PHP_EOL;
-
-            $total = 0;
-            $minutes = 0;
-            foreach($activityrecords as $record) {
-                $latestRatesOnDate = UserRate::latestRatesOnDate($record->starts_at,$user->id);
-                if($record->tracked > 0 && $latestRatesOnDate && $latestRatesOnDate->hourly_rate > 0) {
-                    $total = $total + ($record->tracked/60)/60 * $latestRatesOnDate->hourly_rate;
-                    $minutes = $minutes + $record->tracked/60;
-                    $record->paid = 1;
-                    $record->save(); 
-                }
-            }
             if($total > 0) {
                 $total = number_format($total,2);
                 $paymentReceipt = new PaymentReceipt;
                 $paymentReceipt->worked_minutes = $minutes;
                 $paymentReceipt->status = 'Pending';
                 $paymentReceipt->rate_estimated = $total;
-                $paymentReceipt->date = $end;
+                $paymentReceipt->date = $startsAt;
                 $paymentReceipt->user_id = $user->id;
-                $paymentReceipt->billing_start_date = isset($billingStartDate) ? $billingStartDate : null;
-                $paymentReceipt->billing_end_date = isset($billingEndDate) ? $billingEndDate : $end;
+                /*$paymentReceipt->billing_start_date = isset($billingStartDate) ? $billingStartDate : null;
+                $paymentReceipt->billing_end_date = isset($billingEndDate) ? $billingEndDate : $end;*/
                 $paymentReceipt->currency = ''; //we need to change this.
                 if($user->billing_frequency_day > 0) {
-                    $paymentReceipt->billing_due_date = date("Y-m-d",strtotime($paymentReceipt->billing_end_date." +".$user->billing_frequency_day));
+                    $paymentReceipt->billing_due_date = date("Y-m-d",strtotime($startsAt." +".$user->billing_frequency_day));
                 }
                 $paymentReceipt->save();
 
