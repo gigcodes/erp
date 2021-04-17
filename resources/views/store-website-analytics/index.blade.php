@@ -39,7 +39,7 @@
             @endphp
             <tr>
                 <td>{{$count}}</td>
-                <td>{{$record->website}}</td>
+                <td>{{$record->website ?? '--'}}</td>
                 <td>{{$record->email}}</td>
                 <td>{{$record->account_id}}</td>
                 <td>{{$record->view_id}}</td>
