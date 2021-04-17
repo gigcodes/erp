@@ -155,6 +155,7 @@
                 <thead>
                 <th style="width:10%">Date</th>
                 <th style="width:20%">Id</th>
+                <th style="width:20%">Website</th>
                 <th style="width:45%">Name</th>
                 <th style="width:20%">Action</th>
                 </thead>
