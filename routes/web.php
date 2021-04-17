@@ -2025,6 +2025,7 @@ Route::middleware('auth')->group(function () {
     Route::get('hscode/most-common-category', 'HsCodeController@mostCommonByCategory')->name('hscode.mostcommon.category');
 
     Route::get('display/analytics-data', 'AnalyticsController@showData')->name('showAnalytics');
+    Route::post('display/analytics-history', 'AnalyticsController@history')->name('analytics.history');
 
     Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinkFilteredResults');
     Route::get('links-to-post', 'SEOAnalyticsController@linksToPost');
