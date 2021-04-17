@@ -23,7 +23,7 @@
           <th style="width:10%">Efficiency</th>
           <th style="width:10%"></th>
           <th style="width:6%">Status</th>
-          <th style="width:2%" class="text-center">Action</th>
+          <th style="width:2%" class="text-center">Action <input type="checkbox" id="checkAll"> </th>
         </tr>
           @foreach ($activityrecords as $record)
             <tr>
@@ -240,6 +240,10 @@
       format: 'YYYY-MM-DD'
     });
 
+    $("#checkAll").click(function(){
+        $('input:checkbox').not(this).prop('checked', this.checked);
+    });
+    
     $(document).on("click",".show-task-history",function() {
         var taskid = $(this).data("id");
         $.ajax({
