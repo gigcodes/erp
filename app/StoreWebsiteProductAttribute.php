@@ -20,7 +20,7 @@ class StoreWebsiteProductAttribute extends Model
      * @SWG\Property(property="updated_at",type="datetime")
      */
     protected $fillable = [
-        'product_id', 'price', 'discount', 'discount_type', 'description', 'store_website_id', 'created_at', 'updated_at',
+        'product_id', 'price', 'discount', 'discount_type', 'description', 'store_website_id', 'stock' , 'created_at', 'updated_at',
     ];
 
     public function storeWebsite()

@@ -18,7 +18,7 @@
 @section('content')
 <div class="row">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Inventory List ({{ $inventory_data_count }})</h2>
+        <h2 class="page-heading">Inventory out of stock List({{ $inventory_data_count }})</h2>
     </div>
 </div>
 

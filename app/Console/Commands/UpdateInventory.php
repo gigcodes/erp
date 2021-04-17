@@ -66,6 +66,7 @@ class UpdateInventory extends Command
                 ->where("suppliers.supplier_status_id", 1)
                 ->select("sp.last_inventory_at", "sp.sku", "sc.inventory_lifetime","p.id as product_id","suppliers.id as supplier_id","sp.id as sproduct_id")->get()->groupBy("sku")->toArray();
                 
+                // dd($products);
                 if (!empty($products)) {
                 $zeroStock=[];
 
@@ -80,7 +81,7 @@ class UpdateInventory extends Command
                     
                     foreach ($skuRecords as $records) {
                         
-                        array_push( $sproductIdArr, $records['sproduct_id'] )
+                        array_push( $sproductIdArr, $records['sproduct_id'] );
 
                         // \DB::statement("update `scraped_products` set `last_cron_check` = now() where `id` = '" . $records['sproduct_id'] . "'");
 
@@ -127,6 +128,7 @@ class UpdateInventory extends Command
                                 $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
                                 if(count($websiteArrays) > 0){
                                     foreach ($websiteArrays as $websiteArray) {
+                                        $product->setRandomDescription( $websiteArray,0);
                                         $zeroStock[$websiteArray]['stock'][]=array('sku'=>$sku . $product->color,'qty'=>0);  
                                     }
                                 }
