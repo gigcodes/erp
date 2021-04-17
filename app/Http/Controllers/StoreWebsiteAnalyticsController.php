@@ -22,8 +22,12 @@ class StoreWebsiteAnalyticsController extends Controller
 
     public function index()
     {
-        $storeWebsiteAnalyticsData = StoreWebsiteAnalytic::all();
-        return view('store-website-analytics.index', compact('storeWebsiteAnalyticsData'));
+        try {
+            $storeWebsiteAnalyticsData = StoreWebsiteAnalytic::all();
+            return view('store-website-analytics.index', compact('storeWebsiteAnalyticsData'));
+        } catch (Exception $e) {
+            \Log::error('Account page ::'. $e->getMessage());
+        }
     }
 
     public function create(Request $request)

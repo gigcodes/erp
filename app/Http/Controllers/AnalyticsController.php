@@ -249,7 +249,7 @@ class AnalyticsController extends Controller
                 $resultData = getAudiencesData( $analyticsObj ,$requestObj);
                 $Audiences  = printAudienceResults( $resultData , $value['id']);
 
-                \Log::error('google-analytics :: Daily run success');
+                \Log::info('google-analytics :: Daily run success');
 
                 $history = array(
                     'website'     => $value['website'], 
