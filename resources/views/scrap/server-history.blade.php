@@ -42,7 +42,11 @@
                                     if(isset($listOfServerUsed[$k]) && isset($listOfServerUsed[$k][$totalServer])) {
                                         $loops = $listOfServerUsed[$k][$totalServer];
                                         foreach($loops as $l) {
-                                            echo '<span class="badge badge-secondary">'.$l['scraper_name']." ".$l['memory_string'].'&nbsp;<i data-server-id="'.$totalServer.'" data-p-id="'.$l['pid'].'" class="fa fa-window-close stop-job" aria-hidden="true"></i></span><br>';
+                                            $deleteBtn = "";
+                                            if(!empty($l['pid'])) {
+                                                $deleteBtn = '&nbsp;<i data-server-id="'.$totalServer.'" data-p-id="'.$l['pid'].'" class="fa fa-window-close stop-job" aria-hidden="true"></i>';
+                                            }
+                                            echo '<span class="badge badge-secondary">'.$l['scraper_name']." ".$l['memory_string'].$deleteBtn.'</span><br>';
                                         }
                                     }
                                   ?>
