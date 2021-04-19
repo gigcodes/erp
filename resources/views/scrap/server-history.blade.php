@@ -70,18 +70,21 @@
 
         $(document).on("click",".stop-job",function(e) {
             e.preventDefault();
-            var $this = $(this);
-            $.ajax({
-                type: 'GET',
-                url: '{{ route('statistics.server-history.close-job') }}',
-                data: {
-                  pid : $this.data("p-id"),
-                  server_id : $this.data("server-id")
-                },
-                dataType:"json"
-            }).done(response => {
-                toastr['success'](response.message, 'success');
-            });
+
+            if(confirm("Are you sure you want to do kill job?")) {
+                var $this = $(this);
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ route('statistics.server-history.close-job') }}',
+                    data: {
+                      pid : $this.data("p-id"),
+                      server_id : $this.data("server-id")
+                    },
+                    dataType:"json"
+                }).done(response => {
+                    toastr['success'](response.message, 'success');
+                });
+            }
         });
 
     </script>
