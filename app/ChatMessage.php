@@ -331,7 +331,7 @@ class ChatMessage extends Model
     {
         return \App\ChatMessage::where("customer_id", $customerId)
         ->whereNull("chat_messages.number")
-        ->whereNotIn("status",self::AUTO_REPLY_CHAT)
+        ->whereNotIn("status",array_merge(self::AUTO_REPLY_CHAT,[2]))
         ->select(["chat_messages.*"])
         ->orderBy("chat_messages.created_at", "desc")
         ->first();

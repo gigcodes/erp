@@ -17,6 +17,8 @@ class MessageHelper
         "the",
     ];
 
+    CONST AUTO_LEAD_SEND_PRICE = 281;
+
     const TXT_PREPOSITIONS = [
         "aboard",
         "about",
