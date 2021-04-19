@@ -70,6 +70,13 @@
 
         $(document).on("click",".stop-job",function(e) {
             e.preventDefault();
+            var serverID = $this.data("server-id");
+            var pID = $this.data("p-id");
+
+            if(serverID == "" || pID == "") {
+              toastr['error']("Server id or PID is not setup", 'error');
+              return false;
+            }
 
             if(confirm("Are you sure you want to do kill job?")) {
                 var $this = $(this);
