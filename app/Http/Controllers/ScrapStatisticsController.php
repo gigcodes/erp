@@ -739,15 +739,30 @@ class ScrapStatisticsController extends Controller
                 foreach($scrapers as $s) {
                     $listOfServerUsed["$tms"][$s->server_id][] = [
                         "scraper_name" => $s->scraper_name,
-                        "memory_string"  => "T: ".$s->total_memory." U:".$s->used_memory." P:".$s->in_percentage
+                        "memory_string"  => "T: ".$s->total_memory." U:".$s->used_memory." P:".$s->in_percentage,
+                        "pid"  => $s->pid
                     ];
                 }
             }
         }
 
-        //echo "<pre>"; print_r($listOfServerUsed);  echo "</pre>";die;
-
         return view("scrap.server-history", compact('totalServers','timeSlots','requestedDate','listOfServerUsed'));
+    }
+
+    public function endJob()
+    {
+        $pid    = $request->get("pid");
+        $server = $request->get("server_id");
+
+        $cmd = '/usr/bin/sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH'). '/scraper-kill.sh '.$server.' '.$pid. ' 2>&1';
+        
+        $allOutput      = array();
+        $allOutput[]    = $cmd;
+        $result         = exec($cmd, $allOutput);
+
+        \Log::info(print_r($result,true));
+
+        return response()->json(["code" => 200 , "message" => "Your job has been stopped"]);
     }
 
 }

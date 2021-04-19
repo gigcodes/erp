@@ -39,12 +39,12 @@
                           <?php foreach($totalServers as $s => $totalServer){ ?>
                               <td class="p-2">
                                   <?php
-                                        if(isset($listOfServerUsed[$k]) && isset($listOfServerUsed[$k][$totalServer])) {
-                                            $loops = $listOfServerUsed[$k][$totalServer];
-                                            foreach($loops as $l) {
-                                                echo '<span class="badge badge-secondary">'.$l['scraper_name']." ".$l['memory_string'].'</span><br>';
-                                            }
+                                    if(isset($listOfServerUsed[$k]) && isset($listOfServerUsed[$k][$totalServer])) {
+                                        $loops = $listOfServerUsed[$k][$totalServer];
+                                        foreach($loops as $l) {
+                                            echo '<span class="badge badge-secondary">'.$l['scraper_name']." ".$l['memory_string'].'&nbsp;<i data-server-id="'.$l['pid'].'" data-p-id="'.$l['pid'].'" class="fa fa-window-close stop-job" aria-hidden="true"></i></span><br>';
                                         }
+                                    }
                                   ?>
                               </td>
                           <?php } ?>
@@ -67,5 +67,25 @@
                 format: 'YYYY-MM-DD'
             });
         });
+
+        $(document).on("click",".stop-job",function(e) {
+            e.preventDefault();
+
+            if(confirm("Are you sure you want to do kill job?")) {
+                var $this = $(this);
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ route('statistics.server-history.close-job') }}',
+                    data: {
+                      pid : $this.data("p-id"),
+                      server_id : $this.data("server-id")
+                    },
+                    dataType:"json"
+                }).done(response => {
+                    toastr['success'](response.message, 'success');
+                });
+            }
+        });
+
     </script>
 @endsection
