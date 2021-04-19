@@ -71,10 +71,10 @@
                         <th width="4%">Date</th>
                         <th>User</th>
                         <th width="4%">Time tracked (Minutes)</th>
-                        <th width="10%">Tasks</th>
-                        <th width="11%">Time tracked (Minutes)</th>
-                        <th width="11%">Time Estimation (Minutes)</th>
-                        <th width="12%" title="Time Diffrent">Time Diff. (Minutes)</th>
+                        <th width="21%">Tasks</th>
+                        <th width="1%">Time tracked (Minutes)</th>
+                        <th width="1%">Time Estimation (Minutes)</th>
+                        <th width="1%" title="Time Diffrent">Time Diff. (Minutes)</th>
                         <th>Time approved</th>
                         <th>Time Pending</th>
                         <th>User Requested</th>
@@ -102,65 +102,50 @@
                                 $totalPaymentPending +=  $user['totalNotPaid'];
                             @endphp
                             <td>{{number_format($user['total_tracked'] / 60,2,".",",")}}</td>
-                            <td>
+                            <td colspan="4">
+                                <table class="w-100 table-hover">
                                 <?php if(!empty($user['tasks'])) { ?>
                                         <?php foreach($user['tasks'] as $ut) { ?>
                                             <?php 
-                                                @list($taskid,$devtask) = explode("||",$ut);
+                                                @list($taskid,$devtask,$taskName,$estimation) = explode("||",$ut);
                                                 $trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $taskid)->first()->tracked;
                                             ?>
                                             @if ( $taskid )
-                                                <?php if(Auth::user()->isAdmin()) { ?> 
-                                                    <a class="show-task-histories " style="color:#333333;" data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}}</a><br>
-                                                <?php }else{ ?>
-                                                    <a class="" data-user-id="{{$user['user_id']}}" style="color:#333333;" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}} </a><br>
-                                                <?php } ?>    
+                                                
+                                                  <tr>
+                                                    <td width="56%">
+                                                        <?php if(Auth::user()->isAdmin()) { ?> 
+                                                            <a class="show-task-histories " style="color:#333333;" data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}}</a><br>
+                                                        <?php }else{ ?>
+                                                            <a class="" data-user-id="{{$user['user_id']}}" style="color:#333333;" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}} </a><br>
+                                                        <?php } ?>    
+                                                    </td>
+                                                    <td width="16%">
+                                                        @if ($taskName)
+                                                            {{ (isset($trackedTime) && $devtask ) ? $trackedTime : 'N/A' }}<br>
+                                                        @endif
+                                                    </td>
+                                                    <td width="16%">
+                                                        @if ($taskName)
+                                                            {{ $estimation }}
+                                                        @endif
+                                                    </td>
+                                                    <td width="16%">
+                                                        @if ( $taskName )
+                                                            @if (is_numeric($estimation) && $trackedTime && $taskName)
+                                                                {{ $estimation - $trackedTime}}<br>
+                                                            @else
+                                                                N/A
+                                                            @endif
+                                                        @endif
+                                                    </td>
+                                                  </tr>
                                             @endif
                                         <?php } ?>
                                 <?php } ?>
+                                </table>
                             </td>
-                            <td>
-                                <?php if(!empty($user['tasks'])) {?>
-                                        <?php foreach($user['tasks'] as $ut) { ?>
-                                            <?php 
-                                                @list($taskid,$devtask,$taskName) = explode("||",$ut);
-                                                $trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $taskid)->first()->tracked;
-                                            ?>
-                                            @if ($taskName)
-                                                {{$taskName}} {{ (isset($trackedTime) && $devtask ) ? ':'.$trackedTime : '' }}<br>
-                                            @endif
-                                        <?php } ?>
-                                <?php } ?>
-                            </td>
-                            <td>
-                                <?php if(!empty($user['tasks'])) {?>
-                                    <?php foreach($user['tasks'] as $ut) { ?>
-                                        <?php 
-                                            @list($taskid,$devtask,$taskName,$estimation) = explode("||",$ut);
-                                        ?>  
-                                        @if ($taskName)
-                                            {{$taskName}} : {{ $estimation }}<br>
-                                        @endif
-                                    <?php } ?>
-                                <?php } ?>
-                            </td>
-                            <td>
-                                <?php if(!empty($user['tasks'])) {?>
-                                    <?php foreach($user['tasks'] as $ut) { ?>
-                                        <?php 
-                                            @list($taskid,$devtask,$taskName,$estimation) = explode("||",$ut);
-                                            $trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $taskid)->first()->tracked;
-                                        ?>  
-                                        @if ( $taskName )
-                                            @if (is_numeric($estimation) && $trackedTime && $taskName)
-                                                {{$taskName}} : {{ $estimation - $trackedTime}}<br>
-                                            @else
-                                                {{$taskName}} : N/A
-                                            @endif
-                                        @endif
-                                    <?php } ?>
-                                <?php } ?>
-                            </td>
+                            
                             <td><span class="replaceme">{{number_format($user['totalApproved'] / 60,2,".",",")}}</span> </td>
                             <td>{{ number_format($user['totalPending'] / 60,2,".",",") }}</td>
                             <td><span>{{number_format($user['totalUserRequest'] / 60,2,".",",")}}</span> </td>

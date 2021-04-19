@@ -223,12 +223,12 @@ class HubstaffActivitiesController extends Controller
                     } else {
                         $tracked = $ar->tracked;
                         $task = DeveloperTask::where('hubstaff_task_id', $ar->task_id)->orWhere('lead_hubstaff_task_id', $ar->task_id)->first();
-                        if ($task) {
+                        if ($task && empty( $task_id )) {
                             $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
                             $taskSubject = $ar->task_id . '||#DEVTASK-' . $task->id . '-' . $task->subject.'-('.$task->status.")||#DEVTASK-$task->id||$estMinutes";
                         } else {
                             $task = Task::where('hubstaff_task_id', $ar->task_id)->orWhere('lead_hubstaff_task_id', $ar->task_id)->first();
-                            if ($task) {
+                            if ($task && empty( $developer_task_id )) {
                                 $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
                                 $taskSubject = $ar->task_id . '||#TASK-' . $task->id . '-' . $task->task_subject.'-('.$task->status.")||#TASK-$task->id||$estMinutes";
                             }
@@ -239,7 +239,6 @@ class HubstaffActivitiesController extends Controller
             }
 
             $a['tasks'] = array_unique($lsTask);
-
             $hubActivitySummery = HubstaffActivitySummary::where('date', $activity->date)->where('user_id', $activity->system_user_id)->orderBy('created_at', 'desc')->first();
             if ($request->status == 'approved') {
                 if ($hubActivitySummery && $hubActivitySummery->final_approval == 1) {
