@@ -70,6 +70,7 @@
 
         $(document).on("click",".stop-job",function(e) {
             e.preventDefault();
+            var $this = $(this);
             var serverID = $this.data("server-id");
             var pID = $this.data("p-id");
 
@@ -79,13 +80,13 @@
             }
 
             if(confirm("Are you sure you want to do kill job?")) {
-                var $this = $(this);
+                
                 $.ajax({
                     type: 'GET',
                     url: '{{ route('statistics.server-history.close-job') }}',
                     data: {
-                      pid : $this.data("p-id"),
-                      server_id : $this.data("server-id")
+                      pid : pID,
+                      server_id : serverID
                     },
                     dataType:"json"
                 }).done(response => {
