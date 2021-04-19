@@ -1130,10 +1130,11 @@ class HubstaffActivitiesController extends Controller
     }
     public function fetchActivitiesFromHubstaff(Request $request)
     {
-        if (!$request->starts_at || $request->starts_at == '') {
-            return response()->json(['message' => 'Select date first'], 500);
+        if (!$request->hub_staff_start_date || $request->hub_staff_start_date == '' || !$request->hub_staff_end_date || $request->hub_staff_end_date == '' ) {
+            return response()->json(['message' => 'Select date'], 500);
         }
-        $starts_at = $request->starts_at;
+        $starts_at = $request->hub_staff_start_date;
+        $ends_at = $request->hub_staff_end_date;
         $member    = $hubstaff_user_id    = HubstaffMember::where('user_id', Auth::user()->id)->first();
         if ($member) {
             $hubstaff_user_id = $member->hubstaff_user_id;
@@ -1142,7 +1143,7 @@ class HubstaffActivitiesController extends Controller
         }
         try {
             $exitCode = Artisan::call('hubstaff:load_past_activities', [
-                'start' => $starts_at, 'user_ids' => $hubstaff_user_id,
+                'start' => $starts_at, 'end' => $ends_at, 'user_ids' => $hubstaff_user_id,
             ]);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 500);
