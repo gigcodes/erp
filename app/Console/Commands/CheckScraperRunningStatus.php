@@ -45,103 +45,16 @@ class CheckScraperRunningStatus extends Command
             'start_time' => Carbon::now(),
         ]);
 
-        /*$cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'scrapper-running.sh 2>&1';
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'scrapper-running.sh 2>&1';
 
         $allOutput   = array();
         $allOutput[] = $cmd;
-        $result      = exec($cmd, $allOutput);*/
+        $result      = exec($cmd, $allOutput);
 
         /*$allOutput   = [];
         $allOutput[] = "";
         $allOutput[] = "#####################   Server -   s01 ################### Server Load - 0.27,###############";
         $allOutput[] = "Mon Apr  5 20:00:02 2021  /root/scraper_nodejs/commands/completeScraps/conceptstore.js";*/
-
-        $array = [];
-        $array[] = "";
-        $array[] = "#####################   Server -   s01 #################################";
-        $array[] = "Total Memory = 3.85 G";
-        $array[] = "Used Memory = 2.69 G";
-        $array[] = "Used Memory in Percentage = 69.00%";
-        $array[] = "16765 5-22:50:59 /root/scraper_nodejs/commands/completeScraps/coltorti/coltorti4.js";
-        $array[] = "16984 5-22:45:47 /root/scraper_nodejs/commands/completeScraps/coltorti/coltorti6.js";
-        $array[] = "25735 3-01:48:08 /root/scraper_nodejs/commands/completeScraps/externalScraper/main.js";
-        $array[] = "#####################   Server -   s02 #################################";
-        $array[] = "Total Memory = 3.85 G";
-        $array[] = "Used Memory = 2.24 G";
-        $array[] = "Used Memory in Percentage = 58.00%";
-        $array[] = "16473 5-03:01:30 /root/scraper_nodejs/commands/completeScraps/tizianafausti.js";
-        $array[] = "17781 5-02:20:58 /root/scraper_nodejs/commands/completeScraps/binisilvia.js";
-        $array[] = "18054 5-02:15:13 /root/scraper_nodejs/commands/completeScraps/coltorti/coltorti1.js";
-        $array[] = "#####################   Server -   s03 #################################";
-        $array[] = "Total Memory = 3.85 G";
-        $array[] = "Used Memory = 1.38 G";
-        $array[] = "Used Memory in Percentage = 35.00%";
-        $array[] = "3851 2-23:32:08 /root/scraper_nodejs/commands/completeScraps/deliberti.js";
-        $array[] = "5824 2-21:56:46 /root/scraper_nodejs/commands/completeScraps/sugar.js";
-        $array[] = "#####################   Server -   s04 #################################";
-        $array[] = "Total Memory = 3.85 G";
-        $array[] = "Used Memory = 2.73 G";
-        $array[] = "Used Memory in Percentage = 70.00%";
-        $array[] = "572 2-21:53:45 /root/scraper_nodejs/commands/completeScraps/missbaby.js";
-        $array[] = "2218 21:29:17 /root/scraper_nodejs/commands/completeScraps/cuccuini.js";
-        $array[] = "29940 3-19:57:07 /root/scraper_nodejs/commands/completeScraps/tessabit.js";
-        $array[] = "#####################   Server -   s05 #################################";
-        $array[] = "Total Memory = 3.85 G";
-        $array[] = "Used Memory = 3.50 G";
-        $array[] = "Used Memory in Percentage = 90.00%";
-        $array[] = "#####################   Server -   s06 #################################";
-        $array[] = "Total Memory = 3.85 G";
-        $array[] = "Used Memory = .84 G";
-        $array[] = "Used Memory in Percentage = 21.00%";
-        $array[] = "17238 21:29:17 /root/scraper_nodejs/commands/completeScraps/divo.js";
-        $array[] = "28163 6-00:02:19 /root/scraper_nodejs/commands/completeScraps/insightConcept.js";
-        $array[] = "#####################   Server -   s07 #################################";
-        $array[] = "Total Memory = 3.85 G";
-        $array[] = "Used Memory = .98 G";
-        $array[] = "Used Memory in Percentage = 25.00%";
-        $array[] = "2099 3-19:29:51 /root/scraper_nodejs/commands/completeScraps/tizianafausti.js";
-        $array[] = "17525 5-02:02:45 /root/scraper_nodejs/commands/completeScraps/italiani.js";
-        $array[] = "#####################   Server -   s08 #################################";
-        $array[] = "Total Memory = 3.85 G";
-        $array[] = "Used Memory = 1.93 G";
-        $array[] = "Used Memory in Percentage = 50.00%";
-        $array[] = "8835 5-01:47:08 /root/scraper_nodejs/commands/completeScraps/coltorti/coltorti8.js";
-        $array[] = "#####################   Server -   s09 #################################";
-        $array[] = "Total Memory = 3.85 G";
-        $array[] = "Used Memory = 1.16 G";
-        $array[] = "Used Memory in Percentage = 30.00%";
-        $array[] = "13146 1-13:21:22 /root/scraper_nodejs/commands/completeScraps/sugar.js";
-        $array[] = "#####################   Server -   s10 #################################";
-        $array[] = "Total Memory = 3.85 G";
-        $array[] = "Used Memory = 1.18 G";
-        $array[] = "Used Memory in Percentage = 30.00%";
-        $array[] = "4225 5-01:40:42 /root/scraper_nodejs/commands/completeScraps/julian-reverse.js";
-        $array[] = "#####################   Server -   s11 #################################";
-        $array[] = "Total Memory = 3.85 G";
-        $array[] = "Used Memory = .40 G";
-        $array[] = "Used Memory in Percentage = 10.00%";
-        $array[] = "#####################   Server -   s12 #################################";
-        $array[] = "Total Memory = 3.85 G";
-        $array[] = "Used Memory = .27 G";
-        $array[] = "Used Memory in Percentage = 7.00%";
-        $array[] = "#####################   Server -   s13 #################################";
-        $array[] = "Total Memory = 3.85 G";
-        $array[] = "Used Memory = .95 G";
-        $array[] = "Used Memory in Percentage = 24.00%";
-        $array[] = "963 3-03:59:16 /root/scraper_nodejs/commands/completeScraps/nugnes1920.js";
-        $array[] = "20668 6-00:03:44 /root/scraper_nodejs/commands/completeScraps/lidia.js";
-        $array[] = "#####################   Server -   s14 #################################";
-        $array[] = "Total Memory = 3.85 G";
-        $array[] = "Used Memory = .88 G";
-        $array[] = "Used Memory in Percentage = 22.00%";
-        $array[] = "21956 20:36:36 /root/scraper_nodejs/commands/completeScraps/tessabit.js";
-        $array[] = "#####################   Server -   s15 #################################";
-        $array[] = "Total Memory = 3.85 G";
-        $array[] = "Used Memory = .68 G";
-        $array[] = "Used Memory in Percentage = 17.00%";
-        $array[] = "27942 3-21:43:21 /root/scraper_nodejs/commands/completeScraps/vitaleBoutique.js";
-
-
 
         $serverId       = null;
         $scraperNamestr = null;
