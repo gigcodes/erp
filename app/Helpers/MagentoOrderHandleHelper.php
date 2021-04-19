@@ -308,7 +308,7 @@ class MagentoOrderHandleHelper extends Model
                     \Log::info("Order is finished" . json_encode($websiteOrder));
                 }
                 /**Ajay singh */
-                $orders = OrderProduct::with('order')->whereHas('order',function($query){
+                /*$orders = OrderProduct::with('order')->whereHas('order',function($query){
                     $query->whereIn('order_status_id',[1,13]);
                 })->get();
                 foreach($orders as $order){
@@ -329,7 +329,7 @@ class MagentoOrderHandleHelper extends Model
                             $ProductInventoryController = ProductInventoryController::magentoSoapUpdateStock($product,0);
                         }
                     }
-                }
+                }*/
                 /**Ajay singh */
                 return true;
             }
