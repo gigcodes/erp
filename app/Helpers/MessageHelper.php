@@ -142,7 +142,7 @@ class MessageHelper
      * @param $message  [ string ]
      * @return mixed
      */
-    public static function whatsAppSend($customer = null, $message = null, $sendMsg = null, $messageModel = null, $isEmail = null)
+    public static function whatsAppSend($customer = null, $message = null, $sendMsg = null, $messageModel = null, $isEmail = null, $parentMessage = null)
     {
         if ($customer) {
             // $exp_mesaages = explode(" ", $message);
