@@ -61,7 +61,6 @@ class CheckScraperRunningStatus extends Command
         $totalMemory    = null;
         $usedMemory     = null;
         $inPercentage   = null;
-        $allOutput      = $array;
 
         if (!empty($allOutput)) {
             foreach ($allOutput as $k => $allO) {
