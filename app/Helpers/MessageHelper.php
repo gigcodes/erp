@@ -209,7 +209,7 @@ class MessageHelper
                             'status'            => 2,
                             'task_id'           => $taskid,
                             'message'           => $task_info[0]->task_details,
-                            'quoted_message_id' => $quoted_message_id
+                            'quoted_message_id' => ($messageModel) ? $messageModel->quoted_message_id : null
                         ];
 
                         if ($sendMsg === true) {
