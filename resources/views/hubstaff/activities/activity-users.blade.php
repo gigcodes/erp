@@ -24,7 +24,7 @@
             <div class="col-md-12 margin-tb">
                 <div class="row">
                     <form class="form-check-inline" action="{{route('hubstaff-acitivties.activities')}}" method="get">
-                        <div class="form-group col-md-2">
+                        <div class="form-group col-md-1">
                             <?php echo Form::select("user_id",["" => "-- Select User --"]+$users,$user_id,["class" => "form-control select2"]); ?>
                         </div>
                         <div class="form-group col-md-2">
@@ -33,6 +33,21 @@
                         <div class="form-group col-md-2">
                             
                             <?php echo Form::text("task_id",request('task_id'),["class" => "form-control","placeholder" => "Enter Task ID"]); ?>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <select name="task_status" class="form-control">
+                                <option value="" >Select Status</option>
+                                <option value="Done" {{ request('task_status') ==  'Done' ? 'selected' : ''}}>Done</option>
+                                <option value="Discussing" {{ request('task_status') == 'Discussing' ? 'selected' : ''}}>Discussing</option>
+                                <option value="In Progress"  {{ request('task_status') ==  'In Progress' ? 'selected' : ''}}>In Progress</option>
+                                <option value="Issue" {{ request('task_status') ==  'Issue' ? 'selected' : ''}}>Issue</option>
+                                <option value="Planned" {{ request('task_status') ==  'Planned' ? 'selected' : ''}}>Planned</option>
+                                <option value="Discuss with Lead" {{ request('task_status') ==  'Discuss with Lead' ? 'selected' : ''}}>Discuss with Lead</option>
+                                <option value="Note" {{ request('task_status') ==  'Note' ? 'selected' : ''}}>Note</option>
+                                <option value="Lead Response Needed" {{ request('task_status') == 'Lead Response Needed' ? 'selected' : ''}}>Lead Response Needed</option>
+                                <option value="Errors in Task" {{ request('task_status') == 'Errors in Task' ? 'selected' : ''}}>Errors in Task</option>
+                                <option value="In Review" {{ request('task_status') == 'In Review' ? 'selected' : ''}}>In Review</option>
+                            </select>
                         </div>
                         <div class="form-group col-md-3">
                             <input type="text" value="{{$start_date}}" name="start_date" hidden/>
@@ -75,6 +90,7 @@
                         <th width="1%">Time tracked (Minutes)</th>
                         <th width="1%">Time Estimation (Minutes)</th>
                         <th width="1%" title="Time Diffrent">Time Diff. (Minutes)</th>
+                        <th width="1%">Status</th>
                         <th>Time approved</th>
                         <th>Time Pending</th>
                         <th>User Requested</th>
@@ -102,12 +118,12 @@
                                 $totalPaymentPending +=  $user['totalNotPaid'];
                             @endphp
                             <td>{{number_format($user['total_tracked'] / 60,2,".",",")}}</td>
-                            <td colspan="4">
+                            <td colspan="5">
                                 <table class="w-100 table-hover">
                                 <?php if(!empty($user['tasks'])) { ?>
                                         <?php foreach($user['tasks'] as $ut) { ?>
                                             <?php 
-                                                @list($taskid,$devtask,$taskName,$estimation) = explode("||",$ut);
+                                                @list($taskid,$devtask,$taskName,$estimation,$status) = explode("||",$ut);
                                                 $trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $taskid)->first()->tracked;
                                             ?>
                                             @if ( $taskid )
@@ -137,6 +153,11 @@
                                                             @else
                                                                 N/A
                                                             @endif
+                                                        @endif
+                                                    </td>
+                                                    <td width="16%">
+                                                        @if ( $taskName )
+                                                            {{ $status ? $status : 'N/A' }}
                                                         @endif
                                                     </td>
                                                   </tr>
@@ -177,6 +198,7 @@
                         <th>Total</th>
                         <th></th>
                         <th>{{number_format($totalTracked / 60,2,".","")}}</th>
+                        <th></th>
                         <th></th>
                         <th></th>
                         <th></th>
