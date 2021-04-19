@@ -754,7 +754,7 @@ class ScrapStatisticsController extends Controller
         $pid    = $request->get("pid");
         $server = $request->get("server_id");
 
-        $cmd = '/usr/bin/sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH'). '/scraper-kill.sh '.$server.' '.$pid. ' 2>&1';
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH'). '/scraper-kill.sh '.$server.' '.$pid. ' 2>&1';
         
         $allOutput      = array();
         $allOutput[]    = $cmd;
