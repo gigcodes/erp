@@ -251,9 +251,11 @@ class MessageHelper
         $isReplied = 0;
 
         if( $userType !== 'vendor' ){
+            \Log::info("#2 Price for customer vendor condition passed");
             if ((preg_match("/price/i", $message) || preg_match("/you photo/i", $message) || preg_match("/pp/i", $message) || preg_match("/how much/i", $message) || preg_match("/cost/i", $message) || preg_match("/rate/i", $message))) {
+                \Log::info("#3 Price for customer message condition passed");
                 if ($customer) {
-
+                    \Log::info("#4 Price for customer model passed");
                     // send price from meessage queue
                     $messageSentLast = \App\MessageQueue::where("customer_id", $customer->id)->where("sent", 1)->orderBy("sending_time", "desc")->first();
                     // if message found then start
@@ -274,13 +276,19 @@ class MessageHelper
                     // check the last message send for price
                     $lastChatMessage = \App\ChatMessage::getLastImgProductId($customer->id);
                     if ($lastChatMessage) {
+                        \Log::info("#5 last message condition found".$lastChatMessage->id);
                         if ($lastChatMessage->hasMedia(config('constants.attach_image_tag'))) {
+                            \Log::info("#6 last message has media found");
                             $lastImg = $lastChatMessage->getMedia(config('constants.attach_image_tag'))->sortByDesc('id')->first();
+                            \Log::info("#7 last message get media found");
                             if ($lastImg) {
+                                \Log::info("#8 last message media found ".$lastImg->id);
                                 $mediable = \DB::table("mediables")->where("media_id", $lastImg->id)->where('mediable_type', Product::class)->first();
                                 if (!empty($mediable)) {
+                                    \Log::info("#9 last message mediable found");
                                     $product = \App\Product::find($mediable->mediable_id);
                                     if (!empty($product)) {
+                                        \Log::info("#9 last message product found");
                                         $priceO                       = ($product->price_inr_special > 0) ? $product->price_inr_special : $product->price_inr;
                                         $selected_products[]          = $product->id;
                                         $temp_img_params              = $params;
