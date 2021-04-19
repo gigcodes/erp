@@ -749,7 +749,7 @@ class ScrapStatisticsController extends Controller
         return view("scrap.server-history", compact('totalServers','timeSlots','requestedDate','listOfServerUsed'));
     }
 
-    public function endJob()
+    public function endJob(Request $request)
     {
         $pid    = $request->get("pid");
         $server = $request->get("server_id");
