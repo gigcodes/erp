@@ -1516,7 +1516,7 @@ class WhatsAppController extends FindByNumberController
                 $to = $config[0]['number'];
             }
             if ($customer) {
-                \App\Helpers\MessageHelper::whatsAppSend( $customer, $customer['message'], true , $message);
+                \App\Helpers\MessageHelper::whatsAppSend( $customer, $params['message'], true , $message);
             }
             // Is this message from a customer?
             if ($customer && $isCustomerNumber) {
