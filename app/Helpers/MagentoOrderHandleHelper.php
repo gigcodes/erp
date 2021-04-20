@@ -168,10 +168,10 @@ class MagentoOrderHandleHelper extends Model
                                 if(!empty($size)) {
                                     $productSizesM = $productSizesM->where('size', $size);
                                 }
+                                $mqty = 0;
                                 $productSizesM = $productSizesM->get();
                                 if(!$productSizesM->isEmpty()) {
                                     //check if more then one the minus else delete
-                                    $mqty = 0;
                                     foreach($productSizesM as $psm){
                                         $mqty += $psm->quantity;
                                         if($totalOrdered > 0)  {
@@ -188,14 +188,15 @@ class MagentoOrderHandleHelper extends Model
                                             }
                                         }
                                     }
-
-                                    if($mqty <= $totalOrdered) {
-                                        // start to delete from magento
-                                        $needToCheck    = [];
-                                        $needToCheck[]  = ["id" => $product->id, "sku" => $item->sku];
-                                        CallHelperForZeroStockQtyUpdate::dispatch($needToCheck)->onQueue('MagentoHelperForZeroStockQtyUpdate');
-                                    }
                                 }
+
+                                if($mqty <= $totalOrdered || $mqty == 0) {
+                                    // start to delete from magento
+                                    $needToCheck    = [];
+                                    $needToCheck[]  = ["id" => $product->id, "sku" => $item->sku];
+                                    CallHelperForZeroStockQtyUpdate::dispatch($needToCheck)->onQueue('MagentoHelperForZeroStockQtyUpdate');
+                                }
+
                             }
                         }
                     }
