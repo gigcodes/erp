@@ -24,6 +24,7 @@ use App\Mails\Manual\OrderConfirmation;
 use App\Email;
 use Mail;
 use seo2websites\MagentoHelper\MagentoHelperv2 as MagentoHelper;
+use App\Jobs\CallHelperForZeroStockQtyUpdate;
 
 class MagentoOrderHandleHelper extends Model
 {
@@ -143,7 +144,8 @@ class MagentoOrderHandleHelper extends Model
 
                             $skuAndColor = MagentoHelper::getSkuAndColor($item->sku);
                             \Log::info("skuAndColor : " . json_encode($skuAndColor));
-                            
+                            $sku = isset($splitted_sku[0]) ? $splitted_sku[0] : $skuAndColor['sku'];
+
                             DB::table('order_products')->insert(
                                 array(
                                     'order_id'      => $id,
@@ -157,6 +159,45 @@ class MagentoOrderHandleHelper extends Model
                                     'updated_at'    => $order->created_at,
                                 )
                             );
+
+                            // check the splitted sku here to remove the stock from the products
+                            $product = \App\Product::where("sku",$sku)->first();
+                            $totalOrdered = round($item->qty_ordered);
+                            if($product) {
+                                $productSizesM = ProductSizes::where('product_id', $product->id);
+                                if(!empty($size)) {
+                                    $productSizesM = $productSizesM->where('size', $size);
+                                }
+                                $mqty = 0;
+                                $productSizesM = $productSizesM->get();
+                                if(!$productSizesM->isEmpty()) {
+                                    //check if more then one the minus else delete
+                                    foreach($productSizesM as $psm){
+                                        $mqty += $psm->quantity;
+                                        if($totalOrdered > 0)  {
+                                            // update qty as based on the request
+                                            $psmqty = $psm->quantity;
+                                            $psmqty -= $totalOrdered;
+                                            if($psmqty > 0) {
+                                                $totalOrdered -= $psm->quantity;
+                                                $psm->quantity = $psmqty;  
+                                                $psm->save();
+                                            }else{
+                                                $totalOrdered -= $psm->quantity;
+                                                $psm->delete();
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if($mqty <= $totalOrdered || $mqty == 0) {
+                                    // start to delete from magento
+                                    $needToCheck    = [];
+                                    $needToCheck[]  = ["id" => $product->id, "sku" => $item->sku];
+                                    CallHelperForZeroStockQtyUpdate::dispatch($needToCheck)->onQueue('MagentoHelperForZeroStockQtyUpdate');
+                                }
+
+                            }
                         }
                     }
 
