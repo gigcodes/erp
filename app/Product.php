@@ -1372,7 +1372,7 @@ class Product extends Model
         return $descriptions;
     }
 
-    public function setRandomDescription($website, $stock = null)
+    public function setRandomDescription($website, $stock = 1)
     {
         $product = $this;
         $description = $product->short_description;
