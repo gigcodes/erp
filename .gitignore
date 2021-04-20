@@ -79,3 +79,4 @@ resources/views/vendor/maileclipse/templates/*
 /public/mailinglist/
 /public/wetransfer/*
 /resources/assets/analytics_files/*
+/.phpintel

@@ -15,9 +15,9 @@
     </td>
     <td>{{ $data['brand_name'] }}</td>
     <td>{{ $data['supplier'] }}</td>
-    <td>{{ $data['stock'] }}</td>
+    <td>0</td>
     
-    <td>{{ isset($data['history_date']) ? $data['history_date'] : $data['created_at'] }}</td>
+    <td>{{ $data['created_at'] }}</td>
     <td>
       <a  title="show Inventory history" data-id="{{ $data['id'] }}" class="btn btn-image show-inventory-history-modal des-pd"><i class="fa fa-history" aria-hidden="true"></i></a>
     </td>

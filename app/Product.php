@@ -1372,7 +1372,7 @@ class Product extends Model
         return $descriptions;
     }
 
-    public function setRandomDescription($website)
+    public function setRandomDescription($website, $stock = 1)
     {
         $product = $this;
         $description = $product->short_description;
@@ -1406,6 +1406,7 @@ class Product extends Model
                     $storeWebsitePA->price              = $product->price;
                     $storeWebsitePA->discount           = "0.00";
                     $storeWebsitePA->discount_type      = "percentage";
+                    $storeWebsitePA->stock              = $stock;
                     $storeWebsitePA->store_website_id   = $website->id;
                     $storeWebsitePA->description        = $description;
                     $storeWebsitePA->save();
