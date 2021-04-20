@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Product;
 
 class UpdateInventory extends Command
 {
@@ -119,6 +120,8 @@ class UpdateInventory extends Command
 
                         if (is_null($records["last_inventory_at"]) || strtotime($records["last_inventory_at"]) < strtotime('-' . $inventoryLifeTime . ' days')) {
                             if ($records["isUploaded"] == 1) {
+	                         $product = Product::where('isUploaded',1)->where('id',$records["product_id"])->first();
+                                $product->setRandomDescription( $websiteArray,0);
                                 $needToCheck[] = ["id" => $product->id, "sku" => $sku . $product->color];
                             }
                             continue;
