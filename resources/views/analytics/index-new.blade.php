@@ -30,7 +30,7 @@
 
 <div class="row ">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Analytics Data</h2>
+        <h2 class="page-heading">New Google Analytics</h2>
     </div>
 </div>
 <form action="" method="get">
@@ -68,7 +68,12 @@
     </div>
 </form>
 
+<div class="col-lg-12 mb-5">
+    <button class="btn btn-secondary show-history"> Show history </button>
+</div>
+
 @include('partials.flash_messages')
+@include('analytics.history')
 
 <div class="col-md-12">
     <div id="exTab2" >
@@ -270,6 +275,41 @@
 
 @section('scripts')
 <script type="text/javascript">
+
+    $(document).on("click",".show-history",function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/display/analytics-history',
+            type: 'POST',
+            data : { _token: "{{ csrf_token() }}"},
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                if(result.code == 200) {
+                    var t = '';
+                    $.each(result.data,function(k,v) {
+                        t += `<tr><td>`+v.id+`</td>`;
+                        t += `<td>`+v.website+`</td>`;
+                        t += `<td>`+v.title+`</td>`;
+                        t += `<td>`+v.description+`</td>`;
+                        t += `<td>`+v.created_at+`</td></tr>`;
+                    });
+                    if( t == '' ){
+                        t = '<tr><td colspan="5" class="text-center">No data found</td></tr>';
+                    }
+                }
+                $("#category-history-modal").find(".show-list-records").html(t);
+                $("#category-history-modal").modal("show");
+            },
+            error: function (){
+                $("#loading-image").hide();
+            }
+        });
+    });
+
     $(document).ready(function() {
     });
     function displayFullPath(ele){

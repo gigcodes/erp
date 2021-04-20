@@ -443,9 +443,9 @@ $metaData = '';
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
                                                 <a class="dropdown-item" href="{{ route('productinventory.list') }}">Inventory List</a>
+                                                <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
                                                 <a class="dropdown-item" href="{{ route('productinventory.inventory-list') }}">Inventory Data</a>
                                                 <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
-                                                <a class="dropdown-item" href="{{ route('productinventory.inventory-list-new') }}">New Product Inventory List</a>
                                                 <a class="dropdown-item" href="{{ route('listing.history.index') }}">Product Listing history</a>
                                                 <a class="dropdown-item" href="{{ route('product.category.index.list') }}">Product Category</a>
                                                 <a class="dropdown-item" href="{{ route('product.color.index.list') }}">Product Color history</a>
@@ -1159,7 +1159,7 @@ $metaData = '';
                                                 <li class="nav-item dropdown dropdown-submenu">
                                                     <a class="dropdown-item" href="{{ action('BackLinkController@displayBackLinkDetails') }}">Back Link Details</a>
                                                     <a class="dropdown-item" href="{{ action('BrokenLinkCheckerController@displayBrokenLinkDetails') }}">Broken Link Details</a>
-                                                    <a class="dropdown-item" href="{{ action('AnalyticsController@showData') }}">Analytics Data</a>
+                                                    <a class="dropdown-item" href="{{ action('AnalyticsController@showData') }}">New Google Analytics</a>
                                                     <a class="dropdown-item" href="{{ action('AnalyticsController@customerBehaviourByPage') }}">Customer Behaviour By Page</a>
                                                     <a class="dropdown-item" href="{{ action('SERankingController@getSites') }}">SE Ranking</a>
                                                     <a class="dropdown-item" href="{{ action('ArticleController@index') }}">Article Approval</a>
@@ -1694,6 +1694,12 @@ $metaData = '';
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('googlefiletranslator.list') }}">Google File Translator</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('googlewebmaster.index') }}">Google webmaster</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('gt-metrix') }}">GTMetrix analysis</a>
                                 </li>
                             </ul>
                         </li>

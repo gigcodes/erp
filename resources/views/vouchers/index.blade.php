@@ -71,8 +71,8 @@
 
             <div class="col-sm-12 col-md-4">
               <div class="form-group mr-3">
-                <input type="text" value="" name="range_start" value="{{ request('range_start') }}" hidden/>
-                <input type="text" value="" name="range_end" value="{{ request('range_end') }}" hidden/>
+                <input type="text" name="range_start" value="{{ request('range_start') }}" hidden/>
+                <input type="text" name="range_end" value="{{ request('range_end') }}" hidden/>
                 <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
                   <i class="fa fa-calendar"></i>&nbsp;
                   <span></span> <i class="fa fa-caret-down"></i>
@@ -88,6 +88,18 @@
                   <option {{ request("limit") == "100"  ? 'selected' : ''}} value="100">100</option>
                   <option {{ request("limit") == "all"  ? 'selected' : ''}} value="all">All</option>
                 </select>
+              </div>
+
+              <div class="col-sm-12 col-md-4">
+                <label>Due Date</label>
+                <div class="form-group mr-3">
+                  <input type="text" name="range_due_start" value="{{ request('range_due_start') }}" hidden/>
+                  <input type="text" name="range_due_end" value="{{ request('range_due_end') }}" hidden/>
+                  <div id="reportrange_duedate" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                    <i class="fa fa-calendar"></i>&nbsp;
+                    <span></span> <i class="fa fa-caret-down"></i>
+                  </div>
+                </div>
               </div>
 
             <div class="col-md-2"><button type="submit" class="btn btn-image"><img src="/images/search.png" /></button></div>
@@ -111,7 +123,7 @@
           <th width="7%">Currency</th>
           <th width="5%">Amount Paid</th>
           <th width="7%">Balance</th>
-          <th width="11%">Billing Date</th>
+          <th width="11%">Due Date</th>
           <th width="15%">Communication</th>
           <th width="20%" colspan="2" class="text-center">Action</th>
         </tr>
@@ -134,7 +146,7 @@
               <td>{{ $task->currency }}</td>
               <td>{{ $task->paid_amount }}</td>
               <td>{{ $task->balance }}</td>
-              <td>Start Date : {{ $task->billing_start_date }}<br>End Date : {{ $task->billing_end_date }}<br>Due Date : {{ $task->billing_due_date }}<br></td>
+              <td>{{ $task->billing_due_date }}</td>
               <td>
                 <div class="row">
                     <div class="col-md-12 form-inline cls_remove_rightpadding">
@@ -476,23 +488,21 @@
 
     $('.select-multiple').select2({width: '100%'});
 
-    let r_s = '';
+    /*let r_s = '';
     let r_e = '{{ date('y-m-d') }}';
 
     let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(6, 'days');
     let end =   r_e ? moment(r_e,'YYYY-MM-DD') : moment();
 
     jQuery('input[name="range_start"]').val(start.format('YYYY-MM-DD'));
-    jQuery('input[name="range_end"]').val(end.format('YYYY-MM-DD'));
+    jQuery('input[name="range_end"]').val(end.format('YYYY-MM-DD'));*/
 
     function cb(start, end) {
         $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
     }
 
     $('#reportrange').daterangepicker({
-        startDate: start,
         maxYear: 1,
-        endDate: end,
         ranges: {
             'Today': [moment(), moment()],
             'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
@@ -503,7 +513,12 @@
         }
     }, cb);
 
-    cb(start, end);
+    var sStart = jQuery('input[name="range_start"]').val();
+    var sEnd = jQuery('input[name="range_end"]').val();
+
+    if(sStart != "") {
+      cb(moment(sStart,'YYYY-MM-DD'), moment(sEnd,'YYYY-MM-DD'));
+    }
 
     $('#reportrange').on('apply.daterangepicker', function(ev, picker) {
 
@@ -511,6 +526,43 @@
         jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
 
     });
+
+
+    function cbc(start, end) {
+        $('#reportrange_duedate span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    }
+
+    
+    $('#reportrange_duedate').daterangepicker({
+        maxYear: 1,
+        ranges: {
+            'Today': [moment(), moment()],
+            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+            'This Month': [moment().startOf('month'), moment().endOf('month')],
+            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
+    }, cbc);
+
+    var selectStart = jQuery('input[name="range_due_start"]').val();
+    var selectEnd = jQuery('input[name="range_due_end"]').val();
+
+    if(selectStart != "") {
+      cbc(moment(selectStart,'YYYY-MM-DD'), moment(selectEnd,'YYYY-MM-DD'));
+    }
+
+
+    $('#reportrange_duedate').on('apply.daterangepicker', function(ev, picker) {
+       alert(picker.startDate.format('YYYY-MM-DD'));
+
+        jQuery('input[name="range_due_start"]').val(picker.startDate.format('YYYY-MM-DD'));
+        jQuery('input[name="range_due_end"]').val(picker.endDate.format('YYYY-MM-DD'));
+
+    });
+
+
+    
 
     $(document).on('click', '.expand-row', function() {
       var selection = window.getSelection();

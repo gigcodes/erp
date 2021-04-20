@@ -102,7 +102,8 @@ class Product extends Model
         'size',
         'color',
         'suggested_color',
-        'last_brand'
+        'last_brand',
+        'sub_status_id'
     ];
 
     protected $dates = ['deleted_at'];
@@ -1085,15 +1086,30 @@ class Product extends Model
             || !$this->hasMedia(\Config('constants.media_original_tag'))
         ) {
             $this->status_id = StatusHelper::$requestForExternalScraper;
+            if(empty($this->name)) {
+                $this->sub_status_id = StatusHelper::$unknownTitle;
+            }
+
+            if(empty($this->short_description)) {
+                $this->sub_status_id = StatusHelper::$unknownDescription;
+            }
+
+            if(empty($this->price)) {
+                $this->sub_status_id = StatusHelper::$unknownPrice;
+            }
+
             $this->save();
         }else if(empty($this->composition) || empty($this->color) || empty($this->category || $this->category < 1)) {
 
             if(empty($this->composition)) {
                 $this->status_id = StatusHelper::$requestForExternalScraper;
+                $this->sub_status_id = StatusHelper::$unknownComposition;
             }else if(empty($this->color)) {
                 $this->status_id = StatusHelper::$requestForExternalScraper;
+                $this->sub_status_id = StatusHelper::$unknownColor;
             }else {
                 $this->status_id = StatusHelper::$requestForExternalScraper;
+                $this->sub_status_id = StatusHelper::$unknownCategory;
             }
             
             $this->save();
@@ -1101,6 +1117,7 @@ class Product extends Model
             && (in_array($this->category,self::BAGS_CATEGORY_IDS) || in_array($parentcate,self::BAGS_CATEGORY_IDS))
         ) {
             $this->status_id = StatusHelper::$unknownMeasurement;
+            $this->sub_status_id = null;
             $this->save();
         } else{
 
@@ -1108,6 +1125,7 @@ class Product extends Model
             $descriptionCount = $this->suppliers_info->count();
             if($descriptionCount <= 1) {
                 $this->status_id = StatusHelper::$requestForExternalScraper;
+                $this->sub_status_id = StatusHelper::$unknownDescription;
                 $this->save();
             }
 
@@ -1115,12 +1133,20 @@ class Product extends Model
             if($this->status_id == StatusHelper::$requestForExternalScraper) {
                 if(empty($this->size_eu)) {
                    $this->status_id =  StatusHelper::$unknownSize;
+                   $this->sub_status_id = null;
                    $this->save();
                 }else{
                    $this->status_id =  StatusHelper::$autoCrop;
+                   $this->sub_status_id = null;
                    $this->save();
                 }
             }
+        }
+
+        // if status not request for external scraper then store it
+        if($this->status_id != StatusHelper::$requestForExternalScraper) {
+           $this->sub_status_id = null;
+           $this->save();
         }
     }
 
@@ -1175,6 +1201,7 @@ class Product extends Model
             'products.stock',
             'psu.size_system',
             'status_id',
+            'sub_status_id',
             'products.created_at',
             'inventory_status_histories.date as history_date',
             \DB::raw('count(distinct psu.id) as total_product')

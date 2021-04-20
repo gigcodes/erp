@@ -998,6 +998,7 @@ class ProductInventoryController extends Controller
 
 	public function inventoryList(Request $request)
     {
+    	ini_set("memory_limit", -1);
     	$filter_data = $request->input();
 		$inventory_data = \App\Product::getProducts($filter_data);
 
@@ -1291,9 +1292,10 @@ class ProductInventoryController extends Controller
 	{
 		$suppliers = \App\Supplier::all();
 		$inventory = \App\InventoryStatusHistory::select('created_at','supplier_id',DB::raw('count(distinct product_id) as product_count_count,GROUP_CONCAT(product_id) as brand_products'))
-			->whereDate('created_at','>', Carbon::now()->subDays(7))
+			->whereDate('created_at','>=', Carbon::now()->subDays(7))
 			->where('in_stock','>',0)
 			->groupBy('supplier_id');
+
 
 		if($request->supplier) {
 			$inventory = $inventory->where('supplier_id',$request->supplier);
@@ -1357,4 +1359,25 @@ class ProductInventoryController extends Controller
 
 		return view("product-inventory.brand-history",compact('inventory'));
 	}
+
+	public function mergeScrapBrand(Request $request)
+	{
+		$scraperBrand 	= $request->get("scraper_brand");
+		$originalBrand  = $request->get("product_brand");
+
+		if(!empty($scraperBrand) && !empty($originalBrand)) {
+			$updateQuery = \DB::statement('update products join scraped_products as sp on sp.sku = products.sku 
+						join brands as b1 on b1.id = products.brand
+						join brands as b2 on b2.id = sp.brand_id
+						set products.brand = sp.brand_id , products.last_brand = products.brand
+						where b1.name = ? and b2.name = ?',[$originalBrand,$scraperBrand]);
+
+		}else{
+			return redirect()->back()->with('error', 'Please enter product brand and scraper brand');
+		}
+
+		return redirect()->back()->with('message', 'Product(s) updated successfully');
+
+	}
+
 }

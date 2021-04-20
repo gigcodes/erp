@@ -55,6 +55,13 @@ class ScrapStatisticsController extends Controller
         $timeDropDown = self::get_times();
 
         $serverIds = Scraper::groupBy('server_id')->where('server_id', '!=', null)->pluck('server_id');
+        $getLatestOptimization = \App\ScraperServerStatusHistory::whereRaw("id in (
+            SELECT MAX(id)
+            FROM scraper_server_status_histories
+            GROUP BY server_id
+        )")
+        ->pluck('in_percentage','server_id')->toArray();
+
 
         // Get active suppliers
         $activeSuppliers = Scraper::join("suppliers as s", "s.id", "scrapers.supplier_id")
@@ -124,7 +131,7 @@ class ScrapStatisticsController extends Controller
                 ' . ($request->excelOnly == -1 ? 'ls.website NOT LIKE "%_excel" AND' : '') . '
                 ls.last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)
             GROUP BY
-                ls.website
+                sc.id
             ORDER BY
                 sc.scraper_priority desc
         ';
@@ -145,7 +152,7 @@ class ScrapStatisticsController extends Controller
         $users       = \App\User::all()->pluck("name", "id")->toArray();
         $allScrapper = Scraper::whereNull('parent_id')->pluck('scraper_name', 'id')->toArray();
         // Return view
-        return view('scrap.stats', compact('activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper'));
+        return view('scrap.stats', compact('activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper','getLatestOptimization'));
     }
 
     /**
@@ -732,15 +739,30 @@ class ScrapStatisticsController extends Controller
                 foreach($scrapers as $s) {
                     $listOfServerUsed["$tms"][$s->server_id][] = [
                         "scraper_name" => $s->scraper_name,
-                        "memory_string"  => "T: ".$s->total_memory." U:".$s->used_memory." P:".$s->in_percentage
+                        "memory_string"  => "T: ".$s->total_memory." U:".$s->used_memory." P:".$s->in_percentage,
+                        "pid"  => $s->pid
                     ];
                 }
             }
         }
 
-        //echo "<pre>"; print_r($listOfServerUsed);  echo "</pre>";die;
-
         return view("scrap.server-history", compact('totalServers','timeSlots','requestedDate','listOfServerUsed'));
+    }
+
+    public function endJob(Request $request)
+    {
+        $pid    = $request->get("pid");
+        $server = $request->get("server_id");
+
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH'). '/scraper-kill.sh '.$server.' '.$pid. ' 2>&1';
+        
+        $allOutput      = array();
+        $allOutput[]    = $cmd;
+        $result         = exec($cmd, $allOutput);
+
+        \Log::info(print_r($result,true));
+
+        return response()->json(["code" => 200 , "message" => "Your job has been stopped"]);
     }
 
 }

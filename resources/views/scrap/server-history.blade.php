@@ -39,12 +39,16 @@
                           <?php foreach($totalServers as $s => $totalServer){ ?>
                               <td class="p-2">
                                   <?php
-                                        if(isset($listOfServerUsed[$k]) && isset($listOfServerUsed[$k][$totalServer])) {
-                                            $loops = $listOfServerUsed[$k][$totalServer];
-                                            foreach($loops as $l) {
-                                                echo '<span class="badge badge-secondary">'.$l['scraper_name']." ".$l['memory_string'].'</span><br>';
+                                    if(isset($listOfServerUsed[$k]) && isset($listOfServerUsed[$k][$totalServer])) {
+                                        $loops = $listOfServerUsed[$k][$totalServer];
+                                        foreach($loops as $l) {
+                                            $deleteBtn = "";
+                                            if(!empty($l['pid'])) {
+                                                $deleteBtn = '&nbsp;<i data-server-id="'.$totalServer.'" data-p-id="'.$l['pid'].'" class="fa fa-window-close stop-job" aria-hidden="true"></i>';
                                             }
+                                            echo '<span class="badge badge-secondary">'.$l['scraper_name']." ".$l['memory_string'].$deleteBtn.'</span><br>';
                                         }
+                                    }
                                   ?>
                               </td>
                           <?php } ?>
@@ -67,5 +71,33 @@
                 format: 'YYYY-MM-DD'
             });
         });
+
+        $(document).on("click",".stop-job",function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            var serverID = $this.data("server-id");
+            var pID = $this.data("p-id");
+
+            if(serverID == "" || pID == "") {
+              toastr['error']("Server id or PID is not setup", 'error');
+              return false;
+            }
+
+            if(confirm("Are you sure you want to do kill job?")) {
+                
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ route('statistics.server-history.close-job') }}',
+                    data: {
+                      pid : pID,
+                      server_id : serverID
+                    },
+                    dataType:"json"
+                }).done(response => {
+                    toastr['success'](response.message, 'success');
+                });
+            }
+        });
+
     </script>
 @endsection

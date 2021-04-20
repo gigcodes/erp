@@ -62,6 +62,9 @@
             {!! Form::select('product_status[]',$status_list, request("product_status",[]), ['data-placeholder' => 'Select a Status','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
         </div>
         <div class="form-group mr-pd col-md-1">
+            {!! Form::select('product_sub_status[]',\App\Helpers\StatusHelper::subStatus(), request("product_sub_status",[]), ['data-placeholder' => 'Select a sub status','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
+        </div>
+        <div class="form-group mr-pd col-md-1">
             {!! Form::checkbox('no_category',"on",request("no_category"), ['class' => 'form-control']) !!} No Category
         </div>
         <div class="form-group mr-pd col-md-1">
@@ -115,6 +118,7 @@
                 <th>Size</th>
                 <th>Size(IT)</th>
                 <th>Status</th>
+                <th>Sub Status</th>
                 <th>Created Date</th>
                 <th>Actions</th>
             </tr>

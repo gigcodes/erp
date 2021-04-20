@@ -209,7 +209,7 @@
                         @if ( (stristr($supplier->scraper_name, '_excel') && (int) $excelOnly > -1 ) || (!stristr($supplier->scraper_name, '_excel') && (int) $excelOnly < 1 ) )
                             @php $data = null; @endphp
                             @foreach($scrapeData as $tmpData)
-                                @if ( !empty($tmpData->website) && $tmpData->website == $supplier->scraper_name )
+                                @if ( !empty($tmpData->website) && strtolower($tmpData->website) == strtolower($supplier->scraper_name) )
                                     @php $data = $tmpData; $arMatchedScrapers[] = $supplier->scraper_name @endphp
                                 @endif
                             @endforeach
@@ -264,6 +264,7 @@
                                             @endforeach
                                         </select><br>
                                         <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="server_id" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
+                                        @if(isset($getLatestOptimization[$supplier->server_id])) {{ $getLatestOptimization[$supplier->server_id] }} @endif
                                 </div>
                             </td>
                             <td width="4%">

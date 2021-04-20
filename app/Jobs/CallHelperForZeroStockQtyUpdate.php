@@ -3,25 +3,26 @@
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use seo2websites\MagentoHelper\MagentoHelper;
+use App\Helpers\ProductHelper;
 
 class CallHelperForZeroStockQtyUpdate implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private $zeroStock;
+    private $products;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct( $zeroStock )
+    public function __construct($products)
     {
-        $this->zeroStock = $zeroStock;
+        $this->products = $products;
     }
 
     /**
@@ -31,11 +32,24 @@ class CallHelperForZeroStockQtyUpdate implements ShouldQueue
      */
     public function handle()
     {
-        if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-            
-            MagentoHelper::callHelperForZeroStockQtyUpdate($this->zeroStock);
-
-            \Log::info('inventory:update Jobs Run');
+        $zeroStock = [];
+        if (!empty($this->product)) {
+            foreach ($this->product as $item) {
+                $websiteArrays = ProductHelper::getStoreWebsiteName($item['product_id']);
+                if (count($websiteArrays) > 0) {
+                    foreach ($websiteArrays as $websiteArray) {
+                        $zeroStock[$websiteArray]['stock'][] = array('sku' => $item['sku'], 'qty' => 0);
+                    }
+                }
+            }
         }
+
+        if(!empty($zeroStock)) {
+            if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                MagentoHelper::callHelperForZeroStockQtyUpdate($zeroStock);
+                \Log::info('inventory:update Jobs Run');
+            }
+        }
+
     }
 }

@@ -55,7 +55,10 @@ class HubstaffActivity extends Model
 
     public static function getTrackedActivitiesBetween($start, $end,$user_id)
     {
-        return self::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at','>=',$start)->whereDate('hubstaff_activities.starts_at','<=',$end)->where('hubstaff_members.user_id',$user_id)->where('hubstaff_activities.status',1)->where('hubstaff_activities.paid',0)->select('hubstaff_activities.*')->get();
+        return self::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at','>=',$start)->whereDate('hubstaff_activities.starts_at','<=',$end)->where('hubstaff_members.user_id',$user_id)->where('hubstaff_activities.status',1)->where('hubstaff_activities.paid',0)
+        ->orderBy('hubstaff_activities.starts_at',"asc")
+        ->select('hubstaff_activities.*')
+        ->get();
     }
 
     /**

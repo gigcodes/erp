@@ -14,6 +14,7 @@ use App\GoogleAnalyticsGeoNetwork;
 use App\GoogleAnalyticsUser;
 use App\GoogleAnalyticsAudience;
 use App\Setting;
+use App\GoogleAnalyticsHistories;
 use Spatie\Analytics\Period;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Input;
@@ -206,6 +207,11 @@ class AnalyticsController extends Controller
         }
     }
 
+    public function history( Request $request ){
+        $history = GoogleAnalyticsHistories::orderBy("created_at","desc")->get();
+        return response()->json( ["code" => 200 , "data" => $history] );
+    }
+
     public function cronGetUserShowData(){
 
         \Log::channel('daily')->info("Google Analytics Cron running ...");
@@ -243,11 +249,26 @@ class AnalyticsController extends Controller
                 $resultData = getAudiencesData( $analyticsObj ,$requestObj);
                 $Audiences  = printAudienceResults( $resultData , $value['id']);
 
-                \Log::error('google-analytics :: Daily run success');
-                return;
+                \Log::info('google-analytics :: Daily run success');
+
+                $history = array(
+                    'website'     => $value['website'], 
+                    'account_id'  => $value['id'],
+                    'title'       => 'success',
+                    'description' => 'Data fetched successfully'
+                );
+                GoogleAnalyticsHistories::insert($history);
+                
             }catch(\Exception  $e) {
+
+                $history = array(
+                    'website'     => $value['website'], 
+                    'account_id'  => $value['id'],
+                    'title'       => 'error',
+                    'description' => $e->getMessage()
+                );
+                GoogleAnalyticsHistories::insert($history);
                 \Log::error('google-analytics :: '.$e->getMessage());
-                return;
             }
         }
         return;

@@ -70,7 +70,7 @@
 					  <div class="row">
 				  			<div class="form-group" style="margin-left: 2px">
 							    <label for="customer_id">Search Customer ID:</label>
-							    <?php echo Form::text("customer_id",request("customer_id"),["class"=> "form-control","placeholder" => "Enter customer id"]) ?>
+							    <?php echo Form::select("customer_id",[],request("customer_id"),["class"=> "form-control customer-id-select","placeholder" => "Enter customer id","style" => "width:350px;"]) ?>
 						  	</div>
 						  	<div class="form-group" style="margin-left: 2px">
 							    <label for="customer_name">Search Name:</label>
@@ -704,7 +704,6 @@
             customerSearch : function(ele) {
                 ele.select2({
                     tags: true,
-                    width : '100%',
                     ajax: {
                         url: '/erp-leads/customer-search',
                         dataType: 'json',
@@ -1524,6 +1523,9 @@
     $(document).on('change', '.quickComment', function () {
         siteHelpers.changeQuickComment($(this));
     });
+
+    siteHelpers.customerSearch($(".customer-id-select"));
+
     $(document).on("click",".add-chat-phrases",function(e) {
         e.preventDefault();
         // $("#addPhrases").find(".question").val($(this).data("message"));

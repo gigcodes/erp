@@ -410,7 +410,7 @@ class DevelopmentController extends Controller
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
         }
         else {
-            $issues = $issues->where('developer_tasks.status', 'In Progress');
+            //$issues = $issues->where('developer_tasks.status', 'In Progress');
         }
 
         $whereCondition = "";
