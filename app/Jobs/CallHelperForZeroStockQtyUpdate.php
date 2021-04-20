@@ -35,7 +35,7 @@ class CallHelperForZeroStockQtyUpdate implements ShouldQueue
         $zeroStock = [];
         if (!empty($this->product)) {
             foreach ($this->product as $item) {
-                $websiteArrays = ProductHelper::getStoreWebsiteName($item['product_id']);
+                $websiteArrays = ProductHelper::getStoreWebsiteNameFromPushed($item['product_id']);
                 if (count($websiteArrays) > 0) {
                     foreach ($websiteArrays as $websiteArray) {
                         $zeroStock[$websiteArray]['stock'][] = array('sku' => $item['sku'], 'qty' => 0);
