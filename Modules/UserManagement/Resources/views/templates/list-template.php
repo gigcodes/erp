@@ -120,37 +120,38 @@ a {
 					<a title="Task Hours" class="btn btn-image load-tasktime-modal" data-id="{{:prop.id}}"><i class="fa fa-tasks" aria-hidden="true"></i></a>
 					<button type="button" class="btn send-email-common-btn" data-toemail="{{:prop.email}}" data-object="user" data-id="{{:prop.id}}"><i class="fa fa-envelope-square"></i></button>
 					{{if prop.team}}
-										<span class="expand-row">
-										<span class="div-team-mini">
-												<span><span><strong> {{if prop.team.name}} {{:prop.team.name}} {{else}} 'Team' {{/if}} :</strong> ({{:prop.team_leads}})</span></span>
-											</span>
-											<span class="div-team-max hidden">
-											{{if prop.name}}
-											{{props prop.team_members}}
-												<p style="margin:0px;" class="search-team-member" data-keyword="{{:prop.name}}"> {{:prop.name}}</p>
-											{{/props}}
-											{{/if}}
-											</span>
-										</span>
-										<br>
-										{{/if}}
-									<?php if(Auth::user()->isAdmin()) { ?>
-									{{if prop.is_active == 1}}
-									<button title="Deactive user" type="button" class="btn btn-image change-activation pd-5" data-id="{{:prop.id}}"><img src="/images/do-disturb.png" /></button>
-									{{else}}
-									<button title="Activate user" type="button" class="btn btn-image change-activation pd-5" data-id="{{:prop.id}}"><img src="/images/do-not-disturb.png" /></button>
-									{{/if}}
-									{{if !prop.user_in_team}}
-									<button type="button" class="btn btn-image load-team-add-modal pd-5" data-id="{{:prop.id}}"><img src="/images/add.png" /></button>
-									{{/if}}
-									{{if prop.team}}
-									<button title="Edit Team" type="button" class="btn btn-image load-team-modal pd-5" data-id="{{:prop.id}}"><img src="/images/edit.png" /></button>
-									{{/if}}
-									<?php } ?>
-									<button title="View user avaibility" type="button" class="btn btn-image load-avaibility-modal pd-5" data-id="{{:prop.id}}"> <i class="fa fa-check" aria-hidden="true"></i></button>
-									{{if !prop.already_approved}}
-									<button title="Approve user for the day" type="button" class="btn approve-user pd-5" data-id="{{:prop.id}}"> <i class="fa fa-check-circle" aria-hidden="true"></i></button>
-									{{/if}}
+						<span class="expand-row">
+						<span class="div-team-mini">
+								<span><span><strong> {{if prop.team.name}} {{:prop.team.name}} {{else}} 'Team' {{/if}} :</strong> ({{:prop.team_leads}})</span></span>
+							</span>
+							<span class="div-team-max hidden">
+							{{if prop.name}}
+							{{props prop.team_members}}
+								<p style="margin:0px;" class="search-team-member" data-keyword="{{:prop.name}}"> {{:prop.name}}</p>
+							{{/props}}
+							{{/if}}
+							</span>
+						</span>
+						<br>
+					{{/if}}
+					<?php if(Auth::user()->isAdmin()) { ?>
+						{{if prop.is_active == 1}}
+							<button title="Deactive user" type="button" class="btn btn-image change-activation pd-5" data-id="{{:prop.id}}"><img src="/images/do-disturb.png" /></button>
+						{{else}}
+							<button title="Activate user" type="button" class="btn btn-image change-activation pd-5" data-id="{{:prop.id}}"><img src="/images/do-not-disturb.png" /></button>
+						{{/if}}
+						{{if !prop.user_in_team}}
+							<button type="button" class="btn btn-image load-team-add-modal pd-5" data-id="{{:prop.id}}"><img src="/images/add.png" /></button>
+						{{/if}}
+						{{if prop.team}}
+							<button title="Edit Team" type="button" class="btn btn-image load-team-modal pd-5" data-id="{{:prop.id}}"><img src="/images/edit.png" /></button>
+						{{/if}}
+					<?php } ?>
+					<button title="View user avaibility" type="button" class="btn btn-image load-avaibility-modal pd-5" data-id="{{:prop.id}}"> <i class="fa fa-check" aria-hidden="true"></i></button>
+					{{if !prop.already_approved}}
+						<button title="Approve user for the day" type="button" class="btn approve-user pd-5" data-id="{{:prop.id}}"> <i class="fa fa-check-circle" aria-hidden="true"></i></button>
+					{{/if}}
+						<button title="Create database" type="button" class="btn btn-create-database pd-5" data-id="{{:prop.id}}"> <i class="fa fa-database" aria-hidden="true"></i></button>
 					</td>
 			      </tr>
 			    {{/props}}  
@@ -213,4 +214,67 @@ a {
 		</div>
 	</div>			
 </script>
-
+<script type="text/x-jsrender" id="template-create-database">
+	<div class="modal-content">
+	   <div class="modal-header">
+	      <h5 class="modal-title">Create Database</h5>
+	      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	      <span aria-hidden="true">&times;</span>
+	      </button>
+	   </div>
+	   <div class="modal-body">
+			<div class="row">
+				<div class="col-lg-12">
+					<form>
+						<?php echo csrf_field(); ?>
+						<input type="hidden" name="database_user_id" id="database-user-id" value="{{:data.user_id}}">
+					  	<div class="row">
+					    	<div class="col">
+					      		<input type="text" name="username" value="{{:data.user_name}}" class="form-control" placeholder="Enter username">
+					      	</div>
+					      	<div class="col">
+					      		<input type="text" name="password" value="{{:data.password}}" class="form-control" placeholder="Enter password">
+					      	</div>
+					    	<div class="col">
+					      		<button type="button" class="btn btn-secondary create-database-add" data-id="{{:data.user_id}}">ADD</button>
+					    	</div>
+					  	</div>
+					</form>
+				</div>
+			</div>
+			<div class="row mt-5">		
+				<form>
+					<?php echo csrf_field(); ?>
+					<div class="col-lg-12">
+						<div class="row">
+					    	<div class="col">
+					      		<input type="text" name="search" class="form-control search-table" placeholder="Search Table name">
+					      	</div>
+					      	<div class="col">
+					      		<button type="button" class="btn btn-secondary assign-permission" data-id="{{:data.user_id}}">Assign Permission</button>
+					    	</div>
+					  	</div>	
+					</div>	
+					<div class="col-lg-12 mt-2">
+						<table class="table table-bordered" id="database-table-list">
+						    <thead>
+						      <tr>
+						      	<th width="5%"></th>
+						      	<th width="95%">Table name</th>
+						      </tr>
+						    </thead>
+						    <tbody>
+						    	{{props data.tables}}
+							      <tr>
+							      	<td><input {{if prop.checked== true}} checked="checked" {{/if}} type="checkbox" name="tables[]" value="{{:prop.table}}"></td>
+							      	<td>{{:prop.table}}</td>
+							      </tr>
+							    {{/props}}  
+						    </tbody>
+						</table>
+					</div>	
+				</form>
+			</div>
+		</div>
+	</div>
+</script>
