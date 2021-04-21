@@ -1524,6 +1524,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/', 'ProductTemplatesController@index')->name('product.templates');
         Route::get('response', 'ProductTemplatesController@response');
         Route::post('create', 'ProductTemplatesController@create');
+        Route::post('reload-image', 'ProductTemplatesController@fetchImage');
         Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
         Route::get('select-product-id', 'ProductTemplatesController@selectProductId');
         Route::get('image', 'ProductTemplatesController@imageIndex');
