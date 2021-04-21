@@ -608,6 +608,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     //view
     Route::get('order/view-invoice/{id}', 'OrderController@viewInvoice')->name('order.view.invoice');
+    Route::get('order/invoices/{id}/get-details', 'OrderController@getInvoiceDetails')->name('order.view.invoice.get.details');
+    Route::post('order/invoices/{id}/update-details', 'OrderController@updateDetails')->name('order.view.invoice.update.details');
+
    //TODO web - added by jammer
     Route::get('order/download-invoice/{id}', 'OrderController@downloadInvoice')->name('order.download.invoice');
     Route::post('order/update-customer-address', 'OrderController@updateCustomerInvoiceAddress')->name('order.update.customer.address');
