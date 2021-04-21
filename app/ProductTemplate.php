@@ -39,7 +39,10 @@ class ProductTemplate extends Model
         'discounted_price',
         'product_id',
         'is_processed',
-        'store_website_id',
+        'template_status',
+        'image_url',
+        'uid',
+        'store_website_id'
     ];
 
     public function brand()

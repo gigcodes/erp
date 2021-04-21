@@ -391,7 +391,10 @@ class ProductTemplatesController extends Controller
         }
 
         $params['product_id'] = implode(',', (array)$params['product_id']);
-      
+        if( $request->modifications_array ){
+            $params['background_color']  = $request->modifications_array[0]['background'] ?? null;
+            $params['text']  = $request->modifications_array[0]['text'] ?? null;
+        }
 
         $template->fill($params);
 
@@ -416,7 +419,7 @@ class ProductTemplatesController extends Controller
                 }
             }
 
-            $this->makeBearBannerImage($request,$imagesArray,$template);
+            return $res = $this->makeBearBannerImage($request,$imagesArray,$template);
         }
 
         return response()->json(["code" => 1, "message" => "Product Template Created successfully!"]);
@@ -428,53 +431,49 @@ class ProductTemplatesController extends Controller
 
        // echo '<pre>';print_r(json_encode($request->modifications_array));die;
 
-        $modifications=[];
+        try {
+            
+       
+            $modifications=[];
 
-        if($request->modifications_array)
-        {
-           foreach ($request->modifications_array as $key => $value) {
-               array_push($modifications, $value);
+            if($request->modifications_array)
+            {
+               foreach ($request->modifications_array as $key => $value) {
+                   array_push($modifications, $value);
+               }
+            }
+
+           if(count($imagesArray))
+           {
+                 foreach ($imagesArray as $key => $image_url) {
+                  $key=$key+1;
+                    //$row=$image_url;
+                    array_push($modifications,array('name'=>'product_'.$key,'image_url'=>$image_url));
+
+                 }
            }
+
+            $body=array('template'=>$template->template->uid,'modifications'=>$modifications,'webhook_url'=>route('api.product.update.webhook'),'metadata'=>$template->id);
+
+
+            $url=env('BANNER_API_LINK').'/images';
+            $api_key=env('BANNER_API_KEY');
+
+            $headers=   [
+                    'Authorization' => 'Bearer ' . $api_key,
+                    'Content-Type' => 'application/json'
+                ];
+
+            $response = \App\Helpers\GuzzleHelper::post($url,$body,$headers);
+            
+            if( isset( $response->uid ) ){
+                ProductTemplate::where('id',$template->id)->update([ 'uid' => $response->uid, 'template_status' => $response->status ]);
+            }
+            return response()->json(["code" => 1, "message" => "Product Template Created successfully!"]);
+
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            return response()->json(["code" => 0, "message" => json_decode($e->getResponse()->getBody()->getContents())->message]);
         }
-
-        
-
-        
-
-                      if(count($imagesArray))
-                      {
-                         foreach ($imagesArray as $key => $image_url) {
-                          $key=$key+1;
-                            //$row=$image_url;
-                            array_push($modifications,array('name'=>'product_'.$key,'image_url'=>$image_url));
-
-                         }
-                      }
-
-                      
-
-                   //   echo json_encode($modifications);die;
-
-      $body=array('template'=>$template->template->uid,'modifications'=>$modifications,'webhook_url'=>route('api.product.update.webhook'),'metadata'=>$template->id);
-
-      //echo json_encode($body);
-
-      $url=env('BANNER_API_LINK').'/images';
-
-        $api_key=env('BANNER_API_KEY');
-
-        //echo $api_key;die;
-
-        $headers=   [
-                        'Authorization' => 'Bearer ' . $api_key,
-                        'Content-Type' => 'application/json'
-                    ];
-
-
-         $response=\App\Helpers\GuzzleHelper::post($url,$body,$headers);
-
-         return $response;
-
         
     }
 
@@ -503,6 +502,29 @@ class ProductTemplatesController extends Controller
 
 
              }
+        }
+    }
+
+    public function fetchImage(Request $request)
+    {   
+        try {
+            $url=env('BANNER_API_LINK').'/images/'.$request->uid;
+            $api_key=env('BANNER_API_KEY');
+
+            $headers=   [
+                'Authorization' => 'Bearer ' . $api_key,
+                'Content-Type' => 'application/json'
+            ];
+
+            $response = \App\Helpers\GuzzleHelper::get($url,$headers);
+            
+            if( isset( $response->uid ) ){
+                ProductTemplate::where('id',$response->metadata)->where( 'uid', $response->uid )->update([ 'template_status' => $response->status, 'image_url' => $response->image_url_png ]);
+            }
+            return response()->json(["code" => 1, "message" => "Image fetched successfully!" , "image" => $response->image_url_png ]);
+
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            return response()->json(["code" => 0, "message" => json_decode($e->getResponse()->getBody()->getContents())->message]);
         }
     }
 

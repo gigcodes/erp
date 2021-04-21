@@ -86,6 +86,15 @@
                    <?php echo Form::select("store_website_id",\App\StoreWebsite::pluck('title','id')->toArraY(),null,["class" => "form-control"]); ?>
                 </div>
              </div>
+             <div class="form-group row">
+                <label  class="col-sm-3 col-form-label">Generate image From</label>
+                <div class="col-sm-6">
+                   <select class="form-control" name="generate_image_from" aria-invalid="false">
+                        <option value="banner-bear">Banner bear</option>
+                        <option value="python-script">Python Script</option>
+                    </select>
+                </div>
+             </div>
              <div class="form-group row show-product-image"> </div>
              <div class="form-group row">
               <div class="col-sm-3 imgUp">
