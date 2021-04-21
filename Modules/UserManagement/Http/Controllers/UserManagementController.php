@@ -1227,6 +1227,8 @@ class UserManagementController extends Controller
     {
         $database = \App\UserDatabase::where("user_id",$id)->first();
         $tables   = $request->tables;
+        $permissionType = $request->get("assign_permission","read");
+
         if($database && !empty($tables)) {
             
             $tablesExisting = \App\UserDatabaseTable::where("user_database_id",$database->id)->pluck('name','id')->toArray();
@@ -1256,7 +1258,7 @@ class UserManagementController extends Controller
             }
 
             
-            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f update  -u "'.$database->username.'" -t '.implode(",",$tables).' 2>&1';
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f update  -u "'.$database->username.'" -t '.implode(",",$tables).' -m "'.$permissionType.'" 2>&1';
             $allOutput   = array();
             $allOutput[] = $cmd;
             $result      = exec($cmd, $allOutput);

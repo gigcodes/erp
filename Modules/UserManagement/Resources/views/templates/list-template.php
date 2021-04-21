@@ -251,6 +251,12 @@ a {
 					      		<input type="text" name="search" class="form-control search-table" placeholder="Search Table name">
 					      	</div>
 					      	<div class="col">
+					      		<div class="form-group col-md-5">
+					      			<select class="form-control assign-permission-type" name="assign_permission">
+					      				<option value="read">Read</option>
+					      				<option value="write">Write</option>
+					      			</select>
+					      		</div>
 					      		<button type="button" class="btn btn-secondary assign-permission" data-id="{{:data.user_id}}">Assign Permission</button>
 					    	</div>
 					  	</div>	
