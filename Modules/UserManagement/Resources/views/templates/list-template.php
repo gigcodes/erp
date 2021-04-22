@@ -237,6 +237,9 @@ a {
 					      	</div>
 					    	<div class="col">
 					      		<button type="button" class="btn btn-secondary create-database-add" data-id="{{:data.user_id}}">ADD</button>
+					      		{{if data.password}}
+					      			<button type="button" class="btn btn-secondary delete-database-access" data-id="{{:data.user_id}}">DELETE ACCESS</button>
+					      		{{/if}}
 					    	</div>
 					  	</div>
 					</form>
