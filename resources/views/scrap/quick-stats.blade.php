@@ -193,7 +193,7 @@
                                 @endif
                             </td>
                             
-                            <td width="3%">{{ !empty($data) ? $supplier->status : '' }}</td>
+                            <td width="3%">{{ $supplier->status ?? '' }}</td>
                             
                             <?php $totalCountedUrl += !empty($data) ? $data->total : 0; ?>
                             <td width="3%">{{ !empty($data->total) ? $data->total : '' }}</td>

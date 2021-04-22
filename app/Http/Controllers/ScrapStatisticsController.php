@@ -267,7 +267,11 @@ class ScrapStatisticsController extends Controller
         $users       = \App\User::all()->pluck("name", "id")->toArray();
         $allScrapper = Scraper::whereNull('parent_id')->pluck('scraper_name', 'id')->toArray();
         // Return view
-        return view('scrap.quick-stats', compact('activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper','getLatestOptimization'));
+        try {
+            return view('scrap.quick-stats', compact('activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper','getLatestOptimization'));
+        } catch (Exception $e) {
+            \Log::error('Quick-stats-page :: '.$e->getMessage());
+        }
     }    
 
     /**
