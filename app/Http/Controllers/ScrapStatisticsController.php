@@ -166,6 +166,111 @@ class ScrapStatisticsController extends Controller
     }
 
     /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function quickView(Request $request)
+    {
+        $endDate    = date('Y-m-d H:i:s');
+        $keyWord    = $request->get("term", "");
+        $madeby     = $request->get("scraper_made_by", 0);
+        $scrapeType = $request->get("scraper_type", 0);
+
+        $timeDropDown = self::get_times();
+
+        $serverIds = Scraper::groupBy('server_id')->where('server_id', '!=', null)->pluck('server_id');
+        $getLatestOptimization = \App\ScraperServerStatusHistory::whereRaw("id in (
+            SELECT MAX(id)
+            FROM scraper_server_status_histories
+            GROUP BY server_id
+        )")
+        ->pluck('in_percentage','server_id')->toArray();
+        
+
+        // Get active suppliers
+        $activeSuppliers = Scraper::join("suppliers as s", "s.id", "scrapers.supplier_id")
+            ->select('scrapers.id as scrapper_id', 'scrapers.*', "s.*", "scrapers.status as scrapers_status")
+            ->where('supplier_status_id', 1)
+            ->whereIn("scrapper", [1, 2])
+            ->whereNull('parent_id');
+
+        if (!empty($keyWord)) {
+            $activeSuppliers->where(function ($q) use ($keyWord) {
+                $q->where("s.supplier", "like", "%{$keyWord}%")->orWhere("scrapers.scraper_name", "like", "%{$keyWord}%");
+            });
+        }
+
+        
+
+        $activeSuppliers = $activeSuppliers->orderby('scrapers.flag', 'desc')->orderby('s.supplier', 'asc')->get();
+        // Get scrape data
+        $yesterdayDate = date("Y-m-d", strtotime("-1 day"));
+        $sql           = '
+            SELECT
+                s.id,
+                s.supplier,
+                sc.inventory_lifetime,
+                sc.scraper_new_urls,
+                sc.scraper_existing_urls,
+                sc.scraper_total_urls,
+                sc.scraper_start_time,
+                sc.scraper_logic,
+                sc.scraper_made_by,
+                sc.server_id,
+                sc.id as scraper_id,
+                ls.website,
+                ls.ip_address,
+                COUNT(ls.id) AS total,
+                SUM(IF(ls.validated=0,1,0)) AS failed,
+                SUM(IF(ls.validated=1,1,0)) AS validated,
+                SUM(IF(ls.validation_result LIKE "%[error]%",1,0)) AS errors,
+                SUM(IF(ls.validation_result LIKE "%[warning]%",1,0)) AS warnings,
+                SUM(IF(ls.created_at LIKE "%' . $yesterdayDate . '%",1,0)) AS total_new_product,
+                MAX(ls.last_inventory_at) AS last_scrape_date,
+                IF(MAX(ls.last_inventory_at) < DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY),0,1) AS running
+            FROM
+                suppliers s
+            JOIN
+                scrapers sc
+            ON
+                sc.supplier_id = s.id
+            JOIN
+                scraped_products ls
+            ON
+                sc.scraper_name=ls.website
+            WHERE
+                sc.scraper_name IS NOT NULL AND
+                ls.website != "internal_scraper" AND
+                ' . ($request->excelOnly == 1 ? 'ls.website LIKE "%_excel" AND' : '') . '
+                ' . ($request->excelOnly == -1 ? 'ls.website NOT LIKE "%_excel" AND' : '') . '
+                ls.last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)
+            GROUP BY
+                sc.id
+            ORDER BY
+                sc.scraper_priority desc
+        ';
+        $scrapeData = DB::select($sql);
+
+        $allScrapperName = [];
+
+        if (!empty($scrapeData)) {
+            foreach ($scrapeData as $data) {
+                if (isset($data->id) && $data->id > 0) {
+                    $allScrapperName[$data->id] = $data->website;
+                }
+            }
+        }
+
+        $lastRunAt = \DB::table("scraped_products")->groupBy("website")->select([\DB::raw("MAX(last_inventory_at) as last_run_at"), "website"])->pluck("last_run_at", "website")->toArray();
+
+        $users       = \App\User::all()->pluck("name", "id")->toArray();
+        $allScrapper = Scraper::whereNull('parent_id')->pluck('scraper_name', 'id')->toArray();
+        // Return view
+        return view('scrap.quick-stats', compact('activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper','getLatestOptimization'));
+    }    
+
+    /**
      * Store a newly created resource in storage.
      *
      * @param \Illuminate\Http\Request $request

@@ -1887,6 +1887,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::post('statistics/reply/delete', 'ScrapStatisticsController@deleteReply');
     Route::get('statistics/server-history', 'ScrapStatisticsController@serverHistory');
     Route::get('statistics/server-history/close-job', 'ScrapStatisticsController@endJob')->name("statistics.server-history.close-job");
+    Route::get('quick-statistics', 'ScrapStatisticsController@quickView')->name("statistics.quick");
     Route::resource('statistics', 'ScrapStatisticsController');
     Route::get('getremark', 'ScrapStatisticsController@getRemark')->name('scrap.getremark');
     Route::get('latest-remark', 'ScrapStatisticsController@getLastRemark')->name('scrap.latest-remark');
