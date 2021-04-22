@@ -1303,15 +1303,21 @@ class SupplierController extends Controller
     /**
      * @SWG\Post(
      *   path="/supplier/brands-raw",
-     *   tags={"Supplier"},
-     *   summary="post supplier brands",
-     *   operationId="post-supplier-brands",
+     *   tags={"Scraper"},
+     *   summary="Update supplier brand raw",
+     *   operationId="scraper-post-supplier-brands",
      *   @SWG\Response(response=200, description="successful operation"),
-     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=403, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
      *      @SWG\Parameter(
-     *          name="mytest",
-     *          in="path",
+     *          name="supplier_id",
+     *          in="formData",
+     *          required=true, 
+     *          type="integer" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="brands_raw",
+     *          in="formData",
      *          required=true, 
      *          type="string" 
      *      ),
