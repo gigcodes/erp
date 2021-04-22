@@ -235,9 +235,9 @@ class BrandController extends Controller
     /**
      * @SWG\Get(
      *   path="/brands",
-     *   tags={"Brands"},
-     *   summary="Get brands reference",
-     *   operationId="get-brands-reference",
+     *   tags={"Scraper"},
+     *   summary="List all brands and reference for scraper",
+     *   operationId="scraper-get-brands-reference",
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),

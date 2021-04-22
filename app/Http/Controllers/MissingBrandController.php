@@ -13,14 +13,18 @@ class MissingBrandController extends Controller
     /**
      * @SWG\Get(
      *   path="/missing-brand/save",
-     *   tags={"Missing Brand"},
-     *   summary="Save missing brand",
-     *   operationId="save-missing-brand",
+     *   tags={"Scraper"},
+     *   summary="Save unknown brand",
+     *   operationId="scraper-save-missing-brand",
      *   @SWG\Response(response=200, description="successful operation"),
-     *   @SWG\Response(response=406, description="not acceptable"),
-     *   @SWG\Response(response=500, description="internal server error"),
      *      @SWG\Parameter(
-     *          name="mytest",
+     *          name="name",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="supplier",
      *          in="path",
      *          required=true, 
      *          type="string" 
