@@ -77,6 +77,7 @@
 <div id="display-area"></div>
 @include("product-template.partials.list-template")
 @include("product-template.partials.create-form-template")
+@include("partials.modals.large-image-modal")
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsrender/1.0.5/jsrender.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -90,6 +91,45 @@
 		ddlSelectProduct : {!! json_encode($productArr) !!},
 	});
 
+	function bigImg(img){
+        $('#image_crop').attr('src',img);
+        $('#largeImageModal').modal('show');
+    }
+
+    $(document).on('click','.reload-image',function(){
+    	var uid = $(this).data('uid');
+    	var btn = $(this);
+    	if( uid == '' ){
+    		return false;
+    	}
+
+    	$.ajax({
+
+	        type: 'POST',
+	        url: '/product-templates/reload-image',
+	        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+	        data: {
+	            uid: uid,
+	        },
+
+	        beforeSend: function () {
+	            btn.find('i').addClass('fa-spin');
+	        },
+	        success: function (data) {
+	        	btn.find('i').removeClass('fa-spin');
+	            if (data.code == 0){
+	                toastr['error'](data.message, 'Error');
+	            }
+	            else{
+	                toastr['success'](data.message, 'Success');
+	                bigImg(data.image);
+	            }
+	        },
+	        complete: function () {
+	            btn.find('i').removeClass('fa-spin');
+	        },
+	    });
+	});
 
 	$(document).ready(function()
 	{

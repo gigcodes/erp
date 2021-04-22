@@ -15,7 +15,7 @@
 		        <th>Font Style</th>
 		        <th>Font size</th>
 		        <th>Background color</th>
-		        <th>Is Processed</th>
+		        <th>status</th>
 		        <th>Website</th>
 		        <th>Created at</th>
 		        <th>Action</th>
@@ -36,10 +36,13 @@
 			        <td>{{>prop.font_style}}</td>
 			        <td>{{>prop.font_size}}</td>
 			        <td>{{>prop.background_color}}</td>
-			        <td>{{>prop.is_processed}}</td>
+			        <td>{{>prop.template_status}}</td>
 			        <td>{{>prop.website_name}}</td>
 			        <td>{{>prop.created_at}}</td>
-			        <td><button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><img width="15px" src="/images/delete.png"></button></td>
+			        <td><button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><img width="15px" src="/images/delete.png"></button>
+			        	<button type="button" data-id="{{>prop.id}}" data-image="{{>prop.image_url}}" onClick="bigImg('{{>prop.image_url}}')" class="btn btn-secondary btn-sm show-image"><i class="fa fa-picture-o"></i></button>
+			        	<button type="button" data-id="{{>prop.id}}" data-uid="{{>prop.uid}}" class="btn btn-secondary btn-sm reload-image" title="Reload image"><i class="fa fa-refresh"></i></button>
+			        </td>
 			      </tr>
 			    {{/props}}  
 		    </tbody>

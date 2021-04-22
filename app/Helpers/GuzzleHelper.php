@@ -29,11 +29,9 @@ class GuzzleHelper
             $parsedResponse = json_decode($response->getBody()->getContents());
 
 
-
             return $parsedResponse;
 
         } catch (ClientException $e) {
-
             return $e->getMessage();
             
         }

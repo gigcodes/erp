@@ -42,7 +42,7 @@ class StoreWebsiteAnalyticsController extends Controller
 
             //validation for googles service account json file for google analytics
             if (!$request->id) {
-                $rules['google_service_account_json'] = 'required|file|mimetypes:application/json';
+                $rules['google_service_account_json'] = 'required|file';
             }else{
                 //$rules['google_service_account_json'] = 'file|mimetypes:application/json';
             }
