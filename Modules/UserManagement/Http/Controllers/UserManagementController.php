@@ -1270,4 +1270,25 @@ class UserManagementController extends Controller
 
         return response()->json(["code" => 500, "message" => "Please create database user first"]);
     }
+
+    public function deleteDatabaseAccess(Request $request, $id)
+    {
+        $database = \App\UserDatabase::where("user_id",$id)->first();
+        if($database) {
+
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f delete  -u "'.$database->username.'" 2>&1';
+            $allOutput   = array();
+            $allOutput[] = $cmd;
+            $result      = exec($cmd, $allOutput);
+            \Log::info(print_r($result,true));
+            foreach($database->userDatabaseTables as $dbtables) {
+                $dbtables->delete();
+            }
+            $database->delete();
+
+            return response()->json(["code" => 200, "message" => "Database access has been removed"]);
+        }
+
+        return response()->json(["code" => 500, "message" => "Sorry we couldn't found the access for the given user"]);
+    }
 }

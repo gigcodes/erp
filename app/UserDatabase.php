@@ -20,4 +20,9 @@ class UserDatabase extends Model
     {
       return $this->hasOne(\App\User::class,'id','user_id');
     }
+
+    public function userDatabaseTables()
+    {
+        return $this->hasMany(\App\UserDatabaseTable::class,'user_database_id','id');
+    }
 }
