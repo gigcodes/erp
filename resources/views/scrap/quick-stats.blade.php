@@ -82,6 +82,7 @@
                 <table class="table table-bordered table-striped sort-priority-scrapper">
                     <thead>
                     <tr>
+                        <th>#</th>
                         <th>Supplier</th>
                         <th>Server ID</th>
                         <th>Auto Restart</th>
@@ -135,6 +136,7 @@
                                 $chatMessage = $supplier->latestMessage();
                                 $lastError = $supplier->lastErrorFromScrapLog();
                             @endphp
+                            <td width="1%">{{ $supplier->scraper_name }}{{ ++$i }}@if($supplier->getChildrenScraperCount($supplier->scraper_name) != 0) <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-link"><i class="fa fa-caret-down" style="font-size:24px"></i>  </button> @endif</td>
                             <td width="6%"><a href="/supplier/{{$supplier->id}}" >
                                 <span class="toggle-title-box has-small" data-small-title="<?php echo ($supplier->supplier) ? substr($supplier->supplier, 0, 3) : '' ?>" data-full-title="<?php echo ($supplier->supplier) ? $supplier->supplier : '' ?>">
                                     <?php
@@ -186,9 +188,9 @@
                             </td>
                             <td width="5%">{{ !empty($data) ? $data->total_new_product : '' }}</td>
 
-                            <td width="5%" data-start-time="@if($supplier->last_started_at){{$supplier->last_started_at }}@endif" data-end-time="@if($supplier->last_completed_at){{$supplier->last_completed_at }}@endif" class="show-scraper-detail">
+                            <td width="13%" data-start-time="@if($supplier->last_started_at){{$supplier->last_started_at }}@endif" data-end-time="@if($supplier->last_completed_at){{$supplier->last_completed_at }}@endif" class="show-scraper-detail">
                                 @if(isset($supplier->scraper_name) && !empty($supplier->scraper_name) &&  isset($lastRunAt[$supplier->scraper_name]))
-                                    {!! str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($lastRunAt[$supplier->scraper_name]))) !!}
+                                    {!! str_replace(' ', '-', date('d-M-y H:i', strtotime($lastRunAt[$supplier->scraper_name]))) !!}
                                     <br/>
                                 @endif
                             </td>
@@ -204,17 +206,26 @@
                                 @endphp
                                 {{ ($hasTask) ? "TA" : "NT" }}
                             </td>
-                            <td width="20%" class="" style="font-size: 12px">
-                                 <span class="toggle-title-box has-small" >
-                                    <?php
+                            <td width="8%" class="" style="font-size: 12px">
+                                <?php
+                                    $logString = null;
+                                    $logbtn = null;
                                         if($lastError) {
                                             $allMessage = explode("\n",$lastError->log_messages);
                                             $items = array_slice($allMessage, -5);
-                                            echo "SCRAP LOG :".implode("\n", $items);
-                                            echo  '<button style="padding:3px;" type="button" class="btn btn-image scraper-log-details" data-scrapper-id="'.$supplier->scrapper_id.'"><img width="2px;" src="/images/remark.png"/></button>';
+                                            $logString =  "SCRAP LOG :".implode("\n", $items);
+                                            $logbtn   = '<button style="padding:3px;" type="button" class="btn btn-image scraper-log-details" data-scrapper-id="'.$supplier->scrapper_id.'"><img width="2px;" src="/images/remark.png"/></button>';
+                                            
                                         }
                                      ?>
+                                 <span class="toggle-title-box has-small" data-small-title="<?php echo ($logString) ? substr($logString, 0,10) : '' ?>" data-full-title="<?php echo ($logString) ? $logString : '' ?>">
+                                        <?php
+                                            echo (strlen($logString) > 3) ? substr($logString, 0,10).".." : $logString;
+                                        ?>
                                  </span>
+                                 <?php
+                                    echo $logbtn;
+                                ?>
                             </td>
                             
                             <td width="6%">
@@ -396,7 +407,7 @@
                                     <td width="6%">
                                         {{ !empty($childSupplier->scrapers_status) ? $childSupplier->scrapers_status : "N/A" }}
                                     </td>
-                                    <td width="10%">
+                                    <td width="10%" style="display: flex;">
                                         <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $childSupplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
                                         <button type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $childSupplier->id }}"><img width="2px;" src="/images/forward.png"/></button>
                                         <a class="btn  d-inline btn-image" href="{{ get_server_last_log_file($childSupplier->scraper_name,$childSupplier->server_id) }}" id="link" target="-blank"><img src="/images/view.png" /></a>
