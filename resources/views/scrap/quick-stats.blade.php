@@ -82,7 +82,6 @@
                 <table class="table table-bordered table-striped sort-priority-scrapper">
                     <thead>
                     <tr>
-                        <th>#</th>
                         <th>Supplier</th>
                         <th>Server ID</th>
                         <th>Auto Restart</th>
@@ -136,7 +135,6 @@
                                 $chatMessage = $supplier->latestMessage();
                                 $lastError = $supplier->lastErrorFromScrapLog();
                             @endphp
-                            <td width="1%">@if($supplier->getChildrenScraperCount($supplier->scraper_name) != 0) <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-link"><i class="fa fa-caret-down" style="font-size:24px"></i>  </button> @endif</td>
                             <td width="6%"><a href="/supplier/{{$supplier->id}}" >
                                 <span class="toggle-title-box has-small" data-small-title="<?php echo ($supplier->supplier) ? substr($supplier->supplier, 0, 3) : '' ?>" data-full-title="<?php echo ($supplier->supplier) ? $supplier->supplier : '' ?>">
                                     <?php
@@ -273,6 +271,9 @@
                                         @endif
                                     </div>
                                 @endif
+                                @if($supplier->getChildrenScraperCount($supplier->scraper_name) != 0) 
+                                    <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-link"><i class="fa fa-caret-down" style="font-size:24px"></i>  </button> 
+                                @endif
                             </td>
                             </tr>
                             <tr class="hidden_row_{{ $supplier->id  }} dis-none" data-eleid="{{ $supplier->id }}">
@@ -391,7 +392,7 @@
                                     
                                     <td width="10%">
                                         @if(isset($childSupplier->scraper_name) && !empty($childSupplier->scraper_name) &&  isset($lastRunAt[$childSupplier->scraper_name]))
-                                            {!! str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($lastRunAt[$childSupplier->scraper_name]))) !!}
+                                            {!! str_replace(' ', '-', date('d-M-y H:i', strtotime($lastRunAt[$childSupplier->scraper_name]))) !!}
                                             <br/>
                                         @endif
                                         {{ $childSupplier->last_completed_at }} 
