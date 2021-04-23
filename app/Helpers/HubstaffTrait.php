@@ -14,9 +14,11 @@ trait hubstaffTrait
 {
     private $HUBSTAFF_TOKEN_FILE_NAME = 'hubstaff_tokens.json';
     private $SEED_REFRESH_TOKEN;
+    private $client;
 
     public function init($seedToken)
     {
+        $this->client = new Client();
         $this->SEED_REFRESH_TOKEN = $seedToken;
     }
 
