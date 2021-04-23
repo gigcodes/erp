@@ -8,7 +8,7 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
 
-      <form action="{{ route('supplier.email.send.bulk') }}" method="POST" enctype="multipart/form-data">
+`      <form action="{{ route('supplier.email.send.bulk') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="modal-body">

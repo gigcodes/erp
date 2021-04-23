@@ -146,122 +146,85 @@ class BuyBackController extends Controller
 
                     // send emails 
                     if($request->type == "refund") {
-                        $view = (new \App\Mails\Manual\InitializeRefundRequest($success))->build();
-                        $params = [
-                            'model_id'          => $success->id,
-                            'model_type'        => \App\ReturnExchange::class,
-                            'from'              => $view->fromMailer,
-                            'to'                => $success->customer->email,
-                            'subject'           => $view->subject,
-                            'message'           => $view->render(),
-                            'template'          => 'refund-request',
-                            'additional_data'   => $success->id,
-                            'is_draft'          => 1
-                        ];
-                        $emailObject = \App\Email::create($params);
+                        
+                        $emailClass = (new \App\Mails\Manual\InitializeRefundRequest($success))->build();
 
-                        try {
-                            \App\CommunicationHistory::create([
-                                'model_id'      => $success->id,
-                                'model_type'    => \App\ReturnExchange::class,
-                                'type'          => 'refund-request',
-                                'method'        => 'email'
-                            ]);
+                        $email             = Email::create([
+                            'model_id'         => $success->id,
+                            'model_type'       => \App\ReturnExchange::class,
+                            'from'             => $emailClass->fromMailer,
+                            'to'               => $success->customer->email,
+                            'subject'          => $emailClass->subject,
+                            'message'          => $emailClass->render(),
+                            'template'         => 'refund-request',
+                            'additional_data'  => $success->id,
+                            'status'           => 'pre-send',
+                            'store_website_id' => null,
+                            'is_draft'         => 1
+                        ]);
 
-                            \App\Jobs\ExchangeBuybackEmailSending::dispatch( $success->customer->email, $success, $emailObject );
-
-                        }catch(\Exception $e) {
-                            $emailObject->error_message = $e->getMessage();
-                        }
-
-                        $emailObject->save();
+                        \App\Jobs\SendEmail::dispatch($email);
 
                     }else if ($request->type == "return") {
                         
-                        $view = (new \App\Mails\Manual\InitializeReturnRequest($success))->build();
-                        $params = [
-                            'model_id'          => $success->id,
-                            'model_type'        => \App\ReturnExchange::class,
-                            'from'              => $view->fromMailer,
-                            'to'                => $success->customer->email,
-                            'subject'           => $view->subject,
-                            'message'           => $view->render(),
-                            'template'          => 'return-request',
-                            'additional_data'   => $success->id,
-                            'is_draft'          => 1,
-                        ];
-                        $emailObject = \App\Email::create($params);
+                        $emailClass = (new \App\Mails\Manual\InitializeReturnRequest($success))->build();
 
-                        try {
-                            \App\CommunicationHistory::create([
-                                'model_id'      => $success->id,
-                                'model_type'    => \App\ReturnExchange::class,
-                                'type'          => 'return-request',
-                                'method'        => 'email'
-                            ]);
-                           \App\Jobs\ExchangeBuybackEmailSending::dispatch( $success->customer->email, $success, $emailObject );
-                        }catch(\Exception $e) {
-                            $emailObject->error_message = $e->getMessage();
-                        }
+                        $email             = Email::create([
+                            'model_id'         => $success->id,
+                            'model_type'       => \App\ReturnExchange::class,
+                            'from'             => $emailClass->fromMailer,
+                            'to'               => $success->customer->email,
+                            'subject'          => $emailClass->subject,
+                            'message'          => $emailClass->render(),
+                            'template'         => 'return-request',
+                            'additional_data'  => $success->id,
+                            'status'           => 'pre-send',
+                            'store_website_id' => null,
+                            'is_draft'         => 1
+                        ]);
 
-                        $emailObject->save();
+                        \App\Jobs\SendEmail::dispatch($email);
 
                     }else if ($request->type == "exchange") {
                         
-                        $view = (new \App\Mails\Manual\InitializeExchangeRequest($success))->build();
-                        $params = [
-                            'model_id'          => $success->id,
-                            'model_type'        => \App\ReturnExchange::class,
-                            'from'              => $view->fromMailer,
-                            'to'                => $success->customer->email,
-                            'subject'           => $view->subject,
-                            'message'           => $view->render(),
-                            'template'          => 'exchange-request',
-                            'additional_data'   => $success->id,
-                            'is_draft'          => 1,
-                        ];
-                        $emailObject = \App\Email::create($params);
+                        $emailClass = (new \App\Mails\Manual\InitializeExchangeRequest($success))->build();
 
-                        try {
-                            \App\CommunicationHistory::create([
-                                'model_id'      => $success->id,
-                                'model_type'    => \App\ReturnExchange::class,
-                                'type'          => 'exchange-request',
-                                'method'        => 'email'
-                            ]);
-                            \App\Jobs\ExchangeBuybackEmailSending::dispatch( $success->customer->email, $success, $emailObject );
-                        }catch(\Exception $e) {
-                            $emailObject->error_message = $e->getMessage();
-                        }
-                        $emailObject->save();
+                        $email             = Email::create([
+                            'model_id'         => $success->id,
+                            'model_type'       => \App\ReturnExchange::class,
+                            'from'             => $emailClass->fromMailer,
+                            'to'               => $success->customer->email,
+                            'subject'          => $emailClass->subject,
+                            'message'          => $emailClass->render(),
+                            'template'         => 'exchange-request',
+                            'additional_data'  => $success->id,
+                            'status'           => 'pre-send',
+                            'store_website_id' => null,
+                            'is_draft'         => 1
+                        ]);
+
+                        \App\Jobs\SendEmail::dispatch($email);
+
                     }else if ($request->type == "cancellation") {
                         
-                        $view = (new \App\Mails\Manual\InitializeCancelRequest($success))->build();
-                        $params = [
-                            'model_id'          => $success->id,
-                            'model_type'        => \App\ReturnExchange::class,
-                            'from'              => $view->fromMailer,
-                            'to'                => $success->customer->email,
-                            'subject'           => $view->subject,
-                            'message'           => $view->render(),
-                            'template'          => 'cancellation',
-                            'additional_data'   => $success->id,
-                            'is_draft'          => 1,
-                        ];
-                        $emailObject = \App\Email::create($params);
+                        $emailClass = (new \App\Mails\Manual\InitializeCancelRequest($success))->build();
 
-                        try {
-                            \App\CommunicationHistory::create([
-                                'model_id'      => $success->id,
-                                'model_type'    => \App\ReturnExchange::class,
-                                'type'          => 'cancellation',
-                                'method'        => 'email'
-                            ]);
-                            \App\Jobs\ExchangeBuybackEmailSending::dispatch( $success->customer->email, $success, $emailObject );
-                        }catch(\Exception $e) {
-                            $emailObject->error_message = $e->getMessage();
-                        }
-                        $emailObject->save();
+                        $email             = Email::create([
+                            'model_id'         => $success->id,
+                            'model_type'       => \App\ReturnExchange::class,
+                            'from'             => $emailClass->fromMailer,
+                            'to'               => $success->customer->email,
+                            'subject'          => $emailClass->subject,
+                            'message'          => $emailClass->render(),
+                            'template'         => 'cancellation',
+                            'additional_data'  => $success->id,
+                            'status'           => 'pre-send',
+                            'store_website_id' => null,
+                            'is_draft'         => 1
+                        ]);
+
+                        \App\Jobs\SendEmail::dispatch($email);
+
                     }
                 }
             }

@@ -72,6 +72,7 @@ class OrderController extends Controller
 
     public function __construct()
     {
+<<<<<<< HEAD
 
         //      $this->middleware( 'permission:order-view', [ 'only' => ['index','show'] ] );
         //      $this->middleware( 'permission:order-create', [ 'only' => [ 'create', 'store' ] ] );
@@ -266,7 +267,7 @@ class OrderController extends Controller
                 ->orWhere('sales_person', Helpers::getUserIdByName($term))
                 ->orWhere('received_by', Helpers::getUserIdByName($term))
                 ->orWhere('client_name', 'like', '%' . $term . '%')
-                ->orWhere('orders.city', 'like', '%' . $term . '%')
+                ->orWhere('city', 'like', '%' . $term . '%')
                 ->orWhere('order_status_id', (new \App\ReadOnly\OrderStatus())->getIDCaseInsensitive($term));
         }
         if ($order_status[0] != '') {
@@ -533,12 +534,6 @@ class OrderController extends Controller
         ]);
 
         return view('orders.products', compact('products', 'term', 'orderby', 'brand', 'supplier'));
-    }
-
-    public function getCustomerAddress(Request $request)
-    {
-        $address = OrderCustomerAddress::where('order_id', $request->order_id)->get();
-        return response()->json(["code" => 200, "data" => $address]);
     }
 
     /**
@@ -1203,6 +1198,765 @@ class OrderController extends Controller
         }
 
         if ($order->order_status_id == \App\Helpers\OrderHelper::$refundToBeProcessed) {
+=======
+
+        //      $this->middleware( 'permission:order-view', [ 'only' => ['index','show'] ] );
+        //      $this->middleware( 'permission:order-create', [ 'only' => [ 'create', 'store' ] ] );
+        //      $this->middleware( 'permission:order-edit', [ 'only' => [ 'edit', 'update' ] ] );
+        //      $this->middleware( 'permission:order-delete', [ 'only' => ['destroy','deleteOrderProduct'] ] );
+    }
+
+    /**
+     * @param Request $request
+     * Generate the PDf for the orders list page
+     */
+    public function downloadOrderInPdf(Request $request)
+    {
+
+        $term         = $request->input('term');
+        $order_status = $request->status ?? [''];
+        $date         = $request->date ?? '';
+
+        if ($request->input('orderby') == '') {
+            $orderby = 'DESC';
+        } else {
+            $orderby = 'ASC';
+        }
+
+        // dd($orderby);
+
+        switch ($request->input('sortby')) {
+            case 'type':
+                $sortby = 'order_type';
+                break;
+            case 'date':
+                $sortby = 'order_date';
+                break;
+            case 'order_handler':
+                $sortby = 'sales_person';
+                break;
+            case 'client_name':
+                $sortby = 'client_name';
+                break;
+            case 'status':
+                $sortby = 'order_status_id';
+                break;
+            case 'advance':
+                $sortby = 'advance_detail';
+                break;
+            case 'balance':
+                $sortby = 'balance_amount';
+                break;
+            case 'action':
+                $sortby = 'action';
+                break;
+            case 'due':
+                $sortby = 'due';
+                break;
+            case 'communication':
+                $sortby = 'communication';
+                break;
+            default:
+                $sortby = 'order_date';
+        }
+
+        // Create query
+        $orders = (new Order())->newQuery()->with('customer');
+
+        if (empty($term)) {
+            $orders = $orders;
+        } else {
+            // AN order should have customer, if term is filled
+            $orders = $orders->whereHas('customer', function ($query) use ($term) {
+                return $query->where('name', 'LIKE', "%$term%");
+            })
+                ->orWhere('order_id', 'like', '%' . $term . '%')
+                ->orWhere('order_type', $term)
+                ->orWhere('sales_person', Helpers::getUserIdByName($term))
+                ->orWhere('received_by', Helpers::getUserIdByName($term))
+                ->orWhere('client_name', 'like', '%' . $term . '%')
+                ->orWhere('city', 'like', '%' . $term . '%')
+                ->orWhere('order_status_id', (new \App\ReadOnly\OrderStatus())->getIDCaseInsensitive($term));
+        }
+
+        if ($order_status[0] != '') {
+            $orders = $orders->whereIn('order_status_id', $order_status);
+        }
+
+        if ($date != '') {
+            $orders = $orders->where('order_date', $date);
+        }
+
+        $users             = Helpers::getUserArray(User::all());
+        $order_status_list = (new OrderStatus)->all();
+
+        // also sort by communication action and due
+        if ($sortby != 'communication' && $sortby != 'action' && $sortby != 'due') {
+            $orders = $orders->orderBy('is_priority', 'DESC')->orderBy($sortby, $orderby);
+        } else {
+            $orders = $orders->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC');
+        }
+
+        $orders_array = $orders->paginate(500);
+
+        // load the view for pdf and after that load that into dompdf instance, and then stream (download) the pdf
+        $html = view('orders.index_pdf', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date'));
+        $pdf  = new Dompdf();
+        $pdf->loadHtml($html);
+        $pdf->render();
+        $pdf->stream('orders.pdf');
+
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+
+        $term             = $request->input('term');
+        $order_status     = $request->status ?? [''];
+        $date             = $request->date ?? '';
+        $brandList        = \App\Brand::all()->pluck("name", "id")->toArray();
+        $brandIds         = array_filter($request->get("brand_id", []));
+        $registerSiteList = StoreWebsite::pluck('website', 'id')->toArray();
+        $fromdatadefault  = array(
+            "street"       => config("dhl.shipper.street"),
+            "city"         => config("dhl.shipper.city"),
+            "postal_code"  => config("dhl.shipper.postal_code"),
+            "country_code" => config("dhl.shipper.country_code"),
+            "person_name"  => config("dhl.shipper.person_name"),
+            "company_name" => config("dhl.shipper.company_name"),
+            "phone"        => config("dhl.shipper.phone"),
+        );
+        if ($request->input('orderby') == '') {
+            $orderby = 'DESC';
+        } else {
+            $orderby = 'ASC';
+        }
+
+        // dd($orderby);
+
+        switch ($request->input('sortby')) {
+            case 'type':
+                $sortby = 'order_type';
+                break;
+            case 'date':
+                $sortby = 'order_date';
+                break;
+            case 'estdeldate':
+                $sortby = 'estimated_delivery_date';
+                break;
+            case 'order_handler':
+                $sortby = 'sales_person';
+                break;
+            case 'client_name':
+                $sortby = 'client_name';
+                break;
+            case 'status':
+                $sortby = 'order_status_id';
+                break;
+            case 'advance':
+                $sortby = 'advance_detail';
+                break;
+            case 'balance':
+                $sortby = 'balance_amount';
+                break;
+            case 'action':
+                $sortby = 'action';
+                break;
+            case 'due':
+                $sortby = 'due';
+                break;
+            case 'communication':
+                $sortby = 'communication';
+                break;
+            default:
+                $sortby = 'order_date';
+        }
+
+        //$orders = (new Order())->newQuery()->with('customer');
+        // $orders = (new Order())->newQuery()->with('customer', 'customer.storeWebsite', 'waybill', 'order_product', 'order_product.product');
+        $orders = (new Order())->newQuery()->with('customer')->leftJoin("store_website_orders as swo", "swo.order_id", "orders.id");
+        if (empty($term)) {
+            $orders = $orders;
+        } else {
+            $orders = $orders->whereHas('customer', function ($query) use ($term) {
+                return $query->where('name', 'LIKE', '%' . $term . '%')
+                    ->orWhere('id', 'LIKE', '%' . $term . '%')
+                    ->orWhere('email', 'LIKE', '%' . $term . '%');
+            })
+                ->orWhere('orders.order_id', 'like', '%' . $term . '%')
+                ->orWhere('order_type', $term)
+                ->orWhere('sales_person', Helpers::getUserIdByName($term))
+                ->orWhere('received_by', Helpers::getUserIdByName($term))
+                ->orWhere('client_name', 'like', '%' . $term . '%')
+                ->orWhere('orders.city', 'like', '%' . $term . '%')
+                ->orWhere('order_status_id', (new \App\ReadOnly\OrderStatus())->getIDCaseInsensitive($term));
+        }
+        if ($order_status[0] != '') {
+            $orders = $orders->whereIn('order_status_id', $order_status);
+        }
+
+        if ($date != '') {
+            $orders = $orders->where('order_date', $date);
+        }
+
+        if ($store_site = $request->store_website_id) {
+            $orders = $orders->where('swo.website_id', $store_site);
+        }
+
+        $statusFilterList = clone ($orders);
+
+        $orders = $orders->leftJoin("order_products as op", "op.order_id", "orders.id")
+            ->leftJoin("customers as cs", "cs.id", "orders.customer_id")
+            ->leftJoin("products as p", "p.id", "op.product_id")
+            ->leftJoin("brands as b", "b.id", "p.brand");
+
+        if (!empty($brandIds)) {
+            $orders = $orders->whereIn("p.brand", $brandIds);
+        }
+
+        $orders = $orders->groupBy("orders.id");
+        $orders = $orders->select(["orders.*", "cs.email as cust_email", \DB::raw("group_concat(b.name) as brand_name_list"), "swo.website_id"]);
+
+        $users             = Helpers::getUserArray(User::all());
+        $order_status_list = OrderHelper::getStatus();
+
+        if ($sortby != 'communication' && $sortby != 'action' && $sortby != 'due') {
+            $orders = $orders->orderBy('is_priority', 'DESC')->orderBy($sortby, $orderby);
+        } else {
+            $orders = $orders->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC');
+        }
+
+        $statusFilterList = $statusFilterList->leftJoin("order_statuses as os", "os.id", "orders.order_status_id")
+            ->where("order_status", "!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"), "os.status as order_status", "swo.website_id")->get()->toArray();
+        $totalOrders  = sizeOf($orders->get());
+        $orders_array = $orders->paginate(10);
+        $quickreply   = Reply::where('model', 'Order')->get();
+        //return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
+        return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault'));
+    }
+
+    public function products(Request $request)
+    {
+        $term = $request->input('term');
+
+        if ($request->input('orderby') == '') {
+            $orderby = 'desc';
+        } else {
+            $orderby = 'asc';
+        }
+
+        switch ($request->input('sortby')) {
+            case 'supplier':
+                $sortby = 'supplier';
+                break;
+            case 'customer':
+                $sortby = 'client_name';
+                break;
+            case 'customer_price':
+                $sortby = 'price';
+                break;
+            case 'date':
+                $sortby = 'created_at';
+                break;
+            case 'delivery_date':
+                $sortby = 'date_of_delivery';
+                break;
+            case 'updated_date':
+                $sortby = 'estimated_delivery_date';
+                break;
+            case 'status':
+                $sortby = 'order_status_id';
+                break;
+            case 'communication':
+                $sortby = 'communication';
+                break;
+            default:
+                $sortby = 'id';
+        }
+
+        if (empty($term)) {
+            $products = OrderProduct::with(['Product' => function ($query) {
+                $query->with('Purchases');
+            }, 'Order'])->get()->toArray();
+        } else {
+
+            $products = OrderProduct::whereHas('Product', function ($query) use ($term) {
+                $query->where('supplier', 'like', '%' . $term . '%');
+            })
+                ->with(['Product', 'Order'])->orWhere('product_price', 'LIKE', "%$term%")
+                ->orWhereHas('Order', function ($query) use ($term) {
+                    $query->where('date_of_delivery', 'LIKE', "%$term%")
+                        ->orWhere('estimated_delivery_date', 'LIKE', "%$term%")
+                        ->orWhere('order_status', 'LIKE', "%$term%");
+                })->get()->toArray();
+        }
+
+        $brand    = $request->input('brand');
+        $supplier = $request->input('supplier');
+
+        if ($sortby == 'supplier') {
+            if ($orderby == 'asc') {
+                $products = array_values(array_sort($products, function ($value) {
+                    return $value['product']['supplier'];
+                }));
+
+                $products = array_reverse($products);
+            } else {
+                $products = array_values(array_sort($products, function ($value) {
+                    return $value['product']['supplier'];
+                }));
+            }
+        }
+
+        if ($sortby == 'client_name') {
+            if ($orderby == 'asc') {
+                $products = array_values(array_sort($products, function ($value) {
+                    if ($value['order']) {
+                        return $value['order']['client_name'];
+                    }
+
+                    return '';
+                }));
+
+                $products = array_reverse($products);
+            } else {
+                $products = array_values(array_sort($products, function ($value) {
+                    if ($value['order']) {
+                        return $value['order']['client_name'];
+                    }
+
+                    return '';
+                }));
+            }
+        }
+
+        if ($sortby == 'price') {
+            if ($orderby == 'asc') {
+                $products = array_values(array_sort($products, function ($value) {
+                    return $value['product_price'];
+                }));
+
+                $products = array_reverse($products);
+            } else {
+                $products = array_values(array_sort($products, function ($value) {
+                    return $value['product_price'];
+                }));
+            }
+        }
+
+        if ($sortby == 'created_at') {
+            if ($orderby == 'asc') {
+                $products = array_values(array_sort($products, function ($value) {
+                    if ($value['order']) {
+                        return $value['order']['created_at'];
+                    }
+
+                    return '1999-01-01 00:00:00';
+                }));
+
+                $products = array_reverse($products);
+            } else {
+                $products = array_values(array_sort($products, function ($value) {
+                    if ($value['order']) {
+                        return $value['order']['created_at'];
+                    }
+
+                    return '1999-01-01 00:00:00';
+                }));
+            }
+        }
+
+        if ($sortby == 'date_of_delivery') {
+            if ($orderby == 'asc') {
+                $products = array_values(array_sort($products, function ($value) {
+                    if ($value['order']) {
+                        return $value['order']['date_of_delivery'];
+                    }
+
+                    return '1999-01-01 00:00:00';
+                }));
+
+                $products = array_reverse($products);
+            } else {
+                $products = array_values(array_sort($products, function ($value) {
+                    if ($value['order']) {
+                        return $value['order']['date_of_delivery'];
+                    }
+
+                    return '1999-01-01 00:00:00';
+                }));
+            }
+        }
+
+        if ($sortby == 'estimated_delivery_date') {
+            if ($orderby == 'asc') {
+                $products = array_values(array_sort($products, function ($value) {
+                    if ($value['order']) {
+                        return $value['order']['estimated_delivery_date'];
+                    }
+
+                    return '1999-01-01 00:00:00';
+                }));
+
+                $products = array_reverse($products);
+            } else {
+                $products = array_values(array_sort($products, function ($value) {
+                    if ($value['order']) {
+                        return $value['order']['estimated_delivery_date'];
+                    }
+
+                    return '1999-01-01 00:00:00';
+                }));
+            }
+        }
+
+        if ($sortby == 'order_status') {
+            if ($orderby == 'asc') {
+                $products = array_values(array_sort($products, function ($value) {
+                    if ($value['order']) {
+                        return $value['order']['order_status'];
+                    }
+
+                    return '';
+                }));
+
+                $products = array_reverse($products);
+            } else {
+                $products = array_values(array_sort($products, function ($value) {
+                    if ($value['order']) {
+                        return $value['order']['order_status'];
+                    }
+
+                    return '';
+                }));
+            }
+        }
+
+        if ($sortby == 'communication') {
+            if ($orderby == 'asc') {
+                $products = array_values(array_sort($products, function ($value) {
+                    return $value['communication']['created_at'];
+                }));
+
+                $products = array_reverse($products);
+            } else {
+                $products = array_values(array_sort($products, function ($value) {
+                    return $value['communication']['created_at'];
+                }));
+            }
+        }
+
+        $currentPage  = LengthAwarePaginator::resolveCurrentPage();
+        $perPage      = 10;
+        $currentItems = array_slice($products, $perPage * ($currentPage - 1), $perPage);
+
+        $products = new LengthAwarePaginator($currentItems, count($products), $perPage, $currentPage, [
+            'path' => LengthAwarePaginator::resolveCurrentPath(),
+        ]);
+
+        return view('orders.products', compact('products', 'term', 'orderby', 'brand', 'supplier'));
+    }
+
+    public function getCustomerAddress(Request $request)
+    {
+
+        $address = OrderCustomerAddress::where('order_id', $request->order_id)->get();
+        return response()->json(["code" => 200, "data" => $address]);
+    }
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+
+        $defaultSelected = [];
+        $key             = request()->get("key", false);
+
+        if (!empty($key)) {
+            $defaultData = session($key);
+            if (!empty($defaultData)) {
+                $defaultSelected = $defaultData;
+            }
+        }
+
+        $order = new Order();
+
+        $data = [];
+        foreach ($order->getFillable() as $item) {
+            $data[$item] = '';
+        }
+
+        $expiresAt = Carbon::now()->addMinutes(10);
+
+        /*if (Cache::has('last-order')) {
+        if (!Cache::has('user-order-' . Auth::id())) {
+        $last_order = Cache::get('last-order') + 1;
+        Cache::put('user-order-' . Auth::id(), $last_order, $expiresAt);
+        Cache::put('last-order', $last_order, $expiresAt);
+        }else{
+        $last_order = Cache::get('last-order');
+        }
+        } else {
+        // removed logic for add in cache
+
+        }*/
+
+        $last       = Order::withTrashed()->latest()->first();
+        $last_order = ($last) ? $last->id + 1 : 1;
+
+        Cache::put('user-order-' . Auth::id(), $last_order, $expiresAt);
+        Cache::put('last-order', $last_order, $expiresAt);
+
+        if (!empty($defaultSelected['selected_product'])) {
+            foreach ($defaultSelected['selected_product'] as $product) {
+                self::attachProduct($last_order, $product);
+            }
+        }
+
+        $data['id']             = $last_order;
+        $data['sales_persons']  = Helpers::getUsersArrayByRole('Sales');
+        $data['modify']         = 0;
+        $data['order_products'] = $this->getOrderProductsWithProductData($data['id']);
+
+        $customer_suggestions = [];
+        $customers            = (new Customer())->newQuery()->latest()->select('name')->get()->toArray();
+
+        foreach ($customers as $customer) {
+            array_push($customer_suggestions, $customer['name']);
+        }
+
+        $data['customers'] = Customer::all();
+
+        $data['customer_suggestions'] = $customer_suggestions;
+        $data['defaultSelected']      = $defaultSelected;
+        $data['key']                  = $key;
+
+        return view('orders.form', $data);
+    }
+
+/**
+ * Store a newly created resource in storage.
+ *
+ * @param  \Illuminate\Http\Request $request
+ *
+ * @return \Illuminate\Http\Response
+ */
+    public function store(Request $request)
+    {
+
+        $this->validate($request, [
+            'customer_id'    => 'required',
+            'advance_detail' => 'numeric|nullable',
+            'balance_amount' => 'numeric|nullable',
+        ]);
+
+        $data            = $request->all();
+        $sessionKey      = $request->get("key", "");
+        $data['user_id'] = Auth::id();
+        /*if ( $request->input( 'order_type' ) == 'offline' ) {
+        $data['order_id'] = $this->generateNextOrderId();
+        }*/
+
+        $oPrefix   = ($request->input('order_type') == 'offline') ? "OFF-" . date("Ym") : "ONN-" . date("Ym");
+        $statement = \DB::select("SHOW TABLE STATUS LIKE 'orders'");
+        $nextId    = 0;
+        if (!empty($statement)) {
+            $nextId = $statement[0]->Auto_increment;
+        }
+
+        $data['order_id'] = $oPrefix . "-" . $nextId;
+
+        if (empty($request->input('order_date'))) {
+            $data['order_date'] = date('Y-m-d');
+        }
+
+        // if ($customer = Customer::where('name', $data['client_name'])->first()) {
+        //  $data['customer_id'] = $customer->id;
+        // } else {
+        //  $customer = new Customer;
+        //  $customer->name = $data['client_name'];
+        //
+        //  $validator = Validator::make($data, [
+        //      'contact_detail' => 'unique:customers,phone'
+        //  ]);
+        //
+        //  if ($validator->fails()) {
+        //      return back()->with('phone_error', 'The phone already exists')->withInput();
+        //  }
+        //
+        //  $customer->phone = $data['contact_detail'];
+        //  $customer->city = $data['city'];
+        //  $customer->save();
+        //
+        //  $data['customer_id'] = $customer->id;
+        // }
+        $customer = Customer::find($request->customer_id);
+
+        $data['client_name']    = $customer->name;
+        $data['contact_detail'] = $customer->phone;
+        if ($request->hdn_order_mail_status == "1") {
+            $data['auto_emailed'] = 1;
+        } else {
+            $data['auto_emailed'] = 0;
+        }
+
+        if (isset($data['date_of_delivery'])) {
+            $data['estimated_delivery_date'] = $data['date_of_delivery'];
+        }
+
+        $order = Order::create($data);
+
+        if (!empty($request->input('order_products'))) {
+            foreach ($request->input('order_products') as $key => $order_product_data) {
+                $order_product = OrderProduct::findOrFail($key);
+                if ($order_product->order_id != $order->id) {
+                    $nw_order_product = new OrderProduct;
+                    foreach ($order_product->getAttributes() as $k => $attr) {
+                        if (!in_array($k, ["id", "created_at", "updated_at"])) {
+                            $nw_order_product->{$k} = $attr;
+                        }
+                    }
+
+                    foreach ($order_product_data as $k => $v) {
+                        $nw_order_product->{$k} = $v;
+                    }
+
+                    $nw_order_product->order_id = $order->id;
+                    $nw_order_product->save();
+                }
+            }
+        }
+
+        $totalAmount = 0;
+        foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
+            $totalAmount += $order_product->product_price;
+        }
+
+        $order->balance_amount = ($totalAmount - $order->advance_detail);
+        $order->save();
+
+        if ($customer->credit > 0) {
+            $balance_amount = $order->balance_amount;
+            $totalCredit    = $customer->credit;
+            if (($order->balance_amount - $customer->credit) < 0) {
+                $left_credit = ($order->balance_amount - $customer->credit) * -1;
+                $order->advance_detail += $order->balance_amount;
+                $balance_amount   = 0;
+                $customer->credit = $left_credit;
+            } else {
+                $balance_amount -= $customer->credit;
+                $order->advance_detail += $customer->credit;
+                $customer->credit = 0;
+            }
+
+            $order->balance_amount = $balance_amount;
+            $order->order_id       = $oPrefix . "-" . $order->id;
+            $order->save();
+            $customer->save();
+
+            if ($order->id) {
+                CreditHistory::create(
+                    array(
+                        'customer_id' => $request->customer_id,
+                        'model_id'    => $order->id,
+                        'model_type'  => Order::class,
+                        'used_credit' => (float) $totalCredit - $customer->credit,
+                        'used_in'     => 'ORDER',
+                        'type'        => 'MINUS',
+                    )
+                );
+            }
+
+        }
+
+        $expiresAt  = Carbon::now()->addMinutes(10);
+        $last_order = $order->id + 1;
+        Cache::put('user-order-' . Auth::id(), $last_order, $expiresAt);
+
+        if ($request->convert_order == 'convert_order') {
+            if (!empty($request->selected_product)) {
+                foreach ($request->selected_product as $product) {
+                    self::attachProduct($order->id, $product);
+                }
+            }
+        }
+
+        if ($order->order_status_id == OrderHelper::$proceedWithOutAdvance && $order->order_type == 'online') {
+            $product_names = '';
+            foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
+                $product_names .= $order_product->product ? $order_product->product->name . ", " : '';
+            }
+
+            $delivery_time = $order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::parse($order->order_date)->addDays(15)->format('d \of\ F');
+
+            $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'cod-online-confirmation')->first();
+
+            $auto_message = preg_replace("/{product_names}/i", $product_names, $auto_reply->reply);
+            $auto_message = preg_replace("/{delivery_time}/i", $delivery_time, $auto_message);
+
+            $followup_message = AutoReply::where('type', 'auto-reply')->where('keyword', 'cod-online-followup')->first()->reply;
+
+            $requestData  = new Request();
+            $requestData2 = new Request();
+            $requestData->setMethod('POST');
+            $requestData2->setMethod('POST');
+            $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 1]);
+            $requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message, 'status' => 1]);
+
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
+
+            // $order->update([
+            //  'auto_messaged' => 1,
+            //  'auto_messaged_date' => Carbon::now()
+            // ]);
+
+            CommunicationHistory::create([
+                'model_id'   => $order->id,
+                'model_type' => Order::class,
+                'type'       => 'initial-advance',
+                'method'     => 'whatsapp',
+            ]);
+        } elseif ($order->order_status_id == OrderHelper::$prepaid) {
+            $auto_message = AutoReply::where('type', 'auto-reply')->where('keyword', 'prepaid-order-confirmation')->first()->reply;
+            $requestData  = new Request();
+            $requestData->setMethod('POST');
+            $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 1]);
+
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+
+            // $order->update([
+            //  'auto_messaged' => 1,
+            //  'auto_messaged_date' => Carbon::now()
+            // ]);
+
+            CommunicationHistory::create([
+                'model_id'   => $order->id,
+                'model_type' => Order::class,
+                'type'       => 'online-confirmation',
+                'method'     => 'whatsapp',
+            ]);
+        } elseif ($order->order_status_id == OrderHelper::$refundToBeProcessed) {
+            $refund = Refund::where('order_id', $order->id)->first();
+
+            if (!$refund) {
+                Refund::create([
+                    'customer_id'     => $order->customer->id,
+                    'order_id'        => $order->id,
+                    'type'            => 'Cash',
+                    'date_of_request' => Carbon::now(),
+                    'date_of_issue'   => Carbon::now()->addDays(10),
+                ]);
+            }
+
+>>>>>>> master
             if ($order->payment_mode == 'paytm') {
                 if ($order->customer) {
                     $all_amount = 0;
@@ -1212,6 +1966,111 @@ class OrderController extends Controller
                             $all_amount += $order_product->product_price;
                         }
                     }
+<<<<<<< HEAD
+=======
+
+                    $order->customer->credit += $all_amount;
+                    $order->customer->save();
+                }
+            } else if ($order->payment_mode != 'paytm' || $order->advance_detail > 0) {
+                if ($order->customer) {
+                    $order->customer->credit += $order->advance_detail;
+                    $order->customer->save();
+                }
+            }
+        }
+
+        // if ($order->auto_emailed == 0) {
+        if (!$order->is_sent_offline_confirmation()) {
+            if ($order->order_type == 'offline') {
+
+            }
+        }
+
+        if ($request->hdn_order_mail_status == "1") {
+            $id_order_inc = $order->id;
+            $order_new    = Order::find($id_order_inc);
+            if (!$order_new->is_sent_offline_confirmation()) {
+                if ($order_new->order_type == 'offline') {
+                    if (!empty($order_new->customer) && !empty($order_new->customer->email)) {
+                        //Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
+                        try {
+                            $emailClass = (new OrderConfirmation($order_new))->build();
+                            \MultiMail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
+                            $params = [
+                                'model_id'        => $order_new->customer->id,
+                                'model_type'      => Customer::class,
+                                'from'            => $emailClass->fromMailer,
+                                'to'              => $order_new->customer->email,
+                                'subject'         => $emailClass->subject,
+                                'message'         => $emailClass->render(),
+                                'template'        => 'order-confirmation',
+                                'additional_data' => $order_new->id,
+                            ];
+                            Email::create($params);
+                            CommunicationHistory::create([
+                                'model_id'   => $order_new->id,
+                                'model_type' => Order::class,
+                                'type'       => 'offline-confirmation',
+                                'method'     => 'email',
+                            ]);
+                        } catch (\Exception $e) {
+                            \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
+                        }
+                    }
+                }
+            }
+        }
+
+        // NotificationQueueController::createNewNotification([
+        //  'type' => 'button',
+        //  'message' => $data['client_name'],
+        //  // 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+        //  'timestamps' => ['+0 minutes'],
+        //  'model_type' => Order::class,
+        //  'model_id' =>  $order->id,
+        //  'user_id' => \Auth::id(),
+        //  'sent_to' => $request->input( 'sales_person' ),
+        //  'role' => '',
+        // ]);
+        //
+        // NotificationQueueController::createNewNotification([
+        //  'message' => $data['client_name'],
+        //  'timestamps' => ['+0 minutes'],
+        //  'model_type' => Order::class,
+        //  'model_id' =>  $order->id,
+        //  'user_id' => \Auth::id(),
+        //  'sent_to' => '',
+        //  'role' => 'Admin',
+        // ]);
+
+        /*if($order) {
+        $data["order"]      = $order;
+        $data["customer"]   = $order->customer;
+
+        if($order->customer) {
+        Mail::to($order->customer->email)->send(new OrderInvoice($data));
+        }
+        }*/
+
+// sending order message to the customer
+        UpdateOrderStatusMessageTpl::dispatch($order->id)->onQueue("customer_message");
+
+        if ($request->ajax()) {
+            return response()->json(['order' => $order]);
+        }
+
+        if ($request->get('return_url_back')) {
+            return back()->with('message', 'Order created successfully');
+        }
+
+        if (!empty($sessionKey)) {
+            $defaultData = session($sessionKey);
+            if (!empty($defaultData) && !empty($defaultData["redirect_back"])) {
+                return redirect($defaultData["redirect_back"])->with('message', 'Order created successfully');
+            }
+        }
+>>>>>>> master
 
                     $order->customer->credit += $all_amount;
                     $order->customer->save();
@@ -1233,6 +2092,8 @@ class OrderController extends Controller
                     'date_of_issue'   => Carbon::now()->addDays(10),
                 ]);
             }
+
+<<<<<<< HEAD
         }
 
         if ($order->order_status == \App\Helpers\OrderHelper::$delivered) {
@@ -1397,6 +2258,470 @@ class OrderController extends Controller
             'order'     => $order,
             'consignor' => $consignor,
         ])->render();
+=======
+        return redirect()->route('order.index')
+            ->with('message', 'Order created successfully');
+    }
+
+/**
+ * Display the specified resource.
+ *
+ * @param  \App\Order $order
+ *
+ * @return \Illuminate\Http\Response
+ */
+    public function show(Order $order)
+    {
+        $data                   = $order->toArray();
+        $data['sales_persons']  = Helpers::getUsersArrayByRole('Sales');
+        $data['order_products'] = $this->getOrderProductsWithProductData($order->id);
+        $data['comments']       = Comment::with('user')->where('subject_id', $order->id)
+            ->where('subject_type', '=', Order::class)->get();
+        $data['users']           = User::all()->toArray();
+        $data['customerAddress'] = OrderCustomerAddress::where('order_id', $order->id)->get();
+        $messages                = Message::all()->where('moduleid', '=', $data['id'])->where('moduletype', '=', 'order')->sortByDesc("created_at")->take(10)->toArray();
+        $data['messages']        = $messages;
+        $data['total_price']     = $this->getTotalOrderPrice($order);
+
+        $order_statuses              = (new OrderStatus)->all();
+        $data['order_statuses']      = $order_statuses;
+        $data['tasks']               = Task::where('model_type', 'order')->where('model_id', $order->id)->get()->toArray();
+        $data['order_recordings']    = CallRecording::where('order_id', '=', $data['order_id'])->get()->toArray();
+        $data['order_status_report'] = OrderStatuses::all();
+        if ($order->customer) {
+            $data['order_reports'] = OrderReport::where('order_id', $order->customer->id)->get();
+        }
+
+        $data['users_array']       = Helpers::getUserArray(User::all());
+        $data['has_customer']      = $order->customer ? $order->customer->id : false;
+        $data['customer']          = $order->customer;
+        $data['reply_categories']  = ReplyCategory::all();
+        $data['delivery_approval'] = $order->delivery_approval;
+        $data['waybill']           = $order->waybill;
+        $data['waybills']          = $order->waybills;
+
+        return view('orders.show', $data);
+    }
+
+/**
+ * Show the form for editing the specified resource.
+ *
+ * @param  \App\Order $order
+ *
+ * @return \Illuminate\Http\Response
+ */
+    public function edit(Order $order)
+    {
+
+        $data                   = $order->toArray();
+        $data['modify']         = 1;
+        $data['sales_persons']  = Helpers::getUsersArrayByRole('Sales');
+        $data['order_products'] = $this->getOrderProductsWithProductData($order->id);
+
+        return view('orders.form', $data);
+    }
+
+/**
+ * Update the specified resource in storage.
+ *
+ * @param  \Illuminate\Http\Request $request
+ * @param  \App\Order $order
+ *
+ * @return \Illuminate\Http\Response
+ */
+    public function update(Request $request, Order $order)
+    {
+
+        if ($request->type != 'customer') {
+            $this->validate($request, [
+                // 'client_name'    => 'required',
+                'advance_detail' => 'numeric|nullable',
+                'balance_amount' => 'numeric|nullable',
+                'contact_detail' => 'sometimes|nullable|numeric',
+            ]);
+        }
+
+        // if( $order->sales_person != $request->input('sales_person') ){
+        //
+        //  NotificationQueueController::createNewNotification([
+        //      'type' => 'button',
+        //      'message' => $order->client_name,
+        //      // 'timestamps' => ['+0 minutes','+15 minutes','+30 minutes','+45 minutes'],
+        //      'timestamps' => ['+0 minutes'],
+        //      'model_type' => Order::class,
+        //      'model_id' =>  $order->id,
+        //      'user_id' => \Auth::id(),
+        //      'sent_to' => $request->input( 'sales_person' ),
+        //      'role' => '',
+        //  ]);
+        // }
+
+        if (!empty($request->input('order_products'))) {
+            foreach ($request->input('order_products') as $key => $order_product_data) {
+                $order_product = OrderProduct::findOrFail($key);
+
+                if (isset($order_product_data['purchase_status']) && $order_product_data['purchase_status'] != $order_product->purchase_status) {
+                    StatusChange::create([
+                        'model_id'    => $order_product->id,
+                        'model_type'  => OrderProduct::class,
+                        'user_id'     => Auth::id(),
+                        'from_status' => $order_product->purchase_status,
+                        'to_status'   => $order_product_data['purchase_status'],
+                    ]);
+                }
+
+                $order_product->update($order_product_data);
+            }
+        }
+
+        if ($request->status != $order->order_status) {
+            StatusChange::create([
+                'model_id'    => $order->id,
+                'model_type'  => Order::class,
+                'user_id'     => Auth::id(),
+                'from_status' => $order->order_status,
+                'to_status'   => $request->status,
+            ]);
+        }
+
+        $data                 = $request->except(['_token', '_method', 'status', 'purchase_status']);
+        $data['order_status'] = $request->status;
+        $data['is_priority']  = $request->is_priority == 'on' ? 1 : 0;
+        $order->update($data);
+
+        $this->calculateBalanceAmount($order);
+        $order = Order::find($order->id);
+
+        if ($customer = Customer::find($order->customer_id)) {
+            if ($customer->credit > 0) {
+                $balance_amount = $order->balance_amount;
+
+                if (($order->balance_amount - $customer->credit) < 0) {
+                    $left_credit = ($order->balance_amount - $customer->credit) * -1;
+                    $order->advance_detail += $order->balance_amount;
+                    $balance_amount   = 0;
+                    $customer->credit = $left_credit;
+                } else {
+                    $balance_amount -= $customer->credit;
+                    $order->advance_detail += $customer->credit;
+                    $customer->credit = 0;
+                }
+
+                $order->balance_amount = $balance_amount;
+                $order->save();
+                $customer->save();
+
+                if ($order->id) {
+                    CreditHistory::create(
+                        array(
+                            'customer_id' => $request->customer_id,
+                            'model_id'    => $order->id,
+                            'model_type'  => Order::class,
+                            'used_credit' => $customer->credit,
+                            'used_in'     => 'ORDER',
+                            'type'        => 'MINUS',
+                        )
+                    );
+                }
+            }
+        }
+
+        if (!$order->is_sent_initial_advance() && $order->order_status_id == OrderHelper::$proceedWithOutAdvance && $order->order_type == 'online') {
+            $product_names = '';
+            foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
+                $product_names .= $order_product->product ? $order_product->product->name . ", " : '';
+            }
+
+            $delivery_time = $order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::parse($order->order_date)->addDays(15)->format('d \of\ F');
+
+            $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'cod-online-confirmation')->first();
+
+            $auto_message = preg_replace("/{product_names}/i", $product_names, $auto_reply->reply);
+            $auto_message = preg_replace("/{delivery_time}/i", $delivery_time, $auto_message);
+
+            $followup_message = AutoReply::where('type', 'auto-reply')->where('keyword', 'cod-online-followup')->first()->reply;
+
+            $requestData  = new Request();
+            $requestData2 = new Request();
+            $requestData->setMethod('POST');
+            $requestData2->setMethod('POST');
+            $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 1]);
+            $requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message, 'status' => 1]);
+
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
+
+            CommunicationHistory::create([
+                'model_id'   => $order->id,
+                'model_type' => Order::class,
+                'type'       => 'initial-advance',
+                'method'     => 'whatsapp',
+            ]);
+        } elseif (!$order->is_sent_online_confirmation() && $order->order_status_id == \App\Helpers\OrderHelper::$prepaid) {
+            $auto_message = AutoReply::where('type', 'auto-reply')->where('keyword', 'prepaid-order-confirmation')->first()->reply;
+            $requestData  = new Request();
+            $requestData->setMethod('POST');
+            $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 2]);
+
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+
+            CommunicationHistory::create([
+                'model_id'   => $order->id,
+                'model_type' => Order::class,
+                'type'       => 'online-confirmation',
+                'method'     => 'whatsapp',
+            ]);
+        }
+
+        if ($request->hdn_order_mail_status == "1") {
+            $id_order_inc = $order->id;
+            $order_new    = Order::find($id_order_inc);
+            if (!$order_new->is_sent_offline_confirmation()) {
+                if ($order_new->order_type == 'offline') {
+                    if (!empty($order_new->customer) && !empty($order_new->customer->email)) {
+                        //Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
+                        $emailClass = (new OrderConfirmation($order_new))->build();
+                        $params     = [
+                            'model_id'        => $order_new->customer->id,
+                            'model_type'      => Customer::class,
+                            'from'            => $emailClass->fromMailer,
+                            'to'              => $order_new->customer->email,
+                            'subject'         => $emailClass->subject,
+                            'message'         => $emailClass->render(),
+                            'template'        => 'order-confirmation',
+                            'additional_data' => $order_new->id,
+                            'is_draft'        => 1,
+                        ];
+                        $emailObject = Email::create($params);
+                        try {
+                            \MultiMail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
+                            CommunicationHistory::create([
+                                'model_id'   => $order_new->id,
+                                'model_type' => Order::class,
+                                'type'       => 'offline-confirmation',
+                                'method'     => 'email',
+                            ]);
+                            $emailObject->is_draft = 0;
+                        } catch (\Exception $e) {
+                            $emailObject->is_draft      = 1;
+                            $emailObject->error_message = $e->getMessage();
+                            \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
+                        }
+                        $emailObject->save();
+                    }
+                }
+            }
+        }
+
+        if ($order->order_status_id == \App\Helpers\OrderHelper::$refundToBeProcessed) {
+            if ($order->payment_mode == 'paytm') {
+                if ($order->customer) {
+                    $all_amount = 0;
+
+                    if ($order->order_product) {
+                        foreach ($order->order_product as $order_product) {
+                            $all_amount += $order_product->product_price;
+                        }
+                    }
+
+                    $order->customer->credit += $all_amount;
+                    $order->customer->save();
+                }
+            } else if ($order->payment_mode != 'paytm' || $order->advance_detail > 0) {
+                if ($order->customer) {
+                    $order->customer->credit += $order->advance_detail;
+                    $order->customer->save();
+                }
+            }
+            $refund = Refund::where('order_id', $order->id)->first();
+
+            if (!$refund) {
+                Refund::create([
+                    'customer_id'     => $order->customer->id,
+                    'order_id'        => $order->id,
+                    'type'            => 'Cash',
+                    'date_of_request' => Carbon::now(),
+                    'date_of_issue'   => Carbon::now()->addDays(10),
+                ]);
+            }
+
+        }
+
+        if ($order->order_status == \App\Helpers\OrderHelper::$delivered) {
+            if ($order->order_product) {
+                foreach ($order->order_product as $order_product) {
+                    if ($order_product->product) {
+                        if ($order_product->product->supplier == 'In-stock') {
+                            $order_product->product->supplier = '';
+                            $order_product->product->save();
+                        }
+                    }
+                }
+            }
+
+            if (!$order->is_sent_order_delivered()) {
+                $message     = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-delivery-confirmation')->first()->reply;
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $requestData->request->add(['customer_id' => $order->customer_id, 'message' => $message, 'status' => 2]);
+
+                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+
+                CommunicationHistory::create([
+                    'model_id'   => $order->id,
+                    'model_type' => Order::class,
+                    'type'       => 'order-delivered',
+                    'method'     => 'whatsapp',
+                ]);
+            }
+            event(new OrderUpdated($order));
+            $order->delete();
+
+            if ($request->type != 'customer') {
+                return redirect()->route('order.index')->with('success', 'Order was updated and archived successfully!');
+            } else {
+                return back()->with('success', 'Order was updated and archived successfully!');
+            }
+        }
+        event(new OrderUpdated($order));
+        return back()->with('message', 'Order updated successfully');
+    }
+
+    public function printAdvanceReceipt($id)
+    {
+        $order = Order::find($id);
+
+        return (new AdvanceReceiptPDF($order))->render();
+        $view = (new AdvanceReceiptPDF($order))->render();
+>>>>>>> master
+
+        $pdf = new Dompdf;
+        $pdf->loadHtml($view);
+        $pdf->render();
+        $pdf->stream();
+    }
+
+<<<<<<< HEAD
+    public function uploadForApproval(Request $request, $id)
+    {
+        $this->validate($request, [
+            'images' => 'required',
+        ]);
+
+=======
+    public function emailAdvanceReceipt($id)
+    {
+        $order = Order::find($id);
+
+        if (true) {
+            // if ($order->auto_emailed == 0) {
+            if ($order->order_status == \App\Helpers\OrderHelper::$advanceRecieved) {
+                Mail::to($order->customer->email)->send(new AdvanceReceipt($order));
+
+                // $order->update([
+                //  'auto_emailed' => 1,
+                //  'auto_emailed_date' => Carbon::now()
+                // ]);
+
+                $params = [
+                    'model_id'        => $order->customer->id,
+                    'model_type'      => Customer::class,
+                    'from'            => 'customercare@sololuxury.co.in',
+                    'to'              => $order->customer->email,
+                    'subject'         => "Advance Receipt",
+                    'message'         => '',
+                    'template'        => 'advance-receipt',
+                    'additional_data' => $order->id,
+                ];
+
+                Email::create($params);
+
+                CommunicationHistory::create([
+                    'model_id'   => $order->id,
+                    'model_type' => Order::class,
+                    'type'       => 'advance-receipt',
+                    'method'     => 'email',
+                ]);
+            }
+        }
+
+        return redirect()->back()->withSuccess('Advance Receipt was successfully emailed!');
+    }
+
+    public function sendConfirmation($id)
+    {
+        $order = Order::find($id);
+
+        // if ($order->auto_emailed == 0) {
+        if (!$order->is_sent_offline_confirmation()) {
+            if ($order->order_type == 'offline') {
+                Mail::to($order->customer->email)->send(new OrderConfirmation($order));
+
+                // $order->update([
+                //  'auto_emailed' => 1,
+                //  'auto_emailed_date' => Carbon::now()
+                // ]);
+
+                $params = [
+                    'model_id'        => $order->customer->id,
+                    'model_type'      => Customer::class,
+                    'from'            => 'customercare@sololuxury.co.in',
+                    'to'              => $order->customer->email,
+                    'subject'         => "New Order # " . $order->order_id,
+                    'message'         => '',
+                    'template'        => 'order-confirmation',
+                    'additional_data' => $order->id,
+                ];
+
+                Email::create($params);
+
+                CommunicationHistory::create([
+                    'model_id'   => $order->id,
+                    'model_type' => Order::class,
+                    'type'       => 'offline-confirmation',
+                    'method'     => 'email',
+                ]);
+
+                // $params = [
+                //   'number'      => NULL,
+                //   'user_id'     => Auth::id(),
+                //   'customer_id' => $order->customer->id,
+                //   'approved'    => 1,
+                //   'status'      => 9, // status for automated messages,
+                //  'message'           => ''
+                // ];
+                //
+                // $chat_message = ChatMessage::create($params);
+                //
+                // app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($order->customer->phone, $order->customer->whatsapp_number, $params['message'], false, $chat_message->id);
+                //
+                // CommunicationHistory::create([
+                //  'model_id'      => $order->id,
+                //  'model_type'    => Order::class,
+                //  'type'              => 'offline-confirmation',
+                //  'method'            => 'whatsapp'
+                // ]);
+            }
+        }
+
+        return redirect()->back()->withSuccess('You have successfully sent confirmation email!');
+    }
+
+    public function generateInvoice($id)
+    {
+        $order     = Order::find($id);
+        $consignor = [
+            'name'    => Setting::get('consignor_name'),
+            'address' => Setting::get('consignor_address'),
+            'city'    => Setting::get('consignor_city'),
+            'country' => Setting::get('consignor_country'),
+            'phone'   => Setting::get('consignor_phone'),
+        ];
+
+        $view = view('emails.orders.invoice-pdf', [
+            'order'     => $order,
+            'consignor' => $consignor,
+        ])->render();
 
         $pdf = new Dompdf;
         $pdf->loadHtml($view);
@@ -1410,6 +2735,7 @@ class OrderController extends Controller
             'images' => 'required',
         ]);
 
+>>>>>>> master
         $delivery_approval = Order::find($id)->delivery_approval;
         // if () {
         //
@@ -1631,6 +2957,7 @@ class OrderController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $order = Order::find($id);
+<<<<<<< HEAD
 
         StatusChange::create([
             'model_id'    => $order->id,
@@ -1752,11 +3079,188 @@ class OrderController extends Controller
                 ]);
             }
         }
+=======
 
+        StatusChange::create([
+            'model_id'    => $order->id,
+            'model_type'  => Order::class,
+            'user_id'     => Auth::id(),
+            'from_status' => $order->order_status,
+            'to_status'   => $request->status,
+        ]);
+
+        $order->order_status = $request->status;
+        $order->save();
+
+        // if ($order->auto_messaged == 0) {
+        if (!$order->is_sent_initial_advance() && $order->order_status == OrderHelper::$proceedWithOutAdvance && $order->order_type == 'online') {
+            $product_names = '';
+            foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
+                $product_names .= $order_product->product ? $order_product->product->name . ", " : '';
+            }
+
+            $delivery_time = $order->estimated_delivery_date ? Carbon::parse($order->estimated_delivery_date)->format('d \of\ F') : Carbon::parse($order->order_date)->addDays(15)->format('d \of\ F');
+
+            $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'cod-online-confirmation')->first();
+
+            $auto_message = preg_replace("/{product_names}/i", $product_names, $auto_reply->reply);
+            $auto_message = preg_replace("/{delivery_time}/i", $delivery_time, $auto_message);
+
+            $followup_message = AutoReply::where('type', 'auto-reply')->where('keyword', 'cod-online-followup')->first()->reply;
+            $requestData      = new Request();
+            $requestData2     = new Request();
+            $requestData->setMethod('POST');
+            $requestData2->setMethod('POST');
+            $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 2]);
+            $requestData2->request->add(['customer_id' => $order->customer->id, 'message' => $followup_message, 'status' => 2]);
+
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData2, 'customer');
+
+            CommunicationHistory::create([
+                'model_id'   => $order->id,
+                'model_type' => Order::class,
+                'type'       => 'initial-advance',
+                'method'     => 'whatsapp',
+            ]);
+        } elseif (!$order->is_sent_online_confirmation() && $order->order_status == \App\Helpers\OrderHelper::$prepaid) {
+            $auto_message = AutoReply::where('type', 'auto-reply')->where('keyword', 'prepaid-order-confirmation')->first()->reply;
+            $requestData  = new Request();
+            $requestData->setMethod('POST');
+            $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 2]);
+
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+
+            CommunicationHistory::create([
+                'model_id'   => $order->id,
+                'model_type' => Order::class,
+                'type'       => 'online-confirmation',
+                'method'     => 'whatsapp',
+            ]);
+        }
+
+        if ($order->order_status == \App\Helpers\OrderHelper::$refundToBeProcessed) {
+            $refund = Refund::where('order_id', $order->id)->first();
+
+            if (!$refund) {
+                Refund::create([
+                    'customer_id'     => $order->customer->id,
+                    'order_id'        => $order->id,
+                    'type'            => 'Cash',
+                    'date_of_request' => Carbon::now(),
+                    'date_of_issue'   => Carbon::now()->addDays(10),
+                ]);
+            }
+
+            if ($order->payment_mode == 'paytm') {
+                if ($order->customer) {
+                    $all_amount = 0;
+
+                    if ($order->order_product) {
+                        foreach ($order->order_product as $order_product) {
+                            $all_amount += $order_product->product_price;
+                        }
+                    }
+
+                    $order->customer->credit += $all_amount;
+                    $order->customer->save();
+                }
+            } else if ($order->payment_mode != 'paytm' || $order->advance_detail > 0) {
+                if ($order->customer) {
+                    $order->customer->credit += $order->advance_detail;
+                    $order->customer->save();
+                }
+            }
+        }
+
+        if ($order->order_status == \App\Helpers\OrderHelper::$delivered) {
+            if ($order->order_product) {
+                foreach ($order->order_product as $order_product) {
+                    if ($order_product->product) {
+                        if ($order_product->product->supplier == 'In-stock') {
+                            $order_product->product->supplier = '';
+                            $order_product->product->save();
+                        }
+                    }
+                }
+            }
+
+            if (!$order->is_sent_order_delivered()) {
+                $message     = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-delivery-confirmation')->first()->reply;
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $requestData->request->add(['customer_id' => $order->customer_id, 'message' => $message, 'status' => 2]);
+
+                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+
+                CommunicationHistory::create([
+                    'model_id'   => $order->id,
+                    'model_type' => Order::class,
+                    'type'       => 'order-delivered',
+                    'method'     => 'whatsapp',
+                ]);
+            }
+        }
     }
 
     public function sendRefund(Request $request, $id)
     {
+        $order = Order::find($id);
+
+        if (!$order->is_sent_refund_initiated()) {
+            $product_names = '';
+            foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
+                $product_names .= $order_product->product ? $order_product->product->name . ", " : '';
+            }
+
+            $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-refund')->first();
+
+            $auto_message = preg_replace("/{order_id}/i", $order->order_id, $auto_reply->reply);
+            $auto_message = preg_replace("/{product_names}/i", $product_names, $auto_message);
+
+            $requestData = new Request();
+            $requestData->setMethod('POST');
+            $requestData->request->add(['customer_id' => $order->customer->id, 'message' => $auto_message, 'status' => 2]);
+
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+
+            CommunicationHistory::create([
+                'model_id'   => $order->id,
+                'model_type' => Order::class,
+                'type'       => 'refund-initiated',
+                'method'     => 'whatsapp',
+            ]);
+
+            Mail::to($order->customer->email)->send(new RefundProcessed($order->order_id, $product_names));
+
+            $params = [
+                'model_id'        => $order->customer->id,
+                'model_type'      => Customer::class,
+                'from'            => 'customercare@sololuxury.co.in',
+                'to'              => $order->customer->email,
+                'subject'         => "Refund Processed",
+                'message'         => '',
+                'template'        => 'refund-processed',
+                'additional_data' => json_encode(['order_id' => $order->order_id, 'product_names' => $product_names]),
+            ];
+
+            Email::create($params);
+
+            CommunicationHistory::create([
+                'model_id'   => $order->id,
+                'model_type' => Order::class,
+                'type'       => 'refund-initiated',
+                'method'     => 'email',
+            ]);
+        }
+
+        return response('success');
+>>>>>>> master
+    }
+
+    public function generateAWB(Request $request)
+    {
+<<<<<<< HEAD
         $order = Order::find($id);
 
         if (!$order->is_sent_refund_initiated()) {
@@ -1804,7 +3308,6 @@ class OrderController extends Controller
         }
 
         return response('success');
-
     }
 
     public function generateAWB(Request $request)
@@ -1841,6 +3344,40 @@ class OrderController extends Controller
         $pickup_date     = $pickup_datetime[0];
         $pickup_time     = str_replace(':', '', $pickup_datetime[1]);
 
+=======
+        $options = array(
+            'trace'        => 1,
+            'style'        => SOAP_DOCUMENT,
+            'use'          => SOAP_LITERAL,
+            'soap_version' => SOAP_1_2,
+        );
+
+        $soap = new SoapClient('https://netconnect.bluedart.com/Ver1.8/ShippingAPI/Waybill/WayBillGeneration.svc?wsdl', $options);
+
+        $soap->__setLocation("https://netconnect.bluedart.com/Ver1.8/ShippingAPI/Waybill/WayBillGeneration.svc");
+
+        $soap->sendRequest  = true;
+        $soap->printRequest = false;
+        $soap->formatXML    = true;
+
+        $actionHeader = new \SoapHeader('http://www.w3.org/5005/08/addressing', 'Action', 'http://tempuri.org/IWayBillGeneration/GenerateWayBill', true);
+
+        $soap->__setSoapHeaders($actionHeader);
+
+        $order = Order::find($request->order_id);
+
+        $order->customer->name    = $request->customer_name;
+        $order->customer->address = $request->customer_address1;
+        $order->customer->city    = $request->customer_address2;
+        $order->customer->pincode = $request->customer_pincode;
+
+        $order->customer->save();
+
+        $pickup_datetime = explode(' ', $request->pickup_time);
+        $pickup_date     = $pickup_datetime[0];
+        $pickup_time     = str_replace(':', '', $pickup_datetime[1]);
+
+>>>>>>> master
         $total_price = 0;
 
         foreach ($order->order_product as $product) {
@@ -2223,6 +3760,7 @@ class OrderController extends Controller
         );
         // Creation of configurable product
         $result = $proxy->catalogProductCreate($sessionId, 'configurable', 14, "CUSTOMPRO$order->id", $productData);
+<<<<<<< HEAD
 
         // $images = $product->getMedia(config('constants.media_tags'));
         //
@@ -2251,6 +3789,123 @@ class OrderController extends Controller
         dd($product_url, $result);
         return $result;
     }
+=======
+
+        // $images = $product->getMedia(config('constants.media_tags'));
+        //
+        // $i = 0;
+        // $productId = $result;
+        //
+        // foreach ($images as $image){
+        //
+        //  $image->getUrl();
+        //
+        //  $file = array(
+        //      'name' => $image->getBasenameAttribute(),
+        //      'content' => base64_encode(file_get_contents($image->getAbsolutePath())),
+        //      'mime' => mime_content_type($image->getAbsolutePath())
+        //  );
+        //
+        //  $types = $i ? array('') : array('size_guide','image','small_image','thumbnail','hover_image');
+        //
+        //  $result = $proxy->catalogProductAttributeMediaCreate(
+        //      $sessionId,
+        //      $productId,
+        //      array('file' => $file, 'label' => $image->getBasenameAttribute() , 'position' => ++$i , 'types' => $types, 'exclude' => 0)
+        //  );
+        // }
+        $product_url = "https://www.sololuxury.co.in/$url_structure[0]/$url_structure[1]/show-all/test-product-from-erp-$result.html";
+        dd($product_url, $result);
+        return $result;
+    }
+
+    public function statusChange(Request $request)
+    {
+        $id     = $request->get("id");
+        $status = $request->get("status");
+
+        if (!empty($id) && !empty($status)) {
+            $order   = \App\Order::where("id", $id)->first();
+            $statuss = OrderStatus::where("id", $status)->first();
+
+            if ($order) {
+                $old_status             = $order->order_status_id;
+                $order->order_status    = $statuss->status;
+                $order->order_status_id = $status;
+                $order->save();
+
+                $history             = new OrderStatusHistory;
+                $history->order_id   = $order->id;
+                $history->old_status = $old_status;
+                $history->new_status = $status;
+                $history->user_id    = Auth::user()->id;
+                $history->save();
+                if (isset($request->sendmessage) && $request->sendmessage == '1') {
+                    //Sending Mail on changing of order status
+                    try {
+                        // send order canellation email
+                        if (strtolower($statuss->status) == "cancel") {
+                            $view   = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
+                            $params = [
+                                'model_id'        => $order->customer->id,
+                                'model_type'      => Customer::class,
+                                'from'            => $view->fromMailer,
+                                'to'              => $order->customer->email,
+                                'subject'         => $view->subject,
+                                'message'         => $view->render(),
+                                'template'        => 'order-cancellation-update',
+                                'additional_data' => $order->id,
+                                'is_draft'        => 1,
+                            ];
+
+                            $emailObject = Email::create($params);
+
+                            try {
+                                \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderCancellationMail($order));
+                                CommunicationHistory::create([
+                                    'model_id'   => $order->id,
+                                    'model_type' => Order::class,
+                                    'type'       => 'order-cancellation-update',
+                                    'method'     => 'email',
+                                ]);
+                                $emailObject->is_draft = 0;
+                            } catch (\Exception $e) {
+                                $emailObject->is_draft      = 1;
+                                $emailObject->error_message = $e->getMessage();
+                            }
+
+                            $emailObject->save();
+
+                        } else {
+
+                            $view   = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+                            $params = [
+                                'model_id'        => $order->customer->id,
+                                'model_type'      => Customer::class,
+                                'from'            => $view->fromMailer,
+                                'to'              => $order->customer->email,
+                                'subject'         => $view->subject,
+                                'message'         => $view->render(),
+                                'template'        => 'order-status-update',
+                                'additional_data' => $order->id,
+                            ];
+
+                            $emailObject = Email::create($params);
+
+                            try {
+                                \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderStatusChangeMail($order));
+                                CommunicationHistory::create([
+                                    'model_id'   => $order->id,
+                                    'model_type' => Order::class,
+                                    'type'       => 'order-status-update',
+                                    'method'     => 'email',
+                                ]);
+                                $emailObject->is_draft = 0;
+                            } catch (\Exception $e) {
+                                $emailObject->is_draft      = 1;
+                                $emailObject->error_message = $e->getMessage();
+                            }
+>>>>>>> master
 
     public function statusChange(Request $request)
     {
@@ -2325,6 +3980,8 @@ class OrderController extends Controller
                     }
 
                 } else {
+<<<<<<< HEAD
+
                     $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
 
                     $storeWebsiteOrder = $order->storeWebsiteOrder;
@@ -2344,6 +4001,27 @@ class OrderController extends Controller
 
                     \App\Jobs\SendEmail::dispatch($email);
 
+=======
+                    \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderStatusChangeMail($order));
+                    $view   = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+                    $params = [
+                        'model_id'        => $order->customer->id,
+                        'model_type'      => Customer::class,
+                        'from'            => $view->fromMailer,
+                        'to'              => $order->customer->email,
+                        'subject'         => $view->subject,
+                        'message'         => $view->render(),
+                        'template'        => 'order-status-update',
+                        'additional_data' => $order->id,
+                    ];
+                    Email::create($params);
+                    CommunicationHistory::create([
+                        'model_id'   => $order->id,
+                        'model_type' => Order::class,
+                        'type'       => 'order-status-update',
+                        'method'     => 'email',
+                    ]);
+>>>>>>> master
                 }
 
                 // }catch(\Exception $e) {
@@ -2391,13 +4069,14 @@ class OrderController extends Controller
         }
 
         return response()->json(["code" => 500, "data" => [], "message" => "Sorry , there is no matching order found"]);
+<<<<<<< HEAD
     }
     public function sendOrderEmail(Request $request, $id)
     {
         $order = Order::find($id);
         if (!$order->is_sent_offline_confirmation()) {
             if ($order->order_type == 'offline') {
-
+                
                 $emailClass = (new OrderConfirmation($order))->build();
 
                 $storeWebsiteOrder = $order->storeWebsiteOrder;
@@ -2434,6 +4113,50 @@ class OrderController extends Controller
             }
         }
 
+=======
+    }
+    public function sendOrderEmail(Request $request, $id)
+    {
+        $order = Order::find($id);
+        if (!$order->is_sent_offline_confirmation()) {
+            if ($order->order_type == 'offline') {
+                Mail::to($order->customer->email)->send(new OrderConfirmation($order));
+                $view   = (new OrderConfirmation($order))->render();
+                $params = [
+                    'model_id'        => $order->customer->id,
+                    'model_type'      => Customer::class,
+                    'from'            => 'customercare@sololuxury.co.in',
+                    'to'              => $order->customer->email,
+                    'subject'         => "New Order # " . $order->order_id,
+                    'message'         => $view,
+                    'template'        => 'order-confirmation',
+                    'additional_data' => $order->id,
+                ];
+                Email::create($params);
+                CommunicationHistory::create([
+                    'model_id'   => $order->id,
+                    'model_type' => Order::class,
+                    'type'       => 'offline-confirmation',
+                    'method'     => 'email',
+                ]);
+            }
+        }
+        return response()->json(["code" => 200, "data" => [], "message" => "You have successfully sent confirmation email!"]);
+    }
+
+    public function previewInvoice(Request $request, $id)
+    {
+        $order = \App\Order::where("id", $id)->first();
+        if ($order) {
+            $data["order"]    = $order;
+            $data["customer"] = $order->customer;
+            if ($order->customer) {
+                $invoice = new OrderInvoice($data);
+                return $invoice->preview();
+            }
+        }
+
+>>>>>>> master
         return abort("404");
     }
     public function viewInvoice($id)
@@ -2664,11 +4387,19 @@ class OrderController extends Controller
                 }
                 return response()->json(["code" => 200, "data" => [], "message" => "Receipt Created successfully"]);
             }
+<<<<<<< HEAD
 
         } else {
             return response()->json(["code" => 500, "data" => [], "message" => ($response->getErrorMessage()) ? implode("<br>", $response->getErrorMessage()) : 'Receipt not created']);
         }
 
+=======
+
+        } else {
+            return response()->json(["code" => 500, "data" => [], "message" => ($response->getErrorMessage()) ? implode("<br>", $response->getErrorMessage()) : 'Receipt not created']);
+        }
+
+>>>>>>> master
         return response()->json(["code" => 500, "data" => [], "message" => "Something went wrong can not create receipt"]);
 
     }
@@ -2686,10 +4417,17 @@ class OrderController extends Controller
             $view     = (string) view("partials.dhl.tracking", compact('response'));
             return response()->json(["code" => 200, "_h" => $view, "awb" => $awb]);
         }
+<<<<<<< HEAD
 
         return response()->json(["code" => 200, "_h" => "No records found"]);
     }
 
+=======
+
+        return response()->json(["code" => 200, "_h" => "No records found"]);
+    }
+
+>>>>>>> master
     public function viewAllInvoices()
     {
         $invoices = Invoice::with('orders.order_product', 'orders.customer')->orderBy('id', 'desc')->paginate(30);
@@ -2725,6 +4463,7 @@ class OrderController extends Controller
     {
         if (!$request->invoice_number) {
             return redirect()->back()->with('error', 'Invoice number is mandatory');
+<<<<<<< HEAD
         }
         if (!$request->first_order_id) {
             return redirect()->back()->with('error', 'Invalid approach');
@@ -2733,6 +4472,16 @@ class OrderController extends Controller
         if (!$firstOrder) {
             return redirect()->back()->with('error', 'This order is already associated with an invoice');
         }
+=======
+        }
+        if (!$request->first_order_id) {
+            return redirect()->back()->with('error', 'Invalid approach');
+        }
+        $firstOrder = Order::where('invoice_id', null)->where('id', $request->first_order_id)->first();
+        if (!$firstOrder) {
+            return redirect()->back()->with('error', 'This order is already associated with an invoice');
+        }
+>>>>>>> master
         $invoice                 = new Invoice;
         $invoice->invoice_number = $request->invoice_number;
         $invoice->invoice_date   = $request->invoice_date;
@@ -3037,6 +4786,7 @@ class OrderController extends Controller
                                     $emailData['static_template'] = $bodyText;
                                     $emailData['from']            = $storeEmailAddress->from_address;
 
+<<<<<<< HEAD
                                     $emailClass = (new OrderStatusMail($emailData))->build();
 
                                     $storeWebsiteOrder = $order->storeWebsiteOrder;
@@ -3055,6 +4805,10 @@ class OrderController extends Controller
 
                                     \App\Jobs\SendEmail::dispatch($email);
 
+
+=======
+                                    Mail::to($order->customer->email)->send(new OrderStatusMail($emailData));
+>>>>>>> master
                                 }
                             }
                         }
@@ -3151,6 +4905,10 @@ class OrderController extends Controller
         }
         return response()->json(["code" => 500, "data" => [], "message" => "Something went wrong"]);
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
     public function viewEstDelDateHistory(request $request)
     {
         $orderid                      = $request->input('order_id');
@@ -3164,6 +4922,8 @@ class OrderController extends Controller
         return response()->json(["code" => 200, "html" => $html, "message" => "Something went wrong"]);
     }
 
+<<<<<<< HEAD
+=======
     /**
      * @SWG\Get(
      *   path="/customer/order-details",
@@ -3183,6 +4943,7 @@ class OrderController extends Controller
      *
      */
 
+>>>>>>> master
     public function customerOrderDetails(Request $request)
     {
         $token     = $request->token;
@@ -3286,8 +5047,13 @@ class OrderController extends Controller
         // $orders = json_encode($orders);
         $message = $this->generate_erp_response("customer.order.success", $store_website->id, $default = "Orders Fetched successfully", request('lang_code'));
         return response()->json(['message' => $message, 'status' => 200, 'data' => $orders]);
+<<<<<<< HEAD
+
+    }
+=======
     }
 
+>>>>>>> master
     public function addNewReply(request $request)
     {
         if ($request->reply) {
@@ -3307,6 +5073,7 @@ class OrderController extends Controller
                 }
 
                 return response()->json(['message' => 'reply added successfully', 'html' => $html, 'status' => 200]);
+<<<<<<< HEAD
             }
             return response()->json(['message' => 'unable to add reply', 'status' => 500]);
         }
@@ -3335,7 +5102,7 @@ class OrderController extends Controller
         \App\Jobs\SendEmail::dispatch($email);
 
         return response()->json(['message' => 'unable to add reply', 'status' => 500]);
-
+        
         //$view = (new OrderConfirmation($order_new))->build();
         //echo "<pre>"; print_r($view);  echo "</pre>";die;
 
@@ -3344,7 +5111,48 @@ class OrderController extends Controller
         //\MultiMail::to('webreak.pravin@gmail.com')->send(new \App\Mails\Manual\SendIssueCredit($customer));
 
         // \MultiMail::to('webreak.pravin@gmail.com')->send(new OrderConfirmation($order_new));
-        //
+        // 
+    }
+
+    public function statusChangeTemplate(Request $request)
+    {
+        $statusModal = \App\OrderStatus::where("id", $request->order_status_id)->first();
+        $order       = \App\Order::where("id", $request->order_id)->first();
+        $template    = \App\Order::ORDER_STATUS_TEMPLATE;
+        if ($statusModal) {
+            if (!empty($statusModal->message_text_tpl)) {
+                $template = $statusModal->message_text_tpl;
+=======
+            }
+            return response()->json(['message' => 'unable to add reply', 'status' => 500]);
+        }
+        return response()->json(['message' => 'please enter a reply', 'status' => 400]);
+    }
+
+    public function testEmail(Request $request)
+    {
+
+        $cmd = 'sh ' . '/root/scrapper-running.sh 2>&1';
+
+        $allOutput   = array();
+        $allOutput[] = $cmd;
+        $result      = exec($cmd, $allOutput);
+
+        echo "<pre>";
+        print_r($allOutput);
+        echo "</pre>";die;
+
+        return false;
+        /*$order_new = \App\Order::find(2032);
+    $view = (new OrderConfirmation($order_new))->build();
+    //echo "<pre>"; print_r($view);  echo "</pre>";die;
+
+    //\MultiMail::to('webreak.pravin@ gmail.com')->send(new \App\Mail\OrderStatusChangeMail($order_new));
+    $customer = \App\Customer::first();
+    \MultiMail::to('webreak.pravin@gmail.com')->send(new \App\Mails\Manual\SendIssueCredit($customer));
+
+    // \MultiMail::to('webreak.pravin@gmail.com')->send(new OrderConfirmation($order_new));
+    // */
     }
 
     public function statusChangeTemplate(Request $request)
@@ -3378,8 +5186,8 @@ class OrderController extends Controller
                 $order   = \App\Order::find($k);
                 $address = \App\OrderCustomerAddress::where("order_id", $k)->where("address_type", "shipping")->first();
                 if (!$address) {
-                    $address               = new \App\OrderCustomerAddress;
-                    $address->order_id     = $k;
+                    $address           = new \App\OrderCustomerAddress;
+                    $address->order_id = $k;
                     $address->address_type = "shipping";
                     if ($order) {
                         $customer = $order->customer;
@@ -3405,14 +5213,22 @@ class OrderController extends Controller
 
         if (!empty($orderproducts)) {
             foreach ($orderproducts as $k => $op) {
-                $orderP = \App\OrderProduct::find($k);
-                if ($orderP) {
+                $orderP   = \App\OrderProduct::find($k);
+                if($orderP) {
                     $orderP->fill($op);
                     $orderP->save();
                 }
+>>>>>>> master
             }
         }
-         return response()->json(["code" => 200 , "data" => [],"message" => "Invoice updated successfully"]);
+        $template = str_replace(["#{order_id}", "#{order_status}"], [$order->order_id, $statusModal->status], $template);
+        return response()->json(["code" => 200, "template" => $template]);
     }
 
+<<<<<<< HEAD
+=======
+        return response()->json(["code" => 200 , "data" => [],"message" => "Invoice updated successfully"]);
+    }
+
+>>>>>>> master
 }

@@ -71,7 +71,26 @@ class CustomerDobAndAnniversryMail extends Command
                         $emailData['subject'] = $templateData->subject;
                         $emailData['template'] = $bodyText;
                         $emailData['from'] = $storeEmailAddress->from_address;
-                        Mail::to($customer->email)->send(new DobAndAnniversaryMail($emailData));
+                        //Mail::to($customer->email)->send(new DobAndAnniversaryMail($emailData));
+
+
+                        $emailClass = (new DobAndAnniversaryMail($emailData))->build();
+
+                        $email = \App\Email::create([
+                            'model_id'        => $customer->id,
+                            'model_type'      => \App\Customer::class,
+                            'from'            => $emailClass->fromMailer,
+                            'to'              => $customer->email,
+                            'subject'         => $templateData->subject,
+                            'message'         => $emailClass->render(),
+                            'template'        => 'birthday-mail',
+                            'additional_data' => $order->id,
+                            'status'          => 'pre-send',
+                            'is_draft'        => 1,
+                        ]);
+
+                        \App\Jobs\SendEmail::dispatch($email);
+
                     }
                 }
                 catch (\Exception $e) {
@@ -108,7 +127,25 @@ class CustomerDobAndAnniversryMail extends Command
                            $emailData['subject'] = $templateData->subject;
                            $emailData['template'] = $bodyText;
                            $emailData['from'] = $storeEmailAddress->from_address;
-                           Mail::to($customer->email)->send(new DobAndAnniversaryMail($emailData));
+
+                           //Mail::to($customer->email)->send(new DobAndAnniversaryMail($emailData));
+
+                           $emailClass = (new DobAndAnniversaryMail($emailData))->build();
+ 
+                           $email = \App\Email::create([
+                              'model_id'        => $customer->id,
+                              'model_type'      => \App\Customer::class,
+                              'from'            => $emailClass->fromMailer,
+                              'to'              => $customer->email,
+                              'subject'         => $templateData->subject,
+                              'message'         => $emailClass->render(),
+                              'template'        => 'wedding-anniversery-mail',
+                              'additional_data' => $order->id,
+                              'status'          => 'pre-send',
+                              'is_draft'        => 1,
+                           ]);
+
+                           \App\Jobs\SendEmail::dispatch($email);
                        }
                    }
                    catch (\Exception $e) {

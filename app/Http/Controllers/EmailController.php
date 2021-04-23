@@ -55,9 +55,12 @@ class EmailController extends Controller
             $query = $query->where('status',"bin");
         }elseif($type == "draft"){
             $query = $query->where('is_draft',1);
+        }elseif($type == "pre-send"){
+            $query = $query->where('status',"pre-send");
         }else{
             $query = $query->where('type',$type);
         }
+        
         if($date) {
             $query = $query->whereDate('created_at',$date);
         }
