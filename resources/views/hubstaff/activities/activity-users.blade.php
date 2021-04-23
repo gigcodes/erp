@@ -279,8 +279,8 @@
                     <input id="activity-available" type="text"  value="" class="form-control" readonly>
                 </div>
                 <div class="form-group">
-                    <input type="text" name="hub_staff_start_date" hidden/>
-                    <input type="text" name="hub_staff_end_date" hidden/>
+                    <input type="text" name="hub_staff_start_date" value="" hidden/>
+                    <input type="text" name="hub_staff_end_date" value="" hidden/>
                     <div id="HubStaffDateRange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
                         <i class="fa fa-calendar"></i>&nbsp;
                         <span></span> <i class="fa fa-caret-down"></i>
@@ -414,6 +414,8 @@ let r_s = jQuery('input[name="start_date"]').val();
 
         function hubDate(start, end, id) {
             $('#HubStaffDateRange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+            jQuery('input[name="hub_staff_start_date"]').val(start.format('YYYY-MM-DD'));
+            jQuery('input[name="hub_staff_end_date"]').val(end.format('YYYY-MM-DD'));
         }
         
         $('#HubStaffDateRange').daterangepicker({
