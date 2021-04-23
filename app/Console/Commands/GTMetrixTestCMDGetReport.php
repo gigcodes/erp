@@ -46,7 +46,7 @@ class GTMetrixTestCMDGetReport extends Command
     {   
         
         try {
-
+            \Log::info('GTMetrix :: Report cron start ' );
             $report = CronJobReport::create([
                 'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
@@ -98,6 +98,7 @@ class GTMetrixTestCMDGetReport extends Command
                 ]);
             }
 
+            \Log::info('GTMetrix :: Report cron complete ' );
             $report->update(['end_time' => Carbon::now()]);
 
         } catch (\Exception $e) {
