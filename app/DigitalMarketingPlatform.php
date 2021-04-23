@@ -1,11 +1,25 @@
 <?php
 
 namespace App;
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
+
 
 use Illuminate\Database\Eloquent\Model;
 
 class DigitalMarketingPlatform extends Model
 {
+
+ /**
+   * @SWG\Property(property="platform",type="string")
+   * @SWG\Property(property="sub_platform",type="string")
+   * @SWG\Property(property="description",type="string")
+   * @SWG\Property(property="status",type="string")
+   * @SWG\Property(property="created_at",type="datetime")
+   * @SWG\Property(property="updated_at",type="datetime")
+        */
+
 
     const STATUS = [
         0 => "Draft",

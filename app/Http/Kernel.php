@@ -44,7 +44,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            'throttle:6000,1',
+            //'throttle:1,1',
             'bindings',
             \App\Http\Middleware\LogAfterRequest::class,
         ],

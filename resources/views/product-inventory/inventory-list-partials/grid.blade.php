@@ -17,6 +17,7 @@
     <td>{{ $data['brand_name'] }}</td>
     <td>{{ $data['supplier'] }}</td>
     <td>{{ $data['color'] }}</td>
+    <td>{{ isset($data['suggested_color']) ? $data['suggested_color'] : "-" }}</td>
     <td>{{ $data['composition'] }}</td>
     <td>{{ $data['size_system'] }}</td>
     <td>{{ $data['size'] }}</td>
@@ -24,6 +25,13 @@
     <td>
       @foreach(\App\Helpers\StatusHelper::getStatus() as $key => $status)
         @if($key==$data['status_id'])
+          {{ $status }}
+        @endif
+      @endforeach
+     </td>
+     <td>
+      @foreach(\App\Helpers\StatusHelper::getStatus() as $key => $status)
+        @if($key==$data['sub_status_id'])
           {{ $status }}
         @endif
       @endforeach

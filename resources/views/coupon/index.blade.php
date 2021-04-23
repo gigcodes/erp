@@ -314,7 +314,7 @@ form label.required:after{
                                             <div class="form-group row hide_div">
                                             <label for="start" class="col-sm-3 col-form-label"></label>
                                                 <div class="col-sm-8">
-                                                    <input type="checkbox" class="form-control" style="height:20px;width:20px;" id="disable_coupon_code" name="auto_generate" />
+                                                    <input type="checkbox" class="form-control" style="height:20px;width:20px;" id="disable_coupon_code" value="1" name="auto_generate" />
                                                     <div class="">If you select and save the rule you will be able to generate multiple coupon codes.</div>
                                                 </div>
                                             </div>
@@ -1083,11 +1083,16 @@ form label.required:after{
                 }else if(n['name'] == "customer_groups"){
                     indexed_array[n['name']] = $('.customers').val(); 
                 }else{
-                    indexed_array[n['name']] = n['value'];
+                     if(n['value'] != "") {
+                        indexed_array[n['name']] = n['value'];
+                     }
                 }
-                
             });
 
+            if($("#disable_coupon_code").is(":checked")) {
+                indexed_array["auto_generate"] = true;
+            }
+            
             $.ajax({
                 url : "{{ route('couponcode.store') }}",
                 type : "POST",
@@ -1244,10 +1249,16 @@ form label.required:after{
                 }else if(n['name'] == "customer_groups_edit"){
                     indexed_array[n['name']] = $('.customers_edit').val(); 
                 }else{
-                    indexed_array[n['name']] = n['value'];
+                    if(n['value'] != "") {
+                      indexed_array[n['name']] = n['value'];
+                    }
                 }
                 
             });
+
+            if($("#disable_coupon_code_edit").is(":checked")) {
+                indexed_array["auto_generate_edit"] = true;
+            }
 
             
             $.ajax({

@@ -5,6 +5,10 @@ namespace App;
 use App\DeveloperTask;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
+
 
 class CronJob extends Model
 {

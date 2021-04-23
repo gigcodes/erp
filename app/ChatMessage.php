@@ -4,7 +4,9 @@ namespace App;
 
 use Plank\Mediable\Mediable;
 use Illuminate\Database\Eloquent\Model;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 class ChatMessage extends Model
 {
     // this is guessing status since it is not declared anywhere so
@@ -29,11 +31,55 @@ class ChatMessage extends Model
     CONST CHAT_SUGGESTED_IMAGES = 12;
     CONST CHAT_MESSAGE_APPROVED = 2;
 
-    use Mediable;
+    const ERROR_STATUS_SUCCESS = 0;
+    const ERROR_STATUS_ERROR = 1;
 
-    protected $fillable = ['is_queue', 'unique_id', 'lead_id', 'order_id', 'customer_id', 'supplier_id', 'vendor_id', 'user_id','ticket_id','task_id', 'erp_user', 'contact_id', 'dubbizle_id', 'assigned_to', 'purchase_id', 'message', 'media_url', 'number', 'approved', 'status', 'error_status', 'resent', 'is_reminder', 'created_at', 'issue_id', 'developer_task_id', 'lawyer_id', 'case_id', 'blogger_id', 'voucher_id', 'document_id', 'group_id','old_id','message_application_id','is_chatbot','sent_to_user_id','site_development_id','social_strategy_id','store_social_content_id','quoted_message_id','is_reviewed','hubstaff_activity_summary_id','question_id','is_email'];
+    use Mediable;
+   /**
+     * @var string
+         * @SWG\Property(property="is_queue",type="boolean")
+     * @SWG\Property(property="unique_id",type="integer")
+     * @SWG\Property(property="lead_id",type="integer")
+     * @SWG\Property(property="order_id",type="integer")
+     * @SWG\Property(property="customer_id",type="integer")
+     * @SWG\Property(property="supplier_id",type="integer")
+     * @SWG\Property(property="ticket_id",type="integer")
+     * @SWG\Property(property="task_id",type="integer")
+     * @SWG\Property(property="erp_user",type="string")
+     * @SWG\Property(property="assigned_to",type="string")
+     * @SWG\Property(property="contact_id",type="integer")
+     * @SWG\Property(property="dubbizle_id",type="integer")
+     * @SWG\Property(property="is_reminder",type="boolean")
+     * @SWG\Property(property="created_at",type="datetime")
+     * @SWG\Property(property="issue_id",type="integer")
+     * @SWG\Property(property="developer_task_id",type="integer")
+     * @SWG\Property(property="lawyer_id",type="integer")
+     * @SWG\Property(property="case_id",type="integer")
+     * @SWG\Property(property="blogger_id",type="integer")
+     * @SWG\Property(property="voucher_id",type="integer")
+     * @SWG\Property(property="document_id",type="integer")
+     * @SWG\Property(property="payment_receipt_id",type="integer")
+     * @SWG\Property(property="group_id",type="integer")
+     * @SWG\Property(property="old_id",type="integer")
+     * @SWG\Property(property="message_application_id",type="integer")
+     * @SWG\Property(property="is_chatbot",type="boolean")
+     * @SWG\Property(property="sent_to_user_id",type="integer")
+     * @SWG\Property(property="site_development_id",type="integer")
+     * @SWG\Property(property="social_strategy_id",type="integer")
+     * @SWG\Property(property="store_social_content_id",type="integer")
+     * @SWG\Property(property="quoted_message_id",type="integer")
+      * @SWG\Property(property="is_reviewed",type="boolean")
+     * @SWG\Property(property="hubstaff_activity_summary_id",type="integer")
+     * @SWG\Property(property="question_id",type="integer")
+     
+     */
+
+    protected $fillable = ['is_queue', 'unique_id', 'lead_id', 'order_id', 'customer_id', 'supplier_id', 'vendor_id', 'user_id','ticket_id','task_id', 'erp_user', 'contact_id', 'dubbizle_id', 'assigned_to', 'purchase_id', 'message', 'media_url', 'number', 'approved', 'status', 'error_status', 'resent', 'is_reminder', 'created_at', 'issue_id', 'developer_task_id', 'lawyer_id', 'case_id', 'blogger_id', 'voucher_id', 'document_id', 'group_id','old_id','message_application_id','is_chatbot','sent_to_user_id','site_development_id','social_strategy_id','store_social_content_id','quoted_message_id','is_reviewed','hubstaff_activity_summary_id','question_id','is_email','payment_receipt_id'];
+
     protected $table = "chat_messages";
+
     protected $dates = ['created_at', 'updated_at'];
+
     protected $casts = array(
         "approved" => "boolean"
     );
@@ -285,7 +331,7 @@ class ChatMessage extends Model
     {
         return \App\ChatMessage::where("customer_id", $customerId)
         ->whereNull("chat_messages.number")
-        ->whereNotIn("status",self::AUTO_REPLY_CHAT)
+        ->whereNotIn("status",array_merge(self::AUTO_REPLY_CHAT,[2]))
         ->select(["chat_messages.*"])
         ->orderBy("chat_messages.created_at", "desc")
         ->first();

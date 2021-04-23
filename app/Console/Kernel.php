@@ -105,7 +105,7 @@ use App\Console\Commands\RunPriorityKeywordSearch;
 use App\Console\Commands\CacheMasterControl;
 use App\Console\Commands\SendEventNotificationBefore24hr;
 use App\Console\Commands\SendEventNotificationBefore2hr;
-use App\Console\Commands\SendEventNotificationBefore30Min;
+//use App\Console\Commands\SendEventNotificationBefore30Min;
 use App\Console\Commands\AccountHubstaffActivities;
 use App\Console\Commands\DailyHubstaffActivityLevel;
 use App\Console\Commands\GenerateProductPricingJson;
@@ -129,6 +129,9 @@ use App\Console\Commands\RunGoogleAnalytics;
 use App\Console\Commands\scrappersImages;
 use App\Console\Commands\scrappersImagesDelete;
 use App\Console\Commands\InstagramHandler;
+use App\Console\Commands\SendDailyReports;
+use App\Console\Commands\InsertPleskEmail;
+use App\Console\Commands\SendDailyPlannerNotification;
 
 class Kernel extends ConsoleKernel
 {
@@ -229,7 +232,7 @@ class Kernel extends ConsoleKernel
         ProcessCommentsFromCompetitors::class,
         SendEventNotificationBefore24hr::class,
         SendEventNotificationBefore2hr::class,
-        SendEventNotificationBefore30min::class,
+        //SendEventNotificationBefore30min::class,
         AccountHubstaffActivities::class,
         DailyHubstaffActivityLevel::class,
         EmailExcelImporter::class,
@@ -255,6 +258,9 @@ class Kernel extends ConsoleKernel
         scrappersImages::class,
         scrappersImagesDelete::class,
         InstagramHandler::class,
+        SendDailyReports::class,
+        SendDailyPlannerNotification::class,
+        InsertPleskEmail::class
     ];
 
     /**
@@ -505,6 +511,7 @@ class Kernel extends ConsoleKernel
 		$schedule->command('routes:sync')->hourly()->withoutOverlapping();
 
 		$schedule->command('command:assign_incomplete_products')->dailyAt('01:30');
+		$schedule->command('send:daily-reports')->dailyAt('23:00');
 
 		
         //update order way billtrack histories
@@ -536,7 +543,7 @@ class Kernel extends ConsoleKernel
         $schedule->command("assetsmanagerduedate:pay")->daily();
         
         //cron for fcm push notifications
-        $schedule->command("fcm:send")->everyFiveMinutes();
+        $schedule->command("fcm:send")->everyMinute();
         //cron for influencers start stop
         $schedule->command('influencers:startstop')->hourly();
         //cron for price check api daily basis

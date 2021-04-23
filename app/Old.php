@@ -1,7 +1,9 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use App\OldCategory;
 use App\OldPayment;
@@ -9,7 +11,28 @@ use App\Email;
 
 class Old extends Model
 {
-
+ /**
+     * @var string
+     * @SWG\Property(property="old",type="string")
+     * @SWG\Property(property="serial_no",type="integer")
+     * @SWG\Property(property="name",type="string")
+     * @SWG\Property(property="description",type="string")
+     * @SWG\Property(property="amount",type="integer")
+     * @SWG\Property(property="commitment",type="string")
+     * @SWG\Property(property="communication",type="string")
+     * @SWG\Property(property="status",type="string")
+     * @SWG\Property(property="is_blocked",type="boolean")
+     * @SWG\Property(property="phone",type="string")
+     * @SWG\Property(property="gst",type="float")
+      * @SWG\Property(property="account_number",type="integer")
+     * @SWG\Property(property="account_iban",type="string")
+     * @SWG\Property(property="account_swift",type="string")
+     * @SWG\Property(property="catgory_id",type="integer")
+     * @SWG\Property(property="pending_payment",type="string")
+     * @SWG\Property(property="currency",type="string")
+     * @SWG\Property(property="account_name",type="string")
+     * @SWG\Property(property="is_payable",type="boolean")
+     */
     protected $table = 'old';
     protected $primaryKey = 'serial_no';
    /**

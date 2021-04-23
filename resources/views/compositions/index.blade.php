@@ -21,6 +21,13 @@
     <div class="col-md-12">
         <h2 class="page-heading">Compositions ({{$compositions->total()}})</h2>
     </div>
+     @if ($message = Session::get('success'))
+         <div class="col-md-12">
+            <div class="alert alert-success">
+                <p>{{ $message }}</p>
+            </div>
+         </div>   
+    @endif
     <div class="col-md-6 mt-5">
         {!! Form::open(["class" => "form-inline" , "route" => 'compositions.store',"method" => "POST"]) !!}    
           <div class="form-group">
@@ -67,7 +74,14 @@
                 ["class" => "form-control change-list-all-compostion select2", 'style' => 'width:400px']
             ); ?>
             <button type="button" class="btn btn-secondary update-composition-selected">Update Selected</button>
+            <a target="__blank" href="{{ route('compositions.delete.unused') }}">
+                <button type="button" class="btn btn-secondary delete-not-used">Delete not used</button>
+            </a>
         </div>
+    </div>
+    <div class="col-md-2 mt-2">
+        <button class="btn btn-secondary approve-all">Approve all</button>
+        
     </div>
     <div class="col-md-12 mt-5">
         <table class="table table-bordered">
@@ -81,16 +95,49 @@
             @foreach($compositions as $key=>$composition)
                 <tr>
                     <td><input type="checkbox" name="composition[]" value="{{ $composition->id }}" class="composition-checkbox">&nbsp;{{ $composition->id }} </td>
-                    <td><span class="call-used-product"  data-id="{{ $composition->id }}" data-type="name">{{ $composition->name }}</span> <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $composition->name }}" data-id="{{ $composition->id }}"><img src="/images/add.png"></button></td>
+                    <td>
+                        <div class="d-flex">
+                            <input type="text" class="col-10" id="{{ $composition->id }}" value="{{ $composition->name }}"> 
+                            <button class="btn btn-secondary btn-sm composition-name-update" data-id="{{ $composition->id }}" title="Update"><i class="fa fa-save"></i></button>
+
+                            <span class="call-used-product d-none"  data-id="{{ $composition->id }}" data-type="name">{{ $composition->name }}</span> 
+                            <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $composition->name }}" data-id="{{ $composition->id }}"><img src="/images/add.png"></button>
+                        </div>
+                    </td>
                     <td>{{ $composition->products($composition->name) }}</td>
                     <td>
                         <div class="form-group small-field">
-                            <?php echo Form::select(
-                                'replace_with', 
-                                $listcompostions , 
-                                $composition->replace_with, 
-                                ["class" => "form-control change-list-compostion select2",'data-name' => $composition->name, 'data-id' => $composition->id, 'style' => 'width:400px','id' => 'select'.$composition->id]
-                            ); ?>
+                            <select name="replace_with" class="form-control change-list-compostion select2" style="width:400px" data-name="{{$composition->name}}" id="select{{$composition->id}}" data-id="{{ $composition->id }}">
+                                <option value="">-- Select --</option>
+                                @php
+                                    $selected = false;
+                                    $optionSelected = null;
+                                @endphp
+                                @foreach ($listcompostions as $item)
+                                    @php
+                                        $selected = false;
+                                        $optionSelected = null;
+                                        $itemArr  = array_filter(explode(' ', preg_replace("/[^a-zA-Z]+/", " ", $item)));
+                                        $exitsArr = array_filter(explode(' ', preg_replace("/[^a-zA-Z]+/", " ", $composition->name)));
+                                        
+                                        if($exitsArr){
+                                            if( sizeof( $exitsArr ) > 2 ){
+                                                if( in_array( $exitsArr[2], $itemArr) && $selected == false ){
+                                                    $selected = true; 
+                                                    $optionSelected =  'selected'; 
+                                                }
+                                            }else {
+                                                if( array_intersect($itemArr, $exitsArr) && $selected == false ){ 
+                                                    $selected = true; 
+                                                    $optionSelected =  'selected'; 
+                                                }
+                                            }
+                                        }
+                                    @endphp
+                                    <option value="{{ $item }}" {{ $optionSelected }} > {{ $item }} </option>
+                                @endforeach
+                            </select>
+                            <button class="btn btn-secondary btn-xs change-selectbox" data-id="{{$composition->id}}"><i class="fa fa-save"></i></button>
                         </div>
                     </td>
                     <td>
@@ -100,7 +147,11 @@
                             <button class="btn btn-secondary small-field-btn" onclick="return confirm('Are you sure you want to delete ?')">
                                 <i class="fa fa-trash" type="submit"></i>
                             </button>
+                            <button data-id="{{$composition->id}}" class="btn btn-secondary show-history-btn small-field-btn">
+                                <i class="fa fa-bars"></i>
+                            </button>
                         </form>
+
                     </td>
                 </tr>
             @endforeach
@@ -119,6 +170,50 @@
     <script type="text/javascript">
             $(".select2").select2({"tags" : true});
 
+            $(document).on("click",".approve-all",function() {
+
+                var changesFrom = $(".composition-checkbox:checked");
+                var ids = [];
+                var values = [];
+                $.each(changesFrom,function(k,v) {
+                    ids.push( $(v).val() );
+                    values.push( $('#select'+$(v).val()).val() );
+                });
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/compositions/update-all-composition',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        from : ids,
+                        to : values
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        if(response.html != "") {
+                            toastr['success'](response.message, 'success');
+                        }else{
+                            toastr['error']('Sorry, something went wrong', 'error');
+                        }
+                        $(".show-listing-exe-records").modal('hide');
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    toastr['error']('Sorry, something went wrong', 'error');
+                    $(".show-listing-exe-records").modal('hide');
+                });
+
+            });
+
+            $(document).on("click",".change-selectbox",function() {
+                $('#select'+$(this).data('id')).trigger('change');
+            });
+            
             $(document).on("click",".call-used-product",function() {
                 var $this = $(this);
                 $.ajax({
@@ -146,6 +241,60 @@
                     toastr['error']('Sorry no product founds', 'error');
                 });
             });
+
+            $(document).on("click",".composition-name-update",function() {
+                var $this = $(this);
+                var id = $this.data('id');
+                var text = $('#'+id).val();
+                
+                if( text == '' || id == '' ){
+                    return false;
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: '/compositions/update-name',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        id : id,
+                        name : text
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        toastr['success']('Successfully updated', 'Success');    
+                    }else{
+                        toastr['error']('Something went wrong', 'Error');    
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    toastr['error']('Sorry, something went wrong', 'Error');
+                });
+            });
+
+            $(document).on("click",".show-history-btn",function(e) {
+                e.preventDefault();
+                var $this = $(this);
+                $.ajax({
+                    type: 'GET',
+                    url: '/compositions/'+$this.data("id")+'/history',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    }
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    $(".show-listing-exe-records").find('.modal-dialog').html(response);
+                    $(".show-listing-exe-records").modal('show');
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    toastr['error']('Sorry no record found', 'error');
+                });
+            });
+
+            
 
             $(document).on("change",".change-list-compostion",function() {
                 var $this = $(this);
@@ -283,7 +432,6 @@
                 });
 
             });
-
     </script>
 @endsection
 @endsection

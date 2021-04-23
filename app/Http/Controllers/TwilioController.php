@@ -333,6 +333,24 @@ class TwilioController extends FindByNumberController
     }
 
     /**
+     * @SWG\Post(
+     *   path="/twilio-conference",
+     *   tags={"Twilio"},
+     *   summary="post twilio conference",
+     *   operationId="post-twilio-conference",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+    /**
      * Outgoing Conference call URL
      * @param Request $request Request
      * @return \Illuminate\Http\Response
@@ -367,6 +385,25 @@ class TwilioController extends FindByNumberController
 
     }
 
+
+    /**
+     * @SWG\Post(
+     *   path="/twilio-conference-mute",
+     *   tags={"Twilio"},
+     *   summary="post twilio mute conference",
+     *   operationId="post-twilio-mute-conference",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     /**
      * Mute Number From Conference
      * @param Request $request Request
@@ -387,6 +424,24 @@ class TwilioController extends FindByNumberController
     }
 
     /**
+     * @SWG\Post(
+     *   path="/twilio-conference-hold",
+     *   tags={"Twilio"},
+     *   summary="post twilio hold conference",
+     *   operationId="post-twilio-hold-conference",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+    /**
      * Hold Number From Conference
      * @param Request $request Request
      * @return \Illuminate\Http\Response
@@ -405,6 +460,24 @@ class TwilioController extends FindByNumberController
         return \Response::make('Hold SucessFully', '200')->header('Content-Type', 'text/xml');
     }
 
+    /**
+     * @SWG\Post(
+     *   path="/twilio-conference-remove",
+     *   tags={"Twilio"},
+     *   summary="post twilio remove conference",
+     *   operationId="post-twilio-remove-conference",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     /**
      * Remove Number From Conference
      * @param Request $request Request

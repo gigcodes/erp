@@ -1,7 +1,9 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
 use App\HashTag;
@@ -9,6 +11,11 @@ use App\InstagramCommentQueue;
 
 class InstagramPosts extends Model
 {
+           /**
+     * @var string
+     * @SWG\Property(property="location",type="string")
+
+     */
     use Mediable;
 
     protected $fillable = ['location'];

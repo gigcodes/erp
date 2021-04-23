@@ -46,6 +46,7 @@
             <div class="pull-right">
               @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                 <a class="btn btn-secondary manual-payment-btn" href="#">Manual payment</a>
+                <a class="btn btn-secondary paid-selected-payment-btn" href="javascript:;">Paid Selected</a>
               @endif
               <a class="btn btn-secondary manual-request-btn" href="javascript:void(0);">Manual request</a>
               <!-- <a class="btn btn-secondary" href="{{ route('voucher.create') }}">+</a> -->
@@ -70,8 +71,8 @@
 
             <div class="col-sm-12 col-md-4">
               <div class="form-group mr-3">
-                <input type="text" value="" name="range_start" value="{{ request('range_start') }}" hidden/>
-                <input type="text" value="" name="range_end" value="{{ request('range_end') }}" hidden/>
+                <input type="text" name="range_start" value="{{ request('range_start') }}" hidden/>
+                <input type="text" name="range_end" value="{{ request('range_end') }}" hidden/>
                 <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
                   <i class="fa fa-calendar"></i>&nbsp;
                   <span></span> <i class="fa fa-caret-down"></i>
@@ -89,6 +90,18 @@
                 </select>
               </div>
 
+              <div class="col-sm-12 col-md-4">
+                <label>Due Date</label>
+                <div class="form-group mr-3">
+                  <input type="text" name="range_due_start" value="{{ request('range_due_start') }}" hidden/>
+                  <input type="text" name="range_due_end" value="{{ request('range_due_end') }}" hidden/>
+                  <div id="reportrange_duedate" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                    <i class="fa fa-calendar"></i>&nbsp;
+                    <span></span> <i class="fa fa-caret-down"></i>
+                  </div>
+                </div>
+              </div>
+
             <div class="col-md-2"><button type="submit" class="btn btn-image"><img src="/images/search.png" /></button></div>
           </div>
         </form>
@@ -100,16 +113,19 @@
     <div class="table-responsive">
         <table class="table table-bordered">
         <tr>
-          <th width="10%">User</th>
-          <th width="8%">Date</th>
-          <th width="25%">Details</th>
-          <th width="8%">Category</th>
-          <th width="7%">Time Spent</th>
+          <th width="2%">-</th>
+          <th width="5%">User</th>
+          <th width="5%">Date</th>
+          <th width="20%">Details</th>
+          <th width="5%">Category</th>
+          <th width="5%">Time Spent</th>
           <th width="7%">Amount</th>
           <th width="7%">Currency</th>
-          <th width="8%">Amount Paid</th>
-          <th width="10%">Balance</th>
-          <th width="10%" colspan="2" class="text-center">Action</th>
+          <th width="5%">Amount Paid</th>
+          <th width="7%">Balance</th>
+          <th width="11%">Due Date</th>
+          <th width="15%">Communication</th>
+          <th width="20%" colspan="2" class="text-center">Action</th>
         </tr>
           @php
             $totalRateEstimate = 0;
@@ -118,7 +134,10 @@
           @endphp
           @foreach ($tasks as $task)
             <tr>
-              <td>@if(isset($task->user)) {{  $task->user->name }} @endif </td>
+              <td><input type="checkbox" class="paid-all-payment" name="paid_all[]" value="{{$task->id}}"></td>
+              <td>
+                @if(isset($task->user)) {{  $task->user->name }} @endif
+              </td>
               <td>{{ \Carbon\Carbon::parse($task->date)->format('d-m') }}</td>
               <td>{{ str_limit($task->details, $limit = 100, $end = '...') }}</td>
               <td>@if($task->task_id) Task #{{$task->task_id}} @elseif($task->developer_task_id) Devtask #{{$task->developer_task_id}} @else Manual @endif </td>
@@ -127,6 +146,30 @@
               <td>{{ $task->currency }}</td>
               <td>{{ $task->paid_amount }}</td>
               <td>{{ $task->balance }}</td>
+              <td>{{ $task->billing_due_date }}</td>
+              <td>
+                <div class="row">
+                    <div class="col-md-12 form-inline cls_remove_rightpadding">
+                          <textarea rows="1" class="form-control quick-message-field cls_quick_message" id="messageid_{{ $task->id }}" name="message" placeholder="Message"></textarea>
+                          <button class="btn btn-sm btn-image send-message1" data-payment-receipt-id="{{ $task->id }}"><img src="/images/filled-sent.png"/></button>
+                          <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="payment-receipts" data-id="{{$task->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    </div>
+                </div>
+                <div class="row cls_mesg_box">
+                  <div class="col-md-12">
+                      <div class="col-md-12 expand-row" style="padding: 3px;">
+                      @if(isset($task->chat_messages[0]))
+                          <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $task->id }}">
+                          {{ strlen($task->chat_messages[0]->message) > 30 ? substr($task->chat_messages[0]->message, 0, 30) . '...' : $task->chat_messages[0]->message }}
+                          </span>
+                          <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $task->id }}">
+                            {{ $task->chat_messages[0]->message }}
+                          </span>
+                      @endif
+                      </div>
+                  </div>
+              </div>
+              </td>
               @php
                 $totalRateEstimate += is_numeric(str_replace(",","",$task->rate_estimated)) ? str_replace(",","",$task->rate_estimated) : 0;
                 $totalPaid += is_numeric(str_replace(",","",$task->paid_amount)) ? str_replace(",","",$task->paid_amount) : 0;
@@ -142,6 +185,9 @@
                 <button type="button" data-payment-receipt-id="{{$task->id}}" data-toggle="tooltip" title="List of Files" class="btn btn-file-list pd-5">
                     <i class="fa fa-list" aria-hidden="true"></i>
                 </button>
+                <button type="button" data-payment-receipt-id="{{$task->id}}" data-toggle="tooltip" title="Payment" class="btn btn-payment-list pd-5">
+                    <i class="fa fa-globe" aria-hidden="true"></i>
+                </button>
                 <?php /* ?>
                 <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-store-development-remark pd-5">
                     <i class="fa fa-comment" aria-hidden="true"></i>
@@ -152,8 +198,10 @@
           @endforeach
           <tr>
             <td colspan="6" width="10%" style="text-align: right;"><b>TOTAL Amount : {{$totalRateEstimate}}</b></td>
-            <td colspan="2" width="8%" style="text-align: right;"><b>TOTAL Amount Paid : {{$totalPaid}}</b></td>
-            <td colspan="2" width="25%"><b>TOTAL Balance : {{$totalBalance}}</b></td>
+            <td colspan="2" width="10%" style="text-align: right;"><b>TOTAL Amount Paid : {{$totalPaid}}</b></td>
+            <td colspan="2" width="20%"><b>TOTAL Balance : {{$totalBalance}}</b></td>
+            <td></td>
+            <td></td>
           </tr>
       </table>
       {{$tasks->links()}}
@@ -286,6 +334,34 @@
 
         </div>
     </div>
+
+    <div id="pay-selected-payment" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                
+            </div>
+        </div>
+    </div>
+
+    <div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+                    <input type="hidden" id="chat_obj_type" name="chat_obj_type">
+                    <input type="hidden" id="chat_obj_id" name="chat_obj_id">
+                    <button type="submit" class="btn btn-default downloadChatMessages">Download</button>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
           50% 50% no-repeat;display:none;">
     </div>
@@ -412,23 +488,21 @@
 
     $('.select-multiple').select2({width: '100%'});
 
-    let r_s = '';
+    /*let r_s = '';
     let r_e = '{{ date('y-m-d') }}';
 
     let start = r_s ? moment(r_s,'YYYY-MM-DD') : moment().subtract(6, 'days');
     let end =   r_e ? moment(r_e,'YYYY-MM-DD') : moment();
 
     jQuery('input[name="range_start"]').val(start.format('YYYY-MM-DD'));
-    jQuery('input[name="range_end"]').val(end.format('YYYY-MM-DD'));
+    jQuery('input[name="range_end"]').val(end.format('YYYY-MM-DD'));*/
 
     function cb(start, end) {
         $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
     }
 
     $('#reportrange').daterangepicker({
-        startDate: start,
         maxYear: 1,
-        endDate: end,
         ranges: {
             'Today': [moment(), moment()],
             'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
@@ -439,7 +513,12 @@
         }
     }, cb);
 
-    cb(start, end);
+    var sStart = jQuery('input[name="range_start"]').val();
+    var sEnd = jQuery('input[name="range_end"]').val();
+
+    if(sStart != "") {
+      cb(moment(sStart,'YYYY-MM-DD'), moment(sEnd,'YYYY-MM-DD'));
+    }
 
     $('#reportrange').on('apply.daterangepicker', function(ev, picker) {
 
@@ -447,6 +526,43 @@
         jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
 
     });
+
+
+    function cbc(start, end) {
+        $('#reportrange_duedate span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    }
+
+    
+    $('#reportrange_duedate').daterangepicker({
+        maxYear: 1,
+        ranges: {
+            'Today': [moment(), moment()],
+            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+            'This Month': [moment().startOf('month'), moment().endOf('month')],
+            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
+    }, cbc);
+
+    var selectStart = jQuery('input[name="range_due_start"]').val();
+    var selectEnd = jQuery('input[name="range_due_end"]').val();
+
+    if(selectStart != "") {
+      cbc(moment(selectStart,'YYYY-MM-DD'), moment(selectEnd,'YYYY-MM-DD'));
+    }
+
+
+    $('#reportrange_duedate').on('apply.daterangepicker', function(ev, picker) {
+       alert(picker.startDate.format('YYYY-MM-DD'));
+
+        jQuery('input[name="range_due_start"]').val(picker.startDate.format('YYYY-MM-DD'));
+        jQuery('input[name="range_due_end"]').val(picker.endDate.format('YYYY-MM-DD'));
+
+    });
+
+
+    
 
     $(document).on('click', '.expand-row', function() {
       var selection = window.getSelection();
@@ -553,6 +669,131 @@
           });
         }
       });
+
+    $(document).on("click",".paid-selected-payment-btn",function(e) {
+          e.preventDefault();
+          var ids = [];
+          $(".paid-all-payment").each(function(k, v) {
+              if($(v).is(":checked")) {
+                 ids.push($(v).val());
+              }
+          });
+          $.ajax({
+            url: '/voucher/paid-selected-payment',
+            type: 'POST',
+            headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+            data: { ids : ids},
+            beforeSend: function() {
+              $("#loading-image").show();
+            }
+          }).done(function (data) {
+            $("#loading-image").hide();
+            $("#pay-selected-payment").find(".modal-content").html(data);
+            $("#pay-selected-payment").modal("show");
+            $("#pay-selected-payment").find(".currency-select2").select2({width: '100%',tags:true});
+            $("#pay-selected-payment").find(".payment-method-select2").select2({width: '100%',tags:true});
+          }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            toastr["error"]("Oops,something went wrong");
+            $("#loading-image").hide();
+          });
+    });
+
+    $(document).on("click",".btn-payment-list",function(e) {
+          e.preventDefault();
+          var $this = $(this);
+          $.ajax({
+            url: '/voucher/paid-selected-payment-list',
+            type: 'GET',
+            headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+            data: { payment_receipt_id : $this.data("payment-receipt-id")},
+            beforeSend: function() {
+              $("#loading-image").show();
+            }
+          }).done(function (data) {
+            $("#loading-image").hide();
+            $("#pay-selected-payment").find(".modal-content").html(data);
+            $("#pay-selected-payment").modal("show");
+            $("#pay-selected-payment").find(".currency-select2").select2({width: '100%',tags:true});
+            $("#pay-selected-payment").find(".payment-method-select2").select2({width: '100%',tags:true});
+          }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            toastr["error"]("Oops,something went wrong");
+            $("#loading-image").hide();
+          });
+    });
+
+
+    
+
+    $(document).on("submit","#vendor-payment-receipt-form",function(e) {
+        e.preventDefault();
+        var $this = $(this);
+          $.ajax({
+            url: $this.attr("action"),
+            type: $this.attr("method"),
+            headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+            data: $this.serialize(),
+            dataType:"json",
+            beforeSend: function() {
+              $("#loading-image").show();
+            }
+          }).done(function (data) {
+            $("#loading-image").hide();
+            toastr["success"](data.message);
+          }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            toastr["error"]("Oops,something went wrong");
+            $("#loading-image").hide();
+          });
+    });
+
+    $(document).on('click', '.send-message1', function () {
+        var thiss = $(this);
+        var data = new FormData();
+        var payment_receipt_id = $(this).data('payment-receipt-id');
+
+        var message = $("#messageid_"+payment_receipt_id).val();
+        data.append("payment_receipt_id", payment_receipt_id);
+        data.append("message", message);
+        data.append("status", 1);
+
+        if (message.length > 0) {
+            if (!$(thiss).is(':disabled')) {
+                $.ajax({
+                    url: BASE_URL+'/whatsapp/sendMessage/payment-receipts',
+                    type: 'POST',
+                    "dataType": 'json',           // what to expect back from the PHP script, if anything
+                    "cache": false,
+                    "contentType": false,
+                    "processData": false,
+                    "data": data,
+                    beforeSend: function () {
+                        $(thiss).attr('disabled', true);
+                    }
+                }).done(function (response) {
+                    //thiss.closest('tr').find('.message-chat-txt').html(thiss.siblings('textarea').val());
+                    if(message.length > 30)
+                    {
+                        var res_msg = message.substr(0, 27)+"..."; 
+                        $("#message-chat-txt-"+payment_receipt_id).html(res_msg);
+                        $("#message-chat-fulltxt-"+payment_receipt_id).html(message);    
+                    }else{
+                        $("#message-chat-txt-"+payment_receipt_id).html(message); 
+                        $("#message-chat-fulltxt-"+payment_receipt_id).html(message);      
+                    }
+
+                    $("#messageid_"+payment_receipt_id).val('');
+                    $(thiss).attr('disabled', false);
+                }).fail(function (errObj) {
+                    $(thiss).attr('disabled', false);
+                    alert("Could not send message");
+                    console.log(errObj);
+                });
+            }
+        } else {
+            alert('Please enter a message first');
+        }
+    });
+
+    
 
     // $(document).on('click', '.submit-manual-receipt', function(e) {
     //   e.preventDefault();

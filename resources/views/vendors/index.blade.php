@@ -113,7 +113,7 @@
 @endsection
 
 @section('large_content')
-     <div id="myDiv">
+    <div id="myDiv">
        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
    </div>
     <div class="row">

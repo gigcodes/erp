@@ -62,6 +62,7 @@
 						</button> 
 						<button type="button" data-id="{{>prop.id}}" class="btn"><a href="/store-website/{{>prop.id}}/goal"><i class="fa fa-bullseye"></i></a></button> 
 						<button title="Social media strategy" type="button"  class="btn"><a href="/store-website/{{>prop.id}}/social-strategy"><i class="fa fa-fa"></i></a></button> 
+						<button title="Seo Format" data-id="{{>prop.id}}" type="button"  class="btn btn-seo-format"><a href="javascript:;"><i class="fa fa-external-link"></i></a></button> 
 			        </td>
 			      </tr>
 			    {{/props}}  
@@ -252,6 +253,52 @@
 					        <div class="col-md-12">
 						    	<div class="form-group">
 						      		<button class="btn btn-secondary update-remark-btn">Update</button>
+						    	</div>
+					    	</div>
+					  	</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</script>
+
+<script type="text/x-jsrender" id="template-edit-seo">
+	<div class="modal-content">
+	   <div class="modal-header">
+	      <h5 class="modal-title">Edit Seo Format</h5>
+	      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	      	<span aria-hidden="true">&times;</span>
+	      </button>
+	   </div>
+	   <div class="modal-body">
+			<div class="row">
+				<div class="col-lg-12">
+					<form>
+						<?php echo csrf_field(); ?>
+						<input type="hidden" class="frm_store_website_id" name="store_website_id" value="{{:data.store_website_id}}">
+					  	<div class="row">
+					  		<div class="col-md-12">
+					    		<div class="form-group">
+						         	<label for="meta_title">Meta Title</label>
+						         	<textarea name="meta_title" class="form-control" id="meta_title" placeholder="Enter Meta Title">{{if data}}{{:data.meta_title}}{{/if}}</textarea>
+						         </div>
+					        </div> 
+					        <div class="col-md-12">
+					    		<div class="form-group">
+						         	<label for="meta_description">Meta Description</label>
+						         	<textarea name="meta_description" class="form-control" id="meta_description" placeholder="Enter Meta Description">{{if data}}{{:data.meta_description}}{{/if}}</textarea>
+						         </div>
+					        </div> 
+					        <div class="col-md-12">
+					    		<div class="form-group">
+						         	<label for="meta_keyword">Meta Keywords</label>
+						         	<textarea name="meta_keyword" class="form-control" id="meta_keyword" placeholder="Enter Meta Keywords">{{if data}}{{:data.meta_keyword}}{{/if}}</textarea>
+						         </div>
+					        </div> 
+					        <div class="col-md-12">
+						    	<div class="form-group">
+						      		<button data-id="{{:data.store_website_id}}" class="btn btn-secondary update-seo-format">Update</button>
 						    	</div>
 					    	</div>
 					  	</div>

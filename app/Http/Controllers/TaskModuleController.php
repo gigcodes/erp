@@ -48,8 +48,10 @@ class TaskModuleController extends Controller {
 	public function index( Request $request ) {
 		if ( $request->input( 'selected_user' ) == '' ) {
 			$userid = Auth::id();
+			$userquery = ' AND (assign_from = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
 		} else {
 			$userid = $request->input( 'selected_user' );
+			$userquery = ' AND (master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
 		}
 		
 		if ( !$request->input( 'type' ) || $request->input( 'type' ) == '' ) {
@@ -115,7 +117,7 @@ class TaskModuleController extends Controller {
 			$isCompleteWhereClose = ' AND is_verified IS NULL ';
 
 			if(!Auth::user()->isAdmin()) {
-				$isCompleteWhereClose = ' AND is_completed IS NULL AND is_verified IS NULL ';
+				$isCompleteWhereClose = ' AND is_verified IS NULL ';
 			}
 			if($request->filter_by == 1) {
 				$isCompleteWhereClose = ' AND is_completed IS NULL ';
@@ -142,7 +144,7 @@ class TaskModuleController extends Controller {
 				  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
 			  ) as chat_messages  ON chat_messages.task_id = tasks.id
 			) AS tasks
-			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$isCompleteWhereClose.' AND (assign_from = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.'; ');
+			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$isCompleteWhereClose.$userquery. $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.'; ');
 
 
 			foreach ($data['task']['pending'] as $task) {
@@ -203,7 +205,7 @@ class TaskModuleController extends Controller {
 					FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
                  ) AS chat_messages ON chat_messages.task_id = tasks.id
                 ) AS tasks
-                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.';');
+                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL '.$userquery . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.';');
 				
 
 				foreach ($data['task']['completed'] as $task) {
@@ -266,7 +268,7 @@ class TaskModuleController extends Controller {
 	                 ) AS chat_messages ON chat_messages.task_id = tasks.id
 
 	               ) AS tasks
-				   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $orderByClause .' limit '.$paginate.' offset '.$offSet.';');
+				   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL '.$userquery . $categoryWhereClause . $orderByClause .' limit '.$paginate.' offset '.$offSet.';');
 				   
 				   foreach ($data['task']['statutory_not_completed'] as $task) {
 					array_push($assign_to_arr, $task->assign_to);
@@ -2392,35 +2394,38 @@ class TaskModuleController extends Controller {
         $task = Task::find($id);
         $records = [];
             if ($task) {
-				$userList = User::pluck('name','id')->all();
+            	$userList = User::pluck('name','id')->all();
 				// $usrSelectBox = "";
 				// if (!empty($userList)) {
 				// 	$usrSelectBox = (string) \Form::select("send_message_to", $userList, null, ["class" => "form-control send-message-to-id"]);
 				// }
-                    if ($task->hasMedia(config('constants.media_tags'))) {
-                        foreach ($task->getMedia(config('constants.media_tags')) as $media) {
+                if ($task->hasMedia(config('constants.attach_image_tag'))) {
+                    foreach ($task->getMedia(config('constants.attach_image_tag')) as $media) {
 
-							$imageExtensions = ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'svg', 'svgz', 'cgm', 'djv', 'djvu', 'ico', 'ief','jpe', 'pbm', 'pgm', 'pnm', 'ppm', 'ras', 'rgb', 'tif', 'tiff', 'wbmp', 'xbm', 'xpm', 'xwd'];
-							$explodeImage = explode('.', $media->getUrl());
-							$extension = end($explodeImage);
+						$imageExtensions = ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'svg', 'svgz', 'cgm', 'djv', 'djvu', 'ico', 'ief','jpe', 'pbm', 'pgm', 'pnm', 'ppm', 'ras', 'rgb', 'tif', 'tiff', 'wbmp', 'xbm', 'xpm', 'xwd'];
+						$explodeImage = explode('.', $media->getUrl());
+						$extension = end($explodeImage);
 
-							if(in_array($extension, $imageExtensions))
-							{
-								$isImage = true;
-							}else
-							{
-								$isImage = false;
-							}
-                            $records[] = [
-                                "id"        => $media->id,
-                                'url'       => $media->getUrl(),
-								'task_id'   => $task->id,
-								'isImage'   => $isImage,
-								'userList'  => $userList
-							];
-                        }
+						if(in_array($extension, $imageExtensions))
+						{
+							$isImage = true;
+						}else
+						{
+							$isImage = false;
+						}
+                        $records[] = [
+                            "id"        => $media->id,
+                            'url'       => $media->getUrl(),
+							'task_id'   => $task->id,
+							'isImage'   => $isImage,
+							'userList'  => $userList,
+							'created_at'  => $media->created_at
+						];
                     }
+                }
             }
+
+        $records = array_reverse($records);
         $title = 'Preview images';
         return view('task-module.partials.preview-task-images', compact('title','records'));
 	}

@@ -161,8 +161,8 @@
         @endif
     </td>
     <td>
-    @if (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0)
-    Developer : {{ formatDuration($issue->timeSpent->tracked) }}
+        @if (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0)
+        Developer : {{ formatDuration($issue->timeSpent->tracked) }}
         <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
         @endif
 
@@ -193,10 +193,26 @@
     </td>
     <td>
     <label for="" style="font-size: 12px;">Assigned To :</label>
-        @if($issue->assignedUser)
-            <p>{{ $issue->assignedUser->name }}</p>
+        @if(isset($userID) && $issue->team_lead_id == $userID)
+            <div>
+              <select class="form-control assign-user select2" data-id="{{$issue->id}}" name="assigned_to" id="user_{{$issue->id}}">
+                    <option value="">Select...</option>
+                    <?php $assignedId = isset($issue->assignedUser->id) ? $issue->assignedUser->id : 0; ?>
+                    @foreach($users as $id => $name)
+                        @if( $assignedId == $id )
+                            <option value="{{$id}}" selected>{{ $name }}</option>
+                        @else
+                            <option value="{{$id}}">{{ $name }}</option>
+                        @endif
+                    @endforeach
+                </select>
+            </div>
         @else
-            <p>Unassigned</p>
+            @if($issue->assignedUser)
+                <p>{{ $issue->assignedUser->name }}</p>
+            @else
+                <p>Unassigned</p>
+            @endif
         @endif
         <label for="" style="font-size: 12px;">Lead :</label>
         @if($issue->masterUser)

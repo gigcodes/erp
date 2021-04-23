@@ -8,17 +8,18 @@
     .preview-category input.form-control {
       width: auto;
     }
-    .suggestList li {
-        display: inline-block;
-        margin-right: 10px;
+    .keyword-list {
         cursor: pointer;
         
     }
-    .width-fix{
+    .height-fix{
         height: 220px;
-        display: inline-block;
+        /* display: inline-block; */
         overflow: auto;
         
+    }
+    textarea {
+        overflow: hidden;
     }
 </style>
 <link href="//cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">

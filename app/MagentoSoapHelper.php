@@ -1,7 +1,9 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use App\Helpers\StatusHelper;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;

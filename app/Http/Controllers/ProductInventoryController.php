@@ -998,6 +998,7 @@ class ProductInventoryController extends Controller
 
 	public function inventoryList(Request $request)
     {
+    	ini_set("memory_limit", -1);
     	$filter_data = $request->input();
 		$inventory_data = \App\Product::getProducts($filter_data);
 
@@ -1041,8 +1042,22 @@ class ProductInventoryController extends Controller
         //$products_categories = \App\Product::getPruductsCategories();
         $products_categories = Category::attr(['name' => 'product_categories[]','data-placeholder' => 'Select a Category','class' => 'form-control select-multiple2', 'multiple' => true])->selected(request('product_categories',[]))->renderAsDropdown();
         $products_sku        = \App\Product::getPruductsSku();
-        if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more", compact('inventory_data'));
+        if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more-new", compact('inventory_data'));
         return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku','status_list','inventory_data_count','supplier_list','reportData'));
+    }
+
+    public function inventoryListNew( Request $request ){
+    	$filter_data = $request->input();
+		// $inventory_data = \App\Product::getProducts($filter_data);
+
+		$inventory_data = \App\Product::join("store_website_product_attributes as swp", "swp.product_id", "products.id")->paginate(20);		
+    	
+    	$inventory_data_count = $inventory_data->total();
+		
+
+        if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more-new", compact('inventory_data'));
+
+        return view('product-inventory.inventory-list-new',compact('inventory_data','inventory_data_count'));
     }
 
     public function downloadReport() {
@@ -1277,16 +1292,19 @@ class ProductInventoryController extends Controller
 	{
 		$suppliers = \App\Supplier::all();
 		$inventory = \App\InventoryStatusHistory::select('created_at','supplier_id',DB::raw('count(distinct product_id) as product_count_count,GROUP_CONCAT(product_id) as brand_products'))
-			->whereDate('created_at','>', Carbon::now()->subDays(7))
+			->whereDate('created_at','>=', Carbon::now()->subDays(7))
 			->where('in_stock','>',0)
 			->groupBy('supplier_id');
+
 
 		if($request->supplier) {
 			$inventory = $inventory->where('supplier_id',$request->supplier);
 		}
 
-		$total_rows = $inventory->count();
-		$inventory = $inventory->orderBy('product_count_count','desc')->paginate(10);
+		$inventory = $inventory->orderBy('product_count_count','desc')->paginate(24);
+
+		$total_rows = $inventory->total();
+
 		$allHistory = [];
 		$date = date('Y-m-d', strtotime(date("Y-m-d") . ' -6 day'));
 		$extraDates = $date;
@@ -1301,10 +1319,14 @@ class ProductInventoryController extends Controller
             
             $newRow = [];
 			$newRow['supplier_name'] = $row->supplier->supplier;
-			$brandCount = \App\InventoryStatusHistory::join("products as p","p.id","inventory_status_histories.product_id")->groupBy("p.brand")->whereDate('inventory_status_histories.created_at','>', Carbon::now()->subDays(7))->where("inventory_status_histories.supplier_id",$row->supplier_id)->select(\DB::raw("count(*) as total"))->first();
-			$newRow['brands'] = ($brandCount) ? $brandCount->total : 0;
+			$brandCount = \App\InventoryStatusHistory::join("products as p","p.id","inventory_status_histories.product_id")->whereDate('inventory_status_histories.created_at','>', Carbon::now()->subDays(7))->where("inventory_status_histories.supplier_id",$row->supplier_id)
+			->where('in_stock','>',0)
+			->groupBy("p.brand")
+			->select(\DB::raw("count(p.brand) as total"))
+			->get()
+			->count();
 
-
+			$newRow['brands'] = $brandCount;
 			$newRow['products'] = $row->product_count_count;
 			$newRow['supplier_id'] = $row->supplier_id;
 
@@ -1322,4 +1344,40 @@ class ProductInventoryController extends Controller
 
 
 	}
+
+
+	public function supplierProductHistoryBrand (Request $request) 
+	{
+		$inventory = \App\InventoryStatusHistory::join("products as p","p.id","inventory_status_histories.product_id")
+			->leftjoin("brands as b","b.id","p.brand")
+			->whereDate('inventory_status_histories.created_at','>', Carbon::now()->subDays(7))->where("inventory_status_histories.supplier_id",$request->supplier_id)
+			->where('in_stock','>',0)
+			->groupBy("p.brand")
+			->select([\DB::raw("count(distinct p.id) as total"),"p.brand","b.name"])
+			->orderBy("total","desc")
+			->get();
+
+		return view("product-inventory.brand-history",compact('inventory'));
+	}
+
+	public function mergeScrapBrand(Request $request)
+	{
+		$scraperBrand 	= $request->get("scraper_brand");
+		$originalBrand  = $request->get("product_brand");
+
+		if(!empty($scraperBrand) && !empty($originalBrand)) {
+			$updateQuery = \DB::statement('update products join scraped_products as sp on sp.sku = products.sku 
+						join brands as b1 on b1.id = products.brand
+						join brands as b2 on b2.id = sp.brand_id
+						set products.brand = sp.brand_id , products.last_brand = products.brand
+						where b1.name = ? and b2.name = ?',[$originalBrand,$scraperBrand]);
+
+		}else{
+			return redirect()->back()->with('error', 'Please enter product brand and scraper brand');
+		}
+
+		return redirect()->back()->with('message', 'Product(s) updated successfully');
+
+	}
+
 }

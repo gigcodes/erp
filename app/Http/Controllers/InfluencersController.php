@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Influencers;
 use App\InfluencersDM;
 use App\InfluencerKeyword;
+use App\InfluencersHistory;
 use Illuminate\Http\Request;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
@@ -113,7 +114,13 @@ class InfluencersController extends Controller
         if(!$keywordCheck){
             $keyword = new InfluencerKeyword();
             $keyword->name = $name;
+            $keyword->instagram_account_id = $request->get('instagram_account_id',null);
             $keyword->save();
+            return response()->json(['message' => 'Influencer Keyword Saved']); 
+        }else{
+            $keywordCheck->name = $name;
+            $keywordCheck->instagram_account_id = $request->get('instagram_account_id',null);
+            $keywordCheck->save();
             return response()->json(['message' => 'Influencer Keyword Saved']); 
         }
         
@@ -124,8 +131,8 @@ class InfluencersController extends Controller
     public function getScraperImage(Request $request)
     {
      $name = $request->name;
-
-     $name = str_replace(" ","",$name);
+     $extraVars = \App\Helpers::getInstagramVars($name);
+     $name = str_replace(" ","",$name).$extraVars;
 
      $cURLConnection = curl_init();
 
@@ -144,6 +151,13 @@ class InfluencersController extends Controller
 
      $b64 = $jsonArrayResponse->status;
 
+     $history = array(
+        'influencers_name' => $name,
+        'title'            => 'Getting image',
+        'description'      => $b64,
+    );
+    InfluencersHistory::insert( $history );
+
      if($jsonArrayResponse->status == 'Something Went Wrong'){
         return \Response::json(array('success' => false,'message' => 'No Image Available')); 
     } 
@@ -155,33 +169,54 @@ class InfluencersController extends Controller
     }
 
     public function checkScraper(Request $request)
-    {
-       $name = $request->name;
+    {   
+        try {
+            $name = $request->name;
 
-       $name = str_replace(" ","",$name);
+            // get keyword name  
+            $extraVars = \App\Helpers::getInstagramVars($name);
+            $name = str_replace(" ","",$name).$extraVars;
 
-       $cURLConnection = curl_init();
-        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/get-status?'.$name;
-        
-        curl_setopt($cURLConnection, CURLOPT_URL, $url);
-        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
 
-        $phoneList = curl_exec($cURLConnection);
-        curl_close($cURLConnection);
+            $cURLConnection = curl_init();
+            $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/get-status?'.$name;
+            
+            curl_setopt($cURLConnection, CURLOPT_URL, $url);
+            curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
 
-        $jsonArrayResponse = json_decode($phoneList);
+            $phoneList = curl_exec($cURLConnection);
+            curl_close($cURLConnection);
 
-        $b64 = $jsonArrayResponse->status;
+            $jsonArrayResponse = json_decode($phoneList);
+            
+            $b64 = $jsonArrayResponse->status;
+            
+            $history = array(
+                'influencers_name' => $name,
+                'title'            => 'Check status',
+                'description'      => $b64,
+            );
+            InfluencersHistory::insert( $history );
 
-        return \Response::json(array('success' => true,'message' => $b64));
+            return \Response::json(array('success' => true,'message' => $b64));
+        } catch (\Throwable $th) {
+            $history = array(
+                'influencers_name' => $request->name,
+                'title'            => 'Check status',
+                'description'      => $th->getMessage().env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT'),
+            );
+            InfluencersHistory::insert( $history );
+        }
        
     }
 
     public function startScraper(Request $request)
-    {
+    {   
+        try {
+        
        $name = $request->name;
-
-       $name = str_replace(" ","",$name);
+       $extraVars = \App\Helpers::getInstagramVars($name);
+       $name = str_replace(" ","",$name).$extraVars;
 
        $cURLConnection = curl_init();
 
@@ -203,91 +238,154 @@ class InfluencersController extends Controller
 
         $b64 = $jsonArrayResponse->status;
 
+        $history = array(
+            'influencers_name' => $name,
+            'title'            => 'starting script',
+            'description'      => $b64,
+        );
+        InfluencersHistory::insert( $history );
+
         return \Response::json(array('success' => true,'message' => $b64));
+        } catch (\Throwable $th) {
+            $history = array(
+                'influencers_name' => $request->name,
+                'title'            => 'starting script',
+                'description'      => $th->getMessage().env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT'),
+            );
+            InfluencersHistory::insert( $history );
+        }
        
     }
 
     public function getLogFile(Request $request)
-    {
-        $name = $request->name;
+    {   
+        try{
+            $name = $request->name;
+            $extraVars = \App\Helpers::getInstagramVars($name);
+            $name = str_replace(" ","",$name).$extraVars;
 
-        $name = str_replace(" ","",$name);
+            $cURLConnection = curl_init();
 
-        $cURLConnection = curl_init();
+            $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/send-log?'.$name;
+            // echo $url;
+            // die();
+            curl_setopt($cURLConnection, CURLOPT_URL, $url);
+            curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
 
-        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/send-log?'.$name;
-        // echo $url;
-        // die();
-        curl_setopt($cURLConnection, CURLOPT_URL, $url);
-        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+            $phoneList = curl_exec($cURLConnection);
+            curl_close($cURLConnection);
 
-        $phoneList = curl_exec($cURLConnection);
-        curl_close($cURLConnection);
+            $jsonArrayResponse = json_decode($phoneList);
+            
+            $b64 = $jsonArrayResponse->status;
+            
+            if($jsonArrayResponse->status == 'Something Went Wrong'){
+                return \Response::json(array('success' => false,'message' => 'No Logs Available')); 
+            } 
+            $content = base64_decode($b64);
 
-        $jsonArrayResponse = json_decode($phoneList);
+            $history = array(
+                'influencers_name' => $name,
+                'title'            => 'Getting log file',
+                'description'      => $b64,
+            );
+            InfluencersHistory::insert( $history );
+
+            $media = MediaUploader::fromString($content)->toDirectory('/influencer')->useFilename($name)->upload();
         
-        $b64 = $jsonArrayResponse->status;
-        
-        if($jsonArrayResponse->status == 'Something Went Wrong'){
-            return \Response::json(array('success' => false,'message' => 'No Logs Available')); 
-        } 
-        $content = base64_decode($b64);
-
-        $media = MediaUploader::fromString($content)->toDirectory('/influencer')->useFilename($name)->upload();
-    
-        return \Response::json(array('success' => true,'message' => $media->getUrl()));
+            return \Response::json(array('success' => true,'message' => $media->getUrl()));
+        } catch (\Throwable $th) {
+            $history = array(
+                'influencers_name' => $request->name,
+                'title'            => 'Getting log file',
+                'description'      => $th->getMessage().env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT'),
+            );
+            InfluencersHistory::insert( $history );
+        }
        
     }
 
     public function restartScript(Request $request)
-    {
-       $name = $request->name;
+    {   
+        try{ 
+            $name = $request->name;
+            $extraVars = \App\Helpers::getInstagramVars($name);
+            $name = str_replace(" ","",$name).$extraVars;
 
-       $name = str_replace(" ","",$name);
+            $cURLConnection = curl_init();
 
-       $cURLConnection = curl_init();
+            $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/restart-script?'.$name;
 
-        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/restart-script?'.$name;
+            // echo $url;
+            // die();
 
-        // echo $url;
-        // die();
+            curl_setopt($cURLConnection, CURLOPT_URL, $url);
 
-        curl_setopt($cURLConnection, CURLOPT_URL, $url);
+            curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
 
-        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+            $phoneList = curl_exec($cURLConnection);
+            curl_close($cURLConnection);
 
-        $phoneList = curl_exec($cURLConnection);
-        curl_close($cURLConnection);
+            $jsonArrayResponse = json_decode($phoneList);
 
-        $jsonArrayResponse = json_decode($phoneList);
+            $b64 = $jsonArrayResponse->status;
+            
+            $history = array(
+                'influencers_name' => $name,
+                'title'            => 'Restart script',
+                'description'      => $b64,
+            );
+            InfluencersHistory::insert( $history );
 
-        $b64 = $jsonArrayResponse->status;
-
-        return \Response::json(array('success' => true,'message' => $b64));
+            return \Response::json(array('success' => true,'message' => $b64));
+        } catch (\Throwable $th) {
+            $history = array(
+                'influencers_name' => $request->name,
+                'title'            => 'Restart script',
+                'description'      => $th->getMessage().env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT'),
+            );
+            InfluencersHistory::insert( $history );
+        }
        
     }
 
     public function stopScript(Request $request)
-    {
-       $name = $request->name;
+    {   
+        try{
+            $name = $request->name;
+            $extraVars = \App\Helpers::getInstagramVars($name);
+            $name = str_replace(" ","",$name).$extraVars;
 
-       $name = str_replace(" ","",$name);
+            $cURLConnection = curl_init();
+            $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/stop-script?'.$name;
+            // echo $url;
+            // die();
+            curl_setopt($cURLConnection, CURLOPT_URL, $url);
+            curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
 
-       $cURLConnection = curl_init();
-        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/stop-script?'.$name;
-        // echo $url;
-        // die();
-        curl_setopt($cURLConnection, CURLOPT_URL, $url);
-        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+            $phoneList = curl_exec($cURLConnection);
+            curl_close($cURLConnection);
 
-        $phoneList = curl_exec($cURLConnection);
-        curl_close($cURLConnection);
+            $jsonArrayResponse = json_decode($phoneList);
 
-        $jsonArrayResponse = json_decode($phoneList);
+            $b64 = $jsonArrayResponse->status;
 
-        $b64 = $jsonArrayResponse->status;
+            $history = array(
+                'influencers_name' => $name,
+                'title'            => 'Stop script',
+                'description'      => $b64,
+            );
+            InfluencersHistory::insert( $history );
 
-        return \Response::json(array('success' => true,'message' => $b64));
+            return \Response::json(array('success' => true,'message' => $b64));
+        } catch (\Throwable $th) {
+            $history = array(
+                'influencers_name' => $request->name,
+                'title'            => 'Stop script',
+                'description'      => $th->getMessage().env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT'),
+            );
+            InfluencersHistory::insert( $history );
+        }
        
     }
 

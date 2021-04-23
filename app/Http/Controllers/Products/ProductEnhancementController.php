@@ -13,6 +13,18 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class ProductEnhancementController extends Controller
 {
+    /**
+     * @SWG\Get(
+     *   path="/products/enhance",
+     *   tags={"Products"},
+     *   summary="get product enhance where product status is imageEnhancement",
+     *   operationId="get-product-enhance",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     * )
+     *
+     */
     public function index()
     {
         // Get next product to be enhances
@@ -54,6 +66,30 @@ class ProductEnhancementController extends Controller
         ]);
     }
 
+    /**
+     * @SWG\Post(
+     *   path="/products/enhance",
+     *   tags={"Products"},
+     *   summary="post product enhance",
+     *   operationId="post-product-enhance",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="images[]",
+     *          in="formData",
+     *          required=true, 
+     *          type="file" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="id",
+     *          in="formData",
+     *          required=true, 
+     *          type="integer" 
+     *      ),
+     * )
+     *
+     */
     public function store(Request $request)
     {
         // Vaidate the request

@@ -74,6 +74,11 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
                 Route::post('remarks', 'GoalController@storeRemarks')->name("store-website.goal.remarks.store");
             });
         });
+
+        Route::prefix('seo-format')->group(function () {
+            Route::get('/', 'SeoController@index')->name("store-website.seo.index");
+            Route::post('save', 'SeoController@save')->name("store-website.seo.save");
+        });
     });
 
     Route::prefix('brand')->group(function () {
@@ -170,6 +175,7 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/pull-website-in-live', 'PageController@pullWebsiteInLive')->name("store-website.page.pull-website-in-live");
         Route::get('/histories', 'PageController@histories')->name("store-website.page.histories");
         Route::put('/store-platform-id', 'PageController@store_platform_id')->name('store_website_page.store_platform_id');
+        Route::post('/copy-to', 'PageController@copyTo')->name('store_website_page.copy.to');
     });
 
     Route::prefix('category-seo')->group(function () {
@@ -182,6 +188,8 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/push', 'CategorySeoController@push')->name("store-website.page.push");
         Route::get('/{id}/push-website-in-live', 'CategorySeoController@pushWebsiteInLive')->name("store-website.page.push-website-in-live");
         Route::get('/{id}/history', 'CategorySeoController@history')->name("store-website.page.history");
+        Route::get('/{id}/load-page', 'CategorySeoController@loadPage')->name("store-website.page.category.seo.loadPage");
+        Route::post('/copy-to', 'CategorySeoController@copyTo')->name('store_website_page.category.seo.copy.to');
     });
 
     Route::prefix('product-attribute')->group(function () {

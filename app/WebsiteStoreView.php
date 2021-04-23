@@ -1,12 +1,23 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 
 
 class WebsiteStoreView extends Model
 {
+       /**
+     * @var string
+      * @SWG\Property(property="name",type="string")
+      * @SWG\Property(property="code",type="string")
+      * @SWG\Property(property="status",type="string")
+      * @SWG\Property(property="platform_id",type="integer")
+      * @SWG\Property(property="website_store_id",type="integer")
+      * @SWG\Property(property="sort_order",type="boolean")
+     */
     protected $fillable = [
         'name', 
         'code', 

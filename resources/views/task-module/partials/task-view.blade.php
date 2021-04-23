@@ -111,11 +111,7 @@
           @endif
 
           <button type="button" class='btn btn-image ml-1 reminder-message' data-id="{{ $task->message_id }}" data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></button>
-
-          @if ($task->is_statutory != 3)
-          <button type="button" class='btn btn-image ml-1 convert-task-appointment' data-id="{{ $task->id }}"><img src='/images/details.png' /></button>
-          @endif
-          @endif
+         @endif
 
           @if ((!$special_task->users->contains(Auth::id()) && $special_task->contacts()->count() == 0))
           @if ($task->is_private == 1)

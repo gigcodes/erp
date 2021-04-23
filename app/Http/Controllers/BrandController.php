@@ -232,9 +232,27 @@ class BrandController extends Controller
         return $result;
     }
 
+    /**
+     * @SWG\Get(
+     *   path="/brands",
+     *   tags={"Scraper"},
+     *   summary="List all brands and reference for scraper",
+     *   operationId="scraper-get-brands-reference",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function brandReference()
     {
-        $brands = Brand::select('name','references')->where('magento_id', '>', 0)->get();
+        $brands = Brand::select('name','references')->get();
         foreach ($brands as $brand) {
             $referenceArray[] = $brand->name;
             if(!empty($brand->references)){
@@ -415,7 +433,7 @@ class BrandController extends Controller
                     $newBrand->save();
                 }
             } else {
-                return response()->json(['message' => 'Brand already exist!'], 422);
+                return response()->json(['message' => 'Brand unmerged successfully'], 200);
             }
             Activity::create([
                 'subject_type' => "Brand",
@@ -423,7 +441,7 @@ class BrandController extends Controller
                 'causer_id' => Auth::user()->id,
                 'description' => Auth::user()->name ." has unmerged ".$fromBrand->name. " to ".$request->brand_name
             ]);
-            return response()->json(["data" => []], 200);
+            return response()->json(['message' => 'Brand unmerged successfully',  "data" => []], 200);
         }
 
         return response()->json(["code" => 500 , "data" => [],"message" => "Please check valid brand exist"]);

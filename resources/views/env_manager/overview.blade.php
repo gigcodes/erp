@@ -464,6 +464,9 @@ All needed files are included within this file, so nothing could break if you ex
             $("#add-new-modal").modal("hide");
             
             //window.location.reload();
+          },
+          error: function (request, status, error) {
+              alert(request.responseText);
           }
         })
       },
@@ -486,6 +489,9 @@ All needed files are included within this file, so nothing could break if you ex
             var msg = "{{ trans('dotenv-editor::views.entry_edited') }}";
             vm.showAlert("success", msg);
             $('#editModal').modal('hide');
+          },
+          error: function (request, status, error) {
+              alert(request.responseText);
           }
         })
       },
@@ -496,6 +502,9 @@ All needed files are included within this file, so nothing could break if you ex
           type: "get",
           success: function(){
             vm.showAlert('success', "{{ trans('dotenv-editor::views.backup_created') }}");
+          },
+          error: function (request, status, error) {
+              alert(request.responseText);
           }
         })
       },
@@ -517,6 +526,9 @@ All needed files are included within this file, so nothing could break if you ex
             $('#showDetails').modal('hide');
             vm.setActiveView('overview');
             vm.showAlert('success', '{{ trans('dotenv-editor::views.backup_restored') }}');
+          },
+          error: function (request, status, error) {
+              alert(request.responseText);
           }
         })
       },
@@ -534,6 +546,9 @@ All needed files are included within this file, so nothing could break if you ex
           success: function(){
             var msg = "{{ trans('dotenv-editor::views.entry_deleted') }}";
             vm.showAlert("success", msg);
+          },
+          error: function (request, status, error) {
+              alert(request.responseText);
           }
         });
         this.entries.$remove(entry);

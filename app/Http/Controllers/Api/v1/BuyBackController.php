@@ -37,6 +37,24 @@ class BuyBackController extends Controller
     }
 
     /**
+     * @SWG\Post(
+     *   path="/return-exchange-buyback/create",
+     *   tags={"Orders"},
+     *   summary="Create return exchange buyback",
+     *   operationId="create-return-exchange-buy-back",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -45,7 +63,7 @@ class BuyBackController extends Controller
     public function store(Request $request)
     {
         $validationsarr = [
-            'order_id' => 'required|exists:order_products,order_id',
+            'order_id' => 'required',
             'website' => 'required',
             'type' => 'required|in:refund,exchange,buyback,return,cancellation'
         ];
@@ -70,7 +88,14 @@ class BuyBackController extends Controller
                 $storewebisteOrder = StoreWebsiteOrder::where('platform_order_id', $request->order_id)->where("website_id",$storeWebsite->id)->first();
                 if($storewebisteOrder) {
                     $skus = \App\OrderProduct::where("order_id",$storewebisteOrder->order_id)->get()->pluck("sku")->toArray();
-                    \Log::info(print_r([$storeWebsite->id,$skus,$request->order_id],true));
+                    $order = \App\Order::find($storewebisteOrder->order_id);
+                    if($order) {
+                        $order->order_status = 'Cancel';
+                        $order->order_status_id = 11;
+                        $order->save();
+                        $storewebisteOrder->status_id = 11;
+                        $storewebisteOrder->save();
+                    }
                 }
             }else{
                 $skus[] = $request->product_sku;
@@ -264,6 +289,26 @@ class BuyBackController extends Controller
     {
         //
     }
+
+    /**
+     * @SWG\Get(
+     *   path="/orders/products",
+     *   tags={"Orders"},
+     *   summary="Check product for buyback",
+     *   operationId="check-product-for-buy-back",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+    
     public function checkProductsForBuyback(request $request)
     {
         $validator = Validator::make($request->all(), [

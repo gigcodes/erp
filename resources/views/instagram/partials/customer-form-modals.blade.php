@@ -13,7 +13,7 @@
           
     @csrf
     <div class="row">
-        <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+        <div class="col-xs-6 col-sm-6 ">
             <div class="form-group">
                 <strong>Client Name:</strong>
                 <input type="text" class="form-control" name="name" placeholder="Client Name" value="{{old('name')}}" required />
@@ -23,7 +23,7 @@
             </div>
         </div>
 
-        <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+        <div class="col-xs-6 col-sm-6">
             <div class="form-group">
                 <strong>Email:</strong>
                 <input type="email" class="form-control" name="email" placeholder="example@example.com" value="{{old('email')}}"/>
@@ -33,7 +33,7 @@
             </div>
         </div>
 
-        <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+        <div class="col-xs-6 col-sm-6">
             <div class="form-group">
                 <strong>Phone:</strong>
                 <input type="number" class="form-control" name="phone" placeholder="900000000" value="{{old('phone')}}" />
@@ -43,7 +43,7 @@
             </div>
         </div>
 
-        <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+        <div class="col-xs-6 col-sm-6">
             <div class="form-group">
                 <strong>Solo phone:</strong>
                 <Select name="whatsapp_number" class="form-control">
@@ -58,7 +58,7 @@
             </div>
         </div>
 
-        <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+        <div class="col-xs-6 col-sm-6">
             <div class="form-group">
                 <strong>Instagram Handle:</strong>
                 <input type="text" class="form-control" name="instahandler" id="handled_values" placeholder="instahandle" value="{{old('instahandler')}}" />
@@ -68,7 +68,7 @@
             </div>
         </div>
 
-        <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+        <div class="col-xs-6 col-sm-6">
             <div class="form-group">
                 <strong>Rating:</strong>
                 <Select name="rating" class="form-control">
@@ -86,7 +86,7 @@
             </div>
         </div>
 
-        <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+        <div class="col-xs-6 col-sm-6">
             <div class="form-group">
                 <strong>Address:</strong>
                 <input type="text" class="form-control" name="address" placeholder="Street, Apartment" value="{{old('address')}}" />
@@ -96,7 +96,7 @@
             </div>
         </div>
 
-        <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+        <div class="col-xs-6 col-sm-6">
             <div class="form-group">
                 <strong>City:</strong>
                 <input type="text" class="form-control" name="city" placeholder="Mumbai" value="{{old('city')}}" />
@@ -106,7 +106,7 @@
             </div>
         </div>
 
-        <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+        <div class="col-xs-12 col-sm-12">
             <div class="form-group">
                 <strong>Country:</strong>
                 <input type="text" class="form-control" name="country" placeholder="India" value="{{old('country')}}" />
@@ -116,7 +116,7 @@
             </div>
         </div>
 
-        <div class="col-xs-12 col-sm-8 col-sm-offset-2 text-center">
+        <div class="col-xs-6 col-sm-6 text-center">
             
         </div>
     </div>

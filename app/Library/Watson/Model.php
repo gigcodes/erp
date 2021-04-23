@@ -537,15 +537,15 @@ class Model
     }
 
 
-    public static function sendMessage(Customer $customer, $inputText, $contextReset = false, $message_application_id = null , $messageModel = false)
+    public static function sendMessage($customer, $inputText, $contextReset = false, $message_application_id = null , $messageModel = false, $userType = null)
     {
-        ManageWatsonAssistant::dispatch($customer, $inputText, $contextReset, $message_application_id,$messageModel)->onQueue('watson_push');
+        ManageWatsonAssistant::dispatch($customer, $inputText, $contextReset, $message_application_id,$messageModel, $userType)->onQueue('watson_push');
 
         return true;
 
     }
 
-    public static function sendMessageFromJob(Customer $customer, $account, $assistant, $inputText, $contextReset = false, $message_application_id = null, $messageModel = null)
+    public static function sendMessageFromJob($customer, $account, $assistant, $inputText, $contextReset = false, $message_application_id = null, $messageModel = null, $userType = null)
     {
         if (env("PUSH_WATSON", true) == false) {
             return true;
@@ -700,7 +700,7 @@ class Model
 
     }
 
-    public static function createSession(Customer $customer, AssistantService $assistant, $assistantID)
+    public static function createSession($customer, AssistantService $assistant, $assistantID)
     {
         if (env("PUSH_WATSON", true) == false) {
             return true;
@@ -783,7 +783,7 @@ class Model
         return false;
     }
 
-    public static function sendMessageCustomer(Customer $customer, $assistantID,  AssistantService $assistant, $inputText, $contextReset = false)
+    public static function sendMessageCustomer($customer, $assistantID,  AssistantService $assistant, $inputText, $contextReset = false)
     {
         if (env("PUSH_WATSON", true) == false) {
             return true;

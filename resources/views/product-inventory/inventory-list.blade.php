@@ -62,6 +62,9 @@
             {!! Form::select('product_status[]',$status_list, request("product_status",[]), ['data-placeholder' => 'Select a Status','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
         </div>
         <div class="form-group mr-pd col-md-1">
+            {!! Form::select('product_sub_status[]',\App\Helpers\StatusHelper::subStatus(), request("product_sub_status",[]), ['data-placeholder' => 'Select a sub status','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
+        </div>
+        <div class="form-group mr-pd col-md-1">
             {!! Form::checkbox('no_category',"on",request("no_category"), ['class' => 'form-control']) !!} No Category
         </div>
         <div class="form-group mr-pd col-md-1">
@@ -72,7 +75,7 @@
         </div>
         <div class="form-group mr-pd col-md-2">
             <div class='input-group date' id='filter-date'>
-                <input type='text' class="form-control" name="date" value="{{ request('date','') }}" placeholder="Date" />
+                <input type='text' class="form-control" name="date" value="{{ request('date','') }}" placeholder="date" />
                 <span class="input-group-addon">
                     <span class="glyphicon glyphicon-calendar"></span>
                 </span>
@@ -109,11 +112,13 @@
                 <th>Brand</th>
                 <th>Supplier</th>
                 <th>Color</th>
+                <th>S.Color</th>
                 <th>Composition</th>
                 <th>Size system</th>
                 <th>Size</th>
                 <th>Size(IT)</th>
                 <th>Status</th>
+                <th>Sub Status</th>
                 <th>Created Date</th>
                 <th>Actions</th>
             </tr>
@@ -518,6 +523,9 @@ return;
         format: 'YYYY-MM-DD'
     });
 
+    $('#filter-date-end').datetimepicker({
+        format: 'YYYY-MM-DD'
+    });
 
     $(document).on("click",".chk-select-call",function() {
         $(".selected-product-ids").trigger("click");

@@ -21,20 +21,35 @@
     <br>
     <div class="col-lg-12 margin-tb">
         <div class="row">
-            <div class="col">
-                <div class="h" style="margin-bottom:10px;">
-                    <form class="form-inline" action="{{route('hubstaff-acitivties.activities')}}" method="get">
-                      <div class="row">
-                        <div class="form-group">
-                            <label for="keyword">User:</label>
+            <div class="col-md-12 margin-tb">
+                <div class="row">
+                    <form class="form-check-inline" action="{{route('hubstaff-acitivties.activities')}}" method="get">
+                        <div class="form-group col-md-1">
                             <?php echo Form::select("user_id",["" => "-- Select User --"]+$users,$user_id,["class" => "form-control select2"]); ?>
                         </div>
-                        <div class="form-group">
-                            <label for="keyword">Task id:</label>
-                            <?php echo Form::number("task_id",$task_id,["class" => "form-control"]); ?>
+                        <div class="form-group col-md-2">
+                            <?php echo Form::text("developer_task_id",request('developer_task_id'),["class" => "form-control","placeholder" => "Enter Developer Task ID"]); ?>
                         </div>
-                        <div class="form-group">
-                            <strong>Date Range</strong>
+                        <div class="form-group col-md-2">
+                            
+                            <?php echo Form::text("task_id",request('task_id'),["class" => "form-control","placeholder" => "Enter Task ID"]); ?>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <select name="task_status" class="form-control">
+                                <option value="" >Select Status</option>
+                                <option value="Done" {{ request('task_status') ==  'Done' ? 'selected' : ''}}>Done</option>
+                                <option value="Discussing" {{ request('task_status') == 'Discussing' ? 'selected' : ''}}>Discussing</option>
+                                <option value="In Progress"  {{ request('task_status') ==  'In Progress' ? 'selected' : ''}}>In Progress</option>
+                                <option value="Issue" {{ request('task_status') ==  'Issue' ? 'selected' : ''}}>Issue</option>
+                                <option value="Planned" {{ request('task_status') ==  'Planned' ? 'selected' : ''}}>Planned</option>
+                                <option value="Discuss with Lead" {{ request('task_status') ==  'Discuss with Lead' ? 'selected' : ''}}>Discuss with Lead</option>
+                                <option value="Note" {{ request('task_status') ==  'Note' ? 'selected' : ''}}>Note</option>
+                                <option value="Lead Response Needed" {{ request('task_status') == 'Lead Response Needed' ? 'selected' : ''}}>Lead Response Needed</option>
+                                <option value="Errors in Task" {{ request('task_status') == 'Errors in Task' ? 'selected' : ''}}>Errors in Task</option>
+                                <option value="In Review" {{ request('task_status') == 'In Review' ? 'selected' : ''}}>In Review</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-3">
                             <input type="text" value="{{$start_date}}" name="start_date" hidden/>
                             <input type="text" value="{{$end_date}}" name="end_date" hidden/>
                             <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
@@ -42,78 +57,163 @@
                                 <span></span> <i class="fa fa-caret-down"></i>
                             </div>
                         </div>
-                        <!-- <div class="form-group">
-                            <strong>Date Range</strong>
-                            <input type="text" value="{{$start_date}}" name="start_date" hidden/>
-                            <input type="text" value="{{$end_date}}" name="end_date" hidden/>
-                            <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
-                                <i class="fa fa-calendar"></i>&nbsp;
-                                <span></span> <i class="fa fa-caret-down"></i>
-                            </div>
-                        </div> -->
-                        <div class="form-group">
-                            <label for="keyword">Status:</label>
+                       
+                        <div class="form-group col-md-2">
                             <select name="status" id="" class="form-control">
                             <option value="">Select</option>
                             <option value="new" {{$status == 'new' ? 'selected' : ''}}>New</option>
                             <option value="forwarded_to_admin" {{$status == 'forwarded_to_admin' ? 'selected' : ''}}>Forwarded to admin</option>
                             <option value="forwarded_to_lead" {{$status == 'forwarded_to_lead' ? 'selected' : ''}}>Forwarded to team lead</option>
                             <option value="approved" {{$status == 'approved' ? 'selected' : ''}}>Approved by admin</option>
+                            <option value="pending" {{$status == 'pending' ? 'selected' : ''}}>Pending by admin</option>
                             </select>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group col-md-2">
                             <label for="button">&nbsp;</label>
                             <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
                                 <img src="/images/search.png" style="cursor: default;">
                             </button>
                         </div>  
-                      </div>    
                     </form> 
+                </div>    
+                
+            </div>
+        
+            <div class="col-md-12 margin-tb">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <tr>
+                        <th width="4%">Date</th>
+                        <th>User</th>
+                        <th width="4%">Time tracked (Minutes)</th>
+                        <th width="21%">Tasks</th>
+                        <th width="1%">Time tracked (Minutes)</th>
+                        <th width="1%">Time Estimation (Minutes)</th>
+                        <th width="1%" title="Time Diffrent">Time Diff. (Minutes)</th>
+                        <th width="1%">Status</th>
+                        <th>Time approved</th>
+                        <th>Time Pending</th>
+                        <th>User Requested</th>
+                        <th>Pending payment time</th>
+                        <th>Status</th>
+                        <th width="8%">Note</th>
+                        <th width="5%" colspan="2" class="text-center">Action</th>
+                        </tr>
+                        @php
+                            $totalTracked = 0;
+                            $totalApproved = 0;
+                            $totalPending = 0;
+                            $totalUserRequested = 0;
+                            $totalPaymentPending = 0;
+                        @endphp  
+                        @foreach ($activityUsers as $index => $user)
+                            <tr>
+                            <td>{{ \Carbon\Carbon::parse($user['date'])->format('d-m') }} </td>
+                            <td>{{ $user['userName'] }}</td>
+                            @php
+                                $totalTracked +=  $user['total_tracked'];
+                                $totalApproved +=  $user['totalApproved'];
+                                $totalPending +=  $user['totalPending'];
+                                $totalUserRequested +=  $user['totalUserRequest'];
+                                $totalPaymentPending +=  $user['totalNotPaid'];
+                            @endphp
+                            <td>{{number_format($user['total_tracked'] / 60,2,".",",")}}</td>
+                            <td colspan="5">
+                                <table class="w-100 table-hover">
+                                <?php if(!empty($user['tasks'])) { ?>
+                                        <?php foreach($user['tasks'] as $ut) { ?>
+                                            <?php 
+                                                @list($taskid,$devtask,$taskName,$estimation,$status) = explode("||",$ut);
+                                                $trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $taskid)->first()->tracked;
+                                            ?>
+                                            @if ( $taskid )
+                                                
+                                                  <tr>
+                                                    <td width="56%">
+                                                        <?php if(Auth::user()->isAdmin()) { ?> 
+                                                            <a class="show-task-histories " style="color:#333333;" data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}}</a><br>
+                                                        <?php }else{ ?>
+                                                            <a class="" data-user-id="{{$user['user_id']}}" style="color:#333333;" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}} </a><br>
+                                                        <?php } ?>    
+                                                    </td>
+                                                    <td width="16%">
+                                                        @if ($taskName)
+                                                            {{ (isset($trackedTime) && $devtask ) ? $trackedTime : 'N/A' }}<br>
+                                                        @endif
+                                                    </td>
+                                                    <td width="16%">
+                                                        @if ($taskName)
+                                                            {{ $estimation }}
+                                                        @endif
+                                                    </td>
+                                                    <td width="16%">
+                                                        @if ( $taskName )
+                                                            @if (is_numeric($estimation) && $trackedTime && $taskName)
+                                                                {{ $estimation - $trackedTime}}<br>
+                                                            @else
+                                                                N/A
+                                                            @endif
+                                                        @endif
+                                                    </td>
+                                                    <td width="16%">
+                                                        @if ( $taskName )
+                                                            {{ $status ? $status : 'N/A' }}
+                                                        @endif
+                                                    </td>
+                                                  </tr>
+                                            @endif
+                                        <?php } ?>
+                                <?php } ?>
+                                </table>
+                            </td>
+                            
+                            <td><span class="replaceme">{{number_format($user['totalApproved'] / 60,2,".",",")}}</span> </td>
+                            <td>{{ number_format($user['totalPending'] / 60,2,".",",") }}</td>
+                            <td><span>{{number_format($user['totalUserRequest'] / 60,2,".",",")}}</span> </td>
+                            <td><span>{{number_format($user['totalNotPaid'] / 60,2,".",",")}}</td>
+                            <td>{{$user['status']}}</td>
+                            <td class="expand-row-msg" data-name="note" data-id="{{$index}}">
+                                <span class="show-short-note-{{$index}}">{{ str_limit($user['note'], 12, '...')}}</span>
+		                        <span style="word-break:break-all;" class="show-full-note-{{$index}} hidden">{{$user['note']}}</span>
+                            </td>
+                            
+                            <td>
+                                @if($user['forworded_to'] == Auth::user()->id && !$user['final_approval'])
+                                <form action="">
+                                    <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
+                                    <input type="hidden" class="date" name="date" value="{{$user['date']}}">
+                                    <a class="btn btn-secondary show-activities">+</a>
+                                </form>
+                                @endif
+                                @if(Auth::user()->isAdmin())
+                                <form action="">
+                                    <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
+                                    <input type="hidden" class="date" name="date" value="{{$user['date']}}">
+                                    <a class="btn btn-secondary show-activities"><i class="fa fa-check" aria-hidden="true"></i></a>
+                                </form>
+                                @endif
+                            </td>
+                        @endforeach
+                        <tr>
+                        <th>Total</th>
+                        <th></th>
+                        <th>{{number_format($totalTracked / 60,2,".","")}}</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th>{{number_format($totalApproved / 60,2,".","")}}</th>
+                        <th>{{number_format($totalPending / 60,2,".","")}}</th>
+                        <th>{{number_format($totalUserRequested / 60,2,".","")}}</th>
+                        <th>{{number_format($totalPaymentPending / 60,2,".","")}}</th>
+                        <th></th>
+                        <th></th>
+                        <th width="10%" colspan="2" class="text-center"></th>
+                        </tr>
+                    </table>
                 </div>
             </div>
-        </div>  
-        <div class="col-md-12 margin-tb">
-        <div class="table-responsive">
-        <table class="table table-bordered">
-        <tr>
-          <th>Date</th>
-          <th>User</th>
-          <th>Time tracked (Minutes)</th>
-          <th>Time approved</th>
-          <th>Pending payment time</th>
-          <th>Status</th>
-          <th>Note</th>
-          <th width="10%" colspan="2" class="text-center">Action</th>
-        </tr>
-          @foreach ($activityUsers as $user)
-            <tr>
-            <td>{{ \Carbon\Carbon::parse($user['date'])->format('d-m') }} </td>
-              <td>{{ $user['userName'] }}</td>
-              <td>{{number_format($user['total_tracked'] / 60,2,".",",")}}</td>
-              <td><span class="replaceme">{{number_format($user['totalApproved'] / 60,2,".",",")}}</span> </td>
-              <td><span>{{number_format($user['totalNotPaid'] / 60,2,".",",")}}</td>
-              <td>{{$user['status']}}</td>
-              <td>{{$user['note']}}</td>
-              
-              <td>
-                @if($user['forworded_to'] == Auth::user()->id && !$user['final_approval'])
-                <form action="">
-                    <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
-                    <input type="hidden" class="date" name="date" value="{{$user['date']}}">
-                    <a class="btn btn-secondary show-activities">+</a>
-                </form>
-                @endif
-                @if(Auth::user()->isAdmin() && $user['final_approval'])
-                <form action="">
-                    <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
-                    <input type="hidden" class="date" name="date" value="{{$user['date']}}">
-                    <a class="btn btn-secondary show-activities"><i class="fa fa-check" aria-hidden="true"></i></a>
-                </form>
-                @endif
-              </td>
-          @endforeach
-      </table>
-    </div>
         </div>
     </div>
 </div>
@@ -121,7 +221,7 @@
           50% 50% no-repeat;display:none;">
 </div>
 <div id="records-modal" class="modal" role="dialog">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-lg" role="document" style="max-width: 1200px !important; width: 100% !important;">
       <div class="modal-content" id="record-content">
 
       </div>
@@ -197,6 +297,23 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 
 <script type="text/javascript">
+
+$(document).on('click', '.expand-row-msg', function () {
+    var name = $(this).data('name');
+    var id = $(this).data('id');
+    var full = '.expand-row-msg .show-short-'+name+'-'+id;
+    var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+    $(full).toggleClass('hidden');
+    $(mini).toggleClass('hidden');
+});
+
+$(document).on('click', '.expand-row', function () {
+    var selection = window.getSelection();
+    if (selection.toString().length === 0) {
+        $(this).find('.td-mini-container').toggleClass('hidden');
+        $(this).find('.td-full-container').toggleClass('hidden');
+    }
+});
 
 $(document).on('change', '.task_efficiency', function(e) 
 {
@@ -398,26 +515,32 @@ let r_s = jQuery('input[name="start_date"]').val();
 
         $(document).on('click', '.final-submit-record', function(e) {
         e.preventDefault();
+        var status = $(this).data('status');
+        // return false;
         var form = $(this).closest("form");
         var thiss = $(this);
         var type = 'POST';
+        var data = form.serializeArray();
+        data.push({name: 'status', value: status});
+
             $.ajax({
             url: '/hubstaff-activities/activities/final-submit',
             type: type,
             dataType: 'json',
-            data: form.serialize(),
+            // data: form.serialize(),
+            data: data,
             beforeSend: function() {
                 $("#loading-image").show();
             }
             }).done( function(response) {
-            $("#loading-image").hide();
-            thisRaw.closest("tr").find('.replaceme').html(response.totalApproved);
-            $('#records-modal').modal('hide');
-            // $(".show-activities").css("display", "none");
-            thisRaw.closest("tr").find('.show-activities').css("display", "none");
+                $("#loading-image").hide();
+                thisRaw.closest("tr").find('.replaceme').html(response.totalApproved);
+                $('#records-modal').modal('hide');
+                // $(".show-activities").css("display", "none");
+                thisRaw.closest("tr").find('.show-activities').css("display", "none");
             }).fail(function(errObj) {
                 toastr['error'](errObj.responseJSON.message, 'error');
-            $("#loading-image").hide();
+                $("#loading-image").hide();
             });
         });
 
@@ -451,6 +574,34 @@ let r_s = jQuery('input[name="start_date"]').val();
         $(document).on('click', '.expand-row-btn', function () {
             $(this).closest("tr").find(".expand-col").toggleClass('dis-none');
         });
+
+        $(document).on("click",".show-task-histories",function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            thisRaw = $this;
+            $.ajax({
+                url: '/hubstaff-activities/activities/task-activity',
+                type: 'GET',
+                data: {
+                    "task_id":$this.data("task-id"),
+                    "user_id":$this.data("user-id")
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            }).done( function(response) {
+                $("#loading-image").hide();
+                $("#loading-image").hide();
+                $('#records-modal').modal('show');
+                $('#record-content').html(response);
+            }).fail(function(errObj) {
+                $("#loading-image").hide();
+                if(errObj.responseJSON) {
+                    toastr['error'](errObj.responseJSON.message, 'error');
+                }
+            });
+        });
+
 
 </script>
 @endsection

@@ -10,6 +10,28 @@ use Auth;
 
 class MissingBrandController extends Controller
 {
+    /**
+     * @SWG\Get(
+     *   path="/missing-brand/save",
+     *   tags={"Scraper"},
+     *   summary="Save unknown brand",
+     *   operationId="scraper-save-missing-brand",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *      @SWG\Parameter(
+     *          name="name",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="supplier",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function saveMissingBrand(Request $request)
     {
     	$name = $request->name;
@@ -156,7 +178,6 @@ class MissingBrandController extends Controller
                 similar_text(strtolower($input), strtolower($word), $percent);
 
                 if ($percent >= 70) {
-                    dd($missingBrand->name);
                     $brand->references .= ',' . $missingBrand->name;
                     $brand->save();
                     $isFind = 1;

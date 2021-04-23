@@ -2,7 +2,9 @@
 
 namespace App;
 
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
@@ -21,6 +23,23 @@ use Carbon\Carbon;
 
 class User extends Authenticatable
 {
+
+         /**
+     * @var string
+      * @SWG\Property(property="name",type="string")
+      * @SWG\Property(property="email",type="string")
+      * @SWG\Property(property="phone",type="string")
+      * @SWG\Property(property="password",type="string")
+      * @SWG\Property(property="responsible_user",type="string")
+     
+      * @SWG\Property(property="agent_role",type="string")
+      * @SWG\Property(property="whatsapp_number",type="string")
+      * @SWG\Property(property="amount_assigned",type="string")
+      * @SWG\Property(property="auth_token_hubstaff",type="string")
+      * @SWG\Property(property="payment_frequency",type="string")
+      * @SWG\Property(property="fixed_price_user_or_job",type="string")
+      * @SWG\Property(property="approve_login",type="string")
+     */
     use HasApiTokens, Notifiable;
     use HasRoles;
     use SoftDeletes;
@@ -45,7 +64,8 @@ class User extends Authenticatable
         'auth_token_hubstaff',
         'payment_frequency',
         'fixed_price_user_or_job',
-        'approve_login'
+        'approve_login',
+        'billing_frequency_day'
     ];
 
     public function getIsAdminAttribute()

@@ -455,7 +455,7 @@ class LaravelLogController extends Controller
             $logs=$logs->whereDate('created_at',\Carbon\Carbon::createFromFormat('Y/m/d', $request->created_at)->format('Y-m-d'));
         }
 
-        $count= $logs->count();
+        $count = $logs->count();
 
 
 
@@ -470,12 +470,9 @@ class LaravelLogController extends Controller
             //$request->render('logging.partials.apilogdata',compact('logs'));
             $html= view('logging.partials.apilogdata', compact('logs'))->render();
 
-            if(count($logs))
-            {
+            if(count($logs)) {
                 return array('status'=>1,'html'=>$html,'count'=>$count,'logs'=>$logs);
-            }
-            else
-            {
+            }else {
                 return array('status'=>0,'html'=>'<tr id="noresult_tr"><td colspan="7">No More Records</td></tr>');
             }
         }

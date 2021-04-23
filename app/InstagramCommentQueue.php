@@ -1,7 +1,11 @@
-<?php
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */<?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use App\InstagramPosts;
 use App\Account;

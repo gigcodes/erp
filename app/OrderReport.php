@@ -1,11 +1,17 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 
 class OrderReport extends Model
 {
+   /**
+     * @var string
+     * @SWG\Property(property="status",type="string")
+     */
   protected $appends = ['status'];
 
   public function status()

@@ -179,9 +179,12 @@ var page = {
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
-            $('input[name="meta_keywords"]').trigger('change');
+            $('textarea[name="meta_keywords"]').trigger('change');
             $('textarea[name="meta_description"]').trigger('change');
             $('#google_translate_element').summernote();
+            $('#keyword-search-btn').trigger('click');
+            $('textarea[name="meta_keyword"]').trigger('input');
+            $('textarea[name="meta_keyword_avg_monthly"]').trigger('input');
 
         //new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
     },
@@ -292,6 +295,18 @@ var page = {
             $("#loading-image").hide();
             $('#google_translate_element').summernote('reset');
             $('#google_translate_element').summernote('insertText', response.content);
+
+            if ($('#ctitle').is(':checked') ) {
+                $('#meta_title').empty().val(response.meta_title);
+            }
+
+            if ($('#ckeyword').is(':checked') ) {
+                $('#meta_keywords').empty().val(response.meta_keyword);
+            }
+
+            if ($('#cdesc').is(':checked') ) {
+                $('textarea[name="meta_description"]').empty().text(response.meta_desc);
+            }
         }
     },
     loadTranslation : function(ele) {
@@ -448,37 +463,110 @@ var page = {
 
 $.extend(page, common);
 
+function auto_grow(element) {
+    element.style.height = "5px";
+    element.style.height = (element.scrollHeight + 1) + "px";
+}
+
 $(document).on('change', '#title-page', function () {
     getGoogleKeyWord($('#title-page').val());
 });
 
 $(document).on('click', '#extra-keyword-search-btn', function () {
+    $(document).find('.suggestList').hide();
     getGoogleKeyWord($('#extra-keyword-search').val());
 });
 
 $(document).on('click', '#keyword-search-btn', function () {
+    $(document).find('.suggestList').hide();
     getGoogleKeyWord($('#title-page').val());
 });
 
-$(document).on('click', '.suggestList > li', function () {
+$(document).on('click', '.keyword-list', function () {
 
-    var keywords = $(this).data('keyword');
-    if (keywords ) {
+    var keywords = $(this).text();
+    var avg = $(this).data('avg');
+    keywords.replace(/ \,/g, ',')
+    
+    if (keywords) {
         if ($(this).hasClass('badge-green')) {
             $('#meta_keywords').val($('#meta_keywords').val().replace("," + keywords, ""));
             $(this).removeClass('badge-green').find('i').remove()
-            // $(this+' i').remove()
+            $('#meta_keyword_avg_monthly').val($('#meta_keyword_avg_monthly').val().replace("," + keywords+'-'+avg, ""));
         } else {
             $('#meta_keywords').val($('#meta_keywords').val() + ',' + keywords);
+            $('#meta_keyword_avg_monthly').val($('#meta_keyword_avg_monthly').val() + ',' + keywords + '-' + avg);
             $(this).addClass('badge-green').append('<i class="fa fa-remove pl-2"></i>')
         }
     }
-
     $('input[name="meta_keywords"]').trigger('change');
+    $('textarea[name="meta_keywords"]').trigger('input');
+    $('textarea[name="meta_keyword_avg_monthly"]').trigger('input');
+
 });
+
 
 $(document).on('change , keyup', 'input[name="meta_keywords"]', function () {
     $('#meta_keywords_count').text( 'Length: '+ $( this ).val().length );
+});
+
+$(document).on('click', '.reload-page-data', function () {
+    $('.website-page-change').trigger('change');
+});
+
+$(document).on('click', '.copy-to-btn', function () {
+    console.log($(this));
+    console.log( $('#website-page-copy-to').val() );
+    var site_urls = 'false';
+    var cttitle   = 'false';
+    var ctkeyword = 'false';
+    var ctdesc    = 'false';
+    if ($('#site_urls').is(':checked')) {
+        site_urls = 'true';
+    }
+    if ($('#cttitle').is(':checked')) {
+        cttitle = 'true';
+    }
+    if ($('#ctkeyword').is(':checked')) {
+        ctkeyword = 'true';
+    }
+    if ($('#ctdesc').is(':checked')) {
+        ctdesc = 'true';
+    }
+
+    $.ajax({
+
+        type: 'POST',
+        url: '/store-website/page/copy-to',
+        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+        data: { site_urls: site_urls,
+            to_page  : $('#website-page-copy-to').val(),
+            page     : $('input[name="id"]').val(),
+            cttitle  : cttitle,
+            ctkeyword: ctkeyword,
+            ctdesc   : ctdesc
+        },
+
+        beforeSend: function () {
+            $("#loading-image").show();
+        },
+        success: function (data) {
+            $("#loading-image").hide();
+            if (data.error){
+                toastr['error'](data.error, 'Error');
+            }
+            if (!$.isEmptyObject(data.error) ) {
+                $.each(data.error, function (key, value) {
+                    toastr['error'](value, 'Error');
+                });
+            }else{
+                toastr['success'](data.success, 'Success');
+            }
+        },
+        complete: function () {
+            $("#loading-image").hide();
+        },
+    });
 });
 
 $(document).on('change , keyup', 'textarea[name="meta_description"]', function () {
@@ -487,15 +575,17 @@ $(document).on('change , keyup', 'textarea[name="meta_description"]', function (
 
 function getGoogleKeyWord(title) {
 
-    $(document).find('.suggestList').empty();
-    $(document).find('.suggestList').removeClass('width-fix');
+    $(document).find('.suggestList-table').empty();
     var lan = $('.website-language-change').val();
+
+    var words = $(document).find('#meta_keywords').val();
+    words = words.split(',');
 
     $.ajax({
        
         type: 'get',
-        url: '/google-keyword-search',
-        data: { keyword: title, language: lan, google_search: 'true' },
+        url: '/google-keyword-search-v6',
+        data: { keyword: title, google_search: 'true' },
 
         beforeSend: function () {
             $("#loading-image").show();
@@ -504,11 +594,20 @@ function getGoogleKeyWord(title) {
             if (response.length > 0) {
                 $(document).find('#extra-keyword-search-btn').removeClass('hide');
                 $(document).find('#extra-keyword-search').removeClass('hide');
-                $(document).find('.suggestList').addClass('width-fix');
-                $(document).find('.suggestList').append('<li class="badge badge-primary w-100" > keywords - searchVolume - competition </i>');
+                var t = '';
                 $.each(response, function (index, data) {
-                    $(document).find('.suggestList').append('<li class="badge badge-primary" data-keyword="' + data.keyword + '" >' + data.keyword + ' - ' + data.searchVolume + ' - ' + data.competition +'</i>');
+
+                    if ($.inArray(data.keyword, words) > -1) {
+                        t += `<tr><td class="keyword-list badge-green" data-avg="` + data.avg_monthly_searches +`">`+data.keyword+`<i class="fa fa-remove pl-2"></i></td>`;
+                    }else{
+                        t += `<tr><td class="keyword-list" data-avg="` + data.avg_monthly_searches +`" >`+data.keyword+`</td>`;
+                    }
+                    t += `<td>` + data.avg_monthly_searches + `</td>`;
+                    t += `<td>` + data.competition + `</td>`;
+                    t += `<td>` + data.translate_text + `</td></tr>`;
                 });
+                $(document).find('.suggestList-table').html(t);
+                $(document).find('.suggestList').show();
             } else {
 
                 $(document).find('#extra-keyword-search-btn,#extra-keyword-search').hide();

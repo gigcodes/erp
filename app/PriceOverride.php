@@ -1,11 +1,29 @@
 <?php
 
 namespace App;
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 
 use Illuminate\Database\Eloquent\Model;
 
 class PriceOverride extends Model
 {
+     /**
+     * @var string
+     * @SWG\Property(property="store_website_id",type="integer")
+     * @SWG\Property(property="brand_id",type="integer")
+     * @SWG\Property(property="brand_segment",type="string")
+     * @SWG\Property(property="country_group_id",type="integer")
+     * @SWG\Property(property="category_id",type="integer")
+     * @SWG\Property(property="type",type="string")
+     * @SWG\Property(property="calculated",type="string")
+     * @SWG\Property(property="value",type="string")
+     * @SWG\Property(property="country_code",type="string")
+     * @SWG\Property(property="created_at",type="datetime")
+     * @SWG\Property(property="updated_at",type="datetime")
+     */
+
     protected $fillable = [
         'store_website_id', 
         'brand_id', 

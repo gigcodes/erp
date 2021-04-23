@@ -447,11 +447,32 @@ class SupplierController extends Controller
         $data[ 'is_updated' ] = 1;
         Supplier::find($id)->update($data);
 
-        $scraper = \App\Scraper::updateOrCreate(
-            ['supplier_id' => $id],
-            ['inventory_lifetime' => $request->get("inventory_lifetime", ""), 'scraper_name' => $request->get("scraper_name", "")]
-        );
 
+        $scrapers = \App\Scraper::where('supplier_id',$id)->get();
+        $multiscraper = explode(",",$request->get("scraper_name", ""));
+        $multiscraper = array_map('strtolower', $multiscraper);
+        if(!$scrapers->isEmpty()) {
+          foreach($scrapers as $scr) {
+             if(!in_array(strtolower($scr->scraper_name), $multiscraper)) {
+                $scr->delete();
+             }
+          }
+        }
+        
+        if(!empty($multiscraper)) {
+          foreach($multiscraper as $multiscr) {
+              $scraper = \App\Scraper::where('supplier_id',$id)->where('scraper_name',$multiscr)->first();
+              if($scraper) {
+                 $scraper->inventory_lifetime = $request->get("inventory_lifetime", "");
+              }else{
+                 $scraper = new \App\Scraper;
+                 $scraper->supplier_id = $id;
+                 $scraper->inventory_lifetime = $request->get("inventory_lifetime", "");
+                 $scraper->scraper_name = $multiscr;
+              }
+              $scraper->save();
+          }
+        }
 
         return redirect()->back()->withSuccess('You have successfully updated a supplier!');
     }
@@ -1279,6 +1300,30 @@ class SupplierController extends Controller
         }
     }
 
+    /**
+     * @SWG\Post(
+     *   path="/supplier/brands-raw",
+     *   tags={"Scraper"},
+     *   summary="Update supplier brand raw",
+     *   operationId="scraper-post-supplier-brands",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=403, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="supplier_id",
+     *          in="formData",
+     *          required=true, 
+     *          type="integer" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="brands_raw",
+     *          in="formData",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function apiBrandsRaw(Request $request)
     {
         // Get supplier ID

@@ -26,7 +26,7 @@
               <div class="col">
                 <div class="form-group">
                   <strong>Password</strong>
-                    <input type="text" title="Should have at least 1 lowercase AND 1 uppercase AND 1 number AND 1 special character and minimum 6 character long" name="password" class="form-control" required>
+                    <input type="text" autocomplete="new-password" title="Should have at least 1 lowercase AND 1 uppercase AND 1 number AND 1 special character and minimum 6 character long" name="password" class="form-control" required>
                 </div>
               </div>
             </div>

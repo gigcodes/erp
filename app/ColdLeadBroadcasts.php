@@ -5,6 +5,9 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\ImQueue;
 
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 class ColdLeadBroadcasts extends Model
 {
     public function lead() {

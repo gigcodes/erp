@@ -221,6 +221,7 @@ class RepositoryController extends Controller
             $result = exec($cmd, $allOutput);
 
         } catch (Exception $e) {
+            \Log::error($e);
             print_r($e->getMessage());
             return redirect(url('/github/pullRequests'))->with(
                 [

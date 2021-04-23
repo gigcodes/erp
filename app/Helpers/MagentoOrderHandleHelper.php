@@ -18,11 +18,13 @@ use Carbon\Carbon;
 use App\ChatMessage;
 use App\CommunicationHistory;
 use App\Order;
+use App\OrderCustomerAddress;
 use App\ProductSizes;
 use App\Mails\Manual\OrderConfirmation;
 use App\Email;
 use Mail;
 use seo2websites\MagentoHelper\MagentoHelperv2 as MagentoHelper;
+use App\Jobs\CallHelperForZeroStockQtyUpdate;
 
 class MagentoOrderHandleHelper extends Model
 {
@@ -99,13 +101,16 @@ class MagentoOrderHandleHelper extends Model
                         }
                         $payment_method = 'cashondelivery';
                     }
+
+                    $allStatus = OrderHelper::getStatus();
+
                     $magentoId = $order->increment_id;
                     $id        = \DB::table('orders')->insertGetId(
                         array(
                             'customer_id'     => $customer_id,
                             'order_id'        => $order->increment_id,
                             'order_type'      => 'online',
-                            'order_status'    => $order_status,
+                            'order_status'    => isset($allStatus[$order_status]) ? $allStatus[$order_status] : $order_status,
                             'order_status_id' => $order_status,
                             'payment_mode'    => $payment_method,
                             'order_date'      => $order->created_at,
@@ -130,25 +135,112 @@ class MagentoOrderHandleHelper extends Model
                             } else {
                                 $size = '';
                             }
+
+                            if(!empty($item->product_size)) {
+                                $size = $item->product_size;
+                            }
+
+                            $splitted_sku = explode( '-', $item->sku );
+
                             $skuAndColor = MagentoHelper::getSkuAndColor($item->sku);
                             \Log::info("skuAndColor : " . json_encode($skuAndColor));
-                            
+                            $sku = isset($splitted_sku[0]) ? $splitted_sku[0] : $skuAndColor['sku'];
+
                             DB::table('order_products')->insert(
                                 array(
                                     'order_id'      => $id,
                                     'product_id'    => !empty($skuAndColor['product_id']) ? $skuAndColor['product_id'] : null,
-                                    'sku'           => $skuAndColor['sku'],
+                                    'sku'           => isset($splitted_sku[0]) ? $splitted_sku[0] : $skuAndColor['sku'],
                                     'product_price' => round($item->price),
                                     'qty'           => round($item->qty_ordered),
                                     'size'          => $size,
-                                    'color'         => $skuAndColor['color'],
+                                    'color'         => isset($splitted_sku[1]) ? $splitted_sku[1] : $skuAndColor['sku'],
                                     'created_at'    => $order->created_at,
                                     'updated_at'    => $order->created_at,
                                 )
                             );
+
+                            // check the splitted sku here to remove the stock from the products
+                            $product = \App\Product::where("sku",$sku)->first();
+                            $totalOrdered = round($item->qty_ordered);
+                            if($product) {
+                                $productSizesM = ProductSizes::where('product_id', $product->id);
+                                if(!empty($size)) {
+                                    $productSizesM = $productSizesM->where('size', $size);
+                                }
+                                $mqty = 0;
+                                $productSizesM = $productSizesM->get();
+                                if(!$productSizesM->isEmpty()) {
+                                    //check if more then one the minus else delete
+                                    foreach($productSizesM as $psm){
+                                        $mqty += $psm->quantity;
+                                        if($totalOrdered > 0)  {
+                                            // update qty as based on the request
+                                            $psmqty = $psm->quantity;
+                                            $psmqty -= $totalOrdered;
+                                            if($psmqty > 0) {
+                                                $totalOrdered -= $psm->quantity;
+                                                $psm->quantity = $psmqty;  
+                                                $psm->save();
+                                            }else{
+                                                $totalOrdered -= $psm->quantity;
+                                                $psm->delete();
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if($mqty <= $totalOrdered || $mqty == 0) {
+                                    // start to delete from magento
+                                    $needToCheck    = [];
+                                    $needToCheck[]  = ["id" => $product->id, "sku" => $item->sku];
+                                    CallHelperForZeroStockQtyUpdate::dispatch($needToCheck)->onQueue('MagentoHelperForZeroStockQtyUpdate');
+                                }
+
+                            }
                         }
                     }
 
+                    if( !empty( $order->billing_address ) || !empty( $order->shipping_address ) ){
+                        $customerAddress = array (
+                            array (
+                                'order_id'     => $id ?? null,
+                                'address_type' => $order->billing_address->address_type ?? null,
+                                'city'         => $order->billing_address->city ?? null,
+                                'country_id'   => $order->billing_address->country_id ?? null,
+                                'customer_id'  => $order->billing_address->customer_id ?? null,
+                                'email'        => $order->billing_address->email ?? null,
+                                'entity_id'    => $order->billing_address->entity_id ?? null,
+                                'firstname'    => $order->billing_address->firstname ?? null,
+                                'lastname'     => $order->billing_address->lastname ?? null,
+                                'parent_id'    => $order->billing_address->parent_id ?? null,
+                                'postcode'     => $order->billing_address->postcode ?? null,
+                                'street'       => $order->billing_address->street ?? null,
+                                'telephone'    => $order->billing_address->telephone ?? null
+                            ),
+                            array (
+                                'order_id'     => $id ?? null,
+                                'address_type' => $order->shipping_address->address_type ?? null,
+                                'city'         => $order->shipping_address->city ?? null,
+                                'country_id'   => $order->shipping_address->country_id ?? null,
+                                'customer_id'  => $order->shipping_address->customer_id ?? null,
+                                'email'        => $order->shipping_address->email ?? null,
+                                'entity_id'    => $order->shipping_address->entity_id ?? null,
+                                'firstname'    => $order->shipping_address->firstname ?? null,
+                                'lastname'     => $order->shipping_address->lastname ?? null,
+                                'parent_id'    => $order->shipping_address->parent_id ?? null,
+                                'postcode'     => $order->shipping_address->postcode ?? null,
+                                'street'       => $order->shipping_address->street ?? null,
+                                'telephone'    => $order->shipping_address->telephone ?? null
+                            )
+                        );
+                        try {
+                            OrderCustomerAddress::insert( $customerAddress );
+                            \Log::info("Order customer address added" . json_encode($customerAddress));
+                        } catch (\Throwable $th) {
+                            \Log::error("Order customer address " . $th->getMessage() );
+                        }
+                    }
                     $orderSaved = Order::find($id);
                     if ($order->payment->method == 'cashondelivery') {
                         $product_names = '';
@@ -234,7 +326,7 @@ class MagentoOrderHandleHelper extends Model
                     $websiteOrder->save();
 
                     $customer = $orderSaved->customer;
-
+        
                     try{
                         Mail::to($customer->email)->send(new OrderConfirmation($orderSaved));
                     } catch (\Throwable $th) {
@@ -257,7 +349,7 @@ class MagentoOrderHandleHelper extends Model
                     \Log::info("Order is finished" . json_encode($websiteOrder));
                 }
                 /**Ajay singh */
-                $orders = OrderProduct::with('order')->whereHas('order',function($query){
+                /*$orders = OrderProduct::with('order')->whereHas('order',function($query){
                     $query->whereIn('order_status_id',[1,13]);
                 })->get();
                 foreach($orders as $order){
@@ -278,7 +370,7 @@ class MagentoOrderHandleHelper extends Model
                             $ProductInventoryController = ProductInventoryController::magentoSoapUpdateStock($product,0);
                         }
                     }
-                }
+                }*/
                 /**Ajay singh */
                 return true;
             }

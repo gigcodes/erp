@@ -39,10 +39,11 @@
             @endphp
             <tr>
                 <td>{{$count}}</td>
-                <td>{{$record->website}}</td>
+                <td>{{$record->website ?? '--'}}</td>
+                <td>{{$record->email}}</td>
                 <td>{{$record->account_id}}</td>
                 <td>{{$record->view_id}}</td>
-                <td>{{$record->storeWebsiteDetails->title ?? $record->storeWebsiteDetails->website}}</td>
+                <td>{{$record->storeWebsiteDetails->title ?? $record->storeWebsiteDetails->website ?? '--' }}</td>
                 <td>
                     <a href="{{url('/store-website-analytics/edit/'.$record->id)}}" class="btn btn-xs btn-image" title="Edit Record"><img src="/images/edit.png" ></a>
                     <a href="{{url('/store-website-analytics/delete/'.$record->id)}}" class="btn btn-image" title="Delete Record"><img src="/images/delete.png"></a>

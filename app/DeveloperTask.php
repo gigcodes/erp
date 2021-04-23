@@ -1,6 +1,9 @@
 <?php
 
 namespace App;
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -8,12 +11,48 @@ use Plank\Mediable\Mediable;
 
 class DeveloperTask extends Model
 {
+      /**
+     * @var string
+     * @SWG\Property(property="user_id",type="integer")
+     * @SWG\Property(property="module_id",type="integer")
+
+     * @SWG\Property(property="priority",type="string")
+     * @SWG\Property(property="subject",type="string")
+     * @SWG\Property(property="task",type="string")
+     * @SWG\Property(property="cost",type="float")
+     * @SWG\Property(property="status",type="string")
+     * @SWG\Property(property="module",type="string")
+     * @SWG\Property(property="completed",type="string")
+     * @SWG\Property(property="estimate_time",type="datetime")
+     * @SWG\Property(property="start_time",type="datetime")
+     * @SWG\Property(property="end_time",type="datetime")
+     * @SWG\Property(property="task_type_id",type="integer")
+     * @SWG\Property(property="parent_id",type="integer")
+     * @SWG\Property(property="created_by",type="integer")
+     * @SWG\Property(property="submitted_by",type="integer")
+     * @SWG\Property(property="responsible_user_id",type="integer")
+     * @SWG\Property(property="assigned_to",type="integer")
+     * @SWG\Property(property="assigned_by",type="integer")
+     * @SWG\Property(property="language",type="sting")
+     * @SWG\Property(property="master_user_id",type="integer")
+     * @SWG\Property(property="hubstaff_task_id",type="integer")
+     * @SWG\Property(property="is_milestone",type="boolean")
+     * @SWG\Property(property="no_of_milestone",type="sting")
+     * @SWG\Property(property="milestone_completed",type="sting")
+     * @SWG\Property(property="customer_id",type="integer")
+     * @SWG\Property(property="lead_hubstaff_task_id",type="integer")
+     * @SWG\Property(property="team_lead_id",type="integer")
+     * @SWG\Property(property="tester_id",type="integer")
+     * @SWG\Property(property="team_lead_hubstaff_task_id",type="integer")
+     * @SWG\Property(property="tester_hubstaff_task_id",type="integer")
+     * @SWG\Property(property="site_developement_id",type="integer")
+     * @SWG\Property(property="priority_no",type="integer")
+     */
     use Mediable;
     use SoftDeletes;
 
     protected $fillable = [
-        'user_id', 'module_id', 'priority', 'subject', 'task', 'cost', 'status', 'module', 'completed', 'estimate_time', 'start_time', 'end_time', 'task_type_id', 'parent_id', 'created_by', 'submitted_by',
-        'responsible_user_id','assigned_to','assigned_by','language','master_user_id', 'hubstaff_task_id','is_milestone','no_of_milestone','milestone_completed','customer_id','lead_hubstaff_task_id','team_lead_id','tester_id','team_lead_hubstaff_task_id','tester_hubstaff_task_id','site_developement_id','priority_no'
+        'user_id', 'module_id', 'priority', 'subject', 'task', 'cost', 'status', 'module', 'completed', 'estimate_time', 'start_time', 'end_time', 'task_type_id', 'parent_id', 'created_by', 'submitted_by', 'responsible_user_id','assigned_to','assigned_by','language','master_user_id', 'hubstaff_task_id','is_milestone','no_of_milestone','milestone_completed','customer_id','lead_hubstaff_task_id','team_lead_id','tester_id','team_lead_hubstaff_task_id','tester_hubstaff_task_id','site_developement_id','priority_no','scraper_id'
     ];
 
     public function user()

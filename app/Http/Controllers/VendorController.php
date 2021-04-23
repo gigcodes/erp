@@ -467,11 +467,21 @@ class VendorController extends Controller
         $user->email = $email;
         $user->password = Hash::make($password);
         $user->phone = $request->phone;
+
+        // check the default whatsapp no and store it
+        $whpno = \DB::table('whatsapp_configs')
+            ->select('*')
+            ->whereRaw("find_in_set(4,default_for)")
+            ->first();
+        if($whpno)     {
+          $user->whatsapp_number = $whpno->number;
+        }
+
         $user->save();
         $role = Role::where('name', 'Developer')->first();
         $user->roles()->sync($role->id);
         $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.amourint.com/ username: ' . $email . ' password:  ' . $password . '';
-        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($request->phone, '', $message);
+        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($request->phone,$user->whatsapp_number, $message);
       } else {
         if(!empty($source)) {
            return redirect()->back()->withErrors('Vendor Created , couldnt create User, Email or Phone Already Exist');

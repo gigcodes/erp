@@ -204,6 +204,9 @@ var productTemplate = {
         if(response.code == 1) {
             location.href = '/product-templates';
         }
+        if( response.code == 0 ){
+            toastr["error"](response.message,'Error');
+        }
     },
     deleteRecord : function(ele) {
         var _z = {

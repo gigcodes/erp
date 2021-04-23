@@ -1,12 +1,22 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use DB;
 class ResourceImage extends Model{
-
+  /**
+     * @var string
+     * @SWG\Property(property="cat_id",type="integer")
+     * @SWG\Property(property="image1",type="string")
+     * @SWG\Property(property="image",type="string")
+     * @SWG\Property(property="is_pending",type="boolean")
+     * @SWG\Property(property="sub_cat_id",type="interger")
+     * @SWG\Property(property="is_rejected",type="boolean")
+     */
   protected $fillable = ['cat_id','image1','image','is_pending','sub_cat_id'];
 
   public function category(){

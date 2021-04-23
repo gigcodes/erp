@@ -96,6 +96,15 @@ var page = {
             page.showRemarks("instagram_remarks",$(this).data("id"),$(this).data("value"));
         });
 
+        page.config.bodyView.on("click",".btn-seo-format",function(e) {
+            e.preventDefault();
+            //page.showRemarks("instagram_remarks",$(this).data("id"),$(this).data("value"));
+            page.editSeoRecord($(this));
+        });
+
+
+        
+
         $(".common-modal").on("click",".add-attached-brands",function(e) {
             e.preventDefault();
             page.submitAttachedBrands($(this));
@@ -109,12 +118,41 @@ var page = {
             }
         });
 
+        $(".common-modal").on("click",".update-seo-format",function(e) {
+            e.preventDefault();
+            page.updateSeoFormat($(this));
+        });
+
+        
+
         $(document).on("change","select.select-searchable",function() {
             // now need to call for getting child 
             var id = $(this).val();
             page.getChildCategories(id);
 
         });
+
+
+        $(document).on("click",".btn-show-password",function() {
+             var block = $(this).closest(".subMagentoUser");
+             var password = block.find(".user-password");
+             const type = password.attr('type') === 'password' ? 'text' : 'password';
+                          password.attr('type', type);
+        });
+
+        $(document).on("click",".btn-copy-password",function() {
+             var block = $(this).closest(".subMagentoUser");
+             var password = block.find(".user-password");
+             
+              var $temp = $("<input>");
+              $("body").append($temp);
+              $temp.val(password.val()).select();
+              document.execCommand("copy");
+              $temp.remove();
+
+              alert("Copied!");
+        });
+
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -201,6 +239,46 @@ var page = {
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
     },
+
+    editSeoRecord : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/"+ele.data("id")+"/seo-format",
+            method: "get",
+        }
+        this.sendAjax(_z, 'afterSeoFormat');
+    },
+
+    afterSeoFormat: function(response) {
+        var createWebTemplate = $.templates("#template-edit-seo");
+        var tplHtml = createWebTemplate.render(response);
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
+    },
+
+    updateSeoFormat : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/"+ele.data("id")+"/seo-format/save",
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "afterUpdateSeo");
+    },
+
+    afterUpdateSeo : function(response) {
+        if(response.code  == 200) {
+            $("#loading-image").hide();
+            $(".common-modal").modal("hide");
+            toastr["success"]("Added successfully","");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+
     editCancellationRecord : function(ele) {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/"+ele.data("id")+"/edit-cancellation",
@@ -294,14 +372,20 @@ var page = {
                       '<div class="form-group">'+
                         '<div class="row">'+
                              '<label class="col-sm-12" for="password">Password</label>'+
-                             '<div class="col-sm-9 sub-pass">'+
+                             '<div class="col-sm-7 sub-pass">'+
                                 '<input type="password" name="password" value="" class="form-control user-password" id="password" placeholder="Enter Password">'+
                              '</div>'+
-                             '<div class="col-sm-3">'+
-                                '<button type="button" data-id="" class="btn btn-edit-magento-user" style="border:1px solid">'+
+                             '<div class="col-sm-5">'+
+                                '<button type="button" data-id="" class="btn btn-show-password btn-sm" style="border:1px solid">'+
+                                    '<i class="fa fa-eye" aria-hidden="true"></i>'+
+                                '</button>'+
+                                '<button type="button" data-id="" class="btn btn-copy-password btn-sm" style="border:1px solid">'+
+                                    '<i class="fa fa-clone" aria-hidden="true"></i>'+
+                                '</button>'+
+                                '<button type="button" data-id="" class="btn btn-edit-magento-user btn-sm" style="border:1px solid">'+
                                     '<i class="fa fa-check" aria-hidden="true"></i>'+
                                 '</button>'+
-                                '<button type="button" data-id="" class="btn btn-delete-magento-user" style="border:1px solid">'+
+                                '<button type="button" data-id="" class="btn btn-delete-magento-user btn-sm" style="border:1px solid">'+
                                     '<i class="fa fa-trash" aria-hidden="true"></i>'+
                                 '</button>'+
                              '</div>'+

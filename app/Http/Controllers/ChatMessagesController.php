@@ -17,6 +17,7 @@ use App\SiteDevelopment;
 use App\SocialStrategy;
 use App\StoreSocialContent;
 use App\ChatMessage;
+use App\PaymentReceipt;
 use Carbon\Carbon;
 use App\Order;
 class ChatMessagesController extends Controller
@@ -71,6 +72,9 @@ class ChatMessagesController extends Controller
             break;
             case 'order':
                 $object = Order::find($request->object_id);
+            break;
+            case 'payment-receipts':
+                $object = PaymentReceipt::find($request->object_id);
             break;
             default:
                 $object = Customer::find($request->object);
@@ -366,6 +370,7 @@ class ChatMessagesController extends Controller
                     'customer_id' => $chatMessage->customer_id,
                     'approved' => $chatMessage->approved,
                     'error_status' => $chatMessage->error_status,
+                    'error_info' => $chatMessage->error_info,
                     'is_queue' => $chatMessage->is_queue,
                     'is_reviewed' => $chatMessage->is_reviewed,
                     'quoted_message_id' => $chatMessage->quoted_message_id

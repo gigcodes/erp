@@ -109,6 +109,13 @@
 
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div class="form-group">
+                            <strong>Billing frequency (days):</strong>
+                            {!! Form::text('billing_frequency_day', isset($userRate) ? $userRate->billing_frequency_day: '', array('placeholder' => 'Billing Frequency day','class' => 'form-control')) !!}
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
                             <strong>Salaried or fixed price job:</strong>
                             <select class="form-control"  name="fixed_price_user_or_job">
                             <option value="">Select</option>

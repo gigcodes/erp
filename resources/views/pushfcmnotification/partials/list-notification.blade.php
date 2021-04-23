@@ -19,7 +19,7 @@
                         {!! Form::open(['method' => 'DELETE','route' => ['pushfcmnotification.destroy', $fcmnotification->id],'style'=>'display:inline']) !!}
                         <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                         {!! Form::close() !!}
-
+                        <a href="javascript:;" class="fcm-notification-list" data-id="{{ $fcmnotification->id }}"><i class="fa fa-globe"></i></a>
                     </td>
                 </tr>
 @endforeach

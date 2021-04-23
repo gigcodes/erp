@@ -788,11 +788,11 @@ function checkChatCount(){
 
 }
 
-$( document ).ready(function() {
+/*$( document ).ready(function() {
     setInterval(function(){
 		checkChatCount();
 	}, 5000);
-});
+});*/
 
 
 checkChatCount();

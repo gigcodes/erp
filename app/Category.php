@@ -9,16 +9,28 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Nestable\NestableTrait;
 
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 class Category extends Model
 {
 
     CONST UNKNOWN_CATEGORIES = 143;
 
     use NestableTrait;
-
+    
     protected $parent = 'parent_id';
+    /**
+     * @var string
+     * @SWG\Property(property="id",type="integer")
+     * @SWG\Property(property="title",type="string")
+     * @SWG\Property(property="parent_id",type="integer")
+     * @SWG\Property(property="status_after_autocrop",type="string")
+     * @SWG\Property(property="magento_id",type="integer")
+     * @SWG\Property(property="show_all_id",type="integer")
 
+     */
+  
     public $fillable = [ 'id','title', 'parent_id','status_after_autocrop','magento_id', 'show_all_id' ];
 
     /**
@@ -779,4 +791,165 @@ class Category extends Model
         return \App\ScrapedProducts::where('categories',$name)->count();
     }
 
+    public static function updateCategoryAuto($name)
+    {
+        $expression = explode("/",$name);
+        $matched = null;
+
+        $liForMen = ['MAN', 'MEN', 'UOMO', 'MALE'];
+        $liForWoMen = ['WOMAN', 'WOMEN', 'DONNA', 'FEMALE'];
+        $liForKids = ['KIDS'];
+
+        $mainCategory = false;
+
+
+        if(!empty($expression)) {
+            foreach($expression as $exr) {
+                foreach($liForMen as $li){
+                    if(strtolower($li) == strtolower($exr)) {
+                        $mainCategory = 3;
+                    }
+                }
+
+                foreach($liForWoMen as $li){
+                    if(strtolower($li) == strtolower($exr)) {
+                        $mainCategory = 2;
+                    }
+                }
+
+                foreach($liForKids as $li){
+                    if(strtolower($li) == strtolower($exr)) {
+                        $mainCategory = 146;
+                    }
+                }
+
+                $category = self::where("title","LIKE",$exr);
+
+                $category = $category->get();
+
+                 if(!$category->isEmpty()) {
+                    $matched = $category;
+                 }
+            }
+        }
+
+        // now check that last matched has more then three leavle
+        if($matched && !$matched->isEmpty()) { 
+            foreach($matched as $match) {
+                $levelone = $match->parentM;
+                if($levelone) {
+                    $leveltwo =  $levelone->parentM;
+                    if($leveltwo) {
+                        if($leveltwo->id == $mainCategory || $leveltwo->parent_id == $mainCategory) {
+                            return $match;
+                        }
+                        // now as this is matched we can send this category to that it is matched
+                    }else{
+                        if($levelone->id == $mainCategory || $levelone->parent_id == $mainCategory) {
+                            return $match;
+                        }
+                    }
+                }else{
+                    if($match->id == $mainCategory || $match->parent_id == $mainCategory) {
+                        return $match;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static function updateCategoryAutoSpace($name)
+    {
+        //$expression = explode(" ",$name);
+        $categories = \App\Category::where("id","!=",143)->get();
+        $matchedWords = [];
+        foreach($categories as $cat) {
+            if(strpos(strtolower($name),strtolower($cat->title)) !== false) {
+                $matchedWords[$cat->id] = $cat->title;
+            }else{
+                $referencesWords = explode(",",$cat->references);
+                foreach($referencesWords as $referencesWord) {
+                    if(!empty($referencesWord)) {
+                        if(strpos(strtolower($name),strtolower($referencesWord)) !== false) {
+                            $matchedWords[$cat->id] = $cat->title;
+                        }
+                    }
+                }
+
+            }
+        }
+
+        $latestMatch = $matchedWords;
+
+        //ksort($matchedWords);
+        
+        $liForMen = ['MAN', 'MEN', 'UOMO', 'MALE'];
+        $liForWoMen = ['WOMAN', 'WOMEN', 'DONNA', 'FEMALE'];
+        $liForKids = ['KIDS'];
+
+        $mainCategory = false;
+
+        if(!empty($matchedWords)) {
+            foreach($matchedWords as $matchedWord) {
+                foreach($liForMen as $li){
+                    if(strtolower($li) == strtolower($matchedWord)) {
+                        if(!$mainCategory) {
+                            $mainCategory = 3;
+                        }
+                    }
+                }
+
+                foreach($liForWoMen as $li){
+                    if(strtolower($li) == strtolower($matchedWord)) {
+                        if(!$mainCategory) {
+                            $mainCategory = 2;
+                        }
+                    }
+                }
+
+                foreach($liForKids as $li){
+                    if(strtolower($li) == strtolower($matchedWord)) {
+                        if(!$mainCategory) {
+                            $mainCategory = 146;
+                        }
+                    }
+                }
+            }
+        }
+
+        
+        $rv = array_reverse($matchedWords, true);
+        
+        if(!empty($rv)) {
+            foreach ($rv as $key => $value) {
+                $category = \App\Category::find($key);
+                if($category) {
+                    $levelone = $category->parentM;
+                    if($levelone) {
+                        $leveltwo =  $levelone->parentM;
+                        if($leveltwo) {
+                            if($leveltwo->id == $mainCategory || $leveltwo->parent_id == $mainCategory) {
+                                return $category;
+                            }
+                            // now as this is matched we can send this category to that it is matched
+                        }else{
+                            if($levelone->id == $mainCategory || $levelone->parent_id == $mainCategory) {
+                                return $category;
+                            }
+                        }
+                    }else{
+                        if($category ->id == $mainCategory || $category ->parent_id == $mainCategory) {
+                            return $category ;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
 }
+ 

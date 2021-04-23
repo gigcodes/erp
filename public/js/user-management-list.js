@@ -31,6 +31,25 @@ var page = {
             page.createRecord();
         });
 
+        $(document).on("click",".btn-create-database",function(e) {
+            e.preventDefault();
+            page.createDatabase($(this));
+        });
+
+        $(document).on("click",".create-database-add",function(e) {
+            e.preventDefault();
+            page.createDatabaseAdd($(this));
+        });
+
+        $(document).on("click",".delete-database-access",function(e) {
+            e.preventDefault();
+            if(!confirm("Are you sure you want to remove access for this user?")) {
+                return false;
+            }else {
+                page.deleteDatabaseAccess($(this));
+            }
+        });
+
         $(".common-modal").on("click",".submit-goal",function() {
             page.submitSolution($(this));
         });
@@ -80,6 +99,29 @@ var page = {
             console.log(keyword);
             $('.data-keyword').val(keyword);
             page.getResults();
+        });
+
+        $(document).on("keyup",".search-table",function(e) {
+            var keyword = $(this).val();
+            table = document.getElementById("database-table-list");
+            tr = table.getElementsByTagName("tr");
+            // Loop through all table rows, and hide those who don't match the search query
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[1];
+                if (td) {
+                  txtValue = td.textContent || td.innerText;
+                  if (txtValue.indexOf(keyword) > -1) {
+                    tr[i].style.display = "";
+                  } else {
+                    tr[i].style.display = "none";
+                  }
+                }
+            }
+        });
+
+        $(document).on("click",".assign-permission",function(e) {
+            e.preventDefault();
+            page.assignPermission($(this));
         });
 
         $(".common-modal").on("click",".submit-role",function() {
@@ -243,7 +285,83 @@ var page = {
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
     },
+    createDatabase : function(ele) {
+        var database_user_id = ele.data("id");
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.mainUrl + "/"+database_user_id+"/get-database",
+            method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "showDatabasePopup");
 
+        
+    },
+    showDatabasePopup : function(response) { 
+        $("#loading-image").hide();
+        if(response.code == 200){
+            var createWebTemplate = $.templates("#template-create-database");
+            var tplHtml = createWebTemplate.render(response);
+            var common =  $(".common-modal");
+                common.find(".modal-dialog").html(tplHtml); 
+                common.modal("show");
+        }else{
+             toastr['error'](response.message, 'error');
+        }
+
+    },
+    createDatabaseAdd : function(ele) {
+        var database_user_id = ele.data("id");
+        var _z = {
+            url: this.config.mainUrl + "/"+database_user_id+"/create-database",
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveAfterDatabase");
+    },
+    saveAfterDatabase : function(response) {
+        $("#loading-image").hide();
+       if(response.code == 200){
+            toastr['success'](response.message, 'success');
+        }else{
+            toastr['error'](response.message, 'error');
+        }
+    },
+    deleteDatabaseAccess : function(ele) {
+        var database_user_id = ele.data("id");
+        var _z = {
+            url: this.config.mainUrl + "/"+database_user_id+"/delete-database-access",
+            method: "post",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "afterDeleteDatabaseAccess");
+    },
+    afterDeleteDatabaseAccess : function(response) {
+        $("#loading-image").hide();
+       if(response.code == 200){
+            toastr['success'](response.message, 'success');
+        }else{
+            toastr['error'](response.message, 'error');
+        }
+    },
+    assignPermission : function(ele) {
+        var database_user_id = ele.data("id");
+        var _z = {
+            url: this.config.mainUrl + "/"+database_user_id+"/assign-database-table",
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveAfterDatabase");
+    },
     submitSolution : function(ele) {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.mainUrl + "/save",

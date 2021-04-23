@@ -12,6 +12,19 @@ use Illuminate\Support\Facades\Redirect;
 
 class BrokenLinkCheckerController extends Controller
 {
+
+    /**
+     * @SWG\Get(
+     *   path="/broken-link-details",
+     *   tags={"Scraper"},
+     *   summary="Get broken link details",
+     *   operationId="scraper-get-broken-link-details",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     * )
+     *
+     */
     /**
      * Get Broken Links Details
      * Function for API

@@ -3,9 +3,19 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 
 class Compositions extends Model
 {
+
+    /**
+     * @var string
+   
+     * @SWG\Property(property="name",type="string")
+     * @SWG\Property(property="replace_with",type="string")
+     */
     //
     protected $fillable = [
         'name',
@@ -66,6 +76,6 @@ class Compositions extends Model
 
     public static function products($name)
     {
-        return \App\ScrapedProducts::where('composition',$name)->count();
+        return \App\ScrapedProducts::where('composition',"LIKE",$name)->count();
     }
 }

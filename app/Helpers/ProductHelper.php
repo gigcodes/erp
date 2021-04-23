@@ -898,4 +898,29 @@ class ProductHelper extends Model
 
     }
 
+    public static function getStoreWebsiteNameFromPushed($id,$product = null)
+    {
+
+        $product = ($product) ? $product : Product::find($id);
+
+        $productAttrs = \App\StoreWebsiteProductAttribute::where('product_id',$id)->get();
+        $websiteArray = [];
+        foreach ($productAttrs as $pa) {
+            $websiteArray[] = $pa->store_website_id;
+        }
+
+         //Exception for o-labels
+        if($product->landingPageProduct){
+            $websiteForLandingPage = \App\StoreWebsite::whereNotNull('cropper_color')->where('title','LIKE','%o-labels%')->first();
+            if($websiteForLandingPage){
+                if(!in_array($websiteForLandingPage->id,$websiteArray)) {
+                    $websiteArray[] = $websiteForLandingPage->id;
+                }
+            }
+        }
+
+        return $websiteArray;
+
+    }
+
 }

@@ -410,7 +410,7 @@ class DevelopmentController extends Controller
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
         }
         else {
-            $issues = $issues->where('developer_tasks.status', 'In Progress');
+            //$issues = $issues->where('developer_tasks.status', 'In Progress');
         }
 
         $whereCondition = "";
@@ -1157,8 +1157,9 @@ class DevelopmentController extends Controller
         $task->assigned_by = $userId;
         $task->created_by = $userId;
         $task->reference = $reference;
-        $task->status = 'Issue';
-        $task->task_type_id = 3;
+        $task->status = $request->get("status",'Issue');
+        $task->task_type_id = $request->get("task_type_id",3);
+        $task->scraper_id = $request->input('scraper_id',null);
         $task->save();
 
         $repo = GithubRepository::where('name', 'erp')->first();

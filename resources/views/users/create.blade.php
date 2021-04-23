@@ -55,16 +55,15 @@
     <div class="col-xs-12">
         <div class="form-group">
             <strong>Solo phone:</strong>
+            <?php
+                $allWhatsappNo         = config("apiwha.instances");
+            ?>
+
             <Select name="whatsapp_number" class="form-control">
                 <option value>None</option>
-                <option value="919167152579" {{ old('whatsapp_number') == '919167152579' ? 'selected' : '' }}>00</option>
-                <option value="918291920452" {{ old('whatsapp_number') == '918291920452' ? 'selected' : '' }}>02</option>
-                <option value="918291920455" {{ old('whatsapp_number') == '918291920455' ? 'selected' : '' }}>03</option>
-                <option value="919152731483" {{ old('whatsapp_number') == '919152731483' ? 'selected' : '' }}>04</option>
-                <option value="919152731484" {{ old('whatsapp_number') == '919152731484' ? 'selected' : '' }}>05</option>
-                <option value="971562744570" {{ old('whatsapp_number') == '971562744570' ? 'selected' : '' }}>06</option>
-                <option value="918291352520" {{ old('whatsapp_number') == '918291352520' ? 'selected' : '' }}>08</option>
-                <option value="919004008983" {{ old('whatsapp_number') == '919004008983' ? 'selected' : '' }}>09</option>
+                <?php foreach($allWhatsappNo as $awp) { ?>
+                    <option value="<?php echo $awp['number'] ?>" {{ old('whatsapp_number') == $awp['number'] ? 'selected' : '' }}>{{$awp['number']}}</option>
+                <?php } ?>
             </Select>
             @if ($errors->has('whatsapp_number'))
             <div class="alert alert-danger">{{$errors->first('whatsapp_number')}}</div>

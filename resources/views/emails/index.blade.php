@@ -30,6 +30,32 @@
 		border: none;
 		background: none
 	}
+  .table-responsive select.select {
+    width: 110px !important;
+  }
+
+
+  @media (max-width: 1280px) {
+    table.table {
+        width: 0px;
+        margin:0 auto;
+    }
+
+    /** only for the head of the table. */
+    table.table thead th {
+        padding:10px;
+    }
+
+    /** only for the body of the table. */
+    table.table tbody td {
+        padding:10 px;
+    }
+
+    .text-nowrap{
+      white-space: normal !important;
+    }
+  }
+
 </style>
 @endsection
 <div id="myDiv">
@@ -174,16 +200,16 @@
       <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
         <thead>
           <tr>
-            <th>Bulk Action</th>
+            <th>Bulk <br> Action</th>
             <th>Date</th>
             <th>Sender</th>
             <th>Receiver</th>
-            <th>mail type</th>
+            <th>Mail <br> Type</th>
             <th>Subject</th>
             <th>Body</th>
             <th>Status</th>
             <th>Draft</th>
-            <th>Error Message</th>
+            <th>Error <br> Message</th>
             <th>Category</th>
             <th>Action</th>
           </tr>
@@ -247,6 +273,21 @@
             <div class="modal-body">
               <p><strong>Subject : </strong> <span id="emailSubject"></span> </p>
               <p><strong>Message : </strong> <span id="emailMsg"></span> </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="viewMore" class="modal fade" role="dialog">
+    <div class="modal-dialog  modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">View More</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+              <p><span id="more-content"></span> </p>
             </div>
         </div>
     </div>
@@ -813,6 +854,14 @@
         });
     });
 
+    $(document).on('click', '.readmore', function() {
+        $(this).parent('.lesstext').hide();
+        $(this).parent('.lesstext').next('.alltext').show();
+    });
+    $(document).on('click', '.readless', function() {
+        $(this).parent('.alltext').hide();
+        $(this).parent('.alltext').prev('.lesstext').show();
+    });
 
     $(document).on('change','.status',function(e){
         if($(this).val() != "" && ($('option:selected', this).attr('data-id') != "" || $('option:selected', this).attr('data-id') != undefined)){
@@ -968,6 +1017,9 @@
         
     }
     
+    function opnModal(message){
+      $(document).find('#more-content').html(message);
+    }
 
     </script>
 

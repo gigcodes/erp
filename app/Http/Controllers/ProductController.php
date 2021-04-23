@@ -2819,6 +2819,31 @@ class ProductController extends Controller
         return redirect()->back()->with('success', 'You have successfully uploaded product!');
     }
 
+    /**
+     * @SWG\Get(
+     *   path="/crop",
+     *   tags={"Scraper"},
+     *   summary="Return images array where the product status = auto crop",
+     *   operationId="scraper-get-product-img",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="product_id",
+     *          in="path",
+     *          required=false, 
+     *          type="string" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="supplier_id",
+     *          in="path",
+     *          required=false, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+    
     public function giveImage()
     {
         $productId = request("product_id", null);
@@ -2988,8 +3013,12 @@ class ProductController extends Controller
 
         } else {
             // Set new status
-            $product->status_id = StatusHelper::$isBeingCropped;
-            $product->save();
+            $debug = request("debug",false);
+            if(empty($debug)) {
+                $product->status_id = StatusHelper::$isBeingCropped;
+                $product->save();
+            }
+
             // Return product
             return response()->json([
                 'product_id' => $product->id,
@@ -3003,7 +3032,54 @@ class ProductController extends Controller
         }
     }
 
-
+    /**
+     * @SWG\Post(
+     *   path="/link/image-crop",
+     *   tags={"Crop"},
+     *   summary="Save cropped image for product",
+     *   operationId="crop-save-product-img",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="product_id",
+     *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="file",
+     *          in="formData",
+     *          required=true, 
+     *          type="file" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="color",
+     *          in="formData",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="media_id",
+     *          in="formData",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="filename",
+     *          in="formData",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="time",
+     *          in="formData",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
     public function saveImage(Request $request)
     {
         // Find the product or fail

@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use \App\ChatMessage;
+use \App\Product;
 
 class MessageHelper
 {
@@ -16,6 +17,8 @@ class MessageHelper
         "an",
         "the",
     ];
+
+    CONST AUTO_LEAD_SEND_PRICE = 281;
 
     const TXT_PREPOSITIONS = [
         "aboard",
@@ -139,7 +142,7 @@ class MessageHelper
      * @param $message  [ string ]
      * @return mixed
      */
-    public static function whatsAppSend($customer = null, $message = null, $sendMsg = null, $messageModel = null, $isEmail = null)
+    public static function whatsAppSend($customer = null, $message = null, $sendMsg = null, $messageModel = null, $isEmail = null, $parentMessage = null)
     {
         if ($customer) {
             // $exp_mesaages = explode(" ", $message);
@@ -176,7 +179,7 @@ class MessageHelper
 
                 // check that match if this the assign to is auto user
                 // then send price and deal
-                \Log::channel('whatsapp')->channel('whatsapp')->info("Price Lead section started for customer id : " . $customer->id);
+                \Log::channel('whatsapp')->info("Price Lead section started for customer id : " . $customer->id);
                 if ($keywordassign[0]->assign_to == self::AUTO_LEAD_SEND_PRICE) {
                     \Log::channel('whatsapp')->info("Auto section started for customer id : " . $customer->id);
                     if (!empty($parentMessage)) {
@@ -206,7 +209,7 @@ class MessageHelper
                             'status'            => 2,
                             'task_id'           => $taskid,
                             'message'           => $task_info[0]->task_details,
-                            'quoted_message_id' => $quoted_message_id
+                            'quoted_message_id' => ($messageModel) ? $messageModel->quoted_message_id : null
                         ];
 
                         if ($sendMsg === true) {
@@ -244,94 +247,105 @@ class MessageHelper
      * @param $message [ string ]
      * @return mixed
      */
-    public static function sendwatson($customer = null, $message = null, $sendMsg = null, $messageModel = null,$params = [], $isEmail = null)
+    public static function sendwatson($customer = null, $message = null, $sendMsg = null, $messageModel = null,$params = [], $isEmail = null, $userType = null)
     {
         $isReplied = 0;
-        if ((preg_match("/price/i", $message) || preg_match("/you photo/i", $message) || preg_match("/pp/i", $message) || preg_match("/how much/i", $message) || preg_match("/cost/i", $message) || preg_match("/rate/i", $message))) {
-            if ($customer) {
 
-                // send price from meessage queue
-                $messageSentLast = \App\MessageQueue::where("customer_id", $customer->id)->where("sent", 1)->orderBy("sending_time", "desc")->first();
-                // if message found then start
-                $selected_products = [];
-                if ($messageSentLast) {
-                    $mqProducts = $messageSentLast->getImagesWithProducts();
-                    if (!empty($mqProducts)) {
-                        foreach ($mqProducts as $mq) {
-                            if (!empty($mq["products"])) {
-                                foreach ($mq["products"] as $productId) {
-                                    $selected_products[] = $productId;
+        if( $userType !== 'vendor' ){
+            \Log::info("#2 Price for customer vendor condition passed");
+            if ((preg_match("/price/i", $message) || preg_match("/you photo/i", $message) || preg_match("/pp/i", $message) || preg_match("/how much/i", $message) || preg_match("/cost/i", $message) || preg_match("/rate/i", $message))) {
+                \Log::info("#3 Price for customer message condition passed");
+                if ($customer) {
+                    \Log::info("#4 Price for customer model passed");
+                    // send price from meessage queue
+                    $messageSentLast = \App\MessageQueue::where("customer_id", $customer->id)->where("sent", 1)->orderBy("sending_time", "desc")->first();
+                    // if message found then start
+                    $selected_products = [];
+                    if ($messageSentLast) {
+                        $mqProducts = $messageSentLast->getImagesWithProducts();
+                        if (!empty($mqProducts)) {
+                            foreach ($mqProducts as $mq) {
+                                if (!empty($mq["products"])) {
+                                    foreach ($mq["products"] as $productId) {
+                                        $selected_products[] = $productId;
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
-                // check the last message send for price
-                $lastChatMessage = \App\ChatMessage::getLastImgProductId($customer->id);
-                if ($lastChatMessage) {
-                    if ($lastChatMessage->hasMedia(config('constants.attach_image_tag'))) {
-                        $lastImg = $lastChatMessage->getMedia(config('constants.attach_image_tag'))->sortByDesc('id')->first();
-                        if ($lastImg) {
-                            $mediable = \DB::table("mediables")->where("media_id", $lastImg->id)->where('mediable_type', Product::class)->first();
-                            if (!empty($mediable)) {
-                                $product = \App\Product::find($mediable->mediable_id);
-                                if (!empty($product)) {
-                                    $priceO                       = ($product->price_inr_special > 0) ? $product->price_inr_special : $product->price_inr;
-                                    $selected_products[]          = $product->id;
-                                    $temp_img_params              = $params;
-                                    $temp_img_params['message']   = "Price : " . $priceO;
-                                    $temp_img_params['media_url'] = null;
-                                    $temp_img_params['status']    = 2;
-                                    $temp_img_params['is_email']    = ( $isEmail == 1 ) ? 1 : 0;
-                                    $temp_img_params['is_draft']    = ( $isEmail == 1 ) ? 1 : 0;
-                                    // Create new message
-                                    \App\ChatMessage::create($temp_img_params);
+                    // check the last message send for price
+                    $lastChatMessage = \App\ChatMessage::getLastImgProductId($customer->id);
+                    if ($lastChatMessage) {
+                        \Log::info("#5 last message condition found".$lastChatMessage->id);
+                        if ($lastChatMessage->hasMedia(config('constants.attach_image_tag'))) {
+                            \Log::info("#6 last message has media found");
+                            $lastImg = $lastChatMessage->getMedia(config('constants.attach_image_tag'))->sortByDesc('id')->first();
+                            \Log::info("#7 last message get media found");
+                            if ($lastImg) {
+                                \Log::info("#8 last message media found ".$lastImg->id);
+                                $mediable = \DB::table("mediables")->where("media_id", $lastImg->id)->where('mediable_type', Product::class)->first();
+                                if (!empty($mediable)) {
+                                    \Log::info("#9 last message mediable found");
+                                    $product = \App\Product::find($mediable->mediable_id);
+                                    if (!empty($product)) {
+                                        \Log::info("#9 last message product found");
+                                        $priceO                       = ($product->price_inr_special > 0) ? $product->price_inr_special : $product->price_inr;
+                                        $selected_products[]          = $product->id;
+                                        $temp_img_params              = $params;
+                                        $temp_img_params['message']   = "Price : " . $priceO;
+                                        $temp_img_params['media_url'] = null;
+                                        $temp_img_params['status']    = 2;
+                                        $temp_img_params['is_email']    = ( $isEmail == 1 ) ? 1 : 0;
+                                        $temp_img_params['is_draft']    = ( $isEmail == 1 ) ? 1 : 0;
+                                        // Create new message
+                                        \App\ChatMessage::create($temp_img_params);
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
-                if (!empty($selected_products) && $messageSentLast) {
-                    foreach ($selected_products as $pid) {
-                        $product    = \App\Product::where("id", $pid)->first();
-                        $quick_lead = \App\ErpLeads::create([
-                            'customer_id'    => $customer->id,
-                            //'rating' => 1,
-                            'lead_status_id' => 3,
-                            //'assigned_user' => 6,
-                            'product_id'     => $pid,
-                            'brand_id'       => $product ? $product->brand : null,
-                            'category_id'    => $product ? $product->category : null,
-                            'brand_segment'  => $product && $product->brands ? $product->brands->brand_segment : null,
-                            'color'          => $customer->color,
-                            'size'           => $customer->size,
-                            'created_at'     => Carbon::now(),
+                    if (!empty($selected_products) && $messageSentLast) {
+                        foreach ($selected_products as $pid) {
+                            $product    = \App\Product::where("id", $pid)->first();
+                            $quick_lead = \App\ErpLeads::create([
+                                'customer_id'    => $customer->id,
+                                //'rating' => 1,
+                                'lead_status_id' => 3,
+                                //'assigned_user' => 6,
+                                'product_id'     => $pid,
+                                'brand_id'       => $product ? $product->brand : null,
+                                'category_id'    => $product ? $product->category : null,
+                                'brand_segment'  => $product && $product->brands ? $product->brands->brand_segment : null,
+                                'color'          => $customer->color,
+                                'size'           => $customer->size,
+                                'created_at'     => Carbon::now(),
+                            ]);
+                        }
+
+                        $requestData = new Request();
+                        $requestData->setMethod('POST');
+                        $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products]);
+
+                        app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
+
+                        \App\CommunicationHistory::create([
+                            'model_id'   => $messageSentLast->id,
+                            'model_type' => \App\MessageQueue::class,
+                            'type'       => 'broadcast-prices',
+                            'method'     => 'email',
                         ]);
                     }
 
-                    $requestData = new Request();
-                    $requestData->setMethod('POST');
-                    $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $selected_products]);
-
-                    app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
-
-                    \App\CommunicationHistory::create([
-                        'model_id'   => $messageSentLast->id,
-                        'model_type' => \App\MessageQueue::class,
-                        'type'       => 'broadcast-prices',
-                        'method'     => 'email',
+                    \App\Instruction::create([
+                        'customer_id'   => $customer->id,
+                        'instruction'   => 'Please send the prices',
+                        'category_id'   => 1,
+                        'assigned_to'   => 7,
+                        'assigned_from' => 6,
                     ]);
                 }
-
-                \App\Instruction::create([
-                    'customer_id'   => $customer->id,
-                    'instruction'   => 'Please send the prices',
-                    'category_id'   => 1,
-                    'assigned_to'   => 7,
-                    'assigned_from' => 6,
-                ]);
             }
         }
 
@@ -399,7 +413,7 @@ class MessageHelper
             // assigned the first storewebsite to default erp customer
             $customer->store_website_id = ($customer->store_website_id > 0) ? $customer->store_website_id : 1;
             if (!$isReplied && $customer->store_website_id) {
-                WatsonManager::sendMessage($customer, $message, false, null, $messageModel);
+                WatsonManager::sendMessage($customer, $message, false, null, $messageModel, $userType);
             }
         }
     }

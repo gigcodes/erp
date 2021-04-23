@@ -443,6 +443,7 @@ $metaData = '';
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
                                                 <a class="dropdown-item" href="{{ route('productinventory.list') }}">Inventory List</a>
+                                                <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
                                                 <a class="dropdown-item" href="{{ route('productinventory.inventory-list') }}">Inventory Data</a>
                                                 <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
                                                 <a class="dropdown-item" href="{{ route('listing.history.index') }}">Product Listing history</a>
@@ -470,6 +471,7 @@ $metaData = '';
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
 
                                                 <a class="dropdown-item" href="{{ url('scrap/statistics') }}">Statistics</a>
+                                                <a class="dropdown-item" href="{{ url('scrap/statistics/server-history') }}">Server History</a>
                                                 <a class="dropdown-item" href="{{ url('scrap/generic-scraper') }}">Generic Supplier Scraper</a>
                                                 <a class="dropdown-item" href="{{ action('CategoryController@brandMinMaxPricing') }}">Min/Max Pricing</a>
                                                 <a class="dropdown-item" href="{{ route('supplier.count') }}">Supplier Category Count</a>
@@ -534,6 +536,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ action('ProductController@showAutoRejectedProducts') }}">Auto Reject Statistics</a>
                                             <a class="dropdown-item" href="{{ action('ListingPaymentsController@index') }}">Product Listing Payments</a>
                                             <a class="dropdown-item" href="{{ action('ScrapStatisticsController@index') }}">Scrap Statistics</a>
+                                            <a class="dropdown-item" href="{{ route('statistics.quick') }}">Quick Scrap Statistics</a>
                                             <a class="dropdown-item" href="{{ action('ScrapController@scrapedUrls') }}">Scrap Urls</a>
                                             <a class="dropdown-item" href="{{ route('scrap.activity') }}">Scrap activity</a>
                                             <a class="dropdown-item" href="{{ route('scrap.scrap_server_status') }}">Scrapper Server Status</a>
@@ -894,6 +897,9 @@ $metaData = '';
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('user-management.index') }}">New Management</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ url('api/documentation') }}">API Documentation</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -1157,7 +1163,7 @@ $metaData = '';
                                                 <li class="nav-item dropdown dropdown-submenu">
                                                     <a class="dropdown-item" href="{{ action('BackLinkController@displayBackLinkDetails') }}">Back Link Details</a>
                                                     <a class="dropdown-item" href="{{ action('BrokenLinkCheckerController@displayBrokenLinkDetails') }}">Broken Link Details</a>
-                                                    <a class="dropdown-item" href="{{ action('AnalyticsController@showData') }}">Analytics Data</a>
+                                                    <a class="dropdown-item" href="{{ action('AnalyticsController@showData') }}">New Google Analytics</a>
                                                     <a class="dropdown-item" href="{{ action('AnalyticsController@customerBehaviourByPage') }}">Customer Behaviour By Page</a>
                                                     <a class="dropdown-item" href="{{ action('SERankingController@getSites') }}">SE Ranking</a>
                                                     <a class="dropdown-item" href="{{ action('ArticleController@index') }}">Article Approval</a>
@@ -1438,6 +1444,9 @@ $metaData = '';
                                     <li class="nav-item dropdown">
                                         <a class="dropdown-item" href="{{ route('logging.magento.product.api.call') }}">Magento API call</a>
                                     </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('product.pricing') }}">Magento Product Pricing</a>
+                                    </li>
                                 </ul>
                             </li>
                         @endif
@@ -1689,6 +1698,12 @@ $metaData = '';
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('googlefiletranslator.list') }}">Google File Translator</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('googlewebmaster.index') }}">Google webmaster</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('gt-metrix') }}">GTMetrix analysis</a>
                                 </li>
                             </ul>
                         </li>
@@ -2238,6 +2253,10 @@ $metaData = '';
                 format: 'HH:mm'
             });
 
+            $('#repeat_end').datetimepicker({
+                format: 'YYYY-MM-DD'
+            });
+
             $(".selectx-vendor").select2({tags :true});
         });
         window.token = "{{ csrf_token() }}";
@@ -2273,6 +2292,18 @@ $metaData = '';
 
         $('.notification-button').on('click', function() {
             $("#quick-user-event-notification-modal").modal("show");
+        });
+
+        $('select[name="repeat"]').on('change', function () {
+            $(this).val() == 'weekly' ? $('#repeat_on').removeClass('hide') : $('#repeat_on').addClass('hide');
+        });
+
+        $('select[name="ends_on"]').on('change', function () {
+            $(this).val() == 'on' ? $('#repeat_end_date').removeClass('hide') : $('#repeat_end_date').addClass('hide');
+        });
+
+        $('select[name="repeat"]').on('change', function () {
+            $(this).val().length > 0 ? $('#ends_on').removeClass('hide') : $('#ends_on').addClass('hide');
         });
 
         $(document).on("submit","#notification-submit-form",function(e){

@@ -1,13 +1,45 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 
 class Vendor extends Model
 {
+         /**
+     * @var string
+      * @SWG\Property(property="category_id",type="integer")
+      * @SWG\Property(property="name",type="string")
+      * @SWG\Property(property="address",type="string")
+      * @SWG\Property(property="phone",type="string")
+      * @SWG\Property(property="default_phone",type="string")
+      * @SWG\Property(property="whatsapp_number",type="string")
+      * @SWG\Property(property="email",type="string")
+      * @SWG\Property(property="social_handle",type="string")
+      * @SWG\Property(property="website",type="string")
+      * @SWG\Property(property="login",type="string")
+      * @SWG\Property(property="password",type="string")
+      * @SWG\Property(property="gst",type="string")
+      * @SWG\Property(property="account_name",type="string")
+      * @SWG\Property(property="account_iban",type="string")
+      * @SWG\Property(property="is_blocked",type="boolean")
+      * @SWG\Property(property="frequency",type="string")
+      * @SWG\Property(property="reminder_last_reply",type="string")
+      * @SWG\Property(property="reminder_message",type="string")
+      * @SWG\Property(property="frequency_of_payment",type="string")
+      * @SWG\Property(property="updated_by",type="integer")
+      * @SWG\Property(property="status",type="string")
+      * @SWG\Property(property="bank_name",type="string")
+      * @SWG\Property(property="bank_address",type="string")
+      * @SWG\Property(property="city",type="string")
+      * @SWG\Property(property="country",type="string")
+      * @SWG\Property(property="staifsc_codetus",type="string")
+      * @SWG\Property(property="remark",type="string")
+     */
     use SoftDeletes;
 
     protected $fillable = [
@@ -33,7 +65,7 @@ class Vendor extends Model
         'reminder_from',
         'updated_by',
         'status',
-        'frequency_of_payment', 'bank_name', 'bank_address', 'city', 'country', 'ifsc_code', 'remark'
+        'frequency_of_payment', 'bank_name', 'bank_address', 'city', 'country', 'ifsc_code', 'remark','chat_session_id'
     ];
 
     protected static function boot()

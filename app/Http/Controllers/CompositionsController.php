@@ -17,49 +17,47 @@ class CompositionsController extends Controller
         $matchedArray = [];
         $compositions = Compositions::query();
 
-        if($request->keyword != null){
-            //getting search results based on two words 
-            $comps = $compositions->where("name","LIKE","%{$request->term}%")->get();
+        if ($request->keyword != null) {
+            //getting search results based on two words
+            $comps = $compositions->where("name", "LIKE", "%{$request->term}%")->get();
             foreach ($comps as $comp) {
-                $searchWord = $request->keyword;
+                $searchWord      = $request->keyword;
                 $searchWordArray = explode(' ', $searchWord);
-                if(count($searchWordArray) != 0){
+                if (count($searchWordArray) != 0) {
                     $isMatched = 1;
                     foreach ($searchWordArray as $word) {
                         if (strpos($comp->name, $word) !== false) {
-                            
-                        }else{
+
+                        } else {
                             $isMatched = 0;
                         }
                     }
-                    if($isMatched == 1){
+                    if ($isMatched == 1) {
                         $matchedArray[] = $comp->id;
                     }
                 }
             }
         }
-        
 
-        
-        if($request->keyword != null) {
-            $compositions = $compositions->whereIn('id',$matchedArray);
+        if ($request->keyword != null) {
+            $compositions = $compositions->whereIn('id', $matchedArray);
         }
 
-        $listcompostions = ["" => "-- Select --"] + Compositions::where('replace_with','!=','')->groupBy('replace_with')->pluck('replace_with','replace_with')->toArray();
+        $listcompostions = Compositions::where('replace_with', '!=', '')->groupBy('replace_with')->pluck('replace_with', 'replace_with')->toArray();
 
-        if($request->with_ref == 1) {
-            $compositions = $compositions->where(function($q) use ($request) {
-                $q->orWhere('replace_with',"!=",'')->WhereNotNull('replace_with');
+        if ($request->with_ref == 1) {
+            $compositions = $compositions->where(function ($q) use ($request) {
+                $q->orWhere('replace_with', "!=", '')->WhereNotNull('replace_with');
             });
-        }else{
-            $compositions = $compositions->where(function($q) use ($request) {
-                $q->orWhere('replace_with','')->orWhereNull('replace_with');
+        } else {
+            $compositions = $compositions->where(function ($q) use ($request) {
+                $q->orWhere('replace_with', '')->orWhereNull('replace_with');
             });
         }
 
-        $compositions = $compositions->orderBy('id','desc')->paginate(50);
+        $compositions = $compositions->orderBy('id', 'desc')->paginate(200);
 
-        return view('compositions.index', compact('compositions','listcompostions'));
+        return view('compositions.index', compact('compositions', 'listcompostions'));
     }
 
     /**
@@ -131,8 +129,40 @@ class CompositionsController extends Controller
         }
 
         if ($request->ajax()) {
-            return response()->json(["code" => 200 , "data" => []]);
-        }   
+            return response()->json(["code" => 200, "data" => []]);
+        }
+
+        return redirect()->back();
+    }
+
+    public function updateName(Request $request)
+    {
+        //
+        $validator = \Validator::make($request->all(), [
+            'id'   => 'required',
+            'name' => 'required',
+        ]);
+
+        if (!$validator->passes()) {
+            return response()->json(["code" => 500, 'message' => $validator->errors()->all()]);
+        }
+
+        try {
+            Compositions::where('id',$request->id)->update(['name'=> $request->name]);
+            return response()->json(["code" => 200, 'message' => 'Successfully updated']);
+
+        } catch (\Throwable $th) {
+            return response()->json(["code" => 500, 'message' => $th->getMessage()]);
+        }
+        $c = $compositions->find($id);
+        if ($c) {
+            $c->fill($request->all());
+            $c->save();
+        }
+
+        if ($request->ajax()) {
+            return response()->json(["code" => 200, "data" => []]);
+        }
 
         return redirect()->back();
     }
@@ -151,17 +181,17 @@ class CompositionsController extends Controller
         return redirect()->back();
     }
 
-    public function usedProducts(Compositions $compositions, Request $request,  $id)
+    public function usedProducts(Compositions $compositions, Request $request, $id)
     {
         $compositions = $compositions->find($id);
 
-        if($compositions) {
-            // check the type and then 
-           $name = '"'.$compositions->name.'"';
-           $products = \App\ScrapedProducts::where("properties","like",'%'.$name.'%')->latest()->limit(5)->get();
+        if ($compositions) {
+            // check the type and then
+            $name     = '"' . $compositions->name . '"';
+            $products = \App\ScrapedProducts::where("properties", "like", '%' . $name . '%')->latest()->limit(5)->get();
 
-           $view = (string)view("compositions.preview-products",compact('products'));
-           return response()->json(["code" => 200, "html" => $view]);
+            $view = (string) view("compositions.preview-products", compact('products'));
+            return response()->json(["code" => 200, "html" => $view]);
         }
 
         return response()->json(["code" => 200, "html" => ""]);
@@ -175,7 +205,7 @@ class CompositionsController extends Controller
 
         if (!empty($from) && !empty($to)) {
             // check the type and then
-            $q     = '"'.$from.'"';
+            $q     = '"' . $from . '"';
             $total = \App\ScrapedProducts::where("properties", "like", '%' . $q . '%')
                 ->join("products as p", "p.sku", "scraped_products.sku")
                 ->where("p.composition", "")
@@ -192,18 +222,28 @@ class CompositionsController extends Controller
     {
         $from = $request->from;
         $to   = $request->to;
+        $userId = \Auth::user()->id;
 
         $updateWithProduct = $request->with_product;
         if ($updateWithProduct == "yes") {
             \App\Jobs\UpdateProductCompositionFromErp::dispatch([
                 "from"    => $from,
                 "to"      => $to,
-                "user_id" => \Auth::user()->id,
+                "user_id" => $userId,
             ])->onQueue("supplier_products");
         }
 
-        $c = Compositions::where("name",$from)->first();
-        if($c) {
+        $c = Compositions::where("name", $from)->first();
+        if ($c) {
+            //once it is save let's store to the user updated attributes table as well
+            $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
+                'old_value'      => $c->replace_with,
+                'new_value'      => $to,
+                'attribute_name' => 'compositions',
+                'attribute_id'   => $c->id,
+                'user_id'        => $userId,
+            ]);
+
             $c->replace_with = $to;
             $c->save();
         }
@@ -211,21 +251,30 @@ class CompositionsController extends Controller
         return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
     }
 
-
     public function updateMultipleComposition(Request $request)
     {
         $from = $request->from;
         $to   = $request->to;
 
-        if(!empty($from) && is_array($from)) {
-            foreach($from as $f) {
+        if (!empty($from) && is_array($from)) {
+            foreach ($from as $f) {
                 $c = Compositions::find($f);
-                if($c) {
+                if ($c) {
                     \App\Jobs\UpdateProductCompositionFromErp::dispatch([
                         "from"    => $c->name,
                         "to"      => $to,
                         "user_id" => \Auth::user()->id,
                     ])->onQueue("supplier_products");
+
+                    //once it is save let's store to the user updated attributes table as well
+                    $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
+                        'old_value'      => $c->replace_with,
+                        'new_value'      => $to,
+                        'attribute_name' => 'compositions',
+                        'attribute_id'   => $c->id,
+                        'user_id'        => $userId,
+                    ]);
+
                     $c->replace_with = $to;
                     $c->save();
                 }
@@ -236,38 +285,108 @@ class CompositionsController extends Controller
 
     }
 
-    public function replaceComposition(Request $request){
+    public function updateAllComposition( Request $request ){
+
+        $from = $request->from;
+        $to   = $request->to;
+
+        if (!empty($from) && is_array($from)) {
+            foreach ($from as $key => $f  ) {
+                
+                if ( empty( $to[$key] ) ) {
+                    continue;
+                }
+
+                $c = Compositions::find($f);
+                if ($c) {
+                    \App\Jobs\UpdateProductCompositionFromErp::dispatch([
+                        "from"    => $c->name,
+                        "to"      => $to[$key],
+                        "user_id" => \Auth::user()->id,
+                    ])->onQueue("supplier_products");
+
+                    //once it is save let's store to the user updated attributes table as well
+                    $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
+                        'old_value'      => $c->replace_with,
+                        'new_value'      => $to[$key],
+                        'attribute_name' => 'compositions',
+                        'attribute_id'   => $c->id,
+                        'user_id'        => \Auth::user()->id,
+                    ]);
+
+                    $c->replace_with = $to[$key];
+                    $c->save();
+                }
+            }
+        }
+
+        return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
+    }
+
+    public function replaceComposition(Request $request)
+    {
         $from = $request->name;
         $to   = $request->replace_with;
-        if(!empty($from) && !empty($to)){
-            $products = \App\Product::where('composition','LIKE','%'.$from.'%')->get();
-            
-            if($products){
+        if (!empty($from) && !empty($to)) {
+            $products = \App\Product::where('composition', 'LIKE', '%' . $from . '%')->get();
+
+            if ($products) {
                 foreach ($products as $product) {
-                    $composition = $product->composition;
-                    $replaceWords = [];
-                    $replaceWords[] = ucwords($from);
-                    $replaceWords[] = strtoupper($from);
-                    $replaceWords[] = strtolower($from);
-                    $newComposition = str_replace($replaceWords,$to,$composition);
+                    $composition          = $product->composition;
+                    $replaceWords         = [];
+                    $replaceWords[]       = ucwords($from);
+                    $replaceWords[]       = strtoupper($from);
+                    $replaceWords[]       = strtolower($from);
+                    $newComposition       = str_replace($replaceWords, $to, $composition);
                     $product->composition = $newComposition;
                     $product->update();
                 }
 
-                $c = Compositions::where("name",$from)->first();
-                if($c) {
+                $c = Compositions::where("name", $from)->first();
+                if ($c) {
+
+                    //once it is save let's store to the user updated attributes table as well
+                    $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
+                        'old_value'      => $c->replace_with,
+                        'new_value'      => $to,
+                        'attribute_name' => 'compositions',
+                        'attribute_id'   => $c->id,
+                        'user_id'        => $userId,
+                    ]);
+
                     $c->replace_with = $to;
                     $c->save();
-                }else{
-                    if(!empty($from)){
-                        $comp = new Compositions();
-                        $comp->name = $from;
+                } else {
+                    if (!empty($from)) {
+                        $comp               = new Compositions();
+                        $comp->name         = $from;
                         $comp->replace_with = $to;
-                        $comp->save(); 
-                    }          
+                        $comp->save();
+
+                        //once it is save let's store to the user updated attributes table as well
+                        $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
+                            'old_value'      => null,
+                            'new_value'      => $to,
+                            'attribute_name' => 'compositions',
+                            'attribute_id'   => $comp->id,
+                            'user_id'        => $userId,
+                        ]);
+                    }
                 }
             }
         }
         return redirect()->back();
+    }
+
+    public function history(Request $request , $id)
+    {
+        $records = \App\UserUpdatedAttributeHistory::where("attribute_id",$id)->where("attribute_name","compositions")->latest()->get();
+        return view("compositions.partials.show-update-history",compact('records'));
+    }
+
+    public function deleteUnused()
+    {
+        \Artisan::call("delete-composition:with-no-products");
+        return redirect()->back()->with('success', 'Your request has been finished successfully!');;
     }
 }

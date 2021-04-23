@@ -1158,3 +1158,183 @@ POST https://erp.theluxuryunlimited.com/api/scrape/send-screenshot
 }
 ```
 
+## Send position from scraper
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/scrape/send-position
+{
+    "website": "giglio",
+    "comment" : "Hello world"
+}
+```
+
+**Successful Response:**
+```json
+{
+    "code": 200,
+    "data": [],
+    "message": "History saved successfully"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```
+
+
+## check auto restart scraper
+**Request:**
+
+```json
+GET https://erp.theluxuryunlimited.com/api/scraper/auto-restart?website=giglio
+{
+    "website": "giglio"
+}
+```
+
+**Successful Response:**
+```json
+{
+    "code": 200,
+    "auto_restart": 1
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```
+
+## set restart time on erp
+**Request:**
+
+```json
+GET https://erp.theluxuryunlimited.com/api/scraper/update-restart-time?website=giglio
+{
+    "website": "giglio"
+}
+```
+
+**Successful Response:**
+```json
+{
+    "code": 200,
+    "auto_restart": 1
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```
+
+## Check Return refund request
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/order/check-return
+{
+   "website":"https://www.farfetch.com",
+   "product_sku" :"5I246C959F0118-*",
+   "order_id" : ""
+}
+```
+
+**Successful Response:**
+```json
+{
+    "code": 200,
+    "message": "Success",
+    "data": {
+        "has_return_request": false
+    }
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```
+
+## Create wish list request
+
+Key : wishlist.failed.validation, wishlist.create.success
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/wishlist/create
+{
+   "website":"WWW.SOLOLUXURY.COM",
+   "product_sku" :"5I246C959F0118-*",
+   "customer_name" : "Customer name",
+   "customer_email" : "info@solo.com",
+   "language_code" : "es-ca",
+   "product_name" : "some name",
+   "product_price" : "250",
+   "product_currency" : "USD"
+}
+```
+
+**Successful Response:**
+```json
+{
+    "status": "200",
+    "message": "Wishlist created successfully"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```
+
+
+## Remove wish list request
+
+Key : wishlist.failed.validation, wishlist.remove.success, wishlist.remove.no_product
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/wishlist/remove
+{
+   "website":"WWW.SOLOLUXURY.COM",
+   "product_sku" :"5I246C959F0118-*",
+   "customer_email" : "info@solo.com"
+}
+```
+
+**Successful Response:**
+```json
+{
+    "status": "200",
+    "message": "Wishlist removed successfully"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 500,
+    "data": [],
+    "message": "Error message"
+}
+```
+

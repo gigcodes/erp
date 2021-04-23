@@ -12,7 +12,7 @@ use Illuminate\Session\Store;
 class LogLastUserActivity
 {
     protected $session;
-    protected $timeout=30*60;
+    protected $timeout = 10000*60;
     public function __construct(Store $session){
         $this->session=$session;
     }

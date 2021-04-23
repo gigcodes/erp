@@ -22,8 +22,12 @@ class StoreWebsiteAnalyticsController extends Controller
 
     public function index()
     {
-        $storeWebsiteAnalyticsData = StoreWebsiteAnalytic::all();
-        return view('store-website-analytics.index', compact('storeWebsiteAnalyticsData'));
+        try {
+            $storeWebsiteAnalyticsData = StoreWebsiteAnalytic::all();
+            return view('store-website-analytics.index', compact('storeWebsiteAnalyticsData'));
+        } catch (Exception $e) {
+            \Log::error('Account page ::'. $e->getMessage());
+        }
     }
 
     public function create(Request $request)
@@ -38,7 +42,7 @@ class StoreWebsiteAnalyticsController extends Controller
 
             //validation for googles service account json file for google analytics
             if (!$request->id) {
-                $rules['google_service_account_json'] = 'required|file|mimetypes:application/json';
+                $rules['google_service_account_json'] = 'required|file';
             }else{
                 //$rules['google_service_account_json'] = 'file|mimetypes:application/json';
             }

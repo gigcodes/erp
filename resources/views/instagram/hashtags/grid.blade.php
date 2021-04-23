@@ -34,14 +34,11 @@
                     <div class="form-group ml-3">
                         <div class='input-group date' id='filter-date'>
                             <input type='text' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date" />
-
                             <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                  </span>
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
                         </div>
                     </div>
-
-
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                 </form>
             </div>

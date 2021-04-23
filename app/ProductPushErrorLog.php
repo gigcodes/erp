@@ -1,11 +1,23 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 
 class ProductPushErrorLog extends Model
 {
+     /**
+     * @var string
+     * @SWG\Property(property="product_id",type="integer")
+     * @SWG\Property(property="url",type="string")
+     * @SWG\Property(property="message",type="string")
+     * @SWG\Property(property="request_data",type="string")
+     * @SWG\Property(property="response_data",type="string")
+     * @SWG\Property(property="response_status",type="string")
+     * @SWG\Property(property="store_website_id",type="interger")
+     */
     protected $fillable = [
         'url',
         'product_id',

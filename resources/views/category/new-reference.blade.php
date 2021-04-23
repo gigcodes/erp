@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-    Compositions 
+    New Category Reference 
 @endsection
 @section('content')
 <style type="text/css">
@@ -15,6 +15,13 @@
     <div class="col-md-12">
         <h2 class="page-heading">New Category Reference ({{ $unKnownCategories->total() }})</h2>
     </div>
+    @if ($message = Session::get('success'))
+         <div class="col-md-12">
+            <div class="alert alert-success">
+                <p>{{ $message }}</p>
+            </div>
+         </div>   
+    @endif
     <div class="col-md-12">
         <form>
             <div class="form-group col-md-3">
@@ -32,7 +39,18 @@
             </select>
         </div>
         <div class="form-group col-md-4">
-            <button type="button" class="btn btn-secondary update-category-selected col-md-3">Update</button>
+            <button type="button" class="btn btn-secondary update-category-selected col-md-3">Update</button>&nbsp;
+            <a target="__blank" href="{{ route('category.delete.unused') }}">
+                <button type="button" class="btn btn-secondary delete-not-used">Delete not used</button>
+            </a>
+            <a href="{{ route('category.fix-autosuggested',request()->all()) }}" class="fix-autosuggested">
+                <button type="button" class="btn btn-secondary">Fix Auto Suggested</button>
+            </a>
+        </div>
+        <div class="form-group col-md-4">
+            <a href="{{ route('category.fix-autosuggested-via-str',request()->all()) }}" class="fix-autosuggested">
+                <button type="button" class="btn btn-secondary">Fix Auto Suggested(2)</button>
+            </a>
         </div>
     </div>
     <div class="col-md-12 mt-5">
@@ -60,7 +78,7 @@
                         </td>
                         
                         <td>
-                            <span class="call-used-product"  data-type="name">{{ $unKnownCategory }}</span> <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $unKnownCategory }}" ><img src="/images/add.png"></button>
+                            <span class="call-used-product" data-id="{{ $unKnownCategory }}"  data-type="name">{{ $unKnownCategory }}</span> <!-- <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $unKnownCategory }}" ><img src="/images/add.png"></button> -->
                         </td>
                         
                         <td>
@@ -97,12 +115,13 @@
                 var $this = $(this);
                 $.ajax({
                     type: 'GET',
-                    url: '/compositions/'+$this.data("id")+'/used-products',
+                    url: '/category/references/used-products',
                     beforeSend: function () {
                         $("#loading-image").show();
                     },
                     data: {
-                        _token: "{{ csrf_token() }}"
+                        _token: "{{ csrf_token() }}",
+                        q : $this.data("id")
                     },
                     dataType: "json"
                 }).done(function (response) {
@@ -227,6 +246,33 @@
                 $(".categories-checkbox").trigger("click");
             });
 
+            $(document).on("click",".fix-autosuggested",function(e) {
+                var $this = $(this);
+                e.preventDefault();
+                $.ajax({
+                    type: 'GET',
+                    url: $this.attr("href"),
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        if(response.html != "") {
+                            $(".show-listing-exe-records").find('.modal-dialog').html(response.html);
+                            $(".show-listing-exe-records").modal('show');
+                            $(".show-listing-exe-records").find(".select2").select2({"tags" : false});
+                        }else{
+                            toastr['error']('Sorry no response fetched', 'error');
+                        }
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    toastr['error']('Sorry, something went wrong', 'error');
+                    $(".show-listing-exe-records").modal('hide');
+                });
+            });
 
             $(document).on('click','.update-category-selected',function() {
                 var changeto = $(".change-list-categories").val();
@@ -266,6 +312,37 @@
                     $(".show-listing-exe-records").modal('hide');
                 });
 
+            });
+
+
+            $(document).on("submit",".update-reference-category-form",function(event){
+                event.preventDefault();
+                var $this = $(this);
+                $.ajax({
+                    type: $this.attr("method"),
+                    url: $this.attr("action"),
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    data: $this.serialize(),
+                    dataType: "json"
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        if(response.html != "") {
+                            toastr['success'](response.message, 'success');
+                            location.reload();
+                        }else{
+                            toastr['error']('Sorry, something went wrong', 'error');
+                        }
+                        $(".show-listing-exe-records").modal('hide');
+                        location.reload();
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    toastr['error']('Sorry, something went wrong', 'error');
+                    $(".show-listing-exe-records").modal('hide');
+                });
             });
 
     </script>

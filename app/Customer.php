@@ -1,6 +1,9 @@
 <?php
 
 namespace App;
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 
 use App\ChatMessage;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +13,25 @@ use App\ImQueue;
 
 class Customer extends Model
 {
+
+    /**
+     * @var string
+     * @SWG\Property(property="name",type="string")
+     * @SWG\Property(property="phone",type="string")
+     * @SWG\Property(property="city",type="string")
+     * @SWG\Property(property="whatsapp_number",type="integer")
+     * @SWG\Property(property="chat_session_id",type="integer")
+     * @SWG\Property(property="in_w_list",type="string")
+  
+     * @SWG\Property(property="store_website_id",type="integer")
+     * @SWG\Property(property="user_id",type="integer")
+
+     * @SWG\Property(property="reminder_from",type="sting")
+     * @SWG\Property(property="reminder_last_reply",type="sting")
+     * @SWG\Property(property="wedding_anniversery",type="sting")
+     * @SWG\Property(property="dob",type="datetime")
+     * @SWG\Property(property="do_not_disturb",type="sting")
+     */
     use SoftDeletes;
     // protected $appends = ['communication'];
     protected $fillable = [
@@ -27,6 +49,7 @@ class Customer extends Model
         'dob',
         'do_not_disturb',
         'store_name',
+        'language',
         'newsletter'
     ];
 
@@ -300,5 +323,10 @@ class Customer extends Model
             'instagram' => "Instagram",
             'default' => "Default"
         );
+    }
+
+    public function wishListBasket()
+    {
+        return $this->hasOne(\App\CustomerBasket::class, 'customer_id', 'id');
     }
 }

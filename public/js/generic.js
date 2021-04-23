@@ -177,11 +177,13 @@ var getHtml = function(response) {
         // Set empty button var
         var button = "";
 
+        if (message.error_status == 1) {
+            button += '<i title="'+message.error_info+'" class="fa fa-exclamation-triangle" aria-hidden="true"></i>';
+        }
         if (message.type == "task" || message.type == "customer" || message.type == "vendor") {
 
             if (message.status == 0 || message.status == 5 || message.status == 6) {
                 if (message.status == 0) {
-                    
                     button += "<a title='Mark as Read' href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "' class='btn btn-xs btn-secondary ml-1 change_message_status'><i class='fa fa-check' aria-hidden='true'></i></a>";
                 }
 

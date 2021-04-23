@@ -1,12 +1,22 @@
 <?php
 
 namespace App;
-
+/**
+ * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ */
 use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Mediable;
 class SocialStrategy extends Model
 {
+        /**
+     * @var string
+     * @SWG\Property(property="description",type="string")
+     * @SWG\Property(property="social_strategy_subject_id",type="integer")
+     * @SWG\Property(property="execution_id",type="integer")
+     * @SWG\Property(property="content_id",type="integer")
+     * @SWG\Property(property="website_id",type="integer")
+     */
     use Mediable;
 
     protected $fillable = ['social_strategy_subject_id','description','execution_id','content_id','website_id'];

@@ -1,4 +1,5 @@
 <script type="text/x-jsrender" id="template-create-website">
+
     
         <div class="modal-content">
            
@@ -13,15 +14,41 @@
             <?php echo csrf_field(); ?>
            
            <div class="modal-body">
+		   		{{if data}}
+					<div class="form-row">
+						<div class="form-group col-md-12">
+							<label >Copy To Page</label>
+							<select class="form-control" id="website-page-copy-to">
+							<option value="">-- Select --</option>
+								<?php foreach($pages as $k => $page) { ?>
+									<option value="<?php echo $k; ?>"><?php echo $page; ?></option>
+								<?php } ?>
+							</select>
+							<input type="checkbox" name="cttitle" id="cttitle"> <label for="cttitle"> Meta title </label>
+							<input type="checkbox" name="ctkeyword" id="ctkeyword"> <label for="ctkeyword"> Meta Keywords </label>
+							<input type="checkbox" name="ctdesc" id="ctdesc"> <label for="ctdesc">Meta Description</label>
+							<br>
+							<input type="checkbox" name="site_url" id="site_urls"> <label for="site_urls"> Entire site urls </label>
+							<button class="btn btn-secondary btn-xs copy-to-btn" title="Copy to" type="button"><i class="fa fa-clone" ></i> Copy</button>
+						</div>
+						
+					</div>
+					<hr>
+				{{/if}}
+
                   <div class="form-row">
                     <div class="form-group col-md-6">
-                      <label for="page">Copy Page</label>
+                      <label for="page">Copy From Page</label>
                       <select name="page" class="form-control website-page-change">
                         <option value="">-- Select --</option>
                           <?php foreach($pages as $k => $page) { ?>
                             <option value="<?php echo $k; ?>"><?php echo $page; ?></option>
                           <?php } ?>
                       </select>  
+					  <input type="checkbox" name="ctitle" id="ctitle"> <label for="ctitle"> Meta title </label>
+					  <input type="checkbox" name="ckeyword" id="ckeyword"> <label for="ckeyword"> Meta Keywords </label>
+					  <input type="checkbox" name="cdesc" id="cdesc"> <label for="cdesc">Meta Description</label>
+					  <button class="btn btn-secondary btn-xs reload-page-data" title="Reload page data" type="button"><i class="fa fa-refresh" ></i></button>
                     </div>
                     <div class="form-group col-md-6">
                         <label for="language">Language</label>
@@ -54,25 +81,23 @@
                   </div>
               </div>
               <div class="form-row">
-                <div class="form-group col-md-6">
-				<div class="d-flex justify-content-between">
-					<label for="meta_keywords">Meta Keywords</label>
-					<span id="meta_keywords_count"></span>
-				</div>
-                  <input type="text" name="meta_keywords" value="{{if data}}{{:data.meta_keywords}}{{/if}}" class="form-control" id="meta_keywords" placeholder="Enter Keywords">
-					  <div class="form-group">
-						<div class="justify-content-end pt-4 input-group">
-							<input type="text" value="" class="hide form-control  w-50" id="extra-keyword-search">
-							<div class="input-group-append">
-								<button type="button" class="hide btn btn-primary" id="extra-keyword-search-btn"> <l class="fa fa-search"></i> </button>
-							</div>
-						</div>
-						<div class="row pt-3">
-							<ul class="suggestList pl-4"></ul>
-						</div>
-					   </div>
-				   
+                <div class="form-group col-md-12">
+					<div class="d-flex justify-content-between">
+						<label for="meta_keywords">Meta Keywords</label>
+						<span id="meta_keywords_count"></span>
+					</div>
+					<textarea name="meta_keywords" oninput="auto_grow(this)" id="meta_keywords" class="form-control" placeholder="Enter Keywords">{{if data}}{{:data.meta_keywords}}{{/if}}</textarea>
                 </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-12">
+					<div class="d-flex justify-content-between">
+						<label for="meta_keyword_avg_monthly">Meta Keywords avg.monthly</label>
+					</div>
+					<textarea name="meta_keyword_avg_monthly" oninput="auto_grow(this)" class="form-control" id="meta_keyword_avg_monthly" readOnly>{{if data}}{{:data.meta_keyword_avg_monthly}}{{/if}}</textarea>
+                </div>
+              </div>
+              <div class="form-row">
                 <div class="form-group col-md-6">
 					<div class="d-flex justify-content-between">
 						<label for="meta_description">Meta Description</label>
@@ -81,6 +106,32 @@
                   <textarea name="meta_description" class="form-control" placeholder="Enter meta description">{{if data}}{{:data.meta_description}}{{/if}}</textarea>
                 </div>
               </div>
+              <div class="form-row">
+				  <div class="form-group col-md-12">
+						<div class="form-group">
+							<div class="justify-content-end pt-4 input-group">
+								<input type="text" value="" class="hide form-control  w-50" id="extra-keyword-search">
+								<div class="input-group-append">
+									<button type="button" class="hide btn btn-primary" id="extra-keyword-search-btn"> <l class="fa fa-search"></i> </button>
+								</div>
+							</div>
+							<div class="pt-3 height-fix suggestList" style="display:none">
+								<table class="table table-bordered">
+									<thead class="thead-dark">
+										<tr>
+											<th>Keywords</th>
+											<th>Avg. monthly</th>
+											<th>Competition</th>
+											<th>Translation</th>
+										</tr>
+									</thead>
+									<tbody class="suggestList-table"></tbody>
+								</table>
+							</div>
+					   </div>
+				  </div>
+              </div>
+
               <div class="form-row">
                   <div class="form-group col-md-6">
                     <label for="content_heading">Content heading</label>

@@ -34,6 +34,7 @@ use App\Mail\OrderStatusMail;
 use App\Mail\ViewInvoice;
 use App\Message;
 use App\Order;
+use App\OrderCustomerAddress;
 use App\OrderProduct;
 use App\OrderReport;
 use App\OrderStatus;
@@ -265,7 +266,7 @@ class OrderController extends Controller
                 ->orWhere('sales_person', Helpers::getUserIdByName($term))
                 ->orWhere('received_by', Helpers::getUserIdByName($term))
                 ->orWhere('client_name', 'like', '%' . $term . '%')
-                ->orWhere('city', 'like', '%' . $term . '%')
+                ->orWhere('orders.city', 'like', '%' . $term . '%')
                 ->orWhere('order_status_id', (new \App\ReadOnly\OrderStatus())->getIDCaseInsensitive($term));
         }
         if ($order_status[0] != '') {
@@ -532,6 +533,12 @@ class OrderController extends Controller
         ]);
 
         return view('orders.products', compact('products', 'term', 'orderby', 'brand', 'supplier'));
+    }
+
+    public function getCustomerAddress(Request $request)
+    {
+        $address = OrderCustomerAddress::where('order_id', $request->order_id)->get();
+        return response()->json(["code" => 200, "data" => $address]);
     }
 
     /**
@@ -1226,7 +1233,6 @@ class OrderController extends Controller
                     'date_of_issue'   => Carbon::now()->addDays(10),
                 ]);
             }
-
         }
 
         if ($order->order_status == \App\Helpers\OrderHelper::$delivered) {
@@ -1746,6 +1752,7 @@ class OrderController extends Controller
                 ]);
             }
         }
+
     }
 
     public function sendRefund(Request $request, $id)
@@ -1797,6 +1804,7 @@ class OrderController extends Controller
         }
 
         return response('success');
+
     }
 
     public function generateAWB(Request $request)
@@ -2317,7 +2325,6 @@ class OrderController extends Controller
                     }
 
                 } else {
-
                     $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
 
                     $storeWebsiteOrder = $order->storeWebsiteOrder;
@@ -2390,7 +2397,7 @@ class OrderController extends Controller
         $order = Order::find($id);
         if (!$order->is_sent_offline_confirmation()) {
             if ($order->order_type == 'offline') {
-                
+
                 $emailClass = (new OrderConfirmation($order))->build();
 
                 $storeWebsiteOrder = $order->storeWebsiteOrder;
@@ -3048,7 +3055,6 @@ class OrderController extends Controller
 
                                     \App\Jobs\SendEmail::dispatch($email);
 
-
                                 }
                             }
                         }
@@ -3158,6 +3164,25 @@ class OrderController extends Controller
         return response()->json(["code" => 200, "html" => $html, "message" => "Something went wrong"]);
     }
 
+    /**
+     * @SWG\Get(
+     *   path="/customer/order-details",
+     *   tags={"Customer"},
+     *   summary="Get customer order details",
+     *   operationId="get-customer-order-details",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          required=true,
+     *          type="string"
+     *      ),
+     * )
+     *
+     */
+
     public function customerOrderDetails(Request $request)
     {
         $token     = $request->token;
@@ -3255,13 +3280,14 @@ class OrderController extends Controller
             }
 
             $order->status_histories = array_reverse($return_histories);
+
         }
         $orders = $orders->toArray();
         // $orders = json_encode($orders);
         $message = $this->generate_erp_response("customer.order.success", $store_website->id, $default = "Orders Fetched successfully", request('lang_code'));
         return response()->json(['message' => $message, 'status' => 200, 'data' => $orders]);
-
     }
+
     public function addNewReply(request $request)
     {
         if ($request->reply) {
@@ -3309,7 +3335,7 @@ class OrderController extends Controller
         \App\Jobs\SendEmail::dispatch($email);
 
         return response()->json(['message' => 'unable to add reply', 'status' => 500]);
-        
+
         //$view = (new OrderConfirmation($order_new))->build();
         //echo "<pre>"; print_r($view);  echo "</pre>";die;
 
@@ -3318,7 +3344,7 @@ class OrderController extends Controller
         //\MultiMail::to('webreak.pravin@gmail.com')->send(new \App\Mails\Manual\SendIssueCredit($customer));
 
         // \MultiMail::to('webreak.pravin@gmail.com')->send(new OrderConfirmation($order_new));
-        // 
+        //
     }
 
     public function statusChangeTemplate(Request $request)
@@ -3333,6 +3359,60 @@ class OrderController extends Controller
         }
         $template = str_replace(["#{order_id}", "#{order_status}"], [$order->order_id, $statusModal->status], $template);
         return response()->json(["code" => 200, "template" => $template]);
+    }
+
+    public function getInvoiceDetails(Request $request, $invoiceId)
+    {
+
+        $invoice = \App\Invoice::find($invoiceId);
+
+        return view("orders.invoices.partials.edit-invoice-modal", compact('invoice'));
+    }
+
+    public function updateDetails(Request $request, $invoiceId)
+    {
+        $items = $request->order;
+
+        if (!empty($items)) {
+            foreach ($items as $k => $item) {
+                $order   = \App\Order::find($k);
+                $address = \App\OrderCustomerAddress::where("order_id", $k)->where("address_type", "shipping")->first();
+                if (!$address) {
+                    $address               = new \App\OrderCustomerAddress;
+                    $address->order_id     = $k;
+                    $address->address_type = "shipping";
+                    if ($order) {
+                        $customer = $order->customer;
+                        if ($customer) {
+                            $address->customer_id        = $customer->id;
+                            $address->email              = $customer->email;
+                            @list($firstname, $lastname) = explode(" ", $customer->name);
+                            $address->firstname          = isset($firstname) ? $firstname : "";
+                            $address->lastname           = isset($lastname) ? $lastname : "";
+                            $address->telephone          = $customer->phone;
+                        }
+                    }
+                }
+                $address->city       = $item['city'];
+                $address->country_id = $item['country_id'];
+                $address->street     = $item['street'];
+                $address->postcode   = $item['postcode'];
+                $address->save();
+            }
+        }
+
+        $orderproducts = $request->order_product;
+
+        if (!empty($orderproducts)) {
+            foreach ($orderproducts as $k => $op) {
+                $orderP = \App\OrderProduct::find($k);
+                if ($orderP) {
+                    $orderP->fill($op);
+                    $orderP->save();
+                }
+            }
+        }
+         return response()->json(["code" => 200 , "data" => [],"message" => "Invoice updated successfully"]);
     }
 
 }
