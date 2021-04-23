@@ -1148,6 +1148,7 @@ class HubstaffActivitiesController extends Controller
         }
         $timeReceived = 0;
         try {
+            $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
 
             $now = time();
 
