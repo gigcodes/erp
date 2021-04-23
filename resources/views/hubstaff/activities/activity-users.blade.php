@@ -279,8 +279,12 @@
                 <input id="activity-available" type="text"  value="" class="form-control" readonly>
             </div>
             <div class="form-group">
-                <label for="">Date from</label>
-                <input type="text" name="starts_at" value="" class="form-control" id="time_from" required placeholder="Enter Date">
+                <input type="text" name="hub_staff_start_date" hidden/>
+                <input type="text" name="hub_staff_end_date" hidden/>
+                <div id="HubStaffDateRange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                    <i class="fa fa-calendar"></i>&nbsp;
+                    <span></span> <i class="fa fa-caret-down"></i>
+                </div>
             </div>
             </div>
             <div class="modal-footer">
@@ -376,7 +380,7 @@ let r_s = jQuery('input[name="start_date"]').val();
         // jQuery('input[name="range_start"]').val(start.format('YYYY-MM-DD'));
         // jQuery('input[name="range_end"]').val(end.format('YYYY-MM-DD'));
 
-        function cb(start, end) {
+        function cb(start, end, id) {
             $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
         }
 
@@ -400,6 +404,31 @@ let r_s = jQuery('input[name="start_date"]').val();
             jQuery('input[name="start_date"]').val(picker.startDate.format('YYYY-MM-DD'));
             jQuery('input[name="end_date"]').val(picker.endDate.format('YYYY-MM-DD'));
         });
+
+
+        function hubDate(start, end, id) {
+            $('#HubStaffDateRange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+        
+        $('#HubStaffDateRange').daterangepicker({
+            maxYear: 1,
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            }
+        },hubDate);
+
+
+        $('#HubStaffDateRange').on('apply.daterangepicker', function (ev, picker) {
+            jQuery('input[name="hub_staff_start_date"]').val(picker.startDate.format('YYYY-MM-DD'));
+            jQuery('input[name="hub_staff_end_date"]').val(picker.endDate.format('YYYY-MM-DD'));
+        });
+
+
     // $(document).on('click', '.show-activitie1s', function(e) {
     //     e.preventDefault();
     //     var form = $(this).closest("form");
@@ -560,13 +589,13 @@ let r_s = jQuery('input[name="start_date"]').val();
             }
             }).done( function(response) {
                 $("#loading-image").hide();
-                window.location.reload();
+                // window.location.reload();
             }).fail(function(errObj) {
                 $("#loading-image").hide();
                 if(errObj.responseJSON) {
                     toastr['error'](errObj.responseJSON.message, 'error');
                 }
-                window.location.reload();
+                // window.location.reload();
             });
         });
 

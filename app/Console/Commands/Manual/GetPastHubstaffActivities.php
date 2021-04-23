@@ -21,7 +21,7 @@ class GetPastHubstaffActivities extends Command
      *
      * @var string
      */
-    protected $signature = 'hubstaff:load_past_activities {start=2019-09-01} {user_ids=0}';
+    protected $signature = 'hubstaff:load_past_activities {start=2019-09-01} {end=2020-04-18} {user_ids=0}';
 
     /**
      * The console command description.
@@ -54,11 +54,13 @@ class GetPastHubstaffActivities extends Command
         $now = time();
 
         $startString = $this->argument('start');
+        $endString   = $this->argument('end');
         $userIds     = $this->argument('user_ids');
         $userIds     = explode(",", $userIds);
         $userIds     = array_filter($userIds);
 
         $start = strtotime($startString . ' UTC');
+        $now   = strtotime($endString . ' UTC');
 
         while ($start < $now) {
             $end = $start + 7 * 24 * 60 * 60; // 1 week limited by API
