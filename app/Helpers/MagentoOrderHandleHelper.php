@@ -326,26 +326,24 @@ class MagentoOrderHandleHelper extends Model
                     $websiteOrder->save();
 
                     $customer = $orderSaved->customer;
-        
-                    try{
-                        Mail::to($customer->email)->send(new OrderConfirmation($orderSaved));
-                    } catch (\Throwable $th) {
-                        \Log::error("Magento order mail sending failed : ".$th->getMessage());
-                    }
 
-                    $view   = (new OrderConfirmation($orderSaved))->render();
-                    $params = [
-                        'model_id'        => $customer->id,
-                        'model_type'      => Customer::class,
-                        'from'            => 'customercare@sololuxury.co.in',
-                        'to'              => $customer->email,
-                        'subject'         => "New Order # " . $orderSaved->order_id,
-                        'message'         => $view,
+                    $emailClass = (new OrderConfirmation($orderSaved))->build();
+
+                    $email = \App\Email::create([
+                        'model_id'        => $order->id,
+                        'model_type'      => \App\Order::class,
+                        'from'            => $emailClass->fromMailer,
+                        'to'              => $order->customer->email,
+                        'subject'         => $emailClass->subject,
+                        'message'         => $emailClass->render(),
                         'template'        => 'order-confirmation',
-                        'additional_data' => $orderSaved->id,
-                    ];
-                    Email::create($params);
+                        'additional_data' => $order->id,
+                        'status'          => 'pre-send',
+                        'is_draft'        => 1,
+                    ]);
 
+                    \App\Jobs\SendEmail::dispatch($email);
+        
                     \Log::info("Order is finished" . json_encode($websiteOrder));
                 }
                 /**Ajay singh */

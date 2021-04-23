@@ -39,7 +39,25 @@ class SendEmail implements ShouldQueue
 
         try {
 
-            \MultiMail::to($email->to)->from($email->from)->send(new DefaultSendEmail($email));
+            $multimail = new \MultiMail;
+            $multimail->to($email->to);
+            $multimail->from($email->from);
+            if(!empty($email->cc)) {
+                $multimail->cc($email->cc);
+            }
+            if(!empty($email->bcc)) {
+                $multimail->bcc($email->bcc);
+            }
+
+            $data = json_decode($email->additional_data,true);
+            if(!empty($data['attachments'])) {
+                foreach ($data['attachments'] as $file_path) {
+                    $multimail->attachFromStorageDisk('files', $file_path);
+                }
+            }
+            
+            $multimail->send(new DefaultSendEmail($email));
+
             \App\CommunicationHistory::create([
                 'model_id'   => $email->model_id,
                 'model_type' => $email->model_type,
