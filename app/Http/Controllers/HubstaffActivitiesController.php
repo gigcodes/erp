@@ -1154,7 +1154,7 @@ class HubstaffActivitiesController extends Controller
 
             $startString = $starts_at;
             $endString   = $ends_at;
-            $userIds     = $userID;
+            $userIds     = $hubstaff_user_id;
             $userIds     = explode(",", $userIds);
             $userIds     = array_filter($userIds);
 
@@ -1169,7 +1169,7 @@ class HubstaffActivitiesController extends Controller
 
             $activities = $this->getActivitiesBetween(gmdate('c', $start), gmdate('c', $now), 0, [], $userIds);
             if($activities == false) {
-               return response()->json(['message' => 'Can not fetch activities due to the fetching token issue'], 500);   
+               return response()->json(['message' => 'Can not fetch activities as no activities found'], 500);   
             }
             if(!empty($activities)) {
                 foreach ($activities as $id => $data) {
