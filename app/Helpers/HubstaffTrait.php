@@ -125,6 +125,8 @@ trait hubstaffTrait
                     $queryString = implode("&", $q);
                     $url .= "&" . $queryString;
 
+                    \Log::info("Hubstaff url : ".$url." Token  : ".$accessToken);
+                    
                     return $this->client->get(
                         $url,
                         [
