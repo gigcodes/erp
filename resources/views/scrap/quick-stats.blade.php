@@ -136,7 +136,7 @@
                                 $chatMessage = $supplier->latestMessage();
                                 $lastError = $supplier->lastErrorFromScrapLog();
                             @endphp
-                            <td width="1%">{{ $supplier->scraper_name }}{{ ++$i }}@if($supplier->getChildrenScraperCount($supplier->scraper_name) != 0) <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-link"><i class="fa fa-caret-down" style="font-size:24px"></i>  </button> @endif</td>
+                            <td width="1%">@if($supplier->getChildrenScraperCount($supplier->scraper_name) != 0) <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-link"><i class="fa fa-caret-down" style="font-size:24px"></i>  </button> @endif</td>
                             <td width="6%"><a href="/supplier/{{$supplier->id}}" >
                                 <span class="toggle-title-box has-small" data-small-title="<?php echo ($supplier->supplier) ? substr($supplier->supplier, 0, 3) : '' ?>" data-full-title="<?php echo ($supplier->supplier) ? $supplier->supplier : '' ?>">
                                     <?php
@@ -206,7 +206,7 @@
                                 @endphp
                                 {{ ($hasTask) ? "TA" : "NT" }}
                             </td>
-                            <td width="8%" class="" style="font-size: 12px">
+                            <td width="9%" class="" style="font-size: 12px">
                                 <?php
                                     $logString = null;
                                     $logbtn = null;
