@@ -188,7 +188,7 @@
 
                             <td width="13%" data-start-time="@if($supplier->last_started_at){{$supplier->last_started_at }}@endif" data-end-time="@if($supplier->last_completed_at){{$supplier->last_completed_at }}@endif" class="show-scraper-detail">
                                 @if(isset($supplier->scraper_name) && !empty($supplier->scraper_name) &&  isset($lastRunAt[$supplier->scraper_name]))
-                                    {!! str_replace(' ', '-', date('d-M-y H:i', strtotime($lastRunAt[$supplier->scraper_name]))) !!}
+                                    {!! str_replace(' ', '-', date('d-m H:i', strtotime($lastRunAt[$supplier->scraper_name]))) !!}
                                     <br/>
                                 @endif
                             </td>
@@ -361,7 +361,7 @@
                                         $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$supplier->scraper_name)->orderBy('created_at','desc')->first();
                                     @endphp
                                     <tr style="display: none;" class="{{ $supplier->scraper_name }}">
-                                    <td width="1%">{{ ++$childCount }}</td>
+                                    
                                     <td width="8%"><a href="/supplier/{{$childSupplier->supplier_id}}">{{ ucwords(strtolower($childSupplier->scraper_name)) }}
                                     </td>
                                     <!-- <td width="10%">{{ !empty($data) ? $data->ip_address : '' }}</td>
@@ -371,13 +371,17 @@
                                                 <select style="width:80% !important;" name="server_id" class="form-control select2 scraper_field_change" data-id="{{$childSupplier->id}}" data-field="server_id">
                                                     <option value="">Select</option>
                                                     @foreach($serverIds as $serverId)
-                                                    <option value="{{$serverId}}" {{$childSupplier->server_id == $serverId ? 'selected' : ''}}>{{$serverId}}</option>
+                                                    <option value="{{$serverId}}" {{$childSupplier->server_id == $serverId ? 'selected' : ''}}>{{$serverId}}- @if(isset($getLatestOptimization[$serverId])) {{ $getLatestOptimization[$serverId] }} @endif</option>
                                                     @endforeach
                                                 </select>
                                                   <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="server_id" data-id="{{$childSupplier->id}}"><i class="fa fa-info-circle"></i></button>
                                         </div>
                                     </td>
-
+                                    <td width="4%">
+                                        <div class="form-group">
+                                            <?php echo Form::select("auto_restart",[0 => "Off", 1 => "On"], $childSupplier->auto_restart, ["class" => "form-control auto_restart select2", "style" => "width:100%;"]); ?>
+                                        </div>
+                                    </td>
                                     <td width="10%" style="text-right">
                                         <div class="form-group">
                                                 <select style="width:85% !important;display:inline;" name="scraper_start_time" class="form-control scraper_field_change" data-id="{{$childSupplier->id}}" data-field="scraper_start_time">
@@ -389,25 +393,31 @@
                                                 <button style="padding-right:0px;width:10%;display:inline-block;" type="button" class="btn btn-xs show-history" title="Show History" data-field="scraper_start_time" data-id="{{$childSupplier->id}}"><i class="fa fa-info-circle"></i></button>
                                         </div>
                                     </td>
-                                    
+                                    <td width="5%">{{ !empty($data) ? $data->total_new_product : '' }}</td>
                                     <td width="10%">
                                         @if(isset($childSupplier->scraper_name) && !empty($childSupplier->scraper_name) &&  isset($lastRunAt[$childSupplier->scraper_name]))
-                                            {!! str_replace(' ', '-', date('d-M-y H:i', strtotime($lastRunAt[$childSupplier->scraper_name]))) !!}
+                                            {!! str_replace(' ', '-', date('d-m H:i', strtotime($lastRunAt[$childSupplier->scraper_name]))) !!}
                                             <br/>
                                         @endif
                                         {{ $childSupplier->last_completed_at }} 
                                     </td>
-                                    <td width="3%">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
+                                    <td width="3%">{{ $childSupplier->status ?? '' }}</td>
                                     <?php $totalCountedUrl += !empty($data) ? $data->total : 0; ?>
                                     <td width="3%">{{ !empty($data) ? $data->total : '' }}</td>
+                                    <td width="2%">
+                                        @php
+                                            $hasTask = $childSupplier->developerTask($childSupplier->scrapper_id);
+                                        @endphp
+                                        {{ ($hasTask) ? "TA" : "NT" }}
+                                    </td>
+                                    <td width="6%">
+                                        <div class="form-group">
+                                            <?php echo Form::select("full_scrape",[0 => "No", 1 => "Yes"], $childSupplier->full_scrape, ["class" => "form-control full_scrape select2", "style" => "width:100%;"]); ?>
+                                        </div>
+                                    </td>
                                     {{-- <td width="3%">{{ !empty($data) ? $data->errors : '' }}</td>
                                     <td width="3%">{{ !empty($data) ? $data->warnings : '' }}</td> --}}
-                                    <td width="3%">{{ $childSupplier->scraper_total_urls }}</td>
-                                    <td width="3%">{{ $childSupplier->scraper_existing_urls }}</td>
-                                    <td width="3%">{{  $childSupplier->scraper_new_urls }}</td>
-                                    <td width="6%">
-                                        {{ !empty($childSupplier->scrapers_status) ? $childSupplier->scrapers_status : "N/A" }}
-                                    </td>
+                                    
                                     <td width="10%" style="display: flex;">
                                         <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $childSupplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
                                         <button type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $childSupplier->id }}"><img width="2px;" src="/images/forward.png"/></button>
