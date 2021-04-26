@@ -1065,7 +1065,7 @@
                     }
                 },
                 error: function (error) {
-                    toastr["error"](error.responseJSON.message, "Message")
+                    toastr["error"]('Unauthorized permission development-get-document', "Message")
                     
                 }
             });
