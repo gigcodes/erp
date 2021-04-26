@@ -108,6 +108,12 @@ class TmpTaskController extends Controller
 
     public function testEmail(Request $request)
     {
+        $suggestion = \App\SuggestedProduct::first();
+        echo "<pre>"; print_r($suggestion);  echo "</pre>";die;
+
+        SuggestedProduct::attachMoreProducts($suggestion);
+        die;
+        //
         $order = \App\Order::latest()->first();
 
         if ($order) {

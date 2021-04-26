@@ -156,16 +156,16 @@
 <td colspan="2">&nbsp;</td>
 <td colspan="2">The total cost of foods (FOB) Shipping &amp; handling Insurance charges</td>
 <td style="text-align: right;">
-<p>USD 0.00</p>
-<p>USD 0.00</p>
-<p>USD {{$orderTotal}}</p>
+<p>INR 0.00</p>
+<p>INR 0.00</p>
+<p>INR {{$orderTotal}}</p>
 </td>
 </tr>
 <tr>
 <td colspan="2">&nbsp;</td>
 <td colspan="2">Total (CIF)</td>
 <td style="text-align: right;">
-<p>USD {{$orderTotal}}</p>
+<p>INR {{$orderTotal}}</p>
 </td>
 </tr>
 <tr>
@@ -176,7 +176,7 @@
 <tr>
 <td colspan="2">&nbsp;</td>
 <td colspan="2">Total Paid for the order</td>
-<td style="text-align: right;">USD {{$orderTotal}}</td>
+<td style="text-align: right;">INR {{$orderTotal}}</td>
 </tr>
 <tr>
 <td colspan="2">&nbsp;</td>
@@ -186,7 +186,7 @@
 <tr>
 <td colspan="2">VALUE FOR CUSTOMERS:</td>
 <td colspan="2">CIF</td>
-<td style="text-align: right;">USD {{$orderTotal}}</td>
+<td style="text-align: right;">INR {{$orderTotal}}</td>
 </tr>
 </tbody>
 </table>
