@@ -1,11 +1,10 @@
 #!/bin/bash
 
-mysql_db=erp_live
 function Create {
-	check_user=`mysql -e "select user from mysql.user where user='$mysql_user'"`
+	check_user=`mysql -h $host -u $user -p"$password" -e "select user from mysql.user where user='$mysql_user'"`
 	if [ -z "$check_user" ]
 	then
-		mysql <<QUERY
+		mysql -h $host -u $user -p"$password" <<QUERY
 		CREATE USER '$mysql_user'@'localhost' IDENTIFIED BY '$mysql_pass';
 		FLUSH PRIVILEGES;
 QUERY
@@ -15,12 +14,12 @@ QUERY
 }
 
 function Delete {
-	check_user=`mysql -e "select user from mysql.user where user='$mysql_user'"`
+	check_user=`mysql -h $host -u $user -p"$password" -e "select user from mysql.user where user='$mysql_user'"`
 	if [ -z "$check_user" ]
 	then
 		echo " User Does not exist"
 	else
-		mysql <<QUERY
+		mysql -h $host -u $user -p"$password" <<QUERY
 		Delete from mysql.user where user='$mysql_user';
 		FLUSH PRIVILEGES;
 QUERY
@@ -28,7 +27,7 @@ QUERY
 }
 
 function Update {
-	check_user=`mysql -e "select user from mysql.user where user='$mysql_user'"`
+	check_user=`mysql -h $host -u $user -p"$password" -e "select user from mysql.user where user='$mysql_user'"`
 	if [ -z "$check_user" ]
 	then
 		echo " User Does not exist"
@@ -46,8 +45,8 @@ function Update {
 
 			for table_name in $(echo $mysql_table | sed "s/,/ /g")
 			do
-				mysql <<QUERY
-				GRANT $type ON $mysql_db.$table_name TO '$mysql_user'@'localhost';
+				mysql -h $host -u $user -p"$password" <<QUERY
+				GRANT $type ON $database.$table_name TO '$mysql_user'@'localhost';
 				FLUSH PRIVILEGES;
 QUERY
 			done
@@ -56,7 +55,7 @@ QUERY
 }
 
 function Revoke {
-	check_user=`mysql -e "select user from mysql.user where user='$mysql_user'"`
+	check_user=`mysql -h $host -u $user -p"$password" -e "select user from mysql.user where user='$mysql_user'"`
 	if [ -z "$check_user" ]
 	then
 		echo " User not exist"
@@ -67,8 +66,8 @@ function Revoke {
 		else
 			for table_name in $(echo $mysql_table | sed "s/,/ /g")
 			do
-				mysql <<QUERY
-				REVOKE select,insert,update ON $mysql_db.$table_name from '$mysql_user'@'localhost';
+				mysql -h $host -u $user -p"$password" <<QUERY
+				REVOKE select,insert,update ON $database.$table_name from '$mysql_user'@'localhost';
 				FLUSH PRIVILEGES;
 QUERY
 			done
@@ -77,39 +76,68 @@ QUERY
 }
 
 function HELP {
+	echo " -u|--user: Mysql User to connect"
+	echo " -p|--password: Mysql user Password"
+	echo " -h|--host: Mysql server host to connect"
+	echo " -d|--db: Mysql database to connect"
 	echo " -f: Function (create - create new mysql user with given password)
 		(delete - Delete mysql user)
 		(update - Assign insert & update permission on specific table)
 		(revoke - Revoke insert & update permission from all tables)"
-	echo " -u: Mysql User"
+	echo "-n|--new-user: New Mysql user to create"
+	echo "-s|--new-pass: New Mysql user password"
 	echo " -m: Permission type read/write to specific table"
 	echo " -t: Mysql Database Table"
-	echo " -p: Mysql user Password"
 }
 
-while getopts ":f:u:t:p:m:h" opt; do
-	case $opt in
-		f)
-			function=$OPTARG
-			;;
-		u)
-			mysql_user=$OPTARG
-			;;
-		t)
-			mysql_table=$OPTARG
-			;;
-		p)
-			mysql_pass=$OPTARG
-			;;
-		m)
-			permission_type=$OPTARG
-			;;
-		h)
-			HELP
-			;;
-		:)
-			HELP
-			;;
+args=("$@")
+idx=0
+while [[ $idx -lt $# ]]
+do
+        case ${args[$idx]} in
+	        -u|--user)
+	        user="${args[$((idx+1))]}"
+	        idx=$((idx+2))
+	        ;;
+	        -p|--password)
+	        password="${args[$((idx+1))]}"
+	        idx=$((idx+2))
+	        ;;
+	        -h|--host)
+	        host="${args[$((idx+1))]}"
+	        idx=$((idx+2))
+	        ;;
+	        -d|--db)
+	        database="${args[$((idx+1))]}"
+	        idx=$((idx+2))
+	        ;;
+	        -f|--function)
+	        function="${args[$((idx+1))]}"
+	        idx=$((idx+2))
+	        ;;
+	        -n|--new-user)
+	        mysql_user="${args[$((idx+1))]}"
+	        idx=$((idx+2))
+	        ;;
+	        -s|--new-pass)
+	        mysql_pass="${args[$((idx+1))]}"
+	        idx=$((idx+2))
+	        ;;
+	        -t|--table)
+	        mysql_table="${args[$((idx+1))]}"
+	        idx=$((idx+2))
+	        ;;
+	        -m|--permission)
+	        permission_type="${args[$((idx+1))]}"
+	        idx=$((idx+2))
+	        ;;
+                -h|--help)
+	        HELP
+	        exit 1
+	        ;;
+	        *)
+	        idx=$((idx+1))
+	        ;;
 	esac
 done
 
