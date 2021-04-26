@@ -128,13 +128,13 @@
              </div>
           <div class="col-md-2" style="padding:0px;">
                   <a class="btn btn-xs btn-secondary" href="{{ route('order.create') }}">+</a>
-                  <a href="{{ action('OrderController@downloadOrderInPdf', Request::all()) }}" class="btn btn-success btn-xs">Download</a>
+                  <a href="{{ action('OrderController@downloadOrderInPdf', Request::all()) }}" class="btn btn-secondary btn-xs">Download</a>
               </div>
         </div>	
 <div class="row">
 @include('partials.flash_messages')
     <?php if(!empty($statusFilterList)) { ?>
-      <div class="row col-md-12">
+      <div class="row col-md-12" style="font-size: smaller;">
           <?php foreach($statusFilterList as $listFilter) { ?>
             <div class="card">
                 <div class="card-header">
@@ -188,7 +188,7 @@
          </tr>
         </thead>
 
-        <tbody>
+        <tbody style="color:font-size: small;">
 			@foreach ($orders_array as $key => $order)
              @php
                $extraProducts = [];
@@ -204,7 +204,7 @@
                }
              @endphp
 
-            <tr class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
+            <tr style="background:#f1f1f1;" class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
               <td><span class="td-mini-container">
                   <input type="checkbox" class="selectedOrder" name="selectedOrder" value="{{$order->id}}">
                   </span>
@@ -215,19 +215,23 @@
                     <strong class="text-danger mr-1">!!!</strong>
                   @endif
                   <span class="td-mini-container">
-                  <span style="font-size:14px;">{{ $order->order_id }}</span>
+                  <span style="font-size:14px;" class="toggle-title-box has-small" data-small-title="<?php echo ($order->order_id) ? substr($order->order_id, 0,3) : '' ?>" data-full-title="<?php echo ($order->order_id) ? $order->order_id : '' ?>">
+                        <?php
+                            echo (strlen($order->order_id) > 3) ? substr($order->order_id, 0,3).".." : $order->order_id;
+                        ?>
+                     </span>
                   </span>
                 </div>
               </td>
               <td>{{ Carbon\Carbon::parse($order->order_date)->format('d-m') }}</td>
-              <td class="expand-row table-hover-cell">
+              <td class="expand-row table-hover-cell" style="color:grey;">
                 @if ($order->customer)
                   <span class="td-mini-container">
-                    <a href="{{ route('customer.show', $order->customer->id) }}">{{ strlen($order->customer->name) > 15 ? substr($order->customer->name, 0, 13) . '...' : $order->customer->name }}</a>
+                    <a style="color: #6c757d;" href="{{ route('customer.show', $order->customer->id) }}">{{ strlen($order->customer->name) > 15 ? substr($order->customer->name, 0, 13) . '...' : $order->customer->name }}</a>
                   </span>
 
                   <span class="td-full-container hidden">
-                    <a href="{{ route('customer.show', $order->customer->id) }}">{{ $order->customer->name }}</a>
+                    <a style="color: #6c757d;" href="{{ route('customer.show', $order->customer->id) }}">{{ $order->customer->name }}</a>
                   </span>
                 @endif
               </td>
@@ -238,10 +242,10 @@
                       $storeWebsite = $order->storeWebsiteOrder->storeWebsite;
                     @endphp
                     <span class="td-mini-container">
-                        <a href="{{$storeWebsite->website}}" target="_blank">{{ strlen($storeWebsite->website) > 15 ? substr($storeWebsite->website, 0, 13) . '...' : $storeWebsite->website }}</a>
+                        <a style="color: #6c757d;" href="{{$storeWebsite->website}}" target="_blank">{{ strlen($storeWebsite->website) > 15 ? substr($storeWebsite->website, 0, 13) . '...' : $storeWebsite->website }}</a>
                     </span>
                     <span class="td-full-container hidden">
-                        <a href="{{$storeWebsite->website}}" target="_blank">{{ $storeWebsite->website }}</a>
+                        <a style="color: #6c757d;" href="{{$storeWebsite->website}}" target="_blank">{{ $storeWebsite->website }}</a>
                     </span>
                   @endif
                 @endif
@@ -283,8 +287,8 @@
               <td>
                 <div style="display:inline;">{{($order->estimated_delivery_date)?$order->estimated_delivery_date:'---'}}</div>
                
-              <i class="fa fa-pencil-square-o show-est-del-date" data-id="{{$order->id}}" data-new-est="{{($order->estimated_delivery_date)?$order->estimated_delivery_date:''}}" aria-hidden="true"></i>
-              <i class="fa fa-info-circle est-del-date-history" data-id="{{$order->id}}"  aria-hidden="true"></i>
+              <i style="color:#6c757d;" class="fa fa-pencil-square-o show-est-del-date" data-id="{{$order->id}}" data-new-est="{{($order->estimated_delivery_date)?$order->estimated_delivery_date:''}}" aria-hidden="true"></i>
+              <i style="color:#6c757d;" class="fa fa-info-circle est-del-date-history" data-id="{{$order->id}}"  aria-hidden="true"></i>
        
               </td>
               <td>
@@ -561,6 +565,18 @@
   <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <script type="text/javascript">
+
+    $(document).on("click",".toggle-title-box",function(ele) {
+        var $this = $(this);
+        if($this.hasClass("has-small")){
+            $this.html($this.data("full-title"));
+            $this.removeClass("has-small")
+        }else{
+            $this.addClass("has-small")
+            $this.html($this.data("small-title"));
+        }
+    });
+
     $(document).ready(function() {
       $('#order-datetime').datetimepicker({
         format: 'YYYY-MM-DD'

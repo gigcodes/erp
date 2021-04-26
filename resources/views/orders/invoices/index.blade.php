@@ -25,7 +25,7 @@
             <td>{{ $invoice->invoice_date }}</td>
             <td>{{ $invoice->invoice_number }}</td>
             <td>
-               {{ $invoice->orders[0]->customer->name }}
+               {{ $invoice->orders[0]->customer->name ?? '' }}
             </td>
             <td>
                @php
@@ -47,11 +47,11 @@
                </a>
                </a>
                <a title="Update Invoice Addresses"
-                  data-address="{{$invoice->orders[0]->customer->address}}"
-                  data-city="{{$invoice->orders[0]->customer->city}}"
-                  data-country="{{$invoice->orders[0]->customer->country}}"
-                  data-pincode="{{$invoice->orders[0]->customer->pincode}}"
-                  data-codex="{{$invoice->orders[0]->customer->id}}"
+                  data-address="{{$invoice->orders[0]->customer->address ?? ''}}"
+                  data-city="{{$invoice->orders[0]->customer->city ?? ''}}"
+                  data-country="{{$invoice->orders[0]->customer->country ?? ''}}"
+                  data-pincode="{{$invoice->orders[0]->customer->pincode ?? ''}}"
+                  data-codex="{{$invoice->orders[0]->customer->id ?? ''}}"
                   class="btn btn-image UpdateInvoiceAddresses"
                   data-id="{{$invoice->id}}"  
                   >
