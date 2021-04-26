@@ -10,13 +10,12 @@
 <table class="table table-bordered page-template-{{ $page }}">
     <thead>
     <tr>
-        <th width="5%">#</th>
-        <th width="5%">Name</th>
+        <th width="10%"># Name</th>
         <th width="5%">Website</th>
         <th width="10%">User input</th>
         <th width="15%">Bot Replied</th>
         <th width="15%">Message Box</th>
-        <th width="10%">From</th>
+        <th width="5%">From</th>
         <th width="10%">Images</th>
         <th width="10%">Created</th>
         <th width="10%">Action</th>
@@ -26,8 +25,7 @@
     <?php if (!empty($pendingApprovalMsg)) {?>
     <?php foreach ($pendingApprovalMsg as $pam) {?>
     <tr>
-        <td>{{ $pam->customer_id }}[{{ $pam->chat_id }}]</td>
-        <td>{{  ($pam->vendor_id > 0 ) ? $pam->vendors_name : $pam->customer_name }}</td>
+        <td data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id}}" data-vendor-id="{{$pam->vendor_id}}">{{  ($pam->vendor_id > 0 ) ? "#".$pam->vendor_id." ".$pam->vendors_name : "#".$pam->customer_id." ".$pam->customer_name }}</td>
         <td>{{ $pam->website_title }}</td>
         <td class="user-input">{{ $pam->question }}</td>
         <td class="boat-replied">{{ $pam->answer }}</td>
@@ -86,7 +84,7 @@
     </tbody>
     <tfoot>
     <tr>
-        <td colspan="6"><?php echo $pendingApprovalMsg->appends(request()->except("page"))->links(); ?></td>
+        <td colspan="9"><?php echo $pendingApprovalMsg->appends(request()->except("page"))->links(); ?></td>
     </tr>
     </tfoot>
 </table>
