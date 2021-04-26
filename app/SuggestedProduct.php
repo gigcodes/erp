@@ -159,7 +159,7 @@ class SuggestedProduct extends Model
                                     $count++;
                                 }
 
-                                $product->suggestions()->attach($suggestion->id,["customer_id" =>$customer->id]);
+                                $product->suggestions()->attach($suggestion->id,["customer_id" =>$customer->id,'chat_message_id' => isset($chat_message) ? $chat_message->id :  null]);
                             }
                         }
                     }
