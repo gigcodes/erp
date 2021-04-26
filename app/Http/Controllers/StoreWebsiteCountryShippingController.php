@@ -34,7 +34,7 @@ class StoreWebsiteCountryShippingController extends Controller
 
     public function create(Request $request)
     {   
-        try {
+        // try {
             if($request->post()){
                 $rules = [
                     'store_website_id' => 'required',
@@ -114,9 +114,9 @@ class StoreWebsiteCountryShippingController extends Controller
                 return view('store-website-country-shipping.create',compact('storeWebsites','simplyDutyCountry'));
             }
 
-        } catch (Exception $e) {
-            return redirect()->route('store-website-country-shipping.index')->with('error', $e->getMessage() );
-        }
+        // } catch (Exception $e) {
+        //     return redirect()->route('store-website-country-shipping.index')->with('error', $e->getMessage() );
+        // }
     }
 
     public function edit($id = null)
