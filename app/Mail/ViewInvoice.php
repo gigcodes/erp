@@ -62,7 +62,7 @@ class ViewInvoice extends Mailable
     public function download()
     {
 
-        $html = view('maileclipse::templates.orderInvoice', [
+        $html = view('maileclipse::templates.viewInvoice', [
             'orderItems'   => $this->orderItems,
             'customer'     => $this->customer,
             'orders'       => $this->orders,
