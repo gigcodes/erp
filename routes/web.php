@@ -2769,6 +2769,11 @@ Route::get('/store-website-analytics/delete/{id}', 'StoreWebsiteAnalyticsControl
 Route::get('/store-website-analytics/report/{id}', 'StoreWebsiteAnalyticsController@report');
 Route::get('/analytis/cron/showData', 'AnalyticsController@cronShowData');
 
+Route::get('store-website-country-shipping', 'StoreWebsiteCountryShippingController@index')->name('store-website-country-shipping.index');
+Route::any('store-website-country-shipping/create', 'StoreWebsiteCountryShippingController@create')->name('store-website-country-shipping.create');
+Route::get('store-website-country-shipping/edit/{id}', 'StoreWebsiteCountryShippingController@edit')->name('store-website-country-shipping.edit');
+Route::get('store-website-country-shipping/delete/{id}', 'StoreWebsiteCountryShippingController@delete')->name('store-website-country-shipping.delete');
+
 Route::get('/attached-images-grid/customer/', 'ProductController@attachedImageGrid');
 Route::post('/attached-images-grid/add-products/{suggested_products_id}', 'ProductController@attachMoreProducts');//
 Route::post('/attached-images-grid/remove-products/{customer_id}', 'ProductController@removeProducts');//
