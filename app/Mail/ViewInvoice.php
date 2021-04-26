@@ -101,8 +101,8 @@ class ViewInvoice extends Mailable
                                     <td>' . $products->product->name . ' ' . $products->product->short_description . '</td>
                                     <td>' . $products->made_in . '</td>
                                     <td>' . $products->qty . '</td>
-                                    <td>EUR</td>
-                                    <td>EUR ' . $products->product_price . '</td>
+                                    <td>INR</td>
+                                    <td>INR ' . $products->product_price . '</td>
                                     </tr>';
                     }
                     $this->orderTotal += $products->product_price;
