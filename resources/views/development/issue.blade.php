@@ -1063,6 +1063,10 @@
                     }else{
                         toastr["error"](response.error, "Message");
                     }
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
                 }
             });
         });
