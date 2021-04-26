@@ -978,6 +978,13 @@ class QuestionController extends Controller
 
         return response()->json(["code" => 500 , "data" => [], "message" => "Something went wrong, Please try again!"]);
     }
+
+    public function suggestedResponse(Request $request)
+    {
+        $reply = \App\ChatbotQuestionReply::get();
+
+        return view('chatbot::question.partial.suggested-response',compact('reply'));
+    }
     
 }
 

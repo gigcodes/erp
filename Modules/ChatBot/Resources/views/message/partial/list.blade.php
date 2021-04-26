@@ -63,7 +63,7 @@
             </a>
             @endif
             <a href="javascript:;" class="delete-images" data-id="{{ $pam->chat_id }}">
-                <img width="15px" title="Remove Images" height="15px" src="/images/do-not-disturb.png">
+                <img width="15px" title="Remove Images" height="15px" src="/images/do-disturb.png">
             </a>
             @if($pam->suggestion_id)
                 <a href="javascript:;" class="add-more-images" data-id="{{ $pam->chat_id }}">
@@ -137,7 +137,7 @@
             data: form.serialize(),
             dataType : "json",
             success: function (response) {
-                location.reload();
+               // location.reload();
                 // if(response.code == 200) {
                 //     toastr['success']('data updated successfully!');
                 //     window.location.replace(response.redirect);
