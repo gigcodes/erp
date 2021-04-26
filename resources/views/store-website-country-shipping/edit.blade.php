@@ -54,22 +54,6 @@
                     </div>
               </div>
               <div class="form-group row">
-                    <label for="select" class="col-4 col-form-label">Country Code</label>
-                    <div class="col-8">
-                      <select id="select" name="country_code" class="form-control">
-                          @foreach($simplyDutyCountry as $key)
-                            @php
-                                $selected = '';
-                                if($data->country_code == $key->country_code){
-                                  $selected = 'selected';
-                                }
-                            @endphp
-                            <option value="{{ $key->country_code }}" {{ $selected }}>{{ $key->country_code }}</option>
-                          @endforeach
-                      </select>
-                    </div>
-              </div>
-              <div class="form-group row">
                 <label for="price" class="col-4 col-form-label"> Price </label>
                 <div class="col-8">
                   <input id="price" name="price" placeholder="price" type="text" class="form-control {{ $errors->has('price') ? ' is-invalid' : '' }}" value="{{ $data->price ?? null }}" required="required">

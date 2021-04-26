@@ -39,7 +39,6 @@ class StoreWebsiteCountryShippingController extends Controller
                 $rules = [
                     'store_website_id' => 'required',
                     'country_name' => 'required',
-                    'country_code' => 'required',
                     'price' => 'required|integer',
                     'currency' => 'required'
                 ];
@@ -48,7 +47,6 @@ class StoreWebsiteCountryShippingController extends Controller
                 $messages = [
                    'store_website_id' => 'Website field is required.',
                    'country_name' => 'Country name field is required.',
-                   'country_code' => 'Country code field is required.',
                    'price' => 'Price field is required.',
                    'currency' => 'Price field is required.'
                 ];
@@ -63,11 +61,9 @@ class StoreWebsiteCountryShippingController extends Controller
                     //withInput keep the users info
                     return redirect()->back()->withErrors($validation)->withInput();
                 } else {
-
-                    $storeWebsites = StoreWebsite::where('id',$request->store_website_id)->first();
-
+                    $countyCode     = SimplyDutyCountry::where('country_name',$request->country_name)->first();
+                    $storeWebsites  = StoreWebsite::where('id',$request->store_website_id)->first();
                     $url     = $storeWebsites->website.'/default/rest/all/V1/shippingcost/';
-                    $url     = 'https://stage.suvandnat.com/default/rest/all/V1/shippingcost/';
                     $api_key = $storeWebsites->api_token;
 
                     $headers = [
@@ -76,7 +72,7 @@ class StoreWebsiteCountryShippingController extends Controller
                     ];
 
                     $pushMagentoArr = array(
-                        'shippingCountryCode' => $request->country_code,
+                        'shippingCountryCode' => $countyCode->country_code,
                         'shippingCountryName' => $request->country_name,
                         'shippingPrice' => $request->price,
                         'shippingCurrency' => $request->currency,
@@ -85,13 +81,16 @@ class StoreWebsiteCountryShippingController extends Controller
                     if($request->id){
                         $updatedData = $request->all();
                         unset($updatedData['_token']);
-                        StoreWebsitesCountryShipping::whereId($request->id)->update($updatedData);
                         if( $request->ship_id ){
                             $url .= 'update';
                             $pushMagentoArr['ship_id'] = $request->ship_id;
                             $pushMagentoArr['updatedShippingPrice'] = $request->price;
                             $response = \App\Helpers\GuzzleHelper::post($url,$pushMagentoArr,$headers);
-                            
+                            if ( isset($response[0]->status) ) {
+                                StoreWebsitesCountryShipping::whereId($request->id)->update($updatedData);
+                            }else{
+                                return redirect()->route('store-website-country-shipping.index')->with('error', $response[0]->Message ?? 'Something went wrong');
+                            }
                         }
                         return redirect()->route('store-website-country-shipping.index')->with('success','Data updated successfully.');
                     }else{
@@ -132,11 +131,9 @@ class StoreWebsiteCountryShippingController extends Controller
     public function delete($id = null)
     {   
         $data = StoreWebsitesCountryShipping::whereId($id)->first();
-        StoreWebsitesCountryShipping::whereId($id)->delete();
         $storeWebsites = StoreWebsite::where('id',$data->store_website_id)->first();
 
         $url     = $storeWebsites->website.'/default/rest/all/V1/shippingcost/delete';
-        $url     = 'https://stage.suvandnat.com/default/rest/all/V1/shippingcost/delete';
         $api_key = $storeWebsites->api_token;
 
         $pushMagentoArr = [ 'ship_id' => $data->ship_id ];
@@ -145,7 +142,13 @@ class StoreWebsiteCountryShippingController extends Controller
             'Content-Type' => 'application/json'
         ];
         $response = \App\Helpers\GuzzleHelper::post($url,$pushMagentoArr,$headers);
-        return redirect()->route('store-website-country-shipping.index')->with('success','Record deleted successfully.');
+        if ( isset($response[0]->status) ) {
+            StoreWebsitesCountryShipping::whereId($id)->delete();
+            return redirect()->route('store-website-country-shipping.index')->with('success','Record deleted successfully.');
+        }else{
+            return redirect()->route('store-website-country-shipping.index')->with('error', $response[0]->Message ?? 'Something went wrong');
+        }
+        return redirect()->route('store-website-country-shipping.index');
     }
 
 }
