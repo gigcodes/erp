@@ -10,7 +10,7 @@
               @endphp
               <div class="col-md-12">
                 <div class="form-group">
-                   <strong>Address:</strong>
+                   <strong>Shipping Address:</strong>
                    <textarea name="order[{{$order->id}}][street]" class="form-control">@if($shipping){{$shipping->street}}@endif</textarea>
                 </div>
                 <div class="form-group">
@@ -67,9 +67,84 @@
                   </div>
                 </div>  
               @endforeach
+              <button class="btn btn-secondary btn-xs add-new-product" data-order="{{$order->id}}">Add new </button>
+                <div class="row add-new-product-form order-cls-{{$order->id}} d-none">
+                      <div class="col">
+                          <div class="form-group">
+                              <strong>SKU&nbsp;:&nbsp;</strong>
+                              <input name="sku{{$order->id}}" class="form-control" value="" />
+                          </div>
+                      </div>
+                      <div class="col">
+                          <div class="form-group">
+                              <strong>Price&nbsp;:&nbsp;</strong>
+                              <input name="price{{$order->id}}" class="form-control" value="" />
+                          </div>
+                      </div>
+                      <div class="col">
+                          <div class="form-group">
+                              <strong>Size&nbsp;:&nbsp;</strong>
+                              <input name="size{{$order->id}}" class="form-control" value="" />
+                          </div>
+                      </div>
+                      <div class="col">
+                          <div class="form-group">
+                              <strong>Color&nbsp;:&nbsp;</strong>
+                              <input name="color{{$order->id}}" class="form-control" value="" />
+                          </div>
+                      </div>
+                      <div class="col">
+                          <div class="form-group">
+                              <strong>QTY&nbsp;:&nbsp;</strong>
+                              <input name="qty{{$order->id}}" class="form-control" value="" />
+                          </div>
+                      </div>
+                      <div class="col">
+                        <div class="form-group">
+                            <button class="btn btn-secondary btn-xs save-new-product" data-order="{{$order->id}}">save</button>
+                        </div>
+                      </div>
+                  </div>
             </div>
           </div>
        @endforeach
       <button type="submit" name="update_details" data-id="{{$invoice->id}}" class="btn btn-primary btn-sm btn-update-invoice">Update Invoice</button>
    </form>
 </div>
+<script type="text/javascript">
+
+    $(".add-new-product").click(function(){
+        event.preventDefault();
+        var order = $(this).data('order');
+        $(".order-cls-"+order).toggleClass("d-none");
+    });
+
+    $('.save-new-product').on('click',function(){
+        event.preventDefault();
+        var order = $(this).data('order');
+        var price = $('input[name="price'+order+'"]').val();
+        var size  = $('input[name="size'+order+'"]').val();
+        var color = $('input[name="color'+order+'"]').val();
+        var sku   = $('input[name="sku'+order+'"]').val();
+        var qty   = $('input[name="qty'+order+'"]').val();
+      
+          if( price == '' || size == '' || color == '' || sku == '' || qty == '' || order == '' ){
+            alert('Please fill up details');
+            return false;
+          };
+
+    $.ajax({
+        headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        url: "/order/invoices/add-product",
+        type: "post",
+        data:{ sku:sku, price:price, size:size, color:color, qty:qty, order_id:order }
+
+        }).done(function(response) {
+          alert(response.message);
+        }).fail(function(errObj) {
+          console.log(errObj)
+        });
+    })
+</script>
