@@ -4915,7 +4915,7 @@ class ProductController extends Controller
         if (empty($perPageLimit)) {
             $perPageLimit = Setting::get('pagination');
         }
-        $suggestedProducts = \App\SuggestedProduct::join('suggested_product_lists','suggested_products.customer_id','suggested_product_lists.customer_id')->where('suggested_products.chat_message_id','!=',NULL);
+        $suggestedProducts = \App\SuggestedProduct::join('suggested_product_lists','suggested_products.customer_id','suggested_product_lists.customer_id')->where('suggested_product_lists.chat_message_id','!=',NULL);
         if($customerId) {
             $suggestedProducts = $suggestedProducts->where('suggested_products.customer_id',$customerId);
         }
