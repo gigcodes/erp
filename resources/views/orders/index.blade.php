@@ -260,7 +260,6 @@
                         @if ($order_product->product->hasMedia(config('constants.attach_image_tag')))	                       
                           <span class="td-mini-container">	                         
                             @if ($count == 0)	                          
-                              <!-- <a href="{{ route('products.show', $order_product->product->id) }}" target="_blank"><img src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1"></a> -->	                     
                               <?php foreach($order_product->product->getMedia(config('constants.attach_image_tag')) as $media) { ?> 
                                 <a data-fancybox="gallery" href="{{ $media->getUrl() }}">VIEW #{{$order_product->product->id}}</a>
                               <?php break; } ?>
@@ -273,7 +272,6 @@
                               <a data-fancybox="gallery" href="{{ $media->getUrl() }}">VIEW 
                                <?php break; } ?>
                               #{{$order_product->product->id}}</a>
-                             <!--  <a href="{{ route('products.show', $order_product->product->id) }}" target="_blank"><img src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1"></a> -->
                               @php $count++; @endphp	      
                             @endif	                     
                           </span>	                 
