@@ -608,6 +608,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     //view
     Route::get('order/view-invoice/{id}', 'OrderController@viewInvoice')->name('order.view.invoice');
+    Route::get('order/invoices/{id}/get-details', 'OrderController@getInvoiceDetails')->name('order.view.invoice.get.details');
+    Route::post('order/invoices/{id}/update-details', 'OrderController@updateDetails')->name('order.view.invoice.update.details');
+
    //TODO web - added by jammer
     Route::get('order/download-invoice/{id}', 'OrderController@downloadInvoice')->name('order.download.invoice');
     Route::post('order/update-customer-address', 'OrderController@updateCustomerInvoiceAddress')->name('order.update.customer.address');
@@ -1521,6 +1524,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/', 'ProductTemplatesController@index')->name('product.templates');
         Route::get('response', 'ProductTemplatesController@response');
         Route::post('create', 'ProductTemplatesController@create');
+        Route::post('reload-image', 'ProductTemplatesController@fetchImage');
         Route::get('destroy/{id}', 'ProductTemplatesController@destroy');
         Route::get('select-product-id', 'ProductTemplatesController@selectProductId');
         Route::get('image', 'ProductTemplatesController@imageIndex');
@@ -1883,6 +1887,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::post('statistics/reply/delete', 'ScrapStatisticsController@deleteReply');
     Route::get('statistics/server-history', 'ScrapStatisticsController@serverHistory');
     Route::get('statistics/server-history/close-job', 'ScrapStatisticsController@endJob')->name("statistics.server-history.close-job");
+    Route::get('quick-statistics', 'ScrapStatisticsController@quickView')->name("statistics.quick");
     Route::resource('statistics', 'ScrapStatisticsController');
     Route::get('getremark', 'ScrapStatisticsController@getRemark')->name('scrap.getremark');
     Route::get('latest-remark', 'ScrapStatisticsController@getLastRemark')->name('scrap.latest-remark');
@@ -2763,6 +2768,11 @@ Route::get('/store-website-analytics/edit/{id}', 'StoreWebsiteAnalyticsControlle
 Route::get('/store-website-analytics/delete/{id}', 'StoreWebsiteAnalyticsController@delete');
 Route::get('/store-website-analytics/report/{id}', 'StoreWebsiteAnalyticsController@report');
 Route::get('/analytis/cron/showData', 'AnalyticsController@cronShowData');
+
+Route::get('store-website-country-shipping', 'StoreWebsiteCountryShippingController@index')->name('store-website-country-shipping.index');
+Route::any('store-website-country-shipping/create', 'StoreWebsiteCountryShippingController@create')->name('store-website-country-shipping.create');
+Route::get('store-website-country-shipping/edit/{id}', 'StoreWebsiteCountryShippingController@edit')->name('store-website-country-shipping.edit');
+Route::get('store-website-country-shipping/delete/{id}', 'StoreWebsiteCountryShippingController@delete')->name('store-website-country-shipping.delete');
 
 Route::get('/attached-images-grid/customer/', 'ProductController@attachedImageGrid');
 Route::post('/attached-images-grid/add-products/{suggested_products_id}', 'ProductController@attachMoreProducts');//

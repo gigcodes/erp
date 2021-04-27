@@ -17,9 +17,11 @@ use Auth;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Helpers\hubstaffTrait;
 
 class HubstaffActivitiesController extends Controller
 {
+    use hubstaffTrait;
 
     /**
      * Display a listing of the resource.
@@ -1132,22 +1134,66 @@ class HubstaffActivitiesController extends Controller
         if (!$request->hub_staff_start_date || $request->hub_staff_start_date == '' || !$request->hub_staff_end_date || $request->hub_staff_end_date == '' ) {
             return response()->json(['message' => 'Select date'], 500);
         }
-        $starts_at = $request->hub_staff_start_date;
-        $ends_at = $request->hub_staff_end_date;
-        $member    = $hubstaff_user_id    = HubstaffMember::where('user_id', Auth::user()->id)->first();
+        
+        $starts_at  = $request->hub_staff_start_date;
+        $ends_at    = $request->hub_staff_end_date;
+        $userID     = $request->get("fetch_user_id",Auth::user()->id);
+        $member     = $hubstaff_user_id    = HubstaffMember::where('user_id', $userID)->first();
+
         if ($member) {
             $hubstaff_user_id = $member->hubstaff_user_id;
         } else {
             return response()->json(['message' => 'Hubstaff member not found'], 500);
         }
+        $timeReceived = 0;
         try {
-            $exitCode = Artisan::call('hubstaff:load_past_activities', [
-                'start' => $starts_at, 'end' => $ends_at, 'user_ids' => $hubstaff_user_id,
-            ]);
+            $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+
+            $now = time();
+
+            $startString = $starts_at;
+            $endString   = $ends_at;
+            $userIds     = $hubstaff_user_id;
+            $userIds     = explode(",", $userIds);
+            $userIds     = array_filter($userIds);
+
+            $start = strtotime($startString." 00:00:00" . ' UTC');
+            $now   = strtotime($endString." 23:59:59" . ' UTC');
+            
+           $diff = $now - $start;
+           $dayDiff = round($diff / 86400);
+           if($dayDiff > 7 ) {
+              return response()->json(['message' => 'Can not fetch activities more then week'], 500);  
+           }
+
+            $activities = $this->getActivitiesBetween(gmdate('c', $start), gmdate('c', $now), 0, [], $userIds);
+            if($activities == false) {
+               return response()->json(['message' => 'Can not fetch activities as no activities found'], 500);   
+            }
+            if(!empty($activities)) {
+                foreach ($activities as $id => $data) {
+                    HubstaffActivity::updateOrCreate(['id' => $id,],
+                        [
+                            'user_id'   => $data['user_id'],
+                            'task_id'   => is_null($data['task_id']) ? 0 : $data['task_id'],
+                            'starts_at' => $data['starts_at'],
+                            'tracked'   => $data['tracked'],
+                            'keyboard'  => $data['keyboard'],
+                            'mouse'     => $data['mouse'],
+                            'overall'   => $data['overall'],
+                        ]
+                    );
+                    $timeReceived += $data['tracked'];
+                }
+            }
+            
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+           return response()->json(['message' => $e->getMessage()], 500);
         }
-        return response()->json(['message' => 'Successful'], 200);
+
+        $timeReceived = number_format(($timeReceived / 60),2,'.','');
+
+        return response()->json(['message' => 'Fetched activities total time : '.$timeReceived], 200);
     }
 
     /*

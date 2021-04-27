@@ -1157,4 +1157,138 @@ class UserManagementController extends Controller
     }
 
 
+    public function getDatabase(Request $request,$id)
+    {
+        $database = \App\UserDatabase::where("user_id",$id)->first();
+        $tablesExisting = [];
+        if($database) {
+            $tablesExisting = \App\UserDatabaseTable::where("user_database_id",$database->id)->pluck('name','id')->toArray();
+        }
+
+        $user = \App\User::find($id);
+
+        $list = [];
+        $tables = \DB::select('SHOW TABLES');
+        foreach($tables as $table) {
+            foreach($table as $t) {
+                $list[] = ["table" => $t ,"checked" => in_array($t, $tablesExisting) ? true : false];
+            }
+        }
+        $data = [
+            "user_id" => $id,
+            "database" => $database,
+            "tables" => $list,
+            "user_name" => ($database) ? $database->username : preg_replace('/\s+/', '_', strtolower($user->name)),
+            "password" => ($database) ? $database->password : "",
+            "tablesExisting" => $tablesExisting
+        ];
+        return response()->json(['code' => 200 , 'data' => $data]);
+    }
+
+    public function createDatabaseUser(Request $request,$id)
+    {
+        $username = $request->get("username");
+        $password = $request->get("password");
+
+        if(empty($username)) {
+            return response()->json(["code" => 500, "message" => "Enter username"]);
+        }
+
+        if(empty($password) || strlen($password) <= 6) {
+            return response()->json(["code" => 500, "message" => "Please enter password and more then 6 length"]);
+        }
+
+        $user = \App\User::find($id);
+        if($user) {
+            $database = \App\UserDatabase::where("user_id",$user->id)->first();
+            if(!$database) {
+                $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f create  -u "'.$username.'" -p "'.$password.'" 2>&1';
+                $allOutput   = array();
+                $allOutput[] = $cmd;
+                $result      = exec($cmd, $allOutput);
+                \Log::info(print_r($result,true));
+                \App\UserDatabase::create([
+                    "username" => $username,
+                    "password" => $password,
+                    "database" => 'lu',
+                    "user_id"  => $id
+                ]);
+
+                return response()->json(["code" => 200, "message" => "User created successfully"]);
+            }
+
+            return response()->json(["code" => 500, "message" => "User already created"]);
+        }
+
+        return response()->json(["code" => 500, "message" => "User not found"]);
+    }
+
+    public function assignDatabaseTable(Request $request,$id)
+    {
+        $database = \App\UserDatabase::where("user_id",$id)->first();
+        $tables   = $request->tables;
+        $permissionType = $request->get("assign_permission","read");
+
+        if($database && !empty($tables)) {
+            
+            $tablesExisting = \App\UserDatabaseTable::where("user_database_id",$database->id)->pluck('name','id')->toArray();
+            if(!empty($tablesExisting)){
+                $deleteTables = [];
+                foreach($tablesExisting as $te) {
+                    if(!in_array($te, $tables)) {
+                        $deleteTables[] = $te;
+                    }
+                }
+                if(!empty($deleteTables)) {
+                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f revoke  -u "'.$database->username.'" -t '.implode(",",$deleteTables).' 2>&1';
+                    $allOutput   = array();
+                    $allOutput[] = $cmd;
+                    $result      = exec($cmd, $allOutput);
+                    \Log::info(print_r($result,true));
+                }
+            }
+
+            \App\UserDatabaseTable::where("user_database_id",$database->id)->delete();
+
+            foreach($tables as $t) {
+                \App\UserDatabaseTable::create([
+                    'user_database_id' => $database->id,
+                    'name' => $t,
+                ]);
+            }
+
+            
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f update  -u "'.$database->username.'" -t '.implode(",",$tables).' -m "'.$permissionType.'" 2>&1';
+            $allOutput   = array();
+            $allOutput[] = $cmd;
+            $result      = exec($cmd, $allOutput);
+            \Log::info(print_r($result,true));
+
+            return response()->json(["code" => 200, "message" => "Table assigned successfully"]);
+
+        }
+
+        return response()->json(["code" => 500, "message" => "Please create database user first"]);
+    }
+
+    public function deleteDatabaseAccess(Request $request, $id)
+    {
+        $database = \App\UserDatabase::where("user_id",$id)->first();
+        if($database) {
+
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f delete  -u "'.$database->username.'" 2>&1';
+            $allOutput   = array();
+            $allOutput[] = $cmd;
+            $result      = exec($cmd, $allOutput);
+            \Log::info(print_r($result,true));
+            foreach($database->userDatabaseTables as $dbtables) {
+                $dbtables->delete();
+            }
+            $database->delete();
+
+            return response()->json(["code" => 200, "message" => "Database access has been removed"]);
+        }
+
+        return response()->json(["code" => 500, "message" => "Sorry we couldn't found the access for the given user"]);
+    }
 }

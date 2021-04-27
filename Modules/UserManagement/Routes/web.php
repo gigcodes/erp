@@ -37,13 +37,14 @@ Route::prefix('user-management')->middleware('auth')->group(function() {
     Route::post('user-avaibility/{id}', 'UserManagementController@userAvaibilityUpdate')->name("user-management.update-user-avaibility");
     Route::post('approve-user/{id}', 'UserManagementController@approveUser')->name("user-management.approve-user");
     Route::post('/add-new-method', 'UserManagementController@addPaymentMethod')->name("user-management.add-payment-method");
-
     Route::get('/task/user/{id}', 'UserManagementController@userTasks')->name("user-management.tasks");
-
-
     Route::post('/reply/add', 'UserManagementController@addReply')->name('user-management.reply.add');
     Route::get('/reply/delete', 'UserManagementController@deleteReply')->name('user-management.reply.delete');
     Route::get('/records', 'UserManagementController@records')->name("user-management.records");
     Route::get('/user-details/{id}', 'UserManagementController@GetUserDetails')->name("user-management.user-details");
     Route::get('task-hours/{id}', 'UserManagementController@getPendingandAvalHour')->name("user-management.task-hours");
+    Route::get('{id}/get-database', 'UserManagementController@getDatabase')->name("user-management.get-database");
+    Route::post('{id}/create-database', 'UserManagementController@createDatabaseUser')->name("user-management.create-database");
+    Route::post('{id}/assign-database-table', 'UserManagementController@assignDatabaseTable')->name("user-management.assign-database-table");
+    Route::post('{id}/delete-database-access', 'UserManagementController@deleteDatabaseAccess')->name("user-management.delete-database-access");
 });

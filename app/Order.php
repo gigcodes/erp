@@ -261,6 +261,22 @@ class Order extends Model
         return $this->hasOne(\App\OrderStatus::class, 'id','order_status_id');
     }
 
+    public function orderCustomerAddress()
+    {
+        return $this->hasMany(\App\OrderCustomerAddress::class,'order_id','id');
+    }
+
+    public function shippingAddress()
+    {
+        return $this->orderCustomerAddress()->where("address_type","shipping")->first();
+    }
+
+
+    public function billingAddress()
+    {
+        return $this->orderCustomerAddress()->where("address_type","billing")->first();
+    }
+
 
     // public function calculateTotal($order)
     // {

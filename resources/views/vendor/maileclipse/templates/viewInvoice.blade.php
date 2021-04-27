@@ -99,42 +99,38 @@
 <td>Incoterms: DDP</td>
 </tr>
 <tr>
-<th>SHIP TOIGONSIGNEE</th>
+<th>SHIP TO CONSIGNEE</th>
 <th>&nbsp;</th>
 <th>SOLD TO PARTY</th>
 </tr>
 <tr>
-<td>Client name</td>
+<td>Client name : @if($shipping) {{ $shipping->firstname." ".$shipping->lastname }} @endif</td>
 <td style="width: 30%;" rowspan="8">&nbsp;</td>
-<td>Importer type Private Importer</td>
+<td>Client name : @if($billing) {{ $billing->firstname." ".$billing->lastname }} @endif</td>
 </tr>
 <tr>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 </tr>
 <tr>
-<td>Client name</td>
-<td>@if($buyerDetails) {{ $buyerDetails->name }} @endif</td>
+<td>Phone : @if($shipping) {{ $shipping->telephone }} @endif</td>
+<td>Phone : @if($billing) {{ $billing->telephone }} @endif</td>
 </tr>
 <tr>
-<td>Phone</td>
-<td>{{ $buyerDetails->phone}}</td>
+<td>Address : @if($shipping) {{ $shipping->street }} @endif</td>
+<td>Address : @if($billing) {{ $billing->street }} @endif</td>
 </tr>
 <tr>
-<td>Address</td>
-<td>{{$buyerDetails->address}}</td>
+<td>City : @if($shipping) {{ $shipping->city }} @endif</td>
+<td>City : @if($billing) {{ $billing->city }} @endif</td>
 </tr>
 <tr>
-<td>City</td>
-<td>{{$buyerDetails->city}}</td>
+<td>Pincode : @if($shipping) {{ $shipping->postcode }} @endif</td>
+<td>Pincode : @if($billing) {{ $billing->postcode }} @endif</td>
 </tr>
 <tr>
-<td>Pincode</td>
-<td>{{$buyerDetails->pincode}}</td>
-</tr>
-<tr>
-<td>Country</td>
-<td>{{$buyerDetails->country}}</td>
+<td>Country : @if($shipping) {{ $shipping->country_id }} @endif</td>
+<td>Country : @if($billing) {{ $billing->country_id }} @endif</td>
 </tr>
 </tbody>
 </table>
@@ -160,16 +156,16 @@
 <td colspan="2">&nbsp;</td>
 <td colspan="2">The total cost of foods (FOB) Shipping &amp; handling Insurance charges</td>
 <td style="text-align: right;">
-<p>USD 0.00</p>
-<p>USD 0.00</p>
-<p>USD {{$orderTotal}}</p>
+<p>INR 0.00</p>
+<p>INR 0.00</p>
+<p>INR {{$orderTotal}}</p>
 </td>
 </tr>
 <tr>
 <td colspan="2">&nbsp;</td>
 <td colspan="2">Total (CIF)</td>
 <td style="text-align: right;">
-<p>USD {{$orderTotal}}</p>
+<p>INR {{$orderTotal}}</p>
 </td>
 </tr>
 <tr>
@@ -180,7 +176,7 @@
 <tr>
 <td colspan="2">&nbsp;</td>
 <td colspan="2">Total Paid for the order</td>
-<td style="text-align: right;">USD {{$orderTotal}}</td>
+<td style="text-align: right;">INR {{$orderTotal}}</td>
 </tr>
 <tr>
 <td colspan="2">&nbsp;</td>
@@ -190,7 +186,7 @@
 <tr>
 <td colspan="2">VALUE FOR CUSTOMERS:</td>
 <td colspan="2">CIF</td>
-<td style="text-align: right;">USD {{$orderTotal}}</td>
+<td style="text-align: right;">INR {{$orderTotal}}</td>
 </tr>
 </tbody>
 </table>

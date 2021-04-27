@@ -119,7 +119,7 @@ class UpdateInventory extends Command
 
                         if (is_null($records["last_inventory_at"]) || strtotime($records["last_inventory_at"]) < strtotime('-' . $inventoryLifeTime . ' days')) {
                             if ($records["isUploaded"] == 1) {
-                                $needToCheck[] = ["id" => $product->id, "sku" => $sku . $product->color];
+                                $needToCheck[] = ["id" => $records["product_id"], "sku" => $records['sku'] . $records['color']];
                             }
                             continue;
                         }

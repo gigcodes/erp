@@ -4,7 +4,9 @@
             $count   = 0;
             
         @endphp
-        @foreach($store->scrapperImage->toArray() as $image)
+        @foreach($store->storeView as $image)
+        
+                @foreach($image->scrapperImage->toArray() as $image)
                 <?php
                     if ( date( 'Y-m-d' ,strtotime($image['created_at'])) !== $oldDate ) { 
                         $count = 0;
@@ -51,6 +53,7 @@
                     @endphp
                 @endif
             @php $count++;  @endphp
+        @endforeach
         @endforeach
         <br>
 </div>

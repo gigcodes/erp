@@ -370,16 +370,10 @@ class ProductCropperController extends Controller
      *   path="/crop/amends",
      *   tags={"Crop"},
      *   summary="Get Crop amends",
-     *   operationId="get-crop-amends",
+     *   operationId="crop-get-crop-amends",
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
-     *      @SWG\Parameter(
-     *          name="mytest",
-     *          in="path",
-     *          required=true, 
-     *          type="string" 
-     *      ),
      * )
      *
      */
@@ -396,15 +390,33 @@ class ProductCropperController extends Controller
      *   path="/crop/amends",
      *   tags={"Crop"},
      *   summary="Save Crop amends",
-     *   operationId="save-crop-amends",
+     *   operationId="crop-save-crop-amends",
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
      *      @SWG\Parameter(
-     *          name="mytest",
-     *          in="path",
+     *          name="file",
+     *          in="formData",
+     *          required=true, 
+     *          type="file" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="product_id",
+     *          in="formData",
      *          required=true, 
      *          type="string" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="media_id",
+     *          in="formData",
+     *          required=true, 
+     *          type="integer" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="amend_id",
+     *          in="formData",
+     *          required=true, 
+     *          type="integer" 
      *      ),
      * )
      *

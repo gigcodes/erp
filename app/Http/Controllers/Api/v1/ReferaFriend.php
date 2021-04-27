@@ -185,7 +185,13 @@ class ReferaFriend extends Controller
                 $mailData['referrer_email'] = $data['referrer_email'];
                 $mailData['referlink'] =  $referlink;
                 $mailData['referee_coupon'] =  $referee_coupon;
+                $mailData['referee_coupon'] =  $referee_coupon;
+                $mailData['model_type'] =  Coupon::class;
+                $mailData['model_id']   =  $referreSuccess->id;
+
                 $this->sendMail($mailData);
+
+
                 $message = $this->generate_erp_response("refera.friend.success", 0, $default = 'refferal created successfully', request('lang_code'));
                 return response()->json([
                     'status' => 'success',
@@ -267,14 +273,27 @@ class ReferaFriend extends Controller
     }
     public function sendMail($data=null)
     {
-        try{
-            if($data){
-                $to = $data['referee_email'];
-                Mail::to($to)->send(new SendReferralMail($data));    
-            }
-        }catch(\Exception $e){
-            \Log::error($e);
+        if($data){
+            $to = $data['referee_email'];
+
+            $emailClass = (new SendReferralMail($data))->build();
+            $email             = \App\Email::create([
+                'model_id'         => $data['model_id'],
+                'model_type'       => $data['model_type'],
+                'from'             => 'customercare@sololuxury.co.in',
+                'to'               => $to,
+                'subject'          => $emailClass->subject,
+                'message'          => $emailClass->render(),
+                'template'         => 'referr-coupon',
+                'additional_data'  => '',
+                'status'           => 'pre-send',
+                'store_website_id' => null,
+                'is_draft'         => 1
+            ]);
+
+            \App\Jobs\SendEmail::dispatch($email);
         }
+
         return true;
     }
 }

@@ -6,7 +6,6 @@ namespace App;
  */
 use Illuminate\Database\Eloquent\Model;
 
-
 class Website extends Model
 {
           /**
@@ -30,6 +29,11 @@ class Website extends Model
     public function stores()
     {
         return $this->hasMany(\App\WebsiteStore::class, 'website_id', 'id');
+    }
+
+    public function storesViews()
+    {
+        return $this->hasMany(\App\WebsiteStoreView::class, 'id', 'store_website_id');
     }
 
     public function storeWebsite()

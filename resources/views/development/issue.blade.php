@@ -1063,6 +1063,10 @@
                     }else{
                         toastr["error"](response.error, "Message");
                     }
+                },
+                error: function (error) {
+                    toastr["error"]('Unauthorized permission development-get-document', "Message")
+                    
                 }
             });
         });

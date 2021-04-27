@@ -2822,16 +2822,22 @@ class ProductController extends Controller
     /**
      * @SWG\Get(
      *   path="/crop",
-     *   tags={"Product"},
-     *   summary="Get Products Image",
-     *   operationId="get-product-img",
+     *   tags={"Scraper"},
+     *   summary="Return images array where the product status = auto crop",
+     *   operationId="scraper-get-product-img",
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
      *      @SWG\Parameter(
-     *          name="mytest",
+     *          name="product_id",
      *          in="path",
-     *          required=true, 
+     *          required=false, 
+     *          type="string" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="supplier_id",
+     *          in="path",
+     *          required=false, 
      *          type="string" 
      *      ),
      * )
@@ -3029,15 +3035,45 @@ class ProductController extends Controller
     /**
      * @SWG\Post(
      *   path="/link/image-crop",
-     *   tags={"Product"},
-     *   summary="Save Product image",
-     *   operationId="save-product-img",
+     *   tags={"Crop"},
+     *   summary="Save cropped image for product",
+     *   operationId="crop-save-product-img",
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
      *      @SWG\Parameter(
-     *          name="mytest",
+     *          name="product_id",
      *          in="path",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="file",
+     *          in="formData",
+     *          required=true, 
+     *          type="file" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="color",
+     *          in="formData",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="media_id",
+     *          in="formData",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="filename",
+     *          in="formData",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="time",
+     *          in="formData",
      *          required=true, 
      *          type="string" 
      *      ),
@@ -4879,7 +4915,7 @@ class ProductController extends Controller
         if (empty($perPageLimit)) {
             $perPageLimit = Setting::get('pagination');
         }
-        $suggestedProducts = \App\SuggestedProduct::join('suggested_product_lists','suggested_products.customer_id','suggested_product_lists.customer_id')->where('suggested_products.chat_message_id','!=',NULL);
+        $suggestedProducts = \App\SuggestedProduct::join('suggested_product_lists','suggested_products.customer_id','suggested_product_lists.customer_id')->where('suggested_product_lists.chat_message_id','!=',NULL);
         if($customerId) {
             $suggestedProducts = $suggestedProducts->where('suggested_products.customer_id',$customerId);
         }

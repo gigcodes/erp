@@ -1056,6 +1056,8 @@ class WhatsAppController extends FindByNumberController
                 $chatapiMessage['fromMe'] = true;
             }
 
+            $parentMessage = null;
+
             try {
                 // check if quotedMsgId is available, if available then we will search for parent message
                 if (isset($chatapiMessage['quotedMsgId'])) {
@@ -1516,7 +1518,7 @@ class WhatsAppController extends FindByNumberController
                 $to = $config[0]['number'];
             }
             if ($customer) {
-                \App\Helpers\MessageHelper::whatsAppSend( $customer, $customer['message'], true , $message);
+                \App\Helpers\MessageHelper::whatsAppSend( $customer, $params['message'], true , $message , false, $parentMessage);
             }
             // Is this message from a customer?
             if ($customer && $isCustomerNumber) {
@@ -1614,7 +1616,8 @@ class WhatsAppController extends FindByNumberController
                 // Auto Instruction
                 if ($params['customer_id'] != '1000' && $params['customer_id'] != '976') {
                     if ($customer = Customer::find($params['customer_id'])) {
-                        \App\Helpers\MessageHelper::sendwatson( $customer, $params['message'], true, $message , $params);
+                        \Log::info("#1 Price for customer send function started");
+                        \App\Helpers\MessageHelper::sendwatson( $customer, $params['message'], true, $message , $params, false, 'customer');
                     }
                 }
                 //Auto reply
@@ -3668,23 +3671,21 @@ class WhatsAppController extends FindByNumberController
                         $message_body = str_replace( array("{{customer_name}}","{{content}}"),array( $customer->name,  $message_body ),$template->static_template );
                     }
 
-                    $email_params = [
-                        'model_id'        => null,
-                        'model_type'      => null,
-                        'origin_id'       => null,
-                        'reference_id'    => null,
-                        'type'            => 'outgoing',
-                        'seen'            => 0,
-                        'from'            => $from_address ?? '',
-                        'to'              => $customer->email,
-                        'subject'         => $subject,
-                        'message'         => $message_body,
-                        'template'        => 'customer-simple',
-                        'additional_data' => null,
-                        'is_draft'        => 1,
-                        'created_at'      => Carbon::now(),
-                    ];
-                    Email::create($email_params);
+                    $email             = \App\Email::create([
+                        'model_id'         => $customer->id,
+                        'model_type'       => \App\Customer::class,
+                        'from'             => $from_address ?? '',
+                        'to'               => $customer->email,
+                        'subject'          => $subject,
+                        'message'          => $message_body,
+                        'template'         => 'customer-simple',
+                        'additional_data'  => $customer->id,
+                        'status'           => 'pre-send',
+                        'store_website_id' => null,
+                        'is_draft' => 1,
+                    ]);
+
+                    \App\Jobs\SendEmail::dispatch($email);
                     
                     $message->update([
                         'approved' => 1,

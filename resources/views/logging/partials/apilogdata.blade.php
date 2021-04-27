@@ -28,6 +28,7 @@
                         </span>
                     </td>
                     <td>{{ $log->status_code }}</td>
+                    <td>{{ $log->time_taken }} s</td>
                     
                     <td>{{ \Carbon\Carbon::parse($log->created_at)->format('d-m-y H:i:s')  }}</td>
 

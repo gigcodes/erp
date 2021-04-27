@@ -44,6 +44,7 @@
                 <th width="25%">URL</th>
                 <th width="20%">Request</th>
                 <th width="5%">Status Code</th>
+                <th width="5%">Time Taken</th>
               
                 <th width="10%">Created At</th>
                 <th width="10%">Action</th>
@@ -61,7 +62,7 @@
                 <th></th>
                <!--  <th width="10%"><input type="text" class="search form-control" id="controllerName"></th> -->
                 <th width="10%"><input type="text" name="status" class="search form-control tbInput" id="action"></th>
-
+                <th></th>
 
 
                 <th> <div class='input-group' id='log-created-date'>

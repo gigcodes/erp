@@ -118,12 +118,14 @@ class UserController extends Controller
 		$userRate = new UserRate();
 		
 		//get default whatsapp number for vendor from whatsapp config
-		$task_info = DB::table('whatsapp_configs')
-					->select('*')
-					->whereRaw("find_in_set(".self::DEFAULT_FOR.",default_for)")
-					->first();
 	
-		$input["whatsapp_number"] = $task_info->number;
+		if(empty($input["whatsapp_number"])) {
+			$task_info = DB::table('whatsapp_configs')
+						->select('*')
+						->whereRaw("find_in_set(".self::DEFAULT_FOR.",default_for)")
+						->first();
+			$input["whatsapp_number"] = $task_info->number;
+		}
 		
 		
 		$userRate->start_date = Carbon::now();

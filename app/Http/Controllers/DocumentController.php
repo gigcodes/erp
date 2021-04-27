@@ -207,7 +207,6 @@ class DocumentController extends Controller
 
     public function sendEmailBulk(Request $request)
     {
-
         $this->validate($request, [
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
@@ -246,14 +245,14 @@ class DocumentController extends Controller
             foreach ($request->users as $key) {
                 $user = User::findOrFail($key);
 
-                $mail = Mail::to($user->email);
+                /*$mail = Mail::to($user->email);
 
                 if ($cc) {
                     $mail->cc($cc);
                 }
                 if ($bcc) {
                     $mail->bcc($bcc);
-                }
+                }*/
 
                 //History
                 $history[ 'send_by' ] = Auth::id();
@@ -263,7 +262,27 @@ class DocumentController extends Controller
                 $history[ 'document_id' ] = $document->id;
                 DocumentSendHistory::create($history);
 
-                $mail->send(new DocumentEmail($request->subject, $request->message, $file_paths));
+
+                $emailClass = (new DocumentEmail($request->subject, $request->message, $file_paths))->build();
+
+                $email = \App\Email::create([
+                    'model_id'        => $user->id,
+                    'model_type'      => \App\User::class,
+                    'from'            => $emailClass->fromMailer,
+                    'to'              => $user->email,
+                    'subject'         => $emailClass->subject,
+                    'message'         => $emailClass->render(),
+                    'template'        => 'customer-simple',
+                    'additional_data' => json_encode(['attachment' => $file_paths]),
+                    'status'          => 'pre-send',
+                    'is_draft'        => 1,
+                    'cc' => $cc ? : null,
+                    'bcc' => $bcc ? : null,
+                ]);
+
+                \App\Jobs\SendEmail::dispatch($email);
+
+                /*$mail->send(new DocumentEmail($request->subject, $request->message, $file_paths));
 
                 $params = [
                     'model_id' => $user->id,
@@ -279,20 +298,11 @@ class DocumentController extends Controller
                     'bcc' => $bcc ? : null,
                 ];
 
-                Email::create($params);
+                Email::create($params);*/
             }
         } elseif ($request->user_type == 2) {
             foreach ($request->users as $key) {
                 $vendor = Vendor::findOrFail($key);
-
-                $mail = Mail::to($vendor->email);
-
-                if ($cc) {
-                    $mail->cc($cc);
-                }
-                if ($bcc) {
-                    $mail->bcc($bcc);
-                }
 
                 //History
                 $history[ 'send_by' ] = Auth::id();
@@ -302,37 +312,29 @@ class DocumentController extends Controller
                 $history[ 'document_id' ] = $document->id;
                 DocumentSendHistory::create($history);
 
-                $mail->send(new DocumentEmail($request->subject, $request->message, $file_paths));
+                $emailClass = (new DocumentEmail($request->subject, $request->message, $file_paths))->build();
 
-                $params = [
-                    'model_id' => $vendor->id,
-                    'model_type' => Vendor::class,
-                    'from' => 'documents@amourint.com',
-                    'seen' => 1,
-                    'to' => $vendor->email,
-                    'subject' => $request->subject,
-                    'message' => $request->message,
-                    'template' => 'customer-simple',
+                $email = \App\Email::create([
+                    'model_id'        => $vendor->id,
+                    'model_type'      => \App\Vendor::class,
+                    'from'            => $emailClass->fromMailer,
+                    'to'              => $vendor->email,
+                    'subject'         => $emailClass->subject,
+                    'message'         => $emailClass->render(),
+                    'template'        => 'customer-simple',
                     'additional_data' => json_encode(['attachment' => $file_paths]),
-                    'cc' => $cc ? : null,
-                    'bcc' => $bcc ? : null,
-                ];
+                    'status'          => 'pre-send',
+                    'is_draft'        => 1,
+                    'cc'              => $cc ? : null,
+                    'bcc'             => $bcc ? : null,
+                ]);
 
-                Email::create($params);
+                \App\Jobs\SendEmail::dispatch($email);
             }
 
         } elseif ($request->user_type == 3) {
             foreach ($request->users as $key) {
                 $contact = Contact::findOrFail($key);
-
-                $mail = Mail::to($contact->email);
-
-                if ($cc) {
-                    $mail->cc($cc);
-                }
-                if ($bcc) {
-                    $mail->bcc($bcc);
-                }
 
                 //History
                 $history[ 'send_by' ] = Auth::id();
@@ -342,23 +344,25 @@ class DocumentController extends Controller
                 $history[ 'document_id' ] = $document->id;
                 DocumentSendHistory::create($history);
 
-                $mail->send(new DocumentEmail($request->subject, $request->message, $file_paths));
+                $emailClass = (new DocumentEmail($request->subject, $request->message, $file_paths))->build();
 
-                $params = [
-                    'model_id' => $contact->id,
-                    'model_type' => Contact::class,
-                    'from' => 'documents@amourint.com',
-                    'seen' => 1,
-                    'to' => $contact->email,
-                    'subject' => $request->subject,
-                    'message' => $request->message,
-                    'template' => 'customer-simple',
+                $email = \App\Email::create([
+                    'model_id'        => $contact->id,
+                    'model_type'      => \App\Contact::class,
+                    'from'            => $emailClass->fromMailer,
+                    'to'              => $contact->email,
+                    'subject'         => $emailClass->subject,
+                    'message'         => $emailClass->render(),
+                    'template'        => 'customer-simple',
                     'additional_data' => json_encode(['attachment' => $file_paths]),
-                    'cc' => $cc ? : null,
-                    'bcc' => $bcc ? : null,
-                ];
+                    'status'          => 'pre-send',
+                    'is_draft'        => 1,
+                    'cc'              => $cc ? : null,
+                    'bcc'             => $bcc ? : null,
+                ]);
 
-                Email::create($params);
+                \App\Jobs\SendEmail::dispatch($email);
+                
             }
         } elseif (isset($request->emailcontact) && $request->emailcontact != null){
             foreach ($request->emailcontact as $contacts) {
