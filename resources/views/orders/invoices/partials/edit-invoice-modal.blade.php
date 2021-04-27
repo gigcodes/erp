@@ -72,7 +72,8 @@
                       <div class="col">
                           <div class="form-group">
                               <strong>SKU&nbsp;:&nbsp;</strong>
-                              <input name="sku{{$order->id}}" class="form-control" value="" />
+                              <input name="sku{{$order->id}}" class="form-control" value="" /><br>
+                              <button class="btn btn-secondary btn-xs search-product" data-order="{{$order->id}}" type="button"> Search SKU </button>
                           </div>
                       </div>
                       <div class="col">
@@ -119,6 +120,40 @@
         $(".order-cls-"+order).toggleClass("d-none");
     });
 
+    $('.search-product').on('click',function(){
+        event.preventDefault();
+        var order = $(this).data('order');
+        var sku   = $('input[name="sku'+order+'"]').val();
+      
+          if( sku == ''){
+            alert('Please fill up SKU field');
+            return false;
+          };
+
+    $.ajax({
+        headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        url: "/order/invoices/search-product",
+        type: "post",
+        data:{ sku:sku }
+
+        }).done(function(response) {
+            console.log( response );
+            if( response.code == 200 ){
+                console.log(response.data.sku);
+                $('input[name="sku'+order+'"]').val( response.data.sku );
+                $('input[name="price'+order+'"]').val( response.data.price );
+                $('input[name="size'+order+'"]').val( response.data.size );
+                $('input[name="color'+order+'"]').val( response.data.color );
+            }else{
+                toastr['error']('Product not found');
+            }
+        }).fail(function(errObj) {
+          toastr['error']('Something went wrong');
+        });
+    });
+
     $('.save-new-product').on('click',function(){
         event.preventDefault();
         var order = $(this).data('order');
@@ -146,5 +181,5 @@
         }).fail(function(errObj) {
           console.log(errObj)
         });
-    })
+    });
 </script>

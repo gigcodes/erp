@@ -629,6 +629,15 @@ class OrderController extends Controller
     }
 
 
+    public function searchProduct(Request $request)
+    {
+        $exist =  Product::where('sku',request('sku'))->first();
+        if( !empty($exist) ){
+            return response()->json(["code" => 200, "data" => $exist, "message" => 'Product added successfully']); 
+        }
+        return response()->json(["code" => 500, "message" => 'Product not found']); 
+    }
+
     public function createProduct(Request $request)
     {   
         // $this->validate($request,[
