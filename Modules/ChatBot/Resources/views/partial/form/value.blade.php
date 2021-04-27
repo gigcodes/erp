@@ -1,44 +1,66 @@
-<div class="form-group">
-    <label for="value">Type</label>
-    <select name="keyword_or_question" id="" class="form-control view_details_div">
-        <option value="intent">Intent</option>
-        <option value="entity">Entity</option>
-        <option value="simple">Simple Text</option>
-        <option value="priority-customer">Priority Customer</option>
-    </select>
-</div>
-<div class="form-group">
-    <label for="value">Intent / Entity / ERP Entity</label>
-    <?php echo Form::text("value", isset($value) ?: "", ["class" => "form-control", "placeholder" => "Enter your value"]); ?>
-</div>
-<div class="form-group">
-    <label for="value">Category</label>
-    <select name="category_id" id="" class="form-control">
-        <option value="">Select</option>
-        @foreach($allCategoryList as $cat)
-            <option value="{{$cat['id']}}">{{$cat['text']}}</option>
-        @endforeach
-    </select>
-</div>
-
-<div id="intent_details">
-    <div class="form-group">
-        <label for="question">User Intent</label>
-        <div class="row align-items-end" id="intentValue_1">
-            <div class="col-md-9">
-                <?php echo Form::text("question[]", null, ["class" => "form-control", "placeholder" => "Enter User Intent"]); ?>
-            </div>
-            <div class="col-md-2" id="add-intent-value-btn">
-                <!-- <a href="javascript:;" class="btn btn-secondary btn-sm add-more-intent-condition-btn">
-                    -
-                </a>	 -->
-            </div>
+<div class="row">
+    <div class="col">
+        <div class="form-group">
+            <label for="value">Type</label>
+            <select name="keyword_or_question" id="" class="form-control view_details_div">
+                <option value="intent">Intent</option>
+                <option value="entity">Entity</option>
+                <option value="simple">Simple Text</option>
+                <option value="priority-customer">Priority Customer</option>
+            </select>
         </div>
     </div>
-    <div class="form-group" id="add-intent-value-btn">
-        <a href="javascript:;" class="btn btn-secondary btn-sm add-more-intent-condition-btn">
-            <span class="glyphicon glyphicon-plus"></span>
-        </a>
+    <div class="col">
+        <div class="form-group">
+            <label for="value">Intent / Entity / ERP Entity</label>
+            <?php echo Form::text("value", isset($value) ?: "", ["class" => "form-control", "placeholder" => "Enter your value"]); ?>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <div class="form-group">
+            <label for="value">Category</label>
+            <select name="category_id" id="" class="form-control">
+                <option value="">Select</option>
+                @foreach($allCategoryList as $cat)
+                    <option value="{{$cat['id']}}">{{$cat['text']}}</option>
+                @endforeach
+            </select>
+        </div>
+    </div>
+    <div class="col">
+        <div class="form-group">
+            <label for="value">Auto Approve</label>
+            <select name="auto_approve" id="" class="form-control">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <div id="intent_details">
+            <div class="form-group">
+                <label for="question">User Intent</label>
+                <div class="row align-items-end" id="intentValue_1">
+                    <div class="col-md-9">
+                        <?php echo Form::text("question[]", null, ["class" => "form-control", "placeholder" => "Enter User Intent"]); ?>
+                    </div>
+                    <div class="col-md-2" id="add-intent-value-btn">
+                        <!-- <a href="javascript:;" class="btn btn-secondary btn-sm add-more-intent-condition-btn">
+                            -
+                        </a>     -->
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="form-group" id="add-intent-value-btn">
+                <a href="javascript:;" class="btn btn-secondary btn-sm add-more-intent-condition-btn">
+                    <span class="glyphicon glyphicon-plus"></span>
+                </a>
+            </div> -->
+        </div>
     </div>
 </div>
 <div id="entity_details">
@@ -112,28 +134,29 @@
     <textarea name="suggested_reply" class="form-control" rows="8" cols="80"
               required>{{ old('suggested_reply') }}</textarea>
 </div>
-<div class="form-group">
-    <label for="value">Push to</label>
-    <select name="erp_or_watson" id="" class="form-control">
-        <option value="watson">Watson</option>
-        <option value="erp">ERP</option>
-    </select>
-</div>
-<div class="form-group">
-    <label for="value">Select watson account</label>
-    <select name="watson_account" class="form-control" required>
-        <option value="0">All account </option>
-        @if(!empty($watson_accounts))
-            @foreach($watson_accounts as $acc)
-                <option value="{{$acc->id}}" > {{$acc->id}} - {{$acc->storeWebsite->title}}</option>
-            @endforeach
-        @endif
-    </select>
-</div>
-<div class="form-group">
-    <label for="value">Auto Approve</label>
-    <select name="auto_approve" id="" class="form-control">
-        <option value="0">No</option>
-        <option value="1">Yes</option>
-    </select>
-</div>
+<div class="row">
+    <div class="col">
+        <div class="form-group">
+            <label for="value">Push to</label>
+            <select name="erp_or_watson" id="" class="form-control">
+                <option value="watson">Watson</option>
+                <option value="erp">ERP</option>
+            </select>
+        </div>
+    </div>
+    <div class="col">
+        <div class="form-group">
+            <label for="value">Select watson account</label>
+            <select name="watson_account" class="form-control" required>
+                <option value="0">All account </option>
+                @if(!empty($watson_accounts))
+                    @foreach($watson_accounts as $acc)
+                        <option value="{{$acc->id}}" > {{$acc->id}} - {{$acc->storeWebsite->title}}</option>
+                    @endforeach
+                @endif
+            </select>
+        </div>
+    </div>
+ </div>   
+
+
