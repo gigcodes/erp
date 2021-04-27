@@ -49,7 +49,7 @@ class MagentoOrderHandleHelper extends Model
                     \Log::info($checkIfOrderExist . " Order not exist");
                     //Checkoing in Website Order Table
                     if ($checkIfOrderExist) {
-                        //continue;
+                        continue;
                     }
 
                     $balance_amount = 0;
