@@ -151,7 +151,7 @@
                                                     <td width="16%">
                                                         @if ( $taskName )
                                                             @if (is_numeric($estimation) && $trackedTime && $taskName)
-                                                                {{ $estimation - $trackedTime}}<br>
+                                                                {{ $estimation - number_format($trackedTime / 60,2,".",",") }}<br>
                                                             @else
                                                                 N/A
                                                             @endif
