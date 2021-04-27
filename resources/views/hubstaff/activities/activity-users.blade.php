@@ -124,7 +124,9 @@
                                         <?php foreach($user['tasks'] as $ut) { ?>
                                             <?php 
                                                 @list($taskid,$devtask,$taskName,$estimation,$status) = explode("||",$ut);
-                                                $trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $taskid)->first()->tracked;
+
+                                                $trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $taskid)->sum('tracked');
+
                                             ?>
                                             @if ( $taskid )
                                                 
@@ -138,7 +140,7 @@
                                                     </td>
                                                     <td width="16%">
                                                         @if ($taskName)
-                                                            {{ (isset($trackedTime) && $devtask ) ? $trackedTime : 'N/A' }}<br>
+                                                            {{ (isset($trackedTime) && $devtask ) ? number_format($trackedTime / 60,2,".",",") : 'N/A' }}<br>
                                                         @endif
                                                     </td>
                                                     <td width="16%">

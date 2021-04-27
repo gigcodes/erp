@@ -456,7 +456,6 @@ class HubstaffActivitiesController extends Controller
 
         //dd($activityUsers);
         $status = $request->status;
-
         return view("hubstaff.activities.activity-users", compact('title', 'status', 'activityUsers', 'start_date', 'end_date', 'users', 'user_id', 'task_id'));
     }
 
