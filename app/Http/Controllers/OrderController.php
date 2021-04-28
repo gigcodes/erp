@@ -312,6 +312,21 @@ class OrderController extends Controller
         return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault'));
     }
 
+    public function addProduct(Request $request)
+    {   
+        $this->createProduct($request);
+        $productArr = array(
+            'sku' => request('sku'),
+            'product_price' => request('price'),
+            'color' => request('color'),
+            'order_id' => request('order_id'),
+            'qty' => request('qty'),
+            'size' => request('size'),
+        );
+        OrderProduct::insert( $productArr );
+        return response()->json(["code" => 200, "message" => 'Product added successfully']); 
+    }
+
     public function products(Request $request)
     {
         $term = $request->input('term');
@@ -613,6 +628,37 @@ class OrderController extends Controller
         return view('orders.form', $data);
     }
 
+
+    public function searchProduct(Request $request)
+    {
+        $exist =  Product::where('sku',request('sku'))->first();
+        if( !empty($exist) ){
+            return response()->json(["code" => 200, "data" => $exist, "message" => 'Product added successfully']); 
+        }
+        return response()->json(["code" => 500, "message" => 'Product not found']); 
+    }
+
+    public function createProduct(Request $request)
+    {   
+        // $this->validate($request,[
+        //     'sku'    => 'required|unique:products',
+        // ]);
+
+        $productArr = array(
+            'sku' => request('sku'),
+            'price' => request('price'),
+            'size' => request('size'),
+            'name' => request('name'),
+            'stock' => 1,
+            'quick_product' => 1,
+        );
+        $exist =  Product::where('sku',request('sku'))->first();
+        if( empty($exist) ){
+            Product::insert( $productArr );
+            return response()->json(["code" => 200, "message" => 'Product added successfully']); 
+        }
+        return response()->json(["code" => 500, "message" => 'Product already exist']); 
+    }
 /**
  * Store a newly created resource in storage.
  *
@@ -622,7 +668,6 @@ class OrderController extends Controller
  */
     public function store(Request $request)
     {
-
         $this->validate($request, [
             'customer_id'    => 'required',
             'advance_detail' => 'numeric|nullable',
@@ -2691,7 +2736,8 @@ class OrderController extends Controller
     }
 
     public function viewAllInvoices()
-    {
+    {   
+        // error_reporting(0);
         $invoices = Invoice::with('orders.order_product', 'orders.customer')->orderBy('id', 'desc')->paginate(30);
         //dd($invoices);
         return view('orders.invoices.index', compact('invoices'));

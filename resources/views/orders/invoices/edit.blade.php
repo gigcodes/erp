@@ -67,7 +67,7 @@
               </td>
               <td>
               <div class="form-group">
-              <input type="checkbox" name="order_ids[]" {{ $more_order->invoice_id ? 'checked' : '' }} class="form-control" value="{{ $more_order->id }}">
+              <input type="checkbox" name="order_ids[]" {{ $more_order->invoice_id ? 'checked' : '' }} class="" value="{{ $more_order->id }}">
                 </div>
               </td>
             </tr>
