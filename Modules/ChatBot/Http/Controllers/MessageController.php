@@ -22,7 +22,7 @@ class MessageController extends Controller
         $status = request("status");
 
         $pendingApprovalMsg = ChatMessage::leftjoin("customers as c", "c.id", "chat_messages.customer_id")
-            ->join("vendors as v", "v.id", "chat_messages.vendor_id")
+            ->leftJoin("vendors as v", "v.id", "chat_messages.vendor_id")
             ->leftJoin("store_websites as sw","sw.id","c.store_website_id")
             ->Join("chatbot_replies as cr", "cr.replied_chat_id", "chat_messages.id")
             ->leftJoin("chat_messages as cm1", "cm1.id", "cr.chat_id");

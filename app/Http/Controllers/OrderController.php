@@ -1043,6 +1043,7 @@ class OrderController extends Controller
         $data['delivery_approval'] = $order->delivery_approval;
         $data['waybill']           = $order->waybill;
         $data['waybills']          = $order->waybills;
+        $data['customerAddress']   = $order->orderCustomerAddress;
 
         return view('orders.show', $data);
     }

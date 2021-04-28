@@ -63,7 +63,7 @@ class StoreWebsiteCountryShippingController extends Controller
                 } else {
                     $countyCode     = SimplyDutyCountry::where('country_name',$request->country_name)->first();
                     $storeWebsites  = StoreWebsite::where('id',$request->store_website_id)->first();
-                    $url     = $storeWebsites->website.'/default/rest/all/V1/shippingcost/';
+                    $url     = $storeWebsites->magento_url.'/default/rest/all/V1/shippingcost/';
                     $api_key = $storeWebsites->api_token;
 
                     $headers = [
@@ -133,7 +133,7 @@ class StoreWebsiteCountryShippingController extends Controller
         $data = StoreWebsitesCountryShipping::whereId($id)->first();
         $storeWebsites = StoreWebsite::where('id',$data->store_website_id)->first();
 
-        $url     = $storeWebsites->website.'/default/rest/all/V1/shippingcost/delete';
+        $url     = $storeWebsites->magento_url.'/default/rest/all/V1/shippingcost/delete';
         $api_key = $storeWebsites->api_token;
 
         $pushMagentoArr = [ 'ship_id' => $data->ship_id ];
