@@ -6,6 +6,12 @@
         padding-left: 0px !important;
         padding-right: 0px !important;
     }
+    #chat-list-history tr {
+        word-break: break-word; 
+    }
+    .reviewed_msg {
+        word-break: break-word; 
+    }
 </style>
 @php
     $isAdmin = Auth::user()->hasRole('Admin');
