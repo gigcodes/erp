@@ -79,6 +79,24 @@
             </div>
         </div>
     </div>
+    <div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+                    <input type="hidden" id="chat_obj_type" name="chat_obj_type">
+                    <input type="hidden" id="chat_obj_id" name="chat_obj_id">
+                    <button type="submit" class="btn btn-default downloadChatMessages">Download</button>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
   50% 50% no-repeat;display:none;">
     </div>
@@ -253,17 +271,26 @@
         $(document).on('click', '.send-message1', function () {
             var thiss = $(this);
             var data = new FormData();
-            var customer_id = $(this).data('customer-id');
-
+            var type = "customer";
+            var field = "customer_id";
+            var tr  = $(this).closest("tr").find("td").first();
+            var typeId = tr.data('customer-id');
+            if(parseInt(tr.data("vendor-id")) > 0) {
+                type = "vendor";
+                typeId = tr.data("vendor-id");
+                field = tr.data("vendor_id");
+            }
+            console.log("Field is as per this",[type,typeId,field,tr]);
+            var customer_id = typeId;
             var message = thiss.closest(".cls_textarea_subbox").find("textarea").val();
-            data.append("customer_id", customer_id);
+            data.append(field, typeId);
             data.append("message", message);
             data.append("status", 1);
 
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({
-                        url: BASE_URL+'/whatsapp/sendMessage/customer',
+                        url: BASE_URL+'/whatsapp/sendMessage/'+type,
                         type: 'POST',
                         "dataType": 'json',           // what to expect back from the PHP script, if anything
                         "cache": false,
