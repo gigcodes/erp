@@ -1,6 +1,6 @@
 server=$1
-ssh-keygen -C erp@$server -f erpgenerated_pem -N ''
-pubkey=`cat erpgenerated_pem.pub`
+echo "y"|ssh-keygen -C erp@$server -f ~/erpgenerated_pem -N ''
+pubkey=`cat ~/erpgenerated_pem.pub`
 
 if [ "$server" == "Erp-Server" ]		### Check for Erp Server
 then
