@@ -6,11 +6,9 @@ use App\LaravelLog;
 use App\Setting;
 use App\User;
 use File;
-use Session;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Storage;
-
+use Session;
 
 class LaravelLogController extends Controller
 {
@@ -95,131 +93,121 @@ class LaravelLogController extends Controller
 
     public function liveLogs(Request $request)
     {
-        
+
         $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
         //$filename = '/laravel-2020-09-10.log';
-        $path     = storage_path('logs');
-        $fullPath = $path . $filename;
+        $path         = storage_path('logs');
+        $fullPath     = $path . $filename;
         $errSelection = [];
         try {
             $content = File::get($fullPath);
             preg_match_all("/\[(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\](.*)/", $content, $match);
-			$errorTypeArr = ['ERROR','INFO','WARNING'];
-			$errorTypeSeparated = implode('|', $errorTypeArr);
-			
+            $errorTypeArr       = ['ERROR', 'INFO', 'WARNING'];
+            $errorTypeSeparated = implode('|', $errorTypeArr);
 
-			$defaultSearchTerm = 'ERROR';
-			if($request->get('type'))
-			{
-				$defaultSearchTerm = $request->get('type');
-			}
+            $defaultSearchTerm = 'ERROR';
+            if ($request->get('type')) {
+                $defaultSearchTerm = $request->get('type');
+            }
 
             foreach ($match[0] as $value) {
-				foreach($errorTypeArr as $errType)
-				{
-					if(preg_match("/".$errType."/", $value))
-					{
-						$errSelection[] = $errType;
+                foreach ($errorTypeArr as $errType) {
+                    if (preg_match("/" . $errType . "/", $value)) {
+                        $errSelection[] = $errType;
 
-						break;
-					}
-				}
-                if($request->get('search') && $request->get('search') != '') {
-                    //if(preg_match("/".$request->get('search')."/", $value) && preg_match("/".$defaultSearchTerm."/", $value)) {
-                    if(strpos($value, $request->get('search')) !== false && preg_match("/".$defaultSearchTerm."/", $value)) {
-                        $str = $value;
-                        $temp1 = explode(".",$str);
-                        $temp2 = explode(" ",$temp1[0]);
-                        $type = $temp2[2];
-                        array_push($this->channel_filter,$type);
-                        
-                        $errors[] = $value."===".str_replace('/', '', $filename);
-                    }
-                } else {
-                    if(preg_match("/".$defaultSearchTerm."/", $value))
-                    {
-                        $str = $value;
-                        $temp1 = explode(".",$str);
-                        $temp2 = explode(" ",$temp1[0]);
-                        $type = $temp2[2];
-                        array_push($this->channel_filter,$type);
-                        
-                        $errors[] = $value."===".str_replace('/', '', $filename);
+                        break;
                     }
                 }
-				
+                if ($request->get('search') && $request->get('search') != '') {
+                    //if(preg_match("/".$request->get('search')."/", $value) && preg_match("/".$defaultSearchTerm."/", $value)) {
+                    if (strpos($value, $request->get('search')) !== false && preg_match("/" . $defaultSearchTerm . "/", $value)) {
+                        $str   = $value;
+                        $temp1 = explode(".", $str);
+                        $temp2 = explode(" ", $temp1[0]);
+                        $type  = $temp2[2];
+                        array_push($this->channel_filter, $type);
+
+                        $errors[] = $value . "===" . str_replace('/', '', $filename);
+                    }
+                } else {
+                    if (preg_match("/" . $defaultSearchTerm . "/", $value)) {
+                        $str   = $value;
+                        $temp1 = explode(".", $str);
+                        $temp2 = explode(" ", $temp1[0]);
+                        $type  = $temp2[2];
+                        array_push($this->channel_filter, $type);
+
+                        $errors[] = $value . "===" . str_replace('/', '', $filename);
+                    }
+                }
+
             }
             //if(isset($_GET['channel']) && $_GET['channel'] == "local"){
-                $errors = array_reverse($errors);
+            $errors = array_reverse($errors);
             //}
         } catch (\Exception $e) {
             $errors = [];
 
         }
-		
-        $other_channel_data = $this->getDirContents($path);
-        foreach($other_channel_data as $other){
-            array_push($errors,$other);
-        }
-		$allErrorTypes = array_values(array_unique($errSelection));
 
-		$users = User::all();
-		$currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $other_channel_data = $this->getDirContents($path);
+        foreach ($other_channel_data as $other) {
+            array_push($errors, $other);
+        }
+        $allErrorTypes = array_values(array_unique($errSelection));
+
+        $users       = User::all();
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
 
         $perPage = Setting::get('pagination');
 
-        
-        
-
-        $final = $key =  [];
-        if(isset($_GET['channel']) ){
+        $final = $key = [];
+        if (isset($_GET['channel'])) {
             session(['channel' => $_GET['channel']]);
         }
-        foreach($errors as $key => $error){
-            
-            
-            $str = $error;
-            $temp1 = explode(".",$str);
-            $temp2 = explode(" ",$temp1[0]);
-            $type = $temp2[2];
-            if(isset($_GET['channel']) && $_GET['channel'] == $type ){
+        foreach ($errors as $key => $error) {
+
+            $str   = $error;
+            $temp1 = explode(".", $str);
+            $temp2 = explode(" ", $temp1[0]);
+            $type  = $temp2[2];
+            if (isset($_GET['channel']) && $_GET['channel'] == $type) {
                 // echo "<pre>";
                 // print_r($key);
-                array_push($final,$error);
-               
+                array_push($final, $error);
+
             }
 
-            if(!isset($_GET['channel'])){
+            if (!isset($_GET['channel'])) {
 
                 // echo "<pre>";
                 // print_r($key);
-                array_push($final,$error);
+                array_push($final, $error);
             }
         }
-    //     dd($final);
-    //    exit;
+        //     dd($final);
+        //    exit;
 
-        $errors = [];
-        $errors = $final;
+        $errors       = [];
+        $errors       = $final;
         $currentItems = array_slice($errors, $perPage * ($currentPage - 1), $perPage);
         //dd($currentItems);
 
         $logs = new LengthAwarePaginator($currentItems, count($errors), $perPage, $currentPage, [
-            'path' => LengthAwarePaginator::resolveCurrentPath(),
+            'path'  => LengthAwarePaginator::resolveCurrentPath(),
             'query' => $request->query(),
         ]);
         //dd($errors);
-        
+
         //$this->channel_filter;
         $filter_channel = [];
-        foreach($this->channel_filter as $ch){
-            if(!in_array($ch,$filter_channel)){
-                array_push($filter_channel,$ch);
+        foreach ($this->channel_filter as $ch) {
+            if (!in_array($ch, $filter_channel)) {
+                array_push($filter_channel, $ch);
             }
         }
-        
-        
-        return view('logging.livelaravellog', ['logs' => $logs, 'filename' => str_replace('/', '', $filename), 'errSelection' => $allErrorTypes, 'users' => $users,'filter_channel' => $filter_channel]);
+
+        return view('logging.livelaravellog', ['logs' => $logs, 'filename' => str_replace('/', '', $filename), 'errSelection' => $allErrorTypes, 'users' => $users, 'filter_channel' => $filter_channel]);
 
     }
 
@@ -232,13 +220,13 @@ class LaravelLogController extends Controller
     public function scraperLiveLogs()
     {
         $filename = '/scraper-' . now()->format('Y-m-d') . '.log';
-        $path     = storage_path('logs').DIRECTORY_SEPARATOR."scraper";
+        $path     = storage_path('logs') . DIRECTORY_SEPARATOR . "scraper";
         $fullPath = $path . $filename;
         $errors   = self::getErrors($fullPath);
 
-        $currentPage    = LengthAwarePaginator::resolveCurrentPage();
-        $perPage        = Setting::get('pagination');
-        $currentItems   = array_slice($errors, $perPage * ($currentPage - 1), $perPage);
+        $currentPage  = LengthAwarePaginator::resolveCurrentPage();
+        $perPage      = Setting::get('pagination');
+        $currentItems = array_slice($errors, $perPage * ($currentPage - 1), $perPage);
 
         $logs = new LengthAwarePaginator($currentItems, count($errors), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath(),
@@ -248,31 +236,29 @@ class LaravelLogController extends Controller
 
     }
 
+    public function assign(Request $request)
+    {
+        if ($request->get('issue') && $request->get('assign_to')) {
+            $error       = html_entity_decode($request->get('issue'), ENT_QUOTES, 'UTF-8');
+            $issueName   = substr($error, 0, 150);
+            $requestData = new Request();
+            $requestData->setMethod('POST');
+            $requestData->request->add([
+                'priority'    => 1,
+                'issue'       => $error,
+                'status'      => 'Planned',
+                'module'      => 'Cron',
+                'subject'     => $issueName . "...",
+                'assigned_to' => $request->get('assign_to'),
+            ]);
 
-	public function assign(Request $request)
-	{
-		if($request->get('issue') && $request->get('assign_to'))
-		{
-			$error = html_entity_decode($request->get('issue'), ENT_QUOTES, 'UTF-8');
-			$issueName = substr($error, 0, 150);
-			$requestData = new Request();
-			$requestData->setMethod('POST');
-			$requestData->request->add([
-				'priority'    => 1,
-				'issue'       => $error,
-				'status'      => 'Planned',
-				'module'      => 'Cron',
-				'subject'     => $issueName."...",
-				'assigned_to' => $request->get('assign_to'),
-			]);
+            app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
 
-			app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
-
-			return redirect()->route('logging.live.logs');
-		}
+            return redirect()->route('logging.live.logs');
+        }
 
         return back()->with('error', '"issue" or "assign_to" not found in request.');
-	}
+    }
 
     public static function getErrors($fullPath)
     {
@@ -293,12 +279,13 @@ class LaravelLogController extends Controller
 
     }
 
-    public function liveLogDownloads() {
+    public function liveLogDownloads()
+    {
         $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
 
         $path     = storage_path('logs');
         $fullPath = $path . $filename;
-        return response()->download($fullPath,str_replace('/', '', $filename));
+        return response()->download($fullPath, str_replace('/', '', $filename));
     }
 
     public function liveMagentoDownloads()
@@ -307,177 +294,181 @@ class LaravelLogController extends Controller
 
         $path     = storage_path('logs');
         $fullPath = $path . $filename;
-        return response()->download($fullPath,str_replace('/', '', $filename));
+        return response()->download($fullPath, str_replace('/', '', $filename));
     }
-    
-    public function saveNewLogData(Request $request){
-        
-        $url = $request->url;
-        $message = $request->message;
-        $website = $request->website;
-        $module_name = $request->module_name;
+
+    public function saveNewLogData(Request $request)
+    {
+
+        $url             = $request->url;
+        $message         = $request->message;
+        $website         = $request->website;
+        $module_name     = $request->module_name;
         $controller_name = $request->controller_name;
-        $action = $request->action;
-    	
-        if($url==''){
-            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'URL is required', request('lang_code'));
+        $action          = $request->action;
+
+        if ($url == '') {
+            $message = $this->generate_erp_response("laravel.log.failed", 0, $default = 'URL is required', request('lang_code'));
             return response()->json(['status' => 'failed', 'message' => $message], 400);
         }
-        if($message==''){
-            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'Message is required', request('lang_code'));
+        if ($message == '') {
+            $message = $this->generate_erp_response("laravel.log.failed", 0, $default = 'Message is required', request('lang_code'));
             return response()->json(['status' => 'failed', 'message' => $message], 400);
         }
-        if($module_name==''){
-            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'Module name is required', request('lang_code'));
+        if ($module_name == '') {
+            $message = $this->generate_erp_response("laravel.log.failed", 0, $default = 'Module name is required', request('lang_code'));
             return response()->json(['status' => 'failed', 'message' => $message], 400);
         }
-        if($controller_name==''){
-            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'Controller name is required', request('lang_code'));
+        if ($controller_name == '') {
+            $message = $this->generate_erp_response("laravel.log.failed", 0, $default = 'Controller name is required', request('lang_code'));
             return response()->json(['status' => 'failed', 'message' => $message], 400);
         }
-        if($action==''){
-            $message = $this->generate_erp_response("laravel.log.failed",0, $default = 'action is required', request('lang_code'));
+        if ($action == '') {
+            $message = $this->generate_erp_response("laravel.log.failed", 0, $default = 'action is required', request('lang_code'));
             return response()->json(['status' => 'failed', 'message' => $message], 400);
         }
-        $laravelLog = new LaravelLog();
-        $laravelLog->filename=$url;
-        $laravelLog->log=$message;
-        $laravelLog->website=$website;
-        $laravelLog->module_name=$module_name;
-        $laravelLog->controller_name=$controller_name;
-        $laravelLog->action=$action;
+        $laravelLog                  = new LaravelLog();
+        $laravelLog->filename        = $url;
+        $laravelLog->log             = $message;
+        $laravelLog->website         = $website;
+        $laravelLog->module_name     = $module_name;
+        $laravelLog->controller_name = $controller_name;
+        $laravelLog->action          = $action;
         $laravelLog->save();
-        $message = $this->generate_erp_response("laravel.log.success",0, $default = 'Log data Saved', request('lang_code'));
-		return response()->json(['status' => 'success', 'message' => $message], 200);
+        $message = $this->generate_erp_response("laravel.log.success", 0, $default = 'Log data Saved', request('lang_code'));
+        return response()->json(['status' => 'success', 'message' => $message], 200);
     }
-    
-    public function getDirContents($dir, $results = array()) {
-        $directories = glob($dir . '/*' , GLOB_ONLYDIR);
+
+    public function getDirContents($dir, $results = array())
+    {
+        $directories   = glob($dir . '/*', GLOB_ONLYDIR);
         $allErrorTypes = [];
-        $final_result = [];
-        foreach($directories as $dir){
-            
+        $final_result  = [];
+        foreach ($directories as $dir) {
+
             if ($handle = opendir($dir)) {
 
                 while (false !== ($entry = readdir($handle))) {
                     if ($entry != "." && $entry != "..") {
-                        $current_date = explode('-',date('Y-m-d'));
-                        $temp = explode('-',$entry);
-                        $errors = [];
+                        $current_date = explode('-', date('Y-m-d'));
+                        $temp         = explode('-', $entry);
+                        $errors       = [];
                         $errSelection = [];
-                        if(!isset($temp[1]) || !isset($temp[2])) {
+                        if (!isset($temp[1]) || !isset($temp[2])) {
                             continue;
                         }
-                        if($current_date[0] == $temp[1] && $current_date[1] == $temp[2] && $current_date[2] == str_replace('.log','',$temp[3])){
-                            
-                            $fullPath = $dir."/".$entry;
-                            $content = File::get($fullPath);
+                        if ($current_date[0] == $temp[1] && $current_date[1] == $temp[2] && $current_date[2] == str_replace('.log', '', $temp[3])) {
+
+                            $fullPath = $dir . "/" . $entry;
+                            $content  = File::get($fullPath);
                             preg_match_all("/\[(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\](.*)/", $content, $match);
-                            $errorTypeArr = ['ERROR','INFO','WARNING'];
+                            $errorTypeArr       = ['ERROR', 'INFO', 'WARNING'];
                             $errorTypeSeparated = implode('|', $errorTypeArr);
-                            
 
                             $defaultSearchTerm = 'ERROR';
-                            if(isset($_GET['type']))
-                            {
+                            if (isset($_GET['type'])) {
                                 $defaultSearchTerm = $_GET['type'];
                             }
-                            
-                            
+
                             foreach ($match[0] as $value) {
-                                foreach($errorTypeArr as $errType)
-                                {
-                                    if(preg_match("/".$errType."/", $value))
-                                    {
+                                foreach ($errorTypeArr as $errType) {
+                                    if (preg_match("/" . $errType . "/", $value)) {
                                         $errSelection[] = $errType;
                                         break;
                                     }
                                 }
-                                if(preg_match("/".$defaultSearchTerm."/", $value))
-                                {
-                                    $str = $value;
-                                    $temp1 = explode(".",$str);
-                                    $temp2 = explode(" ",$temp1[0]);
-                                    $type = $temp2[2];
-                                    array_push($this->channel_filter,$type);
-                                    $errors[] = $value."===".str_replace('/', '', $entry);
+                                if (preg_match("/" . $defaultSearchTerm . "/", $value)) {
+                                    $str   = $value;
+                                    $temp1 = explode(".", $str);
+                                    $temp2 = explode(" ", $temp1[0]);
+                                    $type  = $temp2[2];
+                                    array_push($this->channel_filter, $type);
+                                    $errors[] = $value . "===" . str_replace('/', '', $entry);
                                 }
                             }
-                            $errors = array_reverse($errors);
+                            $errors          = array_reverse($errors);
                             $allErrorTypes[] = array_values(array_unique($errSelection));
-                            foreach($errors as $er){
-                                array_push($final_result,$er);
+                            foreach ($errors as $er) {
+                                array_push($final_result, $er);
                             }
-                            //$final_result[] = $errors;   
+                            //$final_result[] = $errors;
                         }
                     }
                 }
                 closedir($handle);
             }
         }
-        
+
         return $final_result;
     }
 
-
     public function apiLogs(Request $request)
     {
-        $logs= new \App\LogRequest;
+        $logs = new \App\LogRequest;
 
         //echo '<pre>';print_r($request->all());
 
-        if($request->id)
-        {
-            $logs=$logs->where('id',$request->id);
+        if ($request->id) {
+            $logs = $logs->where('id', $request->id);
         }
 
-        if($request->ip)
-        {
-            $logs=$logs->where('ip','like',$request->ip.'%');
+        if ($request->ip) {
+            $logs = $logs->where('ip', 'like', $request->ip . '%');
         }
 
-        if($request->method)
-        {
-            $logs=$logs->where('method','like',$request->method.'%');
+        if ($request->method) {
+            $logs = $logs->where('method', 'like', $request->method . '%');
         }
 
-        if($request->status)
-        {
-            $logs=$logs->where('status_code','like',$request->status.'%');
+        if ($request->status) {
+            $logs = $logs->where('status_code', 'like', $request->status . '%');
         }
-        if($request->url)
-        {
-            $logs=$logs->where('url','like','%'.$request->url.'%');
+        if ($request->url) {
+            $logs = $logs->where('url', 'like', '%' . $request->url . '%');
         }
 
-        if($request->created_at)
-        {
-            $logs=$logs->whereDate('created_at',\Carbon\Carbon::createFromFormat('Y/m/d', $request->created_at)->format('Y-m-d'));
+        if ($request->created_at) {
+            $logs = $logs->whereDate('created_at', \Carbon\Carbon::createFromFormat('Y/m/d', $request->created_at)->format('Y-m-d'));
         }
 
         $count = $logs->count();
 
+        $logs = $logs->orderBy("id", "desc")->paginate(Setting::get('pagination'));
 
-
-        $logs=$logs->orderBy("id","desc")->paginate(Setting::get('pagination'));
-
-      
-
-       // echo '<pre>';print_r($logs->toArray());die;
-
-        if($request->ajax())
-        {
+        if ($request->ajax()) {
             //$request->render('logging.partials.apilogdata',compact('logs'));
-            $html= view('logging.partials.apilogdata', compact('logs'))->render();
+            $html = view('logging.partials.apilogdata', compact('logs'))->render();
 
-            if(count($logs)) {
-                return array('status'=>1,'html'=>$html,'count'=>$count,'logs'=>$logs);
-            }else {
-                return array('status'=>0,'html'=>'<tr id="noresult_tr"><td colspan="7">No More Records</td></tr>');
+            if (count($logs)) {
+                return array('status' => 1, 'html' => $html, 'count' => $count, 'logs' => $logs);
+            } else {
+                return array('status' => 0, 'html' => '<tr id="noresult_tr"><td colspan="7">No More Records</td></tr>');
             }
         }
-        return view('logging.apilog',compact('logs','count'));
+        return view('logging.apilog', compact('logs', 'count'));
     }
 
-    
+    public function generateReport(Request $request)
+    {   
+
+        $logsGroupWise = \App\LogRequest::where('status_code', '!=', 200);
+
+        if($request->keyword != "") {
+            $keyword = $request->keyword;
+            $logsGroupWise = $logsGroupWise->where(function($q) use($keyword) {
+                $q->orWhere("request","like","%".$keyword."%")->orWhere("response","like","%".$keyword."%");
+            });
+        }
+
+        if($request->for_date != "") {
+            $forDate = $request->for_date;
+            $logsGroupWise = $logsGroupWise->whereDate('created_at',">=",$forDate);
+        }
+
+        $logsGroupWise = $logsGroupWise->groupBy('url')->select(["*", \DB::raw('count(*) as total_request')])->orderBy('total_request','desc')->get();
+
+        return view('logging.partials.generate-report', compact('logsGroupWise'));
+
+    }
+
 }
