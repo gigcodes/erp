@@ -7,6 +7,11 @@
         padding-right: 0px !important;
     }
 </style>
+@php
+    $isAdmin = Auth::user()->hasRole('Admin');
+    $isHod  = Auth::user()->hasRole('HOD of CRM');
+    
+@endphp
 <table class="table table-bordered page-template-{{ $page }}">
     <thead>
     <tr>
@@ -36,6 +41,11 @@
                 </div>
                 <div class="col-md-1 cls_remove_allpadding">
                     <button class="btn btn-sm btn-image send-message1" data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
+                    @if($pam->vendor_id > 0 )
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="vendor" data-id="{{$pam->vendor_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    @else
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="customer" data-id="{{$pam->customer_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    @endif
                 </div>
             </div>
         </td>
