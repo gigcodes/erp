@@ -29,7 +29,7 @@
 <tbody>
 <tr>
 <td>
-<h3 style="line-height: 1.24; font-size: 17px; font-weight: bold; letter-spacing: -0.1px; color: #898989; margin: 0; padding: 0;">Hello {{ $customer-&gt;name }}</h3>
+<h3 style="line-height: 1.24; font-size: 17px; font-weight: bold; letter-spacing: -0.1px; color: #898989; margin: 0; padding: 0;">Hello {{ $customer->name }}</h3>
 </td>
 </tr>
 <tr>
@@ -39,7 +39,7 @@
 </tr>
 <tr>
 <td>
-<div style="font-size: 13px; line-height: 1.62; color: #898989;">Your order {{ $order-&gt;order_id }} has been received and is currently being processed by our crew.</div>
+<div style="font-size: 13px; line-height: 1.62; color: #898989;">Your order {{ $order->order_id }} has been received and is currently being processed by our crew.</div>
 </td>
 </tr>
 </tbody>
@@ -68,7 +68,7 @@
 <tbody>
 <tr>
 <td style="width: 100%;">
-<div style="font-weight: bold; font-size: 20px; color: #898989; padding-top: 10px;"><b style="color: #000000;">Ordered:</b> {{ date("M d, Y",strtotime($order-&gt;created_at)) }}</div>
+<div style="font-weight: bold; font-size: 20px; color: #898989; padding-top: 10px;"><b style="color: #000000;">Ordered:</b> {{ date("M d, Y",strtotime($order->created_at)) }}</div>
 </td>
 </tr>
 </tbody>
