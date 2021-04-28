@@ -24,14 +24,14 @@ function initializeAnalytics()
     // change the key file location if necessary.
     $KEY_FILE_LOCATION = storage_path('app/analytics/sololuxu-7674c35e7be5.json');
     $analytics         = '';
-    if (file_exists($KEY_FILE_LOCATION)) {
-        // Create and configure a new client object.
-        $client = new Google_Client();
-        // $client->setApplicationName("Hello Analytics Reporting");
-        $client->setAuthConfig($KEY_FILE_LOCATION);
-        $client->setScopes(['https://www.googleapis.com/auth/analytics.readonly']);
-        $analytics = new Google_Service_AnalyticsReporting($client);
-    }
+    // if (file_exists($KEY_FILE_LOCATION)) {
+    //     // Create and configure a new client object.
+    //     $client = new Google_Client();
+    //     // $client->setApplicationName("Hello Analytics Reporting");
+    //     $client->setAuthConfig($KEY_FILE_LOCATION);
+    //     $client->setScopes(['https://www.googleapis.com/auth/analytics.readonly']);
+    //     $analytics = new Google_Service_AnalyticsReporting($client);
+    // }
     return $analytics;
 }
 
@@ -67,10 +67,17 @@ function getReportRequest($analytics, $request)
 
     // Create the DateRange object.
     $dateRange = new Google_Service_AnalyticsReporting_DateRange();
+<<<<<<< Updated upstream
     $dateRange->setStartDate('today');
     $dateRange->setEndDate('today');
     // $dateRange->setStartDate("30daysAgo");
     // $dateRange->setEndDate("today");
+=======
+    // $dateRange->setStartDate('today');
+    // $dateRange->setEndDate('today');
+    $dateRange->setStartDate("30daysAgo");
+    $dateRange->setEndDate("today");
+>>>>>>> Stashed changes
 
     // Create the ReportRequest object.
     $request = new Google_Service_AnalyticsReporting_ReportRequest();

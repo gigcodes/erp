@@ -219,6 +219,8 @@ class AnalyticsController extends Controller
 
         include(app_path() . '/Functions/Analytics_user.php');
         $data = StoreWebsiteAnalytic::all()->toArray();
+        // $data = StoreWebsiteAnalytic::where('id',7)->get()->toArray();
+
         foreach ($data as $value) {
 
             $ERPlogArray = [
@@ -231,33 +233,45 @@ class AnalyticsController extends Controller
 
             try {
                 
-                $response   = getReportRequest($analytics, $value);
-                extract($response);
+                if( !empty($value['view_id']) && !empty($value['google_service_account_json']) ){
+                    // dump($value);
+                    $response   = getReportRequest($analytics, $value);
+                    // dd( $response );
+                    extract($response);
 
-                $resultData             = getPageTrackingData( $analyticsObj ,$requestObj);
-                $resultPageTrackingData = printPageTrackingResults( $resultData , $value['id']);
+                    $resultData             = getPageTrackingData( $analyticsObj ,$requestObj);
+                    $resultPageTrackingData = printPageTrackingResults( $resultData , $value['id']);
 
-                $resultData           = getPlatformDeviceData( $analyticsObj ,$requestObj);
-                $ResultPlatformDevice = printPlatformDeviceResults( $resultData , $value['id']);
+                    $resultData           = getPlatformDeviceData( $analyticsObj ,$requestObj);
+                    $ResultPlatformDevice = printPlatformDeviceResults( $resultData , $value['id']);
 
-                $resultData             = getGeoNetworkData( $analyticsObj ,$requestObj);
-                $ResultGeoNetworkDevice = printGeoNetworkResults( $resultData , $value['id']);
+                    $resultData             = getGeoNetworkData( $analyticsObj ,$requestObj);
+                    $ResultGeoNetworkDevice = printGeoNetworkResults( $resultData , $value['id']);
 
-                $resultData  = getUsersData( $analyticsObj ,$requestObj);
-                $UsersDevice = printUsersResults( $resultData , $value['id']);
+                    $resultData  = getUsersData( $analyticsObj ,$requestObj);
+                    $UsersDevice = printUsersResults( $resultData , $value['id']);
 
-                $resultData = getAudiencesData( $analyticsObj ,$requestObj);
-                $Audiences  = printAudienceResults( $resultData , $value['id']);
+                    $resultData = getAudiencesData( $analyticsObj ,$requestObj);
+                    $Audiences  = printAudienceResults( $resultData , $value['id']);
 
-                \Log::info('google-analytics :: Daily run success');
+                    \Log::info('google-analytics :: Daily run success');
 
-                $history = array(
-                    'website'     => $value['website'], 
-                    'account_id'  => $value['id'],
-                    'title'       => 'success',
-                    'description' => 'Data fetched successfully'
-                );
-                GoogleAnalyticsHistories::insert($history);
+                    $history = array(
+                        'website'     => $value['website'], 
+                        'account_id'  => $value['id'],
+                        'title'       => 'success',
+                        'description' => 'Data fetched successfully'
+                    );
+                    GoogleAnalyticsHistories::insert($history);
+                }else{
+                    $history = array(
+                        'website'     => $value['website'], 
+                        'account_id'  => $value['id'],
+                        'title'       => 'error',
+                        'description' => 'Please add auth json file and view id',
+                    );
+                    GoogleAnalyticsHistories::insert($history);
+                }
                 
             }catch(\Exception  $e) {
 
