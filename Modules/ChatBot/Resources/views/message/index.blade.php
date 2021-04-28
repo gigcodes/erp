@@ -253,17 +253,26 @@
         $(document).on('click', '.send-message1', function () {
             var thiss = $(this);
             var data = new FormData();
-            var customer_id = $(this).data('customer-id');
-
+            var type = "customer";
+            var field = "customer_id";
+            var tr  = $(this).closest("tr").find("td").first();
+            var typeId = tr.data('customer-id');
+            if(parseInt(tr.data("vendor-id")) > 0) {
+                type = "vendor";
+                typeId = tr.data("vendor-id");
+                field = tr.data("vendor_id");
+            }
+            console.log("Field is as per this",[type,typeId,field,tr]);
+            var customer_id = typeId;
             var message = thiss.closest(".cls_textarea_subbox").find("textarea").val();
-            data.append("customer_id", customer_id);
+            data.append(field, typeId);
             data.append("message", message);
             data.append("status", 1);
 
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({
-                        url: BASE_URL+'/whatsapp/sendMessage/customer',
+                        url: BASE_URL+'/whatsapp/sendMessage/'+type,
                         type: 'POST',
                         "dataType": 'json',           // what to expect back from the PHP script, if anything
                         "cache": false,
