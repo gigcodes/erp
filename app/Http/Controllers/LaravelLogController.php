@@ -435,10 +435,6 @@ class LaravelLogController extends Controller
 
         $logs = $logs->orderBy("id", "desc")->paginate(Setting::get('pagination'));
 
-        $logsGroupWise = \App\LogRequest::where('status_code', '!=', 200);
-        $logsGroupWise = $logsGroupWise->groupBy('url')->select(["*", \DB::raw('count(*) as total_request')])->get();
-        // echo '<pre>';print_r($logs->toArray());die;
-
         if ($request->ajax()) {
             //$request->render('logging.partials.apilogdata',compact('logs'));
             $html = view('logging.partials.apilogdata', compact('logs'))->render();
@@ -449,7 +445,7 @@ class LaravelLogController extends Controller
                 return array('status' => 0, 'html' => '<tr id="noresult_tr"><td colspan="7">No More Records</td></tr>');
             }
         }
-        return view('logging.apilog', compact('logs', 'count','logsGroupWise'));
+        return view('logging.apilog', compact('logs', 'count'));
     }
 
     public function generateReport(Request $request)
