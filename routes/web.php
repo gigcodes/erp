@@ -90,6 +90,7 @@ Route::prefix('product')->middleware('auth')->group(static function () {
 Route::prefix('logging')->middleware('auth')->group(static function () {
 
     Route::any('list/api/logs','LaravelLogController@apiLogs')->name('api-log-list');
+    Route::any('list/api/logs/generate-report','LaravelLogController@generateReport')->name('api-log-list-generate-report');
 
    // Route::post('filter/list/api/logs','LaravelLogController@apiLogs')->name('api-filter-logs')
     Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
