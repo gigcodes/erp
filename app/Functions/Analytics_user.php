@@ -69,6 +69,8 @@ function getReportRequest($analytics, $request)
     $dateRange = new Google_Service_AnalyticsReporting_DateRange();
     $dateRange->setStartDate('today');
     $dateRange->setEndDate('today');
+    // $dateRange->setStartDate("30daysAgo");
+    // $dateRange->setEndDate("today");
 
     // Create the ReportRequest object.
     $request = new Google_Service_AnalyticsReporting_ReportRequest();
