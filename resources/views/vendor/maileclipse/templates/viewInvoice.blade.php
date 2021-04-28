@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Invoice of {{ $order->order_id }}</title>
+	<title>Invoice of {{ $orders->order_id }}</title>
 	<style>
 	.bl {
 			border-left: 1px solid #000;
@@ -64,7 +64,7 @@
 <tr>
 <td>LUXURY UNLIMITED</td>
 <td style="width: 30%;" rowspan="8">&nbsp;</td>
-<td>INVOICE#: 00000000000004200065</td>
+<td>INVOICE#: 00000000000004300065</td>
 </tr>
 <tr>
 <td>Address:105,5EA,DAFZA DUBAI,UAE</td>
@@ -92,7 +92,7 @@
 </tr>
 <tr>
 <td>&nbsp;</td>
-<td>The currency of sale: {{$order->currency}}</td>
+<td>The currency of sale: {{$orders->currency}}</td>
 </tr>
 <tr>
 <td>&nbsp;</td>

@@ -71,6 +71,7 @@ class ViewInvoice extends Mailable
             'buyerDetails' => $this->customer,
             'billing'      => $this->billing,
             'shipping'     => $this->shipping,
+            'invoice'      => $this->invoice,
         ]);
         $pdf = new Dompdf();
         $pdf->loadHtml($html);
