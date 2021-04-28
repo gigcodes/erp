@@ -667,7 +667,7 @@ class OrderController extends Controller
  * @return \Illuminate\Http\Response
  */
     public function store(Request $request)
-    {
+    {   
         $this->validate($request, [
             'customer_id'    => 'required',
             'advance_detail' => 'numeric|nullable',
@@ -988,7 +988,7 @@ class OrderController extends Controller
         UpdateOrderStatusMessageTpl::dispatch($order->id)->onQueue("customer_message");
 
         if ($request->ajax()) {
-            return response()->json(['order' => $order]);
+            return response()->json([ 'code' => 200,'order' => $order]);
         }
 
         if ($request->get('return_url_back')) {
@@ -2853,8 +2853,12 @@ class OrderController extends Controller
             $data["invoice"] = $invoice;
             $data["orders"]  = $invoice->orders;
             if ($invoice->orders) {
-                Mail::to($invoice->orders[0]->customer->email)->send(new ViewInvoice($data));
-                return response()->json(["code" => 200, "data" => [], "message" => "Email sent successfully"]);
+                try {
+                    Mail::to($invoice->orders[0]->customer->email)->send(new ViewInvoice($data));
+                    return response()->json(["code" => 200, "data" => [], "message" => "Email sent successfully"]);
+                } catch (InvalidArgumentException $e) {
+                    return response()->json(["code" => 500, "data" => [], "message" => "Sorry , there is no matching order found"]);                    
+                }
             }
         }
 
