@@ -730,6 +730,18 @@ class OrderController extends Controller
 
         $order = Order::create($data);
 
+         $customerShippingAddress = array(
+            'address_type' => 'shipping',
+            'city' => $customer->city,
+            'country_id' => $customer->country,
+            'email' => $customer->email,
+            'firstname' => $customer->name,
+            'postcode' => $customer->pincode,
+            'street' => $customer->address,
+            'order_id' => $order->id,
+        );
+        OrderCustomerAddress::insert( $customerShippingAddress );
+
         if (!empty($request->input('order_products'))) {
             foreach ($request->input('order_products') as $key => $order_product_data) {
                 $order_product = OrderProduct::findOrFail($key);
@@ -2768,7 +2780,7 @@ class OrderController extends Controller
     }
 
     public function submitInvoice(Request $request)
-    {
+    {   
         if (!$request->invoice_number) {
             return redirect()->back()->with('error', 'Invoice number is mandatory');
         }
@@ -2779,6 +2791,20 @@ class OrderController extends Controller
         if (!$firstOrder) {
             return redirect()->back()->with('error', 'This order is already associated with an invoice');
         }
+        // dd($firstOrder->customer);
+
+        $customerShippingAddress = array(
+            'address_type' => 'shipping',
+            'city' => $firstOrder->customer->city,
+            'country_id' => $firstOrder->customer->country,
+            'email' => $firstOrder->customer->email,
+            'firstname' => $firstOrder->customer->name,
+            'postcode' => $firstOrder->customer->pincode,
+            'street' => $firstOrder->customer->address,
+            'order_id' => $request->first_order_id,
+        );
+        OrderCustomerAddress::insert( $customerShippingAddress );
+
         $invoice                 = new Invoice;
         $invoice->invoice_number = $request->invoice_number;
         $invoice->invoice_date   = $request->invoice_date;
@@ -2792,8 +2818,7 @@ class OrderController extends Controller
                 }
             }
         }
-        return redirect()->action(
-            'OrderController@viewAllInvoices');
+        return redirect()->action('OrderController@viewAllInvoices');
     }
 
     //TODO::Update Invoice Address
