@@ -278,7 +278,7 @@
             if(parseInt(tr.data("vendor-id")) > 0) {
                 type = "vendor";
                 typeId = tr.data("vendor-id");
-                field = tr.data("vendor_id");
+                field = "vendor_id";
             }
             console.log("Field is as per this",[type,typeId,field,tr]);
             var customer_id = typeId;
