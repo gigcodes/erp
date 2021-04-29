@@ -26,3 +26,5 @@ then
 	ssh -i ~/.ssh/id_rsa root@138.68.181.9 "sed -i \"s%.*erp@$server%$pubkey%g\" .ssh/authorized_keys"
 	ssh -i ~/.ssh/id_rsa root@139.59.175.99 "sed -i \"s%.*erp@$server%$pubkey%g\" .ssh/authorized_keys"
 fi
+
+echo ~/erpgenerated_pem
