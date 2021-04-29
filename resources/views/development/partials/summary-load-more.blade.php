@@ -1,3 +1,4 @@
+<div class="infinite-scroll">
 <table class="table table-bordered table-striped" style="table-layout:fixed;">
     <tr>
         <th style="width:5%;">ID</th>
@@ -25,3 +26,4 @@
     @endforeach
 </table>
  <?php echo $issues->appends(request()->except("page"))->links(); ?>
+</div> 
