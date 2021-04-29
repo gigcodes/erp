@@ -219,9 +219,15 @@ $('#save_cart_btn').on('click',function(){
       type: "post",
       data:{invoice_no:invoice_no,qty:JSON.stringify(qty),customer_id:customer_id,slected_products_ids:JSON.stringify(slected_products_ids)}
     }).done(function(response) {
-      console.log(response)
-    }).fail(function(errObj) {
-      console.log(errObj)
+      if(response.code == 200){
+        toastr['success']('Success');
+      }else{
+        toastr['error']( 'Something went wrong' );
+      }
+    }).fail(function(xhr, status, error) {
+        var err = eval("(" + xhr.responseText + ")");
+        toastr['error']( err.message );
+        
     });
 })
 function qty_collector(){

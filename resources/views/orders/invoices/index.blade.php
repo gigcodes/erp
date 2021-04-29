@@ -16,6 +16,8 @@
             <th>Invoice Number</th>
             <th>Customer Name</th>
             <th>Invoice Value</th>
+            <th>Currency</th>
+            <th>Website</th>
             <th>Action</th>
          </tr>
       </thead>
@@ -37,6 +39,12 @@
                endforeach;
                @endphp
                {{ $final_price}}
+            </td>
+            <td>
+                {{ $invoice->orders[0]->currency ?? '--' }}
+            </td>
+            <td>
+                {{ $invoice->orders[0]->customer->storeWebsite->website ?? '--' }}
             </td>
             <td>
                <a class="btn btn-image send-invoice-btn" data-id="{{ $invoice->id }}">
@@ -161,11 +169,14 @@
              if(response.code == 200) {
                toastr['success'](response.message);
              }else{
-               toastr['error'](response.message);
+               toastr['error']('Something went wrong');
              }
              $("#loading-image").hide();
-          }).fail(function(errObj) {
-             $("#loading-image").hide();
+          }).fail(function(xhr, status, error) {
+                $("#loading-image").hide();
+                var err = eval("(" + xhr.responseText + ")");
+                toastr['error']( err.message );
+             
           });
       });
    
