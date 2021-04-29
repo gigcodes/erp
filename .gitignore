@@ -75,7 +75,6 @@ app/Library/mgp25/*
 app/Library/_MACOSX/*
 /app/Mail/templates.json
 /app/Mail/*
-resources/views/vendor/maileclipse/templates/*
 /public/mailinglist/
 /public/wetransfer/*
 /resources/assets/analytics_files/*

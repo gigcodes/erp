@@ -667,7 +667,7 @@ class OrderController extends Controller
  * @return \Illuminate\Http\Response
  */
     public function store(Request $request)
-    {
+    {   
         $this->validate($request, [
             'customer_id'    => 'required',
             'advance_detail' => 'numeric|nullable',
@@ -729,6 +729,18 @@ class OrderController extends Controller
         }
 
         $order = Order::create($data);
+
+         $customerShippingAddress = array(
+            'address_type' => 'shipping',
+            'city' => $customer->city,
+            'country_id' => $customer->country,
+            'email' => $customer->email,
+            'firstname' => $customer->name,
+            'postcode' => $customer->pincode,
+            'street' => $customer->address,
+            'order_id' => $order->id,
+        );
+        OrderCustomerAddress::insert( $customerShippingAddress );
 
         if (!empty($request->input('order_products'))) {
             foreach ($request->input('order_products') as $key => $order_product_data) {
@@ -988,7 +1000,7 @@ class OrderController extends Controller
         UpdateOrderStatusMessageTpl::dispatch($order->id)->onQueue("customer_message");
 
         if ($request->ajax()) {
-            return response()->json(['order' => $order]);
+            return response()->json([ 'code' => 200,'order' => $order]);
         }
 
         if ($request->get('return_url_back')) {
@@ -2768,7 +2780,7 @@ class OrderController extends Controller
     }
 
     public function submitInvoice(Request $request)
-    {
+    {   
         if (!$request->invoice_number) {
             return redirect()->back()->with('error', 'Invoice number is mandatory');
         }
@@ -2779,6 +2791,20 @@ class OrderController extends Controller
         if (!$firstOrder) {
             return redirect()->back()->with('error', 'This order is already associated with an invoice');
         }
+        // dd($firstOrder->customer);
+
+        $customerShippingAddress = array(
+            'address_type' => 'shipping',
+            'city' => $firstOrder->customer->city,
+            'country_id' => $firstOrder->customer->country,
+            'email' => $firstOrder->customer->email,
+            'firstname' => $firstOrder->customer->name,
+            'postcode' => $firstOrder->customer->pincode,
+            'street' => $firstOrder->customer->address,
+            'order_id' => $request->first_order_id,
+        );
+        OrderCustomerAddress::insert( $customerShippingAddress );
+
         $invoice                 = new Invoice;
         $invoice->invoice_number = $request->invoice_number;
         $invoice->invoice_date   = $request->invoice_date;
@@ -2792,8 +2818,7 @@ class OrderController extends Controller
                 }
             }
         }
-        return redirect()->action(
-            'OrderController@viewAllInvoices');
+        return redirect()->action('OrderController@viewAllInvoices');
     }
 
     //TODO::Update Invoice Address
@@ -2853,8 +2878,12 @@ class OrderController extends Controller
             $data["invoice"] = $invoice;
             $data["orders"]  = $invoice->orders;
             if ($invoice->orders) {
-                Mail::to($invoice->orders[0]->customer->email)->send(new ViewInvoice($data));
-                return response()->json(["code" => 200, "data" => [], "message" => "Email sent successfully"]);
+                try {
+                    Mail::to($invoice->orders[0]->customer->email)->send(new ViewInvoice($data));
+                    return response()->json(["code" => 200, "data" => [], "message" => "Email sent successfully"]);
+                } catch (InvalidArgumentException $e) {
+                    return response()->json(["code" => 500, "data" => [], "message" => "Sorry , there is no matching order found"]);                    
+                }
             }
         }
 
