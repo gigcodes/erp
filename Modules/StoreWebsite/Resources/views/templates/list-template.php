@@ -308,3 +308,40 @@
 		</div>
 	</div>
 </script>
+<script type="text/x-jsrender" id="template-generate-file">
+	<div class="modal-content">
+	   <div class="modal-header">
+	      <h5 class="modal-title">Generate PEM file</h5>
+	      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	      	<span aria-hidden="true">&times;</span>
+	      </button>
+	   </div>
+	   <div class="modal-body">
+			<div class="row">
+				<div class="col-lg-12">
+					<form action="/store-website/generate-file-store" method="post">
+						<?php echo csrf_field(); ?>
+						<div class="row">
+					  		<div class="col-md-12">
+					    		<div class="form-group">
+						         	<label for="meta_title">Meta Title</label>
+						         	<select class="form-control" name="for_server">
+						         		<option value="Erp-Server">Erp-Server</option>
+						         		<option value="Scrap-Server">Scrap-Server</option>
+						         		<option value="Cropper-Server">Cropper-Server</option>
+						         		<option value="Magento-Server">Magento-Server</option>
+						         	</select>
+						         </div>
+					        </div> 
+					        <div class="col-md-12">
+						    	<div class="form-group">
+						      		<button type="submit" class="btn btn-secondary submit-generete-file-btn">Generate</button>
+						    	</div>
+					    	</div>
+					  	</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</script>
