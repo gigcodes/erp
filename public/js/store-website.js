@@ -153,6 +153,9 @@ var page = {
               alert("Copied!");
         });
 
+        $(document).on("click",".generate-pem-file",function() {
+            page.openGenerateFile();
+        });
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -641,6 +644,15 @@ var page = {
         }else{
             toastr['error'](response.message, 'error');   
         }
+    },
+    openGenerateFile : function() {
+
+        var createWebTemplate = $.templates("#template-generate-file");
+        var tplHtml = createWebTemplate.render({});
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml);
+            common.modal("show");
+              
     }
 }
 

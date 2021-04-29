@@ -14,7 +14,7 @@ class ChangeHubstaffActivitiesIdType extends Migration
     public function up()
     {
         Schema::table("hubstaff_activities",function(Blueprint $table) {
-            $table->bigInteger('id')->change();
+            //$table->bigInteger('id')->change();
         });
     }
 
