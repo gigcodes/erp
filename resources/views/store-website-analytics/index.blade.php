@@ -26,6 +26,7 @@
             <tr>
                 <th>No</th>
                 <th>Website</th>
+                <th>Email</th>
                 <th>Account Id</th>
                 <th>View Id</th>
                 <th>Store Website</th>

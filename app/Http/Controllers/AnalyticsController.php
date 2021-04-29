@@ -219,7 +219,7 @@ class AnalyticsController extends Controller
 
         include(app_path() . '/Functions/Analytics_user.php');
         $data = StoreWebsiteAnalytic::all()->toArray();
-        // $data = StoreWebsiteAnalytic::where('id',7)->get()->toArray();
+        
 
         foreach ($data as $value) {
 
@@ -234,9 +234,7 @@ class AnalyticsController extends Controller
             try {
                 
                 if( !empty($value['view_id']) && !empty($value['google_service_account_json']) ){
-                    // dump($value);
                     $response   = getReportRequest($analytics, $value);
-                    // dd( $response );
                     extract($response);
 
                     $resultData             = getPageTrackingData( $analyticsObj ,$requestObj);
