@@ -8,24 +8,26 @@
               @php
                   $shipping  = $order->shippingAddress();
               @endphp
-              <div class="col-md-12">
-                <div class="form-group">
-                   <strong>Shipping Address:</strong>
-                   <textarea name="order[{{$order->id}}][street]" class="form-control">@if($shipping){{$shipping->street}}@endif</textarea>
-                </div>
-                <div class="form-group">
-                   <strong>City:</strong>
-                   <input name="order[{{$order->id}}][city]" class="form-control" value="@if($shipping){{$shipping->city}}@endif" />
-                </div>
-                <div class="form-group">
-                   <strong>Country:</strong>
-                   <input name="order[{{$order->id}}][country_id]" class="form-control" value="@if($shipping){{$shipping->country_id}}@endif"/>
-                </div>
-                <div class="form-group">
-                   <strong>Pincode:</strong>
-                   <input name="order[{{$order->id}}][postcode]" class="form-control" value="@if($shipping){{$shipping->postcode}}@endif"/>
-                </div>
-              </div>
+               @if ($loop->first)
+                  <div class="col-md-12">
+                    <div class="form-group">
+                       <strong>Shipping Address:</strong>
+                       <textarea name="order[{{$order->id}}][street]" class="form-control">@if($shipping){{$shipping->street}}@endif</textarea>
+                    </div>
+                    <div class="form-group">
+                       <strong>City:</strong>
+                       <input name="order[{{$order->id}}][city]" class="form-control" value="@if($shipping){{$shipping->city}}@endif" />
+                    </div>
+                    <div class="form-group">
+                       <strong>Country:</strong>
+                       <input name="order[{{$order->id}}][country_id]" class="form-control" value="@if($shipping){{$shipping->country_id}}@endif"/>
+                    </div>
+                    <div class="form-group">
+                       <strong>Pincode:</strong>
+                       <input name="order[{{$order->id}}][postcode]" class="form-control" value="@if($shipping){{$shipping->postcode}}@endif"/>
+                    </div>
+                  </div>
+              @endif
               @foreach($order->order_product as $orderProduct) 
                 <div class="col-md-12">
                   <div class="card">
@@ -67,7 +69,8 @@
                   </div>
                 </div>  
               @endforeach
-              <button class="btn btn-secondary btn-xs add-new-product" data-order="{{$order->id}}">Add new </button>
+               @if ($loop->last)
+                <button class="btn btn-secondary btn-xs add-new-product" data-order="{{$order->id}}">Add new </button>
                 <div class="row add-new-product-form order-cls-{{$order->id}} d-none">
                       <div class="col">
                           <div class="form-group">
@@ -106,6 +109,7 @@
                         </div>
                       </div>
                   </div>
+              @endif
             </div>
           </div>
        @endforeach
