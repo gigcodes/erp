@@ -92,6 +92,7 @@ class StoreWebsite extends Model
         'thefitedit'     => 'The fitedit',
         'theshadesshop'  => 'The shades shop',
         'veralusso'      => 'Veralusso',
+        'upeau'          => 'Upeau',
     ];
 
     // Append attributes
