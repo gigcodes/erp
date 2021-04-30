@@ -368,7 +368,7 @@ var page = {
                 connection : ele.val()
             },
             beforeSend : function() {
-                //$("#loading-image").show();
+                $("#loading-image").show();
             }
         }
         this.sendAjax(_z, "afterChooseDb");
