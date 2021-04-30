@@ -26,7 +26,6 @@ use App\PaymentMethod;
 use App\Team;
 use App\DeveloperTask;
 use App\UserAvaibility;
-use App\PermissionRequest;
 use DB;
 use Hash;
 use Illuminate\Support\Arr;
@@ -40,28 +39,7 @@ class UserManagementController extends Controller
     public function index()
     {
         $title = "User management";
-        $permissionRequest = PermissionRequest::count();
-        return view('usermanagement::index', compact('title','permissionRequest'));
-    }
-
-    public function permissionRequest( Request $request ){
-        $history = PermissionRequest::leftjoin('users','permission_request.user_id','users.id')->orderBy("permission_request.id","desc")->get();
-        return response()->json( ["code" => 200 , "data" => $history] );
-    }
-
-    public function modifiyPermission( Request $request )
-    {   
-        if ( $request->type == 'accept' ) {
-            $user = User::findorfail($request->user);
-            $user->permissions()->attach($request->permission);
-            PermissionRequest::where('user_id',$request->user)->where('permission_id',$request->permission)->delete();
-            return response()->json( ["code" => 200 , "data" => 'Permission added Successfully'] );       
-        }
-        if ( $request->type == 'reject' ) {
-            PermissionRequest::where('user_id',$request->user)->where('permission_id',$request->permission)->delete();
-            return response()->json( ["code" => 200 , "data" => 'Requets reject successfully'] );       
-        }
-        return response()->json( ["code" => 500, "data" => 'Something went wrong!'] );       
+        return view('usermanagement::index', compact('title'));
     }
 
     public function records(Request $request)
