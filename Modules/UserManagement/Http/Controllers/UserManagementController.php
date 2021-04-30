@@ -1214,7 +1214,7 @@ class UserManagementController extends Controller
         if($user) {
             $database = \App\UserDatabase::where("user_id",$user->id)->where("database",$connection)->first();
             if(!$database) {
-                $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f create -h '.$connectionInformation['host'].' -d '.$connectionInformation['database'].' -u "'.$username.'" -p "'.$password.'" 2>&1';
+                $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f create -h '.$connectionInformation['host'].' -d '.$connectionInformation['database'].' -u '.$connectionInformation['username'].' -p '.$connectionInformation['password'].' -n "'.$username.'" -s "'.$password.'" 2>&1';
                 $allOutput   = array();
                 $allOutput[] = $cmd;
                 $result      = exec($cmd, $allOutput);
@@ -1265,7 +1265,7 @@ class UserManagementController extends Controller
                     }
                 }
                 if(!empty($deleteTables)) {
-                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f revoke -h '.$connectionInformation['host'].' -d '.$connectionInformation['database'].' -u "'.$database->username.'" -t '.implode(",",$deleteTables).' 2>&1';
+                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f revoke -h '.$connectionInformation['host'].'  -u '.$connectionInformation['username'].' -p '.$connectionInformation['password'].' -d '.$connectionInformation['database'].' -u "'.$database->username.'" -t '.implode(",",$deleteTables).' 2>&1';
                     $allOutput   = array();
                     $allOutput[] = $cmd;
                     $result      = exec($cmd, $allOutput);
@@ -1283,7 +1283,7 @@ class UserManagementController extends Controller
             }
 
             
-            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f update  -h '.$connectionInformation['host'].' -d '.$connectionInformation['database'].' -u "'.$database->username.'" -t '.implode(",",$tables).' -m "'.$permissionType.'" 2>&1';
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f update  -h '.$connectionInformation['host'].'  -u '.$connectionInformation['username'].' -p '.$connectionInformation['password'].' -d '.$connectionInformation['database'].' -u "'.$database->username.'" -t '.implode(",",$tables).' -m "'.$permissionType.'" 2>&1';
             $allOutput   = array();
             $allOutput[] = $cmd;
             $result      = exec($cmd, $allOutput);
@@ -1313,7 +1313,7 @@ class UserManagementController extends Controller
         $database = \App\UserDatabase::where("user_id",$id)->where("database",$connection)->first();
         if($database) {
 
-            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f delete -h '.$connectionInformation['host'].' -d '.$connectionInformation['database'].'  -u "'.$database->username.'" 2>&1';
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f delete -h '.$connectionInformation['host'].'  -u '.$connectionInformation['username'].' -p '.$connectionInformation['password'].' -d '.$connectionInformation['database'].'  -u "'.$database->username.'" 2>&1';
             $allOutput   = array();
             $allOutput[] = $cmd;
             $result      = exec($cmd, $allOutput);
