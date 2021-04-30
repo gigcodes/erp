@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -11,7 +12,7 @@ class StoreWebsite extends Model
 {
     /**
      * @var string
-     
+
      * @SWG\Property(property="title",type="string")
      * @SWG\Property(property="remote_software",type="string")
      * @SWG\Property(property="website",type="string")
@@ -30,24 +31,24 @@ class StoreWebsite extends Model
      * @SWG\Property(property="instagram_remarks",type="string")
      * @SWG\Property(property="facebook",type="string")
      * @SWG\Property(property="facebook_remarks",type="string")
-      * @SWG\Property(property="server_ip",type="integer")
-      * @SWG\Property(property="username",type="string")
-      * @SWG\Property(property="password",type="string")
-      * @SWG\Property(property="staging_username",type="string")
-      * @SWG\Property(property="staging_password",type="string")
-      * @SWG\Property(property="mysql_username",type="string")
-      * @SWG\Property(property="mysql_password",type="string")
-      * @SWG\Property(property="mysql_staging_username",type="string")
-      * @SWG\Property(property="mysql_staging_password",type="string")
-      * @SWG\Property(property="website_source",type="string")
-      * @SWG\Property(property="push_web_key",type="string")
-      * @SWG\Property(property="push_web_id",type="integer")
-      * @SWG\Property(property="icon",type="string")
-      * @SWG\Property(property="is_price_override",type="boolean")
+     * @SWG\Property(property="server_ip",type="integer")
+     * @SWG\Property(property="username",type="string")
+     * @SWG\Property(property="password",type="string")
+     * @SWG\Property(property="staging_username",type="string")
+     * @SWG\Property(property="staging_password",type="string")
+     * @SWG\Property(property="mysql_username",type="string")
+     * @SWG\Property(property="mysql_password",type="string")
+     * @SWG\Property(property="mysql_staging_username",type="string")
+     * @SWG\Property(property="mysql_staging_password",type="string")
+     * @SWG\Property(property="website_source",type="string")
+     * @SWG\Property(property="push_web_key",type="string")
+     * @SWG\Property(property="push_web_id",type="integer")
+     * @SWG\Property(property="icon",type="string")
+     * @SWG\Property(property="is_price_override",type="boolean")
      */
     use SoftDeletes;
     protected $fillable = [
-        'title', 
+        'title',
         'remote_software',
         'website',
         'description',
@@ -78,15 +79,26 @@ class StoreWebsite extends Model
         'push_web_key',
         'push_web_id',
         'icon',
-        'is_price_override'
+        'is_price_override',
+    ];
+
+    const DB_CONNECTION = [
+        'mysql'          => 'Erp',
+        'brandsandlabel' => 'Brands and label',
+        'avoirchic'      => 'Avoirchic',
+        'olabels'        => 'O-labels',
+        'sololuxury'     => 'Sololuxury',
+        'suvandnet'      => 'Suv and net',
+        'thefitedit'     => 'The fitedit',
+        'theshadesshop'  => 'The shades shop',
+        'veralusso'      => 'Veralusso',
     ];
 
     // Append attributes
     protected $appends = ['website_url'];
 
-    public static function list()
-    {
-        return self::pluck("website","id")->toArray();
+    function list() {
+        return self::pluck("website", "id")->toArray();
     }
 
     /**
@@ -94,7 +106,7 @@ class StoreWebsite extends Model
      */
     public function getWebsiteUrlAttribute()
     {
-        $url = $this->website;
+        $url    = $this->website;
         $parsed = parse_url($url);
         if (empty($parsed['scheme'])) {
             return $urlStr = 'http://' . ltrim($url, '/');
@@ -130,16 +142,16 @@ class StoreWebsite extends Model
 
     public static function shopifyWebsite()
     {
-        return self::where("website_source","shopify")->pluck("title","id")->toArray();
+        return self::where("website_source", "shopify")->pluck("title", "id")->toArray();
     }
 
     public static function magentoWebsite()
     {
-        return self::where("website_source","magento")->pluck("title","id")->toArray();
+        return self::where("website_source", "magento")->pluck("title", "id")->toArray();
     }
-    
+
     public function websites()
     {
-        return $this->hasMany('App\Website','store_website_id','id');
+        return $this->hasMany('App\Website', 'store_website_id', 'id');
     }
 }

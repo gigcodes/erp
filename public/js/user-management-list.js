@@ -41,6 +41,11 @@ var page = {
             page.createDatabaseAdd($(this));
         });
 
+        $(document).on("change",".choose-db",function(e) {
+            e.preventDefault();
+            page.chooseDb($(this));
+        });
+
         $(document).on("click",".delete-database-access",function(e) {
             e.preventDefault();
             if(!confirm("Are you sure you want to remove access for this user?")) {
@@ -336,6 +341,9 @@ var page = {
         var _z = {
             url: this.config.mainUrl + "/"+database_user_id+"/delete-database-access",
             method: "post",
+            data : {
+                connection : ele.data("connection")
+            },
             beforeSend : function() {
                 $("#loading-image").show();
             }
@@ -350,6 +358,35 @@ var page = {
             toastr['error'](response.message, 'error');
         }
     },
+
+    chooseDb :  function(ele) {
+        var database_user_id = $("#database-user-id").val();
+        var _z = {
+            url: this.config.mainUrl + "/"+database_user_id+"/choose-database",
+            method: "post",
+            data : { 
+                connection : ele.val()
+            },
+            beforeSend : function() {
+                //$("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "afterChooseDb");
+    },
+
+    afterChooseDb : function(response) {
+        $("#loading-image").hide();
+        if(response.code == 200){
+            var createWebTemplate = $.templates("#template-create-database");
+            var tplHtml = createWebTemplate.render(response);
+            var common =  $(".common-modal");
+                common.find(".modal-dialog").html(tplHtml); 
+                common.modal("show");
+        }else{
+             toastr['error'](response.message, 'error');
+        }
+    },
+
     assignPermission : function(ele) {
         var database_user_id = ele.data("id");
         var _z = {
