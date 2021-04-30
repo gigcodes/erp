@@ -2543,6 +2543,14 @@ $metaData = '';
     </script>
     @endif
     <script>
+         <?php
+            $path = Request::path();
+            $hasPage = \App\AutoRefreshPage::where("page",$path)->first();
+            if($hasPage) {
+         ?>
+            setTimeout("location.reload(true);", <?php echo $hasPage->time * 1000; ?>);
+        <?php } ?>
+
         function filterFunction() {
             var input, filter, ul, li, a, i;
             //getting search values
