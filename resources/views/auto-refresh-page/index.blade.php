@@ -63,11 +63,11 @@
                 <div class="modal-body">
                     <div class="row" id="createsizeform">
                         <div class="col-md-10">
-                            <label for="create-page"></label>
+                            <label for="create-page">Page Url</label>
                             <input type="text" class="form-control nav-link" id="create-page" name="page" placeholder="Page Url" style="margin-top : 1%;">
                         </div>
                         <div class="col-md-10">
-                            <label for="create-time"></label>
+                            <label for="create-time">Time (in second)</label>
                             <input type="text" class="form-control nav-link" id="create-time" name="time" placeholder="Time" style="margin-top : 1%;">
                         </div>
                     </div>
@@ -80,27 +80,27 @@
         </form>
     </div>
 </div>
+<div class="modal fade" id="edit-auto-refresh-page" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        
+    </div>
+</div>
 @endsection
 @section('scripts')
 
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
-
-
 $(document).on("click",".btn-create-auto-refresh-page",function() {
     $("#create-auto-refresh-page").modal("show");
 });
 
-$(document).on("click",".edit-page",function() {
+$(document).on("click",".edit-page",function(e) {
+    e.preventDefault();
+    var $this = $(this);
     $.ajax({
-        url:'{{route("system.size.delete")}}',
-        dataType:'json',
-        data:{
-            id: id,
-        },
+        url:'/system/auto-refresh/'+$this.data("id")+"/edit",
         success:function(result){
-            $selector.remove();   
-             window.location.reload();
+            $("#edit-auto-refresh-page").find(".modal-dialog").html(result);
+            $("#edit-auto-refresh-page").modal("show");
         },
         error:function(exx){
             console.log(exx)

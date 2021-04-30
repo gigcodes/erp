@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\AutoRefreshPage;
 use Illuminate\Http\Request;
-use Response;
 
 class AutoRefreshController extends Controller
 {
@@ -31,28 +30,37 @@ class AutoRefreshController extends Controller
 
         return redirect()->back();
     }
-    public function update(Request $request)
+
+    public function edit(Request $request, $id)
+    {
+        $autoRefresh = \App\AutoRefreshPage::find($id);
+
+        return view("auto-refresh-page.partials.edit", compact('autoRefresh'));
+    }
+
+    public function update(Request $request,$id)
     {
         $this->validate($request, [
             'page' => 'required',
             'time' => 'required',
         ]);
 
-        $page = AutoRefreshPage::find($request->input('id'));
+        $page = AutoRefreshPage::find($id);
         $page->fill($request->all());
 
         if ($page->save()) {
-            return response()->json(['success' => true, 'message' => "Auto refresh page update successfully"]);
+            return redirect()->back()->withSuccess('Record updated succesfully');
         }
-        return response()->json(['success' => false, 'message' => "Something went wrong!"]);
+
+        return redirect()->back()->withErrors('Please Provide with required data for update');
     }
-    public function delete(Request $request)
+    public function delete(Request $request,$id)
     {
-        $page = AutoRefreshPage::find($request->input('id'));
+        $page = AutoRefreshPage::find($id);
         if ($page) {
             $page->delete();
-            return response()->json(['success' => true, 'message' => "System size delete successfully"]);
+            return redirect()->back()->withSuccess('Record deleted succesfully');
         }
-        return response()->json(['success' => false, 'message' => "Something went wrong!"]);
+        return redirect()->back()->withErrors('Record not found');
     }
 }

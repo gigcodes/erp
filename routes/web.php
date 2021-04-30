@@ -2875,6 +2875,9 @@ Route::prefix('system')->middleware('auth')->group(static function () {
     Route::prefix('auto-refresh')->group(static function () {
         Route::get('/', 'AutoRefreshController@index')->name('auto.refresh.index');
         Route::post('/create', 'AutoRefreshController@store')->name('auto.refresh.store');
+        Route::get('/{id}/edit', 'AutoRefreshController@edit')->name('auto.refresh.edit');
+        Route::post('/{id}/update', 'AutoRefreshController@update')->name('auto.refresh.update');
+        Route::get('/{id}/delete', 'AutoRefreshController@delete')->name('auto.refresh.delete');
     });
 });
 
