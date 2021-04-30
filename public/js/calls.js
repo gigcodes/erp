@@ -95,7 +95,7 @@
 	}
 
 	function loadTwilioDevice(token) {
-		const $confirmModal = $('#confirm__call__Modal');
+		const $confirmModal = $('#receive-call-popup');
 
 		device = new Twilio.Device(token, {debug: true, allowIncomingWhileBusy: true});
 		// Twilio.Device.setup(token, {debug: true});
@@ -164,7 +164,13 @@
 		});
 
 		device.on('incoming', function (conn) {
+
+			console.log("------------incoming------------");
+
 			$.getJSON("/twilio/getLeadByNumber?number=" + encodeURIComponent(conn.parameters.From), function (data) {
+
+				console.log(data);
+
 				const $buttonForAnswer = $('.call__answer'),
 					$buttonForCancelledCall = $('.call__canceled'),
 					$accordionTables = $('#accordionTables');
@@ -188,12 +194,12 @@
 					if (email){
 						string += "<br>Email :<span style='color: #3939e2'>"+email+"</span>"
 					}
-					$('.text__info__call').html(string)
+					$('#receive-call-popup .modal-body').html(string)
 					$('.call__to').html(conn.customParameters.get('phone'))
 					$accordionTables.html(accordion_data)
 
 				} else {
-					$('.text__info__call').html("Incoming call from: <span style='color:#2727b8;'>" + number + "</span> would you like to answer call?")
+					$('#receive-call-popup').html("Incoming call from: <span style='color:#2727b8;'>" + number + "</span> would you like to answer call?")
 					$('.call__to').html(conn.customParameters.get('phone'))
 				}
 
@@ -222,6 +228,7 @@
 					flagAboutAnswer = false;
 					conn.accept();
 				});
+
 				$buttonForCancelledCall.off().one('click', function () {
 					$confirmModal.modal('hide');
 					sendTwilioEvents({
