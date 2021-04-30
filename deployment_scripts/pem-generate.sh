@@ -4,12 +4,12 @@ pubkey=`cat ~/erpgenerated_pem.pub`
 
 if [ "$server" == "Erp-Server" ]		### Check for Erp Server
 then
-	sed -i "s%.*erp@$Server%$pubkey%g" .ssh/authorized_keys
+	ssh -i ~/.ssh/id_rsa root@erp.theluxuryunlimited.com "sed -i \"s%.*erp@$server%$pubkey%g\" .ssh/authorized_keys"
 elif [ "$server" == "Scrap-Server" ]		### Check for Scrapper Server
 then
-	for server in 0{1..9} {10..15} 
+	for id in 0{1..9} {10..15} 
 	do
-		ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com "sed -i \"s%.*erp@$server%$pubkey%g\" .ssh/authorized_keys"
+		ssh -i ~/.ssh/id_rsa root@s$id.theluxuryunlimited.com "sed -i \"s%.*erp@$server%$pubkey%g\" .ssh/authorized_keys"
 	done
 elif [ "$server" == "Cropper-Server" ]		### Check for Cropper Server
 then
@@ -27,4 +27,4 @@ then
 	ssh -i ~/.ssh/id_rsa root@139.59.175.99 "sed -i \"s%.*erp@$server%$pubkey%g\" .ssh/authorized_keys"
 fi
 
-echo ~/erpgenerated_pem
+cat ~/erpgenerated_pem
