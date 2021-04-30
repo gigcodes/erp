@@ -47,8 +47,8 @@ class DeleteDatabaseItems extends Command
         \App\ScraperScreenshotHistory::whereDate("created_at", "<=", $datebeforetenday)->delete();
         \App\ScraperServerStatusHistory::whereDate("created_at", "<=", $datebeforetenday)->delete();
         \App\LogRequest::whereDate("created_at", "<=", $datebeforefifteenday)->delete();
-        \App\LogGoogleVision::whereDate("created_at", "<=", $datebeforefifteenday)->delete();
-        \App\LogScraper::where('created_at', '<=', Carbon::now()->subDays(15)->toDateTimeString())->delete();
+        \seo2websites\GoogleVision\LogGoogleVision::whereDate("created_at", "<=", $datebeforefifteenday)->delete();
+        \App\Loggers\LogScraper::where('created_at', '<=', Carbon::now()->subDays(15)->toDateTimeString())->delete();
 
     }
 }
