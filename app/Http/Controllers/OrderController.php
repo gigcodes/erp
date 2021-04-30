@@ -1028,7 +1028,7 @@ class OrderController extends Controller
  * @return \Illuminate\Http\Response
  */
     public function show(Order $order)
-    {
+    {   
         $data                   = $order->toArray();
         $data['sales_persons']  = Helpers::getUsersArrayByRole('Sales');
         $data['order_products'] = $this->getOrderProductsWithProductData($order->id);
@@ -1056,6 +1056,9 @@ class OrderController extends Controller
         $data['waybill']           = $order->waybill;
         $data['waybills']          = $order->waybills;
         $data['customerAddress']   = $order->orderCustomerAddress;
+        $data['shipping_address']  =  $order->shippingAddress();
+        $data['billing_address']   =  $order->billingAddress();
+        $data['order']             = $order;
 
         return view('orders.show', $data);
     }
