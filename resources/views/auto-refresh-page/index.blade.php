@@ -1,9 +1,24 @@
 @extends('layouts.app')
 @section('title', 'Auto Refresh Page')
 @section('content')
-<div class="row">
+<div class="row margin-tb">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Auto Refresh Page</h2>
+        <h2 class="page-heading">Auto Refresh Page (<span id="user_count">{{ $pages->count() }}</span>)</h2>
+    </div>
+</div>
+<div class="row margin-tb">
+    <div class="col-lg-12 margin-tb">
+        <form method="get" action="?">
+            <div class="form-group">
+                <div class="col-md-2">
+                    <input name="term" type="text" class="form-control" value="{{ request('term') }}" placeholder="Enter keyword" id="term">
+                </div>
+                <div class="col-md-2">
+                   <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
+                   <button class="btn btn-secondary btn-create-auto-refresh-page">Create Auto Refresh Page</button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -23,12 +38,11 @@
         </ul>
     </div>
 @endif
-<div class="row">
+<div class="row margin-tb" style="margin-top: 5px;">
     <div class="col-lg-12 margin-tb">
-        <button class="btn btn-secondary btn-create-auto-refresh-page">Create Auto Refresh Page</button>
+        
     </div>
 </div>
-
 <div class="table-responsive mt-3">
     <table class="table table-bordered" id="category-table">
         <thead>
@@ -89,7 +103,8 @@
 @section('scripts')
 
 <script>
-$(document).on("click",".btn-create-auto-refresh-page",function() {
+$(document).on("click",".btn-create-auto-refresh-page",function(e) {
+    e.preventDefault();
     $("#create-auto-refresh-page").modal("show");
 });
 
@@ -106,202 +121,6 @@ $(document).on("click",".edit-page",function(e) {
             console.log(exx)
         }
     })
-});
-
-
-
-
-$(document).ready(function() {
-    $(document).on('click','#canceledit',function(){
-        $('#editsizeform').hide();
-        $('#createsizeform').show();
-    });
-    $(document).on('click','.systemsizeedit',function(){
-        $('#systemsizenameedit').val($(this).data('name'));
-        $('#systemsizeeditid').val($(this).data('id'));
-        $('#editsizeform').show();
-        $('#createsizeform').hide();
-    });
-    $(document).on('click','.systemsizedelete',function(){
-        let id = $(this).data('id');
-        $selector = $(this).parent().parent(); 
-        if (confirm('Are you sure want to delete!')){
-            $.ajax({
-                url:'{{route("system.size.delete")}}',
-                dataType:'json',
-                data:{
-                    id: id,
-                },
-                success:function(result){
-                    $selector.remove();   
-                     window.location.reload();
-                },
-                error:function(exx){
-                    console.log(exx)
-                }
-            })
-        }
-    })
-    $(document).on('click','#sizestorebtn',function(){
-        $.ajax({
-            url:'{{route("system.size.store")}}',
-            dataType:'json',
-            data:{
-                name: $('#systemsizename').val(),
-            },
-            success:function(result){
-                window.location.reload();
-            },
-            error:function(exx){
-                if (exx.status == 422){
-                    $.each(exx.responseJSON.errors,function(key,value){
-                        $('[name="'+key+'"]').parent().append('<span class="error">'+value[0]+'</span>')
-                    });
-                }else{
-                    alert('Something went wrong!');
-                }
-            }
-        })
-    });
-    $(document).on('click','#sizestorebtnupdate',function(){
-        $.ajax({
-            url:'{{route("system.size.update")}}',
-            dataType:'json',
-            data:{
-                code: $('#systemsizenameedit').val(),
-                id: $('#systemsizeeditid').val(),
-            },
-            success:function(result){
-                window.location.reload();
-            },
-            error:function(exx){
-                if (exx.status == 422){
-                    $.each(exx.responseJSON.errors,function(key,value){
-                        $('[name="'+key+'"]').parent().append('<span class="error">'+value[0]+'</span>')
-                    });
-                }else{
-                    alert('Something went wrong!');
-                }
-            }
-        })
-    });
-    
-    $(document).on('submit','#createsizeformmodel',function(e){
-        e.preventDefault();
-        $.ajax({
-            url:'{{route("system.size.managerstore")}}',
-            type:'POST',
-            data:$('#createsizeformmodel').serialize(),
-            success:function(result){
-                if (result.success){
-                    window.location.reload();
-                }else{
-                    $('.alert-sizemanager').text(result.message);
-                    $('.alert-sizemanager').show();
-                    setTimeout(function(){
-                        $('.alert-sizemanager').hide();
-                    },10000);
-                }
-            },
-            error:function(exx){
-                alert('Something went wrong!')
-            }
-        })
-    });
-    $(document).on('click','.editmanager',function(){
-        $('#loading-image-preview').show()
-        let id = $(this).data('id');
-        $.ajax({
-            url:'{{route("system.size.manageredit")}}',
-            dataType:'json',
-            data:{
-                id:id
-            },
-            success:function(result){
-                $('.sizevarintinput1').remove();
-                $('#editnmanagerf').append(result.data);
-                $('#categorydrpedit').val(result.category_id);
-                $('#sizemanagementedit').modal('show');
-                $('#loading-image-preview').hide()
-            },
-            error:function(exx){
-                $('#loading-image-preview').hide()
-                alert('Something went wrong!')
-            }
-        })
-    });
-    $(document).on('submit','#updatesizeformmodel',function(e){
-        e.preventDefault();
-        $.ajax({
-            url:'{{route("system.size.managerupdate")}}',
-            type:'POST',
-            data:$('#updatesizeformmodel').serialize(),
-            success:function(result){
-                if (result.success){
-                    window.location.reload();
-                }else{
-                    $('.alert-sizemanageredit').text(result.message);
-                    $('.alert-sizemanageredit').show();
-                    setTimeout(function(){
-                        $('.alert-sizemanageredit').hide();
-                    },10000);
-                }
-            },
-            error:function(exx){
-                alert('Something went wrong!')
-            }
-        });
-    });  
-    $(document).on('click','.deletemanager',function(){
-        let id = $(this).data('id');
-        if (confirm('Are you sure want do delete?')){
-            $.ajax({
-                url:'{{route("system.size.managerdelete")}}',
-                dataType:'json',
-                data:{
-                    id:id,
-                },
-                success:function(result){
-                    window.location.reload();
-                },
-                error:function(exx){
-                    alert('Something went wrong!')
-                }
-            });
-        }
-    });  
-    // $(document).on('click','#sizemanagementmodelbtn',function(){
-    //     checkVariant();
-    // });
-    $(document).on('change','#categorydrp',function(){
-        // checkVariant();
-    });
-    function checkVariant(){
-        console.log('aas');
-        let id = $('#categorydrp').val();
-        if (id != null && id != ''){
-            $('#loading-image-preview').show()
-            $.ajax({
-                url:'{{route("system.size.managercheckexistvalue")}}',
-                dataType:'json',
-                data:{
-                    id:id,
-                },
-                success:function(result){
-                    $('.sizevarintinput').remove();
-                    $('#sizevariant').before(result.data);
-                    $('#loading-image-preview').hide()
-                },
-                error:function(exx){
-                    $('#loading-image-preview').hide()
-                    alert('Something went wrong1!')
-                }
-            });
-        }else{
-            $('.sizevarintinput').remove();
-
-        }
-    }
-});  
+}); 
 </script>
 @endsection

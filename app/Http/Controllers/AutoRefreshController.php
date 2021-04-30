@@ -7,9 +7,15 @@ use Illuminate\Http\Request;
 
 class AutoRefreshController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $pages = \App\AutoRefreshPage::paginate(10);
+        $pages = \App\AutoRefreshPage::query();
+
+        if($request->term) {
+            $pages = $pages->where("page","like","%".$request->term."%");
+        }
+
+        $pages = $pages->paginate(10);
 
         return view('auto-refresh-page.index', compact('pages'));
     }
