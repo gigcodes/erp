@@ -126,10 +126,18 @@ return [
             'password' => env('MAGENTO_DB_PASSWORD', ''),
             'strict' => false,
         ],
-        'veralusso' => [
+        'upeau' => [
             'driver'   => 'mysql',
             'host'     => env('UPEAU_HOST', 'erp'),
             'database' => env('UPEAU_DB', 'erp'),
+            'username' => env('MAGENTO_DB_USER', 'root'),
+            'password' => env('MAGENTO_DB_PASSWORD', ''),
+            'strict' => false,
+        ],
+        'veralusso' => [
+            'driver'   => 'mysql',
+            'host'     => env('VERALUSSO_HOST', 'erp'),
+            'database' => env('VERALUSSO_DB', 'erp'),
             'username' => env('MAGENTO_DB_USER', 'root'),
             'password' => env('MAGENTO_DB_PASSWORD', ''),
             'strict' => false,
