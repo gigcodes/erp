@@ -39,8 +39,7 @@ class SendEmail implements ShouldQueue
 
         try {
 
-            $multimail = new \MultiMail;
-            $multimail->to($email->to);
+            $multimail = \MultiMail::to($email->to);
             $multimail->from($email->from);
             if(!empty($email->cc)) {
                 $multimail->cc($email->cc);
@@ -69,6 +68,7 @@ class SendEmail implements ShouldQueue
             $email->status   = 'send';
         } catch (\Exception $e) {
             $email->is_draft = 1;
+            $email->error_message = $e->getMessage();
             \Log::info("Issue fom SendEmail ".$e->getMessage());
         }
 

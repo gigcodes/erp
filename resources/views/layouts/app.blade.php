@@ -1697,6 +1697,9 @@ $metaData = '';
                                     <a class="dropdown-item" href="{{ url('/store-website-analytics/index') }}">Store Website Analytics</a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('store-website-country-shipping.index') }}">Store Website country shipping</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('googlefiletranslator.list') }}">Google File Translator</a>
                                 </li>
                                 <li class="nav-item">

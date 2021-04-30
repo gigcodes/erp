@@ -22,6 +22,11 @@
 	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action">
 		  				<img src="/images/add.png" style="cursor: default;">
 		  			</button>
+                    @if(auth()->user()->isAdmin())
+                        <button style="display: inline-block;" class="btn btn-sm btn-secondary generate-pem-file">
+                            Generate PEM file
+                        </button>
+                    @endif
 				 </div> 		
 		    </div>
 		    <div class="col">
@@ -35,7 +40,7 @@
 						  	</div>
 						  	<div class="form-group">
 						  		<label for="button">&nbsp;</label>
-						  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
+						  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-secondary btn-search-action">
 						  			<img src="/images/search.png" style="cursor: default;">
 						  		</button>
 						  	</div>		

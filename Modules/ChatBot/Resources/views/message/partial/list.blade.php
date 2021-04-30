@@ -6,17 +6,27 @@
         padding-left: 0px !important;
         padding-right: 0px !important;
     }
+    #chat-list-history tr {
+        word-break: break-word; 
+    }
+    .reviewed_msg {
+        word-break: break-word; 
+    }
 </style>
+@php
+    $isAdmin = Auth::user()->hasRole('Admin');
+    $isHod  = Auth::user()->hasRole('HOD of CRM');
+    
+@endphp
 <table class="table table-bordered page-template-{{ $page }}">
     <thead>
     <tr>
-        <th width="5%">#</th>
-        <th width="5%">Name</th>
+        <th width="10%"># Name</th>
         <th width="5%">Website</th>
         <th width="10%">User input</th>
         <th width="15%">Bot Replied</th>
         <th width="15%">Message Box</th>
-        <th width="10%">From</th>
+        <th width="5%">From</th>
         <th width="10%">Images</th>
         <th width="10%">Created</th>
         <th width="10%">Action</th>
@@ -26,8 +36,7 @@
     <?php if (!empty($pendingApprovalMsg)) {?>
     <?php foreach ($pendingApprovalMsg as $pam) {?>
     <tr>
-        <td>{{ $pam->customer_id }}[{{ $pam->chat_id }}]</td>
-        <td>{{  ($pam->vendor_id > 0 ) ? $pam->vendors_name : $pam->customer_name }}</td>
+        <td data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id}}" data-vendor-id="{{$pam->vendor_id}}">{{  ($pam->vendor_id > 0 ) ? "#".$pam->vendor_id." ".$pam->vendors_name : "#".$pam->customer_id." ".$pam->customer_name }}</td>
         <td>{{ $pam->website_title }}</td>
         <td class="user-input">{{ $pam->question }}</td>
         <td class="boat-replied">{{ $pam->answer }}</td>
@@ -38,6 +47,11 @@
                 </div>
                 <div class="col-md-1 cls_remove_allpadding">
                     <button class="btn btn-sm btn-image send-message1" data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
+                    @if($pam->vendor_id > 0 )
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="vendor" data-id="{{$pam->vendor_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    @else
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="customer" data-id="{{$pam->customer_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    @endif
                 </div>
             </div>
         </td>
@@ -63,7 +77,7 @@
             </a>
             @endif
             <a href="javascript:;" class="delete-images" data-id="{{ $pam->chat_id }}">
-                <img width="15px" title="Remove Images" height="15px" src="/images/do-not-disturb.png">
+                <img width="15px" title="Remove Images" height="15px" src="/images/do-disturb.png">
             </a>
             @if($pam->suggestion_id)
                 <a href="javascript:;" class="add-more-images" data-id="{{ $pam->chat_id }}">
@@ -86,7 +100,7 @@
     </tbody>
     <tfoot>
     <tr>
-        <td colspan="6"><?php echo $pendingApprovalMsg->appends(request()->except("page"))->links(); ?></td>
+        <td colspan="9"><?php echo $pendingApprovalMsg->appends(request()->except("page"))->links(); ?></td>
     </tr>
     </tfoot>
 </table>
@@ -137,7 +151,7 @@
             data: form.serialize(),
             dataType : "json",
             success: function (response) {
-                location.reload();
+               // location.reload();
                 // if(response.code == 200) {
                 //     toastr['success']('data updated successfully!');
                 //     window.location.replace(response.redirect);

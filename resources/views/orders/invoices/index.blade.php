@@ -16,6 +16,8 @@
             <th>Invoice Number</th>
             <th>Customer Name</th>
             <th>Invoice Value</th>
+            <th>Currency</th>
+            <th>Website</th>
             <th>Action</th>
          </tr>
       </thead>
@@ -25,7 +27,7 @@
             <td>{{ $invoice->invoice_date }}</td>
             <td>{{ $invoice->invoice_number }}</td>
             <td>
-               {{ $invoice->orders[0]->customer->name }}
+               {{ $invoice->orders[0]->customer->name ?? '' }}
             </td>
             <td>
                @php
@@ -39,6 +41,12 @@
                {{ $final_price}}
             </td>
             <td>
+                {{ $invoice->orders[0]->currency ?? '--' }}
+            </td>
+            <td>
+                {{ $invoice->orders[0]->customer->storeWebsite->website ?? '--' }}
+            </td>
+            <td>
                <a class="btn btn-image send-invoice-btn" data-id="{{ $invoice->id }}">
                <img title="Resend Invoice" src="/images/purchase.png" />
                </a>
@@ -47,11 +55,11 @@
                </a>
                </a>
                <a title="Update Invoice Addresses"
-                  data-address="{{$invoice->orders[0]->customer->address}}"
-                  data-city="{{$invoice->orders[0]->customer->city}}"
-                  data-country="{{$invoice->orders[0]->customer->country}}"
-                  data-pincode="{{$invoice->orders[0]->customer->pincode}}"
-                  data-codex="{{$invoice->orders[0]->customer->id}}"
+                  data-address="{{$invoice->orders[0]->customer->address ?? ''}}"
+                  data-city="{{$invoice->orders[0]->customer->city ?? ''}}"
+                  data-country="{{$invoice->orders[0]->customer->country ?? ''}}"
+                  data-pincode="{{$invoice->orders[0]->customer->pincode ?? ''}}"
+                  data-codex="{{$invoice->orders[0]->customer->id ?? ''}}"
                   class="btn btn-image UpdateInvoiceAddresses"
                   data-id="{{$invoice->id}}"  
                   >
@@ -161,11 +169,14 @@
              if(response.code == 200) {
                toastr['success'](response.message);
              }else{
-               toastr['error'](response.message);
+               toastr['error']('Something went wrong');
              }
              $("#loading-image").hide();
-          }).fail(function(errObj) {
-             $("#loading-image").hide();
+          }).fail(function(xhr, status, error) {
+                $("#loading-image").hide();
+                var err = eval("(" + xhr.responseText + ")");
+                toastr['error']( err.message );
+             
           });
       });
    

@@ -90,6 +90,7 @@ Route::prefix('product')->middleware('auth')->group(static function () {
 Route::prefix('logging')->middleware('auth')->group(static function () {
 
     Route::any('list/api/logs','LaravelLogController@apiLogs')->name('api-log-list');
+    Route::any('list/api/logs/generate-report','LaravelLogController@generateReport')->name('api-log-list-generate-report');
 
    // Route::post('filter/list/api/logs','LaravelLogController@apiLogs')->name('api-filter-logs')
     Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
@@ -595,6 +596,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
     Route::get('order/invoices', 'OrderController@viewAllInvoices');
+    Route::post('order/create-product', 'OrderController@createProduct')->name('order.create.product');
+
+    
 
     Route::get('order/{id}/edit-invoice', 'OrderController@editInvoice')->name('order.edit.invoice');
     Route::post('order/edit-invoice', 'OrderController@submitEdit')->name('order.submitEdit.invoice');
@@ -611,6 +615,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/invoices/{id}/get-details', 'OrderController@getInvoiceDetails')->name('order.view.invoice.get.details');
     Route::post('order/invoices/{id}/update-details', 'OrderController@updateDetails')->name('order.view.invoice.update.details');
 
+    Route::post('order/invoices/add-product', 'OrderController@addProduct')->name('order.view.invoice.add.product');
+    Route::post('order/invoices/search-product', 'OrderController@searchProduct')->name('order.search.product');
    //TODO web - added by jammer
     Route::get('order/download-invoice/{id}', 'OrderController@downloadInvoice')->name('order.download.invoice');
     Route::post('order/update-customer-address', 'OrderController@updateCustomerInvoiceAddress')->name('order.update.customer.address');
@@ -2768,6 +2774,11 @@ Route::get('/store-website-analytics/edit/{id}', 'StoreWebsiteAnalyticsControlle
 Route::get('/store-website-analytics/delete/{id}', 'StoreWebsiteAnalyticsController@delete');
 Route::get('/store-website-analytics/report/{id}', 'StoreWebsiteAnalyticsController@report');
 Route::get('/analytis/cron/showData', 'AnalyticsController@cronShowData');
+
+Route::get('store-website-country-shipping', 'StoreWebsiteCountryShippingController@index')->name('store-website-country-shipping.index');
+Route::any('store-website-country-shipping/create', 'StoreWebsiteCountryShippingController@create')->name('store-website-country-shipping.create');
+Route::get('store-website-country-shipping/edit/{id}', 'StoreWebsiteCountryShippingController@edit')->name('store-website-country-shipping.edit');
+Route::get('store-website-country-shipping/delete/{id}', 'StoreWebsiteCountryShippingController@delete')->name('store-website-country-shipping.delete');
 
 Route::get('/attached-images-grid/customer/', 'ProductController@attachedImageGrid');
 Route::post('/attached-images-grid/add-products/{suggested_products_id}', 'ProductController@attachMoreProducts');//

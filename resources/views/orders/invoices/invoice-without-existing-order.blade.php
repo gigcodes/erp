@@ -12,7 +12,7 @@
     ?>
   </select>
 </div>
-<label for="customer_name">Select Product</label>
+<label for="customer_name">Select Product</label>  <button class="btn btn-secondary btn-xs ml-2 add-new-product" >Add new product</button>
 <div class="form-group">
   <select name="product" type="text" class="form-control" placeholder="Search by product name and short description" id="product-name-search" data-allow-clear="true">
     <?php
@@ -21,6 +21,27 @@
     }
     ?>
   </select>
+</div>
+<div class="form-group add-new-product-form d-none">
+  <div class="row">
+      <div class="col-md-3">
+        <input type="text" name="sku" class="form-control" placeholder="SKU">
+      </div>
+      <div class="col-md-3">
+        <input type="number" name="price" class="form-control" placeholder="Price">
+      </div>
+      <div class="col-md-3">
+        <input type="text" name="size" class="form-control" placeholder="Size">
+      </div>
+      <div class="col-md-3">
+        <input type="text" name="name" class="form-control" placeholder="name">
+      </div>
+  </div>
+  <div class="row">
+      <div class="col-md-12">
+          <button class="btn btn-secondary btn-xs pull-right mt-1 save-new-product"> Save </button>
+      </div>
+  </div>
 </div>
 <div class="product_list_class">
   <p style="float:left"><strong>Total Products:</strong><strong id="product_count90"></strong></p>
@@ -49,6 +70,36 @@
 var slected_products_ids =[]
 var products_list =[]
 var products_for_display=[]
+
+$(".add-new-product").click(function(){
+    $(".add-new-product-form").toggleClass("d-none");
+});
+
+$('.save-new-product').on('click',function(){
+  
+  var price = $('input[name="price"]').val();
+  var size = $('input[name="size"]').val();
+  var name = $('input[name="name"]').val();
+  var sku = $('input[name="sku"]').val();
+  console.log(price, size, name, sku);
+  if( price == '' || size == '' || name == '' || sku == '' ){
+    alert('Please fill up details');
+    return false;
+  };
+
+  $.ajax({
+     headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      },
+      url: "/order/create-product",
+      type: "post",
+      data:{ sku:sku, price:price, size:size, name:name }
+    }).done(function(response) {
+      alert(response.message);
+    }).fail(function(errObj) {
+      console.log(errObj)
+    });
+})
 
 //Product Search
 $('#product-name-search').select2({
@@ -161,13 +212,22 @@ $('#save_cart_btn').on('click',function(){
   var invoice_no = $('#invoice_no').val()
   var customer_id = $('#customer-name-search').val()
   $.ajax({
+     headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      },
       url: "/order",
       type: "post",
       data:{invoice_no:invoice_no,qty:JSON.stringify(qty),customer_id:customer_id,slected_products_ids:JSON.stringify(slected_products_ids)}
     }).done(function(response) {
-      console.log(response)
-    }).fail(function(errObj) {
-      console.log(errObj)
+      if(response.code == 200){
+        toastr['success']('Success');
+      }else{
+        toastr['error']( 'Something went wrong' );
+      }
+    }).fail(function(xhr, status, error) {
+        var err = eval("(" + xhr.responseText + ")");
+        toastr['error']( err.message );
+        
     });
 })
 function qty_collector(){

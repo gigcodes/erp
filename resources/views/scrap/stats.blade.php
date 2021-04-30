@@ -1273,10 +1273,12 @@
             });
         });
 
-        $(document).on("change", ".scrapers_status", function () {
+        $(document).on("change", ".scrapers_status", function (e) {
+            e.preventDefault();
             var tr = $(this).closest("tr");
             var id = tr.data("eleid");
-            $("#remark-confirmation-box").modal("show").on("click",".btn-confirm-remark",function() {
+            $("#remark-confirmation-box").modal("show").on("click",".btn-confirm-remark",function(e) {
+                e.preventDefault();
                  var remark =  $("#confirmation-remark-note").val();
                  if($.trim(remark) == "") {
                     alert("Please Enter remark");
@@ -1293,6 +1295,7 @@
                     },
                 }).done(function (response) {
                     toastr['success']('Data updated Successfully', 'success');
+                    $("#remark-confirmation-box").modal("hide");
                 }).fail(function (response) {
                 });
             });

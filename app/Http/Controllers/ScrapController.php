@@ -191,7 +191,7 @@ class ScrapController extends Controller
         }
 
         // Validate input
-        $this->validate($request, [
+        /*$this->validate($request, [
             'sku'        => 'required|min:5',
             'url'        => 'required',
             'images'     => 'required|array',
@@ -200,6 +200,22 @@ class ScrapController extends Controller
             'price'      => 'required',
             'brand'      => 'required',
         ]);
+*/
+
+        $validator = Validator::make($request->all(), [
+          'sku'        => 'required',
+           'url'        => 'required',
+           'images'     => 'required|array',
+           'properties' => 'required',
+           'website'    => 'required',
+           'price'      => 'required',
+           'brand'      => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(["code" => 500, "error" => $validator->errors()]);
+        }
+
 
         // Get SKU
         $sku = ProductHelper::getSku($request->get('sku'));

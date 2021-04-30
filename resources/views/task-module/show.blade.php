@@ -806,10 +806,10 @@
                                                         <i class="fa fa-upload" aria-hidden="true"></i>
                                                     </button>
 
+                                                @endif
                                                     <button type="button" class="btn preview-img-btn pd-5" data-id="{{ $task->id }}">
                                                         <i class="fa fa-list" aria-hidden="true"></i>
                                                     </button>
-                                                @endif
                                                 @if ((!$special_task->users->contains(Auth::id()) && $special_task->contacts()->count() == 0))
                                                     @if ($task->is_private == 1)
                                                         <button disabled type="button" class="btn btn-image pd-5"><img src="{{asset('images/private.png')}}"/></button>

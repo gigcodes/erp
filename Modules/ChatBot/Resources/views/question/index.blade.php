@@ -82,14 +82,15 @@
 	        <table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%" style="table-layout:fixed;">
 			  <thead>
 			    <tr>
-			      <th class="th-sm" style="width:5%">Id</th>
+			      <th class="th-sm" style="width:7%">Id</th>
 			      <th class="th-sm" style="width:13%">Intent / entity</th>
 			      <th class="th-sm" style="width:5%">Type</th>
 			      <th class="th-sm" style="width:30%">User Intent / entity</th>
                   <th class="th-sm" style="width:10%">Erp/Watson</th>
-                  <th class="th-sm" style="width:30%">Suggested Response</th>
+                  <th class="th-sm" style="width:10%">Suggested Response</th>
 			      <th class="th-sm" style="width:9%">Category</th>
 			      <th class="th-sm" style="width:9%">Status</th>
+                  <th class="th-sm" style="width:9%">Created</th>
 			      <th class="th-sm" style="width:8%">Action</th>
 			    </tr>
 			  </thead>
@@ -107,16 +108,17 @@
 					  <td><?php echo implode("</br>",$listOfQuestions); ?></td>
                       <td><?php echo $chatQuestion->erp_or_watson; ?></td>
                       <td>
+                        <i class="fa fa-comments show-response-by-website"></i>
 					  @if(request('store_website_id'))
-					  <?php 
-						$reply = \App\ChatbotQuestionReply::where('store_website_id',request('store_website_id'))->where('chatbot_question_id',$chatQuestion->id)->first();
-						if($reply) {
-							$r = $reply->suggested_reply;
-						}
-						else {
-							$r = '';
-						}
-					  ?>
+        					  <?php 
+        						$reply = \App\ChatbotQuestionReply::where('store_website_id',request('store_website_id'))->where('chatbot_question_id',$chatQuestion->id)->first();
+        						if($reply) {
+        							$r = $reply->suggested_reply;
+        						}
+        						else {
+        							$r = '';
+        						}
+        					  ?>
 						{{$r}}
 						@endif
 					  </td>
@@ -129,11 +131,12 @@
 						</select>
 					  </td>
 				      <td class="{{ ( $chatQuestion->watson_status == 1 ) ? 'success' : null }}">{{ ( $chatQuestion->watson_status == '1' ) ? 'Success' : null }} {{ ( $chatQuestion->watson_status == 0 ) ? 'Error' : null }} {{ ( $chatQuestion->watson_status != 1 && $chatQuestion->watson_status != 0 ) ? $chatQuestion->watson_status : null }}</td>
+                      <td title="{{ $chatQuestion->created_at }}">{{ date("Y-m-d",strtotime($chatQuestion->created_at))}}</td>
 				      <td>
-							<a class="btn btn-image edit-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.edit",[$chatQuestion->id]); ?>"><img src="/images/edit.png"></a>
-							<a class="btn btn-image delete-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.delete",[$chatQuestion->id]); ?>"><img src="/images/delete.png"></a>
-							<a class="btn btn-image show-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="javascript:void(0);"><img src="/images/details.png"></a>
-							<a class="btn btn-image repeat-button pd-3 fa fa-repeat" data-id="<?php echo $chatQuestion->id; ?>" href="javascript:void(0);"></a>
+							<a title="Edit" class="btn btn-image edit-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.edit",[$chatQuestion->id]); ?>"><img src="/images/edit.png"></a>
+							<a title="Delete" class="btn btn-image delete-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.delete",[$chatQuestion->id]); ?>"><img src="/images/delete.png"></a>
+							<a title="Show" class="btn btn-image show-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="javascript:void(0);"><img src="/images/details.png"></a>
+							<a title="Repeat" class="btn btn-image repeat-button pd-3 fa fa-repeat" data-id="<?php echo $chatQuestion->id; ?>" href="javascript:void(0);"></a>
 						<!-- @if($chatQuestion->keyword_or_question == 'entity')
 						<a class="btn btn-image edit-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.keyword.edit",[$chatQuestion->id]); ?>"><img src="/images/edit.png"></a>
                         <a class="btn btn-image delete-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.keyword.delete",[$chatQuestion->id]); ?>"><img src="/images/delete.png"></a>
@@ -155,6 +158,12 @@
 @include('chatbot::partial.create_dynamic_reply')
 @include('chatbot::partial.autoreply-create-modal')
 @include('partials.chat-history')
+<div class="modal" id="create-chatbot-reply" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        </div>    
+    </div>    
+</div>
 <script type="text/javascript">
 	$("#create-keyword-btn").on("click",function() {
 		$("#create-question").modal("show");
@@ -306,11 +315,27 @@
                	toastr['error'](errorMessage);
                } 
             },
-            error: function () {
-               toastr['error']('Could not change module!');
+            error: function (error) {
+               toastr['error'](error.responseJSON.message);
             }
         });
 	});
+
+    $(document).on("click",".show-response-by-website",function() {
+        var $this = $(this);
+        $.ajax({
+            type: "GET",
+            url: "/chatbot/question/suggested-response",
+            data: {id:$this.data("id")},
+            success: function (response) {
+                $("#create-chatbot-reply").find(".modal-content").html(response);
+                $("#create-chatbot-reply").modal("show");
+            },
+            error: function (error) {
+               toastr['error'](error.responseJSON.message);
+            }
+        });
+    });
 
 	$(".select-chatbot-category").select2({
             placeholder: "Enter category name",
