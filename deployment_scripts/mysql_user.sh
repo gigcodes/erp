@@ -20,7 +20,7 @@ function Delete {
 		echo " User Does not exist"
 	else
 		mysql -h $host -u $user -p"$password" <<QUERY
-		Delete from mysql.user where user='$mysql_user';
+		drop user '$mysql_user'@localhost;
 		FLUSH PRIVILEGES;
 QUERY
 	fi
