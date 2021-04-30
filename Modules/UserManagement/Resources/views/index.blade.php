@@ -121,6 +121,7 @@
                             </div>
                         </form>
                     </div>
+                    <button class="btn btn-secondary btn-xs pull-right mt-0 permission-request">Permission request ( {{$permissionRequest}} )</button>
                 </div>
             </div>
         </div>  
@@ -137,6 +138,37 @@
     </div>  
 </div>
 
+
+<div id="permission-request" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Permission request list</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12" id="permission-request">
+                    <table class="table fixed_header">
+                        <thead>
+                            <tr>
+                                <th>User name</th>
+                                <th>Permission name</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                         <tbody class="show-list-records" >
+                         </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div id="time_history_modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -230,7 +262,75 @@
 <script type="text/javascript">
  $('#due-datetime').datetimepicker({
             format: 'YYYY-MM-DD HH:mm'
-});
+}); 
+
+     // $(document).on("click",".permission-request",function() {
+     //    $('#permission-request').modal();
+     // });
+
+     $(document).on("click",".permission-request",function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/user-management/request-list',
+            type: 'POST',
+            data : { _token: "{{ csrf_token() }}"},
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                if(result.code == 200) {
+                    var t = '';
+                    $.each(result.data,function(k,v) {
+                        t += `<tr><td>`+v.name+`</td>`;
+                        t += `<td>`+v.permission_name+`</td>`;
+                        t += `<td>`+v.request_date+`</td>`;
+                        t += `<td><button class="btn btn-secondary btn-xs permission-grant" data-type="accept" data-id="`+v.permission_id+`" data-user="`+v.user_id+`">Accept</button>
+                                 <button class="btn btn-secondary btn-xs permission-grant" data-type="reject" data-id="`+v.permission_id+`" data-user="`+v.user_id+`">Reject</button>
+                              </td></tr>`;
+                    });
+                    if( t == '' ){
+                        t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
+                    }
+                }
+                $("#permission-request").find(".show-list-records").html(t);
+                $("#permission-request").modal("show");
+            },
+            error: function (){
+                $("#loading-image").hide();
+            }
+        });
+    });
+
+    $(document).on("click",".permission-grant",function(e) {
+        e.preventDefault();
+        var permission = $(this).data('id');
+        var user = $(this).data('user');
+        var type = $(this).data('type');
+
+        $.ajax({
+            url: '/user-management/modifiy-permission',
+            type: 'POST',
+            data : { _token: "{{ csrf_token() }}", permission : permission, user:user, type:type},
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                if(result.code == 200) {
+                    toastr["success"](result.data,"");
+                }else{
+                    toastr["error"](result.data,"");
+                }
+            },
+            error: function (){
+                $("#loading-image").hide();
+            }
+        });
+    });
+
     $('.due-datetime').datetimepicker({
         format: 'YYYY-MM-DD HH:mm'
     });
