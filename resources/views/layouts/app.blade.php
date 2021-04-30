@@ -1480,6 +1480,9 @@ $metaData = '';
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('settings.index')}}">Settings</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('auto.refresh.index')}}">Auto Refresh page</a>
+                                        </li>
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('budget.index') }}">Hubstaff</a>
