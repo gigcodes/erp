@@ -1218,7 +1218,7 @@ class UserManagementController extends Controller
                 $allOutput   = array();
                 $allOutput[] = $cmd;
                 $result      = exec($cmd, $allOutput);
-                \Log::info(print_r($result,true));
+                \Log::info(print_r($allOutput,true));
                 \App\UserDatabase::create([
                     "username" => $username,
                     "password" => $password,
@@ -1269,7 +1269,7 @@ class UserManagementController extends Controller
                     $allOutput   = array();
                     $allOutput[] = $cmd;
                     $result      = exec($cmd, $allOutput);
-                    \Log::info(print_r($result,true));
+                    \Log::info(print_r($allOutput,true));
                 }
             }
 
@@ -1287,7 +1287,7 @@ class UserManagementController extends Controller
             $allOutput   = array();
             $allOutput[] = $cmd;
             $result      = exec($cmd, $allOutput);
-            \Log::info(print_r($result,true));
+            \Log::info(print_r($allOutput,true));
 
             return response()->json(["code" => 200, "message" => "Table assigned successfully"]);
 
@@ -1317,7 +1317,7 @@ class UserManagementController extends Controller
             $allOutput   = array();
             $allOutput[] = $cmd;
             $result      = exec($cmd, $allOutput);
-            \Log::info(print_r($result,true));
+            \Log::info(print_r($allOutput,true));
             foreach($database->userDatabaseTables as $dbtables) {
                 $dbtables->delete();
             }
