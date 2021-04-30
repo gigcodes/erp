@@ -151,7 +151,9 @@ a {
 					{{if !prop.already_approved}}
 						<button title="Approve user for the day" type="button" class="btn approve-user pd-5" data-id="{{:prop.id}}"> <i class="fa fa-check-circle" aria-hidden="true"></i></button>
 					{{/if}}
+					<?php if(Auth::user()->isAdmin()) { ?>
 						<button title="Create database" type="button" class="btn btn-create-database pd-5" data-id="{{:prop.id}}"> <i class="fa fa-database" aria-hidden="true"></i></button>
+					<?php } ?>
 					</td>
 			      </tr>
 			    {{/props}}  
