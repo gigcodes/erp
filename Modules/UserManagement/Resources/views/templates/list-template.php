@@ -33,7 +33,7 @@ a {
 				<th style="width:80px;">TASKS</th>
 				<th style="width:80px">Yesterday hours</th>
 				<th style="width:80px;">Last seen</th> 
-				<!-- <th style="width:80px">Payment frequency</th>  -->
+				<th style="width:80px">Payment frequency</th> 
 				<th style="width:80px">Payment Due</th>
 				<th style="width:80px">Due date</th> 			
 				<th style="width:85px;">Paid on</th>
@@ -62,7 +62,7 @@ a {
 					</td>
 			        <td>{{:prop.yesterday_hrs}}</td>
 			        <td>{{:prop.online_now}}</td>
-			        <!-- <td>{{:prop.payment_frequency}}</td> -->
+			        <td>{{:prop.payment_frequency}}</td>
 			        <td> {{:prop.previousDue}} {{:prop.currency}}</td>
 			        <td>{{:prop.nextDue}}</td>
 			        <td>
