@@ -1249,12 +1249,12 @@ class UserManagementController extends Controller
         }
 
         $database = \App\UserDatabase::where("user_id",$id)->where("database",$connection)->first();
-        $tables   = $request->tables;
+        $tables   = !empty($request->tables) ? $request->tables : [];
         $permissionType = $request->get("assign_permission","read");
 
 
 
-        if($database && !empty($tables)) {
+        if($database) {
             
             $tablesExisting = \App\UserDatabaseTable::where("user_database_id",$database->id)->pluck('name','id')->toArray();
             if(!empty($tablesExisting)){
@@ -1275,11 +1275,13 @@ class UserManagementController extends Controller
 
             \App\UserDatabaseTable::where("user_database_id",$database->id)->delete();
 
-            foreach($tables as $t) {
-                \App\UserDatabaseTable::create([
-                    'user_database_id' => $database->id,
-                    'name' => $t,
-                ]);
+            if(!empty($tables)) {
+                foreach($tables as $t) {
+                    \App\UserDatabaseTable::create([
+                        'user_database_id' => $database->id,
+                        'name' => $t,
+                    ]);
+                }
             }
 
             
