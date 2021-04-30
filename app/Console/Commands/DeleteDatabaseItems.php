@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class DeleteDatabaseItems extends Command
@@ -38,14 +39,16 @@ class DeleteDatabaseItems extends Command
     public function handle()
     {
         //
-        $datebeforetenday = date("Y-m-d",strtotime("-10 day"));
+        $datebeforetenday     = date("Y-m-d", strtotime("-10 day"));
+        $datebeforefifteenday = date("Y-m-d", strtotime("-15 day"));
         // delete scraper position history
-        \App\ScraperPositionHistory::whereDate("created_at","<=",$datebeforetenday)->delete();
+        \App\ScraperPositionHistory::whereDate("created_at", "<=", $datebeforetenday)->delete();
         // delete scraper screenshot
-        \App\ScraperScreenshotHistory::whereDate("created_at","<=",$datebeforetenday)->delete();
-        \App\ScraperServerStatusHistory::whereDate("created_at","<=",$datebeforetenday)->delete();
+        \App\ScraperScreenshotHistory::whereDate("created_at", "<=", $datebeforetenday)->delete();
+        \App\ScraperServerStatusHistory::whereDate("created_at", "<=", $datebeforetenday)->delete();
+        \App\LogRequest::whereDate("created_at", "<=", $datebeforefifteenday)->delete();
+        \App\LogGoogleVision::whereDate("created_at", "<=", $datebeforefifteenday)->delete();
+        \App\LogScraper::where('created_at', '<=', Carbon::now()->subDays(15)->toDateTimeString())->delete();
 
     }
 }
-
-
