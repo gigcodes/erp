@@ -2871,6 +2871,11 @@ Route::prefix('system')->middleware('auth')->group(static function () {
     Route::get('/size/manageredit', 'SystemSizeController@manageredit')->name('system.size.manageredit');
     Route::post('/size/managerupdate', 'SystemSizeController@managerupdate')->name('system.size.managerupdate');
     Route::get('/size/managerdelete', 'SystemSizeController@managerdelete')->name('system.size.managerdelete');
+
+    Route::prefix('auto-refresh')->group(static function () {
+        Route::get('/', 'AutoRefreshController@index')->name('auto.refresh.index');
+        Route::post('/create', 'AutoRefreshController@store')->name('auto.refresh.store');
+    });
 });
 
 Route::middleware('auth')->group(function()
