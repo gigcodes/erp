@@ -3,7 +3,7 @@
 namespace App;
 
 /**
- * @SWG\Definition(type="object", @SWG\Xml(name="User"))
+ * @SWG\Definition(type="object", @SWG\Xml(name="AutoRefreshPage"))
  */
 use Illuminate\Database\Eloquent\Model;
 
