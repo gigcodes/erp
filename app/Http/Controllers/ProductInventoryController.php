@@ -1042,7 +1042,7 @@ class ProductInventoryController extends Controller
         //$products_categories = \App\Product::getPruductsCategories();
         $products_categories = Category::attr(['name' => 'product_categories[]','data-placeholder' => 'Select a Category','class' => 'form-control select-multiple2', 'multiple' => true])->selected(request('product_categories',[]))->renderAsDropdown();
         $products_sku        = \App\Product::getPruductsSku();
-        if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more-new", compact('inventory_data'));
+        if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more", compact('inventory_data'));
         return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku','status_list','inventory_data_count','supplier_list','reportData'));
     }
 
