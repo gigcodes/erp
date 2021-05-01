@@ -74,6 +74,27 @@
             </div>
         </div>
     </form>
+    <form class="" action="/scrap/quick-statistics">
+        <div class="row">
+            <div class="form-group mb-3 col-md-2">
+                <select class="form-control" name="column">
+                    <option value="">Select column</option>
+                    <option value="last_started_at" {{ request('column') == 'last_started_at' ? 'selected' : '' }}>Last started</option>
+                    <option value="latest_product" {{ request('column') == 'latest_product' ? 'selected' : '' }}>Latest product</option>
+                </select>
+            </div>
+            <div class="form-group mb-3 col-md-2">
+                <select class="form-control" name="order_by">
+                    <option value="">Select orderBy</option>
+                    <option value="asc" {{ request('order_by') == 'asc' ? 'selected' : '' }}>ASC</option>
+                    <option value="desc" {{ request('order_by') == 'desc' ? 'selected' : '' }}>DESC</option>
+                </select>
+            </div>
+            <div class="form-group mb-3 col-md-2">
+                <button type="submit" class="btn btn-secondary btn-sm"><i class="fa fa-sort"></i></button>
+            </div>
+        </div>
+    </form>
    <br>
    <?php $totalCountedUrl = 0; ?>
     <div class="row no-gutters mt-3">
@@ -135,16 +156,16 @@
                                 $chatMessage = $supplier->latestMessage();
                                 $lastError = $supplier->lastErrorFromScrapLog();
                             @endphp
-                            <td width="6%"><a href="/supplier/{{$supplier->id}}" >
-                                <span class="toggle-title-box has-small" data-small-title="<?php echo ($supplier->supplier) ? substr($supplier->supplier, 0, 3) : '' ?>" data-full-title="<?php echo ($supplier->supplier) ? $supplier->supplier : '' ?>">
+                            <td width="6%">
+                                <span class="toggle-title-box has-small" data-small-title="<?php echo ($supplier->supplier) ? substr($supplier->supplier, 0, 3).'..' : '' ?>" data-full-title="<?php echo ($supplier->supplier) ? $supplier->supplier : '' ?>">
                                     <?php
                                         if($supplier->supplier) {
-                                            echo (strlen($supplier->supplier) > 3) ? substr($supplier->supplier, 0, 3).".." : $supplier->supplier;
+                                            echo (strlen($supplier->supplier) > 5) ? substr($supplier->supplier, 0, 3).".." : $supplier->supplier;
                                         }
                                      ?>
                                  </span>
 
-                                &nbsp; {{ \App\Helpers\ProductHelper::getScraperIcon($supplier->scraper_name) }}</a>
+                                &nbsp; {{ \App\Helpers\ProductHelper::getScraperIcon($supplier->scraper_name) }}
                                 @if(substr(strtolower($supplier->supplier), 0, 6)  == 'excel_')
                                     &nbsp;<i class="fa fa-file-excel-o" aria-hidden="true"></i>
                                 @endif
