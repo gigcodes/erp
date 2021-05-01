@@ -32,8 +32,10 @@ a {
 		      	<th style="width:150px;">User</th> 
 				<th style="width:80px;">TASKS</th>
 				<th style="width:80px">Yesterday hours</th>
-				<th style="width:80px;">Last seen</th> 
-				<th style="width:80px">Payment frequency</th> 
+				<th style="width:80px">No Time est.</th>
+				<th style="width:80px;">Overdue task</th> 
+				<th style="width:80px;">Last seen</th>
+				<!-- <th style="width:80px">Payment frequency</th>  -->
 				<th style="width:80px">Payment Due</th>
 				<th style="width:80px">Due date</th> 			
 				<th style="width:85px;">Paid on</th>
@@ -61,6 +63,8 @@ a {
 						<a href="#" class="load-task-modal" data-id="{{:prop.id}}">{{:prop.pending_tasks}}/{{:prop.total_tasks}}</a>
 					</td>
 			        <td>{{:prop.yesterday_hrs}}</td>
+			        <td>{{:prop.no_time_estimate}}</td>
+			        <td>{{:prop.overdue_task}}</td>
 			        <td>{{:prop.online_now}}</td>
 			        <td>{{:prop.payment_frequency}}</td>
 			        <td> {{:prop.previousDue}} {{:prop.currency}}</td>
