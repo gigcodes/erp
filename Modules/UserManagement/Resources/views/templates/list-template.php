@@ -155,7 +155,7 @@ a {
 					{{if !prop.already_approved}}
 						<button title="Approve user for the day" type="button" class="btn approve-user pd-5" data-id="{{:prop.id}}"> <i class="fa fa-check-circle" aria-hidden="true"></i></button>
 					{{/if}}
-						<button title="Create database" type="button" class="btn btn-create-database pd-5" data-id="{{:prop.id}}"> <i class="fa fa-database" aria-hidden="true"></i></button>
+					<button title="Create database" type="button" class="btn btn-create-database pd-5" data-id="{{:prop.id}}"> <i class="fa fa-database" aria-hidden="true"></i></button>
 					</td>
 			      </tr>
 			    {{/props}}  
@@ -233,6 +233,13 @@ a {
 						<?php echo csrf_field(); ?>
 						<input type="hidden" name="database_user_id" id="database-user-id" value="{{:data.user_id}}">
 					  	<div class="row">
+					  		<div class="col">
+					      		<select class="form-control choose-db" name="connection">
+					      			<?php foreach(\App\StoreWebsite::DB_CONNECTION as $k => $connection) { ?>
+					      				<option {{if data.connection == "<?php echo $k; ?>" }} selected='selected' {{/if}} value="<?php echo $k; ?>"><?php echo $connection ; ?></option>
+					      			<?php } ?>		
+					      		</select>
+					      	</div>
 					    	<div class="col">
 					      		<input type="text" name="username" value="{{:data.user_name}}" class="form-control" placeholder="Enter username">
 					      	</div>
@@ -242,7 +249,7 @@ a {
 					    	<div class="col">
 					      		<button type="button" class="btn btn-secondary create-database-add" data-id="{{:data.user_id}}">ADD</button>
 					      		{{if data.password}}
-					      			<button type="button" class="btn btn-secondary delete-database-access" data-id="{{:data.user_id}}">DELETE ACCESS</button>
+					      			<button type="button" class="btn btn-secondary delete-database-access" data-connection="{{:data.connection}}" data-id="{{:data.user_id}}">DELETE ACCESS</button>
 					      		{{/if}}
 					    	</div>
 					  	</div>
@@ -255,6 +262,7 @@ a {
 					<div class="col-lg-12">
 						<div class="row">
 					    	<div class="col">
+					    		<input type="hidden" name="connection"  value="{{:data.connection}}">
 					      		<input type="text" name="search" class="form-control search-table" placeholder="Search Table name">
 					      	</div>
 					      	<div class="col">

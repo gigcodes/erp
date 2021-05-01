@@ -1170,7 +1170,7 @@ class UserManagementController extends Controller
 
     public function getDatabase(Request $request,$id)
     {
-        $database = \App\UserDatabase::where("user_id",$id)->first();
+        $database = \App\UserDatabase::where("user_id",$id)->where("database","mysql")->first();
         $tablesExisting = [];
         if($database) {
             $tablesExisting = \App\UserDatabaseTable::where("user_database_id",$database->id)->pluck('name','id')->toArray();
@@ -1191,7 +1191,8 @@ class UserManagementController extends Controller
             "tables" => $list,
             "user_name" => ($database) ? $database->username : preg_replace('/\s+/', '_', strtolower($user->name)),
             "password" => ($database) ? $database->password : "",
-            "tablesExisting" => $tablesExisting
+            "tablesExisting" => $tablesExisting,
+            "connection" => 'mysql'
         ];
         return response()->json(['code' => 200 , 'data' => $data]);
     }
@@ -1201,6 +1202,12 @@ class UserManagementController extends Controller
         $username = $request->get("username");
         $password = $request->get("password");
 
+        $connection = $request->get("connection");
+
+        if(empty($connection)) {
+            return response()->json(["code" => 500, "message" => "Please select the database connection"]);
+        }
+
         if(empty($username)) {
             return response()->json(["code" => 500, "message" => "Enter username"]);
         }
@@ -1209,19 +1216,24 @@ class UserManagementController extends Controller
             return response()->json(["code" => 500, "message" => "Please enter password and more then 6 length"]);
         }
 
+        $connectionInformation = config("database.connections.$connection");
+        if(empty($connectionInformation)) {
+            return response()->json(["code" => 500, "message" => "No , database connection is not available"]);
+        }
+
         $user = \App\User::find($id);
         if($user) {
-            $database = \App\UserDatabase::where("user_id",$user->id)->first();
+            $database = \App\UserDatabase::where("user_id",$user->id)->where("database",$connection)->first();
             if(!$database) {
-                $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f create  -u "'.$username.'" -p "'.$password.'" 2>&1';
+                $cmd = "bash " . getenv('DEPLOYMENT_SCRIPTS_PATH') . "mysql_user.sh -f create -h ".$connectionInformation['host']." -d ".$connectionInformation['database']." -u ".$connectionInformation['username']." -p '".$connectionInformation['password']."' -n '".$username."' -s '".$password."' 2>&1";
                 $allOutput   = array();
                 $allOutput[] = $cmd;
                 $result      = exec($cmd, $allOutput);
-                \Log::info(print_r($result,true));
+                \Log::info(print_r($allOutput,true));
                 \App\UserDatabase::create([
                     "username" => $username,
                     "password" => $password,
-                    "database" => 'lu',
+                    "database" => $connection,
                     "user_id"  => $id
                 ]);
 
@@ -1236,11 +1248,24 @@ class UserManagementController extends Controller
 
     public function assignDatabaseTable(Request $request,$id)
     {
-        $database = \App\UserDatabase::where("user_id",$id)->first();
-        $tables   = $request->tables;
+        $connection = $request->get("connection");
+
+        if(empty($connection)) {
+            return response()->json(["code" => 500, "message" => "Please select the database connection"]);
+        }
+
+        $connectionInformation = config("database.connections.$connection");
+        if(empty($connectionInformation)) {
+            return response()->json(["code" => 500, "message" => "No , database connection is not available"]);
+        }
+
+        $database = \App\UserDatabase::where("user_id",$id)->where("database",$connection)->first();
+        $tables   = !empty($request->tables) ? $request->tables : [];
         $permissionType = $request->get("assign_permission","read");
 
-        if($database && !empty($tables)) {
+
+
+        if($database) {
             
             $tablesExisting = \App\UserDatabaseTable::where("user_database_id",$database->id)->pluck('name','id')->toArray();
             if(!empty($tablesExisting)){
@@ -1251,29 +1276,31 @@ class UserManagementController extends Controller
                     }
                 }
                 if(!empty($deleteTables)) {
-                    $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f revoke  -u "'.$database->username.'" -t '.implode(",",$deleteTables).' 2>&1';
+                    $cmd = "bash " . getenv('DEPLOYMENT_SCRIPTS_PATH') . "mysql_user.sh -f revoke -h ".$connectionInformation['host']."  -u ".$connectionInformation['username']." -p '".$connectionInformation['password']."' -d ".$connectionInformation['database']." -n '".$database->username."' -t ".implode(",",$deleteTables)." 2>&1";
                     $allOutput   = array();
                     $allOutput[] = $cmd;
                     $result      = exec($cmd, $allOutput);
-                    \Log::info(print_r($result,true));
+                    \Log::info(print_r($allOutput,true));
                 }
             }
 
             \App\UserDatabaseTable::where("user_database_id",$database->id)->delete();
 
-            foreach($tables as $t) {
-                \App\UserDatabaseTable::create([
-                    'user_database_id' => $database->id,
-                    'name' => $t,
-                ]);
+            if(!empty($tables)) {
+                foreach($tables as $t) {
+                    \App\UserDatabaseTable::create([
+                        'user_database_id' => $database->id,
+                        'name' => $t,
+                    ]);
+                }
             }
 
             
-            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f update  -u "'.$database->username.'" -t '.implode(",",$tables).' -m "'.$permissionType.'" 2>&1';
+            $cmd = "bash " . getenv('DEPLOYMENT_SCRIPTS_PATH') . "mysql_user.sh -f update  -h ".$connectionInformation['host']."  -u ".$connectionInformation['username']." -p '".$connectionInformation['password']."' -d ".$connectionInformation['database']." -n '".$database->username."' -t ".implode(",",$tables)." -m '".$permissionType."' 2>&1";
             $allOutput   = array();
             $allOutput[] = $cmd;
             $result      = exec($cmd, $allOutput);
-            \Log::info(print_r($result,true));
+            \Log::info(print_r($allOutput,true));
 
             return response()->json(["code" => 200, "message" => "Table assigned successfully"]);
 
@@ -1284,14 +1311,26 @@ class UserManagementController extends Controller
 
     public function deleteDatabaseAccess(Request $request, $id)
     {
-        $database = \App\UserDatabase::where("user_id",$id)->first();
+        $connection = $request->get("connection");
+
+        if(empty($connection)) {
+            return response()->json(["code" => 500, "message" => "Please select the database connection"]);
+        }
+
+        $connectionInformation = config("database.connections.$connection");
+        if(empty($connectionInformation)) {
+            return response()->json(["code" => 500, "message" => "No , database connection is not available"]);
+        }
+
+
+        $database = \App\UserDatabase::where("user_id",$id)->where("database",$connection)->first();
         if($database) {
 
-            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'mysql_user.sh -f delete  -u "'.$database->username.'" 2>&1';
+            $cmd = "bash " . getenv('DEPLOYMENT_SCRIPTS_PATH') . "mysql_user.sh -f delete -h ".$connectionInformation['host']."  -u ".$connectionInformation['username']." -p '".$connectionInformation['password']."' -d ".$connectionInformation['database']."  -n '".$database->username."' 2>&1";
             $allOutput   = array();
             $allOutput[] = $cmd;
             $result      = exec($cmd, $allOutput);
-            \Log::info(print_r($result,true));
+            \Log::info(print_r($allOutput,true));
             foreach($database->userDatabaseTables as $dbtables) {
                 $dbtables->delete();
             }
@@ -1301,5 +1340,39 @@ class UserManagementController extends Controller
         }
 
         return response()->json(["code" => 500, "message" => "Sorry we couldn't found the access for the given user"]);
+    }
+
+    public function chooseDatabase(Request $request, $id)
+    {
+        $connection = $request->get("connection");
+
+        $database = \App\UserDatabase::where("database",$connection)->where("user_id",$id)->first();
+        $tablesExisting = [];
+        if($database) {
+            $tablesExisting = \App\UserDatabaseTable::where("user_database_id",$database->id)->pluck('name','id')->toArray();
+        }
+
+        $user = \App\User::find($id);
+
+        $list = [];
+        $tables = \DB::connection($connection)->select('SHOW TABLES');
+        if(!empty($tables)) {
+            foreach($tables as $table) {
+                foreach($table as $t) {
+                    $list[] = ["table" => $t ,"checked" => in_array($t, $tablesExisting) ? true : false];
+                }
+            }
+        }
+        $data = [
+            "user_id" => $id,
+            "database" => $database,
+            "tables" => $list,
+            "user_name" => ($database) ? $database->username : preg_replace('/\s+/', '_', strtolower($user->name)),
+            "password" => ($database) ? $database->password : "",
+            "tablesExisting" => $tablesExisting,
+            "connection" => $connection
+        ];
+
+        return response()->json(['code' => 200 , 'data' => $data]);
     }
 }
