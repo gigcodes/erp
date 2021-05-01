@@ -64,7 +64,13 @@ class UserManagementController extends Controller
         }
     
 
-        $user = $user->select(["users.*"])->orderBy('is_active','DESC')->paginate(12);
+        $user = $user->select(["users.*","hubstaff_activities.starts_at"])
+                ->leftJoin('hubstaff_members', 'hubstaff_members.user_id', '=', 'users.id')
+                ->leftJoin('hubstaff_activities', 'hubstaff_activities.user_id', '=', 'hubstaff_members.hubstaff_user_id')
+                ->groupBy('users.id')
+                ->orderBy('hubstaff_activities.starts_at','DESC')
+                ->paginate(12);
+        // HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->where('hubstaff_members.user_id',$this->id)->orderBy('hubstaff_activities.starts_at','desc')->first();
         $limitchacter = 50;
 
         $items = [];
@@ -85,10 +91,15 @@ class UserManagementController extends Controller
             ->whereNull('is_completed')
             ->Where('assign_to', $u->id)->count();
 
+            $no_time_estimate = DeveloperTask::whereNull('estimate_minutes')->where('assigned_to', $u->id)->count();
+            $overdue_task     = DeveloperTask::where('estimate_date', '>', date('Y-m-d'))->where('status', '!=', 'Done')->where('assigned_to', $u->id)->count();
+
             $total_tasks = Task::where('is_statutory', 0)
             ->Where('assign_to', $u->id)->count();
                 $u["pending_tasks"] = $pending_tasks;
                 $u["total_tasks"] = $total_tasks;
+                $u['no_time_estimate'] = $no_time_estimate;
+                $u['overdue_task'] = $overdue_task;
 
                 $isMember = $u->teams()->first();
                 if($isMember) {
