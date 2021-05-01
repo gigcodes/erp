@@ -568,7 +568,7 @@ class StoreWebsiteController extends Controller
         $allOutput[] = $cmd;
         $result      = exec($cmd, $allOutput);
 
-        $content = end($result);
+        $content = end($allOutput);
 
         $nameF = $server.".pem";
         $namefile = storage_path()."/app/files/documents/".$nameF;

@@ -119,6 +119,9 @@ class MagentoOrderHandleHelper extends Model
                             'advance_detail'  => $order->base_grand_total,
                             'contact_detail'  => $order->billing_address->telephone,
                             'balance_amount'  => $balance_amount,
+                            'store_currency_code' => $order->store_currency_code,
+                            'store_id'        => $order->store_id,
+                            'store_name'      => $order->store_name,
                             'created_at'      => $order->created_at,
                             'updated_at'      => $order->created_at,
                         )

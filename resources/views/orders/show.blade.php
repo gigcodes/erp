@@ -93,399 +93,448 @@
 
 
                     <div class="col-md-6 col-12">
-                      <div class="row">
-                      <div class="col-md-12">
-                      @if ($has_customer)
-                        <h4>Customer Details</h4>
-
-                        <strong>Name: </strong> {{ $customer->name }} <br>
-                        <strong>Email: </strong> {{ $customer->email }} <br>
-                        @if (strlen($customer->phone) != 12 || preg_match('/^[91]{2}/', $customer->phone) == false)
-                          <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
+                        @if ($has_customer)
+                            <div class="card mt-5">
+                              <div class="card-header bg-secondary text-white">
+                                Customer Details
+                              </div>
+                              <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="card-text"><strong>Name: </strong> {{ $customer->name }}</p>        
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="card-text"><strong>Email: </strong> {{ $customer->email }}</p>        
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="card-text"><strong>Phone: </strong> {{ $customer->phone }} 
+                                            @if (strlen($customer->phone) != 12 || preg_match('/^[91]{2}/', $customer->phone) == false)
+                                              <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
+                                            @endif
+                                        </p>        
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="card-text"><strong>Instagram Handle: </strong> {{ $customer->instahandler }} </p>        
+                                    </div>
+                                </div>
+                                 <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="card-text"><strong>Address: </strong> {{ $customer->address }}</p>        
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="card-text"><strong>City: </strong> {{ $customer->city }} </p>        
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="card-text"><strong>Country: </strong> {{ $customer->country }}</p>        
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="card-text"><strong>Pincode: </strong> {{ $customer->pincode }}</p>        
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="card-text"><strong>Site Name: </strong> <a href="{{ @$customer->storeWebsite->website_url }}" target="_blank">{{$customer->storeWebsite->website ?? ''}}</a></p>        
+                                    </div>
+                                </div>
+                                
+                              </div>
+                            </div>
                         @endif
-                        <strong>Phone: </strong> {{ $customer->phone }} <br>
-                        <strong>Instagram Handle: </strong> {{ $customer->instahandler }} <br>
-                        <strong>Address: </strong> {{ $customer->address }} <br>
-                        <strong>City: </strong> {{ $customer->city }} <br>
-                        <strong>Country: </strong> {{ $customer->country }}
-                        <strong>Pincode: </strong> {{ $customer->pincode }} <br>
-                        <strong>Site Name: </strong> <a href="{{ @$customer->storeWebsite->website_url }}" target="_blank">{{$customer->storeWebsite->website ?? ''}}</a>
-                      @endif
-                      </div>
-                      </div>
                       <br>
-                      <div class="row">
-                      <div class="col-md-4">
-                        <div class="form-group">
-                            <strong> Order Type :</strong>
-                            <?php
 
-                                $order_types = [
-                                  'offline' => 'offline',
-                                      'online' => 'online'
-                                  ];
-
-                            echo Form::select('order_type',$order_types, ( old('order_type') ? old('order_type') : $order_type ), ['class' => 'form-control']);?>
-                                  @if ($errors->has('order_type'))
-                                      <div class="alert alert-danger">{{$errors->first('order_type')}}</div>
-                                  @endif
-                              </div>
-                        </div>
-
-                        <div class="col-md-4">
-                        <div class="form-group">
-                            <strong>Sale Order No. </strong> 
-                            <input type="text" value="{{ $order_id }}" class="form-control">
-                        </div>
-                        </div>
-                        <div class="col-md-4">
-                        <div class="form-group">
-                            <strong>Order Date:</strong>
-                            <input type="date" class="form-control" name="order_date" placeholder="Order Date"
-                                   value="{{ old('order_date') ? old('order_date') : $order_date }}"/>
-                            @if ($errors->has('order_date'))
-                                <div class="alert alert-danger">{{$errors->first('order_date')}}</div>
-                            @endif
-                        </div>
-                        </div>
-                      </div>
-                      <div class="row">
-                      
-                        <div class="col-md-4">
-                        <div class="form-group">
-                            <strong> Price :</strong>
-                            <input type="text" value="{{ $total_price }}" class="form-control">
-                        </div>
-                        </div>
-                        <div class="col-md-4">
-                              <div class="form-group">
-                              <strong>Date of Delivery:</strong>
-                              <input type="date" class="form-control" name="date_of_delivery" placeholder="Date of Delivery"
-                                    value="{{ old('date_of_delivery') ? old('date_of_delivery') : $date_of_delivery }}"/>
-                              @if ($errors->has('date_of_delivery'))
-                                  <div class="alert alert-danger">{{$errors->first('date_of_delivery')}}</div>
-                              @endif
+                      <div class="card">
+                          <div class="card-header bg-secondary text-white">
+                            Order details
                           </div>
-                            </div>
-                            <div class="col-md-4">
-                              @php $status = ( new \App\ReadOnly\OrderStatus )->getNameById( $order_status ); @endphp
-                              <div class="form-group">
-                                  <strong>status:</strong>
-                                  <Select name="order_status_id" class="form-control" id="order_status">
-                                        @foreach($order_statuses as $key => $value)
-                                        <option value="{{$key}}" {{$order_status_id == $key ? 'Selected=Selected':''}}>{{$value->status}}</option>
-                                        @endforeach
-                                  </Select>
-                                  <span id="change_status_message" class="text-success" style="display: none;">Successfully changed status</span>
-                              </div>
-                            </div>
-                      </div>
-                     
-
-                        
-
-                       
-
-                       
-
-                      
-
-
-                        <!-- <div class="form-group">
-                            <strong>Office Phone Number:</strong>
-                            <Select name="whatsapp_number" class="form-control">
-                                      <option value>None</option>
-                                       <option value="919167152579" {{old('whatsapp_number') ? (old('whatsapp_number') == '919167152579' ? 'Selected=Selected':'') : ('919167152579'== $whatsapp_number ? 'Selected=Selected':'')}}>00</option>
-                                       <option value="918291920452" {{old('whatsapp_number') ? (old('whatsapp_number') == '918291920452' ? 'Selected=Selected':'') : ('918291920452'== $whatsapp_number ? 'Selected=Selected':'')}}>02</option>
-                                       <option value="918291920455" {{old('whatsapp_number') ? (old('whatsapp_number') == '918291920455' ? 'Selected=Selected':'') : ('918291920455'== $whatsapp_number ? 'Selected=Selected':'')}}>03</option>
-                                       <option value="919152731483" {{old('whatsapp_number') ? (old('whatsapp_number') == '919152731483' ? 'Selected=Selected':'') : ('919152731483'== $whatsapp_number ? 'Selected=Selected':'')}}>04</option>
-                                       <option value="919152731484" {{old('whatsapp_number') ? (old('whatsapp_number') == '919152731484' ? 'Selected=Selected':'') : ('919152731484'== $whatsapp_number ? 'Selected=Selected':'')}}>05</option>
-                                       <option value="971562744570" {{old('whatsapp_number') ? (old('whatsapp_number') == '971562744570' ? 'Selected=Selected':'') : ('971562744570'== $whatsapp_number ? 'Selected=Selected':'')}}>06</option>
-                                       <option value="918291352520" {{old('whatsapp_number') ? (old('whatsapp_number') == '918291352520' ? 'Selected=Selected':'') : ('918291352520'== $whatsapp_number ? 'Selected=Selected':'')}}>08</option>
-                                       <option value="919004008983" {{old('whatsapp_number') ? (old('whatsapp_number') == '919004008983' ? 'Selected=Selected':'') : ('919004008983'== $whatsapp_number ? 'Selected=Selected':'')}}>09</option>
-                               </Select>
-                            @if ($errors->has('whatsapp_number'))
-                                <div class="alert alert-danger">{{$errors->first('whatsapp_number')}}</div>
-                            @endif
-                        </div> -->
-
-                        <div class="row">
-                            <div class="col-md-4">
-                              <div class="form-group">
-                              <strong>Estimated Delivery Date:</strong>
-                              <input type="date" class="form-control" name="estimated_delivery_date" placeholder="Advance Date"
-                                      value="{{ old('estimated_delivery_date') ? old('estimated_delivery_date') : $estimated_delivery_date }}"/>
-                              @if ($errors->has('estimated_delivery_date'))
-                                  <div class="alert alert-danger">{{$errors->first('estimated_delivery_date')}}</div>
-                              @endif
-                            </div>
-                            </div>
-                            <div class="col-md-4">
-                            <div class="form-group">
-                                <strong>Shoe Size:</strong>
-                                <input type="text" class="form-control" name="shoe_size" placeholder="Shoe Size"
-                                        value="{{ old('shoe_size') ? old('shoe_size') : $shoe_size }}"/>
-                            </div>
-                            </div>
-                            <div class="col-md-4">
-                              <div class="form-group">
-                              <strong>Clothing Size:</strong>
-                              <input type="text" class="form-control" name="clothing_size" placeholder="Clothing Size"
-                                      value="{{ old('clothing_size') ? old('clothing_size') : $clothing_size }}"/>
-                            </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4">
-                              <div class="form-group">
-                              <strong>Note if any:</strong>
-                              <input type="text" class="form-control" name="note_if_any" placeholder="Note if any"
-                                      value="{{ old('note_if_any') ? old('note_if_any') : $note_if_any }}"/>
-                              @if ($errors->has('note_if_any'))
-                                  <div class="alert alert-danger">{{$errors->first('note_if_any')}}</div>
-                              @endif
-                              </div>
-                            </div>
-                            <div class="col-md-4">
-                                  <div class="form-group">
-                                      <strong>Created by:</strong>
-                                      <input class="form-control" type="text" value="{{ $user_id != 0 ? App\Helpers::getUserNameById($user_id) : 'Unknown' }}">
+                          <div class="card-body">
+                            <p class="card-text"> 
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                        <strong> Order Type :</strong>
+                                        <?php
+                                            $order_types = [
+                                              'offline' => 'offline',
+                                                  'online' => 'online'
+                                              ];
+                                            echo Form::select('order_type',$order_types, ( old('order_type') ? old('order_type') : $order_type ), ['class' => 'form-control']);?>
+                                              @if ($errors->has('order_type'))
+                                                  <div class="alert alert-danger">{{$errors->first('order_type')}}</div>
+                                              @endif
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <strong>Sale Order No. </strong> 
+                                            <input type="text" value="{{ $order_id }}" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <strong>Order Date:</strong>
+                                            <input type="date" class="form-control" name="order_date" placeholder="Order Date"
+                                                   value="{{ old('order_date') ? old('order_date') : $order_date }}"/>
+                                            @if ($errors->has('order_date'))
+                                                <div class="alert alert-danger">{{$errors->first('order_date')}}</div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </p>
+                            <p class="card-text">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                    <div class="form-group">
+                                        <strong> Price :</strong>
+                                        <input type="text" value="{{ $total_price }}" class="form-control">
+                                    </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                          <div class="form-group">
+                                          <strong>Date of Delivery:</strong>
+                                          <input type="date" class="form-control" name="date_of_delivery" placeholder="Date of Delivery"
+                                                value="{{ old('date_of_delivery') ? old('date_of_delivery') : $date_of_delivery }}"/>
+                                          @if ($errors->has('date_of_delivery'))
+                                              <div class="alert alert-danger">{{$errors->first('date_of_delivery')}}</div>
+                                          @endif
+                                      </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                          @php $status = ( new \App\ReadOnly\OrderStatus )->getNameById( $order_status ); @endphp
+                                          <div class="form-group">
+                                              <strong>status:</strong>
+                                              <Select name="order_status_id" class="form-control" id="order_status">
+                                                    @foreach($order_statuses as $key => $value)
+                                                    <option value="{{$key}}" {{$order_status_id == $key ? 'Selected=Selected':''}}>{{$value->status}}</option>
+                                                    @endforeach
+                                              </Select>
+                                              <span id="change_status_message" class="text-success" style="display: none;">Successfully changed status</span>
+                                          </div>
+                                        </div>
                                   </div>
-                            </div>
-                            <div class="col-md-4">
-                            <div class="form-group">
-                              @if (strlen($contact_detail) < 12)
-                                <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
-                              @endif
-                                <strong>Contact Detail:</strong>
-                                <input type="text" class="form-control" name="contact_detail" placeholder="Contact Detail"
-                                      value="{{ old('contact_detail') ? old('contact_detail') : $contact_detail }}"/>
-                                @if ($errors->has('contact_detail'))
-                                    <div class="alert alert-danger">{{$errors->first('contact_detail')}}</div>
-                                @endif
-                            </div>
-                          </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                            <div id="tracking-wrapper-{{ $id }}" style="display: {{ $order_status == 'Product shiped to Client' ? 'block' : 'none' }}">
-                              <div class="form-group">
-                                <strong>AWB Number:</strong>
-                                <input type="text" name="awb" class="form-control" id="awb_field_{{ $id }}" value="{{ $awb }}" placeholder="00000000000">
-                                <button type="button" class="btn btn-xs btn-secondary mt-1 track-shipment-button" data-id="{{ $id }}">Track</button>
-                              </div>
+                            </p>
+                            <p class="card-text">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                      <div class="form-group">
+                                      <strong>Estimated Delivery Date:</strong>
+                                      <input type="date" class="form-control" name="estimated_delivery_date" placeholder="Advance Date"
+                                              value="{{ old('estimated_delivery_date') ? old('estimated_delivery_date') : $estimated_delivery_date }}"/>
+                                      @if ($errors->has('estimated_delivery_date'))
+                                          <div class="alert alert-danger">{{$errors->first('estimated_delivery_date')}}</div>
+                                      @endif
+                                    </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                    <div class="form-group">
+                                        <strong>Shoe Size:</strong>
+                                        <input type="text" class="form-control" name="shoe_size" placeholder="Shoe Size"
+                                                value="{{ old('shoe_size') ? old('shoe_size') : $shoe_size }}"/>
+                                    </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                      <div class="form-group">
+                                      <strong>Clothing Size:</strong>
+                                      <input type="text" class="form-control" name="clothing_size" placeholder="Clothing Size"
+                                              value="{{ old('clothing_size') ? old('clothing_size') : $clothing_size }}"/>
+                                    </div>
+                                    </div>
+                                </div>
+                            </p>
+                            <p class="card-text">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                      <div class="form-group">
+                                      <strong>Note if any:</strong>
+                                      <input type="text" class="form-control" name="note_if_any" placeholder="Note if any"
+                                              value="{{ old('note_if_any') ? old('note_if_any') : $note_if_any }}"/>
+                                      @if ($errors->has('note_if_any'))
+                                          <div class="alert alert-danger">{{$errors->first('note_if_any')}}</div>
+                                      @endif
+                                      </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                          <div class="form-group">
+                                              <strong>Created by:</strong>
+                                              <input class="form-control" type="text" value="{{ $user_id != 0 ? App\Helpers::getUserNameById($user_id) : 'Unknown' }}">
+                                          </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                    <div class="form-group">
+                                      @if (strlen($contact_detail) < 12)
+                                        <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
+                                      @endif
+                                        <strong>Contact Detail:</strong>
+                                        <input type="text" class="form-control" name="contact_detail" placeholder="Contact Detail"
+                                              value="{{ old('contact_detail') ? old('contact_detail') : $contact_detail }}"/>
+                                        @if ($errors->has('contact_detail'))
+                                            <div class="alert alert-danger">{{$errors->first('contact_detail')}}</div>
+                                        @endif
+                                    </div>
+                                  </div>
+                                </div>
+                            </p>
+                            <p class="card-text">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                    <div id="tracking-wrapper-{{ $id }}" style="display: {{ $order_status == 'Product shiped to Client' ? 'block' : 'none' }}">
+                                      <div class="form-group">
+                                        <strong>AWB Number:</strong>
+                                        <input type="text" name="awb" class="form-control" id="awb_field_{{ $id }}" value="{{ $awb }}" placeholder="00000000000">
+                                        <button type="button" class="btn btn-xs btn-secondary mt-1 track-shipment-button" data-id="{{ $id }}">Track</button>
+                                      </div>
 
-                              <div class="form-group" id="tracking-container-{{ $id }}">
+                                      <div class="form-group" id="tracking-container-{{ $id }}">
 
-                              </div>
-                            </div>
-                            </div>
-                        </div>
-                        <div class="row">
+                                      </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </p>
+                            <p class="card-text">
+                                <div class="row">
                                   <div class="col-md-12">
                                     <div class="form-group">
                                         <strong>Remark</strong>
                                         <p>{{ $remark }}</p>
                                     </div>
                                   </div>
-                        </div>
-                        
-
-                        
-
-                         
-                          
-                         
-
-                       
-
-
-                        <!-- <div class="form-group">
-                            <strong> Name of Order Handler :</strong>
-        			        <?php
-        			        //echo Form::select('sales_person',$sales_persons, ( old('sales_person') ? old('sales_person') : $sales_person ), ['placeholder' => 'Select a name','class' => 'form-control']);?>
-                            @if ($errors->has('sales_person'))
-                                <div class="alert alert-danger">{{$errors->first('sales_person')}}</div>
-                            @endif
-                        </div> -->
-
-                        
-
-                    </div>
-                    <div class="col-md-6 col-12">
-
-                        <h3>Payment Details</h3>
-
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                  <strong>Balance Amount:</strong>
-                                  <input type="text" class="form-control" name="balance_amount" placeholder="Balance Amount"
-                                        value="{{ old('balance_amount') ? old('balance_amount') : $balance_amount }}"/>
-                                  @if ($errors->has('balance_amount'))
-                                      <div class="alert alert-danger">{{$errors->first('balance_amount')}}</div>
-                                  @endif
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                            <div class="form-group">
-                            <strong> Payment Mode :</strong>
-                            <?php
-                            $paymentModes = new \App\ReadOnly\PaymentModes();
-
-                            echo Form::select('payment_mode',$paymentModes->all(), ( old('payment_mode') ? old('payment_mode') : $payment_mode ), ['placeholder' => 'Select a mode','class' => 'form-control']);?>
-
-                                  @if ($errors->has('payment_mode'))
-                                      <div class="alert alert-danger">{{$errors->first('payment_mode')}}</div>
-                                  @endif
-                              </div>
-                            </div>
-                            <div class="col-md-4">
-                            <div class="form-group">
-                              <strong>Advance Amount:</strong>
-                              <input type="text" class="form-control" name="advance_detail" placeholder="Advance Detail"
-                                    value="{{ old('advance_detail') ? old('advance_detail') : $advance_detail }}"/>
-                              @if ($errors->has('advance_detail'))
-                                  <div class="alert alert-danger">{{$errors->first('advance_detail')}}</div>
-                              @endif
-                          </div>
+                            </p>
                           </div>
                         </div>
-                        <div class="row">
-                          
-                          <div class="col-md-6">
-                            <div class="form-group">
-                                <strong>Received By:</strong>
-                                <input type="text" class="form-control" name="received_by" placeholder="Received By"
-                                      value="{{ old('received_by') ? old('received_by') : $received_by }}"/>
-                                @if ($errors->has('received_by'))
-                                    <div class="alert alert-danger">{{$errors->first('received_by')}}</div>
+                    </div>
+
+                    <div class="col-md-6 col-12 mt-5">
+                        <div class="card">
+                          <div class="card-header bg-secondary text-white">Payment Details</div>
+                          <div class="card-body">
+                            <p class="card-text">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                          <strong>Balance Amount:</strong>
+                                          <input type="text" class="form-control" name="balance_amount" placeholder="Balance Amount"
+                                                value="{{ old('balance_amount') ? old('balance_amount') : $balance_amount }}"/>
+                                          @if ($errors->has('balance_amount'))
+                                              <div class="alert alert-danger">{{$errors->first('balance_amount')}}</div>
+                                          @endif
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                    <div class="form-group">
+                                    <strong> Payment Mode :</strong>
+                                    <?php
+                                    $paymentModes = new \App\ReadOnly\PaymentModes();
+
+                                    echo Form::select('payment_mode',$paymentModes->all(), ( old('payment_mode') ? old('payment_mode') : $payment_mode ), ['placeholder' => 'Select a mode','class' => 'form-control']);?>
+
+                                          @if ($errors->has('payment_mode'))
+                                              <div class="alert alert-danger">{{$errors->first('payment_mode')}}</div>
+                                          @endif
+                                      </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                    <div class="form-group">
+                                      <strong>Advance Amount:</strong>
+                                      <input type="text" class="form-control" name="advance_detail" placeholder="Advance Detail"
+                                            value="{{ old('advance_detail') ? old('advance_detail') : $advance_detail }}"/>
+                                      @if ($errors->has('advance_detail'))
+                                          <div class="alert alert-danger">{{$errors->first('advance_detail')}}</div>
+                                      @endif
+                                  </div>
+                                  </div>
+                                </div>
+                            </p>
+                            <p class="card-text">
+                                <div class="row">
+                                  <div class="col-md-6">
+                                    <div class="form-group">
+                                        <strong>Received By:</strong>
+                                        <input type="text" class="form-control" name="received_by" placeholder="Received By"
+                                              value="{{ old('received_by') ? old('received_by') : $received_by }}"/>
+                                        @if ($errors->has('received_by'))
+                                            <div class="alert alert-danger">{{$errors->first('received_by')}}</div>
+                                        @endif
+                                      </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                    <div class="form-group">
+                                        <strong>Advance Date:</strong>
+                                        <input type="date" class="form-control" name="advance_date" placeholder="Advance Date"
+                                               value="{{ old('advance_date') ? old('advance_date') : $advance_date }}"/>
+                                        @if ($errors->has('advance_date'))
+                                            <div class="alert alert-danger">{{$errors->first('advance_date')}}</div>
+                                        @endif
+                                    </div>
+                                    </div>
+                                </div>
+                            </p>
+                            <p class="card-text">
+                                @if ($has_customer)
+                                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#instructionModal">Add Instruction</button>
                                 @endif
-                              </div>
-                            </div>
-                            <div class="col-md-6">
-                            <div class="form-group">
-                            <strong>Advance Date:</strong>
-                            <input type="date" class="form-control" name="advance_date" placeholder="Advance Date"
-                                   value="{{ old('advance_date') ? old('advance_date') : $advance_date }}"/>
-                            @if ($errors->has('advance_date'))
-                                <div class="alert alert-danger">{{$errors->first('advance_date')}}</div>
-                            @endif
-                        </div>
-                            </div>
-                           
-                        </div>
-
-                       
-
-                        
-
-                       
-
-                       
-
-                        @if ($has_customer)
-                          <div class="form-group">
-                            <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#instructionModal">Add Instruction</button>
+                                @if (isset($waybills) && !$waybills->isEmpty())
+                                  @foreach($waybills as $way)
+                                    <div class="form-group">
+                                      <strong>AWB: </strong> {{ $way->awb }}
+                                      <br>
+                                      <a href="{{ route('order.download.package-slip', $way->id) }}" class="btn-link">Download Package Slip</a>
+                                      <a href="javascript:;" data-id="{{ $way->id }}" data-awb="{{ $way->awb }}" class="btn-link track-package-slip">Track Package Slip</a>
+                                    </div>
+                                  @endforeach
+                                @else
+                                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#generateAWBMODAL">Generate AWB</button>
+                                @endif
+                            </p>
                           </div>
-                        @endif
-
-                        @if (isset($waybills) && !$waybills->isEmpty())
-                          @foreach($waybills as $way)
-                            <div class="form-group">
-                              <strong>AWB: </strong> {{ $way->awb }}
-                              <br>
-                              <a href="{{ route('order.download.package-slip', $way->id) }}" class="btn-link">Download Package Slip</a>
-                              <a href="javascript:;" data-id="{{ $way->id }}" data-awb="{{ $way->awb }}" class="btn-link track-package-slip">Track Package Slip</a>
+                        </div>
+                        <br>
+                        <div class="card">
+                          <div class="card-header bg-secondary text-white">Store details</div>
+                          <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6"><strong>Store name: </strong> {{ $order->store_name ?? '--'}}</div>
+                                <div class="col-md-2"><strong>Store id: </strong> {{ $order->store_id ?? '--'}}</div>
+                                <div class="col-md-6"><strong>store currency code: </strong> {{ $order->store_currency_code ?? '--'}}</div>
                             </div>
-                          @endforeach
-                        @else
-                          <div class="form-group">
-                            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#generateAWBMODAL">Generate AWB</button>
                           </div>
-                        @endif
-
+                        </div>
+                        <br>
+                        <div class="card">
+                          <div class="card-header bg-secondary text-white">Shipping address</div>
+                          <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6"><strong>First name: </strong> {{ $shipping_address->firstname ?? '--'}}</div>
+                                <div class="col-md-6"><strong>Last name: </strong> {{ $shipping_address->lastname ?? '--'}}</div>
+                                
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12"><strong>street: </strong> {{ $shipping_address->street ?? '--'}}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4"><strong>city: </strong> {{ $shipping_address->city ?? '--'}}</div>
+                                <div class="col-md-4"><strong>country: </strong> {{ $shipping_address->country_id ?? '--'}}</div>
+                                <div class="col-md-4"><strong>postcode: </strong> {{ $shipping_address->postcode ?? '--'}}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6"><strong>telephone: </strong> {{ $shipping_address->telephone ?? '--' }}</div>
+                                <div class="col-md-6"><strong>Email : </strong> {{ $shipping_address->email ?? '--'}}</div>
+                            </div>
+                          </div>
+                        </div>
+                        <br>
+                        <div class="card">
+                          <div class="card-header bg-secondary text-white">Billing address</div>
+                          <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6"><strong>First name: </strong> {{ $billing_address->firstname ?? '--'}}</div>
+                                <div class="col-md-6"><strong>Last name: </strong> {{ $billing_address->lastname ?? '--'}}</div>
+                                
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12"><strong>street: </strong> {{ $billing_address->street ?? '--' }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4"><strong>city: </strong> {{ $billing_address->city ?? '--'}}</div>
+                                <div class="col-md-4"><strong>country: </strong> {{ $billing_address->country_id ?? '--'}}</div>
+                                <div class="col-md-4"><strong>postcode: </strong> {{ $billing_address->postcode ?? '--' }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6"><strong>telephone: </strong> {{ $billing_address->telephone ?? '--' }}</div>
+                                <div class="col-md-6"><strong>Email : </strong> {{ $billing_address->email ?? '--'}}</div>
+                            </div>
+                          </div>
+                        </div>
 
                     </div>
+
 
                     <div class="col-xs-12">
-                      <div class="col-xs-12 col-sm-12 col-md-12">
-                          <div class="text-center">
-                            <h3>Product Details</h3>
-                          </div>
-                          <div class="form-group">
-                              <table class="table table-bordered" id="products-table">
-                                  <tr>
-                                      <th>Image</th>
-                                      <th>Name</th>
-                                      <th>Sku</th>
-                                      <th>Color</th>
-                                      <th>Brand</th>
-                                      <th style="width: 100px">Price</th>
-                                      <th style="width: 100px">Size</th>
-                                      <th style="width: 80px">Qty</th>
-                                      <th>Action</th>
-                                  </tr>
-                                  @foreach($order_products  as $order_product)
-                                      <tr>
-                                          @if(isset($order_product['product']))
-                                            <th><img width="150" src="{{ $order_product['product']['image'] }}" /></th>
-                                            <th>{{ $order_product['product']['name'] }}</th>
-                                            <th>{{ $order_product['product']['sku'] }}</th>
-                                            <th>{{ $order_product['product']['color'] }}</th>
-                                            <th>{{ \App\Http\Controllers\BrandController::getBrandName($order_product['product']['brand']) }}</th>
-                                          @else
-                                            <th></th>
-                                            <th></th>
-                                            <th>{{$order_product['sku']}}</th>
-                                            <th></th>
-                                            <th></th>
-                                          @endif
+                      <div class="">
+                            <div class="card">
+                              <div class="card-header bg-secondary text-white">Product Details</div>
+                              <div class="card-body">
+                                <p class="card-text">
+                                    <div class="form-group">
+                                      <table class="table table-bordered" id="products-table">
+                                          <tr>
+                                              <th>Image</th>
+                                              <th>Name</th>
+                                              <th>Sku</th>
+                                              <th>Color</th>
+                                              <th>Brand</th>
+                                              <th style="width: 100px">Price</th>
+                                              <th style="width: 100px">Size</th>
+                                              <th style="width: 80px">Qty</th>
+                                              <th>Action</th>
+                                          </tr>
+                                          @foreach($order_products  as $order_product)
+                                              <tr>
+                                                  @if(isset($order_product['product']))
+                                                    <th><img width="150" src="{{ $order_product['product']['image'] }}" /></th>
+                                                    <th>{{ $order_product['product']['name'] }}</th>
+                                                    <th>{{ $order_product['product']['sku'] }}</th>
+                                                    <th>{{ $order_product['product']['color'] }}</th>
+                                                    <th>{{ \App\Http\Controllers\BrandController::getBrandName($order_product['product']['brand']) }}</th>
+                                                  @else
+                                                    <th></th>
+                                                    <th></th>
+                                                    <th>{{$order_product['sku']}}</th>
+                                                    <th></th>
+                                                    <th></th>
+                                                  @endif
 
-                                          <th>
-                                              <input class="form-control" type="text" value="{{ $order_product['product_price'] }}" name="order_products[{{ $order_product['id'] }}][product_price]">
-                                          </th>
-                                          <th>
-                                              @if(!empty($order_product['product']['size']))
-      					                        <?php
+                                                  <th>
+                                                      <input class="form-control" type="text" value="{{ $order_product['product_price'] }}" name="order_products[{{ $order_product['id'] }}][product_price]">
+                                                  </th>
+                                                  <th>
+                                                      @if(!empty($order_product['product']['size']))
+                                                        <?php
 
-      					                        $sizes = \App\Helpers::explodeToArray($order_product['product']['size']);
-      					                        $size_name = 'order_products['.$order_product['id'].'][size]';
+                                                        $sizes = \App\Helpers::explodeToArray($order_product['product']['size']);
+                                                        $size_name = 'order_products['.$order_product['id'].'][size]';
 
-      					                        echo Form::select($size_name,$sizes,( $order_product['size'] ), ['class' => 'form-control', 'placeholder' => 'Select a size'])
-      					                        ?>
-                                              @else
-                                                  <select hidden class="form-control" name="order_products[{{ $order_product['id'] }}][size]">
-                                                      <option selected="selected" value=""></option>
-                                                  </select>
-                                                  nil
-                                              @endif
-                                          </th>
-                                          <th>
-                                              <input class="form-control" type="number" value="{{ $order_product['qty'] }}" name="order_products[{{ $order_product['id'] }}][qty]">
-                                          </th>
-                                          @if(isset($order_product['product']))
-                                              <th>
-                                                  <a class="btn btn-image" href="{{ route('products.show',$order_product['product']['id']) }}"><img src="/images/view.png" /></a>
-                                                  <a class="btn btn-image remove-product" href="#" data-product="{{ $order_product['id'] }}"><img src="/images/delete.png" /></a>
-                                              </th>
-                                          @else
-                                              <th></th>
-                                          @endif
-                                      </tr>
-                                  @endforeach
-                              </table>
-                          </div>
+                                                        echo Form::select($size_name,$sizes,( $order_product['size'] ), ['class' => 'form-control', 'placeholder' => 'Select a size'])
+                                                        ?>
+                                                      @else
+                                                          <select hidden class="form-control" name="order_products[{{ $order_product['id'] }}][size]">
+                                                              <option selected="selected" value=""></option>
+                                                          </select>
+                                                          nil
+                                                      @endif
+                                                  </th>
+                                                  <th>
+                                                      <input class="form-control" type="number" value="{{ $order_product['qty'] }}" name="order_products[{{ $order_product['id'] }}][qty]">
+                                                  </th>
+                                                  @if(isset($order_product['product']))
+                                                      <th>
+                                                          <a class="btn btn-image" href="{{ route('products.show',$order_product['product']['id']) }}"><img src="/images/view.png" /></a>
+                                                          <a class="btn btn-image remove-product" href="#" data-product="{{ $order_product['id'] }}"><img src="/images/delete.png" /></a>
+                                                      </th>
+                                                  @else
+                                                      <th></th>
+                                                  @endif
+                                              </tr>
+                                          @endforeach
+                                      </table>
+                                  </div>
+                                </p>
+                                <p class="card-text">
+                                     <div class="form-group btn-group">
+                                          <a href="{{ route('attachProducts',['order',$id]) }}" class="btn btn-image"><img src="/images/attach.png" /></a>
+                                          <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productModal">+</button>&nbsp;&nbsp;
+                                          <button type="submit" class="btn btn-secondary" id="submitButton">Update</button>
+                                      </div>
+                                </p>
+                                <p class="card-text"></p>
+                              </div>
+                            </div>
                       </div>
-                      <div class="col-xs-12 col-sm-12 col-md-12">
-                          <div class="form-group btn-group">
-                              <a href="{{ route('attachProducts',['order',$id]) }}" class="btn btn-image"><img src="/images/attach.png" /></a>
-                              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productModal">+</button>&nbsp;&nbsp;
-                              <button type="submit" class="btn btn-secondary" id="submitButton">Update</button>
-
-                          </div>
-                      </div>
-
                       <div id="productModal" class="modal fade" role="dialog">
                         <div class="modal-dialog">
 

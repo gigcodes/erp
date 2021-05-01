@@ -50,6 +50,7 @@ return [
                     env('DB_HOST', '127.0.0.1'),
                 ],
             ],
+            'host'     => env('DB_HOST', '127.0.0.1'),
             'sticky' => true,
             'driver' => 'mysql',
             'port' => env('DB_PORT', '3306'),
@@ -69,7 +70,78 @@ return [
                 \PDO::ATTR_PERSISTENT => true
             ]
         ],
-
+        'brandsandlabel' => [
+            'driver'   => 'mysql',
+            'host'     => env('BRANDS_HOST', 'erp'),
+            'database' => env('BRANDS_DB', 'erp'),
+            'username' => env('MAGENTO_DB_USER', 'root'),
+            'password' => env('MAGENTO_DB_PASSWORD', ''),
+            'strict' => false,
+        ],
+        'avoirchic' => [
+            'driver'   => 'mysql',
+            'host'     => env('AVOIRCHIC_HOST', 'erp'),
+            'database' => env('AVOIRCHIC_DB', 'erp'),
+            'username' => env('MAGENTO_DB_USER', 'root'),
+            'password' => env('MAGENTO_DB_PASSWORD', ''),
+            'strict' => false,
+        ],
+        'olabels' => [
+            'driver'   => 'mysql',
+            'host'     => env('OLABELS_HOST', 'erp'),
+            'database' => env('OLABELS_DB', 'erp'),
+            'username' => env('MAGENTO_DB_USER', 'root'),
+            'password' => env('MAGENTO_DB_PASSWORD', ''),
+            'strict' => false,
+        ],
+        'sololuxury' => [
+            'driver'   => 'mysql',
+            'host'     => env('SOLOLUXURY_HOST', 'erp'),
+            'database' => env('SOLOLUXRY_DB', 'erp'),
+            'username' => env('MAGENTO_DB_USER', 'root'),
+            'password' => env('MAGENTO_DB_PASSWORD', ''),
+            'strict' => false,
+        ],
+        'suvandnet' => [
+            'driver'   => 'mysql',
+            'host'     => env('SUVANDNAT_HOST', 'erp'),
+            'database' => env('SUVANDNAT_DB', 'erp'),
+            'username' => env('MAGENTO_DB_USER', 'root'),
+            'password' => env('MAGENTO_DB_PASSWORD', ''),
+            'strict' => false,
+        ],
+        'thefitedit' => [
+            'driver'   => 'mysql',
+            'host'     => env('THEFITEDIT_HOST', 'erp'),
+            'database' => env('THEFITEDIT_DB', 'erp'),
+            'username' => env('MAGENTO_DB_USER', 'root'),
+            'password' => env('MAGENTO_DB_PASSWORD', ''),
+            'strict' => false,
+        ],
+        'theshadesshop' => [
+            'driver'   => 'mysql',
+            'host'     => env('THESHADSSHOP_HOST', 'erp'),
+            'database' => env('THESHADSSHOP_DB', 'erp'),
+            'username' => env('MAGENTO_DB_USER', 'root'),
+            'password' => env('MAGENTO_DB_PASSWORD', ''),
+            'strict' => false,
+        ],
+        'upeau' => [
+            'driver'   => 'mysql',
+            'host'     => env('UPEAU_HOST', 'erp'),
+            'database' => env('UPEAU_DB', 'erp'),
+            'username' => env('MAGENTO_DB_USER', 'root'),
+            'password' => env('MAGENTO_DB_PASSWORD', ''),
+            'strict' => false,
+        ],
+        'veralusso' => [
+            'driver'   => 'mysql',
+            'host'     => env('VERALUSSO_HOST', 'erp'),
+            'database' => env('VERALUSSO_DB', 'erp'),
+            'username' => env('MAGENTO_DB_USER', 'root'),
+            'password' => env('MAGENTO_DB_PASSWORD', ''),
+            'strict' => false,
+        ],
         'tracker' => [
             'driver'   => 'mysql',
             'host'     => 'localhost',
@@ -81,9 +153,6 @@ return [
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
         ],
-
-
-
         'pgsql' => [
             'driver' => 'pgsql',
             'host' => env('DB_HOST', '127.0.0.1'),
