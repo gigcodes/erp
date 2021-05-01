@@ -80,7 +80,7 @@
                 <select class="form-control" name="column">
                     <option value="">Select column</option>
                     <option value="last_started_at" {{ request('column') == 'last_started_at' ? 'selected' : '' }}>Last started</option>
-                    <option value="latest_product" {{ request('column') == 'latest_product' ? 'selected' : '' }}>Latest product</option>
+                    <option value="least_product" {{ request('column') == 'least_product' ? 'selected' : '' }}>Least product</option>
                 </select>
             </div>
             <div class="form-group mb-3 col-md-2">

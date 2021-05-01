@@ -255,8 +255,9 @@ class ScrapStatisticsController extends Controller
             GROUP BY
                 sc.id
             ORDER BY
-                sc.scraper_priority desc
-        ';
+                '.( $column == "least_product" ? "total_new_product ".$orderby." " : "sc.scraper_priority DESC" ).'
+            ';
+
         $scrapeData = DB::select($sql);
 
         $allScrapperName = [];
