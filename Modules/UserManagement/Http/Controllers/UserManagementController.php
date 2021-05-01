@@ -46,7 +46,7 @@ class UserManagementController extends Controller
     {
         $user = new User;
         if(!Auth::user()->isAdmin()) {
-            $user = $user->where('id',Auth::user()->id);
+            $user = $user->where('users.id',Auth::user()->id);
         }
        
         if($request->is_active == 1) {

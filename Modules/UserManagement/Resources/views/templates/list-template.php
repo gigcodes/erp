@@ -35,7 +35,6 @@ a {
 				<th style="width:80px">No Time est.</th>
 				<th style="width:80px;">Overdue task</th> 
 				<th style="width:80px;">Last seen</th>
-				<!-- <th style="width:80px">Payment frequency</th>  -->
 				<th style="width:80px">Payment Due</th>
 				<th style="width:80px">Due date</th> 			
 				<th style="width:85px;">Paid on</th>
@@ -66,7 +65,6 @@ a {
 			        <td>{{:prop.no_time_estimate}}</td>
 			        <td>{{:prop.overdue_task}}</td>
 			        <td>{{:prop.online_now}}</td>
-			        <td>{{:prop.payment_frequency}}</td>
 			        <td> {{:prop.previousDue}} {{:prop.currency}}</td>
 			        <td>{{:prop.nextDue}}</td>
 			        <td>
