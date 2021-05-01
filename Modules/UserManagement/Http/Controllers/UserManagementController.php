@@ -50,16 +50,16 @@ class UserManagementController extends Controller
         }
        
         if($request->is_active == 1) {
-            $user = $user->where('is_active',1);
+            $user = $user->where('users.is_active',1);
         }
         if($request->is_active == 2) {
-            $user = $user->where('is_active',0);
+            $user = $user->where('users.is_active',0);
         }
         if($request->keyword != null) {
             $user = $user->where(function($q) use ($request) {
-                $q->where("email","like","%".$request->keyword."%")
-                ->orWhere("name","like","%".$request->keyword."%")
-                ->orWhere("phone","like","%".$request->keyword."%");
+                $q->where("users.email","like","%".$request->keyword."%")
+                ->orWhere("users.name","like","%".$request->keyword."%")
+                ->orWhere("users.phone","like","%".$request->keyword."%");
             });
         }
     
