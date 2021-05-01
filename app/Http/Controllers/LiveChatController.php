@@ -1242,36 +1242,23 @@ if(isset($request->messageId)){
                 )
             );
 
-            $view = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
-            $params = [
-                'model_id'   => $customer->id,
-                'model_type' => \App\Customer::class,
-                'from'       => $view->fromMailer,
-                'to'         => $customer->email,
-                'subject'    => $view->subject,
-                'message'    => $view->render(),
-                'template'   => 'issue-credit',
-                'additional_data' => '',
-                'is_draft'   => 1
-            ];
+            $emailClass = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
 
-            \App\CommunicationHistory::create([
-                'model_id' => $customer->id,
-                'model_type' => \App\Customer::class,
-                'type' => 'issue-credit',
-                'method' => 'email'
+            $storeWebsiteOrder = $order->storeWebsiteOrder;
+            $email             = Email::create([
+                'model_id'         => $customer->id,
+                'model_type'       => \App\Customer::class,
+                'from'             => $emailClass->fromMailer,
+                'to'               => $customer->email,
+                'subject'          => $emailClass->subject,
+                'message'          => $emailClass->render(),
+                'template'         => 'issue-credit',
+                'additional_data'  => '',
+                'status'           => 'pre-send',
+                'store_website_id' => null,
             ]);
 
-            $emailObject = \App\Email::create($params);
-
-            try {
-                \MultiMail::to($customer->email)->send(new \App\Mails\Manual\SendIssueCredit($customer));
-                $emailObject->is_draft = 0;
-            }catch(\Exception $e) {
-                $emailObject->error_message = $e->getMessage();
-            }
-
-            $emailObject->save();
+            \App\Jobs\SendEmail::dispatch($email);
 
         }
         return response()->json(['credit updated successfully', 'code' => 200, 'status' => 'success']);

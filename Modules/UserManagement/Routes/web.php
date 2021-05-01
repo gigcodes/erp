@@ -46,4 +46,6 @@ Route::prefix('user-management')->middleware('auth')->group(function() {
     Route::get('{id}/get-database', 'UserManagementController@getDatabase')->name("user-management.get-database");
     Route::post('{id}/create-database', 'UserManagementController@createDatabaseUser')->name("user-management.create-database");
     Route::post('{id}/assign-database-table', 'UserManagementController@assignDatabaseTable')->name("user-management.assign-database-table");
+    Route::post('{id}/delete-database-access', 'UserManagementController@deleteDatabaseAccess')->name("user-management.delete-database-access");
+    Route::post('{id}/choose-database', 'UserManagementController@chooseDatabase')->name("user-management.choose-database");
 });

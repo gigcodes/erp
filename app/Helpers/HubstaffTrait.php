@@ -14,9 +14,11 @@ trait hubstaffTrait
 {
     private $HUBSTAFF_TOKEN_FILE_NAME = 'hubstaff_tokens.json';
     private $SEED_REFRESH_TOKEN;
+    private $client;
 
     public function init($seedToken)
     {
+        $this->client = new Client();
         $this->SEED_REFRESH_TOKEN = $seedToken;
     }
 
@@ -103,6 +105,63 @@ trait hubstaffTrait
             } else {
                 throw $e;
             }
+        }
+    }
+
+    private function getActivitiesBetween($startTime, $endTime, $startId = 0, $resultArray = [], $userIds = [])
+    {
+
+        try {
+            $response = $this->doHubstaffOperationWithAccessToken(
+                function ($accessToken) use ($startTime, $endTime, $startId, $userIds) {
+                    $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $startTime . '&time_slot[stop]=' . $endTime . '&page_start_id=' . $startId;
+
+                    $q = [];
+                    if (!empty($userIds)) {
+                        foreach ($userIds as $uid) {
+                            $q[] = "user_ids[]=" . $uid;
+                        }
+                    }
+                    $queryString = implode("&", $q);
+                    $url .= "&" . $queryString;
+
+                    \Log::info("Hubstaff url : ".$url." Token  : ".$accessToken);
+                    
+                    return $this->client->get(
+                        $url,
+                        [
+                            RequestOptions::HEADERS => [
+                                'Authorization' => 'Bearer ' . $accessToken,
+                            ],
+                        ]
+                    );
+                }
+            );
+            $responseJson = json_decode($response->getBody()->getContents());
+
+            $activities = $resultArray;
+
+            foreach ($responseJson->activities as $activity) {
+                $activities[$activity->id] = array(
+                    'user_id'   => $activity->user_id,
+                    'task_id'   => $activity->task_id,
+                    'starts_at' => $activity->starts_at,
+                    'tracked'   => $activity->tracked,
+                    'keyboard'  => $activity->keyboard,
+                    'mouse'     => $activity->mouse,
+                    'overall'   => $activity->overall,
+                );
+            }
+
+            if (isset($responseJson->pagination)) {
+                $nextStart = $responseJson->pagination->next_page_start_id;
+                return $this->getActivitiesBetween($startTime, $endTime, $nextStart, $activities, $userIds);
+            } else {
+                return $activities;
+            }
+        } catch (Exception $e) {
+            \Log::info("Hubstaff token issue while fetching activities : ".$e->getMessage());
+            return false;
         }
     }
 }

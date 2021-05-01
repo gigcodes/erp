@@ -48,9 +48,9 @@ class SendHubstaffReport extends Command
      * @return mixed
      */
     public function handle()
-    {
-        //STOPPED CERTAIN MESSAGES
+    {   
         return false;
+        //STOPPED CERTAIN MESSAGES
         //
         try {
 

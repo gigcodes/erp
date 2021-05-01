@@ -558,5 +558,37 @@ class StoreWebsiteController extends Controller
         return response()->json(["code" => 200 , "message" => 'Successful']);
     }
 
-   
+    public function generateStorefile(Request $request)
+    {
+        $server = $request->get("for_server");
+
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh '.$server.' 2>&1';
+
+        $allOutput   = array();
+        $allOutput[] = $cmd;
+        $result      = exec($cmd, $allOutput);
+
+        $content = end($allOutput);
+
+        $nameF = $server.".pem";
+        $namefile = storage_path()."/app/files/documents/".$nameF;
+
+        //save file
+        $file = fopen($namefile, "w") or die("Unable to open file!");
+
+        fwrite($file, $content);
+        fclose($file);
+
+        //header download
+        header("Content-Disposition: attachment; filename=\"" . $nameF . "\"");
+        header("Content-Type: application/force-download");
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header("Content-Type: application/x-pem-file");
+
+        echo $content;
+        die;
+    }
+
 }

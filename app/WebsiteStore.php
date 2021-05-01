@@ -33,7 +33,7 @@ class WebsiteStore extends Model
 
     public function storeView()
     {
-        return $this->hasMany(\App\WebsiteStoreView::class, 'website_store_id','id');
+        return $this->hasMany(\App\WebsiteStoreView::class, 'id','website_id');
     }
 	
 	 public function scrapperImage()

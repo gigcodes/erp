@@ -116,9 +116,12 @@ class MagentoOrderHandleHelper extends Model
                             'order_date'      => $order->created_at,
                             'client_name'     => $order->billing_address->firstname . ' ' . $order->billing_address->lastname,
                             'city'            => $order->billing_address->city,
-                            'advance_detail'  => 0,
+                            'advance_detail'  => $order->base_grand_total,
                             'contact_detail'  => $order->billing_address->telephone,
                             'balance_amount'  => $balance_amount,
+                            'store_currency_code' => $order->store_currency_code,
+                            'store_id'        => $order->store_id,
+                            'store_name'      => $order->store_name,
                             'created_at'      => $order->created_at,
                             'updated_at'      => $order->created_at,
                         )
@@ -215,7 +218,7 @@ class MagentoOrderHandleHelper extends Model
                                 'lastname'     => $order->billing_address->lastname ?? null,
                                 'parent_id'    => $order->billing_address->parent_id ?? null,
                                 'postcode'     => $order->billing_address->postcode ?? null,
-                                'street'       => $order->billing_address->street ?? null,
+                                'street'       => $order->billing_address->street ? implode("\n",$order->billing_address->street) : null,
                                 'telephone'    => $order->billing_address->telephone ?? null
                             ),
                             array (
@@ -230,7 +233,7 @@ class MagentoOrderHandleHelper extends Model
                                 'lastname'     => $order->shipping_address->lastname ?? null,
                                 'parent_id'    => $order->shipping_address->parent_id ?? null,
                                 'postcode'     => $order->shipping_address->postcode ?? null,
-                                'street'       => $order->shipping_address->street ?? null,
+                                'street'       => $order->shipping_address->street ? implode("\n",$order->shipping_address->street) : null,
                                 'telephone'    => $order->shipping_address->telephone ?? null
                             )
                         );
@@ -326,26 +329,24 @@ class MagentoOrderHandleHelper extends Model
                     $websiteOrder->save();
 
                     $customer = $orderSaved->customer;
-        
-                    try{
-                        Mail::to($customer->email)->send(new OrderConfirmation($orderSaved));
-                    } catch (\Throwable $th) {
-                        \Log::error("Magento order mail sending failed : ".$th->getMessage());
-                    }
 
-                    $view   = (new OrderConfirmation($orderSaved))->render();
-                    $params = [
-                        'model_id'        => $customer->id,
-                        'model_type'      => Customer::class,
-                        'from'            => 'customercare@sololuxury.co.in',
-                        'to'              => $customer->email,
-                        'subject'         => "New Order # " . $orderSaved->order_id,
-                        'message'         => $view,
+                    $emailClass = (new OrderConfirmation($orderSaved))->build();
+
+                    $email = \App\Email::create([
+                        'model_id'        => $orderSaved->id,
+                        'model_type'      => \App\Order::class,
+                        'from'            => $emailClass->fromMailer,
+                        'to'              => $orderSaved->customer->email,
+                        'subject'         => $emailClass->subject,
+                        'message'         => $emailClass->render(),
                         'template'        => 'order-confirmation',
                         'additional_data' => $orderSaved->id,
-                    ];
-                    Email::create($params);
+                        'status'          => 'pre-send',
+                        'is_draft'        => 1,
+                    ]);
 
+                    \App\Jobs\SendEmail::dispatch($email);
+        
                     \Log::info("Order is finished" . json_encode($websiteOrder));
                 }
                 /**Ajay singh */
@@ -375,6 +376,7 @@ class MagentoOrderHandleHelper extends Model
                 return true;
             }
         } catch (\Throwable $th) {
+            \Log::error($th);
             \Log::error("Magento order failed : reason => ".$th->getMessage());
             return false;
         }

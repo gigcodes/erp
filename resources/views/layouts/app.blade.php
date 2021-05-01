@@ -897,6 +897,9 @@ $metaData = '';
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('user-management.index') }}">New Management</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ url('api/documentation') }}">API Documentation</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -1477,6 +1480,9 @@ $metaData = '';
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('settings.index')}}">Settings</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('auto.refresh.index')}}">Auto Refresh page</a>
+                                        </li>
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('budget.index') }}">Hubstaff</a>
@@ -1692,6 +1698,9 @@ $metaData = '';
                                 </li>
                                  <li class="nav-item">
                                     <a class="dropdown-item" href="{{ url('/store-website-analytics/index') }}">Store Website Analytics</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('store-website-country-shipping.index') }}">Store Website country shipping</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('googlefiletranslator.list') }}">Google File Translator</a>
@@ -2537,6 +2546,15 @@ $metaData = '';
     </script>
     @endif
     <script>
+         <?php
+            if(!\Auth::guest()) {
+            $path = Request::path();
+            $hasPage = \App\AutoRefreshPage::where("page",$path)->where("user_id",\Auth()->user()->id)->first();
+            if($hasPage) {
+         ?>
+            setTimeout("location.reload(true);", <?php echo $hasPage->time * 1000; ?>);
+        <?php } } ?>
+
         function filterFunction() {
             var input, filter, ul, li, a, i;
             //getting search values

@@ -40,15 +40,15 @@
 <tr>
 <td>LUXURY UNLIMITED</td>
 <td style="width: 30%;" rowspan="8">&nbsp;</td>
-<td>INVOICE#: 00000000000004200065</td>
+<td>INVOICE#: {{ $invoice->invoice_number }}</td>
 </tr>
 <tr>
 <td>Address:105,5EA,DAFZA DUBAI,UAE</td>
-<td>Date: 2020-09-30</td>
+<td>Date: {{ $invoice->invoice_date }}</td>
 </tr>
 <tr>
 <td>UNITED ARAB EMIRATES</td>
-<td>Order ID: GE457784290GB</td>
+<td>Order ID: {{ $order->order_id }}</td>
 </tr>
 <tr>
 <td>Email: info@theluxuryunlimited.com</td>
@@ -56,7 +56,7 @@
 </tr>
 <tr>
 <td>&nbsp;</td>
-<td>Numbers of parcels: 1</td>
+<td>Numbers of parcels: @if($order->order_product) {{$order->order_product->count()}} @else 0 @endif</td>
 </tr>
 <tr>
 <td>&nbsp;</td>
@@ -64,7 +64,7 @@
 </tr>
 <tr>
 <td>&nbsp;</td>
-<td>The currency of sale: USD</td>
+<td>The currency of sale: {{$order->currency}}</td>
 </tr>
 <tr>
 <td>&nbsp;</td>
@@ -78,31 +78,24 @@
 <tr>
 <td>Client name</td>
 <td style="width: 30%;" rowspan="8">&nbsp;</td>
-<td>Importer type Private Importer</td>
-</tr>
-<tr>
-<td>&nbsp;</td>
-<td>&nbsp;</td>
-</tr>
-<tr>
-<td>Client name</td>
 <td>@if($buyerDetails) {{ $buyerDetails->name }} @endif</td>
 </tr>
+
 <tr>
-<td>name</td>
-<td>BREACH CANDY APARTMENTS</td>
+<td>Client phone</td>
+<td>@if($buyerDetails) {{ $buyerDetails->phone }} @endif</td>
 </tr>
 <tr>
-<td>name</td>
-<td>OPP PREMSONS WARDEN ROAD</td>
+<td>Client Pincode</td>
+<td>@if($buyerDetails) {{ $buyerDetails->pincode }} @endif</td>
 </tr>
 <tr>
-<td>&nbsp;</td>
-<td>MUMBAI</td>
+<td>City</td>
+<td>@if($buyerDetails) {{ $buyerDetails->city }} @endif</td>
 </tr>
 <tr>
-<td>&nbsp;</td>
-<td>INDIA</td>
+<td>Country</td>
+<td>@if($buyerDetails) {{ $buyerDetails->country }} @endif</td>
 </tr>
 </tbody>
 </table>
@@ -115,13 +108,7 @@
 <th>UNIT V</th>
 <th>TOTAL VALUE</th>
 </tr>
-<tr>
-<td>BAG</td>
-<td>ITALY</td>
-<td>1</td>
-<td>USD</td>
-<td>USD 150.00</td>
-</tr>
+{!! $orderItems !!}
 <tr>
 <td colspan="5">DO NOT CLEAR DIFFERENT COMMODITIES - UNDER A SINGAL HS CODE. USE HS COMMODITY CODES AS PROVIDED.</td>
 </tr>
@@ -134,17 +121,16 @@
 <td colspan="2">&nbsp;</td>
 <td colspan="2">The total cost of foods (FOB) Shipping &amp; handling Insurance charges</td>
 <td style="text-align: right;">
-<p>USD 150.00</p>
-<p>USD 0.00</p>
-<p>USD 0.00</p>
+<p>{{$order->currency}} 0.00</p>
+<p>{{$order->currency}} 0.00</p>
+<p>{{$order->currency}} {{$orderTotal}}</p>
 </td>
 </tr>
 <tr>
 <td colspan="2">&nbsp;</td>
 <td colspan="2">Total (CIF)</td>
 <td style="text-align: right;">
-<p>USD 150.00</p>
-<p>USD 0.00</p>
+<p>{{$order->currency}} {{$orderTotal}}</p>
 </td>
 </tr>
 <tr>
@@ -155,7 +141,7 @@
 <tr>
 <td colspan="2">&nbsp;</td>
 <td colspan="2">Total Paid for the order</td>
-<td style="text-align: right;">USD 150.00</td>
+<td style="text-align: right;">{{$order->currency}} {{$orderTotal}}</td>
 </tr>
 <tr>
 <td colspan="2">&nbsp;</td>
@@ -165,7 +151,7 @@
 <tr>
 <td colspan="2">VALUE FOR CUSTOMERS:</td>
 <td colspan="2">CIF</td>
-<td style="text-align: right;">USD 150.00</td>
+<td style="text-align: right;">{{$order->currency}} {{$orderTotal}}</td>
 </tr>
 </tbody>
 </table>

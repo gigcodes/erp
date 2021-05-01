@@ -12,10 +12,10 @@
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
         <div class="pull-right">
-        <a class="btn btn-secondary" data-toggle="modal" data-target="#fetch-activity-modal" style="color:white;">Fetch Activity</a>
-        <a class="btn btn-secondary" data-toggle="modal" data-target="#open-timing-modal" style="color:white;">Add manual timings</a>
-        <a class="btn btn-secondary" href="{{ route('hubstaff-acitivties.pending-payments') }}">Approved timings</a>
-    </div>
+            <a class="btn btn-secondary" data-toggle="modal" data-target="#fetch-activity-modal" style="color:white;">Fetch Activity</a>
+            <a class="btn btn-secondary" data-toggle="modal" data-target="#open-timing-modal" style="color:white;">Add manual timings</a>
+            <a class="btn btn-secondary" href="{{ route('hubstaff-acitivties.pending-payments') }}">Approved timings</a>
+        </div>
     </div>
    
     <br>
@@ -124,7 +124,9 @@
                                         <?php foreach($user['tasks'] as $ut) { ?>
                                             <?php 
                                                 @list($taskid,$devtask,$taskName,$estimation,$status) = explode("||",$ut);
-                                                $trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $taskid)->first()->tracked;
+
+                                                $trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $taskid)->sum('tracked');
+
                                             ?>
                                             @if ( $taskid )
                                                 
@@ -138,7 +140,7 @@
                                                     </td>
                                                     <td width="16%">
                                                         @if ($taskName)
-                                                            {{ (isset($trackedTime) && $devtask ) ? $trackedTime : 'N/A' }}<br>
+                                                            {{ (isset($trackedTime) && $devtask ) ? number_format($trackedTime / 60,2,".",",") : 'N/A' }}<br>
                                                         @endif
                                                     </td>
                                                     <td width="16%">
@@ -149,7 +151,7 @@
                                                     <td width="16%">
                                                         @if ( $taskName )
                                                             @if (is_numeric($estimation) && $trackedTime && $taskName)
-                                                                {{ $estimation - $trackedTime}}<br>
+                                                                {{ $estimation - number_format($trackedTime / 60,2,".",",") }}<br>
                                                             @else
                                                                 N/A
                                                             @endif
@@ -274,14 +276,24 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-            <div class="form-group">
-                <label for="">Activity available up to</label>
-                <input id="activity-available" type="text"  value="" class="form-control" readonly>
-            </div>
-            <div class="form-group">
-                <label for="">Date from</label>
-                <input type="text" name="starts_at" value="" class="form-control" id="time_from" required placeholder="Enter Date">
-            </div>
+                <div class="form-group">
+                    <label for="">Activity available up to</label>
+                    <input id="activity-available" type="text"  value="" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="hub_staff_start_date" value="" hidden/>
+                    <input type="text" name="hub_staff_end_date" value="" hidden/>
+                    <div id="HubStaffDateRange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                        <i class="fa fa-calendar"></i>&nbsp;
+                        <span></span> <i class="fa fa-caret-down"></i>
+                    </div>
+                </div>
+                @if(auth()->user()->isAdmin())
+                    <div class="form-group">
+                        <label for="fetch_user_id">Fetch for</label>
+                        {{ Form::select("fetch_user_id",\App\User::pluck('name','id')->toArray(),request('fetch_user_id'),["class" => "form-control select2","style" => "width:100%"]) }}
+                    </div>
+                @endif
             </div>
             <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -376,7 +388,7 @@ let r_s = jQuery('input[name="start_date"]').val();
         // jQuery('input[name="range_start"]').val(start.format('YYYY-MM-DD'));
         // jQuery('input[name="range_end"]').val(end.format('YYYY-MM-DD'));
 
-        function cb(start, end) {
+        function cb(start, end, id) {
             $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
         }
 
@@ -400,6 +412,33 @@ let r_s = jQuery('input[name="start_date"]').val();
             jQuery('input[name="start_date"]').val(picker.startDate.format('YYYY-MM-DD'));
             jQuery('input[name="end_date"]').val(picker.endDate.format('YYYY-MM-DD'));
         });
+
+
+        function hubDate(start, end, id) {
+            $('#HubStaffDateRange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+            jQuery('input[name="hub_staff_start_date"]').val(start.format('YYYY-MM-DD'));
+            jQuery('input[name="hub_staff_end_date"]').val(end.format('YYYY-MM-DD'));
+        }
+        
+        $('#HubStaffDateRange').daterangepicker({
+            maxYear: 1,
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            }
+        },hubDate);
+
+
+        $('#HubStaffDateRange').on('apply.daterangepicker', function (ev, picker) {
+            jQuery('input[name="hub_staff_start_date"]').val(picker.startDate.format('YYYY-MM-DD'));
+            jQuery('input[name="hub_staff_end_date"]').val(picker.endDate.format('YYYY-MM-DD'));
+        });
+
+
     // $(document).on('click', '.show-activitie1s', function(e) {
     //     e.preventDefault();
     //     var form = $(this).closest("form");
@@ -560,13 +599,14 @@ let r_s = jQuery('input[name="start_date"]').val();
             }
             }).done( function(response) {
                 $("#loading-image").hide();
-                window.location.reload();
+                // window.location.reload();
+                toastr['success'](response.message, 'success');
             }).fail(function(errObj) {
                 $("#loading-image").hide();
                 if(errObj.responseJSON) {
                     toastr['error'](errObj.responseJSON.message, 'error');
                 }
-                window.location.reload();
+                // window.location.reload();
             });
         });
 

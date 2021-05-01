@@ -47,10 +47,11 @@ class GTMetrixTestCMD extends Command
     {   
 
         try {
-
+            \Log::info('GTMetrix :: Daily cron start ' );
             $cronStatus = Setting::where('name',"gtmetrixCronStatus")->get()->first();
             
             if( !empty($cronStatus) && $cronStatus->val == 'stop' ){
+                \Log::info('GTMetrix :: stopped' );
                 return false;
             }
 
@@ -58,7 +59,9 @@ class GTMetrixTestCMD extends Command
             $cronRunTime = Setting::where('name',"gtmetrixCronRunDate")->get()->first();
             
             if( !empty( $cronRunTime ) ){
-                if( $cronRunTime->val != now()->format('Y-m-d')  ){
+
+                if( $cronRunTime->val != now()->format('Y-m-d') && $cronType->val != 'daily' ){
+                    \Log::info('GTMetrix :: cron run time false' );
                     return false;
                 }
             }
@@ -74,6 +77,7 @@ class GTMetrixTestCMD extends Command
                 'start_time' => Carbon::now(),
             ]);
 
+            \Log::info('GTMetrix :: Daily cron start ' );
             $client = new GTMetrixClient();
             $client->setUsername(env('GTMETRIX_USERNAME'));
             $client->setAPIKey(env('GTMETRIX_API_KEY'));
@@ -87,6 +91,8 @@ class GTMetrixTestCMD extends Command
                             ->join("store_websites as sw", "sw.id", "w.store_website_id")
                             ->select("website_store_views.code","website_store_views.id", "sw.website")
                             ->get()->toArray();
+            
+            \Log::info('GTMetrix :: store website =>'.sizeof( $storeViewList ) );
 
             $request_too_many_pending = false;
 
@@ -127,7 +133,7 @@ class GTMetrixTestCMD extends Command
 
             // Get tested site report 
             // \Artisan::call('GT-metrix-test-get-report');
-
+            \Log::info('GTMetrix :: Daily run complete ');
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
             \Log::error('GTMetrix :: '.$e->getMessage() );

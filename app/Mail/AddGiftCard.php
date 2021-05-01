@@ -32,6 +32,6 @@ class AddGiftCard extends Mailable
      */
     public function build()
     {
-        return $this->subject('Giftcard Recieved - Luxury Erp')->view('emails.giftcard.giftcard_recieved_email');
+        return $this->subject('Giftcard Recieved')->view('emails.giftcard.giftcard_recieved_email');
     }
 }

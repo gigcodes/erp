@@ -17,17 +17,11 @@ class ProductEnhancementController extends Controller
      * @SWG\Get(
      *   path="/products/enhance",
      *   tags={"Products"},
-     *   summary="get product enhance",
+     *   summary="get product enhance where product status is imageEnhancement",
      *   operationId="get-product-enhance",
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
-     *      @SWG\Parameter(
-     *          name="mytest",
-     *          in="path",
-     *          required=true, 
-     *          type="string" 
-     *      ),
      * )
      *
      */
@@ -82,10 +76,16 @@ class ProductEnhancementController extends Controller
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
      *      @SWG\Parameter(
-     *          name="mytest",
-     *          in="path",
+     *          name="images[]",
+     *          in="formData",
      *          required=true, 
-     *          type="string" 
+     *          type="file" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="id",
+     *          in="formData",
+     *          required=true, 
+     *          type="integer" 
      *      ),
      * )
      *

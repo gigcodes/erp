@@ -188,7 +188,6 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-
         $term             = $request->input('term');
         $order_status     = $request->status ?? [''];
         $date             = $request->date ?? '';
@@ -311,6 +310,21 @@ class OrderController extends Controller
         $quickreply   = Reply::where('model', 'Order')->get();
         //return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
         return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault'));
+    }
+
+    public function addProduct(Request $request)
+    {   
+        $this->createProduct($request);
+        $productArr = array(
+            'sku' => request('sku'),
+            'product_price' => request('price'),
+            'color' => request('color'),
+            'order_id' => request('order_id'),
+            'qty' => request('qty'),
+            'size' => request('size'),
+        );
+        OrderProduct::insert( $productArr );
+        return response()->json(["code" => 200, "message" => 'Product added successfully']); 
     }
 
     public function products(Request $request)
@@ -537,10 +551,10 @@ class OrderController extends Controller
 
     public function getCustomerAddress(Request $request)
     {
-
         $address = OrderCustomerAddress::where('order_id', $request->order_id)->get();
         return response()->json(["code" => 200, "data" => $address]);
     }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -614,6 +628,37 @@ class OrderController extends Controller
         return view('orders.form', $data);
     }
 
+
+    public function searchProduct(Request $request)
+    {
+        $exist =  Product::where('sku',request('sku'))->first();
+        if( !empty($exist) ){
+            return response()->json(["code" => 200, "data" => $exist, "message" => 'Product added successfully']); 
+        }
+        return response()->json(["code" => 500, "message" => 'Product not found']); 
+    }
+
+    public function createProduct(Request $request)
+    {   
+        // $this->validate($request,[
+        //     'sku'    => 'required|unique:products',
+        // ]);
+
+        $productArr = array(
+            'sku' => request('sku'),
+            'price' => request('price'),
+            'size' => request('size'),
+            'name' => request('name'),
+            'stock' => 1,
+            'quick_product' => 1,
+        );
+        $exist =  Product::where('sku',request('sku'))->first();
+        if( empty($exist) ){
+            Product::insert( $productArr );
+            return response()->json(["code" => 200, "message" => 'Product added successfully']); 
+        }
+        return response()->json(["code" => 500, "message" => 'Product already exist']); 
+    }
 /**
  * Store a newly created resource in storage.
  *
@@ -622,8 +667,7 @@ class OrderController extends Controller
  * @return \Illuminate\Http\Response
  */
     public function store(Request $request)
-    {
-
+    {   
         $this->validate($request, [
             'customer_id'    => 'required',
             'advance_detail' => 'numeric|nullable',
@@ -686,6 +730,18 @@ class OrderController extends Controller
 
         $order = Order::create($data);
 
+         $customerShippingAddress = array(
+            'address_type' => 'shipping',
+            'city' => $customer->city,
+            'country_id' => $customer->country,
+            'email' => $customer->email,
+            'firstname' => $customer->name,
+            'postcode' => $customer->pincode,
+            'street' => $customer->address,
+            'order_id' => $order->id,
+        );
+        OrderCustomerAddress::insert( $customerShippingAddress );
+
         if (!empty($request->input('order_products'))) {
             foreach ($request->input('order_products') as $key => $order_product_data) {
                 $order_product = OrderProduct::findOrFail($key);
@@ -746,7 +802,6 @@ class OrderController extends Controller
                     )
                 );
             }
-
         }
 
         $expiresAt  = Carbon::now()->addMinutes(10);
@@ -859,34 +914,52 @@ class OrderController extends Controller
 
         if ($request->hdn_order_mail_status == "1") {
             $id_order_inc = $order->id;
-            $order_new    = Order::find($id_order_inc);
-            if (!$order_new->is_sent_offline_confirmation()) {
-                if ($order_new->order_type == 'offline') {
-                    if (!empty($order_new->customer) && !empty($order_new->customer->email)) {
+            if (!$order->is_sent_offline_confirmation()) {
+                if ($order->order_type == 'offline') {
+                    if (!empty($order->customer) && !empty($order->customer->email)) {
                         //Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
-                        try {
-                            $emailClass = (new OrderConfirmation($order_new))->build();
-                            \MultiMail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
-                            $params = [
-                                'model_id'        => $order_new->customer->id,
-                                'model_type'      => Customer::class,
-                                'from'            => $emailClass->fromMailer,
-                                'to'              => $order_new->customer->email,
-                                'subject'         => $emailClass->subject,
-                                'message'         => $emailClass->render(),
-                                'template'        => 'order-confirmation',
-                                'additional_data' => $order_new->id,
-                            ];
-                            Email::create($params);
-                            CommunicationHistory::create([
-                                'model_id'   => $order_new->id,
-                                'model_type' => Order::class,
-                                'type'       => 'offline-confirmation',
-                                'method'     => 'email',
-                            ]);
-                        } catch (\Exception $e) {
-                            \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
-                        }
+                        $emailClass = (new OrderConfirmation($order))->build();
+
+                        $email = Email::create([
+                            'model_id'        => $order->id,
+                            'model_type'      => Order::class,
+                            'from'            => $emailClass->fromMailer,
+                            'to'              => $order->customer->email,
+                            'subject'         => $emailClass->subject,
+                            'message'         => $emailClass->render(),
+                            'template'        => 'order-confirmation',
+                            'additional_data' => $order->id,
+                            'status'          => 'pre-send',
+                            'is_draft'        => 1,
+                        ]);
+
+                        \App\Jobs\SendEmail::dispatch($email);
+
+                        /*try {
+
+                    $emailClass = (new OrderConfirmation($order))->build();
+                    \MultiMail::to($order->customer->email)->send(new OrderConfirmation($order));
+                    $params = [
+                    'model_id'        => $order->id,
+                    'model_type'      => Order::class,
+                    'from'            => $emailClass->fromMailer,
+                    'to'              => $order->customer->email,
+                    'subject'         => $emailClass->subject,
+                    'message'         => $emailClass->render(),
+                    'template'        => 'order-confirmation',
+                    'additional_data' => $order->id,
+                    'status'          => 'pre-send',
+                    ];
+                    Email::create($params);
+                    CommunicationHistory::create([
+                    'model_id'   => $order->id,
+                    'model_type' => Order::class,
+                    'type'       => 'offline-confirmation',
+                    'method'     => 'email',
+                    ]);
+                    } catch (\Exception $e) {
+                    \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
+                    }*/
                     }
                 }
             }
@@ -927,7 +1000,7 @@ class OrderController extends Controller
         UpdateOrderStatusMessageTpl::dispatch($order->id)->onQueue("customer_message");
 
         if ($request->ajax()) {
-            return response()->json(['order' => $order]);
+            return response()->json([ 'code' => 200,'order' => $order]);
         }
 
         if ($request->get('return_url_back')) {
@@ -955,17 +1028,16 @@ class OrderController extends Controller
  * @return \Illuminate\Http\Response
  */
     public function show(Order $order)
-    {
+    {   
         $data                   = $order->toArray();
         $data['sales_persons']  = Helpers::getUsersArrayByRole('Sales');
         $data['order_products'] = $this->getOrderProductsWithProductData($order->id);
         $data['comments']       = Comment::with('user')->where('subject_id', $order->id)
             ->where('subject_type', '=', Order::class)->get();
-        $data['users']           = User::all()->toArray();
-        $data['customerAddress'] = OrderCustomerAddress::where('order_id', $order->id)->get();
-        $messages                = Message::all()->where('moduleid', '=', $data['id'])->where('moduletype', '=', 'order')->sortByDesc("created_at")->take(10)->toArray();
-        $data['messages']        = $messages;
-        $data['total_price']     = $this->getTotalOrderPrice($order);
+        $data['users']       = User::all()->toArray();
+        $messages            = Message::all()->where('moduleid', '=', $data['id'])->where('moduletype', '=', 'order')->sortByDesc("created_at")->take(10)->toArray();
+        $data['messages']    = $messages;
+        $data['total_price'] = $this->getTotalOrderPrice($order);
 
         $order_statuses              = (new OrderStatus)->all();
         $data['order_statuses']      = $order_statuses;
@@ -983,6 +1055,10 @@ class OrderController extends Controller
         $data['delivery_approval'] = $order->delivery_approval;
         $data['waybill']           = $order->waybill;
         $data['waybills']          = $order->waybills;
+        $data['customerAddress']   = $order->orderCustomerAddress;
+        $data['shipping_address']  =  $order->shippingAddress();
+        $data['billing_address']   =  $order->billingAddress();
+        $data['order']             = $order;
 
         return view('orders.show', $data);
     }
@@ -1165,33 +1241,22 @@ class OrderController extends Controller
                     if (!empty($order_new->customer) && !empty($order_new->customer->email)) {
                         //Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
                         $emailClass = (new OrderConfirmation($order_new))->build();
-                        $params     = [
-                            'model_id'        => $order_new->customer->id,
-                            'model_type'      => Customer::class,
+
+                        $emailObject = Email::create([
+                            'model_id'        => $order_new->id,
+                            'model_type'      => Order::class,
                             'from'            => $emailClass->fromMailer,
                             'to'              => $order_new->customer->email,
                             'subject'         => $emailClass->subject,
                             'message'         => $emailClass->render(),
                             'template'        => 'order-confirmation',
                             'additional_data' => $order_new->id,
+                            'status'          => 'pre-send',
                             'is_draft'        => 1,
-                        ];
-                        $emailObject = Email::create($params);
-                        try {
-                            \MultiMail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
-                            CommunicationHistory::create([
-                                'model_id'   => $order_new->id,
-                                'model_type' => Order::class,
-                                'type'       => 'offline-confirmation',
-                                'method'     => 'email',
-                            ]);
-                            $emailObject->is_draft = 0;
-                        } catch (\Exception $e) {
-                            $emailObject->is_draft      = 1;
-                            $emailObject->error_message = $e->getMessage();
-                            \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
-                        }
-                        $emailObject->save();
+                        ]);
+
+                        \App\Jobs\SendEmail::dispatch($emailObject);
+
                     }
                 }
             }
@@ -1228,7 +1293,6 @@ class OrderController extends Controller
                     'date_of_issue'   => Carbon::now()->addDays(10),
                 ]);
             }
-
         }
 
         if ($order->order_status == \App\Helpers\OrderHelper::$delivered) {
@@ -1291,32 +1355,28 @@ class OrderController extends Controller
         if (true) {
             // if ($order->auto_emailed == 0) {
             if ($order->order_status == \App\Helpers\OrderHelper::$advanceRecieved) {
-                Mail::to($order->customer->email)->send(new AdvanceReceipt($order));
+
+                $emailClass = (new AdvanceReceipt($order))->build();
 
                 // $order->update([
                 //  'auto_emailed' => 1,
                 //  'auto_emailed_date' => Carbon::now()
                 // ]);
-
-                $params = [
-                    'model_id'        => $order->customer->id,
-                    'model_type'      => Customer::class,
-                    'from'            => 'customercare@sololuxury.co.in',
-                    'to'              => $order->customer->email,
-                    'subject'         => "Advance Receipt",
-                    'message'         => '',
-                    'template'        => 'advance-receipt',
-                    'additional_data' => $order->id,
-                ];
-
-                Email::create($params);
-
-                CommunicationHistory::create([
-                    'model_id'   => $order->id,
-                    'model_type' => Order::class,
-                    'type'       => 'advance-receipt',
-                    'method'     => 'email',
+                $storeWebsiteOrder = $order->storeWebsiteOrder;
+                $email             = Email::create([
+                    'model_id'         => $order->customer->id,
+                    'model_type'       => Customer::class,
+                    'from'             => 'customercare@sololuxury.co.in',
+                    'to'               => $order->customer->email,
+                    'subject'          => $emailClass->subject,
+                    'message'          => $emailClass->render(),
+                    'template'         => 'advance-receipt',
+                    'additional_data'  => $order->id,
+                    'status'           => 'pre-send',
+                    'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
                 ]);
+
+                \App\Jobs\SendEmail::dispatch($email);
             }
         }
 
@@ -1330,32 +1390,32 @@ class OrderController extends Controller
         // if ($order->auto_emailed == 0) {
         if (!$order->is_sent_offline_confirmation()) {
             if ($order->order_type == 'offline') {
-                Mail::to($order->customer->email)->send(new OrderConfirmation($order));
-
                 // $order->update([
                 //  'auto_emailed' => 1,
                 //  'auto_emailed_date' => Carbon::now()
                 // ]);
 
-                $params = [
-                    'model_id'        => $order->customer->id,
-                    'model_type'      => Customer::class,
-                    'from'            => 'customercare@sololuxury.co.in',
-                    'to'              => $order->customer->email,
-                    'subject'         => "New Order # " . $order->order_id,
-                    'message'         => '',
-                    'template'        => 'order-confirmation',
-                    'additional_data' => $order->id,
-                ];
+                $emailClass = (new OrderConfirmation($order))->build();
 
-                Email::create($params);
-
-                CommunicationHistory::create([
-                    'model_id'   => $order->id,
-                    'model_type' => Order::class,
-                    'type'       => 'offline-confirmation',
-                    'method'     => 'email',
+                // $order->update([
+                //  'auto_emailed' => 1,
+                //  'auto_emailed_date' => Carbon::now()
+                // ]);
+                $storeWebsiteOrder = $order->storeWebsiteOrder;
+                $email             = Email::create([
+                    'model_id'         => $order->customer->id,
+                    'model_type'       => Customer::class,
+                    'from'             => 'customercare@sololuxury.co.in',
+                    'to'               => $order->customer->email,
+                    'subject'          => $emailClass->subject,
+                    'message'          => $emailClass->render(),
+                    'template'         => 'order-confirmation',
+                    'additional_data'  => $order->id,
+                    'status'           => 'pre-send',
+                    'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
                 ]);
+
+                \App\Jobs\SendEmail::dispatch($email);
 
                 // $params = [
                 //   'number'      => NULL,
@@ -1752,6 +1812,7 @@ class OrderController extends Controller
                 ]);
             }
         }
+
     }
 
     public function sendRefund(Request $request, $id)
@@ -1782,30 +1843,28 @@ class OrderController extends Controller
                 'method'     => 'whatsapp',
             ]);
 
-            Mail::to($order->customer->email)->send(new RefundProcessed($order->order_id, $product_names));
+            $emailClass = (new RefundProcessed($order->order_id, $product_names))->build();
 
-            $params = [
-                'model_id'        => $order->customer->id,
-                'model_type'      => Customer::class,
-                'from'            => 'customercare@sololuxury.co.in',
-                'to'              => $order->customer->email,
-                'subject'         => "Refund Processed",
-                'message'         => '',
-                'template'        => 'refund-processed',
-                'additional_data' => json_encode(['order_id' => $order->order_id, 'product_names' => $product_names]),
-            ];
-
-            Email::create($params);
-
-            CommunicationHistory::create([
-                'model_id'   => $order->id,
-                'model_type' => Order::class,
-                'type'       => 'refund-initiated',
-                'method'     => 'email',
+            $storeWebsiteOrder = $order->storeWebsiteOrder;
+            $email             = Email::create([
+                'model_id'         => $order->id,
+                'model_type'       => Order::class,
+                'from'             => 'customercare@sololuxury.co.in',
+                'to'               => $order->customer->email,
+                'subject'          => $emailClass->subject,
+                'message'          => $emailClass->render(),
+                'template'         => 'refund-initiated',
+                'additional_data'  => $order->id,
+                'status'           => 'pre-send',
+                'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
             ]);
+
+            \App\Jobs\SendEmail::dispatch($email);
+
         }
 
         return response('success');
+
     }
 
     public function generateAWB(Request $request)
@@ -2279,68 +2338,46 @@ class OrderController extends Controller
                     try {
                         // send order canellation email
                         if (strtolower($statuss->status) == "cancel") {
-                            $view   = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
-                            $params = [
-                                'model_id'        => $order->customer->id,
-                                'model_type'      => Customer::class,
-                                'from'            => $view->fromMailer,
-                                'to'              => $order->customer->email,
-                                'subject'         => $view->subject,
-                                'message'         => $view->render(),
-                                'template'        => 'order-cancellation-update',
-                                'additional_data' => $order->id,
-                                'is_draft'        => 1,
-                            ];
 
-                            $emailObject = Email::create($params);
+                            $emailClass = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
 
-                            try {
-                                \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderCancellationMail($order));
-                                CommunicationHistory::create([
-                                    'model_id'   => $order->id,
-                                    'model_type' => Order::class,
-                                    'type'       => 'order-cancellation-update',
-                                    'method'     => 'email',
-                                ]);
-                                $emailObject->is_draft = 0;
-                            } catch (\Exception $e) {
-                                $emailObject->is_draft      = 1;
-                                $emailObject->error_message = $e->getMessage();
-                            }
+                            $storeWebsiteOrder = $order->storeWebsiteOrder;
+                            $email             = Email::create([
+                                'model_id'         => $order->id,
+                                'model_type'       => Order::class,
+                                'from'             => $emailClass->fromMailer,
+                                'to'               => $order->customer->email,
+                                'subject'          => $emailClass->subject,
+                                'message'          => $emailClass->render(),
+                                'template'         => 'order-cancellation-update',
+                                'additional_data'  => $order->id,
+                                'status'           => 'pre-send',
+                                'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
+                                'is_draft'         => 0,
+                            ]);
 
-                            $emailObject->save();
+                            \App\Jobs\SendEmail::dispatch($email);
 
                         } else {
 
-                            $view   = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
-                            $params = [
-                                'model_id'        => $order->customer->id,
-                                'model_type'      => Customer::class,
-                                'from'            => $view->fromMailer,
-                                'to'              => $order->customer->email,
-                                'subject'         => $view->subject,
-                                'message'         => $view->render(),
-                                'template'        => 'order-status-update',
-                                'additional_data' => $order->id,
-                            ];
+                            $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
 
-                            $emailObject = Email::create($params);
+                            $storeWebsiteOrder = $order->storeWebsiteOrder;
+                            $email             = Email::create([
+                                'model_id'         => $order->id,
+                                'model_type'       => Order::class,
+                                'from'             => $emailClass->fromMailer,
+                                'to'               => $order->customer->email,
+                                'subject'          => $emailClass->subject,
+                                'message'          => $emailClass->render(),
+                                'template'         => 'order-status-update',
+                                'additional_data'  => $order->id,
+                                'status'           => 'pre-send',
+                                'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
+                                'is_draft'         => 0,
+                            ]);
 
-                            try {
-                                \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderStatusChangeMail($order));
-                                CommunicationHistory::create([
-                                    'model_id'   => $order->id,
-                                    'model_type' => Order::class,
-                                    'type'       => 'order-status-update',
-                                    'method'     => 'email',
-                                ]);
-                                $emailObject->is_draft = 0;
-                            } catch (\Exception $e) {
-                                $emailObject->is_draft      = 1;
-                                $emailObject->error_message = $e->getMessage();
-                            }
-
-                            $emailObject->save();
+                            \App\Jobs\SendEmail::dispatch($email);
                         }
 
                     } catch (\Exception $e) {
@@ -2348,25 +2385,25 @@ class OrderController extends Controller
                     }
 
                 } else {
-                    \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderStatusChangeMail($order));
-                    $view   = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
-                    $params = [
-                        'model_id'        => $order->customer->id,
-                        'model_type'      => Customer::class,
-                        'from'            => $view->fromMailer,
-                        'to'              => $order->customer->email,
-                        'subject'         => $view->subject,
-                        'message'         => $view->render(),
-                        'template'        => 'order-status-update',
-                        'additional_data' => $order->id,
-                    ];
-                    Email::create($params);
-                    CommunicationHistory::create([
-                        'model_id'   => $order->id,
-                        'model_type' => Order::class,
-                        'type'       => 'order-status-update',
-                        'method'     => 'email',
+                    $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+
+                    $storeWebsiteOrder = $order->storeWebsiteOrder;
+                    $email             = Email::create([
+                        'model_id'         => $order->id,
+                        'model_type'       => Order::class,
+                        'from'             => $emailClass->fromMailer,
+                        'to'               => $order->customer->email,
+                        'subject'          => $emailClass->subject,
+                        'message'          => $emailClass->render(),
+                        'template'         => 'order-status-update',
+                        'additional_data'  => $order->id,
+                        'status'           => 'pre-send',
+                        'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
+                        'is_draft'         => 0,
                     ]);
+
+                    \App\Jobs\SendEmail::dispatch($email);
+
                 }
 
                 // }catch(\Exception $e) {
@@ -2420,25 +2457,26 @@ class OrderController extends Controller
         $order = Order::find($id);
         if (!$order->is_sent_offline_confirmation()) {
             if ($order->order_type == 'offline') {
-                Mail::to($order->customer->email)->send(new OrderConfirmation($order));
-                $view   = (new OrderConfirmation($order))->render();
-                $params = [
-                    'model_id'        => $order->customer->id,
-                    'model_type'      => Customer::class,
-                    'from'            => 'customercare@sololuxury.co.in',
-                    'to'              => $order->customer->email,
-                    'subject'         => "New Order # " . $order->order_id,
-                    'message'         => $view,
-                    'template'        => 'order-confirmation',
-                    'additional_data' => $order->id,
-                ];
-                Email::create($params);
-                CommunicationHistory::create([
-                    'model_id'   => $order->id,
-                    'model_type' => Order::class,
-                    'type'       => 'offline-confirmation',
-                    'method'     => 'email',
+
+                $emailClass = (new OrderConfirmation($order))->build();
+
+                $storeWebsiteOrder = $order->storeWebsiteOrder;
+                $email             = Email::create([
+                    'model_id'         => $order->id,
+                    'model_type'       => Order::class,
+                    'from'             => $emailClass->fromMailer,
+                    'to'               => $order->customer->email,
+                    'subject'          => "New Order # " . $order->order_id,
+                    'message'          => $emailClass->render(),
+                    'template'         => 'order-confirmation',
+                    'additional_data'  => $order->id,
+                    'status'           => 'pre-send',
+                    'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
+                    'is_draft'         => 0,
                 ]);
+
+                \App\Jobs\SendEmail::dispatch($email);
+
             }
         }
         return response()->json(["code" => 200, "data" => [], "message" => "You have successfully sent confirmation email!"]);
@@ -2713,7 +2751,8 @@ class OrderController extends Controller
     }
 
     public function viewAllInvoices()
-    {
+    {   
+        // error_reporting(0);
         $invoices = Invoice::with('orders.order_product', 'orders.customer')->orderBy('id', 'desc')->paginate(30);
         //dd($invoices);
         return view('orders.invoices.index', compact('invoices'));
@@ -2744,7 +2783,7 @@ class OrderController extends Controller
     }
 
     public function submitInvoice(Request $request)
-    {
+    {   
         if (!$request->invoice_number) {
             return redirect()->back()->with('error', 'Invoice number is mandatory');
         }
@@ -2755,6 +2794,20 @@ class OrderController extends Controller
         if (!$firstOrder) {
             return redirect()->back()->with('error', 'This order is already associated with an invoice');
         }
+        // dd($firstOrder->customer);
+
+        $customerShippingAddress = array(
+            'address_type' => 'shipping',
+            'city' => $firstOrder->customer->city,
+            'country_id' => $firstOrder->customer->country,
+            'email' => $firstOrder->customer->email,
+            'firstname' => $firstOrder->customer->name,
+            'postcode' => $firstOrder->customer->pincode,
+            'street' => $firstOrder->customer->address,
+            'order_id' => $request->first_order_id,
+        );
+        OrderCustomerAddress::insert( $customerShippingAddress );
+
         $invoice                 = new Invoice;
         $invoice->invoice_number = $request->invoice_number;
         $invoice->invoice_date   = $request->invoice_date;
@@ -2768,8 +2821,7 @@ class OrderController extends Controller
                 }
             }
         }
-        return redirect()->action(
-            'OrderController@viewAllInvoices');
+        return redirect()->action('OrderController@viewAllInvoices');
     }
 
     //TODO::Update Invoice Address
@@ -2829,8 +2881,12 @@ class OrderController extends Controller
             $data["invoice"] = $invoice;
             $data["orders"]  = $invoice->orders;
             if ($invoice->orders) {
-                Mail::to($invoice->orders[0]->customer->email)->send(new ViewInvoice($data));
-                return response()->json(["code" => 200, "data" => [], "message" => "Email sent successfully"]);
+                try {
+                    Mail::to($invoice->orders[0]->customer->email)->send(new ViewInvoice($data));
+                    return response()->json(["code" => 200, "data" => [], "message" => "Email sent successfully"]);
+                } catch (InvalidArgumentException $e) {
+                    return response()->json(["code" => 500, "data" => [], "message" => "Sorry , there is no matching order found"]);                    
+                }
             }
         }
 
@@ -3059,7 +3115,24 @@ class OrderController extends Controller
                                     $emailData['static_template'] = $bodyText;
                                     $emailData['from']            = $storeEmailAddress->from_address;
 
-                                    Mail::to($order->customer->email)->send(new OrderStatusMail($emailData));
+                                    $emailClass = (new OrderStatusMail($emailData))->build();
+
+                                    $storeWebsiteOrder = $order->storeWebsiteOrder;
+                                    $email             = Email::create([
+                                        'model_id'         => $order->customer->id,
+                                        'model_type'       => Customer::class,
+                                        'from'             => 'customercare@sololuxury.co.in',
+                                        'to'               => $order->customer->email,
+                                        'subject'          => $emailClass->subject,
+                                        'message'          => $emailClass->render(),
+                                        'template'         => 'order-status-update',
+                                        'additional_data'  => $order->id,
+                                        'status'           => 'pre-send',
+                                        'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
+                                    ]);
+
+                                    \App\Jobs\SendEmail::dispatch($email);
+
                                 }
                             }
                         }
@@ -3156,7 +3229,6 @@ class OrderController extends Controller
         }
         return response()->json(["code" => 500, "data" => [], "message" => "Something went wrong"]);
     }
-
     public function viewEstDelDateHistory(request $request)
     {
         $orderid                      = $request->input('order_id');
@@ -3321,28 +3393,36 @@ class OrderController extends Controller
 
     public function testEmail(Request $request)
     {
+        $order = \App\Order::find(2032);
 
-        $cmd = 'sh ' . '/root/scrapper-running.sh 2>&1';
+        $emailClass = (new OrderConfirmation($order))->build();
 
-        $allOutput   = array();
-        $allOutput[] = $cmd;
-        $result      = exec($cmd, $allOutput);
+        $email = \App\Email::create([
+            'model_id'        => $order->id,
+            'model_type'      => \App\Order::class,
+            'from'            => $emailClass->fromMailer,
+            'to'              => $order->customer->email,
+            'subject'         => $emailClass->subject,
+            'message'         => $emailClass->render(),
+            'template'        => 'order-confirmation',
+            'additional_data' => $order->id,
+            'status'          => 'pre-send',
+            'is_draft'        => 1,
+        ]);
 
-        echo "<pre>";
-        print_r($allOutput);
-        echo "</pre>";die;
+        \App\Jobs\SendEmail::dispatch($email);
 
-        return false;
-        /*$order_new = \App\Order::find(2032);
-    $view = (new OrderConfirmation($order_new))->build();
-    //echo "<pre>"; print_r($view);  echo "</pre>";die;
+        return response()->json(['message' => 'unable to add reply', 'status' => 500]);
 
-    //\MultiMail::to('webreak.pravin@ gmail.com')->send(new \App\Mail\OrderStatusChangeMail($order_new));
-    $customer = \App\Customer::first();
-    \MultiMail::to('webreak.pravin@gmail.com')->send(new \App\Mails\Manual\SendIssueCredit($customer));
+        //$view = (new OrderConfirmation($order_new))->build();
+        //echo "<pre>"; print_r($view);  echo "</pre>";die;
 
-    // \MultiMail::to('webreak.pravin@gmail.com')->send(new OrderConfirmation($order_new));
-    // */
+        //\MultiMail::to('webreak.pravin@ gmail.com')->send(new \App\Mail\OrderStatusChangeMail($order_new));
+        //$customer = \App\Customer::first();
+        //\MultiMail::to('webreak.pravin@gmail.com')->send(new \App\Mails\Manual\SendIssueCredit($customer));
+
+        // \MultiMail::to('webreak.pravin@gmail.com')->send(new OrderConfirmation($order_new));
+        //
     }
 
     public function statusChangeTemplate(Request $request)
@@ -3376,8 +3456,8 @@ class OrderController extends Controller
                 $order   = \App\Order::find($k);
                 $address = \App\OrderCustomerAddress::where("order_id", $k)->where("address_type", "shipping")->first();
                 if (!$address) {
-                    $address           = new \App\OrderCustomerAddress;
-                    $address->order_id = $k;
+                    $address               = new \App\OrderCustomerAddress;
+                    $address->order_id     = $k;
                     $address->address_type = "shipping";
                     if ($order) {
                         $customer = $order->customer;
@@ -3403,15 +3483,14 @@ class OrderController extends Controller
 
         if (!empty($orderproducts)) {
             foreach ($orderproducts as $k => $op) {
-                $orderP   = \App\OrderProduct::find($k);
-                if($orderP) {
+                $orderP = \App\OrderProduct::find($k);
+                if ($orderP) {
                     $orderP->fill($op);
                     $orderP->save();
                 }
             }
         }
-
-        return response()->json(["code" => 200 , "data" => [],"message" => "Invoice updated successfully"]);
+         return response()->json(["code" => 200 , "data" => [],"message" => "Invoice updated successfully"]);
     }
 
 }
