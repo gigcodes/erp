@@ -51,7 +51,7 @@ a {
 		    	{{props data}}
 			      <tr>
 			      	<td>{{:prop.id}}</td>
-			      	<td><a style="padding:0" title="Task Hours" class="btn btn-image load-userdetail-modal" data-id="{{:prop.id}}">{{:prop.name}}</a>
+			      	<td><a style="padding:0; white-space: pre-wrap;" title="Task Hours" class="btn btn-image load-userdetail-modal" data-id="{{:prop.id}}">{{:prop.name}}</a>
 			      		</br>
 			      		RATE : {{:prop.hourly_rate}} {{:prop.currency}}
 			      		</br>
