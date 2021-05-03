@@ -345,15 +345,20 @@
                                     }
                                  ?>
                                  <hr style="margin-top: 0px;margin-bottom: 0px;background-color: #808080;height: 1px;">
-                                 <span class="toggle-title-box has-small">
                                     <?php
+                                        $logString = null;
+                                        $logbtn = null;
                                         if($lastError) {
                                             $allMessage = explode("\n",$lastError->log_messages);
                                             $items = array_slice($allMessage, -5);
-                                            echo "SCRAP LOG :".implode("\n", $items);
-                                            echo  '<button style="padding:3px;" type="button" class="btn btn-image scraper-log-details" data-scrapper-id="'.$supplier->scrapper_id.'"><img width="2px;" src="/images/remark.png"/></button>';
+                                            $logString =  "SCRAP LOG :".implode("\n", $items);
+                                            $logbtn = '<button style="padding:3px;" type="button" class="btn btn-image scraper-log-details" data-scrapper-id="'.$supplier->scrapper_id.'"><img width="2px;" src="/images/remark.png"/></button>';
                                         }
                                      ?>
+                                 <span class="toggle-title-box has-small" data-small-title="<?php echo ($logString) ? substr($logString, 0,10) : '' ?>" data-full-title="<?php echo ($logString) ? $logString : '' ?>">
+                                    <?php
+                                        echo (strlen($logString) > 3) ? substr($logString, 0,10).".." : $logString;
+                                    ?>
                                  </span>
                             </td>
                             <?php /*
