@@ -568,6 +568,8 @@ class StoreWebsiteController extends Controller
         $allOutput[] = $cmd;
         $result      = exec($cmd, $allOutput);
 
+        \Log::info(print_r($allOutput,true));
+
         $content = end($allOutput);
 
         $nameF = $server.".pem";
