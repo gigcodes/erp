@@ -4,19 +4,8 @@
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-<style type="text/css">
-   #loading-image {
-   position: fixed;
-   top: 50%;
-   left: 50%;
-   margin: -50px 0px 0px -50px;
-   }
-</style>
 @endsection
 @section('content')
-<div id="myDiv">
-   <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
-</div>
 <div class="row">
    <div class="col-lg-12 margin-tb">
       <h2 class="page-heading">Laravel API Logs (<span class="page-total">{{$count}}</span>)</h2>
@@ -40,6 +29,13 @@
                   <div class="form-group ml-2">
                      <label for="for_date">Created at:</label>
                      <input class="form-control datepicker-block" placeholder="Enter date" name="for_date" type="text">
+                  </div>
+                  <div class="form-group ml-2">
+                     <label for="for_date">Report Type:</label>
+                     <select name="report_type" class="form-control">
+                        <option value="error_wise">Error Wise</option>
+                        <option value="time_wise">Time Wise</option>
+                     </select>
                   </div>
                   <div class="form-group ml-2">
                      <label for="button">&nbsp;</label>
@@ -315,7 +311,11 @@
             $.ajax({
               method:'get',
               url:"/logging/list/api/logs/generate-report",
-              data: { keyword : form.find("input[name='keyword']").val(),for_date : form.find("input[name='for_date']").val()},
+              data: { 
+                  keyword : form.find("input[name='keyword']").val(),
+                  for_date : form.find("input[name='for_date']").val(),
+                  report_type : form.find("select[name='report_type']").val()
+                },
               beforeSend: function () {
                 $("#loading-image").show();
               }
