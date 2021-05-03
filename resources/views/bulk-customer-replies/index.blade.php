@@ -60,7 +60,6 @@
                             <th>Pick?</th>
                             <th>S.N</th>
                             <th>Customer</th>
-                            <th>Other Keywords</th>
                             <th>Recent Messages</th>
                         </tr>
                         <tr>
@@ -80,15 +79,6 @@
                                 <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}"></td>
                                 <td>{{ $key+1 }}</td>
                                 <td>{{ $customer->name }}</td>
-                                <td>
-                                    @if($customer->bulkMessagesKeywords)
-                                        @foreach($customer->bulkMessagesKeywords as $keyword)
-                                            <li>{{ $keyword->value }}</li>
-                                        @endforeach
-                                    @else
-                                        <strong>N/A</strong>
-                                    @endif
-                                </td>
                                 <td>
                                     <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-limit="10" data-id="{{$customer->id}}" data-is_admin="1" data-is_hod_crm="" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
                                 </td>
