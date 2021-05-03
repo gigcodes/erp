@@ -74,7 +74,7 @@
                                 </div>
                             </td>
                         </tr>
-                        @foreach($searchedKeyword->customers as $key=>$customer)
+                        @foreach($searchedKeyword->customers()->groupBy('id')->get() as $key=>$customer)
                             <tr>
                                 <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}"></td>
                                 <td>{{ $key+1 }}</td>
