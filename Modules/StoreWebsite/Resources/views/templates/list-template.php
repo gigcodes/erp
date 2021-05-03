@@ -329,7 +329,15 @@
 						         		<option value="Erp-Server">Erp-Server</option>
 						         		<option value="Scrap-Server">Scrap-Server</option>
 						         		<option value="Cropper-Server">Cropper-Server</option>
-						         		<option value="Magento-Server">Magento-Server</option>
+						         		<option value="BRANDS">BRANDS</option>
+						         		<option value="AVOIRCHIC">AVOIRCHIC</option>
+						         		<option value="OLABELS">OLABELS</option>
+						         		<option value="SOLOLUXURY">SOLOLUXURY</option>
+						         		<option value="SUVANDNAT">SUVANDNAT</option>
+						         		<option value="THEFITEDIT">THEFITEDIT</option>
+						         		<option value="THESHADESSHOP">THESHADESSHOP</option>
+						         		<option value="UPEAU">UPEAU</option>
+						         		<option value="VERALUSSO">VERALUSSO</option>
 						         	</select>
 						         </div>
 					        </div> 

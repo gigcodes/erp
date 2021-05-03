@@ -570,17 +570,21 @@ class StoreWebsiteController extends Controller
 
         \Log::info(print_r($allOutput,true));
 
-        $content = end($allOutput);
+        $string  = [];
+        if(!empty($allOutput)) {
+            $continuetoFill = false;
+            foreach($allOutput as $ao) {
+                if($ao == "-----BEGIN RSA PRIVATE KEY-----" || $continuetoFill) {
+                   $string[] = $ao;
+                   $continuetoFill = true; 
+                }
+            }
+        }
+
+        $content = implode("\n",$string);
 
         $nameF = $server.".pem";
-        $namefile = storage_path()."/app/files/documents/".$nameF;
-
-        //save file
-        $file = fopen($namefile, "w") or die("Unable to open file!");
-
-        fwrite($file, $content);
-        fclose($file);
-
+        
         //header download
         header("Content-Disposition: attachment; filename=\"" . $nameF . "\"");
         header("Content-Type: application/force-download");
