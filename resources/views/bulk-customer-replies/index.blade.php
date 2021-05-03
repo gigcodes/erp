@@ -75,7 +75,7 @@
                                 </div>
                             </td>
                         </tr>
-                        @foreach($searchedKeyword->customers as $key=>$customer)
+                        @foreach($searchedKeyword->customers()->paginate(20) as $key=>$customer)
                             <tr>
                                 <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}"></td>
                                 <td>{{ $key+1 }}</td>
@@ -90,9 +90,7 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @foreach($customer->messageHistory as $message)
-                                        <li>{{ $message->message }}</li>
-                                    @endforeach
+                                    <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-limit="10" data-id="{{$customer->id}}" data-is_admin="1" data-is_hod_crm="" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
                                 </td>
                             </tr>
                         @endforeach
@@ -101,6 +99,22 @@
             @else
             @endif
         @endif
+    </div>
+    <div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+                    <input type="text" name="search_chat_pop_time"  class="form-control search_chat_pop_time" placeholder="Search Time" style="width: 200px;">
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
 
