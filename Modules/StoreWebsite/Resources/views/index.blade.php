@@ -22,9 +22,11 @@
 	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action">
 		  				<img src="/images/add.png" style="cursor: default;">
 		  			</button>
-                    <button style="display: inline-block;" class="btn btn-sm btn-secondary generate-pem-file">
-                        Generate PEM file
-                    </button>
+                    @if(auth()->user()->isAdmin())
+                        <button style="display: inline-block;" class="btn btn-sm btn-secondary generate-pem-file">
+                            Generate PEM file
+                        </button>
+                    @endif
 				 </div> 		
 		    </div>
 		    <div class="col">
