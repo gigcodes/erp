@@ -137,9 +137,7 @@ class TwilioController extends FindByNumberController
      */
     public function incomingCall(Request $request)
     {
-        // $number = $request->get("From");
-        $number = '919825282696';
-        
+        $number = $request->get("From");
 
         Log::channel('customerDnd')->info('Enter in Incoming Call Section '.$number);
         $response = new VoiceResponse();
@@ -192,14 +190,49 @@ class TwilioController extends FindByNumberController
         Log::channel('customerDnd')->info('Showing user profile for IVR: ');
 
         $number = $request->get("From");
+
+        // Log::channel('customerDnd')->info(' Number >> '.$number);
         
         list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
+
+        // Log::channel('customerDnd')->info(' object >> '.$object);
+
+        $store_website_id = $object->store_website_id;
+
+        // Log::channel('customerDnd')->info(' store_website_id >> '.$store_website_id);
+
+        $storewebsitetwiliono = StoreWebsiteTwilioNumber::where('store_website_id', '=', $store_website_id)->get();
+
+        // Log::channel('customerDnd')->info(' storewebsitetwiliono >> '.$storewebsitetwiliono);
+
+        $twilio_active_number=[];
+        if(!empty($storewebsitetwiliono))
+        {
+            foreach ($storewebsitetwiliono as $val) {
+                $twilio_active_number[$val->id] = $val->twilio_active_number_id;
+            }
+        }
+
+        $twilio_number_site_wise = implode(",",$twilio_active_number);
+
+        // Log::channel('customerDnd')->info(' twilio_number_site_wise >> '.$twilio_number_site_wise);
+
+        if($twilio_number_site_wise != '')
+            $get_numbers = TwilioActiveNumber::select('phone_number')->whereIn('id',$twilio_active_number)->get();
+        else
+            $get_numbers = TwilioActiveNumber::select('phone_number')->where('status','in-use')->get();
+
+        // foreach ($get_numbers as $num) {    
+        //     Log::channel('customerDnd')->info(' Number >> '.$num['phone_number']);
+        // }
+            
+        // $get_twilio_phoneno = 
 
         $url = \Config::get("app.url") . "/twilio/recordingStatusCallback";
         $actionurl = \Config::get("app.url") . "/twilio/handleDialCallStatus";
 
         if ($context) {
-            $url = \Config::get("app.url") . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $object->id . "&Mobile=+14704105322" ;
+            $url = \Config::get("app.url") . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $object->id . "&Mobile=" ;
         }
         // $response = new Twiml();
         $response = new VoiceResponse();
@@ -218,10 +251,11 @@ class TwilioController extends FindByNumberController
             } elseif (!$time->between($morning, $evening, true)) {
                 $response->play(\Config::get("app.url") . "end_work_ring.mp3");
             } else {
-                //$response->play(\Config::get("app.url") . "intro_ring.mp3");
-                $response->say('Press 1 to leave a message, Press 2 to hold and wait.');
+                $response->play(\Config::get("app.url") . "intro_ring.mp3");
 
-                 $response = new VoiceResponse();
+                // $response = new VoiceResponse();
+
+                // $this->input_digit($response, "thank you for calling solo luxury. Please dial 1 for sales 2 for support 3 for other queries");
 
                 $dial = $response->dial('',[
                     'record' => 'true',
@@ -230,11 +264,16 @@ class TwilioController extends FindByNumberController
                     'timeout' => '60'
                 ]);
 
-                $dial->client('yogesh');
-               // return $response;
-              //  $response->say('Goodbye');
-                
-                // return \Response::make((string)$response, '200')->header('Content-Type', 'text/xml');
+                // $selectedOption = $request->input('Digits');
+
+                // switch ($selectedOption) {
+                //     case 1:
+                //         return $this->_getReturnInstructions();
+                //     case 2:
+                //         return $this->_getPlanetsMenu();
+                // }
+
+                // $dial->client('yogesh');
 
                 
                 // $dial = $response->dial('+14704105322',[
@@ -244,13 +283,13 @@ class TwilioController extends FindByNumberController
                 //     'timeout' => '60'
                 // ]);
 
-                // $clients = $this->getConnectedClients();
+                $clients = $this->getConnectedClients();
 
-                // Log::channel('customerDnd')->info('Client for callings: ' . implode(',', $clients));
-                // /** @var Helpers $client */
-                // foreach ($clients as $client) {
-                //     $dial->client($client);
-                // }
+                Log::channel('customerDnd')->info('Client for callings: ' . implode(',', $clients));
+                /** @var Helpers $client */
+                foreach ($clients as $client) {
+                    $dial->client($client);
+                }
             }
         }
 
@@ -268,6 +307,27 @@ class TwilioController extends FindByNumberController
 
         return \Response::make((string)$response, '200')->header('Content-Type', 'text/xml');
     }
+
+
+    // public function input_digit($response, $speech)
+    // {
+
+    //     Log::channel('customerDnd')->info('input_digit...');
+
+    //     $gather = $response->gather(
+    //         [
+    //             'numDigits' => 1,
+    //             'action' => $this->digit_input($response)
+    //         ]
+    //     );
+
+    //     $gather->say(
+    //         'Thanks for calling the E T Phone Home Service.' .
+    //         'Please press 1 for directions. Press 2 for a ' .
+    //         'list of planets to call.',
+    //         ['loop' => 3]
+    //     );
+    // }
 
     /**
      * Gather action
@@ -622,6 +682,7 @@ class TwilioController extends FindByNumberController
     public function recordingStatusCallback(Request $request)
     {
 
+        Log::channel('customerDnd')->info('recordingStatusCallback');
         $url = $request->get("RecordingUrl");
         $sid = $request->get("CallSid");
         $params = [

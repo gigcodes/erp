@@ -169,8 +169,6 @@
 
 			$.getJSON("/twilio/getLeadByNumber?number=" + encodeURIComponent(conn.parameters.From), function (data) {
 
-				console.log(data);
-
 				const $buttonForAnswer = $('.call__answer'),
 					$buttonForCancelledCall = $('.call__canceled'),
 					$accordionTables = $('#accordionTables');
@@ -199,23 +197,14 @@
 					$accordionTables.html(accordion_data)
 
 				} else {
-					$('#receive-call-popup').html("Incoming call from: <span style='color:#2727b8;'>" + number + "</span> would you like to answer call?")
+					$('#receive-call-popup .modal-body').html("Incoming call from: <span style='color:#2727b8;'>" + number + "</span> would you like to answer call?")
 					$('.call__to').html(conn.customParameters.get('phone'))
 				}
 
 
 				$confirmModal.modal('show');
 				$buttonForAnswer.off().one('click', function () {
-					if (data.found) {
-						// let win = window.open(data.customer_url);
-						// if (win) {
-						// 	//Browser has allowed it to be opened
-						// 	win.focus();
-						// } else {
-						// 	//Browser has blocked it
-						// 	alert('Please allow popups for this website');
-						// }
-					}
+					
 					$confirmModal.modal('hide');
 
 					sendTwilioEvents({
@@ -241,22 +230,6 @@
 					flagAboutAnswer = false
 					conn.reject();
 				});
-
-				// if (confirmed) {
-				// 	if (data.found) {
-				// 		let win = window.open(data.customer_url);
-				// 		if (win) {
-				// 			//Browser has allowed it to be opened
-				// 			win.focus();
-				// 		} else {
-				// 			//Browser has blocked it
-				// 			alert('Please allow popups for this website');
-				// 		}
-				// 	}
-				// 	conn.accept();
-				// } else {
-				// 	conn.reject();
-				// }
 			});
 		});
 

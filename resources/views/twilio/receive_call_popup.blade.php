@@ -10,7 +10,8 @@
             <div class="modal-body">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success call__answer" data-dismiss="modal">ANSWER</button>
+                <button type="button" class="btn btn-danger call__canceled" data-dismiss="modal">REJECT</button>
             </div>
         </div>
     </div>
