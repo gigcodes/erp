@@ -16,6 +16,7 @@ class BulkCustomerRepliesController extends Controller
      */
     public function index(Request $request)
     {
+        set_time_limit(0);
         $keywords = BulkCustomerRepliesKeyword::where('is_manual', 1)->get();
         $autoKeywords = BulkCustomerRepliesKeyword::where('count', '>', 10)
             ->whereNotIn('value', [
