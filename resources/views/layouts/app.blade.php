@@ -1480,6 +1480,9 @@ $metaData = '';
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('settings.index')}}">Settings</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('auto.refresh.index')}}">Auto Refresh page</a>
+                                        </li>
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('budget.index') }}">Hubstaff</a>
@@ -2544,6 +2547,15 @@ $metaData = '';
     </script>
     @endif
     <script>
+         <?php
+            if(!\Auth::guest()) {
+            $path = Request::path();
+            $hasPage = \App\AutoRefreshPage::where("page",$path)->where("user_id",\Auth()->user()->id)->first();
+            if($hasPage) {
+         ?>
+            setTimeout("location.reload(true);", <?php echo $hasPage->time * 1000; ?>);
+        <?php } } ?>
+
         function filterFunction() {
             var input, filter, ul, li, a, i;
             //getting search values

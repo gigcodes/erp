@@ -10,6 +10,7 @@ use Request;
 use Route;
 use App\UserLog;
 use App\Permission;
+use App\PermissionRequest;
 
 
 class GlobalComposer
@@ -38,8 +39,18 @@ class GlobalComposer
                 }
                 $permission = Permission::where('route', $genUrl)->first();
                 if(isset($permission->route)){
-                echo 'unauthorized permission name '.$permission->route;
-                die();
+                    PermissionRequest::updateOrcreate([
+                        'user_id'           => Auth::user()->id,
+                        'permission_id'     => $permission->id,
+                    ],
+                    [
+                        'user_id'           => Auth::user()->id,
+                        'permission_id'     => $permission->id,
+                        'request_date'      => date('Y-m-d H:i:s'),
+                        'permission_name'   => $permission->route,
+                    ]);
+                    echo 'unauthorized permission name '.$permission->route;
+                    die();
                 }
             }
         } else {

@@ -174,6 +174,8 @@ class ScrapStatisticsController extends Controller
     {
         $endDate    = date('Y-m-d H:i:s');
         $keyWord    = $request->get("term", "");
+        $column     = request('column');
+        $orderby    = request('order_by','desc');
         $madeby     = $request->get("scraper_made_by", 0);
         $scrapeType = $request->get("scraper_type", 0);
 
@@ -201,9 +203,14 @@ class ScrapStatisticsController extends Controller
             });
         }
 
+        if (!empty($column) &&  $column == 'last_started_at' ) {
+            $activeSuppliers = $activeSuppliers->orderby('scrapers.'.$column.'', $orderby)->get();
+        }else{
+            $activeSuppliers = $activeSuppliers->orderby('scrapers.flag', 'desc')->orderby('s.supplier', 'asc')->get();
+        }
+
         
 
-        $activeSuppliers = $activeSuppliers->orderby('scrapers.flag', 'desc')->orderby('s.supplier', 'asc')->get();
         // Get scrape data
         $yesterdayDate = date("Y-m-d", strtotime("-1 day"));
         $sql           = '
@@ -248,8 +255,9 @@ class ScrapStatisticsController extends Controller
             GROUP BY
                 sc.id
             ORDER BY
-                sc.scraper_priority desc
-        ';
+                '.( $column == "least_product" ? "total_new_product ".$orderby." " : "sc.scraper_priority DESC" ).'
+            ';
+
         $scrapeData = DB::select($sql);
 
         $allScrapperName = [];

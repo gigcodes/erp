@@ -26,6 +26,7 @@ use App\PaymentMethod;
 use App\Team;
 use App\DeveloperTask;
 use App\UserAvaibility;
+use App\PermissionRequest;
 use DB;
 use Hash;
 use Illuminate\Support\Arr;
@@ -39,32 +40,59 @@ class UserManagementController extends Controller
     public function index()
     {
         $title = "User management";
-        return view('usermanagement::index', compact('title'));
+        $permissionRequest = PermissionRequest::count();
+        return view('usermanagement::index', compact('title','permissionRequest'));
+    }
+
+    public function permissionRequest( Request $request ){
+        $history = PermissionRequest::leftjoin('users','permission_request.user_id','users.id')->orderBy("permission_request.id","desc")->get();
+        return response()->json( ["code" => 200 , "data" => $history] );
+    }
+
+    public function modifiyPermission( Request $request )
+    {   
+        if ( $request->type == 'accept' ) {
+            $user = User::findorfail($request->user);
+            $user->permissions()->attach($request->permission);
+            PermissionRequest::where('user_id',$request->user)->where('permission_id',$request->permission)->delete();
+            return response()->json( ["code" => 200 , "data" => 'Permission added Successfully'] );       
+        }
+        if ( $request->type == 'reject' ) {
+            PermissionRequest::where('user_id',$request->user)->where('permission_id',$request->permission)->delete();
+            return response()->json( ["code" => 200 , "data" => 'Requets reject successfully'] );       
+        }
+        return response()->json( ["code" => 500, "data" => 'Something went wrong!'] );       
     }
 
     public function records(Request $request)
     {
         $user = new User;
         if(!Auth::user()->isAdmin()) {
-            $user = $user->where('id',Auth::user()->id);
+            $user = $user->where('users.id',Auth::user()->id);
         }
        
         if($request->is_active == 1) {
-            $user = $user->where('is_active',1);
+            $user = $user->where('users.is_active',1);
         }
         if($request->is_active == 2) {
-            $user = $user->where('is_active',0);
+            $user = $user->where('users.is_active',0);
         }
         if($request->keyword != null) {
             $user = $user->where(function($q) use ($request) {
-                $q->where("email","like","%".$request->keyword."%")
-                ->orWhere("name","like","%".$request->keyword."%")
-                ->orWhere("phone","like","%".$request->keyword."%");
+                $q->where("users.email","like","%".$request->keyword."%")
+                ->orWhere("users.name","like","%".$request->keyword."%")
+                ->orWhere("users.phone","like","%".$request->keyword."%");
             });
         }
     
 
-        $user = $user->select(["users.*"])->orderBy('is_active','DESC')->paginate(12);
+        $user = $user->select(["users.*","hubstaff_activities.starts_at"])
+                ->leftJoin('hubstaff_members', 'hubstaff_members.user_id', '=', 'users.id')
+                ->leftJoin('hubstaff_activities', 'hubstaff_activities.user_id', '=', 'hubstaff_members.hubstaff_user_id')
+                ->groupBy('users.id')
+                ->orderBy('hubstaff_activities.starts_at','DESC')
+                ->paginate(12);
+        // HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->where('hubstaff_members.user_id',$this->id)->orderBy('hubstaff_activities.starts_at','desc')->first();
         $limitchacter = 50;
 
         $items = [];
@@ -85,10 +113,15 @@ class UserManagementController extends Controller
             ->whereNull('is_completed')
             ->Where('assign_to', $u->id)->count();
 
+            $no_time_estimate = DeveloperTask::whereNull('estimate_minutes')->where('assigned_to', $u->id)->count();
+            $overdue_task     = DeveloperTask::where('estimate_date', '>', date('Y-m-d'))->where('status', '!=', 'Done')->where('assigned_to', $u->id)->count();
+
             $total_tasks = Task::where('is_statutory', 0)
             ->Where('assign_to', $u->id)->count();
                 $u["pending_tasks"] = $pending_tasks;
                 $u["total_tasks"] = $total_tasks;
+                $u['no_time_estimate'] = $no_time_estimate;
+                $u['overdue_task'] = $overdue_task;
 
                 $isMember = $u->teams()->first();
                 if($isMember) {
@@ -1249,12 +1282,12 @@ class UserManagementController extends Controller
         }
 
         $database = \App\UserDatabase::where("user_id",$id)->where("database",$connection)->first();
-        $tables   = $request->tables;
+        $tables   = !empty($request->tables) ? $request->tables : [];
         $permissionType = $request->get("assign_permission","read");
 
 
 
-        if($database && !empty($tables)) {
+        if($database) {
             
             $tablesExisting = \App\UserDatabaseTable::where("user_database_id",$database->id)->pluck('name','id')->toArray();
             if(!empty($tablesExisting)){
@@ -1275,11 +1308,13 @@ class UserManagementController extends Controller
 
             \App\UserDatabaseTable::where("user_database_id",$database->id)->delete();
 
-            foreach($tables as $t) {
-                \App\UserDatabaseTable::create([
-                    'user_database_id' => $database->id,
-                    'name' => $t,
-                ]);
+            if(!empty($tables)) {
+                foreach($tables as $t) {
+                    \App\UserDatabaseTable::create([
+                        'user_database_id' => $database->id,
+                        'name' => $t,
+                    ]);
+                }
             }
 
             

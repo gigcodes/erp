@@ -465,7 +465,20 @@ class LaravelLogController extends Controller
             $logsGroupWise = $logsGroupWise->whereDate('created_at',">=",$forDate);
         }
 
-        $logsGroupWise = $logsGroupWise->groupBy('url')->select(["*", \DB::raw('count(*) as total_request')])->orderBy('total_request','desc')->get();
+
+        if($request->report_type == "time_wise") {
+            //$logsGroupWise = $logsGroupWise->groupBy('time_taken');
+            $logsGroupWise = $logsGroupWise->orderBy('time_taken','desc');
+            $logsGroupWise = $logsGroupWise->limit(200);
+            $logsGroupWise = $logsGroupWise->select(["*", \DB::raw('1 as total_request')])->get();
+        }else{
+            $logsGroupWise = $logsGroupWise->groupBy('url');
+            $logsGroupWise = $logsGroupWise->orderBy('total_request','desc');
+            $logsGroupWise = $logsGroupWise->select(["*", \DB::raw('count(*) as total_request')])->get();
+        }
+
+        
+
 
         return view('logging.partials.generate-report', compact('logsGroupWise'));
 

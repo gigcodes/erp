@@ -32,8 +32,9 @@ a {
 		      	<th style="width:150px;">User</th> 
 				<th style="width:80px;">TASKS</th>
 				<th style="width:80px">Yesterday hours</th>
-				<th style="width:80px;">Last seen</th> 
-				<th style="width:80px">Payment frequency</th> 
+				<th style="width:80px">No Time est.</th>
+				<th style="width:80px;">Overdue task</th> 
+				<th style="width:80px;">Last seen</th>
 				<th style="width:80px">Payment Due</th>
 				<th style="width:80px">Due date</th> 			
 				<th style="width:85px;">Paid on</th>
@@ -50,7 +51,7 @@ a {
 		    	{{props data}}
 			      <tr>
 			      	<td>{{:prop.id}}</td>
-			      	<td><a style="padding:0" title="Task Hours" class="btn btn-image load-userdetail-modal" data-id="{{:prop.id}}">{{:prop.name}}</a>
+			      	<td><a style="padding:0; white-space: pre-wrap;" title="Task Hours" class="btn btn-image load-userdetail-modal" data-id="{{:prop.id}}">{{:prop.name}}</a>
 			      		</br>
 			      		RATE : {{:prop.hourly_rate}} {{:prop.currency}}
 			      		</br>
@@ -61,8 +62,9 @@ a {
 						<a href="#" class="load-task-modal" data-id="{{:prop.id}}">{{:prop.pending_tasks}}/{{:prop.total_tasks}}</a>
 					</td>
 			        <td>{{:prop.yesterday_hrs}}</td>
+			        <td>{{:prop.no_time_estimate}}</td>
+			        <td>{{:prop.overdue_task}}</td>
 			        <td>{{:prop.online_now}}</td>
-			        <td>{{:prop.payment_frequency}}</td>
 			        <td> {{:prop.previousDue}} {{:prop.currency}}</td>
 			        <td>{{:prop.nextDue}}</td>
 			        <td>
@@ -151,7 +153,9 @@ a {
 					{{if !prop.already_approved}}
 						<button title="Approve user for the day" type="button" class="btn approve-user pd-5" data-id="{{:prop.id}}"> <i class="fa fa-check-circle" aria-hidden="true"></i></button>
 					{{/if}}
-					<button title="Create database" type="button" class="btn btn-create-database pd-5" data-id="{{:prop.id}}"> <i class="fa fa-database" aria-hidden="true"></i></button>
+					<?php if(Auth::user()->isAdmin()) { ?>
+						<button title="Create database" type="button" class="btn btn-create-database pd-5" data-id="{{:prop.id}}"> <i class="fa fa-database" aria-hidden="true"></i></button>
+					<?php } ?>
 					</td>
 			      </tr>
 			    {{/props}}  

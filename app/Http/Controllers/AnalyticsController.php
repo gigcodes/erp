@@ -208,7 +208,7 @@ class AnalyticsController extends Controller
     }
 
     public function history( Request $request ){
-        $history = GoogleAnalyticsHistories::orderBy("created_at","desc")->get();
+        $history = GoogleAnalyticsHistories::orderBy("id","desc")->take(50)->get();
         return response()->json( ["code" => 200 , "data" => $history] );
     }
 
