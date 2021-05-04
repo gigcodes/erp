@@ -254,7 +254,7 @@ class TwilioController extends FindByNumberController
             // } else {
                 // $response->play(\Config::get("app.url") . "intro_ring.mp3");
 
-                // Add Agent Call Satus - START
+                // Add Agent Entry - START
                 $hods = Helpers::getUsersByRoleName('HOD of CRM');
               
                 foreach ($hods as $hod) {
@@ -272,7 +272,7 @@ class TwilioController extends FindByNumberController
                         // AgentCallStatus::create($params_insert_agent);
                     }
                 }
-                // Add Agent Call Satus - END
+                // Add Agent Entry - END
 
 
                 // $gather = $response->gather(
@@ -304,7 +304,18 @@ class TwilioController extends FindByNumberController
                 Log::channel('customerDnd')->info('Client for callings: ' . implode(',', $clients));
                 /** @var Helpers $client */
                 foreach ($clients as $client) {
-                    $dial->client($client);
+
+                    $is_available = 0;
+                    $check_agent_available = AgentCallStatus::where('agent_name_id',$hod->id)->first();
+                    if ($check_agent_available != null) {
+                        if($check_agent_available->status == 0)
+                            $is_available = 1;
+                    }else{
+                        $is_available = 1;
+                    }
+
+                    if($is_available == 1)
+                        $dial->client($client);
                 }
             // }
         }
