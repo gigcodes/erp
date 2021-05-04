@@ -78,7 +78,9 @@ class BulkCustomerRepliesController extends Controller
                 'customer_id' => $customer,
                 'status' => 1
             ]);
-            app(WhatsAppController::class)->sendWithThirdApi($myRequest, 'customer');
+            
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($myRequest, 'customer');
+
             DB::table('bulk_customer_replies_keyword_customer')->where('customer_id', $customer)->delete();
         }
 
