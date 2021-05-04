@@ -26,6 +26,7 @@ use Twilio\Jwt\ClientToken;
 use Twilio\Twiml;
 use Twilio\Rest\Client;
 use App\Category;
+use App\AgentCallStatus;
 use App\Notification;
 use App\Leads;
 use App\Status;
@@ -253,6 +254,26 @@ class TwilioController extends FindByNumberController
             // } else {
                 // $response->play(\Config::get("app.url") . "intro_ring.mp3");
 
+                // Add Agent Call Satus - START
+                $hods = Helpers::getUsersByRoleName('HOD of CRM');
+              
+                foreach ($hods as $hod) {
+                    $check_agent = AgentCallStatus::where('agent_id',$hod->id)->first();
+                    if ($check_agent === null) {
+                        // user doesn't exist in AgentCallStatus - Insert Query for Add Agent User
+                        $params_insert_agent = [
+                            'agent_id' => '',
+                            'agent_name' => '',
+                            'agent_name_id' => '',
+                            'site_id' => '',
+                            'twilio_no' => '',
+                            'status' => '',
+                        ];
+                        // AgentCallStatus::create($params_insert_agent);
+                    }
+                }
+                // Add Agent Call Satus - END
+
 
                 // $gather = $response->gather(
                 //     [
@@ -303,6 +324,7 @@ class TwilioController extends FindByNumberController
         return \Response::make((string)$response, '200')->header('Content-Type', 'text/xml');
     }
 
+    // IVR Menu key input Action - START
     public function twilio_menu_response(Request $request)
     {
         $selectedOption = $request->input('Digits');
@@ -311,23 +333,55 @@ class TwilioController extends FindByNumberController
 
         if($selectedOption == 1)
         {
-            $response->say(
-                'Work in progress',
-                ['voice' => 'Alice', 'language' => 'en-GB']
+            Log::channel('customerDnd')->info(' Enterd into Leave a message section');
+
+            $recordurl = \Config::get("app.url") . "/twilio/storerecording";
+
+            $response->say('Please leave a message at the beep.\nPress the star key when finished.');
+
+            $response->record(
+                ['maxLength' => '20',
+                    'method' => 'GET',
+                    'action' => route('hangup', [], false),
+                    'transcribeCallback' => $recordurl,
+                    'finishOnKey' => '*'
+                ]
             );
 
+            $response->Say(
+                'No recording received. Goodbye',
+                ['voice' => 'alice', 'language' => 'en-GB']
+            );
+            $response->hangup();
             return $response;
+
+            // $response->say(
+            //     'Work in progress',
+            //     ['voice' => 'Alice', 'language' => 'en-GB']
+            // );
+
+            // return $response;
         }
         else if($selectedOption == 2)
         {
             
+            $response->say(
+                'Greetings & compliments of the day from solo luxury. the largest online shopping destination where your class meets authentic luxury for your essential pleasures. Your call will be answered shortly.',
+                ['voice' => 'Alice', 'language' => 'en-GB']
+            );
+            $response->redirect(route('ivr', [], false));
+    
+            return $response;
+
+
+
             $response->say(
                 'Thank you',
                 ['voice' => 'Alice', 'language' => 'en-GB']
             );
             
             $response->say(
-                "You'll be connected shortly to your planet",
+                "You'll be connected shortly",
                 ['voice' => 'Alice', 'language' => 'en-GB']
             );
             
@@ -338,7 +392,7 @@ class TwilioController extends FindByNumberController
             
             // $selectedOption = $request->input('Digits');
             
-            $planetNumberExists = isset($planetNumbers[$selectedOption]);
+            // $planetNumberExists = isset($planetNumbers[$selectedOption]);
             
             // if ($planetNumberExists) {
                 $number = $request->get("From");
@@ -395,6 +449,7 @@ class TwilioController extends FindByNumberController
 
         return $response;
     }
+    // IVR Menu key input Action - END
 
 
     /**
