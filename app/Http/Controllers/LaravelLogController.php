@@ -451,7 +451,7 @@ class LaravelLogController extends Controller
     public function generateReport(Request $request)
     {   
 
-        $logsGroupWise = \App\LogRequest::where('status_code', '!=', 200);
+        $logsGroupWise = \App\LogRequest::query();
 
         if($request->keyword != "") {
             $keyword = $request->keyword;
@@ -468,10 +468,12 @@ class LaravelLogController extends Controller
 
         if($request->report_type == "time_wise") {
             //$logsGroupWise = $logsGroupWise->groupBy('time_taken');
-            $logsGroupWise = $logsGroupWise->orderBy('time_taken','desc');
-            $logsGroupWise = $logsGroupWise->limit(200);
+            $logsGroupWise = $logsGroupWise->where('time_taken', '>', 5);
+            $logsGroupWise = $logsGroupWise->whereNotNull('time_taken');
+            $logsGroupWise = $logsGroupWise->orderByRaw('CONVERT(time_taken, SIGNED) desc');
             $logsGroupWise = $logsGroupWise->select(["*", \DB::raw('1 as total_request')])->get();
         }else{
+            $logsGroupWise = $logsGroupWise->where('status_code', '!=', 200);
             $logsGroupWise = $logsGroupWise->groupBy('url');
             $logsGroupWise = $logsGroupWise->orderBy('total_request','desc');
             $logsGroupWise = $logsGroupWise->select(["*", \DB::raw('count(*) as total_request')])->get();
