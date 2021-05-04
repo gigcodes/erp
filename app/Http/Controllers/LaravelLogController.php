@@ -468,8 +468,8 @@ class LaravelLogController extends Controller
 
         if($request->report_type == "time_wise") {
             //$logsGroupWise = $logsGroupWise->groupBy('time_taken');
+            $logsGroupWise = $logsGroupWise->where('time_taken', '>', 5);
             $logsGroupWise = $logsGroupWise->orderBy('time_taken','desc');
-            $logsGroupWise = $logsGroupWise->limit(200);
             $logsGroupWise = $logsGroupWise->select(["*", \DB::raw('1 as total_request')])->get();
         }else{
             $logsGroupWise = $logsGroupWise->where('status_code', '!=', 200);
