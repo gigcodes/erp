@@ -86,19 +86,20 @@ class UserManagementController extends Controller
         }
     
 
-        $user = $user->select(["users.*","hubstaff_activities.starts_at"])
-                ->leftJoin('hubstaff_members', 'hubstaff_members.user_id', '=', 'users.id')
-                ->leftJoin('hubstaff_activities', 'hubstaff_activities.user_id', '=', 'hubstaff_members.hubstaff_user_id')
-                ->groupBy('users.id')
-                ->orderBy('hubstaff_activities.starts_at','DESC')
+        $user = $user->select(["users.*"])
+                // ->leftJoin('hubstaff_members', 'hubstaff_members.user_id', '=', 'users.id')
+                // ->leftJoin('hubstaff_activities', 'hubstaff_activities.user_id', '=', 'hubstaff_members.hubstaff_user_id')
+                // ->groupBy('users.id')
+                // ->orderBy('hubstaff_activities.starts_at','DESC')
+                ->orderBy('is_active','DESC')
                 ->paginate(12);
-        // HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->where('hubstaff_members.user_id',$this->id)->orderBy('hubstaff_activities.starts_at','desc')->first();
         $limitchacter = 50;
 
         $items = [];
         $replies = null;
         if (!$user->isEmpty()) {
             foreach ($user as $u) {
+                // dump($u->id);
                 $currentRate = $u->latestRate;
                 $team = Team::where('user_id', $u->id)->first();
                 $user_in_team = 0;
