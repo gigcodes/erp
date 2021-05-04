@@ -96,8 +96,10 @@ class TwilioController extends FindByNumberController
 
         if (\Auth::check()) {
             $user = \Auth::user();
-            $agent = str_replace('-', '_', str_slug($user->name));
-            $agent = 'yogesh';
+            $user_id = $user->id;
+            // $agent = str_replace('-', '_', str_slug($user->name));
+            // $agent = 'yogesh';
+            $agent = 'customer_call_agent_'.$user_id;
             $devices = TwilioCredential::where('status',1)->get();
             if ($devices->count()){
                 $tokens=[];
@@ -185,8 +187,6 @@ class TwilioController extends FindByNumberController
     public function ivr(Request $request)
     {
 
-        
-
         Log::channel('customerDnd')->info('Showing user profile for IVR: ');
 
         $number = $request->get("From");
@@ -246,16 +246,30 @@ class TwilioController extends FindByNumberController
         if (($context == "customers" && $object->is_blocked == 1) || Setting::get('disable_twilio') == 1) {
             $response = $response->reject();
         } else {
-            if ($time == $sunday || $time == $saturday) { // If Sunday or Holiday
-                $response->play(\Config::get("app.url") . "holiday_ring.mp3");
-            } elseif (!$time->between($morning, $evening, true)) {
-                $response->play(\Config::get("app.url") . "end_work_ring.mp3");
-            } else {
-                $response->play(\Config::get("app.url") . "intro_ring.mp3");
+            // if ($time == $sunday || $time == $saturday) { // If Sunday or Holiday
+            //     $response->play(\Config::get("app.url") . "holiday_ring.mp3");
+            // } elseif (!$time->between($morning, $evening, true)) {
+            //     $response->play(\Config::get("app.url") . "end_work_ring.mp3");
+            // } else {
+                // $response->play(\Config::get("app.url") . "intro_ring.mp3");
 
-                // $response = new VoiceResponse();
 
-                // $this->input_digit($response, "thank you for calling solo luxury. Please dial 1 for sales 2 for support 3 for other queries");
+                // $gather = $response->gather(
+                //     [
+                //         'numDigits' => 1,
+                //         'action' => route('twilio_menu_response', [], false)
+                //     ]
+                // );
+        
+                // $gather->say(
+                //     'Thanks for calling the E T Phone Home Service.' .
+                //     'Please press 1 for directions. Press 2 for a ' .
+                //     'list of planets to call.',
+                //     ['loop' => 3]
+                // );
+        
+                // return $response;
+                
 
                 $dial = $response->dial('',[
                     'record' => 'true',
@@ -264,33 +278,14 @@ class TwilioController extends FindByNumberController
                     'timeout' => '60'
                 ]);
 
-                // $selectedOption = $request->input('Digits');
-
-                // switch ($selectedOption) {
-                //     case 1:
-                //         return $this->_getReturnInstructions();
-                //     case 2:
-                //         return $this->_getPlanetsMenu();
-                // }
-
-                // $dial->client('yogesh');
-
-                
-                // $dial = $response->dial('+14704105322',[
-                //     'record' => 'true',
-                //     'recordingStatusCallback' => $url,
-                //     'action' => $actionurl,
-                //     'timeout' => '60'
-                // ]);
-
-                $clients = $this->getConnectedClients();
+                $clients = $this->getConnectedClients('customer_call_agent');
 
                 Log::channel('customerDnd')->info('Client for callings: ' . implode(',', $clients));
                 /** @var Helpers $client */
                 foreach ($clients as $client) {
                     $dial->client($client);
                 }
-            }
+            // }
         }
 
 
@@ -308,26 +303,99 @@ class TwilioController extends FindByNumberController
         return \Response::make((string)$response, '200')->header('Content-Type', 'text/xml');
     }
 
+    public function twilio_menu_response(Request $request)
+    {
+        $selectedOption = $request->input('Digits');
+        $response = new VoiceResponse();
+        Log::channel('customerDnd')->info('twilio_menu_response...'.$selectedOption);
 
-    // public function input_digit($response, $speech)
-    // {
+        if($selectedOption == 1)
+        {
+            $response->say(
+                'Work in progress',
+                ['voice' => 'Alice', 'language' => 'en-GB']
+            );
 
-    //     Log::channel('customerDnd')->info('input_digit...');
+            return $response;
+        }
+        else if($selectedOption == 2)
+        {
+            
+            $response->say(
+                'Thank you',
+                ['voice' => 'Alice', 'language' => 'en-GB']
+            );
+            
+            $response->say(
+                "You'll be connected shortly to your planet",
+                ['voice' => 'Alice', 'language' => 'en-GB']
+            );
+            
+            // $planetNumbers = [
+            //     '2' => '+14704105322',
+            //     '3' => '+14012404685',
+            // ];
+            
+            // $selectedOption = $request->input('Digits');
+            
+            $planetNumberExists = isset($planetNumbers[$selectedOption]);
+            
+            // if ($planetNumberExists) {
+                $number = $request->get("From");
 
-    //     $gather = $response->gather(
-    //         [
-    //             'numDigits' => 1,
-    //             'action' => $this->digit_input($response)
-    //         ]
-    //     );
+                Log::channel('customerDnd')->info(' Number >> '.$number);
+                
+                list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
+                
+                // $selectedNumber = $planetNumbers[$selectedOption];
+                
+                $url = \Config::get("app.url") . "/twilio/recordingStatusCallback";
+                $actionurl = \Config::get("app.url") . "/twilio/handleDialCallStatus";
 
-    //     $gather->say(
-    //         'Thanks for calling the E T Phone Home Service.' .
-    //         'Please press 1 for directions. Press 2 for a ' .
-    //         'list of planets to call.',
-    //         ['loop' => 3]
-    //     );
-    // }
+                if ($context) {
+                    $url = \Config::get("app.url") . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $object->id . "&Mobile=" ;
+                }
+
+                // $response->dial($selectedNumber);
+
+                $dial = $response->dial('',[
+                    'record' => 'true',
+                    'recordingStatusCallback' => $url,
+                    'action' => $actionurl,
+                    'timeout' => '60'
+                ]);
+
+                 $clients = $this->getConnectedClients();
+
+                Log::channel('customerDnd')->info('Client for callings: ' . implode(',', $clients));
+                /** @var Helpers $client */
+                foreach ($clients as $client) {
+                    $dial->client($client);
+                }
+    
+                return $response;
+            // } else {
+            //     $errorResponse = new VoiceResponse();
+            //     $errorResponse->say(
+            //         'Returning to the main menu',
+            //         ['voice' => 'Alice', 'language' => 'en-GB']
+            //     );
+            //     $errorResponse->redirect(route('ivr', [], false));
+    
+            //     return $errorResponse;
+            // }
+        }
+
+       
+        $response->say(
+            'Returning to the main menu',
+            ['voice' => 'Alice', 'language' => 'en-GB']
+        );
+        $response->redirect(route('ivr', [], false));
+
+        return $response;
+    }
+
 
     /**
      * Gather action
@@ -728,15 +796,24 @@ class TwilioController extends FindByNumberController
         $clients = [];
         /** @var Helpers $hod */
         foreach ($hods as $hod) {
-            $clients[] = str_replace('-', '_', str_slug($hod->name));
+            if($role == 'customer_call_agent')
+                $clients[] = 'customer_call_agent_'.$hod->id;
+            else
+                $clients[] = str_replace('-', '_', str_slug($hod->name));
         }
 
         if (Setting::get('incoming_calls_andy') == 1) {
-            $clients[] = str_replace('-', '_', str_slug($andy->name));
+            if($role == 'customer_call_agent')
+                $clients[] = 'customer_call_agent_'.$andy->id;
+            else
+                $clients[] = str_replace('-', '_', str_slug($andy->name));
         }
 
         if (Setting::get('incoming_calls_yogesh') == 1) {
-            $clients[] = str_replace('-', '_', str_slug($yogesh->name));
+            if($role == 'customer_call_agent')
+                $clients[] = 'customer_call_agent_'.$yogesh->id;
+            else
+                $clients[] = str_replace('-', '_', str_slug($yogesh->name));
         }
 
         return $clients;

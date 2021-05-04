@@ -1577,7 +1577,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
 Route::get('twilio/token', 'TwilioController@createToken');
-Route::post('twilio/ivr', 'TwilioController@ivr');
+Route::post('twilio/ivr', 'TwilioController@ivr')->name('ivr');
 Route::post('twilio/gatherAction', 'TwilioController@gatherAction');
 Route::post('twilio/incoming', 'TwilioController@incomingCall');
 Route::post('twilio/outgoing', 'TwilioController@outgoingCall');
@@ -1588,6 +1588,9 @@ Route::post('twilio/handleOutgoingDialCallStatus', 'TwilioController@handleOutgo
 Route::post('twilio/storerecording', 'TwilioController@storeRecording');
 Route::post('twilio/storetranscript', 'TwilioController@storetranscript');
 Route::post('twilio/eventsFromFront', 'TwilioController@eventsFromFront');
+
+Route::post('twilio/twilio_menu_response', 'TwilioController@twilio_menu_response')->name('twilio_menu_response');
+
 Route::get(
     '/twilio/hangup',
     [
