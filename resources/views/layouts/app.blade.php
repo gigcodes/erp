@@ -2007,6 +2007,11 @@ $metaData = '';
                             <span><i class="fa fa-credit-card-alt fa-2x" aria-hidden="true"></i></span>
                         </a>
                     </li>
+                    <li>
+                        <a title="Auto Refresh" class="auto-refresh-run-btn quick-icon">
+                            <span><i class="fa fa-refresh fa-2x" aria-hidden="true"></i></span>
+                        </a>
+                    </li>
                 </ul>
             </nav>
             <!-- end section for sidebar toggle -->
@@ -2246,10 +2251,32 @@ $metaData = '';
 
     @yield('scripts')
     <script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
+    <script type="text/javascript" src="{{asset('js/jquery.cookie.js')}}"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script>
         $(document).ready(function() {
+            //$.cookie('auto_refresh', '0', { path: '/{{ Request::path() }}' });
+
+            var autoRefresh = $.cookie('auto_refresh');
+                if(typeof autoRefresh == "undefined"  || autoRefresh == 1) {
+                   $(".auto-refresh-run-btn").attr("title","Stop Auto Refresh");
+                }else{
+                   $(".auto-refresh-run-btn").attr("title","Start Auto Refresh");
+                }
+            //auto-refresh-run-btn
+
+            $(document).on("click",".auto-refresh-run-btn",function() {
+                let autoRefresh = $.cookie('auto_refresh');
+                if(autoRefresh == 0) {
+                   alert("Auto refresh has been enable for this page"); 
+                   $.cookie('auto_refresh', '1', { path: '/{{ Request::path() }}' });
+                }else{
+                    alert("Auto refresh has been disable for this page");
+                   $.cookie('auto_refresh', '0', { path: '/{{ Request::path() }}' });
+                }
+            });
+
             $('#editor-note-content').richText();
             $('#editor-instruction-content').richText();
             $('#notification-date').datetimepicker({
@@ -2553,7 +2580,28 @@ $metaData = '';
             $hasPage = \App\AutoRefreshPage::where("page",$path)->where("user_id",\Auth()->user()->id)->first();
             if($hasPage) {
          ?>
-            setTimeout("location.reload(true);", <?php echo $hasPage->time * 1000; ?>);
+
+            var idleTime = 0;
+            function reloadPageFun() {
+                idleTime = idleTime + 1000;
+                var autoRefresh = $.cookie('auto_refresh');
+                if (idleTime > <?php echo $hasPage->time * 1000; ?> && (typeof autoRefresh == "undefined" || autoRefresh == 1)) {
+                    window.location.reload();
+                }
+            }
+
+            $(document).ready(function () {
+                //Increment the idle time counter every minute.
+                setInterval(function(){ reloadPageFun() }, 3000);
+                //Zero the idle timer on mouse movement.
+                $(this).mousemove(function (e) {
+                    idleTime = 0;
+                });
+                $(this).keypress(function (e) {
+                    idleTime = 0;
+                });
+            });
+
         <?php } } ?>
 
         function filterFunction() {
