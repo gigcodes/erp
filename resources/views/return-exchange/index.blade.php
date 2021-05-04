@@ -226,6 +226,27 @@
             $(this).parent().closest("form").submit();
         });
 		
+		$(document).on('click', '.re-generate-coupon', function (e) {
+			e.preventDefault();
+
+			console.log( $(this).data() );
+			var id = $(this).data('id');
+			$.ajax({
+				url: "/return-exchange/"+id+"/re-generate-coupon",
+				type: 'GET',
+				success: function (response) {
+					if (response.code == 200) {
+						toastr['success'](response.message, 'success');
+					} else {
+						toastr['error'](response.message, 'Error');
+					}
+				},
+				error: function () {
+					alert('There was error loading priority task list data');
+				}
+			});
+		});
+
 		$(document).on('submit', '#customerUpdateForm', function (e) {
 			e.preventDefault();
 			var data = $(this).serializeArray();

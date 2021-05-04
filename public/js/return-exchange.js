@@ -226,6 +226,8 @@ var msQueue = {
             $(".common-modal").modal("hide");
             $(".common-modal").find(".modal-dialog").html();
             msQueue.loadFirst();
+        }else{
+            toastr['error'](result.message);
         }
     },
     deleteRecords : function(id) {

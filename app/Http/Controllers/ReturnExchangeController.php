@@ -14,9 +14,11 @@ use App\Reply;
 use App\ReturnExchange;
 use App\ReturnExchangeHistory;
 use App\ReturnExchangeStatus;
+use App\Email;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Http\Requests\CreateCouponRequest;
 
 class ReturnExchangeController extends Controller
 {
@@ -270,21 +272,61 @@ class ReturnExchangeController extends Controller
         $params = $request->all();
 
         $returnExchange = \App\ReturnExchange::find($id);
+        $status =  ReturnExchangeStatus::find($request->status);
 
         if (!empty($returnExchange)) {
+
             $returnExchange->fill($params);
             $returnExchange->save();
 
+            if(  isset( $status->status_name ) && $status->status_name == 'approve' ){
+                $code = 'REFUND-'.date('Ym').'-'.rand(1000,9999);
+                $requestData = new CreateCouponRequest();
+                $requestData->setMethod('POST');
+                $requestData->request->add([
+                    'code' => $code,
+                    'start' => date('Y-m-d H:i:s'),
+                    'discount_fixed' => $returnExchange->refund_amount,
+                ]);
+                
+                try {
+                    $response = app('App\Http\Controllers\CouponController')->store($requestData);
+                    $emailClass = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
+                    $email = Email::create([
+                        'model_id'         => $returnExchange->id,
+                        'model_type'       => \App\ReturnExchange::class,
+                        'from'             => $emailClass->fromMailer,
+                        'to'               => $returnExchange->customer->email,
+                        'subject'          => $emailClass->subject,
+                        'message'          => 'Your refund coupon :'.$code,
+                        'template'         => 'refund-coupon',
+                        'additional_data'  => $returnExchange->id,
+                        'status'           => 'pre-send',
+                        'store_website_id' => null,
+                        'is_draft'        => 1,
+                    ]);
+                    
+                    if( $response->status() == 500 ){
+                        return response()->json(["code" => 500, "data" => [], "message" => json_decode($response->getContent())->message]);
+                    }
+                    if($response->status() == 200){
+                        \App\Jobs\SendEmail::dispatch($email);
+                    }
+                } catch (Exception $e) {
+                    return response()->json(["code" => 500, "data" => [], "message" => "Something went wrong"]);
+                }
+            }
+
             //Sending Mail on changing of order status
             if (isset($request->send_message) && $request->send_message == '1') {
+                
                 //sending order message to the customer
                 UpdateReturnStatusMessageTpl::dispatch($returnExchange->id, request('message', null))->onQueue("customer_message");
                 try {
                     if ($returnExchange->type == "refund") {
 
                         $emailClass = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
-                    
-                        $email = Email::create([
+                        $email = App\Email::create([
                             'model_id'         => $returnExchange->id,
                             'model_type'       => \App\ReturnExchange::class,
                             'from'             => $emailClass->fromMailer,
@@ -297,14 +339,12 @@ class ReturnExchangeController extends Controller
                             'store_website_id' => null,
                             'is_draft'        => 1,
                         ]);
-
                         \App\Jobs\SendEmail::dispatch($email);
 
                     } else if ($returnExchange->type == "return") {
 
                         $emailClass = (new \App\Mails\Manual\StatusChangeReturn($returnExchange))->build();
-                    
-                        $email = Email::create([
+                        $email = App\Email::create([
                             'model_id'         => $returnExchange->id,
                             'model_type'       => \App\ReturnExchange::class,
                             'from'             => $emailClass->fromMailer,
@@ -317,14 +357,12 @@ class ReturnExchangeController extends Controller
                             'store_website_id' => null,
                             'is_draft'        => 1,
                         ]);
-
                         \App\Jobs\SendEmail::dispatch($email);
 
                     } else if ($returnExchange->type == "exchange") {
 
                         $emailClass = (new \App\Mails\Manual\StatusChangeExchange($returnExchange))->build();
-                    
-                        $email = Email::create([
+                        $email = App\Email::create([
                             'model_id'         => $returnExchange->id,
                             'model_type'       => \App\ReturnExchange::class,
                             'from'             => $emailClass->fromMailer,
@@ -351,6 +389,24 @@ class ReturnExchangeController extends Controller
         return response()->json(["code" => 200, "data" => [], "message" => "Request updated succesfully!!"]);
     }
 
+    public function regenerateCoupon(Request $request, $id)
+    {
+        $returnExchange = \App\ReturnExchange::find($id);
+        $requestData = new CreateCouponRequest();
+        $requestData->setMethod('POST');
+        $requestData->request->add([
+            'code' => 'REFUND-'.date('Ym').'-'.rand(1000,9999),
+            'start' => date('Y-m-d H:i:s'),
+            'discount_fixed' => $returnExchange->refund_amount,
+        ]);
+        
+        try {
+            $response = app('App\Http\Controllers\CouponController')->store($requestData);
+            return response()->json(["code" => $response->status(), "data" => [], "message" => json_decode($response->getContent())->message]);
+        } catch (Exception $e) {
+            return response()->json(["code" => 500, "data" => [], "message" => $e->getMessage()]);
+        }
+    }
     public function delete(Request $request, $id)
     {
         $ids = explode(",", $id);
