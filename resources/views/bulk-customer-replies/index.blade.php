@@ -53,13 +53,16 @@
     <div class="col-md-12">
         @if($searchedKeyword)
             @if($searchedKeyword->customers)
+                @php
+                    $customers = $searchedKeyword->customers()->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id  GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id')->groupBy('customers.id')->orderBy('max_id','desc')->get()
+                @endphp
                 <form action="{{ action('BulkCustomerRepliesController@sendMessagesByKeyword') }}" method="post">
                     @csrf
                     <table class="table table-striped table-bordered">
                         <tr>
                             <th>Pick?</th>
                             <th>S.N</th>
-                            <th>Customer</th>
+                            <th>Customer ({{count($customers)}})</th>
                             <th>Recent Messages</th>
                         </tr>
                         <tr>
@@ -74,7 +77,7 @@
                                 </div>
                             </td>
                         </tr>
-                        @foreach($searchedKeyword->customers()->groupBy('id')->get() as $key=>$customer)
+                        @foreach($customers as $key=>$customer)
                             <tr>
                                 <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}"></td>
                                 <td>{{ $key+1 }}</td>
