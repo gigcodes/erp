@@ -1719,6 +1719,13 @@ Route::prefix('database')->middleware('auth')->group(function () {
     Route::get('/process-kill', 'DatabaseController@processKill')->name("database.process.kill");
 });
 
+Route::prefix('tables')->middleware('auth')->group(function () {
+    Route::get('/', 'DatabaseTableController@index')->name("database.index");
+    Route::get('/states', 'DatabaseTableController@states')->name("database.states");
+    Route::get('/process-list', 'DatabaseTableController@processList')->name("database.process.list");
+    Route::get('/process-kill', 'DatabaseTableController@processKill')->name("database.process.kill");
+});
+
 Route::resource('pre-accounts', 'PreAccountController')->middleware('auth');
 
 Route::middleware('auth')->group(function()
