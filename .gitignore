@@ -59,6 +59,7 @@ css
 /public/*.zip
 /public/*.pdf
 /public/pdf/
+/public/.htaccess
 public/uploads
 public/zoom/*
 !public/zoom/.gitkeep
