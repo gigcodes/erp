@@ -17,11 +17,12 @@
             </div>
 
 
-           <table class="table table-bordered" style="table-layout:fixed;">
+           <table class="table table-bordered table-responsive" style="table-layout:fixed;">
 		    <thead>
 		      <tr>
 		      	<th style="width:19%">Task</th>
-				<th style="width:19%">Description</th>
+                <th style="width:10%">Status</th>
+				<th style="width:20%">Description</th>
 		      	<th style="width:45%">Approximate time</th>
 				<th style="width:25%">Action</th> 
 			</tr>
@@ -41,6 +42,9 @@
                             <button type="button" class="btn btn-image pd-5" data-id="10241"><img src="/images/unflagged.png" style="cursor: nwse-resize; width: 0px;"></button>
                       {{/if}}
 					  </td>
+                    <td>
+                        {{:prop.status_falg}}
+                    </td>
 					<td>
 						<div class="show_hide_description">Show Description</div>
 						<div class="description_content" style="display:none">
