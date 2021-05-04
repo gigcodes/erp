@@ -469,6 +469,7 @@ class LaravelLogController extends Controller
         if($request->report_type == "time_wise") {
             //$logsGroupWise = $logsGroupWise->groupBy('time_taken');
             $logsGroupWise = $logsGroupWise->where('time_taken', '>', 5);
+            $logsGroupWise = $logsGroupWise->whereNotNull('time_taken');
             $logsGroupWise = $logsGroupWise->orderByRaw('CONVERT(time_taken, SIGNED) desc');
             $logsGroupWise = $logsGroupWise->select(["*", \DB::raw('1 as total_request')])->get();
         }else{
