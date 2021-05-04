@@ -76,6 +76,14 @@ $metaData = '';
             color:#fff;
         }
 
+        .refresh-btn-stop {
+            color:  red
+        }
+
+        .refresh-btn-start {
+            color:  green
+        }
+
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
 
@@ -2261,8 +2269,10 @@ $metaData = '';
             var autoRefresh = $.cookie('auto_refresh');
                 if(typeof autoRefresh == "undefined"  || autoRefresh == 1) {
                    $(".auto-refresh-run-btn").attr("title","Stop Auto Refresh");
+                   $(".auto-refresh-run-btn").find("i").removeClass("refresh-btn-stop").addClass("refresh-btn-start");
                 }else{
                    $(".auto-refresh-run-btn").attr("title","Start Auto Refresh");
+                   $(".auto-refresh-run-btn").find("i").removeClass("refresh-btn-start").addClass("refresh-btn-stop");
                 }
             //auto-refresh-run-btn
 
@@ -2271,9 +2281,11 @@ $metaData = '';
                 if(autoRefresh == 0) {
                    alert("Auto refresh has been enable for this page"); 
                    $.cookie('auto_refresh', '1', { path: '/{{ Request::path() }}' });
+                   $(".auto-refresh-run-btn").find("i").removeClass("refresh-btn-stop").addClass("refresh-btn-start");
                 }else{
                     alert("Auto refresh has been disable for this page");
                    $.cookie('auto_refresh', '0', { path: '/{{ Request::path() }}' });
+                   $(".auto-refresh-run-btn").find("i").removeClass("refresh-btn-start").addClass("refresh-btn-stop");
                 }
             });
 
