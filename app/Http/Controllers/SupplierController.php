@@ -350,14 +350,33 @@ class SupplierController extends Controller
       }
 		
 		}
-        $supplier = Supplier::create($data);
-
-        if ($supplier->id > 0) {
-            \App\Scraper::create([
-                "supplier_id" => $supplier->id,
-                "scraper_name" => $request->get("scraper_name", ""),
-                "inventory_lifetime" => $request->get("inventory_lifetime", ""),
-            ]);
+        $scrapper_name = preg_replace("/\s+/", "", $request->supplier);
+        $supplier = Supplier::where('supplier',$scrapper_name)->get();
+        if(empty($supplier)){
+          $supplier = Supplier::create($data);
+          if ($supplier->id > 0) {
+              $scraper = \App\Scraper::create([
+                  "supplier_id" => $supplier->id,
+                  "scraper_name" => $request->get("scraper_name", $scrapper_name),
+                  "inventory_lifetime" => $request->get("inventory_lifetime", ""),
+              ]);
+          }
+          $supplier->scrapper = $scraper->id;
+          $supplier->save();
+        }else{
+          $scraper = \App\Scraper::where('scraper_name',$scrapper_name)->get();
+          if(empty($scraper)){
+            $scraper = \App\Scraper::create([
+                  "supplier_id" => $supplier->id,
+                  "scraper_name" => $request->get("scraper_name", $scrapper_name),
+                  "inventory_lifetime" => $request->get("inventory_lifetime", ""),
+              ]);
+            $supplier->scrapper = $scraper->id;
+            $supplier->save();
+          }else{
+            $supplier->scrapper = $scraper->id;
+            $supplier->save();
+          }
         }
 
         if(!empty($source)) {
@@ -385,12 +404,14 @@ class SupplierController extends Controller
         $supplierstatus = SupplierStatus::pluck('name', 'id');
         $new_category_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id' => 'category'])->renderAsDropdown();
         $locations = \App\ProductLocation::pluck("name","name");
+        $scrapers = \App\Scraper::where('id',$supplier->scrapper)->get();
 
         $category_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id'  => 'category_selection'])
                                               ->renderAsDropdown();
 
         return view('suppliers.show', [
             'supplier' => $supplier,
+            'scrapers' => $scrapers,
             'reply_categories' => $reply_categories,
             'users_array' => $users_array,
             'emails' => $emails,
