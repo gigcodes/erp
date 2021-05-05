@@ -9,12 +9,15 @@ use App\Library\Shopify\Client as ShopifyClient;
 use App\Stage;
 use App\Supplier;
 use Illuminate\Http\Request;
+use App\Services\Scrap\GoogleImageScraper;
 
 class NewProductInventoryController extends Controller
-{
-    public function __construct()
-    {
+{   
+    private $googleImageScraper;
 
+    public function __construct(GoogleImageScraper $googleImageScraper)
+    {
+        $this->googleImageScraper = $googleImageScraper;
     }
 
     public function index(Stage $stage)
@@ -135,6 +138,27 @@ class NewProductInventoryController extends Controller
 
         return response()->json(["code" => 200 , "data" => [], "message" => "No product ids found"]);
 
+    }
+
+    public function fetchImgGoogle(Request $request)
+    {   
+        if( empty( $request->get('name') ) ){
+            return back()->with('error', 'Product name is required');
+        }
+
+        $q  = $request->get('name');
+
+        $googleData = $this->googleImageScraper->scrapGoogleImages($q, 'lifestyle', 10);
+        
+        if ( $googleData ) {
+            $requestData = new Request();
+            $requestData->setMethod('POST');
+            $requestData->request->add([
+                'data' => $googleData,
+            ]);
+            return app('App\Http\Controllers\ScrapController')->downloadImages($requestData);
+        }
+        return back()->with('error', 'No any images found on google');
     }
 
 }
