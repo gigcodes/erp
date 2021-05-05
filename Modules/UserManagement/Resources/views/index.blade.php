@@ -268,6 +268,8 @@
      //    $('#permission-request').modal();
      // });
 
+     
+        
      $(document).on("click",".permission-request",function(e) {
         e.preventDefault();
         $.ajax({
