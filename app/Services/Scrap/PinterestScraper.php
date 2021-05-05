@@ -18,20 +18,24 @@ class PinterestScraper extends Scraper
         $body = $this->getContent($query);
 
         $c = new HtmlPageCrawler($body);
-        $imageJson = $c->filter('body')->filter('div.rg_meta');
+        // $imageJson = $c->filter('body')->filter('div.rg_meta');
+        $imageJson = $c->filter('body')->filter('div.RAyV4b');
 
         $images = [];
 
         foreach ($imageJson as $key => $image) {
-            $item = json_decode($image->firstChild->data, true);
-
-            $images[] = $item['ou'];
+            // $item = json_decode($image->firstChild->data, true);
+            foreach ($image->firstChild->attributes as $att => $image) {
+                if( $image->name == 'src' ){
+                    $images[] = $image->value ?? null;
+                }
+            }
+            // $images[] = $item['ou'];
 
             if ($key+1>=$outputCount) {
                 break;
             }
         }
-
         return $images;
     }
 }
