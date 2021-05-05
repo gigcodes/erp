@@ -41,7 +41,8 @@ class UserManagementController extends Controller
     {
         $title = "User management";
         $permissionRequest = PermissionRequest::count();
-        return view('usermanagement::index', compact('title','permissionRequest'));
+        $statusList = \DB::table("task_statuses")->select("name")->get()->toArray();
+        return view('usermanagement::index', compact('title','permissionRequest','statusList'));
     }
 
     public function permissionRequest( Request $request ){
@@ -86,12 +87,12 @@ class UserManagementController extends Controller
         }
     
 
-        $user = $user->select(["users.*"])
-                // ->leftJoin('hubstaff_members', 'hubstaff_members.user_id', '=', 'users.id')
-                // ->leftJoin('hubstaff_activities', 'hubstaff_activities.user_id', '=', 'hubstaff_members.hubstaff_user_id')
-                // ->groupBy('users.id')
-                // ->orderBy('hubstaff_activities.starts_at','DESC')
-                ->orderBy('is_active','DESC')
+        $user = $user->select(["users.*","hubstaff_activities.starts_at"])
+                ->leftJoin('hubstaff_members', 'hubstaff_members.user_id', '=', 'users.id')
+                ->leftJoin('hubstaff_activities', 'hubstaff_activities.user_id', '=', 'hubstaff_members.hubstaff_user_id')
+                ->groupBy('users.id')
+                ->orderBy('hubstaff_activities.starts_at','DESC')
+                // ->orderBy('is_active','DESC')
                 ->paginate(12);
         $limitchacter = 50;
 
@@ -194,6 +195,7 @@ class UserManagementController extends Controller
             $replies = \App\Reply::where("model", "User")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
         }
         
+
         $isAdmin = Auth::user()->isAdmin();
         return response()->json([
             "code"       => 200,
@@ -938,13 +940,13 @@ class UserManagementController extends Controller
         $today_avaibility_hour = $this->getTimeFormat($today_avaibility_hour);
         $u['today_avaibility_hour'] = $today_avaibility_hour;
 
-
-
+        $statusList = \DB::table("task_statuses")->select("name")->get()->toArray();
 
             return response()->json([
                 "code"       => 200,
                 "user"       => $user,
-                "taskList"       => $taskList,
+                "statusList" => $statusList,
+                "taskList"    => $taskList,
                 'userTiming'  => $u
             ]); 
     }
