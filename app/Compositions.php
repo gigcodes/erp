@@ -35,7 +35,7 @@ class Compositions extends Model
                 }
             }
         }
-        $mc = $mc->distinct('name')->get(['name', 'replace_with']);
+        $mc = $mc->groupBy('name')->get(['name', 'replace_with']);
 
         $isReplacementFound = false;
         if (!$mc->isEmpty() && !empty($name)) {
