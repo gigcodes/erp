@@ -857,6 +857,8 @@ class ScrapController extends Controller
             'description' => 'required',
         ]);
 
+        \Log::info("Channel 6.1 passed =>".date("Y-m-d h:i:s"));
+
         // Return an error if the validator fails
         if ($validator->fails()) {
 
@@ -884,18 +886,23 @@ class ScrapController extends Controller
                 "country"       => isset($receivedJson->properties->country) ? $receivedJson->properties->country : $receivedJson->country,
             ];
 
+            \Log::info("Channel 6.2 passed =>".date("Y-m-d h:i:s"));
             $formatter = (new \App\Services\Products\ProductsCreator)->getGeneralDetails($propertiesArray);
+            \Log::info("Channel 6.3 passed =>".date("Y-m-d h:i:s"));
 
             $color       = \App\ColorNamesReference::getColorRequest($formatter['color'], $receivedJson->url, $receivedJson->title, $receivedJson->description);
+            \Log::info("Channel 6.4 passed =>".date("Y-m-d h:i:s"));
             $composition = $formatter['composition'];
             if (!empty($formatter['composition'])) {
                 $composition = \App\Compositions::getErpName($formatter['composition']);
             }
+            \Log::info("Channel 6.5 passed =>".date("Y-m-d h:i:s"));
 
             $description = $receivedJson->description;
             if (!empty($receivedJson->description)) {
                 $description = \App\DescriptionChange::getErpName($receivedJson->description);
             }
+            \Log::info("Channel 6.6 passed =>".date("Y-m-d h:i:s"));
 
             // Set basic data
             if (empty($product->name)) {
@@ -970,6 +977,7 @@ class ScrapController extends Controller
 
             //$product->status_id = StatusHelper::$autoCrop;
             // Save
+            \Log::info("Channel 6.7 passed =>".date("Y-m-d h:i:s"));
             $product->save();
             \Log::info("Channel 7 passed =>".date("Y-m-d h:i:s"));
 
