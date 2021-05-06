@@ -107,6 +107,10 @@
                 <input type="checkbox" name="show_resolved" value="1"> incl.resolved
             @endif
              --}}
+            <input type="hidden" id="download" name="download" value="1">
+            <button type="submit" class="btn btn-primary" onclick="document.getElementById('download').value = 2;">
+                Download
+            </button>
             <button class="btn btn-image">
                 <img src="{{ asset('images/search.png') }}" alt="Search">
             </button>
