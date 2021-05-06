@@ -46,13 +46,14 @@
             @else 
               <p class="card-text">Color : {{ $product->color }}</p>
             @endif
-            @if($isAdmin)
+            
               <p class="card-text">Supplier : {{ $product->supplier }}</p>
               <p class="card-text">Suppliers : {{ $product->supplier_list }}</p>
               <p class="card-text">
                 <input type="checkbox" class="select-product-edit" name="product_id" data-id="{{ $product->id }}">
+                <a href="{{ route('product-inventory.fetch.img.google',['name'=> $product->name]) }}" class="btn btn-secondary btn-sm"><i class="fa fa-picture-o"></i></a>
               </p>
-            @endif
+            
           </div>
         </div>
       <?php //if($rowCount % 4 == 0) { echo '</div>'; } ?>
