@@ -970,6 +970,7 @@ class ScrapController extends Controller
 
             //$product->status_id = StatusHelper::$autoCrop;
             // Save
+            $product->status_id = StatusHelper::$externalScraperFinished;
             $product->save();
 
             // Check if we have images
@@ -1886,7 +1887,7 @@ class ScrapController extends Controller
      */
     public function scraperNeeded(Request $request)
     {
-        $products = Product::where("status_id", StatusHelper::$requestForExternalScraper)
+        $products = Product::where("status_id", StatusHelper::$sendtoExternalScraper)
             ->leftJoin('brands', function ($join) {
                 $join->on('products.brand', '=', 'brands.id');
             })
