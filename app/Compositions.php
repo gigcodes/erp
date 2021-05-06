@@ -31,7 +31,7 @@ class Compositions extends Model
             foreach($parts as $p){
                 $p = str_replace("%", "", $p);
                 if(!empty($p)) {
-                    $mc->orWhere("names","like","%".trim($p)."%");
+                    $mc->orWhere("name","like","%".trim($p)."%");
                 }
             }
         }
