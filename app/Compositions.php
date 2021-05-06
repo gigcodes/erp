@@ -24,12 +24,15 @@ class Compositions extends Model
 
     public static function getErpName($name)
     {
-        $parts = preg_split('/\s+/', $name);
+        $parts = preg_split('/\s+/', trim($name));
         
         $mc = self::query();
         if(!empty($parts))  {
             foreach($parts as $p){
-                $mc->orWhere("name","like","%".trim($p)."%");
+                $p = str_replace("%", "", $p);
+                if(!empty($p)) {
+                    $mc->orWhere("name","like","%".trim($p)."%");
+                }
             }
         }
         $mc = $mc->distinct('name')->get(['name', 'replace_with']);
