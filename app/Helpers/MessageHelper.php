@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use \App\ChatMessage;
 use \App\Product;
+use GuzzleHttp\Client as GuzzleClient;
 
 class MessageHelper
 {
@@ -19,6 +20,7 @@ class MessageHelper
     ];
 
     CONST AUTO_LEAD_SEND_PRICE = 281;
+    CONST AUTO_DIMENSION_SEND = 7;
 
     const TXT_PREPOSITIONS = [
         "aboard",
@@ -185,6 +187,24 @@ class MessageHelper
                     if (!empty($parentMessage)) {
                         \Log::channel('whatsapp')->info("Auto section parent message found started for customer id : " . $customer->id);
                         $parentMessage->sendLeadPrice($customer);
+                    }
+                }elseif ($keywordassign[0]->assign_to == self::AUTO_DIMENSION_SEND) {
+                    \Log::channel('whatsapp')->info("Auto section started for customer id : " . $customer->id);
+                    if (!empty($parentMessage)) {
+
+                        \Log::channel('whatsapp')->info("Auto section parent message found started for customer id : " . $customer->id);
+
+                        $products = DB::table('leads')
+                        ->select('*')
+                        ->where('id', '=',$parentMessage->lead_id)
+                        ->get();
+                        if(!empty($products[0]->selected_product)){
+                            $requestData = new Request();
+                            $requestData->setMethod('POST');
+                            $requestData->request->add(['customer_id' => $customer->id, 'dimension' => true, 'selected_product' => $products[0]->selected_product]);
+
+                            app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
+                        }
                     }
                 }
 
