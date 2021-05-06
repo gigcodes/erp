@@ -31,11 +31,11 @@ class Compositions extends Model
             foreach($parts as $p){
                 $p = str_replace("%", "", $p);
                 if(!empty($p)) {
-                    $mc->orWhere("name","like","%".trim($p)."%");
+                    $mc->orWhere("names","like","%".trim($p)."%");
                 }
             }
         }
-        $mc = $mc->distinct('name')->get(['name', 'replace_with']);
+        $mc = $mc->groupBy('name')->get(['name', 'replace_with']);
 
         $isReplacementFound = false;
         if (!$mc->isEmpty() && !empty($name)) {
