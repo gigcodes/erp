@@ -237,7 +237,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('product/relist-product', 'ProductController@relistProduct');
     Route::get('products/stats', 'ProductController@productStats');
     //ajay singh
-    Route::get('products/scrap-logs', 'ProductController@productScrapLog');
+    //Route::get('products/scrap-logs', 'ProductController@productScrapLog');
+    Route::get('products/status-history', 'ProductController@productScrapLog');
     Route::get('products/description', 'ProductController@productDescription');
 
     Route::post('products/{id}/updateName', 'ProductController@updateName');
@@ -1722,6 +1723,13 @@ Route::prefix('database')->middleware('auth')->group(function () {
 });
 
 Route::resource('pre-accounts', 'PreAccountController')->middleware('auth');
+
+Route::prefix('tables')->middleware('auth')->group(function () {
+    Route::get('/', 'DatabaseTableController@index')->name("database.index");
+    Route::get('/states', 'DatabaseTableController@states')->name("database.states");
+    Route::get('/process-list', 'DatabaseTableController@processList')->name("database.process.list");
+    Route::get('/process-kill', 'DatabaseTableController@processKill')->name("database.process.kill");
+});
 
 Route::middleware('auth')->group(function()
 {
