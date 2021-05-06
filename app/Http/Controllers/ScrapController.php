@@ -736,8 +736,7 @@ class ScrapController extends Controller
     public function saveFromNewSupplier(Request $request)
     {
         \Log::channel('scraper')->debug("\n##!EXTERNAL-SCRAPER!##\n" . json_encode($request->all()) . "\n##!EXTERNAL-SCRAPER!##\n");
-        \Log::info("Channel 1 passed =>".date("Y-m-d h:i:s"));
-
+        
         // Overwrite website
         //$request->website = 'internal_scraper';
 
@@ -751,7 +750,6 @@ class ScrapController extends Controller
 
         // Get brand
         $brand = Brand::where('name', $receivedJson->brand)->first();
-        \Log::info("Channel 2 passed =>".date("Y-m-d h:i:s"));
         // No brand found?
         if (!$brand) {
             // Check for reference
@@ -764,7 +762,6 @@ class ScrapController extends Controller
                 ]);
             }
         }
-        \Log::info("Channel 3 passed =>".date("Y-m-d h:i:s"));
         //add log in scraped product
         $website        = isset($receivedJson->website) ? $receivedJson->website : "";
         $scrapedProduct = null;
@@ -802,7 +799,6 @@ class ScrapController extends Controller
             $scrapedProduct->can_be_deleted      = 0;
             $scrapedProduct->validated           = 1;
             $scrapedProduct->save();
-            \Log::info("Channel 4 passed =>".date("Y-m-d h:i:s"));
         }
 
         //dd($scrapedProduct);
@@ -821,8 +817,7 @@ class ScrapController extends Controller
             ], 400);
 
         }
-        \Log::info("Channel 5 passed =>".date("Y-m-d h:i:s"));
-
+        
         if (isset($receivedJson->status)) {
 
             // Search For ScraperQueue
@@ -847,8 +842,7 @@ class ScrapController extends Controller
         $product->save();*/
 
         $input = get_object_vars($receivedJson);
-        \Log::info("Channel 6 passed =>".date("Y-m-d h:i:s"));
-
+        
         // Validate request
         $validator = Validator::make($input, [
             'id'          => 'required',
@@ -857,8 +851,7 @@ class ScrapController extends Controller
             'description' => 'required',
         ]);
 
-        \Log::info("Channel 6.1 passed =>".date("Y-m-d h:i:s"));
-
+        
         // Return an error if the validator fails
         if ($validator->fails()) {
 
@@ -886,23 +879,18 @@ class ScrapController extends Controller
                 "country"       => isset($receivedJson->properties->country) ? $receivedJson->properties->country : $receivedJson->country,
             ];
 
-            \Log::info("Channel 6.2 passed =>".date("Y-m-d h:i:s"));
             $formatter = (new \App\Services\Products\ProductsCreator)->getGeneralDetails($propertiesArray);
-            \Log::info("Channel 6.3 passed =>".date("Y-m-d h:i:s"));
-
+        
             $color       = \App\ColorNamesReference::getColorRequest($formatter['color'], $receivedJson->url, $receivedJson->title, $receivedJson->description);
-            \Log::info("Channel 6.4 passed =>".date("Y-m-d h:i:s"));
             $composition = $formatter['composition'];
             if (!empty($formatter['composition'])) {
                 $composition = \App\Compositions::getErpName($formatter['composition']);
             }
-            \Log::info("Channel 6.5 passed =>".date("Y-m-d h:i:s"));
-
+        
             $description = $receivedJson->description;
             if (!empty($receivedJson->description)) {
                 $description = \App\DescriptionChange::getErpName($receivedJson->description);
             }
-            \Log::info("Channel 6.6 passed =>".date("Y-m-d h:i:s"));
 
             // Set basic data
             if (empty($product->name)) {
@@ -977,20 +965,16 @@ class ScrapController extends Controller
 
             //$product->status_id = StatusHelper::$autoCrop;
             // Save
-            \Log::info("Channel 6.7 passed =>".date("Y-m-d h:i:s"));
             $product->save();
-            \Log::info("Channel 7 passed =>".date("Y-m-d h:i:s"));
 
             // Check if we have images
             $product->attachImagesToProduct($receivedJson->images);
-            \Log::info("Channel 8 passed =>".date("Y-m-d h:i:s"));
 
             if (isset($receivedJson->website)) {
                 $supplierModel = Supplier::leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($receivedJson) {
                     $query->where('supplier', '=', $receivedJson->website)->orWhere('sc.scraper_name', '=', $receivedJson->website);
                 })->first();
 
-                \Log::info("Channel 9 passed =>".date("Y-m-d h:i:s"));
 
                 if ($supplierModel) {
                     $productSupplier = \App\ProductSupplier::where("supplier_id", $supplierModel->id)->where("product_id", $product->id)->first();
@@ -999,8 +983,6 @@ class ScrapController extends Controller
                         $productSupplier->supplier_id = $supplierModel->id;
                         $productSupplier->product_id  = $product->id;
                     }
-
-                    \Log::info("Channel 10 passed =>".date("Y-m-d h:i:s"));
 
                     $productSupplier->title         = $receivedJson->title;
                     $productSupplier->description   = $description;
@@ -1015,12 +997,8 @@ class ScrapController extends Controller
                 }
             }
 
-            \Log::info("Channel 11 passed =>".date("Y-m-d h:i:s"));
-
             // Update scrape_queues by product ID
             ScrapeQueues::where('done', 0)->where('product_id', $product->id)->update(['done' => 1]);
-
-            \Log::info("Channel 12 passed =>".date("Y-m-d h:i:s"));
             //$scrapedProduct->save();
             // Return response
             return response()->json([
