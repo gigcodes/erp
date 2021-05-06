@@ -350,15 +350,34 @@ class SupplierController extends Controller
       }
 		
 		}
-        $supplier = Supplier::create($data);
-
-        if ($supplier->id > 0) {
-            \App\Scraper::create([
-                "supplier_id" => $supplier->id,
-                "scraper_name" => $request->get("scraper_name", ""),
-                "inventory_lifetime" => $request->get("inventory_lifetime", ""),
-            ]);
-        }
+        $scrapper_name = preg_replace("/\s+/", "", $request->supplier);
+        $scrapper_name = strtolower($scrapper_name);
+        $supplier = Supplier::where('supplier',$scrapper_name)->get();
+        if(empty($supplier)){
+          $supplier = Supplier::create($data);
+          if ($supplier->id > 0) {
+              $scraper = \App\Scraper::create([
+                  "supplier_id" => $supplier->id,
+                  "scraper_name" => $request->get("scraper_name", $scrapper_name),
+                  "inventory_lifetime" => $request->get("inventory_lifetime", ""),
+              ]);
+          }
+          $supplier->scrapper = $scraper->id;
+          $supplier->save();
+        }else{
+          $scraper = \App\Scraper::where('scraper_name',$scrapper_name)->get();
+          if(empty($scraper)){
+            $scraper = \App\Scraper::create([
+                  "supplier_id" => $supplier->id,
+                  "scraper_name" => $request->get("scraper_name", $scrapper_name),
+                  "inventory_lifetime" => $request->get("inventory_lifetime", ""),
+              ]);
+            $supplier->scrapper = $scraper->id;
+            $supplier->save();
+          }else{
+            $supplier->scrapper = $scraper->id;
+            $supplier->save();
+          }
 
         if(!empty($source)) {
           return redirect()->back()->withSuccess('You have successfully saved a supplier!');
