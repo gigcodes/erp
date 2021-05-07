@@ -13,7 +13,7 @@ class CreateAgentCallStatusTable extends Migration
      */
     public function up()
     {
-        Schema::create('agent_call_status', function (Blueprint $table) {
+        Schema::create('agent_call_statuses', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('agent_id')->nullable();
             $table->string('agent_name')->nullable();

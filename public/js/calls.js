@@ -94,10 +94,14 @@
 		bMute = false;
 	}
 
-	function loadTwilioDevice(token) {
+	function loadTwilioDevice(token,agent) {
 		const $confirmModal = $('#receive-call-popup');
 
-		device = new Twilio.Device(token, {debug: true, allowIncomingWhileBusy: true});
+		device = new Twilio.Device(token, {debug: true, allowIncomingWhileBusy: true, audioConstraints: {
+			mandatory: { 
+				googAutoGainControl: false 
+			} 
+		} });
 		// Twilio.Device.setup(token, {debug: true});
 		device.on('ready', function () {
 			$("*[data-twilio-call]").each(function () {
@@ -125,16 +129,18 @@
 				var numberToCall = $(this).data('phone');
 				var context = $(this).data('context');
 				var numberCallFrom = $(this).children("option:selected").val();
+				var auth_id = $(this).data('auth-id');
 				$('#show' + id).hide();
 				console.log(id);
 				console.log(numberToCall);
 				console.log(context);
 				console.log(numberCallFrom);
+				console.log(auth_id);
 
 				if (!numberToCall.toString().startsWith("+")) {
 					numberToCall = "+" + $(this).data('phone').toString();
 				}
-				callNumber(numberCallFrom, numberToCall, context, id);
+				callNumber(numberCallFrom, numberToCall, context, id, auth_id);
 			});
 
 			$(document).on('click', '.conference-twilio', function () {
@@ -160,6 +166,20 @@
 		});
 
 		device.on('disconnect', function (conn) {
+
+			var auth_id = $('.call-twilio ').attr('data-auth-id');
+
+			$.ajax({
+				url: '/twilio/change_agent_status',
+				type: 'POST',
+				dataType: 'json',
+				data: {
+					_token: "{{ csrf_token() }}",
+					authid : auth_id,
+					status: 0,
+				},
+			})
+
 			cleanup();
 		});
 
@@ -201,10 +221,14 @@
 					$('.call__to').html(conn.customParameters.get('phone'))
 				}
 
-
 				$confirmModal.modal('show');
+				$confirmModal.modal({
+					backdrop: 'static',
+					keyboard: false
+				});
+
 				$buttonForAnswer.off().one('click', function () {
-					
+
 					$confirmModal.modal('hide');
 
 					sendTwilioEvents({
@@ -215,10 +239,25 @@
 						AccountSid: conn.parameters.AccountSid
 					})
 					flagAboutAnswer = false;
+
+					var auth_id = $('.call-twilio ').attr('data-auth-id');
+
+					$.ajax({
+						url: '/twilio/change_agent_call_status',
+						type: 'POST',
+						dataType: 'json',
+						data: {
+							_token: "{{ csrf_token() }}",
+							authid : auth_id,
+							status: 1,
+						},
+					})
+
 					conn.accept();
 				});
 
 				$buttonForCancelledCall.off().one('click', function () {
+
 					$confirmModal.modal('hide');
 					sendTwilioEvents({
 						status: 'busy',
@@ -228,6 +267,19 @@
 						AccountSid: conn.parameters.AccountSid
 					})
 					flagAboutAnswer = false
+
+					var auth_id = $('.call-twilio ').attr('data-auth-id');
+
+					$.ajax({
+						url: '/twilio/change_agent_status',
+						type: 'POST',
+						dataType: 'json',
+						data: {
+							_token: "{{ csrf_token() }}",
+							authid : auth_id,
+							status: 0,
+						},
+					})
 					conn.reject();
 				});
 			});
@@ -238,15 +290,34 @@
 		});
 
 		device.on('cancel', function (conn) {
-			sendTwilioEvents({
-				status: 'no-answer',
-				From:  conn.parameters.From,
-				To: conn.customParameters.get('phone'),
-				CallSid: conn.parameters.CallSid,
-				AccountSid: conn.parameters.AccountSid
-			});
-			$confirmModal.modal('hide');
-			showError("Call Cancelled");
+
+			var agent_id = 'client:'+agent;
+
+			if(agent_id == conn.parameters.To)
+			{
+				sendTwilioEvents({
+					status: 'no-answer',
+					From:  conn.parameters.From,
+					To: conn.customParameters.get('phone'),
+					CallSid: conn.parameters.CallSid,
+					AccountSid: conn.parameters.AccountSid
+				});
+				$confirmModal.modal('hide');
+				showError("Call Cancelled");
+
+				var auth_id = $('.call-twilio ').attr('data-auth-id');
+
+				$.ajax({
+					url: '/twilio/change_agent_status',
+					type: 'POST',
+					dataType: 'json',
+					data: {
+						_token: "{{ csrf_token() }}",
+						authid : auth_id,
+						status: 0,
+					},
+				})
+			}
 		});
 	}
 
@@ -255,7 +326,7 @@
 			if (!result.empty) {
 				console.log("Received Twilio Token - agent " + result.agent);
 				for (var i in result.twilio_tokens) if (result.twilio_tokens.hasOwnProperty(i)) {
-					loadTwilioDevice(result.twilio_tokens[i]);
+					loadTwilioDevice(result.twilio_tokens[i],result.agent);
 				}
 			} else {
 				console.log("Not Twilio Token - agent or auth user");
@@ -265,6 +336,20 @@
 
 	function callerHangup() {
 		if (currentConnection) currentConnection.disconnect();
+
+		var auth_id = $('.call-twilio ').attr('data-auth-id');
+
+		$.ajax({
+			url: '/twilio/change_agent_status',
+			type: 'POST',
+			dataType: 'json',
+			data: {
+				_token: "{{ csrf_token() }}",
+				authid : auth_id,
+				status: 0,
+			},
+		})
+
 		device.disconnectAll();
 	}
 
@@ -282,7 +367,7 @@
 		}
 	}
 
-	function callNumber(numberCallFrom, number, context, id) {
+	function callNumber(numberCallFrom, number, context, id, auth_id) {
 		var conn = device.activeConnection();
 		if (conn) {
 			alert("Please hangup current call before dialing new number..");
@@ -295,7 +380,7 @@
 		callingText += "<br/><button class='btn btn-danger' onclick='callerHangup()'>Hangup</button>";
 
 		showWarning(callingText, longNotifOpts);
-		var params = {"CallNumber": numberCallFrom, "PhoneNumber": number, "context": context, "internalId": id};
+		var params = {"CallNumber": numberCallFrom, "PhoneNumber": number, "context": context, "internalId": id, "AuthId": auth_id};
 		console.log("Dialer_StartCall call params", params);
 		device.connect(params);
 	}
