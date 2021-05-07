@@ -12,40 +12,29 @@ class DatabaseTableController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request, $id)
     {
-        $databaseHis = DatabaseTableHistoricalRecord::latest();
-
-        $customRange = $request->get("customrange");
-
-        if(!empty($customRange)) {
-            $range = explode(" - ",$customRange);
-            if(!empty($range[0])) {
-               $startDate = $range[0];
-            }
-            if(!empty($range[1])) {
-               $endDate = $range[1];
-            }
+        if($id){
+            $databaseHis = DatabaseTableHistoricalRecord::where('database_id',$id)
+                ->crossJoin('database_historical_records', 'database_table_historical_records.database_id', '=', 'database_historical_records.id')
+                ->select('database_table_historical_records.*', 'database_historical_records.database_name as database');
+        }else{
+            $databaseHis = DatabaseTableHistoricalRecord::latest()
+            ->crossJoin('database_historical_records', 'database_table_historical_records.database_id', '=', 'database_historical_records.id')
+                ->select('database_table_historical_records.*', 'database_historical_records.database_name as database');    
         }
-
-        if(!empty($startDate)) {
-            $databaseHis = $databaseHis->whereDate("created_at",">=",$startDate);
-        }
-
-        if(!empty($endDate)) {
-            $databaseHis = $databaseHis->whereDate("created_at","<=",$endDate);
-        }
-
+        
         $databaseHis = $databaseHis->paginate(20);
 
         $page = $databaseHis->currentPage();
+        //return $databaseHis;
 
         if ($request->ajax()) {
             $tml = (string) view("databasetable.partial.list", compact('databaseHis', 'page'));
             return response()->json(["code" => 200, "tpl" => $tml, "page" => $page]);
         }
 
-        return view('databasetable.index', compact('databaseHis','page'));
+        return view('database.tables', compact('databaseHis','page'));
     }
 
     public function states(Request $request)

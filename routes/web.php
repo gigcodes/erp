@@ -1717,19 +1717,13 @@ Route::prefix('pinterest')->middleware('auth')->group(function () {
 
 Route::prefix('database')->middleware('auth')->group(function () {
     Route::get('/', 'DatabaseController@index')->name("database.index");
+    Route::get('/tables/{id}', 'DatabaseTableController@index')->name("database.tables");
     Route::get('/states', 'DatabaseController@states')->name("database.states");
     Route::get('/process-list', 'DatabaseController@processList')->name("database.process.list");
     Route::get('/process-kill', 'DatabaseController@processKill')->name("database.process.kill");
 });
 
 Route::resource('pre-accounts', 'PreAccountController')->middleware('auth');
-
-Route::prefix('tables')->middleware('auth')->group(function () {
-    Route::get('/', 'DatabaseTableController@index')->name("database.index");
-    Route::get('/states', 'DatabaseTableController@states')->name("database.states");
-    Route::get('/process-list', 'DatabaseTableController@processList')->name("database.process.list");
-    Route::get('/process-kill', 'DatabaseTableController@processKill')->name("database.process.kill");
-});
 
 Route::middleware('auth')->group(function()
 {
