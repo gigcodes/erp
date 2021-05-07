@@ -121,6 +121,14 @@
                                     <label class="mt-3">Instance Url</label>
                                     <input type="text" class="form-control" name="url" required/>
                                 </div>
+                                <div class="col-md-12">
+                                    <label class="mt-3">Usre name</label>
+                                    <input type="text" class="form-control" name="user_name" required/>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="mt-3">Password</label>
+                                    <input type="text" class="form-control" name="password" required/>
+                                </div>
 
                             </div>
                         </div>
@@ -171,6 +179,14 @@
                                 <div class="col-md-12 mt-3">
                                     <label>Instance Url</label>
                                     <input type="text" class="form-control" id="instance_url" name="url" required/>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="mt-3">Usre name</label>
+                                    <input type="text" class="form-control" id="user_name_field" name="user_name" required/>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="mt-3">Password</label>
+                                    <input type="text" class="form-control" id="password" name="password" required/>
                                 </div>
                                 <div class="col-md-12 mt-3">
                                     <label>Is active</label>
@@ -238,6 +254,8 @@
                     $('#account_id').val(response.account.id);
                     $('#work_space_id').val(response.account.work_space_id);
                     $('#assistant_id').val(response.account.assistant_id);
+                    $('#user_name_field').val(response.account.user_name);
+                    $('#password').val(response.account.password);
                     if (response.account.is_active) {
                         $("#is_active").prop("checked", true);
                     } else {
