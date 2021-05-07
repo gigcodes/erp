@@ -134,7 +134,7 @@ class CucProductDataEmulator
 
 
                         $client = new Client();
-                        $response = $client->request('POST', 'https://erp.amourint.com/api/scrap-products/add', [
+                        $response = $client->request('POST', 'https://erp.theluxuryunlimited.com/api/scrap-products/add', [
                             'form_params' => [
                                 'sku' => $sku,
                                 'website' => 'cuccuini',

@@ -67,7 +67,7 @@ class ProcessCommentsFromLocalServerCompetitors extends Command
                     $ch = curl_init();
 
                 // set url
-                curl_setopt($ch, CURLOPT_URL, "https://erp.amourint.com/api/instagram/get-hashtag-list");
+                curl_setopt($ch, CURLOPT_URL, "https://erp.theluxuryunlimited.com/api/instagram/get-hashtag-list");
 
                 //return the transfer as a string
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -223,7 +223,7 @@ class ProcessCommentsFromLocalServerCompetitors extends Command
                     }
 
                     $details = ['post' => $postData , 'userdetials' => $userData,'comments' => $postComments];    
-                    $url = 'https://erp.amourint.com/api/local/instagram-post';
+                    $url = 'https://erp.theluxuryunlimited.com/api/local/instagram-post';
 
                     //Initiate cURL.
                     $ch = curl_init($url);
