@@ -111,7 +111,7 @@
             <button type="submit" class="btn btn-primary" onclick="document.getElementById('download').value = 2;">
                 Download
             </button>
-            <button class="btn btn-image">
+            <button class="btn btn-image" onclick="document.getElementById('download').value = 1;">
                 <img src="{{ asset('images/search.png') }}" alt="Search">
             </button>
         </div>

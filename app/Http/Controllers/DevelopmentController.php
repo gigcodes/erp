@@ -505,21 +505,24 @@ class DevelopmentController extends Controller
         $issues =  $issues->with('communications');
         //DB::enableQueryLog();
         // return $issues = $issues->limit(20)->get();
-        $issues = $issues->paginate(Setting::get('pagination'));
+        
         //dd(DB::getQueryLog());
 
         if($request->download == 2){
+            $issues = $issues->get();
             $tasks_csv = [];
             foreach ($issues as $value) {
                 $task_csv = [];
-                $task_csv['id'] = $value->id;
+                $task_csv['ID'] = $value->id;
                 $task_csv['Subject'] = $value->subject;
-                $task_csv['communication'] = $value->message;
-                $task_csv['developer'] = $value->team_lead_id;
+                $task_csv['Communication'] = $value->message;
+                $task_csv['Developer'] = ($value->assignedUser) ? $value->assignedUser->name : 'Unassigned';
                 array_push($tasks_csv,$task_csv);
             }
 
             $this->outputCsv('downaload-task-summaries.csv', $tasks_csv);
+        }else{
+            $issues = $issues->paginate(Setting::get('pagination'));
         }
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
@@ -560,8 +563,10 @@ class DevelopmentController extends Controller
                 fputcsv($fp, $values);
             }
             fclose($fp);
+            return redirect()->route('development.issue');
             exit();
         }
+        return redirect()->route('development.issue');
     }
 
       public function summaryList(Request $request)
