@@ -1887,7 +1887,7 @@ class ScrapController extends Controller
      */
     public function scraperNeeded(Request $request)
     {
-        $products = Product::where("status_id", StatusHelper::$sendtoExternalScraper)
+        $products = Product::where("status_id", StatusHelper::$requestForExternalScraper)
             ->leftJoin('brands', function ($join) {
                 $join->on('products.brand', '=', 'brands.id');
             })
