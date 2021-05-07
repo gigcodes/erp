@@ -46,7 +46,7 @@ class GetPostFromUserLocalInstagram extends Command
             $ch = curl_init();
 
             // set url
-            curl_setopt($ch, CURLOPT_URL, "https://erp.amourint.com/api/local/instagram-user-post");
+            curl_setopt($ch, CURLOPT_URL, "https://erp.theluxuryunlimited.com/api/local/instagram-user-post");
 
             //return the transfer as a string
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -177,7 +177,7 @@ class GetPostFromUserLocalInstagram extends Command
                     $details = ['post' => $postData , 'userdetials' => $userData,'comments' => $postComments];    
                     
                     
-                    $url = 'https://erp.amourint.com/api/local/instagram-post';
+                    $url = 'https://erp.theluxuryunlimited.com/api/local/instagram-post';
 
                     //Initiate cURL.
                     $ch = curl_init($url);
