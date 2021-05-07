@@ -309,6 +309,10 @@ class LaravelLogController extends Controller
         }
 
         $controller_name = $request->controller_name;
+        if(!empty($request->controller)) {
+            $controller_name = $request->controller;
+        }
+
         $action          = $request->action;
 
         if ($url == '') {
