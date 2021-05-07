@@ -2919,4 +2919,12 @@ Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@s
 Route::get('product-pricing', 'product_price\ProductPriceController@index')->name('product.pricing');
 // Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 
-
+Route::group(['middleware' => 'auth', 'admin'], function () {
+    Route::prefix('plan')->group(static function () {
+        Route::get('/', 'PlanController@index')->name('plan.index');
+        Route::post('/create', 'PlanController@store')->name('plan.store');
+        Route::get('/edit', 'PlanController@edit')->name('plan.edit');
+        Route::post('/{id}/update', 'PlanController@update')->name('plan.update');
+        Route::get('/delete/{id}', 'PlanController@delete')->name('plan.delete');
+    });
+});
