@@ -5,11 +5,11 @@ namespace App\Helpers;
 use App\ChatMessagesQuickData;
 use App\Library\Watson\Model as WatsonManager;
 use Carbon\Carbon;
+use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use \App\ChatMessage;
 use \App\Product;
-use GuzzleHttp\Client as GuzzleClient;
 
 class MessageHelper
 {
@@ -19,8 +19,8 @@ class MessageHelper
         "the",
     ];
 
-    CONST AUTO_LEAD_SEND_PRICE = 281;
-    CONST AUTO_DIMENSION_SEND = 7;
+    const AUTO_LEAD_SEND_PRICE = 281;
+    const AUTO_DIMENSION_SEND  = 7;
 
     const TXT_PREPOSITIONS = [
         "aboard",
@@ -158,7 +158,7 @@ class MessageHelper
                 }
             }
 
-            \Log::info("Keyword assign found".count($keywordassign));
+            \Log::info("Keyword assign found" . count($keywordassign));
 
             if (count($keywordassign) > 0) {
                 $task_array = array(
@@ -190,7 +190,7 @@ class MessageHelper
                         \Log::channel('whatsapp')->info("Auto section parent message  lead pricefound started for customer id : " . $customer->id);
                         $parentMessage->sendLeadPrice($customer);
                     }
-                }elseif ($keywordassign[0]->assign_to == self::AUTO_DIMENSION_SEND) {
+                } elseif ($keywordassign[0]->assign_to == self::AUTO_DIMENSION_SEND) {
                     \Log::channel('whatsapp')->info("Auto section started for dimesion customer id : " . $customer->id);
                     if (!empty($parentMessage)) {
                         \Log::channel('whatsapp')->info("Auto section parent message dimesion found started for customer id : " . $customer->id);
@@ -219,7 +219,7 @@ class MessageHelper
                             'status'            => 2,
                             'task_id'           => $taskid,
                             'message'           => $task_info[0]->task_details,
-                            'quoted_message_id' => ($messageModel) ? $messageModel->quoted_message_id : null
+                            'quoted_message_id' => ($messageModel) ? $messageModel->quoted_message_id : null,
                         ];
 
                         if ($sendMsg === true) {
@@ -257,11 +257,11 @@ class MessageHelper
      * @param $message [ string ]
      * @return mixed
      */
-    public static function sendwatson($customer = null, $message = null, $sendMsg = null, $messageModel = null,$params = [], $isEmail = null, $userType = null)
+    public static function sendwatson($customer = null, $message = null, $sendMsg = null, $messageModel = null, $params = [], $isEmail = null, $userType = null)
     {
         $isReplied = 0;
 
-        if( $userType !== 'vendor' ){
+        if ($userType !== 'vendor') {
             \Log::info("#2 Price for customer vendor condition passed");
             if ((preg_match("/price/i", $message) || preg_match("/you photo/i", $message) || preg_match("/pp/i", $message) || preg_match("/how much/i", $message) || preg_match("/cost/i", $message) || preg_match("/rate/i", $message))) {
                 \Log::info("#3 Price for customer message condition passed");
@@ -287,13 +287,13 @@ class MessageHelper
                     // check the last message send for price
                     $lastChatMessage = \App\ChatMessage::getLastImgProductId($customer->id);
                     if ($lastChatMessage) {
-                        \Log::info("#5 last message condition found".$lastChatMessage->id);
+                        \Log::info("#5 last message condition found" . $lastChatMessage->id);
                         if ($lastChatMessage->hasMedia(config('constants.attach_image_tag'))) {
                             \Log::info("#6 last message has media found");
                             $lastImg = $lastChatMessage->getMedia(config('constants.attach_image_tag'))->sortByDesc('id')->first();
                             \Log::info("#7 last message get media found");
                             if ($lastImg) {
-                                \Log::info("#8 last message media found ".$lastImg->id);
+                                \Log::info("#8 last message media found " . $lastImg->id);
                                 $mediable = \DB::table("mediables")->where("media_id", $lastImg->id)->where('mediable_type', Product::class)->first();
                                 if (!empty($mediable)) {
                                     \Log::info("#9 last message mediable found");
@@ -306,8 +306,8 @@ class MessageHelper
                                         $temp_img_params['message']   = "Price : " . $priceO;
                                         $temp_img_params['media_url'] = null;
                                         $temp_img_params['status']    = 2;
-                                        $temp_img_params['is_email']    = ( $isEmail == 1 ) ? 1 : 0;
-                                        $temp_img_params['is_draft']    = ( $isEmail == 1 ) ? 1 : 0;
+                                        $temp_img_params['is_email']  = ($isEmail == 1) ? 1 : 0;
+                                        $temp_img_params['is_draft']  = ($isEmail == 1) ? 1 : 0;
                                         // Create new message
                                         \App\ChatMessage::create($temp_img_params);
                                     }
@@ -360,14 +360,37 @@ class MessageHelper
         }
 
         if (!empty($message)) {
+
+            // auto mated reply here
+            $auto_replies = \App\AutoReply::where('is_active', 1)->get();
+            if (!$auto_replies->isEmpty()) {
+                foreach ($auto_replies as $auto_reply) {
+                    if (preg_match("/{$auto_reply->keyword}/i", strtolower(trim($message))) && $auto_reply->reply) {
+                        $temp_params              = $params;
+                        $temp_params['message']   = $auto_reply->reply;
+                        $temp_params['media_url'] = null;
+                        $temp_params['status']    = 8;
+                        // Create new message
+                        $messageModel = ChatMessage::create($temp_params);
+                        // Send message if all required data is set
+                        if ($temp_params['message'] || $temp_params['media_url']) {
+                            $sendResult = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone, $customer->whatsapp_number, $temp_params['message']);
+                            if ($sendResult) {
+                                $messageModel->unique_id = $sendResult['id'] ?? '';
+                                $messageModel->save();
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
             $replies = \App\ChatbotQuestion::join('chatbot_question_examples', 'chatbot_questions.id', 'chatbot_question_examples.chatbot_question_id')
                 ->join('chatbot_questions_reply', 'chatbot_questions.id', 'chatbot_questions_reply.chatbot_question_id')
                 ->where('chatbot_questions_reply.store_website_id', ($customer->store_website_id) ? $customer->store_website_id : 1)
                 ->select('chatbot_questions.value', 'chatbot_questions.keyword_or_question', 'chatbot_questions.erp_or_watson', 'chatbot_questions.auto_approve', 'chatbot_question_examples.question', 'chatbot_questions_reply.suggested_reply')
                 ->where('chatbot_questions.erp_or_watson', 'erp')
                 ->get();
-
-            
 
             if ($messageModel) {
                 $chatbotReply = \App\ChatbotReply::create([
