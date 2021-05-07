@@ -481,7 +481,7 @@ class GoogleCampaignsController extends Controller
         );
         /* $targetSetting=new TargetingSetting();
         $targetSettingDetails=new TargetingSettingDetail();
-        $criteriaTargetingSetting=$targetSettingDetails->setCriterionTypeGroup('erp.amourint.com');
+        $criteriaTargetingSetting=$targetSettingDetails->setCriterionTypeGroup('erp.theluxuryunlimited.com');
         $targetSettingData=$targetSetting->setDetails([$criteriaTargetingSetting]); */
         $shoppingSetting=array();
         if($channel_type==="SHOPPING"){
