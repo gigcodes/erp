@@ -1902,7 +1902,10 @@ class ScrapController extends Controller
 
             ->get()
             ->toArray();
-
+        foreach ($products as $value) {
+            $products->status_id = StatusHelper::$sendtoExternalScraper;
+            $products->save();
+        }
         return response()->json($products);
     }
 
