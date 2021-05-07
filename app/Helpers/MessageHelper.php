@@ -158,6 +158,8 @@ class MessageHelper
                 }
             }
 
+            \Log::info("Keyword assign found".count($keywordassign));
+
             if (count($keywordassign) > 0) {
                 $task_array = array(
                     "category"     => 42,
@@ -183,15 +185,15 @@ class MessageHelper
                 // then send price and deal
                 \Log::channel('whatsapp')->info("Price Lead section started for customer id : " . $customer->id);
                 if ($keywordassign[0]->assign_to == self::AUTO_LEAD_SEND_PRICE) {
-                    \Log::channel('whatsapp')->info("Auto section started for customer id : " . $customer->id);
+                    \Log::channel('whatsapp')->info("Auto section started lead price for customer id : " . $customer->id);
                     if (!empty($parentMessage)) {
-                        \Log::channel('whatsapp')->info("Auto section parent message found started for customer id : " . $customer->id);
+                        \Log::channel('whatsapp')->info("Auto section parent message  lead pricefound started for customer id : " . $customer->id);
                         $parentMessage->sendLeadPrice($customer);
                     }
                 }elseif ($keywordassign[0]->assign_to == self::AUTO_DIMENSION_SEND) {
-                    \Log::channel('whatsapp')->info("Auto section started for customer id : " . $customer->id);
+                    \Log::channel('whatsapp')->info("Auto section started for dimesion customer id : " . $customer->id);
                     if (!empty($parentMessage)) {
-                        \Log::channel('whatsapp')->info("Auto section parent message found started for customer id : " . $customer->id);
+                        \Log::channel('whatsapp')->info("Auto section parent message dimesion found started for customer id : " . $customer->id);
                         $parentMessage->sendLeadDimention($customer);
                     }
                 }
