@@ -45,7 +45,9 @@ class WatsonController extends Controller
             'api_key' => 'required|string',
             'work_space_id' => 'required|string',
             'assistant_id' => 'required|string',
-            'url' => 'required|string'
+            'url' => 'required|string',
+            'user_name' => 'required|string',
+            'password' => 'required|string'
         ]);
         WatsonAccount::create($request->all());
         return response()->json(['code' => 200, 'message' => 'Account Successfully created']);
