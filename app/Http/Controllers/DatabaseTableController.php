@@ -24,6 +24,10 @@ class DatabaseTableController extends Controller
                 ->select('database_table_historical_records.*', 'database_historical_records.database_name as database');    
         }
         
+        if($request->table_name){
+            $databaseHis = $databaseHis->where('database_table_historical_records.database_name','like','%'.$request->table_name.'%');
+        }
+        $databaseHis = $databaseHis->orderBy('database_table_historical_records.size', 'desc');
         $databaseHis = $databaseHis->paginate(20);
 
         $page = $databaseHis->currentPage();

@@ -15,7 +15,25 @@
 	    <h2 class="page-heading">Size | Tables</h2>
 	</div>
 </div>
-
+<div class="row">
+    <div class="col-lg-12 margin-tb" style="margin-bottom: 10px;">
+        <form id="message-fiter-handler" action="" method="GET">
+          <div class="pull-left">
+            <div class="form-group">
+              <input type="text" name="table_name">
+            </div>
+          </div>  
+          <div class="pull-left">
+                <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-filter-report">
+            <img src="/images/search.png" style="cursor: default;">
+          </button>
+          <a style="display: inline-block;width: 10%" class="btn btn-sm btn-image" href="?">
+            <img src="/images/clear-filters.png" style="cursor: default;">
+          </a>
+          </div>
+    </form>
+    </div>
+</div>
 <div class="row">
   <div class="col-md-12">
     <div class="table-responsive-lg" id="page-view-result">
