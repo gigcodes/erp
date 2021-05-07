@@ -191,20 +191,8 @@ class MessageHelper
                 }elseif ($keywordassign[0]->assign_to == self::AUTO_DIMENSION_SEND) {
                     \Log::channel('whatsapp')->info("Auto section started for customer id : " . $customer->id);
                     if (!empty($parentMessage)) {
-
                         \Log::channel('whatsapp')->info("Auto section parent message found started for customer id : " . $customer->id);
-
-                        $products = DB::table('leads')
-                        ->select('*')
-                        ->where('id', '=',$parentMessage->lead_id)
-                        ->get();
-                        if(!empty($products[0]->selected_product)){
-                            $requestData = new Request();
-                            $requestData->setMethod('POST');
-                            $requestData->request->add(['customer_id' => $customer->id, 'dimension' => true, 'selected_product' => $products[0]->selected_product]);
-
-                            app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
-                        }
+                        $parentMessage->sendLeadDimention($customer);
                     }
                 }
 
