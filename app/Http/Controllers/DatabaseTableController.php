@@ -36,22 +36,4 @@ class DatabaseTableController extends Controller
 
         return view('database.tables', compact('databaseHis','page'));
     }
-
-    public function states(Request $request)
-    {
-
-        return view('databasetable.states');
-
-    }
-
-    public function processList()
-    {
-        return response()->json(["code" => 200 , "records" => \DB::select("show processlist")]);
-    }
-
-    public function processKill(Request $request)
-    {
-        $id = $request->get("id");
-        return response()->json(["code" => 200 , "records" => \DB::statement("KILL $id")]);
-    }
 }

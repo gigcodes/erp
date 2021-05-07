@@ -10,7 +10,7 @@
 <?php if (!empty($databaseHis)) {?>
     <?php foreach ($databaseHis as $pam) {?>
         <tr>
-          <td>{{ $pam->database_name }}</td>
+          <td><a href="{{ action('DatabaseTableController@index', $pam->id) }}">{{ $pam->database_name }}</td>
           <td>{{ $pam->size }}</td>
           <td>{{ $pam->created_at }}</td>
         </tr>
