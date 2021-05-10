@@ -37,8 +37,8 @@ use Auth;
 use Validator;
 class SupplierController extends Controller
 {
-  
-  const DEFAULT_FOR = 3;//For Supplier
+	
+	const DEFAULT_FOR = 3;//For Supplier
     /**
      * Add/Edit Remainder functionality
      */
@@ -88,11 +88,11 @@ class SupplierController extends Controller
         /*if ( $status != '' ) {
           $typeWhereClause .= ' AND status=1';
         }*/
-    
-    if($supplier_price_range_id != '')
-    {
-      $typeWhereClause .= ' AND supplier_price_range_id=' . $supplier_price_range_id;
-    }
+		
+		if($supplier_price_range_id != '')
+		{
+			$typeWhereClause .= ' AND supplier_price_range_id=' . $supplier_price_range_id;
+		}
 
         if ($supplier_category_id != '') {
             $typeWhereClause .= ' AND supplier_category_id=' . $supplier_category_id;
@@ -212,7 +212,7 @@ class SupplierController extends Controller
                   brands LIKE "%' . $term . '%" OR
                    suppliers.id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%")))))' . $typeWhereClause . '
                   ORDER BY last_communicated_at DESC, status DESC
-              ');
+							');
         }
         $suppliers_all = Supplier::where(function ($query) {
             $query->whereNotNull('email')->orWhereNotNull('default_email');
@@ -254,15 +254,15 @@ class SupplierController extends Controller
 
         $whatsappConfigs = WhatsappConfig::where('provider','LIKE','%Chat-API%')->get();
 
-    //Get All Product Supplier
-    $allSupplierProduct = [];//DB::select('SELECT ps.product_id, ps.supplier_id, pp.name, ss.supplier FROM product_suppliers ps JOIN suppliers ss on ps.supplier_id = ss.id JOIN products pp on ps.product_id = pp.id');
-    
-    //Get All supplier price range
-    $allSupplierPriceRanges = SupplierPriceRange::select("supplier_price_range.*",DB::raw("CONCAT(supplier_price_range.price_from,'-',supplier_price_range.price_to) as full_range"))->get()->toArray();
-    /* echo "<pre>";
-    print_r($allSupplierPriceRanges);
-    exit; */
-    $reply_categories = ReplyCategory::all();
+		//Get All Product Supplier
+		$allSupplierProduct = [];//DB::select('SELECT ps.product_id, ps.supplier_id, pp.name, ss.supplier FROM product_suppliers ps JOIN suppliers ss on ps.supplier_id = ss.id JOIN products pp on ps.product_id = pp.id');
+		
+		//Get All supplier price range
+		$allSupplierPriceRanges = SupplierPriceRange::select("supplier_price_range.*",DB::raw("CONCAT(supplier_price_range.price_from,'-',supplier_price_range.price_to) as full_range"))->get()->toArray();
+		/* echo "<pre>";
+		print_r($allSupplierPriceRanges);
+		exit; */
+		$reply_categories = ReplyCategory::all();
     $sizeSystem = \App\SystemSize::pluck('name', 'id')->toArray();
 
     return view('suppliers.index', [
@@ -327,7 +327,7 @@ class SupplierController extends Controller
             'gst' => 'sometimes|nullable|max:255',
             //'supplier_status_id' => 'required'
         ]);
-    
+		
         $data = $request->except('_token');
         $data[ 'default_phone' ] = $request->phone ?? '';
         $data[ 'default_email' ] = $request->email ?? '';
@@ -338,18 +338,18 @@ class SupplierController extends Controller
            $data["supplier_status_id"] = 0;
         }
 
-    //get default whatsapp number for vendor from whatsapp config
-    if(empty($data["whatsapp_number"]))  {
-      $task_info = DB::table('whatsapp_configs')
-            ->select('*')
-            ->whereRaw("find_in_set(".self::DEFAULT_FOR.",default_for)")
-            ->first();
+		//get default whatsapp number for vendor from whatsapp config
+		if(empty($data["whatsapp_number"]))  {
+			$task_info = DB::table('whatsapp_configs')
+						->select('*')
+						->whereRaw("find_in_set(".self::DEFAULT_FOR.",default_for)")
+						->first();
 
       if($task_info){
-         $data["whatsapp_number"] = $task_info->number;
+			   $data["whatsapp_number"] = $task_info->number;
       }
-    
-    }
+		
+		}
         $scrapper_name = preg_replace("/\s+/", "", $request->supplier);
         $scrapper_name = strtolower($scrapper_name);
         $supplier = Supplier::where('supplier',$scrapper_name)->get();
@@ -378,7 +378,6 @@ class SupplierController extends Controller
             $supplier->scrapper = $scraper->id;
             $supplier->save();
           }
-        }
 
         if(!empty($source)) {
           return redirect()->back()->withSuccess('You have successfully saved a supplier!');
@@ -405,14 +404,12 @@ class SupplierController extends Controller
         $supplierstatus = SupplierStatus::pluck('name', 'id');
         $new_category_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id' => 'category'])->renderAsDropdown();
         $locations = \App\ProductLocation::pluck("name","name");
-        $scrapers = \App\Scraper::where('id',$supplier->scrapper)->get();
 
         $category_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id'  => 'category_selection'])
                                               ->renderAsDropdown();
 
         return view('suppliers.show', [
             'supplier' => $supplier,
-            'scrapers' => $scrapers,
             'reply_categories' => $reply_categories,
             'users_array' => $users_array,
             'emails' => $emails,
@@ -1800,9 +1797,9 @@ public function changeWhatsapp(Request $request)
     }
 
     public function sendMessage(Request $request)
-  {
+	{
         // return $request->all();
-    $suppliers = Supplier::whereIn('id', $request->suppliers)->get();
+		$suppliers = Supplier::whereIn('id', $request->suppliers)->get();
         $params = [];
         if(count($suppliers)) {
             foreach($suppliers as $key => $item) {
@@ -1824,18 +1821,18 @@ public function changeWhatsapp(Request $request)
         // return $params;
 
         return response()->json(["code" => 200, "data" => [], "message" => "Message sent successfully"]);
-  }
-  
-  
-  public function addPriceRange(Request $request)
+	}
+	
+	
+	public function addPriceRange(Request $request)
     {
         SupplierPriceRange::create($request->all());
         return redirect()->route('supplier.index')->withSuccess('You have successfully saved a price range!');
     }
-  
-  public function changePriceRange(Request $request)
-  {
-    $supplierId = $request->get("supplier_id");
+	
+	public function changePriceRange(Request $request)
+	{
+		$supplierId = $request->get("supplier_id");
         $priceRangeId = $request->get("price_range_id");
 
         if(!empty($supplierId)) {
@@ -1845,5 +1842,5 @@ public function changeWhatsapp(Request $request)
            }
         }
         return response()->json(["code" => 200, "data" => [], "message" => "Price Range updated successfully"]);
-  }
+	}
 }
