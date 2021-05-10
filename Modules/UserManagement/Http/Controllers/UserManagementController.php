@@ -56,6 +56,25 @@ class UserManagementController extends Controller
             $user = User::findorfail($request->user);
             $user->permissions()->attach($request->permission);
             PermissionRequest::where('user_id',$request->user)->where('permission_id',$request->permission)->delete();
+
+            // user need to send message
+            //\App\ChatMessage::sendWithChatApi($act->phone_number, null, $userMessage);
+            $permission = \App\Permission::find($request->permission);
+            $permissionName = "";
+            if($permission) {
+                $permissionName = $permission->name;
+            }
+
+            $params = [];
+            $params['user_id'] = $user->id;
+            $params['message'] = "Your permission request has been approved for the permission :" .$permissionName;
+            // send chat message
+            $chat_message = \App\ChatMessage::create($params);
+            // send
+            app('App\Http\Controllers\WhatsAppController')
+                ->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
+
+
             return response()->json( ["code" => 200 , "data" => 'Permission added Successfully'] );       
         }
         if ( $request->type == 'reject' ) {
