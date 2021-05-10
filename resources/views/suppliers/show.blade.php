@@ -1,2158 +1,1849 @@
-@extends('layouts.app')
+<?php
 
-@section('title', 'Supplier Page')
+namespace App\Http\Controllers;
 
-@section('styles')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/css/dropify.min.css">
+use App\Category;
+use App\Product;
+use App\QuickSellGroup;
+use App\SupplierCategoryCount;
+use App\Brand;
+use App\SupplierBrandCount;
+use App\Supplier;
+use App\Agent;
+use App\ChatMessage;
+use App\Setting;
+use App\ReplyCategory;
+use App\User;
+use App\Helpers;
+use App\Email;
+use App\ProductSupplier;
+use App\SupplierCategory;
+use App\SupplierStatus;
+use App\SupplierPriceRange;
+use App\Mail\PurchaseEmail;
+use App\ReadOnly\SoloNumbers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Pagination\LengthAwarePaginator;
+use App\ProductQuicksellGroup;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use App\SupplierBrandCountHistory;
+use seo2websites\ErpExcelImporter\ErpExcelImporter;
+use App\Marketing\WhatsappConfig;
+use App\SupplierSize;
+use App\SupplierSubCategory;
+use Auth;
+use Validator;
+class SupplierController extends Controller
+{
+  
+  const DEFAULT_FOR = 3;//For Supplier
+    /**
+     * Add/Edit Remainder functionality
+     */
+    public function updateReminder(Request $request)
+    {
+        $supplier = Supplier::find($request->get('supplier_id'));
+        $supplier->frequency = $request->get('frequency');
+        $supplier->reminder_message = $request->get('message');
+        $supplier->save();
 
-    <style>
-        #chat-history {
-            background-color: #EEEEEE;
-            height: 450px;
-            overflow-y: scroll;
-            overflow-x: hidden;
-            width: 100%;
+        return response()->json([
+            'success'
+        ]);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        // $suppliers = Supplier::with('agents')->paginate(Setting::get('pagination'));
+        $solo_numbers = (new SoloNumbers)->all();
+        $term = $request->term ?? '';
+        $type = $request->type ?? '';
+        $supplier_filter = $request->supplier_filter ?? '';
+        $scrappertype = $request->scrappertype ?? '' ;
+        //$status = $request->status ?? '';
+        $supplier_category_id = $request->supplier_category_id ?? '';
+        $supplier_status_id = $request->supplier_status_id ?? '';
+        $supplier_price_range_id = $request->supplier_price_range_id ?? '';
+        $updated_by = $request->updated_by ?? '';
+        $source = $request->get('source') ?? '';
+        $typeWhereClause = '';
+
+        if ($type != '' && $type == 'has_error') {
+            $typeWhereClause = ' AND has_error = 1';
+        }
+        if ($type != '' && $type == 'not_updated') {
+            $typeWhereClause = ' AND is_updated = 0';
+        }
+        if ($type != '' && $type == 'updated') {
+            $typeWhereClause = ' AND is_updated = 1';
         }
 
-        .speech-wrapper .bubble.alt {
-            margin: 0 0 25px 20% !important;
+        /*if ( $status != '' ) {
+          $typeWhereClause .= ' AND status=1';
+        }*/
+    
+    if($supplier_price_range_id != '')
+    {
+      $typeWhereClause .= ' AND supplier_price_range_id=' . $supplier_price_range_id;
+    }
+
+        if ($supplier_category_id != '') {
+            $typeWhereClause .= ' AND supplier_category_id=' . $supplier_category_id;
+        }
+        if ($supplier_status_id != '') {
+            $typeWhereClause .= ' AND supplier_status_id=' . $supplier_status_id;
+        }
+        if ($scrappertype != '') {
+          $typeWhereClause .= ' AND suppliers.scrapper=' . $scrappertype;
+      }
+      if($updated_by != '') {
+           $typeWhereClause .= ' AND updated_by=' . $updated_by;
         }
 
-        .show-images-wrapper {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
+        if($request->status) {
+           $typeWhereClause .= ' AND suppliers.status=' . $request->status;
         }
 
-        .label-attached-img {
-            border: 1px solid #fff;
-            display: block;
-            position: relative;
-            cursor: pointer;
+        if($supplier_filter){
+            $typeWhereClause .= ' AND suppliers.id IN (' . implode(",", $supplier_filter) . ')';
         }
-
-        .label-attached-img:before {
-            background-color: white;
-            color: white;
-            content: " ";
-            display: block;
-            border-radius: 50%;
-            border: 1px solid grey;
-            position: absolute;
-            top: -5px;
-            left: -5px;
-            width: 25px;
-            height: 25px;
-            text-align: center;
-            line-height: 28px;
-            transition-duration: 0.4s;
-            transform: scale(0);
-        }
-
-        :checked + .label-attached-img {
-            border-color: #ddd;
-        }
-
-        :checked + .label-attached-img:before {
-            content: "✓";
-            background-color: grey;
-            transform: scale(1);
-        }
-
-        :checked + .label-attached-img img {
-            transform: scale(0.9);
-            box-shadow: 0 0 5px #333;
-            z-index: -1;
-        }
-
-    </style>
-@endsection
-
-@section('content')
-
-
-    <div class="row">
-        <div class="col-lg-12 margin-tb">
-            <div class="pull-left">
-                <h3>Supplier Page</h3>
-            </div>
-            <div class="pull-right mt-4">
-                <a class="btn btn-xs btn-secondary" href="{{ route('supplier.index') }}">Back</a>
-                {{-- <a class="btn btn-xs btn-secondary" href="#" id="quick_add_lead">+ Lead</a>
-                <a class="btn btn-xs btn-secondary" href="#" id="quick_add_order">+ Order</a>
-                <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#privateViewingModal">Set Up for Private Viewing</button> --}}
-            </div>
-        </div>
-    </div>
-
-    {{-- @include('customers.partials.modal-private-viewing') --}}
-
-    @include('partials.flash_messages')
-
-    <div id="exTab2" class="container">
-        <ul class="nav nav-tabs">
-            <li class="active">
-                <a href="#info-tab" data-toggle="tab">Supplier Info</a>
-            </li>
-            <li>
-                <a href="#agents-tab" data-toggle="tab">Agents</a>
-            </li>
-            <li>
-                <a href="#email-tab" data-toggle="tab" data-supplierid="{{ $supplier->id }}" data-type="inbox">Emails</a>
-            </li>
-            <li>
-                <a href="#brands-tab" data-toggle="tab" data-supplierid="{{ $supplier->id }}" data-type="inbox">Brands</a>
-            </li>
-        </ul>
-    </div>
-    <div class="row">
-        <div class="col-xs-12 col-md-4 border">
-            <div class="tab-content">
-                <div class="tab-pane mt-3" id="brands-tab">
-                    <h2 class="page-heading">Brands</h2>
-                    @if(strlen($supplier->brands) > 4)
-                        @php
-                            $dns = $supplier->brands;
-                            $dns = str_replace('"[', '', $dns);
-                            $dns = str_replace(']"', '', $dns);
-                            $dns = explode(',', $dns);
-                        @endphp
-
-                        @foreach($dns as $dn)
-                            <li>{{ $dn }}</li>
-                        @endforeach
-                    @else
-                        N/A
-                    @endif
-                </div>
-                <div class="tab-pane active mt-3" id="info-tab">
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <div class="form-group form-inline">
-                                <input type="text" name="supplier" id="supplier_supplier" class="form-control input-sm" placeholder="Supplier" value="{{ $supplier->supplier }}">
-
-                                @if ($supplier->is_flagged == 1)
-                                    <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/flagged.png"/></button>
-                                @else
-                                    <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png"/></button>
-                                @endif
-                            </div>
-
-                            <div class="form-group form-inline">
-                                <input type="number" id="supplier_phone" name="phone" class="form-control input-sm" placeholder="910000000000" value="{{ $supplier->phone }}">
-                            </div>
-
-                            <div class="form-group">
-                                <select class="form-control input-sm" name="default_phone" id="supplier_default_phone">
-                                    <option value="">Select Default Phone</option>
-                                    @if ($supplier->phone != '')
-                                        <option value="{{ $supplier->phone }}" {{ $supplier->phone == $supplier->default_phone ? 'selected' : '' }}>{{ $supplier->phone }} - Supplier's Phone</option>
-                                    @endif
-
-                                    @if ($supplier->agents)
-                                        @foreach ($supplier->agents as $agent)
-                                            <option value="{{ $agent->phone }}" {{ $agent->phone == $supplier->default_phone ? 'selected' : '' }}>{{ $agent->phone }} - {{ $agent->name }}</option>
-                                        @endforeach
-                                    @endif
-                                </select>
-                            </div>
-
-                        <!-- <div class="form-group">
-              <select class="form-control form-control-sm" name="status" id="status">
-                <option {{ !$supplier->status ? 'selected' : '' }} value="0">Inactive</option>
-                <option {{ $supplier->status ? 'selected' : '' }} value="1">Active</option>
-              </select>
-            </div> -->
-
-                            {{-- <div class="form-group">
-                              <input type="number" id="supplier_whatsapp_number" name="whatsapp_number" class="form-control input-sm" placeholder="Whatsapp Number" value="{{ $supplier->whatsapp_number }}">
-                            </div> --}}
-
-                            <div class="form-group">
-                                <textarea name="address" id="supplier_address" class="form-control input-sm" rows="3" cols="80" placeholder="Address">{{ $supplier->address }}</textarea>
-                            </div>
-
-                            {{-- @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) --}}
-                            <div class="form-group">
-                                <input type="email" name="email" id="supplier_email" class="form-control input-sm" placeholder="Email" value="{{ $supplier->email }}">
-                            </div>
-
-                            {{-- <div class="form-group">
-                              <select class="form-control input-sm" name="default_email" id="supplier_default_email">
-                                <option value="">Select Default Email</option>
-                                @if ($supplier->email != '')
-                                  <option value="{{ $supplier->email }}" {{ $supplier->email == $supplier->default_email ? 'selected' : '' }}>{{ $supplier->email }} - Supplier's Email</option>
-                                @endif
-
-                                @if ($supplier->agents)
-                                  @foreach ($supplier->agents as $agent)
-                                    <option value="{{ $agent->email }}" {{ $agent->email == $supplier->default_email ? 'selected' : '' }}>{{ $agent->email }} - {{ $agent->name }}</option>
-                                  @endforeach
-                                @endif
-                              </select>
-                            </div> --}}
-
-                            <div class="form-group">
-                                <input type="text" name="instagram_handle" id="supplier_instagram_handle" class="form-control input-sm" placeholder="Instagram Handle" value="{{ $supplier->instagram_handle }}">
-                            </div>
-
-                            <div class="form-group">
-                                <input type="text" name="social_handle" id="supplier_social_handle" class="form-control input-sm" placeholder="Social Handle" value="{{ $supplier->social_handle }}">
-                            </div>
-
-
-                            <div class="form-group">
-                              <label>Update By</label>
-                                <p>@if(isset($user)) {{ $user->name }} @endif</p>
-                            </div>
-
-
-
-                            <div class="form-group">
-                                    <select class="form-control change-whatsapp-no" data-supplier-id="<?php echo $supplier->id; ?>">
-                                        <option value="">-No Selected-</option>
-                                        @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
-                                            @if($number != "0")
-                                                <option {{ ($number == $supplier->whatsapp_number && $supplier->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
-                                            @endif
-                                        @endforeach
-                                    </select>
-                            </div>
-
-
-                            <div class="form-group">
-                                <input type="text" name="website" id="supplier_website" class="form-control input-sm" placeholder="Website" value="{{ $supplier->website }}">
-                            </div>
-
-                            <div class="form-group">
-                                <input type="text" name="gst" id="supplier_gst" class="form-control input-sm" placeholder="GST" value="{{ $supplier->gst }}">
-                            </div>
-                            <div class="form-group">
-                                {!!Form::select('supplier_category_id', [null=>'Select a category'] + $suppliercategory->toArray(), $supplier->supplier_category_id, ['class' => 'form-control form-control-sm' , 'id' => 'supplier_category_id'])!!}
-                            </div>
-                            <div class="form-group">
-                                {!!Form::select('supplier_status_id', $supplierstatus, $supplier->supplier_status_id, ['class' => 'form-control form-control-sm', 'id' => 'supplier_status_id'])!!}
-                            </div>
-
-                            <div class="form-group">
-                                @php
-
-                                    $scrapersList = [];
-                                    if(!$supplier->scrapers->isEmpty()) {
-                                        foreach($supplier->scrapers as $ssc) {
-                                            $scrapersList[] = $ssc->scraper_name;
-                                        }
-                                    }
-
-                                @endphp
-                                <input type="text" name="scraper_name" id="supplier_scraper_name" class="form-control input-sm" placeholder="Scraper Name" value="{{ implode(',',$scrapersList) }}">
-                            </div>
-
-                            <div class="form-group">
-                                <input type="text" name="inventory_lifetime" id="supplier_inventory_lifetime" class="form-control input-sm" placeholder="Inventory Lifetime (in days)" value="{{ ($supplier->scraper) ? $supplier->scraper->inventory_lifetime : '' }}">
-                            </div>
-
-                            <div class="form-group">
-                                <button type="button" id="updateSupplierButton" class="btn btn-xs btn-secondary">Save</button>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-                @include('suppliers.partials.agent-modals')
-
-                <div class="tab-pane mt-3" id="agents-tab">
-                    <button type="button" class="btn btn-xs btn-secondary mb-3 create-agent" data-toggle="modal" data-target="#createAgentModal" data-id="{{ $supplier->id }}">Add Agent</button>
-
-                    <div id="agentAccordion">
-                        @foreach ($supplier->agents as $key => $agent)
-                            <div class="card">
-                                <div class="card-header" id="headingAgent{{ $key + 1 }}">
-                                    <h5 class="mb-0">
-                                        <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#agent{{ $key + 1 }}" aria-expanded="false" aria-controls="agent{{ $key + 1 }}">
-                                            {{ $key + 1 }} {{ $agent->name }}
-                                        </button>
-                                    </h5>
-                                </div>
-                                <div id="agent{{ $key + 1 }}" class="collapse collapse-element" aria-labelledby="headingAgent{{ $key + 1 }}" data-parent="#agentAccordion">
-                                    <div class="card-body">
-                                        <form action="{{ route('agent.update', $agent->id) }}" method="POST" enctype="multipart/form-data">
-                                            @csrf
-                                            @method('PUT')
-
-                                            <input type="hidden" name="model_id" value="{{ $supplier->id }}">
-                                            <input type="hidden" name="model_type" value="App\Supplier">
-
-                                            <div class="form-group">
-                                                <strong>Name</strong>
-                                                <input type="text" name="name" class="form-control input-sm" value="{{ $agent->name }}">
-                                            </div>
-
-                                            <div class="form-group">
-                                                <strong>Phone:</strong>
-                                                <input type="number" name="phone" class="form-control input-sm" value="{{ $agent->phone }}">
-
-                                                @if ($errors->has('phone'))
-                                                    <div class="alert alert-danger">{{$errors->first('phone')}}</div>
-                                                @endif
-                                            </div>
-
-                                            <div class="form-group">
-                                                <strong>Address:</strong>
-                                                <input type="text" name="address" class="form-control input-sm" value="{{ $agent->address }}">
-
-                                                @if ($errors->has('address'))
-                                                    <div class="alert alert-danger">{{$errors->first('address')}}</div>
-                                                @endif
-                                            </div>
-
-                                            <div class="form-group">
-                                                <strong>Email:</strong>
-                                                <input type="email" name="email" class="form-control input-sm" value="{{ $agent->email }}">
-
-                                                @if ($errors->has('email'))
-                                                    <div class="alert alert-danger">{{$errors->first('email')}}</div>
-                                                @endif
-                                            </div>
-
-                                            <div class="form-group text-center">
-                                                <button type="submit" class="btn btn-xs btn-secondary">Update</button>
-                                            </div>
-                                        </form>
-
-                                        <form action="{{ route('agent.destroy', $agent->id) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-
-                                            <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-
-                <div class="tab-pane mt-3" id="email-tab">
-                    <div id="exTab3" class="mb-3">
-                        <ul class="nav nav-tabs">
-                            <li class="active">
-                                <a href="#email-inbox" data-toggle="tab" id="email-inbox-tab" data-supplierid="{{ $supplier->id }}" data-type="inbox">Inbox</a>
-                            </li>
-                            <li>
-                                <a href="#email-sent" data-toggle="tab" id="email-sent-tab" data-supplierid="{{ $supplier->id }}" data-type="sent">Sent</a>
-                            </li>
-                            <li class="nav-item ml-auto">
-                                <button type="button" class="btn btn-image" data-toggle="modal" data-target="#emailSendModal"><img src="{{ asset('images/filled-sent.png') }}"/></button>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div id="email-container">
-                        @include('purchase.partials.email')
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xs-12 col-md-4 mb-3">
-            <div class="border">
-                <form action="{{ route('whatsapp.send', 'supplier') }}" method="POST" enctype="multipart/form-data">
-                    <div class="d-flex">
-                        @csrf
-
-                        <div class="form-group">
-                            <div class="upload-btn-wrapper btn-group pr-0 d-flex">
-                                <button class="btn btn-image px-1"><img src="/images/upload.png"/></button>
-                                <input type="file" name="image"/>
-
-                                <button type="submit" class="btn btn-image px-1 send-communication received-customer"><img src="/images/filled-sent.png"/></button>
-                            </div>
-                        </div>
-
-                        <div class="form-group flex-fill mr-3">
-                            <button type="button" id="supplierMessageButton" class="btn btn-image"><img src="/images/support.png"/></button>
-                            <textarea class="form-control mb-3 hidden" style="height: 110px;" name="body" placeholder="Received from Supplier"></textarea>
-                            <input type="hidden" name="status" value="0"/>
-                        </div>
-                    </div>
-
-                </form>
-
-                <form action="{{ route('whatsapp.send', 'supplier') }}" method="POST" enctype="multipart/form-data">
-                    <div id="paste-container" style="width: 200px;">
-
-                    </div>
-
-                    <div class="d-flex">
-                        @csrf
-
-                        <div class="form-group">
-                            <div class=" d-flex flex-column">
-                                <div class="">
-                                    <div class="upload-btn-wrapper btn-group px-0">
-                                        <button class="btn btn-image px-1"><img src="/images/upload.png"/></button>
-                                        <input type="file" name="image"/>
-
-                                    </div>
-                                    <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png"/></button>
-
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group flex-fill mr-3">
-                            <textarea id="message-body" class="form-control mb-3" style="height: 110px;" name="body" placeholder="Send for approval"></textarea>
-
-                            <input type="hidden" name="screenshot_path" value="" id="screenshot_path"/>
-                            <input type="hidden" name="status" value="1"/>
-
-                            <div class="paste-container"></div>
-
-
-                        </div>
-                    </div>
-
-                    <div class="pb-4 mt-3">
-                        <div class="row">
-                            <div class="col">
-                                <select name="quickCategory" id="quickCategory" class="form-control input-sm mb-3">
-                                    <option value="">Select Category</option>
-                                    @foreach($reply_categories as $category)
-                                        <option value="{{ $category->approval_leads }}">{{ $category->name }}</option>
-                                    @endforeach
-                                </select>
-
-                                <select name="quickComment" id="quickComment" class="form-control input-sm">
-                                    <option value="">Quick Reply</option>
-                                </select>
-                            </div>
-                            <div class="col">
-                                <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
-                            </div>
-                        </div>
-                    </div>
-
-                </form>
-                <div class="row">
-                    <div class="col">
-                        <select name="autoTranslate" id="autoTranslate" class="form-control input-sm mb-3">
-                            <option value="">Translations Languages</option>
-                            <option value="fr" {{ $supplier->language === 'fr'  ? 'selected' : '' }}>French</option>
-                            <option value="de" {{ $supplier->language === 'de'  ? 'selected' : '' }}>German</option>
-                            <option value="it" {{ $supplier->language === 'it'  ? 'selected' : '' }}>Italian</option>
-                        </select>
-                    </div>
-                    <div class="col">
-                        <button type="button" class="btn btn-xs btn-secondary" id="auto-translate">Add translation language</button>
-                    </div>
-                </div>
-            </div>
-            <div id="notes" class="mt-3">
-                <div class="panel-group">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h4 class="panel-title">
-                                <a data-toggle="collapse" href="#collapse1">Remarks ({{ is_array($supplier->notes) ? count($supplier->notes) : 0 }})</a>
-                            </h4>
-                        </div>
-                        <div id="collapse1" class="panel-collapse collapse">
-                            <div class="panel-body" id="note_list">
-                                @if($supplier->notes && is_array($supplier->notes))
-                                    @foreach($supplier->notes as $note)
-                                        <li>{{ $note }}</li>
-                                    @endforeach
-                                @endif
-                            </div>
-                            <div class="panel-footer">
-                                <input name="add_new_remark" id="add_new_remark" type="text" placeholder="Type new remark..." class="form-control add-new-remark">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div id="excel" class="mt-3">
-                <div class="panel-group">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h4 class="panel-title">
-                                <a data-toggle="collapse" href="#collapse-excel">Excel Importer </a>
-                            </h4>
-                        </div>
-                        <div id="collapse-excel" class="panel-collapse collapse">
-
-                            <div class="panel-footer">
-                                <form action="/supplier/excel-import" method="POST" enctype="multipart/form-data">
-                                    @csrf
-                                <input name="excel_file" type="file" class="form-control">
-                                <input type="hidden" name="id" value="{{ $supplier->id }}">
-                                <button type="submit" class="btn btn-secondary">Submit</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xs-12 col-md-4">
-            <div class="border">
-                {{-- <h4>Messages</h4> --}}
-
-                <div class="row">
-                    <form action="{{ route('supplier.image') }}" method="post" enctype="multipart/form-data" style="width: 100%">
-                        @csrf
-                        <button type="buttin" class="btn btn-xs btn-secondary" value="1" name="type" id="createProduct">Create Product</button>
-                        <button type="button" class="btn btn-xs btn-secondary" value="2" name="type" id="createGroup">Create Product Group</button>
-                        <button type="button" class="btn btn-xs btn-secondary" value="3" name="type" id="createInStockProduct">Create InStock Product</button>
-                        <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></a>
-                        <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></a>
-                        <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></a>
-                        <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message">
-                        <div class="load-communication-modal chat-history-load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"  style="display: none;" data-object="supplier" data-attached="1" data-id="{{ $supplier->id }}"></div>
-                        <div class="col-12" id="chat-history">
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    @include('suppliers.partials.modal-email')
-
-    @include('customers.partials.modal-reply')
-
-    @include('suppliers.partials.modal-create-group')
-
-    @include('suppliers.partials.instock-product')
-
-
-    <div class="row mt-5">
-        <div class="col-xs-12">
-
-            {{-- @include('customers.partials.modal-instruction') --}}
-
-            <div class="table-responsive">
-                <table class="table table-sm table-bordered m-0">
-                    <tr>
-                        <th>#</th>
-                        <th>Date</th>
-                        <th>Purchase NO</th>
-                        <th>Shipping Cost</th>
-                        <th>Final Price</th>
-                        <th>Delivery</th>
-                        <th>Products</th>
-                        <th>Retail</th>
-                        <th>Discounted Price</th>
-                    </tr>
-                    @foreach ($supplier->purchases()->orderBy('created_at', 'DESC')->limit(3)->get() as $key => $purchase)
-                        @php
-                            $products_count = 1;
-                            if ($purchase->products) {
-                              $products_count = count($purchase->products) + 1;
-                            }
-                        @endphp
-                        <tr>
-                            <td rowspan="{{ $products_count }}">{{ $key + 1 }}</td>
-                            <td rowspan="{{ $products_count }}">{{ \Carbon\Carbon::parse($supplier->created_at)->format('H:i d-m') }}</td>
-                            <td rowspan="{{ $products_count }}"><a href="{{ route('purchase.show', $purchase->id) }}">{{ $purchase->id }}</a></td>
-                            <td rowspan="{{ $products_count }}">{{ $purchase->shipment_cost }}</td>
-                            <td rowspan="{{ $products_count }}">
-                                @php
-                                    $total_purchase_price = 0;
-                                    if ($purchase->products) {
-                                      foreach ($purchase->products as $product) {
-                                        $total_purchase_price += $product->price_special;
-                                      }
-                                    }
-                                @endphp
-
-                                {{ $total_purchase_price + $purchase->shipment_cost }}
-                            </td>
-                            <td rowspan="{{ $products_count }}">{{ $purchase->shipment_status }}</td>
-                        </tr>
-
-                        @if ($purchase->products)
-                            @foreach ($purchase->products as $product)
-                                <tr>
-                                    <td>{{ $product->name }}</td>
-                                    <td>{{ $product->price_inr }}</td>
-                                    <td>{{ $product->price_special }}</td>
-                                </tr>
-                            @endforeach
-                        @endif
-                    @endforeach
-                </table>
-            </div>
-
-            <div id="supplierAccordion">
-                <div class="card mb-5">
-                    <div class="card-header" id="headingSupplier">
-                        <h5 class="mb-0">
-                            <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#supplierAcc" aria-expanded="false" aria-controls="">
-                                Rest of Purchases
-                            </button>
-                        </h5>
-                    </div>
-                    <div id="supplierAcc" class="collapse collapse-element" aria-labelledby="headingSupplier" data-parent="#supplierAccordion">
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered">
-                                    <tbody>
-                                    @foreach ($supplier->purchases()->orderBy('created_at', 'DESC')->offset(3)->limit(100)->get() as $key => $purchase)
-                                        @php
-                                            $products_count = 1;
-                                            if ($purchase->products) {
-                                              $products_count = count($purchase->products) + 1;
-                                            }
-                                        @endphp
-                                        <tr>
-                                            <td rowspan="{{ $products_count }}">{{ $key + 1 }}</td>
-                                            <td rowspan="{{ $products_count }}">{{ \Carbon\Carbon::parse($supplier->created_at)->format('H:i d-m') }}</td>
-                                            <td rowspan="{{ $products_count }}"><a href="{{ route('purchase.show', $purchase->id) }}">{{ $purchase->id }}</a></td>
-                                            <td rowspan="{{ $products_count }}">{{ $purchase->shipment_cost }}</td>
-                                            <td rowspan="{{ $products_count }}">
-                                                @php
-                                                    $total_purchase_price = 0;
-                                                    if ($purchase->products) {
-                                                      foreach ($purchase->products as $product) {
-                                                        $total_purchase_price += $product->price_special;
-                                                      }
-                                                    }
-                                                @endphp
-
-                                                {{ $total_purchase_price + $purchase->shipment_cost }}
-                                            </td>
-                                            <td rowspan="{{ $products_count }}">{{ $purchase->shipment_status }}</td>
-                                        </tr>
-
-                                        @if ($purchase->products)
-                                            @foreach ($purchase->products as $product)
-                                                <tr>
-                                                    <td>{{ $product->name }}</td>
-                                                    <td>{{ $product->price_inr }}</td>
-                                                    <td>{{ $product->price_special }}</td>
-                                                </tr>
-                                            @endforeach
-                                        @endif
-                                    @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            @include('customers.partials.modal-remark')
-
-        </div>
-    </div>
-
-    <div id="chat-list-history" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Communication</h4>&nbsp;&nbsp;
-                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 50%;">&nbsp;&nbsp;
-                    <!-- <input type="text" name="search_chat_pop_time"  class="form-control search_chat_pop_time" placeholder="Search Time" style="width: 200px;"> -->
-                    <input style="min-width: 30px;" placeholder="Search by date" value="" type="text" class="form-control search_chat_pop_time" name="search_chat_pop_time">
-                    
-                </div>
-                <div class="modal-body" style="background-color: #999999;">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-    <form action="" method="POST" id="product-remove-form">
-        @csrf
-    </form>
-
-    {{-- @include('customers.partials.modal-forward') --}}
-
-@endsection
-
-@section('scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
-
-    <script type="text/javascript">
-
-        $(document).ready(function () {
-            //$('.chat-history-load-communication-modal').trigger('click');
-        });
-
-        $(document).on('keyup', '.add-new-remark', function (event) {
-            let note = $(this).val();
-            let self = this;
-            if (event.which != 13) {
-                return;
+        if(!empty($request->brand)) {
+          $brands = array();
+          $references = array();
+          foreach ($request->brand as $key => $value) {
+             $selecteBrandById = Brand::where('id',$value)->get()->first();
+             if(!empty($selecteBrandById->name)) {
+              array_push($brands, $selecteBrandById->name);
+             }
+             if(!empty($selecteBrandById->references)) {
+               array_push($references, $selecteBrandById->references);
+             }
+          }
+          $filterBrands = implode("|", $brands);
+          $filterReferences = str_replace(";", "|",implode("|", $references));
+          if(!empty($filterBrands)) {
+            $typeWhereClause .= ' AND (brands RLIKE "'.$filterBrands.'"';
+            $typeWhereClause .= 'OR scraped_brands RLIKE "'.$filterBrands.'"';
+            $typeWhereClause .= 'OR scraped_brands_raw RLIKE "'.$filterBrands.'")';
+          }
+          if (!empty($filterReferences)) {
+            $typeWhereClause .= ' OR (brands RLIKE "'.$filterReferences.'"';
+            $typeWhereClause .= 'OR scraped_brands RLIKE "'.$filterReferences.'"';
+            $typeWhereClause .= 'OR scraped_brands_raw RLIKE "'.$filterReferences.'")';
+          }
+
+        } else {
+
+            if(!empty($request->scrapedBrand))
+            {
+              $scrapedBrands = implode("|", $request->scrapedBrand);
+              $typeWhereClause .= ' AND (brands RLIKE "'.$scrapedBrands.'"';
+              $typeWhereClause .= 'OR scraped_brands RLIKE "'.$scrapedBrands.'"';
+              $typeWhereClause .= 'OR scraped_brands_raw RLIKE "'.$scrapedBrands.'")';
             }
-            $.ajax({
-                url: "{{ action('SupplierController@addNote', $supplier->id) }}",
-                data: {
-                    note: note,
-                    _token: "{{csrf_token()}}"
-                },
-                type: 'post',
-                success: function () {
-                    toastr['success']('Remark added successfully', 'success');
-                    $(self).removeAttr('disabled');
-                    $(self).val('');
-                    $('#note_list').append('<li>' + note + '</li>');
-                },
-                beforeSend: function () {
-                    $(self).attr('disabled', true);
-                },
-                error: function () {
-                    $(self).removeAttr('disabled');
-                }
-            });
-        });
+        }
 
-        $('#date, #report-completion-datetime').datetimepicker({
-            format: 'YYYY-MM-DD HH:mm'
-        });
+        $runQuery = 0;
+        // if(count($userCategoryPermissionId) && !auth()->user()->isAdmin()) {
+        //     $userCategoryPermissionId1 = implode(',', $userCategoryPermissionId);
+        //     $typeWhereClause .= "AND suppliers.supplier_category_id IN ($userCategoryPermissionId1)";
+        //     $runQuery = 1;
+        // } else {
+        //     if(auth()->user()->isAdmin()) {
+        //         $runQuery = 1;
+        //     }
+        // }
+        
+          if(!auth()->user()->isAdmin()) {
+            $userCategoryPermissionId = auth()->user()->supplierCategoryPermission->pluck('id')->toArray() + [0];
+            $userCategoryPermissionId1 = implode(',', $userCategoryPermissionId);
+            $typeWhereClause .= "AND suppliers.supplier_category_id IN ($userCategoryPermissionId1)";
+            $runQuery = 1;
+        } else {
+            $runQuery = 1;
+        }
+        $suppliers = [];
 
-        $(document).ready(function () {
-            $(".select-multiple").multiselect();
-        });
+        if($runQuery) {
+        $suppliers = DB::select('
+                                    SELECT suppliers.frequency,suppliers.supplier_sub_category_id,suppliers.supplier_status_id,suppliers.supplier_size_id,suppliers.scrapper, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source,suppliers.supplier_price_range_id, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.whatsapp_number, suppliers.status, sc.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name, suppliers.scraped_brands_raw,suppliers.language,
+                                    suppliers.est_delivery_time,suppliers.size_system_id,suppliers.priority,
+                  (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
+                  (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
+                  (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
+                  (SELECT mm4.created_at FROM purchases mm4 WHERE mm4.id = purchase_id) as purchase_created_at,
+                  (SELECT mm5.message FROM emails mm5 WHERE mm5.id = email_id) as email_message,
+                  (SELECT mm6.seen FROM emails mm6 WHERE mm6.id = email_id) as email_seen,
+                  (SELECT mm7.created_at FROM emails mm7 WHERE mm7.id = email_id) as email_created_at,
+                  CASE WHEN IFNULL(message_created_at, "1990-01-01 00:00") > IFNULL(email_created_at, "1990-01-01 00:00") THEN "message" WHEN IFNULL(message_created_at, "1990-01-01 00:00") < IFNULL(email_created_at, "1990-01-01 00:00") THEN "email" ELSE "none" END as last_type,
+                  CASE WHEN IFNULL(message_created_at, "1990-01-01 00:00") > IFNULL(email_created_at, "1990-01-01 00:00") THEN message_created_at WHEN IFNULL(message_created_at, "1990-01-01 00:00") < IFNULL(email_created_at, "1990-01-01 00:00") THEN email_created_at ELSE "1990-01-01 00:00" END as last_communicated_at
 
-        $('.change_status').on('change', function () {
-            var thiss = $(this);
-            var token = "{{ csrf_token() }}";
-            var status = $(this).val();
+                  FROM (SELECT * FROM suppliers
+
+                  LEFT JOIN (SELECT MAX(id) as message_id, supplier_id, message, MAX(created_at) as message_created_at FROM chat_messages GROUP BY supplier_id ORDER BY created_at DESC) AS chat_messages
+                  ON suppliers.id = chat_messages.supplier_id
+
+                  LEFT JOIN (SELECT MAX(id) as purchase_id, supplier_id as purchase_supplier_id, created_at AS purchase_created_at FROM purchases GROUP BY purchase_supplier_id ORDER BY created_at DESC) AS purchases
+                  ON suppliers.id = purchases.purchase_supplier_id
+
+                  LEFT JOIN (SELECT MAX(id) as email_id, model_id as email_model_id, MAX(created_at) AS email_created_at FROM emails WHERE model_type LIKE "%Supplier%" OR "%Purchase%" GROUP BY model_id ORDER BY created_at DESC) AS emails
+                  ON suppliers.id = emails.email_model_id)
+
+                  AS suppliers
+                  left join scrapers as sc on sc.supplier_id = suppliers.id
+                  left join users as u on u.id = suppliers.updated_by
+                  WHERE (
+
+                  source LIKE "%' . $source . '%" AND
+                  (sc.parent_id IS NULL AND
+                  (supplier LIKE "%' . $term . '%" OR
+                  suppliers.phone LIKE "%' . $term . '%" OR
+                  suppliers.email LIKE "%' . $term . '%" OR
+                  suppliers.address LIKE "%' . $term . '%" OR
+                  suppliers.social_handle LIKE "%' . $term . '%" OR
+                  sc.scraper_name LIKE "%' . $term . '%" OR
+                  brands LIKE "%' . $term . '%" OR
+                   suppliers.id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%")))))' . $typeWhereClause . '
+                  ORDER BY last_communicated_at DESC, status DESC
+              ');
+        }
+        $suppliers_all = Supplier::where(function ($query) {
+            $query->whereNotNull('email')->orWhereNotNull('default_email');
+        })->get();
+        // print_r($suppliers_all);
+
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = Setting::get('pagination');
+        $currentItems = array_slice($suppliers, $perPage * ($currentPage - 1), $perPage);
+
+        $supplierscnt = count($suppliers);
+        $suppliers = new LengthAwarePaginator($currentItems, count($suppliers), $perPage, $currentPage, [
+            'path' => LengthAwarePaginator::resolveCurrentPath()
+        ]);
+
+        $suppliercategory = SupplierCategory::pluck('name', 'id')->toArray();
+        $suppliersubcategory = SupplierSubCategory::pluck('name', 'id')->toArray();
+        $supplierstatus = SupplierStatus::pluck('name', 'id')->toArray();
+        $suppliersize = SupplierSize::pluck('size', 'id')->toArray();
+
+        //SELECT supplier_status_id, COUNT(*) AS number_of_products FROM suppliers WHERE supplier_status_id IN (SELECT id from supplier_status) GROUP BY supplier_status_id
+        $statistics = DB::select('SELECT supplier_status_id, ss.name, COUNT(*) AS number_of_products FROM suppliers s LEFT join supplier_status ss on ss.id = s.supplier_status_id WHERE supplier_status_id IN (SELECT id from supplier_status) GROUP BY supplier_status_id');
+
+        $brands = Brand::whereNotNull('magento_id')->get()->all();
+        $scrapedBrandsRaw = Supplier::whereNotNull('scraped_brands_raw')->get()->all();
+        $rawBrands = array();
+        foreach ($scrapedBrandsRaw as $key => $value) {
+           array_push($rawBrands, array_unique(array_filter(array_column(json_decode($value->scraped_brands_raw, true), 'name'))));
+           array_push($rawBrands, array_unique(array_filter(explode(",", $value->scraped_brands))));
+        }
+        $scrapedBrands = array_unique(array_reduce($rawBrands, 'array_merge',[]));
+        $data = Setting::where('type',"ScrapeBrandsRaw")->get()->first();
+        if(!empty($data)) {
+          $selectedBrands = json_decode($data->val, true);
+        } else {
+          $selectedBrands = [];
+        }
 
 
-            if ($(this).hasClass('order_status')) {
-                var id = $(this).data('orderid');
-                var url = '/order/' + id + '/changestatus';
-            } else {
-                var id = $(this).data('leadid');
-                var url = '/leads/' + id + '/changestatus';
+        $whatsappConfigs = WhatsappConfig::where('provider','LIKE','%Chat-API%')->get();
+
+    //Get All Product Supplier
+    $allSupplierProduct = [];//DB::select('SELECT ps.product_id, ps.supplier_id, pp.name, ss.supplier FROM product_suppliers ps JOIN suppliers ss on ps.supplier_id = ss.id JOIN products pp on ps.product_id = pp.id');
+    
+    //Get All supplier price range
+    $allSupplierPriceRanges = SupplierPriceRange::select("supplier_price_range.*",DB::raw("CONCAT(supplier_price_range.price_from,'-',supplier_price_range.price_to) as full_range"))->get()->toArray();
+    /* echo "<pre>";
+    print_r($allSupplierPriceRanges);
+    exit; */
+    $reply_categories = ReplyCategory::all();
+    $sizeSystem = \App\SystemSize::pluck('name', 'id')->toArray();
+
+    return view('suppliers.index', [
+            'suppliers' => $suppliers,
+            'suppliers_all' => $suppliers_all,
+            'solo_numbers' => $solo_numbers,
+            'term' => $term,
+            'type' => $type,
+            'scrappertype' => $scrappertype,
+            'supplier_filter' => $supplier_filter,
+            'source' => $source,
+            'suppliercategory' => $suppliercategory,
+            'suppliersubcategory'=>$suppliersubcategory,
+            'supplierstatus' => $supplierstatus,
+            'suppliersize' => $suppliersize,
+            'supplier_category_id' => $supplier_category_id,
+            'supplier_status_id' => $supplier_status_id,
+            'count' => $supplierscnt,
+            'statistics' => $statistics,
+            'total' => 0,
+            'brands' => $brands,
+            'scrapedBrands' => $scrapedBrands,
+            'selectedBrands' => $selectedBrands,
+            'whatsappConfigs' => $whatsappConfigs,
+            'allSupplierProduct' => $allSupplierProduct,
+            'allSupplierPriceRanges' => $allSupplierPriceRanges,
+            'reply_categories' => $reply_categories,
+            'sizeSystem' => $sizeSystem
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+    }
+
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $this->validate($request, [
+            //'supplier_category_id' => 'required|string|max:255',
+            'supplier' => 'required|string|unique:suppliers|max:255',
+            'address' => 'sometimes|nullable|string',
+            'phone' => 'sometimes|nullable|numeric',
+            'default_phone' => 'sometimes|nullable|numeric',
+            'whatsapp_number' => 'sometimes|nullable|numeric',
+            'email' => 'sometimes|nullable|email',
+            'social_handle' => 'sometimes|nullable',
+            'scraper_name' => 'sometimes|nullable',
+            'inventory_lifetime' => 'sometimes|nullable',
+            'gst' => 'sometimes|nullable|max:255',
+            //'supplier_status_id' => 'required'
+        ]);
+    
+        $data = $request->except('_token');
+        $data[ 'default_phone' ] = $request->phone ?? '';
+        $data[ 'default_email' ] = $request->email ?? '';
+
+        $source  = $request->get("source","");
+
+        if(!empty($source)) {
+           $data["supplier_status_id"] = 0;
+        }
+
+    //get default whatsapp number for vendor from whatsapp config
+    if(empty($data["whatsapp_number"]))  {
+      $task_info = DB::table('whatsapp_configs')
+            ->select('*')
+            ->whereRaw("find_in_set(".self::DEFAULT_FOR.",default_for)")
+            ->first();
+
+      if($task_info){
+         $data["whatsapp_number"] = $task_info->number;
+      }
+    
+    }
+        $scrapper_name = preg_replace("/\s+/", "", $request->supplier);
+        $scrapper_name = strtolower($scrapper_name);
+        $supplier = Supplier::where('supplier',$scrapper_name)->get();
+        if(empty($supplier)){
+          $supplier = Supplier::create($data);
+          if ($supplier->id > 0) {
+              $scraper = \App\Scraper::create([
+                  "supplier_id" => $supplier->id,
+                  "scraper_name" => $request->get("scraper_name", $scrapper_name),
+                  "inventory_lifetime" => $request->get("inventory_lifetime", ""),
+              ]);
+          }
+          $supplier->scrapper = $scraper->id;
+          $supplier->save();
+        }else{
+          $scraper = \App\Scraper::where('scraper_name',$scrapper_name)->get();
+          if(empty($scraper)){
+            $scraper = \App\Scraper::create([
+                  "supplier_id" => $supplier->id,
+                  "scraper_name" => $request->get("scraper_name", $scrapper_name),
+                  "inventory_lifetime" => $request->get("inventory_lifetime", ""),
+              ]);
+            $supplier->scrapper = $scraper->id;
+            $supplier->save();
+          }else{
+            $supplier->scrapper = $scraper->id;
+            $supplier->save();
+          }
+        }
+
+        if(!empty($source)) {
+          return redirect()->back()->withSuccess('You have successfully saved a supplier!');
+        }
+
+        return redirect()->route('supplier.index')->withSuccess('You have successfully saved a supplier!');
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $supplier = Supplier::find($id);
+        $user = User::where('id',$supplier->updated_by)->first();
+        $suppliers = Supplier::select(['id', 'supplier'])->where('supplier_status_id', 1)->orderby('supplier', 'asc')->get();
+        $reply_categories = ReplyCategory::all();
+        $users_array = Helpers::getUserArray(User::all());
+        $emails = [];
+        $suppliercategory = SupplierCategory::pluck('name', 'id');
+        $supplierstatus = SupplierStatus::pluck('name', 'id');
+        $new_category_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id' => 'category'])->renderAsDropdown();
+        $locations = \App\ProductLocation::pluck("name","name");
+        $scrapers = \App\Scraper::where('id',$supplier->scrapper)->get();
+
+        $category_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id'  => 'category_selection'])
+                                              ->renderAsDropdown();
+
+        return view('suppliers.show', [
+            'supplier' => $supplier,
+            'scrapers' => $scrapers,
+            'reply_categories' => $reply_categories,
+            'users_array' => $users_array,
+            'emails' => $emails,
+            'suppliercategory' => $suppliercategory,
+            'supplierstatus' => $supplierstatus,
+            'suppliers' => $suppliers,
+            'new_category_selection' => $new_category_selection,
+            'locations' => $locations,
+            'category_selection' => $category_selection,
+            'user'=>$user
+        ]);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $this->validate($request, [
+            //'supplier_category_id'        => 'required|string|max:255',
+            'supplier' => 'required|string|max:255',
+            'address' => 'sometimes|nullable|string',
+            'phone' => 'sometimes|nullable|numeric',
+            'default_phone' => 'sometimes|nullable|numeric',
+            'whatsapp_number' => 'sometimes|nullable|numeric',
+            'email' => 'sometimes|nullable|email',
+            'default_email' => 'sometimes|nullable|email',
+            'social_handle' => 'sometimes|nullable',
+            'scraper_name' => 'sometimes|nullable',
+            'inventory_lifetime' => 'sometimes|nullable',
+            'gst' => 'sometimes|nullable|max:255',
+            //'supplier_status_id' => 'required'
+            //'status' => 'required'
+        ]);
+
+        $data = $request->except('_token');
+        $data[ 'default_phone' ] = $request->default_phone != '' ? $request->default_phone : $request->phone;
+        $data[ 'default_email' ] = $request->default_email != '' ? $request->default_email : $request->email;
+        $data[ 'is_updated' ] = 1;
+        Supplier::find($id)->update($data);
+
+
+        $scrapers = \App\Scraper::where('supplier_id',$id)->get();
+        $multiscraper = explode(",",$request->get("scraper_name", ""));
+        $multiscraper = array_map('strtolower', $multiscraper);
+        if(!$scrapers->isEmpty()) {
+          foreach($scrapers as $scr) {
+             if(!in_array(strtolower($scr->scraper_name), $multiscraper)) {
+                $scr->delete();
+             }
+          }
+        }
+        
+        if(!empty($multiscraper)) {
+          foreach($multiscraper as $multiscr) {
+              $scraper = \App\Scraper::where('supplier_id',$id)->where('scraper_name',$multiscr)->first();
+              if($scraper) {
+                 $scraper->inventory_lifetime = $request->get("inventory_lifetime", "");
+              }else{
+                 $scraper = new \App\Scraper;
+                 $scraper->supplier_id = $id;
+                 $scraper->inventory_lifetime = $request->get("inventory_lifetime", "");
+                 $scraper->scraper_name = $multiscr;
+              }
+              $scraper->save();
+          }
+        }
+
+        return redirect()->back()->withSuccess('You have successfully updated a supplier!');
+    }
+
+    /**
+     * Ajax Load More message method
+     */
+    public function loadMoreMessages(Request $request, $id)
+    {
+        $supplier = Supplier::find($id);
+
+        $chat_messages = $supplier->whatsapps()->skip(1)->take(3)->pluck('message');
+
+        return response()->json([
+            'messages' => $chat_messages
+        ]);
+    }
+
+    /**
+     * Ajax Flag Update method
+     */
+    public function flag(Request $request)
+    {
+        $supplier = Supplier::find($request->supplier_id);
+
+        if ($supplier->is_flagged == 0) {
+            $supplier->is_flagged = 1;
+        } else {
+            $supplier->is_flagged = 0;
+        }
+
+        $supplier->save();
+
+        return response()->json(['is_flagged' => $supplier->is_flagged]);
+    }
+
+    /**
+     * Send Bulk email to supplier
+     */
+    public function sendEmailBulk(Request $request)
+    {
+        $this->validate($request, [
+            'subject' => 'required|min:3|max:255',
+            'message' => 'required',
+            'cc.*' => 'nullable|email',
+            'bcc.*' => 'nullable|email'
+        ]);
+
+        if ($request->suppliers) {
+            $suppliers = Supplier::whereIn('id', $request->suppliers)->where(function ($query) {
+                $query->whereNotNull('default_email')->orWhereNotNull('email');
+            })->get();
+        } else {
+            if ($request->not_received != 'on' && $request->received != 'on') {
+                return redirect()->route('supplier.index')->withErrors(['Please select either suppliers or option']);
             }
-
-            $.ajax({
-                url: url,
-                type: 'POST',
-                data: {
-                    _token: token,
-                    status: status
-                }
-            }).done(function (response) {
-                if ($(thiss).hasClass('order_status') && status == 'Product shiped to Client') {
-                    $('#tracking-wrapper-' + id).css({'display': 'block'});
-                }
-
-                $(thiss).siblings('.change_status_message').fadeIn(400);
-
-                setTimeout(function () {
-                    $(thiss).siblings('.change_status_message').fadeOut(400);
-                }, 2000);
-            }).fail(function (errObj) {
-                alert("Could not change status");
-            });
-        });
-
-        $('#whatsapp_change').on('change', function () {
-            var thiss = $(this);
-            var token = "{{ csrf_token() }}";
-            var number = $(this).val();
-            var supplier_id = {{ $supplier->id }};
-            var url = "{{ url('customer') }}/" + customer_id + "/updateNumber";
-
-            $.ajax({
-                url: url,
-                type: 'POST',
-                data: {
-                    _token: token,
-                    whatsapp_number: number
-                }
-            }).done(function (response) {
-                $(thiss).siblings('.change_status_message').fadeIn(400);
-
-                setTimeout(function () {
-                    $(thiss).siblings('.change_status_message').fadeOut(400);
-                }, 2000);
-            }).fail(function (response) {
-                alert("Could not change status");
-            });
-        });
-
-        $(document).on('click', ".collapsible-message", function () {
-            var selection = window.getSelection();
-            if (selection.toString().length === 0) {
-                var short_message = $(this).data('messageshort');
-                var message = $(this).data('message');
-                var status = $(this).data('expanded');
-
-                if (status == false) {
-                    $(this).addClass('expanded');
-                    $(this).html(message);
-                    $(this).data('expanded', true);
-                    // $(this).siblings('.thumbnail-wrapper').remove();
-                    $(this).closest('.talktext').find('.message-img').removeClass('thumbnail-200');
-                    $(this).closest('.talktext').find('.message-img').parent().css('width', 'auto');
-                } else {
-                    $(this).removeClass('expanded');
-                    $(this).html(short_message);
-                    $(this).data('expanded', false);
-                    $(this).closest('.talktext').find('.message-img').addClass('thumbnail-200');
-                    $(this).closest('.talktext').find('.message-img').parent().css('width', '200px');
-                }
-            }
-        });
-
-        $(document).ready(function () {
-            var container = $("div#message-container");
-            // var sendBtn = $("#waMessageSend");
-            var supplierId = "{{ $supplier->id }}";
-            var addElapse = false;
-
-            $(document).on('click', '.send-communication', function (e) {
-                e.preventDefault();
-
-                var thiss = $(this);
-                var url = $(this).closest('form').attr('action');
-                var token = "{{ csrf_token() }}";
-                var file = $($(this).closest('form').find('input[type="file"]'))[0].files[0];
-                var status = $(this).closest('form').find('input[name="status"]').val();
-                var screenshot_path = $('#screenshot_path').val();
-                var supplier_id = {{ $supplier->id }};
-                var formData = new FormData();
-
-                formData.append("_token", token);
-                formData.append("image", file);
-                formData.append("message", $(this).closest('form').find('textarea').val());
-                // formData.append("moduletype", $(this).closest('form').find('input[name="moduletype"]').val());
-                formData.append("supplier_id", supplier_id);
-                formData.append("assigned_to", $(this).closest('form').find('select[name="assigned_to"]').val());
-                formData.append("status", status);
-                formData.append("screenshot_path", screenshot_path);
-
-                if ($(this).closest('form')[0].checkValidity()) {
-                    $.ajax({
-                        type: 'POST',
-                        url: url,
-                        data: formData,
-                        processData: false,
-                        contentType: false
-                    }).done(function (response) {
-                        console.log(response);
-                        pollMessages();
-                        $(thiss).closest('form').find('textarea').val('');
-                        $('#paste-container').empty();
-                        $('#screenshot_path').val('');
-                        $(thiss).closest('form').find('.dropify-clear').click();
-
-                        if ($(thiss).hasClass('received-customer')) {
-                            $(thiss).closest('form').find('#supplierMessageButton').removeClass('hidden');
-                            $(thiss).closest('form').find('textarea').addClass('hidden');
-                        }
-                    }).fail(function (response) {
-                        console.log(response);
-                        alert('Error sending a message');
-                    });
-                } else {
-                    $(this).closest('form')[0].reportValidity();
-                }
-
-            });
-
-        });
-
-        $(document).on('click', '.change_message_status', function (e) {
-            e.preventDefault();
-            var url = $(this).data('url');
-            var token = "{{ csrf_token() }}";
-            var thiss = $(this);
-
-            if ($(this).hasClass('wa_send_message')) {
-                var message_id = $(this).data('messageid');
-                var message = $('#message_body_' + message_id).find('p').data('message').toString().trim();
-
-                $.ajax({
-                    url: "{{ url('whatsapp/updateAndCreate') }}",
-                    type: 'POST',
-                    data: {
-                        _token: token,
-                        moduletype: "customer",
-                        message_id: message_id
-                    },
-                    beforeSend: function () {
-                        $(thiss).text('Loading');
-                    }
-                }).done(function (response) {
-                }).fail(function (errObj) {
-                    console.log(errObj);
-                    alert("Could not create whatsapp message");
-                });
-            }
-            $.ajax({
-                url: url,
-                type: 'GET'
-            }).done(function (response) {
-                $(thiss).remove();
-            }).fail(function (errObj) {
-                alert("Could not change status");
-            });
-
-
-        });
-
-        $(document).on('click', '.edit-message', function (e) {
-            e.preventDefault();
-            var thiss = $(this);
-            var message_id = $(this).data('messageid');
-
-            $('#message_body_' + message_id).css({'display': 'none'});
-            $('#edit-message-textarea' + message_id).css({'display': 'block'});
-
-            $('#edit-message-textarea' + message_id).keypress(function (e) {
-                var key = e.which;
-
-                if (key == 13) {
-                    e.preventDefault();
-                    var token = "{{ csrf_token() }}";
-                    var url = "{{ url('message') }}/" + message_id;
-                    var message = $('#edit-message-textarea' + message_id).val();
-
-                    if ($(thiss).hasClass('whatsapp-message')) {
-                        var type = 'whatsapp';
-                    } else {
-                        var type = 'message';
-                    }
-
-                    $.ajax({
-                        type: 'POST',
-                        url: url,
-                        data: {
-                            _token: token,
-                            body: message,
-                            type: type
-                        },
-                        success: function (data) {
-                            $('#edit-message-textarea' + message_id).css({'display': 'none'});
-                            $('#message_body_' + message_id).text(message);
-                            $('#message_body_' + message_id).css({'display': 'block'});
-                        }
-                    });
-                }
-            });
-        });
-
-        $(document).on('click', '.thumbnail-delete', function (event) {
-            event.preventDefault();
-            var thiss = $(this);
-            var image_id = $(this).data('image');
-            var message_id = $(this).closest('.talk-bubble').find('.collapsible-message').data('messageid');
-            // var message = $(this).closest('.talk-bubble').find('.collapsible-message').data('message');
-            var token = "{{ csrf_token() }}";
-            var url = "{{ url('message') }}/" + message_id + '/removeImage';
-            var type = 'message';
-
-            if ($(this).hasClass('whatsapp-image')) {
-                type = "whatsapp";
-            }
-
-            // var image_container = '<div class="thumbnail-wrapper"><img src="' + image + '" class="message-img thumbnail-200" /><span class="thumbnail-delete" data-image="' + image + '">x</span></div>';
-            // var new_message = message.replace(image_container, '');
-
-            // if (new_message.indexOf('message-img') != -1) {
-            //   var short_new_message = new_message.substr(0, new_message.indexOf('<div class="thumbnail-wrapper">')).length > 150 ? (new_message.substr(0, 147)) : new_message;
-            // } else {
-            //   var short_new_message = new_message.length > 150 ? new_message.substr(0, 147) + '...' : new_message;
-            // }
-
-            $.ajax({
-                type: 'POST',
-                url: url,
-                data: {
-                    _token: token,
-                    image_id: image_id,
-                    message_id: message_id,
-                    type: type
-                },
-                success: function (data) {
-                    $(thiss).parent().remove();
-                    // $('#message_body_' + message_id).children('.collapsible-message').data('messageshort', short_new_message);
-                    // $('#message_body_' + message_id).children('.collapsible-message').data('message', new_message);
-                }
-            });
-        });
-
-        $(document).ready(function () {
-            $("body").tooltip({selector: '[data-toggle=tooltip]'});
-        });
-
-        $('#approval_reply').on('click', function () {
-            $('#model_field').val('Approval Lead');
-        });
-
-        $('#internal_reply').on('click', function () {
-            $('#model_field').val('Internal Lead');
-        });
-
-        $('#approvalReplyForm').on('submit', function (e) {
-            e.preventDefault();
-
-            var url = "{{ route('reply.store') }}";
-            var reply = $('#reply_field').val();
-            var category_id = $('#category_id_field').val();
-            var model = $('#model_field').val();
-
-            $.ajax({
-                type: 'POST',
-                url: url,
-                headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                },
-                data: {
-                    reply: reply,
-                    category_id: category_id,
-                    model: model
-                },
-                success: function (reply) {
-                    // $('#ReplyModal').modal('hide');
-                    $('#reply_field').val('');
-                    if (model == 'Approval Lead') {
-                        $('#quickComment').append($('<option>', {
-                            value: reply,
-                            text: reply
-                        }));
-                    } else {
-                        $('#quickCommentInternal').append($('<option>', {
-                            value: reply,
-                            text: reply
-                        }));
-                    }
-
-                }
-            });
-        });
-
-        $('#quick_add_lead').on('click', function (e) {
-            e.preventDefault();
-
-            var thiss = $(this);
-            var token = "{{ csrf_token() }}";
-            var url = "{{ route('leads.store') }}";
-            var customer_id = {{ $supplier->id }};
-            var created_at = moment().format('YYYY-MM-DD HH:mm');
-
-            $.ajax({
-                type: 'POST',
-                url: url,
-                data: {
-                    _token: token,
-                    customer_id: customer_id,
-                    rating: 1,
-                    status: 3,
-                    assigned_user: 6,
-                    created_at: created_at
-                },
-                beforeSend: function () {
-                    $(thiss).text('Creating...');
-                },
-                success: function () {
-                    location.reload();
-                }
-            }).fail(function (error) {
-                console.log(error);
-                alert('There was an error creating a lead');
-            });
-        });
-
-        $(document).on('click', '.forward-btn', function () {
-            var id = $(this).data('id');
-            $('#forward_message_id').val(id);
-        });
-
-        $(document).on('click', '.complete-call', function (e) {
-            e.preventDefault();
-
-            var thiss = $(this);
-            var token = "{{ csrf_token() }}";
-            var url = "{{ route('instruction.complete') }}";
-            var id = $(this).data('id');
-            var assigned_from = $(this).data('assignedfrom');
-            var current_user = {{ Auth::id() }};
-
-            $.ajax({
-                type: 'POST',
-                url: url,
-                data: {
-                    _token: token,
-                    id: id
-                },
-                beforeSend: function () {
-                    $(thiss).text('Loading');
-                }
-            }).done(function (response) {
-                // $(thiss).parent().html(moment(response.time).format('DD-MM HH:mm'));
-                $(thiss).parent().html('Completed');
-
-
-            }).fail(function (errObj) {
-                console.log(errObj);
-                alert("Could not mark as completed");
-            });
-        });
-
-        $(document).on('click', '.pending-call', function (e) {
-            e.preventDefault();
-
-            var thiss = $(this);
-            var token = "{{ csrf_token() }}";
-            var url = "{{ route('instruction.pending') }}";
-            var id = $(this).data('id');
-
-            $.ajax({
-                type: 'POST',
-                url: url,
-                data: {
-                    _token: token,
-                    id: id
-                },
-                beforeSend: function () {
-                    $(thiss).text('Loading');
-                }
-            }).done(function (response) {
-                $(thiss).parent().html('Pending');
-                $(thiss).remove();
-            }).fail(function (errObj) {
-                console.log(errObj);
-                alert("Could not mark as completed");
-            });
-        });
-
-        $('#quickCategory').on('change', function () {
-            var replies = JSON.parse($(this).val());
-            $('#quickComment').empty();
-
-            $('#quickComment').append($('<option>', {
-                value: '',
-                text: 'Quick Reply'
-            }));
-
-            replies.forEach(function (reply) {
-                $('#quickComment').append($('<option>', {
-                    value: reply.reply,
-                    text: reply.reply
-                }));
-            });
-        });
-
-        $('#quickCategoryInternal').on('change', function () {
-            var replies = JSON.parse($(this).val());
-            $('#quickCommentInternal').empty();
-
-            $('#quickCommentInternal').append($('<option>', {
-                value: '',
-                text: 'Quick Reply'
-            }));
-
-            replies.forEach(function (reply) {
-                $('#quickCommentInternal').append($('<option>', {
-                    value: reply.reply,
-                    text: reply.reply
-                }));
-            });
-        });
-
-        $(document).on('click', '.collapse-fix', function () {
-            if (!$(this).hasClass('collapsed')) {
-                var target = $(this).data('target');
-                var all = $('.collapse-element').not($(target));
-
-                Array.from(all).forEach(function (element) {
-                    $(element).removeClass('in');
-                });
-            }
-        });
-
-        $('.add-task').on('click', function (e) {
-            e.preventDefault();
-            var id = $(this).data('id');
-            $('#add-remark input[name="id"]').val(id);
-        });
-
-        $('#addRemarkButton').on('click', function () {
-            var id = $('#add-remark input[name="id"]').val();
-            var remark = $('#add-remark textarea[name="remark"]').val();
-
-            $.ajax({
-                type: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                },
-                url: '{{ route('task.addRemark') }}',
-                data: {
-                    id: id,
-                    remark: remark,
-                    module_type: 'instruction'
-                },
-            }).done(response => {
-                alert('Remark Added Success!')
-                window.location.reload();
-            }).fail(function (response) {
-                console.log(response);
-            });
-        });
-
-
-        $(".view-remark").click(function () {
-            var id = $(this).attr('data-id');
-
-            $.ajax({
-                type: 'GET',
-                headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                },
-                url: '{{ route('task.gettaskremark') }}',
-                data: {
-                    id: id,
-                    module_type: "instruction"
-                },
-            }).done(response => {
-                var html = '';
-
-                $.each(response, function (index, value) {
-                    html += ' <p> ' + value.remark + ' <br> <small>By ' + value.user_name + ' updated on ' + moment(value.created_at).format('DD-M H:mm') + ' </small></p>';
-                    html + "<hr>";
-                });
-                $("#viewRemarkModal").find('#remark-list').html(html);
-            });
-        });
-
-        $(document).on('click', '.track-shipment-button', function () {
-            var thiss = $(this);
-            var order_id = $(this).data('id');
-            var awb = $('#awb_field_' + order_id).val();
-
-            $.ajax({
-                type: "POST",
-                url: "{{ route('stock.track.package') }}",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    awb: awb
-                },
-                beforeSend: function () {
-                    $(thiss).text('Tracking...');
-                }
-            }).done(function (response) {
-                $(thiss).text('Track');
-
-                $('#tracking-container-' + order_id).html(response);
-            }).fail(function (response) {
-                $(thiss).text('Tracking...');
-                alert('Could not track this package');
-                console.log(response);
-            });
-        });
-
-        $(document).on('click', '.verify-btn', function (e) {
-            e.preventDefault();
-
-            var thiss = $(this);
-            var id = $(this).data('id');
-
-            $.ajax({
-                type: "POST",
-                url: "{{ route('instruction.verify') }}",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    id: id
-                },
-                beforeSend: function () {
-                    $(thiss).text('Verifying...');
-                }
-            }).done(function (response) {
-                // $(thiss).parent().html('<span class="badge">Verified</span>');
-                var current_user = {{ Auth::id() }};
-
-                $(thiss).closest('tr').remove();
-
-                // var row = '<tr><td></td><td></td><td></td><td>' + response.instruction + '</td><td>' + moment(response.completed_at).format('DD-MM HH:mm') + '</td><td>Completed</td><td>' + verify_button + '</td><td></td><td></td></tr>';
-                // console.log(row);
-                //
-                // $('#5 tbody').append($(row));
-                window.location.reload();
-            }).fail(function (response) {
-                $(thiss).text('Verify');
-                console.log(response);
-                alert('Could not verify the instruction!');
-            });
-        });
-
-        $('#createInstructionReplyButton').on('click', function (e) {
-            e.preventDefault();
-
-            var url = "{{ route('reply.store') }}";
-            var reply = $('#instruction_reply_field').val();
-
-            $.ajax({
-                type: 'POST',
-                url: url,
-                headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                },
-                data: {
-                    reply: reply,
-                    category_id: 1,
-                    model: 'Instruction'
-                },
-                success: function (reply) {
-                    $('#instruction_reply_field').val('');
-                    $('#instructionComment').append($('<option>', {
-                        value: reply,
-                        text: reply
-                    }));
-                }
-            });
-        });
-
-        // if ($(this).is(":focus")) {
-        // Created by STRd6
-        // MIT License
-        // jquery.paste_image_reader.js
-        (function ($) {
-            var defaults;
-            $.event.fix = (function (originalFix) {
-                return function (event) {
-                    event = originalFix.apply(this, arguments);
-                    if (event.type.indexOf('copy') === 0 || event.type.indexOf('paste') === 0) {
-                        event.clipboardData = event.originalEvent.clipboardData;
-                    }
-                    return event;
-                };
-            })($.event.fix);
-            defaults = {
-                callback: $.noop,
-                matchType: /image.*/
-            };
-            return $.fn.pasteImageReader = function (options) {
-                if (typeof options === "function") {
-                    options = {
-                        callback: options
-                    };
-                }
-                options = $.extend({}, defaults, options);
-                return this.each(function () {
-                    var $this, element;
-                    element = this;
-                    $this = $(this);
-                    return $this.bind('paste', function (event) {
-                        var clipboardData, found;
-                        found = false;
-                        clipboardData = event.clipboardData;
-                        return Array.prototype.forEach.call(clipboardData.types, function (type, i) {
-                            var file, reader;
-                            if (found) {
-                                return;
-                            }
-                            if (type.match(options.matchType) || clipboardData.items[i].type.match(options.matchType)) {
-                                file = clipboardData.items[i].getAsFile();
-                                reader = new FileReader();
-                                reader.onload = function (evt) {
-                                    return options.callback.call(element, {
-                                        dataURL: evt.target.result,
-                                        event: evt,
-                                        file: file,
-                                        name: file.name
-                                    });
-                                };
-                                reader.readAsDataURL(file);
-                                return found = true;
-                            }
-                        });
-                    });
-                });
-            };
-        })(jQuery);
-
-        var dataURL, filename;
-        $("html").pasteImageReader(function (results) {
-            console.log(results);
-
-            // $('#message-body').on('focus', function() {
-            filename = results.filename, dataURL = results.dataURL;
-
-            var img = $('<div class="image-wrapper position-relative"><img src="' + dataURL + '" class="img-responsive" /><button type="button" class="btn btn-xs btn-secondary remove-screenshot">x</button></div>');
-
-            $('#paste-container').empty();
-            $('#paste-container').append(img);
-            $('#screenshot_path').val(dataURL);
-            // });
-
-        });
-
-        $(document).on('click', '.remove-screenshot', function () {
-            $(this).closest('.image-wrapper').remove();
-            $('#screenshot_path').val('');
-        });
+        }
+
+        if ($request->not_received == 'on') {
+            $suppliers = Supplier::doesnthave('emails')->where(function ($query) {
+                $query->whereNotNull('default_email')->orWhereNotNull('email');
+            })->get();
+        }
+
+        if ($request->received == 'on') {
+            $suppliers = Supplier::whereDoesntHave('emails', function ($query) {
+                $query->where('type', 'incoming');
+            })->where(function ($query) {
+                $query->whereNotNull('default_email')->orWhereNotNull('email');
+            })->where('has_error', 0)->get();
+        }
+
+        // foreach ($suppliers as $supplier) {
+        //   if ($supplier->email == '' && $supplier->default_email == '') {
+        //     dump($supplier->id);
+        //   }
+        // }
+        // dd('stop');
+
+        // $first_email = '';
+        // $bcc_emails = [];
+        // foreach ($suppliers as $key => $supplier) {
+        //   if ($key == 0) {
+        //     $first_email = $supplier->default_email ?? $supplier->email;
+        //   } else {
+        //     $bcc_emails[] = $supplier->default_email ?? $supplier->email;
+        //   }
         // }
 
+        $file_paths = [];
 
-        $(document).on('click', '.change-history-toggle', function () {
-            $(this).siblings('.change-history-container').toggleClass('hidden');
-        });
+        if ($request->hasFile('file')) {
+            foreach ($request->file('file') as $file) {
+                $filename = $file->getClientOriginalName();
 
-        $('#instructionCreateButton').on('click', function (e) {
-            e.preventDefault();
+                $file->storeAs("documents", $filename, 'files');
 
-            var assigned_to = $('#instruction_user_id').val();
-            var category_id = $('#instruction_category_id').val();
-            var instruction = $('#instruction-body').val();
-            var send_whatsapp = $('#sendWhatsappCheckbox').prop('checked') ? 'send' : '';
-            var is_priority = $('#instructionPriority').prop('checked') ? 'on' : '';
-
-            console.log(send_whatsapp);
-
-            if ($(this).closest('form')[0].checkValidity()) {
-                $.ajax({
-                    type: 'POST',
-                    url: "{{ route('instruction.store') }}",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        assigned_to: assigned_to,
-                        category_id: category_id,
-                        instruction: instruction,
-                        customer_id: {{ $supplier->id }},
-                        send_whatsapp: send_whatsapp,
-                        is_priority: is_priority,
-                    }
-                }).done(function () {
-                    $('#instructionModal').find('.close').click();
-                }).fail(function (response) {
-                    console.log(response);
-                    alert('Could not create an instruction');
-                });
-            } else {
-                $(this).closest('form')[0].reportValidity();
+                $file_paths[] = "documents/$filename";
             }
-        });
-
-        $('#supplierMessageButton').on('click', function () {
-            $(this).siblings('textarea').removeClass('hidden');
-            $(this).addClass('hidden');
-        });
-
-        $('#updateSupplierButton').on('click', function () {
-            var id = {{ $supplier->id }};
-            var thiss = $(this);
-            var supplier = $('#supplier_supplier').val();
-            var phone = $('#supplier_phone').val();
-            var default_phone = $('#supplier_default_phone').val();
-            var whatsapp_number = $('#supplier_whatsapp_number').val();
-            var address = $('#supplier_address').val();
-            var email = $('#supplier_email').val();
-            // var default_email = $('#supplier_default_email').val();
-            var instagram_handle = $('#supplier_instagram_handle').val();
-            var social_handle = $('#supplier_social_handle').val();
-            var website = $('#supplier_website').val();
-            var gst = $('#supplier_gst').val();
-            var status = $('#status').val();
-            var supplier_category_id = $('#supplier_category_id').val();
-            var supplier_status_id = $('#supplier_status_id').val();
-            var supplier_scraper_name = $('#supplier_scraper_name').val();
-            var supplier_inventory_lifetime = $('#supplier_inventory_lifetime').val();
-
-            $.ajax({
-                type: "POST",
-                url: "{{ url('supplier') }}/" + id,
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    _method: "PUT",
-                    supplier: supplier,
-                    phone: phone,
-                    default_phone: default_phone,
-                    // whatsapp_number: whatsapp_number,
-                    address: address,
-                    email: email,
-                    // default_email: default_email,
-                    instagram_handle: instagram_handle,
-                    social_handle: social_handle,
-                    website: website,
-                    gst: gst,
-                    status: status,
-                    supplier_category_id: supplier_category_id,
-                    supplier_status_id: supplier_status_id,
-                    scraper_name: supplier_scraper_name,
-                    inventory_lifetime: supplier_inventory_lifetime
-                },
-                beforeSend: function () {
-                    $(thiss).text('Saving...');
-                }
-            }).done(function () {
-                $(thiss).text('Save');
-                $(thiss).removeClass('btn-secondary');
-                $(thiss).addClass('btn-success');
-
-                setTimeout(function () {
-                    $(thiss).addClass('btn-secondary');
-                    $(thiss).removeClass('btn-success');
-                }, 2000);
-            }).fail(function (response) {
-                $(thiss).text('Save');
-                console.log(response);
-                alert('Could not update supplier');
-            });
-        });
-
-        $('#email_order_id').on('change', function () {
-            var order_id = $(this).val();
-
-            var subject = $(this).closest('form').find('input[name="subject"]').val();
-            var new_subject = order_id + ' ' + subject;
-
-            $(this).closest('form').find('input[name="subject"]').val(new_subject);
-        });
-
-        $('#showActionsButton').on('click', function () {
-            $('#actions-container').toggleClass('hidden');
-        });
-
-        $(document).on('click', '.show-images-button', function () {
-            $(this).siblings('.show-images-wrapper').toggleClass('hidden');
-        });
-
-        $(document).on('click', '.fix-message-error', function () {
-            var id = $(this).data('id');
-            var thiss = $(this);
-
-            $.ajax({
-                type: "POST",
-                url: "{{ url('whatsapp') }}/" + id + "/fixMessageError",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                },
-                beforeSend: function () {
-                    $(thiss).text('Fixing...');
-                }
-            }).done(function () {
-                $(thiss).remove();
-            }).fail(function (response) {
-                $(thiss).html('<img src="/images/flagged.png" />');
-
-                console.log(response);
-
-                alert('Could not mark as fixed');
-            });
-        });
-
-        $(document).on('click', '.resend-message', function () {
-            var id = $(this).data('id');
-            var thiss = $(this);
-
-            $.ajax({
-                type: "POST",
-                url: "{{ url('whatsapp') }}/" + id + "/resendMessage",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                },
-                beforeSend: function () {
-                    $(thiss).text('Sending...');
-                }
-            }).done(function () {
-                $(thiss).remove();
-            }).fail(function (response) {
-                $(thiss).text('Resend');
-
-                console.log(response);
-
-                alert('Could not resend message');
-            });
-        });
-
-        $(document).on('click', '.email-fetch', function (e) {
-            e.preventDefault();
-
-            var uid = $(this).data('uid');
-            var type = $(this).data('type');
-            var email_type = 'server';
-            var thiss = $(this);
-
-            if (uid == 'no') {
-                uid = $(this).data('id');
-                email_type = 'local';
-            }
-
-            $(thiss).closest('.card').find('.email-content').find('.resend-email-button').attr('data-id', uid);
-            $(thiss).closest('.card').find('.email-content').find('.resend-email-button').attr('data-emailtype', email_type);
-            $(thiss).closest('.card').find('.email-content').find('.resend-email-button').attr('data-type', type);
-
-            $.ajax({
-                type: "GET",
-                url: "{{ route('purchase.email.fetch') }}",
-                data: {
-                    uid: uid,
-                    type: type,
-                    email_type: email_type
-                },
-                beforeSend: function () {
-                    $(thiss).closest('.card').find('.email-content .card').html('Loading...');
-                }
-            }).done(function (response) {
-                $(thiss).closest('.card').find('.email-content .card').html(response.email);
-            }).fail(function (response) {
-                $(thiss).closest('.card').find('.email-content .card').html();
-                alert('Could not fetch an email');
-                console.log(response);
-            })
-        });
-
-        $('a[href="#email-tab"], #email-inbox-tab, #email-sent-tab').on('click', function () {
-            var supplier_id = $(this).data('supplierid');
-            var type = $(this).data('type');
-
-            $.ajax({
-                url: "{{ route('purchase.email.inbox') }}",
-                type: "GET",
-                data: {
-                    supplier_id: supplier_id,
-                    type: type
-                },
-                beforeSend: function () {
-                    $('#email-tab #email-container .card').html('Loading emails');
-                }
-            }).done(function (response) {
-                console.log(response);
-                $('#email-tab #email-container').html(response.emails);
-            }).fail(function (response) {
-                $('#email-tab #email-container .card').html();
-
-                alert('Could not fetch emails');
-                console.log(response);
-            });
-        });
-
-        $(document).on('click', '.pagination a', function (e) {
-            e.preventDefault();
-
-            var url = "/purchase/email/inbox" + $(this).attr('href');
-
-            $.ajax({
-                url: url,
-                type: "GET"
-            }).done(function (response) {
-                $('#email-tab #email-container').html(response.emails);
-            }).fail(function (response) {
-                alert('Could not load emails');
-                console.log(response);
-            });
-        });
-
-        $(document).on('click', '.flag-supplier', function () {
-            var supplier_id = $(this).data('id');
-            var thiss = $(this);
-
-            $.ajax({
-                type: "POST",
-                url: "{{ route('supplier.flag') }}",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    supplier_id: supplier_id
-                },
-                beforeSend: function () {
-                    $(thiss).text('Flagging...');
-                }
-            }).done(function (response) {
-                if (response.is_flagged == 1) {
-                    $(thiss).html('<img src="/images/flagged.png" />');
-                } else {
-                    $(thiss).html('<img src="/images/unflagged.png" />');
-                }
-            }).fail(function (response) {
-                $(thiss).html('<img src="/images/unflagged.png" />');
-
-                alert('Could not flag supplier!');
-
-                console.log(response);
-            });
-        });
-
-        // REPLY
-
-        $(document).on('click', '.email-reply-link', function (e) {
-            e.preventDefault();
-
-            var DELAY = 300;
-            var el = $(this);
-            var parent = el.parent();
-
-            el.fadeOut(function () {
-                parent.find('.cancel-email-reply-link').fadeIn();
-            });
-
-            parent.find('.cancel-email-forward-link').click();
-
-            parent.find('.email-reply-form').show(DELAY);
-        });
-
-        $(document).on('click', '.cancel-email-reply-link', function (e) {
-            e.preventDefault();
-
-            var DELAY = 300;
-            var el = $(this);
-            var parent = el.parent();
-
-            el.fadeOut(function () {
-                parent.find('.email-reply-link').fadeIn();
-            });
-
-            parent.find('.email-reply-form').hide(DELAY);
-        });
-
-        $(document).on('click', '.email-reply-form-submit-button', function (e) {
-            e.preventDefault();
-
-            var el = $(this);
-            var parentEl = el.parent().parent().parent();
-            var form = el.parent().parent();
-            var data = form.serializeArray();
-            var action = form.attr('action');
-
-            $.ajax({
-                type: "POST",
-                url: action,
-                data: data,
-            }).done(function (response) {
-                if (response.success === true) {
-                    form.find('.form-group .reply-message-textarea').val('')
-                    if (parentEl.find('.cancel-email-reply-link')) {
-                        parentEl.find('.cancel-email-reply-link').click()
-                    }
-
-                    parentEl.find('.reply-success-messages')
-                        .html(response.message)
-                        .show(300).delay(4000).hide(300);
-                } else {
-                    parentEl.find('.reply-error-messages')
-                        .html(response.errors.join('<br>'))
-                        .show(300).delay(4000).hide(300);
-                }
-            }).fail(function (response) {
-                parentEl.find('.reply-error-messages')
-                    .html(response.data.messages.join('<br>'))
-                    .show(300).delay(4000).hide(300);
-            });
-        });
-
-        // FORWARD
-
-        $(document).on('click', '.email-forward-link', function (e) {
-            e.preventDefault();
-
-            var DELAY = 300;
-            var el = $(this);
-            var parent = el.parent();
-
-            el.fadeOut(function () {
-                parent.find('.cancel-email-forward-link').fadeIn();
-            });
-
-            parent.find('.cancel-email-reply-link').click();
-
-            parent.find('.email-forward-form').show(DELAY);
-        });
-
-        $(document).on('click', '.cancel-email-forward-link', function (e) {
-            e.preventDefault();
-
-            var DELAY = 300;
-            var el = $(this);
-            var parent = el.parent();
-
-            el.fadeOut(function () {
-                parent.find('.email-forward-link').fadeIn();
-            });
-
-            parent.find('.email-forward-form').hide(DELAY);
-        });
-
-        $(document).on('click', '.email-forward-form-submit-button', function (e) {
-            e.preventDefault();
-
-            var el = $(this);
-            var parentEl = el.parent().parent().parent();
-            var form = el.parent().parent();
-            var data = form.serializeArray();
-            var action = form.attr('action');
-
-            $.ajax({
-                type: "POST",
-                url: action,
-                data: data,
-            }).done(function (response) {
-                if (response.success === true) {
-                    form.find('.form-group .forward-message-textarea').val('')
-                    if (parentEl.find('.cancel-email-forward-link')) {
-                        parentEl.find('.cancel-email-forward-link').click()
-                    }
-
-                    parentEl.find('.forward-success-messages')
-                        .html(response.message)
-                        .show(300).delay(4000).hide(300);
-                } else {
-                    parentEl.find('.forward-error-messages')
-                        .html(response.errors.join('<br>'))
-                        .show(300).delay(4000).hide(300);
-                }
-            }).fail(function (response) {
-                parentEl.find('.forward-error-messages')
-                    .html(response.data.messages.join('<br>'))
-                    .show(300).delay(4000).hide(300);
-            });
-        });
-
-        $(document).on('click', '.add-forward-to', function (e) {
-            e.preventDefault();
-
-            var el = ` <div class="row mb-3">
-            <div class="col-md-10">
-                <input type="text" name="to[]" class="form-control">
-            </div>
-            <div class="col-md-2 text-center">
-                <button type="button" class="btn btn-image delete-forward-to"><img src="/images/delete.png"></button>
-            </div>
-        </div>`;
-
-            $('#forward-to-emails-list').append(el);
-        });
-
-        $(document).on('click', '.delete-forward-to', function (e) {
-            e.preventDefault();
-            var parent = $(this).parent().parent();
-
-            parent.hide(300, function () {
-                parent.remove();
-            });
-        });
-
-        // cc
-
-        $(document).on('click', '.add-cc', function (e) {
-            e.preventDefault();
-
-            if ($('#cc-label').is(':hidden')) {
-                $('#cc-label').fadeIn();
-            }
-
-            var el = `<div class="row cc-input">
-            <div class="col-md-10">
-                <input type="text" name="cc[]" class="form-control mb-3">
-            </div>
-            <div class="col-md-2">
-                <button type="button" class="btn btn-image cc-delete-button"><img src="/images/delete.png"></button>
-            </div>
-        </div>`;
-
-            $('#cc-list').append(el);
-        });
-
-        $(document).on('click', '.cc-delete-button', function (e) {
-            e.preventDefault();
-            var parent = $(this).parent().parent();
-
-            parent.hide(300, function () {
-                parent.remove();
-                var n = 0;
-
-                $('.cc-input').each(function () {
-                    n++;
-                });
-
-                if (n == 0) {
-                    $('#cc-label').fadeOut();
-                }
-            });
-        });
-
-        // bcc
-
-        $(document).on('click', '.add-bcc', function (e) {
-            e.preventDefault();
-
-            if ($('#bcc-label').is(':hidden')) {
-                $('#bcc-label').fadeIn();
-            }
-
-            var el = `<div class="row bcc-input">
-            <div class="col-md-10">
-                <input type="text" name="bcc[]" class="form-control mb-3">
-            </div>
-            <div class="col-md-2">
-                <button type="button" class="btn btn-image bcc-delete-button"><img src="/images/delete.png"></button>
-            </div>
-        </div>`;
-
-            $('#bcc-list').append(el);
-        });
-
-        $(document).on('click', '.bcc-delete-button', function (e) {
-            e.preventDefault();
-            var parent = $(this).parent().parent();
-
-            parent.hide(300, function () {
-                parent.remove();
-                var n = 0;
-
-                $('.bcc-input').each(function () {
-                    n++;
-                });
-
-                if (n == 0) {
-                    $('#bcc-label').fadeOut();
-                }
-            });
-        });
-
-        $(document).ready(function() {
-           $(".select-multiple").multiselect();
-           $(".select-multiple2").select2();
-        });
-
-        $(function() {
-         $('.selectpicker').selectpicker();
-        });
-
-         $(document).on('click', '#createProduct', function (e) {
-            e.preventDefault();
-             var images = [];
-            $.each($("input[name='product']:checked"), function(e,v){
-                var image = $(v).closest(".show-thumbnail-image").attr("href");
-                    images.push(image);
-            });
-            if(images.length == 0) {
-                alert("select some images first");
-                return;
-            }
-            $("#images_product").val(JSON.stringify(images));
-            $("#count_product_images").html(images.length);
-            $('#productSingleGroupDetails').modal('show');
-        });
-        $(document).on('submit', '#productSingleGroupDetailsForm', function (e) {
-            e.preventDefault();
-             var url = $(this).attr('action');
-            $.ajax({
-                url: url,
-                method:"POST",
-                data: $(this).serialize(),
-            }).done(function (response) {
-                if(response.code == 200) {
-                    toastr['success'](response.message, 'success');
-                }
-                else {
-                    toastr['error'](response.message, 'error');
-                }
-                $('#productSingleGroupDetails').modal('hide');
-
-
-            }).fail(function (errObj) {
-                console.log(errObj);
-            });
-           
-        });
-
-          $(document).on('click', '#createGroup', function (e) {
-            e.preventDefault();
-             var images = [];
-            $.each($("input[name='checkbox[]']:checked"), function(){
-                images.push($(this).val());
-            });
-            
-            if(images.length == 0) {
-                alert("select some images first");
-                return;
-            }
-            $("#images").val(JSON.stringify(images));
-            $("#count_images").html(images.length);
-            $('#productGroupDetails').modal('show');
-        });
-
-        $(document).on('submit', '#productGroupDetailsForm', function (e) {
-            e.preventDefault();
-             var url = $(this).attr('action');
-            $.ajax({
-                url: url,
-                method:"POST",
-                data: $(this).serialize(),
-            }).done(function (response) {
-                if(response.code == 200) {
-                    toastr['success'](response.message, 'success');
-                }
-                else {
-                    toastr['error'](response.message, 'error');
-                }
-                $('#productGroupDetails').modal('hide');
-
-
-            }).fail(function (errObj) {
-                console.log(errObj);
-            });
-           
-        });
-
-
-          $(document).on('click', '#createInStockProduct', function (e) {
-            e.preventDefault();
-             var images = [];
-            $.each($("input[name='checkbox[]']:checked"), function(){
-                images.push($(this).val());
-            });
-            if(images.length == 0){
-                alert('Please Select Image');
-            }else{
-                $("#images").val(JSON.stringify(images));
-                $("#count_images").html(images.length);
-                $('#productModal').modal('show');
-            }
-
-        });
-
-        $(document).on('click', '#auto-translate', function (e) {
-            e.preventDefault();
-            var supplier_id = {{ $supplier->id }};
-            var language = $("#autoTranslate").val();
-            let self = $(this);
-            $.ajax({
-                url: "/supplier/language-translate/"+supplier_id,
-                method:"PUT",
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                  },
-                data:{id:supplier_id, language:language },
-                cache: false,
-                beforeSend: function () {
-                    $(self).text('Saving...');
-                },
-                success: function(res) {
-                    $(self).removeClass('btn-secondary');
-                    $(self).addClass('btn-success');
-
-                    setTimeout(function () {
-                        $(self).text('Add translation language');
-                        $(self).addClass('btn-secondary');
-                        $(self).removeClass('btn-success');
-                    }, 2000);
-                }
-            })
-        });
-
-        function processExcel(id){
-            attachment = $('#email'+id).attr('data-attached');
-            $.ajax({
-                url: '/supplier/excel-import',
-                type: 'POST',
-                dataType: 'json',
-                data: {
-                    _token: "{{csrf_token()}}",
-                    'email_id' : id,
-                    'attachment' : attachment,
-                    'id' : "{{ $supplier-> id }}",
-                },
-            })
-            .done(function() {
-                alert('Added For Import');
-            })
-            .fail(function() {
-                alert('Error During Import');
-            })
-
-
         }
 
-         $(document).on('change', '.change-whatsapp-no', function () {
-            var $this = $(this);
-            $.ajax({
-                type: "POST",
-                url: "{{ route('supplier.change.whatsapp') }}",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    supplier_id : $this.data("supplier-id"),
-                    number: $this.val()
+        $cc = $bcc = [];
+        if ($request->has('cc')) {
+            $cc = array_values(array_filter($request->cc));
+        }
+        if ($request->has('bcc')) {
+            $bcc = array_values(array_filter($request->bcc));
+        }
+
+        foreach ($suppliers as $supplier) {
+            $mail = Mail::to($supplier->default_email ?? $supplier->email);
+
+            if ($cc) {
+                $mail->cc($cc);
+            }
+            if ($bcc) {
+                $mail->bcc($bcc);
+            }
+
+            $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
+
+            $params = [
+                'model_id' => $supplier->id,
+                'model_type' => Supplier::class,
+                'from' => 'buying@amourint.com',
+                'seen' => 1,
+                'to' => $supplier->default_email ?? $supplier->email,
+                'subject' => $request->subject,
+                'message' => $request->message,
+                'template' => 'customer-simple',
+                'additional_data' => json_encode(['attachment' => $file_paths]),
+                'cc' => $cc ? : null,
+                'bcc' => $bcc ? : null,
+            ];
+
+            Email::create($params);
+        }
+
+        return redirect()->route('supplier.index')->withSuccess('You have successfully sent emails in bulk!');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        $supplier = Supplier::find($id);
+
+//      $supplier->agents()->delete();
+//      $supplier->whatsapps()->delete();
+
+        $supplier->delete();
+
+        return redirect()->route('supplier.index')->withSuccess('You have successfully deleted a supplier');
+    }
+
+    /**
+     * Add Notes method
+     */
+    public function addNote($id, Request $request)
+    {
+        $supplier = Supplier::findOrFail($id);
+        $notes = $supplier->notes;
+        if (!is_array($notes)) {
+            $notes = [];
+        }
+
+        $notes[] = $request->get('note');
+        $supplier->notes = $notes;
+        $supplier->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
+    public function supplierupdate(Request $request)
+    {
+        $supplier = Supplier::find($request->get('supplier_id'));
+        $supplier->frequency = $request->get('id');
+        $type = $request->get('type');
+        if ($type == 'category') {
+            $supplier->supplier_category_id = $request->get('id');
+        }
+        if ($type == 'status') {
+            $supplier->supplier_status_id = $request->get('id');
+        }
+        $supplier->save();
+        return response()->json([
+            'success'
+        ]);
+    }
+
+    public function getsuppliers(Request $request)
+    {
+
+        $input = $request->all();
+
+        $supplier_category_id = $input[ 'supplier_category_id' ];
+
+        $supplier_status_id = $input[ 'supplier_status_id' ];
+
+        $filter = $input[ 'filter' ];
+
+        $data = '';
+        $typeWhereClause = '';
+        $suppliers_all = array();
+        if ($supplier_category_id == '' && $supplier_status_id == '') {
+            /* $suppliers_all = Supplier::where(function ($query) {
+             $query->whereNotNull('email')->orWhereNotNull('default_email');
+           })->get();*/
+        } else {
+            if ($supplier_category_id != '') {
+                $typeWhereClause .= ' AND supplier_category_id=' . $supplier_category_id;
+            }
+            if ($supplier_status_id != '') {
+                $typeWhereClause .= ' AND supplier_status_id=' . $supplier_status_id;
+            }
+
+            if ($filter != '') {
+                $typeWhereClause .= ' AND supplier like "' . $filter . '%"';
+            }
+            $suppliers_all = DB::select('SELECT suppliers.id, suppliers.supplier, suppliers.email, suppliers.default_email from suppliers WHERE email != "" ' . $typeWhereClause . '');
+        }
+
+        if (count($suppliers_all) > 0) {
+
+            foreach ($suppliers_all as $supplier) {
+                $data .= '<option value="' . $supplier->id . '">' . $supplier->supplier . ' - ' . $supplier->default_email . ' / ' . $supplier->email . '</option>';
+            }
+        }
+        return $data;
+    }
+
+    public function addSupplierCategoryCount()
+    {
+
+        $suppliercount = SupplierCategoryCount::all();
+        $category_parent = Category::where('parent_id', 0)->get();
+        $category_child = Category::where('parent_id', '!=', 0)->get();
+        $supplier = Supplier::where('supplier_status_id', 1)->orderby('supplier', 'asc')->get();
+
+        return view('suppliers.supplier_category_count', compact('supplier', 'suppliercount', 'category_parent', 'category_child'));
+    }
+
+    public function saveSupplierCategoryCount(Request $request)
+    {
+        $category_id = $request->category_id;
+        $supplier_id = $request->supplier_id;
+        $count = $request->count;
+
+        $data[ 'category_id' ] = $category_id;
+        $data[ 'supplier_id' ] = $supplier_id;
+        $data[ 'cnt' ] = $count;
+        SupplierCategoryCount::create($data);
+
+        return 'Saved SucessFully';
+    }
+
+    public function getSupplierCategoryCount(Request $request)
+    {
+      $limit = $request->input('length');
+      $start = $request->input('start');
+
+        $suppliercount = SupplierCategoryCount::query();
+        $suppliercountTotal = SupplierCategoryCount::count();
+        $supplier_list = Supplier::where('supplier_status_id', 1)->orderby('supplier', 'asc')->get();
+        $category_parent = Category::where('parent_id', 0)->get();
+        $category_child = Category::where('parent_id', '!=', 0)->get();
+
+        $suppliercount = $suppliercount->offset($start)->limit($limit)->orderBy('supplier_id', 'asc')->get();
+        foreach ($suppliercount as $supplier) {
+            $sup = "";
+            foreach ($supplier_list as $v) {
+                if ($v->id == $supplier->supplier_id) {
+                    $sup .= '<option value="' . $v->id . '" selected>' . $v->supplier . '</option>';
+                } else {
+                    $sup .= '<option value="' . $v->id . '">' . $v->supplier . '</option>';
                 }
-            }).done(function () {
-                alert('Number updated successfully!');
-            }).fail(function (response) {
-                console.log(response);
-            });
-        });
+            }
 
-
-
-        function createProduct(){
-            var images = [];
-            $.each($("input[name='checkbox[]']:checked"), function(){
-                images.push($(this).val());
-            });
-            sku = $('#sku').val();
-            category = $('#category').val();
-            if(images.length == 0){
-                alert('Please select image');
-            }else if(sku == ''){
-                alert('Please enter sku');
-            }else if(category == ''){
-                alert('Please select category');
-            }else if(location_data == ''){
-                alert('Please select location');
-            }else{
-                size = $('#size-selection').val();
-                name = $('#name').val();
-                brand = $('#brand').val();
-                color = $('#color').val();
-
-                supplier = $('#supplier').val();
-                price = $('#price').val();
-                price_inr_special_stock = $('#price_inr_special_stock').val();
-                location_data = $('#location_data').val();
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('supplier.image') }}",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        type : 3,
-                        images : $('#images').val(),
-                        sku : sku,
-                        size : size,
-                        name : name,
-                        brand : brand,
-                        color : color,
-                        supplier : supplier,
-                        price : price,
-                        price_special : price_inr_special_stock,
-                        category : category,
-                        location : location_data,
+            $cat = "";
+            foreach ($category_parent as $c) {
+                if ($c->id == $supplier->category_id) {
+                    $cat .= '<option value="' . $c->id . '" selected>' . $c->title . '</option>';
+                } else {
+                    $cat .= '<option value="' . $c->id . '">' . $c->title . '</option>';
+                    if ($c->childs) {
+                        foreach ($c->childs as $categ) {
+                            $cat .= '<option value="' . $categ->id . '">-&nbsp;' . $categ->title . '</option>';
+                        }
                     }
-                }).done(function (response) {
-                    if(response.code == 200) {
-                    toastr['success'](response.message, 'success');
                 }
-                else {
-                    toastr['error'](response.message, 'error');
-                }
-                    $('#productModal').modal('hide');
-                }).fail(function (response) {
-                    console.log(response);
-                });
+            }
+            foreach ($category_child as $c) {
+                if ($c->id == $supplier->category_id) {
+                    $cat .= '<option value="' . $c->id . '" selected>' . $c->title . '</option>';
+                } else {
+                    $cat .= '<option value="' . $c->id . '">' . $c->title . '</option>';
+                    if ($c->childs) {
+                        foreach ($c->childs as $categ) {
+                            $cat .= '<option value="' . $categ->id . '">-&nbsp;' . $categ->title . '</option>';
+                        }
+                    }
                 }
             }
 
 
+            $sub_array = array();
+            $sub_array[] = '<select class="form-control update" data-column="supplier_id" data-id="' . $supplier[ "id" ] . '">' . $sup . '</select>';
+            $sub_array[] = '<select class="form-control update" data-id="' . $supplier[ "id" ] . '" data-column="category_id">' . $cat . '</select>';
+            $sub_array[] = '<input type="number"  data-id="' . $supplier[ "id" ] . '" data-column="cnt" value="' . $supplier[ "cnt" ] . '"  class="form-control update">';
+            $sub_array[] = '<button type="button" name="delete" class="btn btn-danger btn-xs delete" id="' . $supplier[ "id" ] . '">Delete</button>';
+            $data[] = $sub_array;
+        }
+        if (!empty($data)) {
+            $output = array(
+                "draw" => intval($request->input('draw')),
+                "recordsTotal" => $suppliercountTotal,
+                "recordsFiltered" => $suppliercountTotal,
+                "data" => $data
+            );
+        } else {
+            $output = array(
+                "draw" => 0,
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => [],
+            );
+        }
 
 
-    </script>
-@endsection
+        return json_encode($output);
+
+    }
+
+    public function updateSupplierCategoryCount(Request $request)
+    {
+        $id = $request->id;
+        $column_name = $request->column_name;
+        $value = $request->value;
+        $suppliercount = SupplierCategoryCount::findorfail($request->id);
+        $suppliercount->$column_name = $value;
+        $suppliercount->update();
+        return 'Data Updated';
+
+    }
+
+    public function deleteSupplierCategoryCount(Request $request)
+    {
+        $id = $request->id;
+        $suppliercpunt = SupplierCategoryCount::findorfail($id);
+        if ($suppliercpunt) {
+            SupplierCategoryCount::destroy($id);
+        }
+        return 'Data Deleted';
+    }
+
+    public function addSupplierBrandCount()
+    {
+
+        $suppliercount = SupplierBrandCount::all();
+        $brand = Brand::orderby('name', 'asc')->get();
+        $supplier = Supplier::where('supplier_status_id', 1)->orderby('supplier', 'asc')->get();
+        $category_parent = Category::where('parent_id', 0)->get();
+        $category_child = Category::where('parent_id', '!=', 0)->get();
+
+        return view('suppliers.supplier_brand_count', compact('supplier', 'suppliercount', 'brand', 'category_parent', 'category_child'));
+    }
+
+    public function saveSupplierBrandCount(Request $request)
+    {
+        $brand_id = $request->brand_id;
+        $supplier_id = $request->supplier_id;
+        $count = $request->count;
+        $url = $request->url;
+        $category_id = $request->category_id;
+
+        $data[ 'brand_id' ] = $brand_id;
+        $data[ 'supplier_id' ] = $supplier_id;
+        $data[ 'cnt' ] = $count;
+        $data[ 'url' ] = $url;
+        $data[ 'category_id' ] = $category_id;
+
+        SupplierBrandCount::create($data);
+
+        return 'Saved SucessFully';
+    }
+
+    public function getSupplierBrandCount(Request $request)
+    {
+
+        $columns = array(
+          0 => 'supplier_id',
+          1 => 'category_id',
+          2 => 'brand_id',
+          3 => 'count',
+          4 => 'url',
+          5 => 'action',
+        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+
+
+        $suppliercount = SupplierBrandCount::query();
+        $suppliercountTotal = SupplierBrandCount::count();
+        $supplier_list = Supplier::where('supplier_status_id', 1)->orderby('supplier', 'asc')->get();
+        $brand_list = Brand::orderby('name', 'asc')->get();
+        $category_parent = Category::where('parent_id', 0)->orderby('title', 'asc')->get();
+        $category_child = Category::where('parent_id', '!=', 0)->orderby('title', 'asc')->get();
+
+        $suppliercount = $suppliercount->offset($start)->limit($limit)->orderBy('supplier_id', 'asc')->get();
+
+        foreach ($suppliercount as $supplier) {
+            $sup = "";
+
+            foreach ($supplier_list as $v) {
+
+                if ($v->id == $supplier->supplier_id) {
+                    $sup .= '<option value="' . $v->id . '" selected>' . $v->supplier . '</option>';
+                } else {
+                    $sup .= '<option value="' . $v->id . '">' . $v->supplier . '</option>';
+                }
+            }
+
+            $brands = "";
+            foreach ($brand_list as $v) {
+                if ($v->id == $supplier->brand_id) {
+                    $brands .= '<option value="' . $v->id . '" selected>' . $v->name . '</option>';
+                } else {
+                    $brands .= '<option value="' . $v->id . '">' . $v->name . '</option>';
+                }
+            }
+
+            $cat = "";
+            $cat .= '<option>Select Category</option>';
+            foreach ($category_parent as $c) {
+                if ($c->id == $supplier->category_id) {
+                    $cat .= '<option value="' . $c->id . '" selected>' . $c->title . '</option>';
+                } else {
+                    $cat .= '<option value="' . $c->id . '">' . $c->title . '</option>';
+                    if ($c->childs) {
+                        foreach ($c->childs as $categ) {
+                            $cat .= '<option value="' . $categ->id . '">-&nbsp;' . $categ->title . '</option>';
+                        }
+                    }
+                }
+            }
+            foreach ($category_child as $c) {
+                if ($c->id == $supplier->category_id) {
+                    $cat .= '<option value="' . $c->id . '" selected>' . $c->title . '</option>';
+                } else {
+                    $cat .= '<option value="' . $c->id . '">' . $c->title . '</option>';
+                    if ($c->childs) {
+                        foreach ($c->childs as $categ) {
+                            $cat .= '<option value="' . $categ->id . '">-&nbsp;' . $categ->title . '</option>';
+                        }
+                    }
+                }
+            }
+
+
+            $sub_array = array();
+            $sub_array[] = '<select disabled class="form-control">' . $sup . '</select>';
+            $sub_array[] = '<select class="form-control" disabled>' . $cat . '</select>';
+            $sub_array[] = '<select disabled class="form-control">' . $brands . '</select>';
+            $sub_array[] = '<input type="number"  data-id="' . $supplier[ "id" ] . '" data-column="cnt" value="' . $supplier[ "cnt" ] . '"  class="form-control update">';
+            $sub_array[] = $supplier[ "url" ];
+            $sub_array[] = '<button type="button" name="delete" class="btn btn-danger btn-xs delete" id="' . $supplier[ "id" ] . '">Delete</button>';
+            $data[] = $sub_array;
+        }
+
+        // dd(count($data));
+        if (!empty($data)) {
+            $output = array(
+                "draw" => intval($request->input('draw')),
+                "recordsTotal" => $suppliercountTotal,
+                "recordsFiltered" => $suppliercountTotal,
+                "data" => $data
+            );
+        } else {
+            $output = array(
+                "draw" => 0,
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => [],
+            );
+        }
+
+
+        return json_encode($output);
+
+    }
+
+    public function updateSupplierBrandCount(Request $request)
+    {
+        $id = $request->id;
+        $column_name = $request->column_name;
+        $value = $request->value;
+        $suppliercount = SupplierBrandCount::findorfail($request->id);
+
+        // Update in history
+        $history = new SupplierBrandCountHistory();
+        $history->supplier_brand_count_id = $suppliercount->id;
+        $history->supplier_id = $suppliercount->supplier_id;
+        $history->brand_id = $suppliercount->brand_id;
+        $history->cnt = $suppliercount->cnt;
+        $history->url = $suppliercount->url;
+        $history->category_id = $suppliercount->category_id;
+        $history->save();
+        //Update the value
+        $suppliercount->$column_name = $value;
+        $suppliercount->update();
+        return 'Data Updated';
+
+    }
+
+    public function deleteSupplierBrandCount(Request $request)
+    {
+        $id = $request->id;
+        $suppliercount = SupplierBrandCount::findorfail($id);
+        if ($suppliercount) {
+            // Update in history
+            $history = new SupplierBrandCountHistory();
+            $history->supplier_brand_count_id = $suppliercount->id;
+            $history->supplier_id = $suppliercount->supplier_id;
+            $history->brand_id = $suppliercount->brand_id;
+            $history->cnt = $suppliercount->cnt;
+            $history->url = $suppliercount->url;
+            $history->category_id = $suppliercount->category_id;
+            $history->save();
+            SupplierBrandCount::destroy($id);
+        }
+        return 'Data Deleted';
+    }
+
+    public function block(Request $request)
+    {
+        $supplier = Supplier::find($request->supplier_id);
+
+        if ($supplier->is_blocked == 0) {
+            $supplier->is_blocked = 1;
+        } else {
+            $supplier->is_blocked = 0;
+        }
+
+        $supplier->save();
+
+        return response()->json(['is_blocked' => $supplier->is_blocked]);
+    }
+
+    public function saveImage(Request $request)
+    {
+        // Only create Product
+        if ($request->type == 1) {
+
+            // Create Group ID with Product
+            $images = explode(",", $request->checkbox1[ 0 ]);
+            if ($images) {
+                $createdProducts = [];
+                foreach ($images as $image) {
+                    if ($image != null) {
+                        $product = Product::select('sku')->where('sku', 'LIKE', '%QUICKSELL' . date('yz') . '%')->orderBy('id', 'desc')->first();
+                        if ($product) {
+                            $number = str_ireplace('QUICKSELL', '', $product->sku) + 1;
+                        } else {
+                            $number = date('yz') . sprintf('%02d', 1);
+                        }
+
+                        $product = new Product;
+
+                        $product->name = 'QUICKSELL';
+                        $product->sku = 'QuickSell' . $number;
+                        $product->size = '';
+                        $product->brand = $product->brand = $request->brand;
+                        $product->color = '';
+                        $product->location = request("location","");
+                        if ($request->category == null) {
+                            $product->category = '';
+                        } else {
+                            $product->category = $request->category;
+                        }
+
+                        if ($request->supplier == null) {
+                            $product->supplier = 'QUICKSELL';
+                        } else {
+                            $sup = Supplier::findorfail($request->supplier);
+                            $product->supplier = $sup->supplier;
+                        }
+                        if ($request->buying_price == null) {
+                            $product->price = 0;
+                        } else {
+                            $product->price = $request->buying_price;
+                        }
+                        if ($request->special_price == null) {
+                            $product->price_inr_special = 0;
+                        } else {
+                            $product->price_inr_special = $request->special_price;
+                        }
+                        $product->stock = 1;
+                        $product->quick_product = 1;
+                        $product->is_pending = 1;
+                        $product->save();
+                        $createdProducts[] = $product->id;
+                        preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $image, $match);
+                        $image = isset($match[ 0 ][ 0 ]) ? $match[ 0 ][ 0 ] : false;
+                        if(!empty($image)) {
+                          $jpg = \Image::make($image)->encode('jpg');
+                          $filename = substr($image, strrpos($image, '/'));
+                          $filename = str_replace("/", "", $filename);
+                          $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                          $product->attachMedia($media, config('constants.media_tags'));
+                        }
+
+
+                        // return redirect()->back()->withSuccess('You have successfully saved product(s)!');
+                    }
+                }
+                if(count($createdProducts) > 0) {
+                    $message = count($createdProducts). ' Product(s) has been created successfully, id\'s are '.json_encode($createdProducts);
+                    $code = 200;
+                }
+                else {
+                    $message = 'No Images selected';
+                    $code = 500;
+                }
+                return response()->json(['code' => $code, 'message' => $message]);
+            }
+            else {
+                return response()->json(['code' => 500, 'message' => 'No Images selected']);
+            }
+        }elseif ($request->type == 3) {
+          // Create Group ID with Product
+            $images = $request->images;
+
+            $images = explode('"',$images);
+            if ($images) {
+                $createdProducts = [];
+                foreach ($images as $image) {
+
+                    if ($image != null) {
+                        if($image != '[' && $image != ']' && $image != ',' ){
+                          $product = new Product;
+                          $product->name = $request->name;
+                          $product->sku = $request->sku;
+                          $product->size = $request->size;
+                          $product->brand = $request->brand;
+                          $product->color = $request->color;
+                          $product->location = $request->location;
+                          $product->category = $request->category;
+                          $product->supplier = $request->supplier;
+
+                          if ($request->price == null) {
+                              $product->price = 0;
+                          } else {
+                              $product->price = $request->price;
+                          }
+
+                          if ($request->price_special == null) {
+                              $product->price_inr_special = 0;
+                          } else {
+                              $product->price_inr_special = $request->price_special;
+                          }
+                          $product->stock = 1;
+                          $product->purchase_status = 'InStock';
+                          $product->save();
+                          $createdProducts[] = $product->id;
+                          preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $image, $match);
+                          $image = isset($match[ 0 ][ 0 ]) ? $match[ 0 ][ 0 ] : false;
+                          if(!empty($image)) {
+                            $jpg = \Image::make($image)->encode('jpg');
+                            $filename = substr($image, strrpos($image, '/'));
+                            $filename = str_replace("/", "", $filename);
+                            $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                            $product->attachMedia($media, config('constants.media_tags'));
+                          }
+                       }
+
+                    }
+                }
+                if(count($createdProducts) > 0) {
+                    $message = count($createdProducts). ' Product(s) has been created successfully, id\'s are '.json_encode($createdProducts);
+                    $code = 200;
+                }
+                else {
+                    $message = 'No Images selected';
+                    $code = 500;
+                }
+                return response()->json(['code' => $code, 'message' => $message]);
+        }
+        else {
+            return response()->json(['code' => 500, 'message' => 'No Images selected']);
+        }
+      }
+
+         else {
+
+            // Create Group ID with Product
+            $images = explode(",", $request->checkbox[ 0 ]);
+
+            if ($images) {
+                // Loop Over Images
+
+                $group = QuickSellGroup::orderBy('id', 'desc')->first();
+                if ($group != null) {
+                    if ($request->groups != null) {
+                        $group_create = QuickSellGroup::findorfail($request->groups);
+                        $group_id = $group_create->group;
+                    } else {
+                        $group_create = new QuickSellGroup();
+                        $incrementId = ($group->group + 1);
+                        if ($request->group_id != null) {
+                            $group_create->name = $request->group_id;
+                        }
+                        $group_create->suppliers = json_encode($request->supplier);
+                        $group_create->brands = json_encode($request->brand);
+                        $group_create->price = $request->buying_price;
+                        $group_create->special_price = $request->special_price;
+                        $group_create->categories = json_encode($request->category);
+                        $group_create->group = $incrementId;
+                        $group_create->save();
+                        $group_id = $group_create->group;
+                    }
+                } else {
+                    $group = new QuickSellGroup();
+                    $group->group = 1;
+                    $group_create->name = $request->group_id;
+                    $group_create->suppliers = json_encode($request->suppliers);
+                    $group_create->brands = json_encode($request->brand);
+                    $group_create->price = $request->buying_price;
+                    $group_create->special_price = $request->special_price;
+                    $group_create->categories = json_encode($request->categories);
+                    $group->save();
+                    $group_id = $group->group;
+                }
+                $createdProducts = [];
+                foreach ($images as $image) {
+                    //Getting the last created QUICKSELL
+                    // MariaDB 10.0.5 and higher: $product = Product::select('sku')->where('sku', 'LIKE', '%QuickSell%')->whereRaw("REGEXP_REPLACE(products.sku, '[a-zA-Z]+', '') > 0")->orderBy('id', 'desc')->first();
+                    $product = Product::select('sku')->where('sku', 'LIKE', '%QUICKSELL' . date('yz') . '%')->orderBy('id', 'desc')->first();
+                    if ($product) {
+                        $number = str_ireplace('QUICKSELL', '', $product->sku) + 1;
+                    } else {
+                        $number = date('yz') . sprintf('%02d', 1);
+                    }
+                    $product = new Product;
+
+                    $product->name = 'QUICKSELL';
+                    $product->sku = 'QuickSell' . $number;
+                    $product->size = '';
+                    $product->brand = $request->brand;
+                    $product->color = '';
+                    $product->location = request("location","");
+                    if ($request->category == null) {
+                        $product->category = '';
+                    } else {
+                        $product->category = $request->category;
+                    }
+
+                    if ($request->supplier == null) {
+                        $product->supplier = 'QUICKSELL';
+                    } else {
+                        $sup = Supplier::findorfail($request->supplier);
+                        $product->supplier = $sup->supplier;
+                    }
+                    if ($request->buying_price == null) {
+                        $product->price = 0;
+                    } else {
+                        $product->price = $request->buying_price;
+                    }
+                    if ($request->special_price == null) {
+                        $product->price_inr_special = 0;
+                    } else {
+                        $product->price_inr_special = $request->special_price;
+                    }
+
+                    $product->stock = 1;
+                    $product->quick_product = 1;
+                    $product->is_pending = 1;
+                    $product->save();
+                    $createdProducts[] = $product->id;
+                    preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $image, $match);
+                    if(isset($match[ 0 ]) && isset($match[ 0 ][ 0 ])) {
+                      $image = $match[ 0 ][ 0 ];
+                      $jpg = \Image::make($image)->encode('jpg');
+
+                      $filename = substr($image, strrpos($image, '/'));
+                      $filename = str_replace("/", "", $filename);
+                      $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                      $product->attachMedia($media, config('constants.media_tags'));
+                    }
+                    // if Product is true
+                    if ($product == true) {
+                        //Finding last created Product using sku
+                        $product_id = Product::where('sku', $product->sku)->first();
+                        if ($product_id != null) {
+                            $id = $product_id->id;
+                            //getting last group id
+
+                            $group = new ProductQuicksellGroup();
+                            $group->product_id = $id;
+                            $group->quicksell_group_id = $group_id;
+                            $group->save();
+
+
+                        }
+                    }
+                }
+                if(count($createdProducts) > 0) {
+                    $message = count($createdProducts). ' Product(s) has been created successfully, id\'s are '.json_encode($createdProducts);
+                    $code = 200;
+                }
+                else {
+                    $message = 'No Images selected';
+                    $code = 500;
+                }
+                return response()->json(['code' => $code, 'message' => $message]);
+            } else {
+                return response()->json(['code' => 500, 'message' => 'No Images selected']);
+            }
+        }
+    }
+
+    /**
+     * @SWG\Post(
+     *   path="/supplier/brands-raw",
+     *   tags={"Scraper"},
+     *   summary="Update supplier brand raw",
+     *   operationId="scraper-post-supplier-brands",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=403, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *      @SWG\Parameter(
+     *          name="supplier_id",
+     *          in="formData",
+     *          required=true, 
+     *          type="integer" 
+     *      ),
+     *      @SWG\Parameter(
+     *          name="brands_raw",
+     *          in="formData",
+     *          required=true, 
+     *          type="string" 
+     *      ),
+     * )
+     *
+     */
+    public function apiBrandsRaw(Request $request)
+    {
+        // Get supplier ID
+        $supplierId = (int)$request->supplier_id;
+        $brandsRaw = $request->brands_raw;
+
+        if (empty($supplierId) || empty($brandsRaw)) {
+            return response()->json(['error' => 'The fields supplier_id and brands_raw are obligated'], 403);
+        }
+
+        // Get Supplier model
+        $supplier = Supplier::find($supplierId);
+
+        // Do we have a result?
+        if ($supplier != null) {
+            $supplier->scraped_brands_raw = $brandsRaw;
+            $supplier->save();
+
+            return response()->json(['success' => 'Supplier updated'], 200);
+        }
+
+        // Still here? Return an error
+        return response()->json(['error' => 'Supplier not found'], 403);
+    }
+
+    /**
+    * Get scraped brand and scraped brands raw of a supplier
+    *
+    * @param  \Illuminate\Http\Request  $request
+    * @return json response with brand and brand raw
+    */
+    public function getScrapedBrandAndBrandRaw(Request $request)
+    {
+        $supplierId = $request->id;
+
+        $supplier = Supplier::find($supplierId);
+        if ($supplier->scraped_brands != ''){
+            $scrapedBrands = array_filter(explode(',', $supplier->scraped_brands));
+
+            sort($scrapedBrands);
+        }
+        else {
+            $scrapedBrands = array();
+        }
+
+        if ($supplier->scraped_brands_raw != ''){
+            $rawBrands = array_unique(array_filter(array_column(json_decode($supplier->scraped_brands_raw, true), 'name')));
+
+            sort($rawBrands);
+        }
+        else{
+            $rawBrands = array();
+        }
+
+        return response()->json(['scrapedBrands' => $scrapedBrands, 'scrapedBrandsRaw' => $rawBrands], 200);
+    }
+
+    /**
+    * Update scraped brand from scrapped brands raw for a supplier
+    *
+    * @param  \Illuminate\Http\Request  $request
+    * @return json response with update status
+    */
+    public function updateScrapedBrandFromBrandRaw(Request $request)
+    {
+        $supplierId = $request->id;
+        $newBrandData = ($request->newBrandData) ? $request->newBrandData : array();
+
+        // Get Supplier model
+        $supplier = Supplier::find($supplierId);
+
+        // Do we have a result?
+        if ($supplier != null) {
+            $supplier->scraped_brands = implode(',', $newBrandData);
+            $supplier->save();
+
+            return response()->json(['success' => 'Supplier brand updated'], 200);
+        }
+
+        // Still here? Return an error
+        return response()->json(['error' => 'Supplier not found'], 403);
+
+
+    }
+
+    public function excelImport(Request $request)
+        {
+
+          if($request->attachment){
+              $supplier = Supplier::find($request->id);
+             $file = explode('/',$request->attachment);
+             if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                  $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                  $excel = ErpExcelImporter::excelFileProcess(end($file),$excel,$supplier->email);
+                  return response()->json(['success' => 'File Processed For Import'], 200);
+              }else{
+                return response()->json(['error' => 'File Couldnt Process For Import'], 200);
+              }
+          }
+
+          if($request->file('excel_file')){
+              $file = $request->file('excel_file');
+              if($file->getClientOriginalExtension() == 'xls' || $file->getClientOriginalExtension() == 'xlsx'){
+
+                //SAve FIle
+                if (!file_exists(storage_path('app/files/email-attachments/file/'))) {
+                  mkdir(storage_path('app/files/email-attachments/file/'), 0777, true);
+                }
+
+                $path = storage_path('app/files/email-attachments/file/');
+                $file->move($path,$file->getClientOriginalName());
+                $filePath = '/file/'.$file->getClientOriginalName();
+                $supplier = Supplier::find($request->id);
+                if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                  $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                  $excel = ErpExcelImporter::excelFileProcess($filePath,$excel,$supplier->email);
+                  return redirect()->back()->withSuccess('File Processed For Import');
+                }else{
+                  return redirect()->back()->withErrors('Excel Importer Not Found');
+                }
+
+              }else{
+                return redirect()->back()->withErrors('Please Use Excel FIle');;
+              }
+            }
+        }
+
+
+
+    /**
+    * Remove particular scraped brand from scrapped brands for a supplier
+    *
+    * @param  \Illuminate\Http\Request  $request
+    * @return json response with status, updated brand list, raw brand list
+    */
+    public function removeScrapedBrand(Request $request)
+    {
+        $supplierId = $request->id;
+        $removeBrandData = $request->removeBrandData;
+
+        // Get Supplier model
+        $supplier = Supplier::find($supplierId);
+
+        // Do we have a result?
+        if ($supplier != null) {
+            if ($supplier->scraped_brands != ''){
+                $scrapedBrands = array_filter(explode(',', $supplier->scraped_brands));
+
+                $newBrandData = array_diff($scrapedBrands, array($removeBrandData));
+                sort($newBrandData);
+            }
+            else {
+                $newBrandData = array();
+            }
+            if ($supplier->scraped_brands_raw != ''){
+                $rawBrands = array_unique(array_filter(array_column(json_decode($supplier->scraped_brands_raw, true), 'name')));
+                sort($rawBrands);
+            }
+            else{
+                $rawBrands = array();
+            }
+
+            $supplier->scraped_brands = implode(',', $newBrandData);
+            $supplier->save();
+
+            return response()->json(['scrapedBrands' => $newBrandData, 'scrapedBrandsRaw' => $rawBrands, 'success' => 'Scraped brand removed'], 200);
+        }
+
+        // Still here? Return an error
+        return response()->json(['error' => 'Supplier not found'], 403);
+    }
+
+
+    public function changeMail(Request $request)
+    {
+      $supplier = Supplier::find($request->supplier_id);
+      $supplier->email = $request->email;
+      $supplier->save();
+      return response()->json(["code" => 200, "data" => [], "message" => "Email updated successfully"]);
+  }
+
+  public function changePhone(Request $request)
+  {
+    $supplier = Supplier::find($request->supplier_id);
+    $supplier->phone = $request->phone;
+    $supplier->save();
+    return response()->json(["code" => 200, "data" => [], "message" => "Telephone Number updated successfully"]);
+}
+public function changeSize(Request $request)
+{
+  $supplier = Supplier::find($request->supplier_id);
+  $supplier->supplier_size_id = $request->size;
+  $supplier->save();
+  return response()->json(["code" => 200, "data" => [], "message" => "Size updated successfully"]);
+}
+
+public function changeSizeSystem(Request $request) {
+  $supplier = Supplier::find($request->supplier_id);
+  $supplier->size_system_id = $request->size;
+  $supplier->save();
+  return response()->json(["code" => 200, "data" => [], "message" => "Size System updated successfully"]); 
+}
+
+public function changeWhatsapp(Request $request)
+{
+  $supplier = Supplier::find($request->supplier_id);
+  $supplier->whatsapp_number = $request->whatsapp;
+  $supplier->save();
+  return response()->json(["code" => 200, "data" => [], "message" => "Whatsapp Number updated successfully"]);
+}
+    /**
+    * copy selected scraped brands to brand for a supplier
+    *
+    * @param  \Illuminate\Http\Request  $request
+    * @return json response with update status, brands
+    */
+    public function copyScrapedBrandToBrand(Request $request)
+    {
+        $supplierId = $request->id;
+
+        // Get Supplier model
+        $supplier = Supplier::find($supplierId);
+
+        // Do we have a result?
+        if ($supplier != null) {
+            $selectedScrapedBrand = ($supplier->scraped_brands) ? $supplier->scraped_brands : '';
+            if ($selectedScrapedBrand != ''){
+                //We have got selected scraped brands, now store that in brands
+                $supplier->brands = '"['.$selectedScrapedBrand.']"';
+                $supplier->save();
+
+                $miniScrapedBrand = strlen($selectedScrapedBrand) > 10 ? substr($selectedScrapedBrand, 0, 10) . '...' : $selectedScrapedBrand;
+
+                return response()->json(['success' => 'Supplier brand updated', 'mini' => $miniScrapedBrand, 'full' => $selectedScrapedBrand], 200);
+            }
+            else {
+                return response()->json(['error' => 'Scraped brands not selected for the supplier'], 403);
+            }
+        }
+
+        // Still here? Return an error
+        return response()->json(['error' => 'Supplier not found'], 403);
+    }
+
+    public function languageTranslate(Request $request)
+    {
+      $supplier = Supplier::find($request->id);
+      $supplier->language = $request->language;
+      $supplier->save();
+      return response()->json(['success' => 'Supplier language updated'], 200);
+    }
+
+    public function priority(Request $request)
+    {
+        $supplier = Supplier::find($request->id);
+      $supplier->priority = $request->priority;
+      $supplier->save();
+      return response()->json(['success' => 'Supplier priority updated'], 200);
+    }
+
+    public function manageScrapedBrands(Request $request)
+    {
+      $arr = [];
+      $data = Setting::where('type',"ScrapeBrandsRaw")->get()->first();
+      if(empty($data)) {
+        $brand['type'] = "ScrapeBrandsRaw";
+        $brand['val'] = json_encode($request->selectedBrands);
+        Setting::create($brand);
+      } else {
+          $data->val = json_encode($request->selectedBrands);
+          $data->save();
+      }
+      return "Scraped Brands Raw removed from dropdown successfully";
+    }
+
+    public function changeWhatsappNo(Request $request)
+    {
+      $supplier = Supplier::find($request->supplier_id);
+      $supplier->whatsapp_number = $request->number;
+      $supplier->update();
+      return response()->json(['success' => 'Supplier Whatsapp updated'], 200);
+    }
+
+    public function changeStatus(Request $request)
+    {
+        $supplierId = $request->get("supplier_id");
+        $statusId = $request->get("supplier_status_id");
+
+        if(!empty($supplierId)) {
+           $supplier = \App\Supplier::find($supplierId);
+           if(!empty($supplier)) {
+              $supplier->supplier_status_id = ($statusId == "false") ? 0 : 1;
+              $supplier->save();
+           }
+        }
+
+        return response()->json(["code" => 200, "data" => [], "message" => "Status updated successfully"]);
+    }
+
+    /**
+     * Change supplier category
+     */
+    public function changeCategory(Request $request)
+    {
+        $supplierId = $request->get("supplier_id");
+        $categoryId = $request->get("supplier_category_id");
+
+        if(!empty($supplierId)) {
+           $supplier = \App\Supplier::find($supplierId);
+           if(!empty($supplier)) {
+              $supplier->fill(['supplier_category_id' => $categoryId])->save();
+           }
+        }
+        return response()->json(["code" => 200, "data" => [], "message" => "Category updated successfully"]);
+    }
+
+    public function changeSupplierStatus(Request $request)
+    {
+        $supplierId = $request->get("supplier_id");
+        $status = $request->get("status");
+
+        if(!empty($supplierId)) {
+           $supplier = \App\Supplier::find($supplierId);
+           if(!empty($supplier)) {
+              $supplier->fill(['supplier_status_id' => $status])->save();
+           }
+        }
+        return response()->json(["code" => 200, "data" => [], "message" => "Status updated successfully"]);
+    }
+
+    public function changeSubCategory(Request $request)
+    {
+        $supplierId = $request->get("supplier_id");
+        $categoryId = $request->get("supplier_sub_category_id");
+
+        if(!empty($supplierId)) {
+           $supplier = \App\Supplier::find($supplierId);
+           if(!empty($supplier)) {
+              $supplier->fill(['supplier_sub_category_id' => $categoryId])->save();
+           }
+        }
+        return response()->json(["code" => 200, "data" => [], "message" => "Sub Category updated successfully"]);
+    }
+
+
+    public function editInventorylifetime(Request $request)
+    {
+        $supplierId = $request->get("supplier_id");
+        $inventory_lifetime = $request->get("inventory_lifetime");
+
+        if(!empty($supplierId)) {
+           $supplier = \App\Scraper::where('supplier_id',$supplierId)->first();
+           if(!empty($supplier)) {
+              $supplier->fill(['inventory_lifetime' => $inventory_lifetime])->save();
+           }
+        }
+        return response()->json(["code" => 200, "data" => [], "message" => "Inventory lifetime updated successfully"]);
+    }
+
+    public function changeScrapper(Request $request)
+    {
+        $supplierId = $request->get("supplier_id");
+        $scrapperId = $request->get("scrapper");
+        if(!empty($supplierId)) {
+           $supplier = \App\Supplier::find($supplierId);
+           $scrapper = \App\Scraper::where('supplier_id',$supplierId)->first();
+           if(!empty($scrapper)) {
+                $supplier->fill(['scrapper' => $scrapper->id])->save();
+           }else{
+                $scrapper_name = preg_replace("/\s+/", "", $supplier->supplier);
+                $scrapper_name = strtolower($scrapper_name);
+                $scraper = \App\Scraper::create([
+                      "supplier_id" => $supplier->id,
+                      "scraper_name" => $request->get("scraper_name", $scrapper_name),
+                      "inventory_lifetime" => $request->get("inventory_lifetime", ""),
+                  ]);
+                return $scraper;
+           }
+        }
+        return response()->json(["code" => 200, "data" => [], "message" => "Scrapper updated successfully"]);
+    }
+
+    /**
+     * Add supplier category
+     */
+    public function addCategory(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                        ->withErrors($validator)
+                        ->withInput();
+        }
+
+        SupplierCategory::create($request->all());
+
+        return redirect()->route('supplier.index')->withSuccess('You have successfully saved a category!');
+    }
+
+    public function addSubCategory(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                        ->withErrors($validator)
+                        ->withInput();
+        }
+
+        SupplierSubCategory::create($request->all());
+
+        return redirect()->route('supplier.index')->withSuccess('You have successfully saved a sub category!');
+    }
+
+    public function addStatus(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                        ->withErrors($validator)
+                        ->withInput();
+        }
+
+        SupplierStatus::create($request->all());
+
+        return redirect()->route('supplier.index')->withSuccess('You have successfully saved a status!');
+    }
+
+    public function addSupplierSize(Request $request)
+    {
+      $validator = Validator::make($request->all(), [
+        'size' => 'required',
+    ]);
+
+    if ($validator->fails()) {
+        return redirect()->back()
+                    ->withErrors($validator)
+                    ->withInput();
+    }
+
+    SupplierSize::create($request->all());
+
+    return redirect()->route('supplier.index')->withSuccess('You have successfully saved a supplier size!');
+    }
+
+    public function sendMessage(Request $request)
+  {
+        // return $request->all();
+    $suppliers = Supplier::whereIn('id', $request->suppliers)->get();
+        $params = [];
+        if(count($suppliers)) {
+            foreach($suppliers as $key => $item) {
+                $params = [
+                    'supplier_id' => $item->id,
+                    'number' => null,
+                    'message' => $request->message,
+                    'user_id' => Auth::id(),
+                    'status' => 1
+                ];
+                $chat_message = ChatMessage::create($params);
+                $approveRequest = new Request();
+                $approveRequest->setMethod('GET');
+                $approveRequest->request->add(['messageId' => $chat_message->id]);
+
+                app(WhatsAppController::class)->approveMessage("supplier",$approveRequest);
+            }
+        }
+        // return $params;
+
+        return response()->json(["code" => 200, "data" => [], "message" => "Message sent successfully"]);
+  }
+  
+  
+  public function addPriceRange(Request $request)
+    {
+        SupplierPriceRange::create($request->all());
+        return redirect()->route('supplier.index')->withSuccess('You have successfully saved a price range!');
+    }
+  
+  public function changePriceRange(Request $request)
+  {
+    $supplierId = $request->get("supplier_id");
+        $priceRangeId = $request->get("price_range_id");
+
+        if(!empty($supplierId)) {
+           $supplier = \App\Supplier::find($supplierId);
+           if(!empty($supplier)) {
+              $supplier->fill(['supplier_price_range_id' => $priceRangeId])->save();
+           }
+        }
+        return response()->json(["code" => 200, "data" => [], "message" => "Price Range updated successfully"]);
+  }
+}
