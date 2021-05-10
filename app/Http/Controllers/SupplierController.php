@@ -1677,12 +1677,22 @@ class SupplierController extends Controller
     public function changeScrapper(Request $request)
     {
         $supplierId = $request->get("supplier_id");
-        $scrapper   = $request->get("scrapper");
-        if (!empty($supplierId)) {
-            $supplier = \App\Supplier::find($supplierId);
-            if (!empty($supplier)) {
-                $supplier->fill(['scrapper' => $scrapper])->save();
-            }
+        $scrapperId = $request->get("scrapper");
+        if(!empty($supplierId)) {
+           $supplier = \App\Supplier::find($supplierId);
+           $scrapper = \App\Scraper::where('supplier_id',$supplierId)->first();
+           if(!empty($scrapper)) {
+                $supplier->fill(['scrapper' => $scrapper->id])->save();
+           }else{
+                $scrapper_name = preg_replace("/\s+/", "", $supplier->supplier);
+                $scrapper_name = strtolower($scrapper_name);
+                $scraper = \App\Scraper::create([
+                      "supplier_id" => $supplier->id,
+                      "scraper_name" => $request->get("scraper_name", $scrapper_name),
+                      "inventory_lifetime" => $request->get("inventory_lifetime", ""),
+                  ]);
+                return $scraper;
+           }
         }
         return response()->json(["code" => 200, "data" => [], "message" => "Scrapper updated successfully"]);
     }
