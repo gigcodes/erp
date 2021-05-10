@@ -1085,6 +1085,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Social Media Image Module
     Route::get('lifestyle/images/grid', 'ImageController@index')->name('image.grid');
+    Route::get('lifestyle/images/grid-new', 'ImageController@indexNew')->name('image.grid.new');
     Route::post('images/grid', 'ImageController@store')->name('image.grid.store');
     Route::post('images/grid/attachImage', 'ImageController@attachImage')->name('image.grid.attach');
     Route::get('images/grid/approvedImages', 'ImageController@approved')->name('image.grid.approved');
@@ -2918,4 +2919,12 @@ Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@s
 Route::get('product-pricing', 'product_price\ProductPriceController@index')->name('product.pricing');
 // Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 
-
+Route::group(['middleware' => 'auth', 'admin'], function () {
+    Route::prefix('plan')->group(static function () {
+        Route::get('/', 'PlanController@index')->name('plan.index');
+        Route::post('/create', 'PlanController@store')->name('plan.store');
+        Route::get('/edit', 'PlanController@edit')->name('plan.edit');
+        Route::post('/{id}/update', 'PlanController@update')->name('plan.update');
+        Route::get('/delete/{id}', 'PlanController@delete')->name('plan.delete');
+    });
+});

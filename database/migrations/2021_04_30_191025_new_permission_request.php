@@ -13,14 +13,16 @@ class NewPermissionRequest extends Migration
      */
     public function up()
     {
-        Schema::create('permission_request', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('user_id')->nullable();
-            $table->integer('permission_id')->nullable();
-            $table->datetime('request_date')->nullable();
-            $table->string('permission_name')->nullable();
-            $table->timestamps();
-        });
+        if(!Schema::hasTable('permission_request')) {
+            Schema::create('permission_request', function (Blueprint $table) {
+                $table->increments('id');
+                $table->integer('user_id')->nullable();
+                $table->integer('permission_id')->nullable();
+                $table->datetime('request_date')->nullable();
+                $table->string('permission_name')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

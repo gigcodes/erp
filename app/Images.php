@@ -25,4 +25,14 @@ class Images extends Model
         return false;
     }
   }
+
+  public function product()
+  {
+      return $this->belongsTo('App\Product','product_id');
+  }
+
+  public function productImg($id,$notId)
+  {
+      return $this->where('product_id',$id)->whereNotNull('product_id')->orderBy('id','desc')->get();
+  }
 }

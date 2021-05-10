@@ -85,24 +85,29 @@ class ScrapController extends Controller
             'data' => 'required|array',
         ]);
         $data = $request->get('data');
+        $product_id = $request->get('product_id');
 
         $images = [];
 
         foreach ($data as $key => $datum) {
             try {
                 $imgData = file_get_contents($datum);
+
+                $fileName = md5(time().microtime()) . '.png';
+                Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
+
+                $i           = new Image();
+                $i->filename = $fileName;
+                if( !empty($product_id) ){
+                    $i->product_id = $product_id;
+                }
+                $i->save();
+
+                $images[] = $fileName;
             } catch (\Exception $exception) {
                 continue;
             }
 
-            $fileName = md5(time()) . '.png';
-            Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
-
-            $i           = new Image();
-            $i->filename = $fileName;
-            $i->save();
-
-            $images[] = $fileName;
         }
 
         $downloaded = true;

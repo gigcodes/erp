@@ -52,6 +52,7 @@
 
                                 <td> @if(isset($comment->instagramPost->created_at)) {{ $comment->instagramPost->created_at->format('d-m-y') }} @endif </td>
                                 <td style="width: 600px;">
+                                    @if($comment->instagramPost)
                                     <div class="row">
                                         <div class="col-md-4">
                                             <select class="form-control selectpicker" name="account_id" id="account_id_{{$comment->instagramPost->id}}" data-live-search="true">
@@ -75,6 +76,7 @@
                                             
                                         </div>
                                     </div>
+                                    @endif
                                 </td>
                                                         	
 	</tr>
