@@ -369,18 +369,10 @@ class MessageHelper
                         $temp_params              = $params;
                         $temp_params['message']   = $auto_reply->reply;
                         $temp_params['media_url'] = null;
-                        $temp_params['status']    = 8;
+                        $temp_params['status']    = 2;
+                        $temp_params['approved']  = 1;
                         // Create new message
                         $messageModel = ChatMessage::create($temp_params);
-                        // Send message if all required data is set
-                        if ($temp_params['message'] || $temp_params['media_url']) {
-                            $sendResult = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customer->phone, $customer->whatsapp_number, $temp_params['message']);
-                            if ($sendResult) {
-                                $messageModel->unique_id = $sendResult['id'] ?? '';
-                                $messageModel->save();
-                            }
-                            break;
-                        }
                     }
                 }
             }
