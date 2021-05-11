@@ -124,11 +124,10 @@
                                 <?php if(!empty($user['tasks'])) { ?>
                                         <?php foreach($user['tasks'] as $ut) { ?>
                                             <?php 
-                                                @list($taskid,$devtask,$taskName,$estimation,$status) = explode("||",$ut);
+                                                @list($taskid,$devtask,$taskName,$estimation,$status,$devTaskId) = explode("||",$ut);
 
                                                 $trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $taskid)->sum('tracked');
-                                                $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$taskid)->where('attribute','estimation_minute')->where('is_approved',1)->first();
-
+                                                $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$devTaskId)->where('attribute','estimation_minute')->where('is_approved',1)->first();
                                                 if($time_history) {
                                                     $est_time = $time_history->new_value;
                                                 }
@@ -141,12 +140,14 @@
                                                   <tr>
                                                     <td width="36%">
                                                         <?php if(Auth::user()->isAdmin()) { ?> 
-                                                            <a class="show-task-histories " style="color:#333333;" data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}}</a><br>
+                                                            <a class="show-task-histories " style="color:#333333;" data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}}</a>
                                                         <?php }else{ ?>
-                                                            <a class="" data-user-id="{{$user['user_id']}}" style="color:#333333;" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}} </a><br>
-                                                        <?php } ?>    
+                                                            <a class="" data-user-id="{{$user['user_id']}}" style="color:#333333;" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}} </a>
+                                                        <?php } ?>
+                                                        
+                                                        <br>
                                                     </td>
-                                                    <td width="16%">
+                                                    <td width="14%">
                                                         @if ($taskName)
                                                             {{ (isset($trackedTime) && $devtask ) ? number_format($trackedTime / 60,2,".",",") : 'N/A' }}<br>
                                                         @endif
@@ -155,14 +156,16 @@
                                                         @if ($taskName)
                                                             {{ $estimation }}
                                                         @endif
+                                                        <button type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$devTaskId}}"><i class="fa fa-info-circle"></i></button>
                                                     </td>
-                                                    <td width="12%">
+                                                    <td width="15%">
                                                         @if ( $taskName )
                                                             @if (is_numeric($estimation) && $trackedTime && $taskName)
-                                                                {{ $estimation - number_format($trackedTime / 60,2,".",",") }}<br>
+                                                                {{ $estimation - number_format($trackedTime / 60,2,".",",") }}
                                                             @else
                                                                 N/A
                                                             @endif
+                                                            <button type="button" class="btn btn-xs task-notes" title="Show notes" data-task="{{$devTaskId}}"><i class="fa fa-info-circle"></i></button>
                                                         @endif
                                                     </td>
                                                     <td width="10%">
@@ -317,11 +320,105 @@
     </div>  
 </div>
 
+<div id="permission-request" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Notes list</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12" id="permission-request">
+                    <table class="table fixed_header">
+                        <thead>
+                            <tr>
+                                <th>Notes</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                         <tbody class="show-list-records" >
+                         </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@include("development.partials.time-history-modal")
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 
 <script type="text/javascript">
+
+$(document).on("click",".task-notes",function(e) {
+    e.preventDefault();
+    var id = $(this).data('task');
+    $.ajax({
+        url: '/hubstaff-activities/activities/task-notes',
+        type: 'POST',
+        data : { _token: "{{ csrf_token() }}", id:id},
+        dataType: 'json',
+        beforeSend: function () {
+            $("#loading-image").show();
+        },
+        success: function(result){
+            $("#loading-image").hide();
+            if(result.code == 200) {
+                var t = '';
+                $.each(result.data,function(k,v) {
+                    t += `<tr><td>`+v.notes+`</td>`;
+                    t += `<td>`+v.date+`</td></tr>`;
+                });
+                if( t == '' ){
+                    t = '<tr><td colspan="2" class="text-center">No data found</td></tr>';
+                }
+            }
+            $("#permission-request").find(".show-list-records").html(t);
+            $("#permission-request").modal("show");
+        },
+        error: function (){
+            $("#loading-image").hide();
+        }
+    });
+});
+
+$(document).on('click', '.show-time-history', function() {
+    var data = $(this).data('history');
+    var issueId = $(this).data('id');
+    $('#time_history_div table tbody').html('');
+    $.ajax({
+        url: "{{ route('development/time/history') }}",
+        data: {id: issueId},
+        success: function (data) {
+            if(data != 'error') {
+                $('input[name="developer_task_id"]').val(issueId);
+                $.each(data, function(i, item) {
+                    if(item['is_approved'] == 1) {
+                        var checked = 'checked';
+                    }
+                    else {
+                        var checked = ''; 
+                    }
+                    $('#time_history_div table tbody').append(
+                        '<tr>\
+                            <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                            <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                            <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
+                        </tr>'
+                    );
+                });
+            }
+        }
+    });
+    $('#time_history_modal').modal('show');
+});
 
 $(document).on('click', '.expand-row-msg', function () {
     var name = $(this).data('name');
@@ -566,7 +663,19 @@ let r_s = jQuery('input[name="start_date"]').val();
         });
 
         $(document).on('click', '.final-submit-record', function(e) {
+
         e.preventDefault();
+        var vali = false;
+        $('.notes-input').each(function() {
+            if($(this).val() == ''){
+                toastr['error']('invalid notes', 'error');
+                vali = true; 
+            }
+        });
+
+        if( vali == true ){
+            return false;
+        }
         var status = $(this).data('status');
         // return false;
         var form = $(this).closest("form");

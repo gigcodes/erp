@@ -6,7 +6,8 @@ use App\DeveloperTask;
 use App\HubstaffTaskEfficiency;
 use App\Hubstaff\HubstaffActivity;
 use App\Hubstaff\HubstaffActivitySummary;
-use App\Hubstaff\HubstaffMember;
+use App\Hubstaff\HubstaffMember; 
+use App\Hubstaff\HubstaffTaskNotes;
 use App\PaymentReceipt;
 use App\Task;
 use App\Team;
@@ -222,12 +223,12 @@ class HubstaffActivitiesController extends Controller
                         $task = DeveloperTask::where('id', $ar->task_id)->first();
                         if ($task) {
                             $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
-                            $taskSubject = $ar->task_id . '||#DEVTASK-' . $task->id . '-' . $task->subject."||#DEVTASK-$task->id||$estMinutes||$task->status";
+                            $taskSubject = $ar->task_id . '||#DEVTASK-' . $task->id . '-' . $task->subject."||#DEVTASK-$task->id||$estMinutes||$task->status||$task->id";
                         } else {
                             $task = Task::where('id', $ar->task_id)->first();
                             if ($task) {
                                 $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
-                                $taskSubject = $ar->task_id . '||#TASK-' . $task->id . '-' . $task->task_subject."||#TASK-$task->id||$estMinutes||$task->status";
+                                $taskSubject = $ar->task_id . '||#TASK-' . $task->id . '-' . $task->task_subject."||#TASK-$task->id||$estMinutes||$task->status||$task->id";
                             }
                         }
                     } else {
@@ -235,12 +236,12 @@ class HubstaffActivitiesController extends Controller
                         $task = DeveloperTask::where('hubstaff_task_id', $ar->task_id)->orWhere('lead_hubstaff_task_id', $ar->task_id)->first();
                         if ($task && empty( $task_id )) {
                             $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
-                            $taskSubject = $ar->task_id . '||#DEVTASK-' . $task->id . '-' . $task->subject."||#DEVTASK-$task->id||$estMinutes||$task->status";
+                            $taskSubject = $ar->task_id . '||#DEVTASK-' . $task->id . '-' . $task->subject."||#DEVTASK-$task->id||$estMinutes||$task->status||$task->id";
                         } else {
                             $task = Task::where('hubstaff_task_id', $ar->task_id)->orWhere('lead_hubstaff_task_id', $ar->task_id)->first();
                             if ($task && empty( $developer_task_id )) {
                                 $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
-                                $taskSubject = $ar->task_id . '||#TASK-' . $task->id . '-' . $task->task_subject."||#TASK-$task->id||$estMinutes||$task->status";
+                                $taskSubject = $ar->task_id . '||#TASK-' . $task->id . '-' . $task->task_subject."||#TASK-$task->id||$estMinutes||$task->status||$task->id";
                             }
                         }
                     }
@@ -687,6 +688,27 @@ class HubstaffActivitiesController extends Controller
         ], 500);
     }
 
+    public function NotesHistory( Request $request ){
+        $history = HubstaffTaskNotes::orderBy("id","desc")->where('task_id',request('id'))->get();
+        return response()->json( ["code" => 200 , "data" => $history] );
+    }
+
+    public function saveNotes( Request $request ){
+        if( $request->notes_field ){
+            $notesArr = [];
+            foreach ($request->notes_field as $key => $value) {
+                $notesArr[] = array(
+                    'task_id' => $key,
+                    'notes' => $value,
+                    'date' => date('Y-m-d'),
+                );    
+            }
+            HubstaffTaskNotes::insert( $notesArr );
+        }
+
+        return response()->json( ["code" => 200 , "message" => 'success'] );
+    }
+
     public function finalSubmit(Request $request)
     {
         $approvedArr = [];
@@ -712,6 +734,20 @@ class HubstaffActivitiesController extends Controller
                 'message' => 'Please choose at least one record',
             ], 500);
         }
+
+        
+        if( $request->notes_field ){
+            $notesArr = [];
+            foreach ($request->notes_field as $key => $value) {
+                $notesArr[] = array(
+                    'task_id' => $key,
+                    'notes' => $value,
+                    'date' => date('Y-m-d'),
+                );    
+            }
+            HubstaffTaskNotes::insert( $notesArr );
+        }
+
 
         $rejection_note = '';
         $prev           = '';

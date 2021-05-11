@@ -314,18 +314,22 @@
             success: function(result){
                 $("#loading-image").hide();
                 if(result.code == 200) {
+                    console.log( result.data );
                     var t = '';
                     $.each(result.data,function(k,v) {
-                        t += `<tr><td>`+v.name+`</td>`;
-                        t += `<td>`+v.permission_name+`</td>`;
-                        t += `<td>`+v.request_date+`</td></tr>`;
+                        t += `<tr><td>`+v.user_name+`</td>`;
+                        t += `<td>`+v.task+`</td>`;
+                        t += `<td>`+v.tracked+`</td>`;
+                        t += `<td>`+v.date+`</td></tr>`;
                     });
                     if( t == '' ){
                         t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
                     }
+                    $("#user-task-activity").find(".show-list-records").html(t);
+                    $("#user-task-activity").modal("show");
+                }else{
+                    toastr["error"]('No record found');
                 }
-                $("#user-task-activity").find(".show-list-records").html(t);
-                $("#user-task-activity").modal("show");
             },
             error: function (){
                 $("#loading-image").hide();

@@ -1390,6 +1390,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('/details', 'HubstaffActivitiesController@getActivityDetails')->name('hubstaff-acitivties.activity-details');
             Route::post('/details', 'HubstaffActivitiesController@approveActivity')->name('hubstaff-acitivties.approve-activity');
             Route::post('/final-submit', 'HubstaffActivitiesController@finalSubmit')->name('hubstaff-activities/activities/final-submit');
+            Route::post('/task-notes', 'HubstaffActivitiesController@NotesHistory')->name('hubstaff-activities.task.notes');
+            Route::get('/save-notes', 'HubstaffActivitiesController@saveNotes')->name('hubstaff-activities.task.notes');
             Route::post('/fetch', 'HubstaffActivitiesController@fetchActivitiesFromHubstaff')->name('hubstaff-activities/activities/fetch');
             Route::post('/manual-record', 'HubstaffActivitiesController@submitManualRecords')->name('hubstaff-acitivties.manual-record');
             Route::get('/records', 'HubstaffActivitiesController@notificationRecords')->name('hubstaff-acitivties.notification.records');
