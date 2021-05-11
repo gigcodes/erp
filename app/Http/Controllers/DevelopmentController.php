@@ -226,7 +226,6 @@ class DevelopmentController extends Controller
         //        return Redirect::to('/development/list/task');
 
         // Set required data
-
         $user = $request->user ?? Auth::id();
         $start = $request->range_start ? "$request->range_start 00:00" : '2018-01-01 00:00';
         $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->endOfWeek();
@@ -363,6 +362,7 @@ class DevelopmentController extends Controller
         
         //$request->request->add(["order" => $request->get("order","communication_desc")]);
         // Load issues
+
         $type = $request->tasktype ? $request->tasktype : 'all';
         $estimate_date = "";
 
@@ -505,9 +505,25 @@ class DevelopmentController extends Controller
         $issues =  $issues->with('communications');
         //DB::enableQueryLog();
         // return $issues = $issues->limit(20)->get();
-        $issues = $issues->paginate(Setting::get('pagination'));
+        
         //dd(DB::getQueryLog());
 
+        if($request->download == 2){
+            $issues = $issues->get();
+            $tasks_csv = [];
+            foreach ($issues as $value) {
+                $task_csv = [];
+                $task_csv['ID'] = $value->id;
+                $task_csv['Subject'] = $value->subject;
+                $task_csv['Communication'] = $value->message;
+                $task_csv['Developer'] = ($value->assignedUser) ? $value->assignedUser->name : 'Unassigned';
+                array_push($tasks_csv,$task_csv);
+            }
+
+            $this->outputCsv('downaload-task-summaries.csv', $tasks_csv);
+        }else{
+            $issues = $issues->paginate(Setting::get('pagination'));
+        }
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
@@ -530,6 +546,29 @@ class DevelopmentController extends Controller
             // 'languages' => $languages
         ]);
     }
+
+    private function outputCsv($fileName, $assocDataArray)
+    {
+        header('Pragma: public');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header('Cache-Control: private', false);
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment;filename=' . $fileName);
+        if(isset($assocDataArray['0'])){
+            ob_end_clean();
+            $fp = fopen('php://output', 'w');
+            fputcsv($fp, array_keys($assocDataArray['0']));
+            foreach($assocDataArray AS $values){
+                fputcsv($fp, $values);
+            }
+            fclose($fp);
+            return redirect()->route('development.issue');
+            exit();
+        }
+        return redirect()->route('development.issue');
+    }
+
       public function summaryList(Request $request)
     {
         //$request->request->add(["order" => $request->get("order","communication_desc")]);
