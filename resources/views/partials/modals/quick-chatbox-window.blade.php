@@ -170,7 +170,7 @@
     </div>
 </div>
 
-<script src="https://cdn.livechatinc.com/accounts/accounts-sdk.min.js"></script>
+<!-- <script src="https://cdn.livechatinc.com/accounts/accounts-sdk.min.js"></script>
 <script>
 $(document).on("click",".quick_approve_add_live",function() {
     var messageId = $(this).attr('id');
@@ -192,16 +192,20 @@ $(document).on("click",".quick_approve_add_live",function() {
         alert('Chat Not Active');
     });
 });
+
+console.log($('#live_chat_key').val());
+
 var accessToken = '';
 var websocket = false;
 var client_id = $('#live_chat_key').val();
 var wsUri = "wss://api.livechatinc.com/v3.1/agent/rtm/ws";
 const instance = AccountsSDK.init({
     client_id: client_id,
-    // response_type: "code",
+    response_type: "token",
     onIdentityFetched: (error, data) => {
         if (error){
-            console.log(error)
+            console.log('++++ error >>>');
+            console.log(error);
         } 
         if (data) {
             //console.log("User authorized!");
@@ -618,6 +622,6 @@ checkChatCount();
 $(document).on("click",".send-attached-images",function() {
     var messageId = $('#message-id').val();
     location.href = "/attachImages/live-chat/"+messageId;
-});
+}); -->
 
 </script>

@@ -379,7 +379,7 @@ var accessToken = '';
 var websocket = false;
 var client_id = $('#live_chat_key').val();
 var wsUri = "wss://api.livechatinc.com/v3.1/agent/rtm/ws";
-const instance = AccountsSDK.init({
+const instance_1 = AccountsSDK.init({
 	client_id: client_id,
 	// response_type: "code",
 	onIdentityFetched: (error, data) => {
@@ -390,7 +390,7 @@ const instance = AccountsSDK.init({
 			//console.log("User authorized!");
 			accessToken = data.access_token;
 			console.log(accessToken)
-			setTimeout(instance, data.expires_in);
+			// setTimeout(instance_1, data.expires_in);
 			try{
 				$.ajax({
 					url: '/livechat/save-token',
@@ -594,7 +594,9 @@ function getChats(id){
     	console.log('data');
     	//if(typeof data.data.message != "undefined" && data.length > 0 && data.data.length > 0) {
 
-	       // $('#message-recieve').empty().html(data.data.message);
+			console.log(data.data);
+
+	        $('#message-recieve').empty().html(data.data.message);
 	        $('#message-id').val(data.data.id);
 			$('#new_message_count').text(data.data.count);
 			$('#user_name').text(data.data.name);

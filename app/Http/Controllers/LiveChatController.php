@@ -29,9 +29,14 @@ class LiveChatController extends Controller
         \Log::channel('chatapi')->info($request->getContent());
         $receivedJson = json_decode($request->getContent());
 
+        \Log::channel('chatapi')->info('-- incoming_event >>');
+
         if (isset($receivedJson->event_type)) {
+            \Log::channel('chatapi')->info('--1111 >>');
             //When customer Starts chat
             if ($receivedJson->event_type == 'chat_started') {
+
+                \Log::channel('chatapi')->info('-- chat_started >>');
                 ///Getting the chat
                 $chat = $receivedJson->chat;
 
@@ -79,8 +84,11 @@ class LiveChatController extends Controller
         }
 
         if (isset($receivedJson->action)) {
+            \Log::channel('chatapi')->info('--2222 >>');
             //Incomg Event
             if ($receivedJson->action == 'incoming_event') {
+
+                \Log::channel('chatapi')->info('-- incoming_event >>');
 
                 //Chat Details
                 $chatDetails = $receivedJson->payload;
@@ -217,7 +225,9 @@ class LiveChatController extends Controller
                 // Add to chat_messages if we have a customer
             }
 
-            if ($receivedJson->action == 'incoming_chat_thread') {
+            if ($receivedJson->action == 'incoming_chat') {
+
+                \Log::channel('chatapi')->info('-- incoming_chat >>');
 
                 $chat   = $receivedJson->payload->chat;
                 $chatId = $chat->id;

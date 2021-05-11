@@ -1958,7 +1958,7 @@ $metaData = '';
         @include('partials.modals.quick-development-task')
         @include('partials.modals.quick-instruction-notes')
         @include('partials.modals.quick-user-event-notification')
-        @include('partials.modals.quick-chatbox-window')
+        
         @include('partials.modals.quick-zoom-meeting-window')
         @include('partials.modals.quick-create-task-window')
         @php
@@ -1969,6 +1969,7 @@ $metaData = '';
         <input type="hidden" id="live_chat_key" value="@if(isset($key)){{ $key->key}}@else @endif">
         @include('partials.chat')
         @endif
+        @include('partials.modals.quick-chatbox-window')
         @endif
         @if(Auth::check())
             <!---start section for the sidebar toggle -->
