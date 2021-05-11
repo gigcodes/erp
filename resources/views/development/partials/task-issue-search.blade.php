@@ -1,4 +1,4 @@
-<form action="{{ url("development/list") }}" method="get">
+<form action="{{ url("development/list") }}" method="get" class="search">
     <div class="row">
         @if(auth()->user()->isReviwerLikeAdmin())
             <div class="col-md-2 pd-sm">
@@ -107,12 +107,12 @@
                 <input type="checkbox" name="show_resolved" value="1"> incl.resolved
             @endif
              --}}
-            <input type="hidden" id="download" name="download" value="1">
-            <button type="submit" class="btn btn-primary" onclick="document.getElementById('download').value = 2;">
-                Download
-            </button>
-            <button class="btn btn-image" onclick="document.getElementById('download').value = 1;">
+             <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
                 <img src="{{ asset('images/search.png') }}" alt="Search">
+            </button>
+            <input type="hidden" id="download" name="download" value="1">
+            <button class="btn btn-primary download" onclick="document.getElementById('download').value = 2;">
+                Download
             </button>
         </div>
        

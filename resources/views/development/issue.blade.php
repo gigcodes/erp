@@ -632,7 +632,6 @@
             });
 
         });
-
         $(document).on('keyup', '.lead-estimate-time-change', function (event) {
             if (event.keyCode == 13) {
                 return;
