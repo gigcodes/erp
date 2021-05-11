@@ -64,9 +64,12 @@
                             <th>S.N</th>
                             <th>Customer ({{count($customers)}})</th>
                             <th>Recent Messages</th>
+                            <th>Shortcuts</th>
+                            <th>Next Action</th>
+                            <th>Communication</th>
                         </tr>
                         <tr>
-                            <td colspan="5">
+                            <td colspan="7">
                                 <div class="row">
                                     <div class="col-md-11">
                                         <textarea name="message" id="message" rows="1" class="form-control" placeholder="Common message.."></textarea>
@@ -85,6 +88,9 @@
                                 <td>
                                     <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-limit="10" data-id="{{$customer->id}}" data-is_admin="1" data-is_hod_crm="" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
                                 </td>
+                                <td>@include('bulk-customer-replies.partials.shortcuts')</td>
+                                <td>@include('bulk-customer-replies.partials.next_actions')</td>
+                                <td class="communication-td">@include('bulk-customer-replies.partials.communication')</td>
                             </tr>
                         @endforeach
                     </table>
@@ -112,8 +118,137 @@
 @endsection
 
 @section('scripts')
+    <script type="text/javascript" src="/js/site-helper.js"></script>
     <script src="https://rawgit.com/jackmoore/autosize/master/dist/autosize.min.js"></script>
     <script>
         autosize(document.getElementById("message"));
+    </script>
+    <script type="text/javascript">
+        $(document).on('click', '.add_next_action', function (event) {
+            $.ajax({
+                url: "/erp-customer/add-next-actions",
+                type: 'POST',
+                data: {
+                    "name": $('input[name="add_next_action"]').val(),
+                    "_token": "{{csrf_token()}}",
+                },
+                dataType: "json",
+                success: function (response) {
+                    toastr["success"]("Action added successfully!", "Message");
+                    $('#message_list_' + issueId).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                    $(self).removeAttr('disabled');
+                    $(self).val('');
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending the message...');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
+        });
+        $(document).on('click', '.send-message-open', function (event) {
+            var textBox = $(this).closest(".communication-td").find(".send-message-textbox");
+            var sendToStr  = $(this).closest(".communication-td").next().find(".send-message-number").val();
+            let issueId = textBox.attr('data-customerid');
+            let message = textBox.val();
+            if (message == '') {
+                return;
+            }
+
+            let self = textBox;
+
+            $.ajax({
+                url: "{{action('WhatsAppController@sendMessage', 'customer')}}",
+                type: 'POST',
+                data: {
+                    "issue_id": issueId,
+                    "message": message,
+                    "sendTo" : sendToStr,
+                    "_token": "{{csrf_token()}}",
+                   "status": 2
+                },
+                dataType: "json",
+                success: function (response) {
+                    toastr["success"]("Message sent successfully!", "Message");
+                    $('#message_list_' + issueId).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                    $(self).removeAttr('disabled');
+                    $(self).val('');
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending the message...');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
+        });
+        $(document).on('click', '.quick_category_add', function () {
+            $.ajax({
+                url: "/add-reply-category",
+                type: 'POST',
+                data: {
+                    name : $('input[name="category_name"]').val(),
+                    "_token": "{{csrf_token()}}",
+                },
+                dataType: "json",
+                success: function (response) {
+                    toastr["success"]("Category added successfully!", "Message");
+                    $('#message_list_' + issueId).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                    $(self).removeAttr('disabled');
+                    $(self).val('');
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending the message...');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
+            siteHelpers.quickCategoryAdd($(this));
+        });
+        $(document).on('click', '.quick_comment_add', function () {
+            if ($('input[name="quick_comment"]').val() == "") {
+                alert("Please Enter New Quick Comment!!");
+                return false;
+            }
+            if ($('select[name="quickCategory"]').val() == "") {
+                alert("Please Select Category!!");
+                return false;
+            }
+            var quickCategoryId = $('select[name="quickCategory"]').children("option:selected").data('id');
+            var formData = new FormData();
+            formData.append("_token", "{{csrf_token()}}");
+            formData.append("reply", $('input[name="quick_comment"]').val());
+            formData.append("category_id", quickCategoryId);
+            formData.append("model", 'Approval Lead');
+            $.ajax({
+                url: "/reply",
+                type: 'POST',
+                data : formData,
+                data: {
+                    name : $('input[name="category_name"]').val(),
+                    "_token": "{{csrf_token()}}",
+                },
+                dataType: "json",
+                success: function (response) {
+                    toastr["success"]("Category added successfully!", "Message");
+                    $('#message_list_' + issueId).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                    $(self).removeAttr('disabled');
+                    $(self).val('');
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending the message...');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
+            siteHelpers.quickCategoryAdd($(this));
+        });
     </script>
 @endsection
