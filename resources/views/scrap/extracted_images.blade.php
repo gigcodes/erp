@@ -4,9 +4,9 @@
     <div class="row">
         <div class="col-md-12">
             @if (isset($downloaded))
-                <h1>Extracted Images Successful (<a href="{{ action('ScrapController@index') }}">Go Back</a>)</h1>
+                <h1>Extracted Images Successful (<a href="{{ url()->previous() }}">Go Back</a>)</h1>
             @else
-                <h1>Images To be Extracted (<a href="{{ action('ScrapController@index') }}">Go Back</a>)</h1>
+                <h1>Images To be Extracted (<a href="{{ url()->previous() }}">Go Back</a>)</h1>
                 <p>The following images will be extracted.</p>
             @endif
         </div>

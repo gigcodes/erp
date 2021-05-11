@@ -1203,7 +1203,7 @@ class Product extends Model
             'status_id',
             'sub_status_id',
             'products.created_at',
-            'inventory_status_histories.date as history_date',
+            //'inventory_status_histories.date as history_date',
             \DB::raw('count(distinct psu.id) as total_product')
         );
         $query =  \App\Product::leftJoin("brands as b",function($q){
@@ -1224,7 +1224,7 @@ class Product extends Model
 
         if(isset($filter_data['brand_names']))        $query = $query->whereIn('brand',$filter_data['brand_names']);
         if(isset($filter_data['product_categories'])) $query = $query->whereIn('category',$filter_data['product_categories']);
-        $query = $query->leftJoin('inventory_status_histories','inventory_status_histories.product_id','products.id');
+        //$query = $query->leftJoin('inventory_status_histories','inventory_status_histories.product_id','products.id');
         if(isset($filter_data['in_stock'])) {
             if($filter_data['in_stock'] == 1) {
                 $query = $query->where('products.stock',">",0);
@@ -1233,15 +1233,15 @@ class Product extends Model
             }
         }
         if(isset($filter_data['date'])) {
-            $query = $query->where('inventory_status_histories.date',$filter_data['date']);
+            //$query = $query->where('inventory_status_histories.date',$filter_data['date']);
         }
 
         if( isset($filter_data['start_date']) && isset($filter_data['end_date']) ) {
-            $query = $query->whereBetween('inventory_status_histories.date',[ $filter_data['start_date'], $filter_data['end_date'] ] );
+            //$query = $query->whereBetween('inventory_status_histories.date',[ $filter_data['start_date'], $filter_data['end_date'] ] );
         }
 
         if(isset($filter_data['date'])) {
-            $query = $query->where('inventory_status_histories.date',$filter_data['date']);
+            $query = $query->whereDate('products.created_at',$filter_data['date']);
         }
 
         if(isset($filter_data['no_category']) && $filter_data['no_category'] == "on") {

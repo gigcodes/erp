@@ -812,6 +812,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="/marketing/accounts/facebook">Facebook Config</a>
                                             <a class="dropdown-item" href="{{ route('platforms.index') }}">Platforms</a>
                                             <a class="dropdown-item" href="{{ route('broadcasts.index') }}">BroadCast</a>
+                                            <a class="dropdown-item" href="/marketing/services">Mailing Service</a>
                                             <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-template') }}">Mailinglist Templates</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-emails') }}">Mailinglist Emails</a>
@@ -1742,15 +1743,11 @@ $metaData = '';
                                     <a class="dropdown-item" href="{{route('password.index')}}">Password Manager</a>
                                 </li>
                                 <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{route('password.manage')}}">Multiple User Passwords Manager</a>
+                                </li>
+                                <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{route('document.index')}}">Document manager</a>
                                 </li>
-
-                                @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 65 || Auth::id() == 90)
-                                <a class="dropdown-item" href="{{route('password.index')}}">Passwords Manager</a>
-                                <a class="dropdown-item" href="{{route('password.manage')}}">Multiple User Passwords Manager</a>
-                                <a class="dropdown-item" href="{{route('document.index')}}">Documents Manager</a>
-                                @endif
-
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource Center</a>
                                 </li>

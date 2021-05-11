@@ -39,7 +39,7 @@ class Prada extends Scraper
         $this->data = ['', ''];
         $self = $this;
 
-        $content = $this->getContent('https://erp.amourint.com/api/add-product-images', 'POST');
+        $content = $this->getContent('https://erp.theluxuryunlimited.com/api/add-product-images', 'POST');
 
         $skus = json_decode($content);
 
@@ -95,7 +95,7 @@ class Prada extends Scraper
                                 $imagesTosave[] = $mainImage;
 
                                 $client = new Client();
-                                $response = $client->request('POST', 'https://erp.amourint.com/api/save-product-images', [
+                                $response = $client->request('POST', 'https://erp.theluxuryunlimited.com/api/save-product-images', [
                                     'form_params' => [
                                         'id' => $sku->id,
                                         'website' => 'prada',

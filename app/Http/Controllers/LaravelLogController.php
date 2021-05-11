@@ -304,7 +304,15 @@ class LaravelLogController extends Controller
         $message         = $request->message;
         $website         = $request->website;
         $module_name     = $request->module_name;
+        if(!empty($request->modulename)) {
+            $module_name = $request->modulename;
+        }
+
         $controller_name = $request->controller_name;
+        if(!empty($request->controller)) {
+            $controller_name = $request->controller;
+        }
+
         $action          = $request->action;
 
         if ($url == '') {

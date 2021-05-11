@@ -1,5 +1,5 @@
 <?php
-$url = "https://erp.amourint.com/whatsapp/incoming";
+$url = "https://erp.theluxuryunlimited.com/whatsapp/incoming";
 $content = $_POST['data'];
 //$content = '{"request":"{"event":"INBOX","from":"918879948245","to":"918291920455","text":"Let me know if u get this"}","response":"","status":200}';
 

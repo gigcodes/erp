@@ -1,6 +1,6 @@
 <script type="text/x-jsrender" id="template-task-history">
-<!-- <form name="template-create-goal1" method="post"> -->
-		<div class="modal-content tasks_list_tbl">
+<form name="template-create-goal1" method="post"> 
+		<div class="modal-content tasks_list_tbl" style=" width: 150%; margin-left: -23%; ">
 		   <div class="modal-header">
 		      <h5 class="modal-title">Task</h5>
 		      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -16,8 +16,8 @@
                     <p style="margin:0px;"><strong>Total Available Hours:</strong>  <span>{{:userTiming.total_avaibility_hour}} Hours</span></p>
             </div>
 
-
-           <table class="table table-bordered table-responsive" style="table-layout:fixed;">
+           
+           <table class="table table-bordered" style="table-layout:fixed;">
 		    <thead>
 		      <tr>
 		      	<th style="width:19%">Task</th>
@@ -43,6 +43,12 @@
                       {{/if}}
 					  </td>
                     <td>
+                        <select class="form-control" data-status="{{:prop.status_falg}}"  onchange="resolveIssue(this,{{:prop.task_id}})">
+                            <option value="">Select status</option>
+                            <?php foreach ($statusList as $key => $value) { ?>
+                                <option value="<?php echo $value->name; ?>" ><?php echo $value->name; ?></option>
+                            <?php } ?>
+                        </select>
                         {{:prop.status_falg}}
                     </td>
 					<td>
@@ -103,6 +109,25 @@
 //     format: 'YYYY-MM-DD HH:mm:ss'
 // });
 
+    function resolveIssue(obj, task_id) {
+        let id = task_id;
+        let status = $(obj).val();
+        let self = this;
+
+        $.ajax({
+            url: "<?php echo action('DevelopmentController@resolveIssue');?>",
+            data: {
+                issue_id: id,
+                is_resolved: status
+            },
+            success: function () {
+                toastr["success"]("Status updated!", "Message")
+            },
+            error: function (error) {
+                toastr["error"](error.responseJSON.message);
+            }
+        });
+    }
 
 	$(document).on('click', '.task-send-message-btn', function () {
 		var cached_suggestions = localStorage['message_suggestions'];
