@@ -170,6 +170,37 @@
     </div>
 </div>
 
+<div id="user-task-activity" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">User task activity ( Last week )</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12" id="user-task-activity">
+                    <table class="table fixed_header">
+                        <thead>
+                            <tr>
+                                <th>User name</th>
+                                <th>Task</th>
+                                <th>Tracked time</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                         <tbody class="show-list-records" >
+                         </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="time_history_modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <!-- Modal content-->
@@ -267,6 +298,40 @@
      // $(document).on("click",".permission-request",function() {
      //    $('#permission-request').modal();
      // });
+
+     $(document).on("click",".task-activity",function(e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        
+        $.ajax({
+            url: '/user-management/task-activity',
+            type: 'POST',
+            data : { _token: "{{ csrf_token() }}", id:id },
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                if(result.code == 200) {
+                    var t = '';
+                    $.each(result.data,function(k,v) {
+                        t += `<tr><td>`+v.name+`</td>`;
+                        t += `<td>`+v.permission_name+`</td>`;
+                        t += `<td>`+v.request_date+`</td></tr>`;
+                    });
+                    if( t == '' ){
+                        t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
+                    }
+                }
+                $("#user-task-activity").find(".show-list-records").html(t);
+                $("#user-task-activity").modal("show");
+            },
+            error: function (){
+                $("#loading-image").hide();
+            }
+        });
+    });
 
      $(document).on("click",".permission-request",function(e) {
         e.preventDefault();

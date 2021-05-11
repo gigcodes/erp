@@ -49,6 +49,12 @@ class UserManagementController extends Controller
         return response()->json( ["code" => 200 , "data" => $history] );
     }
 
+    public function taskActivity( Request $request ){
+        $history = PermissionRequest::leftjoin('users','permission_request.user_id','users.id')
+                  ->whereBetween('starts_at', [date('Y-m-d'), date('Y-m-d', strtotime('-7 days'))])->orderBy("permission_request.id","desc")->get();
+        return response()->json( ["code" => 200 , "data" => $history] );
+    }
+
     public function modifiyPermission( Request $request )
     {   
         if ( $request->type == 'accept' ) {

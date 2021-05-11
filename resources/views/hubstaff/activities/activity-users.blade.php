@@ -84,19 +84,20 @@
                     <table class="table table-bordered">
                         <tr>
                         <th width="4%">Date</th>
-                        <th>User</th>
+                        <th width="2%">User</th>
                         <th width="4%">Time tracked (Minutes)</th>
-                        <th width="21%">Tasks</th>
+                        <th width="11%">Tasks</th>
                         <th width="1%">Time tracked (Minutes)</th>
                         <th width="1%">Time Estimation (Minutes)</th>
                         <th width="1%" title="Time Diffrent">Time Diff. (Minutes)</th>
                         <th width="1%">Status</th>
-                        <th>Time approved</th>
-                        <th>Time Pending</th>
-                        <th>User Requested</th>
-                        <th>Pending payment time</th>
-                        <th>Status</th>
-                        <th width="8%">Note</th>
+                        <th width="1%">Time app.</th>
+                        <th width="1%">Time approved</th>
+                        <th width="1%">Time Pending</th>
+                        <th width="1%">User Requested</th>
+                        <th width="1%">Pending payment time</th>
+                        <th width="1%">Status</th>
+                        <th width="6%">Note</th>
                         <th width="5%" colspan="2" class="text-center">Action</th>
                         </tr>
                         @php
@@ -118,7 +119,7 @@
                                 $totalPaymentPending +=  $user['totalNotPaid'];
                             @endphp
                             <td>{{number_format($user['total_tracked'] / 60,2,".",",")}}</td>
-                            <td colspan="5">
+                            <td colspan="6">
                                 <table class="w-100 table-hover">
                                 <?php if(!empty($user['tasks'])) { ?>
                                         <?php foreach($user['tasks'] as $ut) { ?>
@@ -126,12 +127,19 @@
                                                 @list($taskid,$devtask,$taskName,$estimation,$status) = explode("||",$ut);
 
                                                 $trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $taskid)->sum('tracked');
+                                                $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$taskid)->where('attribute','estimation_minute')->where('is_approved',1)->first();
 
+                                                if($time_history) {
+                                                    $est_time = $time_history->new_value;
+                                                }
+                                                else {
+                                                    $est_time = 0;
+                                                }
                                             ?>
                                             @if ( $taskid )
                                                 
                                                   <tr>
-                                                    <td width="56%">
+                                                    <td width="36%">
                                                         <?php if(Auth::user()->isAdmin()) { ?> 
                                                             <a class="show-task-histories " style="color:#333333;" data-user-id="{{$user['user_id']}}" data-task-id="{{$taskid}}" href="javascript:;">{{$devtask}}</a><br>
                                                         <?php }else{ ?>
@@ -148,7 +156,7 @@
                                                             {{ $estimation }}
                                                         @endif
                                                     </td>
-                                                    <td width="16%">
+                                                    <td width="12%">
                                                         @if ( $taskName )
                                                             @if (is_numeric($estimation) && $trackedTime && $taskName)
                                                                 {{ $estimation - number_format($trackedTime / 60,2,".",",") }}<br>
@@ -157,11 +165,15 @@
                                                             @endif
                                                         @endif
                                                     </td>
-                                                    <td width="16%">
+                                                    <td width="10%">
                                                         @if ( $taskName )
                                                             {{ $status ? $status : 'N/A' }}
                                                         @endif
                                                     </td>
+                                                    <td width="13%">
+                                                        {{ $est_time }}
+                                                    </td>
+                                                    
                                                   </tr>
                                             @endif
                                         <?php } ?>
@@ -202,6 +214,7 @@
                         <th>{{number_format($totalTracked / 60,2,".","")}}</th>
                         <th></th>
                         <th></th>
+                        <th></th>   
                         <th></th>
                         <th></th>
                         <th></th>
