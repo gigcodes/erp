@@ -53,6 +53,8 @@ class StatusHelper extends Model
     public static $unknownTitle = 43;
     public static $unknownDescription = 44;
     public static $unknownPrice = 45;
+    public static $sendtoExternalScraper = 46;
+    public static $externalScraperFinished = 47;
 
     public static function getStatus()
     {
@@ -101,7 +103,9 @@ class StatusHelper extends Model
             42 => 'Auto rejected',
             43 => 'Unknown Title',
             44 => 'Unknown Description',
-            45 => 'Unknown Price'
+            45 => 'Unknown Price',
+            46 => 'Send to External Scraper',
+            47 => 'External Scraper Finished'
         ];
     }
 

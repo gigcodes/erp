@@ -970,6 +970,7 @@ class ScrapController extends Controller
 
             //$product->status_id = StatusHelper::$autoCrop;
             // Save
+            $product->status_id = StatusHelper::$externalScraperFinished;
             $product->save();
 
             // Check if we have images
@@ -1893,7 +1894,7 @@ class ScrapController extends Controller
             ->leftJoin('suppliers', function ($join) {
                 $join->on('products.supplier_id', '=', 'suppliers.id');
             })
-            ->select(["products.id", "products.sku", "products.supplier", "brands.name"])
+            ->select(["products.id", "products.sku", "products.supplier","products.status_id", "brands.name"])
             ->orderBy('brands.priority', 'desc')
             ->orderBy('suppliers.priority', 'desc')
             ->latest("products.created_at")
@@ -1901,7 +1902,9 @@ class ScrapController extends Controller
 
             ->get()
             ->toArray();
-
+        foreach ($products as $value) {
+            Product::where('id', $value['id'])->update(['status_id' => StatusHelper::$sendtoExternalScraper]);
+        }
         return response()->json($products);
     }
 
