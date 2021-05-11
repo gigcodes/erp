@@ -462,6 +462,37 @@ class HubstaffActivitiesController extends Controller
         return view("hubstaff.activities.activity-users", compact('title', 'status', 'activityUsers', 'start_date', 'end_date', 'users', 'user_id', 'task_id'));
     }
 
+    public function approveTime(Request $request)
+    {
+        $activityrecords = DB::select(DB::raw("SELECT CAST(starts_at as date) AS OnDate,  SUM(tracked) AS total_tracked, hour( starts_at ) as onHour, status
+        FROM hubstaff_activities where DATE(starts_at) = '" . $request->date . "' and user_id = " . $request->user_id . "
+        GROUP BY hour( starts_at ) , day( starts_at )"));
+
+        $appArr = [];
+        
+        foreach ($activityrecords as $record) {
+            $activities = DB::select(DB::raw("SELECT hubstaff_activities.*
+            FROM hubstaff_activities where DATE(starts_at) = '" . $request->date . "' and user_id = " . $request->user_id . " and hour(starts_at) = " . $record->onHour . ""));
+
+            foreach ($activities as $value) {
+                array_push($appArr,$value->id);
+            }
+        }
+
+        if ( !empty($appArr) ) {
+                $myRequest = new Request();
+                $myRequest->setMethod('POST');
+                $myRequest->request->add([
+                    'user_id' => $request->user_id,
+                    'activities' => $appArr,
+                    'status' => '1',
+                    'date' => $request->date,
+                ]);
+             return app('App\Http\Controllers\HubstaffActivitiesController')->finalSubmit( $myRequest );
+        }
+        
+    }
+
     public function getActivityDetails(Request $request)
     {
 

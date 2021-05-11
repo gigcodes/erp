@@ -207,6 +207,7 @@
                                     <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
                                     <input type="hidden" class="date" name="date" value="{{$user['date']}}">
                                     <a class="btn btn-secondary show-activities"><i class="fa fa-check" aria-hidden="true"></i></a>
+                                    <a class="btn approve-activities" title="Approve time"><i class="fa fa-check-circle" aria-hidden="true"></i></a>
                                 </form>
                                 @endif
                             </td>
@@ -356,6 +357,32 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 
 <script type="text/javascript">
+
+
+$(document).on('click', '.approve-activities', function(e) {
+    e.preventDefault();
+
+    if(!confirm('Are you sure want to approve time?')){
+        return false;
+    }
+    
+    var form = $(this).closest("form");
+    var thiss = $(this);
+    var type = 'GET';
+    $.ajax({
+    url: '/hubstaff-activities/activities/approve-all-time?'+form.serialize(),
+    type: type,
+    beforeSend: function() {
+        $("#loading-image").show();
+    }
+    }).done( function(response) {
+        $("#loading-image").hide();
+        
+    }).fail(function(errObj) {
+        $("#loading-image").hide();
+        toastr['error'](errObj.responseJSON.message, 'error');
+    });
+});
 
 $(document).on("click",".task-notes",function(e) {
     e.preventDefault();
