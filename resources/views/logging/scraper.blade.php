@@ -118,19 +118,13 @@
                         <table class="table table-bordered table-striped" id="log-table">
                             <thead>
                             <tr>
-                                <th>Id</th>
-                                <th>Ip address</th>
-                                <th>Website</th>
-                                <th>Url</th>
-                                <th>Sku</th>
-                                <th>Original sku</th>
-                                {{-- <th>Title</th>
-                                <th>Validation result</th>
-                                <th>Size</th>
-                                <th>Composition</th>
-                                <th>Country</th>
-                                <th>Supplier</th>         --}}
-                                <th>Created at</th>
+                                <th width="5%">Id</th>
+                                <th width="5%">Ip address</th>
+                                <th width="5%">Website</th>
+                                <th width="10%">Url</th>
+                                <th width="5%">Sku</th>
+                                <th width="5%">Original sku</th>
+                                <th width="10%">Created at</th>
                             </tr>
                             <tr>
                                 <th><input type="text" class="search form-control filter-serach-string" data-id="id"></th>
