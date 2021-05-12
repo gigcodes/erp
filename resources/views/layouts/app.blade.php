@@ -119,7 +119,7 @@ $metaData = '';
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-    <script type="text/javascript" src="//media.twiliocdn.com/sdk/js/client/v1.9/twilio.min.js"></script>
+    <script type="text/javascript" src="https://media.twiliocdn.com/sdk/js/client/v1.14/twilio.min.js"></script>
 
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.0.5/dist/js/tabulator.min.js"></script>
 
@@ -1949,7 +1949,7 @@ $metaData = '';
             <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickTaskModal">+ TASK</button>
         </div>
         @endif
-
+        @include('twilio.receive_call_popup');
         @include('partials.modals.quick-task')
         @include('partials.modals.quick-instruction')
         @include('partials.modals.quick-development-task')
@@ -2044,6 +2044,7 @@ $metaData = '';
     </div>
 
     @if(Auth::check())
+
 
     <div class="chat-button-wrapper">
         <div class="chat-button-float">
