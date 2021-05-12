@@ -18,7 +18,7 @@ class CreateDatabaseTableHistoricalRecords extends Migration
             $table->string('database_name');
             $table->double('size', 8, 2);
             $table->unsignedBigInteger('database_id');
-            $table->foreign('database_id')->references('id')->on('database_historical_records');
+            //$table->foreign('database_id')->references('id')->on('database_historical_records');
             $table->timestamps();
         });
     }
