@@ -111,9 +111,6 @@
                 <img src="{{ asset('images/search.png') }}" alt="Search">
             </button>
             <input type="hidden" id="download" name="download" value="1">
-            <button class="btn btn-primary download" onclick="document.getElementById('download').value = 2;">
-                Download
-            </button>
         </div>
        
         <!-- <div class="col-md-1">
