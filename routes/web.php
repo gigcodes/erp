@@ -237,7 +237,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('product/relist-product', 'ProductController@relistProduct');
     Route::get('products/stats', 'ProductController@productStats');
     //ajay singh
-    Route::get('products/scrap-logs', 'ProductController@productScrapLog');
+    //Route::get('products/scrap-logs', 'ProductController@productScrapLog');
+    Route::get('products/status-history', 'ProductController@productScrapLog');
     Route::get('products/description', 'ProductController@productDescription');
 
     Route::post('products/{id}/updateName', 'ProductController@updateName');
@@ -1722,6 +1723,7 @@ Route::prefix('pinterest')->middleware('auth')->group(function () {
 
 Route::prefix('database')->middleware('auth')->group(function () {
     Route::get('/', 'DatabaseController@index')->name("database.index");
+    Route::get('/tables/{id}', 'DatabaseTableController@index')->name("database.tables");
     Route::get('/states', 'DatabaseController@states')->name("database.states");
     Route::get('/process-list', 'DatabaseController@processList')->name("database.process.list");
     Route::get('/process-kill', 'DatabaseController@processKill')->name("database.process.kill");

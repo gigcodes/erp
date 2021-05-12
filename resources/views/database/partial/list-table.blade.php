@@ -3,6 +3,7 @@
   <tr>
     <th>Name</th>
     <th>Size</th>
+    <th>Database Name</th>
     <th>Created At</th>
   </tr>
 </thead>
@@ -10,8 +11,9 @@
 <?php if (!empty($databaseHis)) {?>
     <?php foreach ($databaseHis as $pam) {?>
         <tr>
-          <td><a href="{{ action('DatabaseTableController@index', $pam->id) }}">{{ $pam->database_name }}</td>
-          <td>{{ $pam->size }}</td>
+          <td>{{ $pam->database_name }}</td>
+          <td>{{ number_format($pam->size / 1024,2,'.','') }} MB</td>
+          <td>{{ $pam->database }}</td>
           <td>{{ $pam->created_at }}</td>
         </tr>
       <?php }?>
@@ -19,7 +21,7 @@
 </tbody>
 <tfoot>
   <tr>
-    <td colspan="3"><?php echo $databaseHis->appends(request()->except("page"))->links(); ?></td>
+    <td colspan="4"><?php echo $databaseHis->appends(request()->except("page"))->links(); ?></td>
   </tr>
 </tfoot>
 </table>
