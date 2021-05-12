@@ -34,7 +34,7 @@ class DatabaseTableController extends Controller
         //return $databaseHis;
 
         if ($request->ajax()) {
-            $tml = (string) view("databasetable.partial.list", compact('databaseHis', 'page'));
+            $tml = (string) view("database.partial.list-table", compact('databaseHis', 'page'));
             return response()->json(["code" => 200, "tpl" => $tml, "page" => $page]);
         }
 
