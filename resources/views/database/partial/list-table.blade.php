@@ -12,7 +12,7 @@
     <?php foreach ($databaseHis as $pam) {?>
         <tr>
           <td>{{ $pam->database_name }}</td>
-          <td>{{ $pam->size }}</td>
+          <td>{{ number_format($pam->size / 1024,2,'.','') }} MB</td>
           <td>{{ $pam->database }}</td>
           <td>{{ $pam->created_at }}</td>
         </tr>
