@@ -246,9 +246,9 @@
                                             $scrapersList[] = $ssc->scraper_name;
                                         }
                                     }
-
                                 @endphp
-                                <input type="text" name="scraper_name" id="supplier_scraper_name" class="form-control input-sm" placeholder="Scraper Name" value="{{ implode(',',$scrapersList) }}">
+                                <input type="text" name="scraper_name" id="supplier_scraper_name" class="form-control input-sm" placeholder="Scraper Name" 
+                                    value="{{ implode(',',$scrapersList) }}">
                             </div>
 
                             <div class="form-group">
@@ -659,7 +659,7 @@
                     <h4 class="modal-title">Communication</h4>&nbsp;&nbsp;
                     <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 50%;">&nbsp;&nbsp;
                     <!-- <input type="text" name="search_chat_pop_time"  class="form-control search_chat_pop_time" placeholder="Search Time" style="width: 200px;"> -->
-					<input style="min-width: 30px;" placeholder="Search by date" value="" type="text" class="form-control search_chat_pop_time" name="search_chat_pop_time">
+          <input style="min-width: 30px;" placeholder="Search by date" value="" type="text" class="form-control search_chat_pop_time" name="search_chat_pop_time">
                     
                 </div>
                 <div class="modal-body" style="background-color: #999999;">

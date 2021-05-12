@@ -304,7 +304,15 @@ class LaravelLogController extends Controller
         $message         = $request->message;
         $website         = $request->website;
         $module_name     = $request->module_name;
+        if(!empty($request->modulename)) {
+            $module_name = $request->modulename;
+        }
+
         $controller_name = $request->controller_name;
+        if(!empty($request->controller)) {
+            $controller_name = $request->controller;
+        }
+
         $action          = $request->action;
 
         if ($url == '') {
@@ -434,6 +442,7 @@ class LaravelLogController extends Controller
         $count = $logs->count();
 
         $logs = $logs->orderBy("id", "desc")->paginate(Setting::get('pagination'));
+        $status_codes = \App\LogRequest::distinct()->get(['status_code']);
 
         if ($request->ajax()) {
             //$request->render('logging.partials.apilogdata',compact('logs'));
@@ -445,7 +454,7 @@ class LaravelLogController extends Controller
                 return array('status' => 0, 'html' => '<tr id="noresult_tr"><td colspan="7">No More Records</td></tr>');
             }
         }
-        return view('logging.apilog', compact('logs', 'count'));
+        return view('logging.apilog', compact('logs', 'count','status_codes'));
     }
 
     public function generateReport(Request $request)

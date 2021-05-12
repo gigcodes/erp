@@ -121,7 +121,9 @@
                             </div>
                         </form>
                     </div>
-                    <button class="btn btn-secondary btn-xs pull-right mt-0 permission-request">Permission request ( {{$permissionRequest}} )</button>
+                    @if( auth()->user()->isAdmin() )
+                        <button class="btn btn-secondary btn-xs pull-right mt-0 permission-request">Permission request ( {{$permissionRequest}} )</button>
+                    @endif
                 </div>
             </div>
         </div>  
@@ -337,7 +339,7 @@
         });
     });
 
-     $(document).on("click",".permission-request",function(e) {
+    $(document).on("click",".permission-request",function(e) {
         e.preventDefault();
         $.ajax({
             url: '/user-management/request-list',
