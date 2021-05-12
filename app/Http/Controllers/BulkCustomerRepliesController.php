@@ -6,6 +6,7 @@ use App\BulkCustomerRepliesKeyword;
 use App\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Helpers;
 
 class BulkCustomerRepliesController extends Controller
 {
@@ -37,8 +38,21 @@ class BulkCustomerRepliesController extends Controller
             $searchedKeyword = BulkCustomerRepliesKeyword::where('value', $keyword)->first();
 
         }
+        $groups           = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
+        $pdfList = [];
+        $nextActionArr = DB::table('customer_next_actions')->pluck('name', 'id');
+        $reply_categories = \App\ReplyCategory::orderby('id', 'DESC')->get();
+        $settingShortCuts = [
+            "image_shortcut"      => \App\Setting::get('image_shortcut'),
+            "price_shortcut"      => \App\Setting::get('price_shortcut'),
+            "call_shortcut"       => \App\Setting::get('call_shortcut'),
+            "screenshot_shortcut" => \App\Setting::get('screenshot_shortcut'),
+            "details_shortcut"    => \App\Setting::get('details_shortcut'),
+            "purchase_shortcut"   => \App\Setting::get('purchase_shortcut'),
+        ];
+        $users_array      = Helpers::getUserArray(\App\User::all());
 
-        return view('bulk-customer-replies.index', compact('keywords','autoKeywords', 'searchedKeyword'));
+        return view('bulk-customer-replies.index', compact('keywords','autoKeywords', 'searchedKeyword', 'nextActionArr','groups','pdfList','reply_categories','settingShortCuts','users_array'));
     }
 
     public function storeKeyword(Request $request) {

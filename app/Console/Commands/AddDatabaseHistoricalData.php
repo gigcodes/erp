@@ -6,6 +6,7 @@ use App\CronJobReport;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use App\DatabaseHistoricalRecord;
+use App\DatabaseTableHistoricalRecord;
 
 class AddDatabaseHistoricalData extends Command
 {
@@ -75,10 +76,19 @@ class AddDatabaseHistoricalData extends Command
                         }
                     }
 
-                    DatabaseHistoricalRecord::create([
+                    $database_recent_entry = DatabaseHistoricalRecord::create([
                         "database_name" => $d->db_name,
                         "size" => $d->db_size,
                     ]);
+                    $db_table = \DB::select('SELECT TABLE_NAME as "db_table_name", Round(Sum(data_length + index_length) / 1024, 1) as "db_size" FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = "BASE TABLE" AND TABLE_SCHEMA="'.$d->db_name.'" GROUP  BY TABLE_NAME'
+                    );
+                    foreach($db_table as $d_table) {
+                        DatabaseTableHistoricalRecord::create([
+                            "database_name" => $d_table->db_table_name,
+                            "size" => $d_table->db_size,
+                            "database_id" => $database_recent_entry->id,
+                        ]);
+                    }
                 }
             }
 

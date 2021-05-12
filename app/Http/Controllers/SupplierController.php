@@ -1682,7 +1682,7 @@ class SupplierController extends Controller
            $supplier = \App\Supplier::find($supplierId);
            $scrapper = \App\Scraper::where('supplier_id',$supplierId)->first();
            if(!empty($scrapper)) {
-                $supplier->fill(['scrapper' => $scrapper->id])->save();
+                $supplier->fill(['scrapper' => $scrapperId])->save();
            }else{
                 $scrapper_name = preg_replace("/\s+/", "", $supplier->supplier);
                 $scrapper_name = strtolower($scrapper_name);
@@ -1691,7 +1691,8 @@ class SupplierController extends Controller
                       "scraper_name" => $request->get("scraper_name", $scrapper_name),
                       "inventory_lifetime" => $request->get("inventory_lifetime", ""),
                   ]);
-                return $scraper;
+                $supplier->fill(['scrapper' => $scrapperId])->save();
+                //return $scraper;
            }
         }
         return response()->json(["code" => 200, "data" => [], "message" => "Scrapper updated successfully"]);
