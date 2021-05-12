@@ -1715,6 +1715,9 @@ $metaData = '';
                                     <a class="dropdown-item" href="{{ route('googlefiletranslator.list') }}">Google File Translator</a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('/google-traslation-settings') }}">Google Translator Setting</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('googlewebmaster.index') }}">Google webmaster</a>
                                 </li>
                                 <li class="nav-item">
