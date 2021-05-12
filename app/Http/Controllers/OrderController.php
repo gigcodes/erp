@@ -188,7 +188,7 @@ class OrderController extends Controller
             $email = Email::where('id', $request->email_id)->first();
         }else{
             $order = Order::where('id', $request->order_id)->first();
-            $email = Email::where('model_id', $order->id)->orderBy('id', 'desc')->first();
+            $email = Email::where('model_id', $order->id)->where('model_type', 'App\Order')->orderBy('id', 'desc')->first();
         }
         $content = $email->message;
 
