@@ -519,7 +519,6 @@ class DevelopmentController extends Controller
                 $task_csv['Developer'] = ($value->assignedUser) ? $value->assignedUser->name : 'Unassigned';
                 array_push($tasks_csv,$task_csv);
             }
-
             $this->outputCsv('downaload-task-summaries.csv', $tasks_csv);
         }else{
             $issues = $issues->paginate(Setting::get('pagination'));
@@ -531,7 +530,7 @@ class DevelopmentController extends Controller
         if ( request()->ajax() ) {
 			return view("development.partials.load-more", compact('issues', 'users', 'modules', 'request','title','type','countPlanned','countInProgress','statusList','priority'));
         }
-        //dd($issues);
+        
         return view('development.issue', [
             'issues' => $issues,
             'users' => $users,
@@ -563,10 +562,8 @@ class DevelopmentController extends Controller
                 fputcsv($fp, $values);
             }
             fclose($fp);
-            return redirect()->route('development.issue');
             exit();
         }
-        return redirect()->route('development.issue');
     }
 
       public function summaryList(Request $request)
