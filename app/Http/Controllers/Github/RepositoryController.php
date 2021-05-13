@@ -134,7 +134,7 @@ class RepositoryController extends Controller
             print_r($e->getMessage());
             return redirect(url('/github/pullRequests'))->with(
                 [
-                    'message' => 'Failed to Merge!',
+                    'message' => $e->getMessage(),
                     'alert-type' => 'error'
                 ]
             );
