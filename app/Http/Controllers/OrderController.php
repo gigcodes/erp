@@ -181,6 +181,28 @@ class OrderController extends Controller
 
     }
 
+    
+    public function downloadOrderMailPdf(Request $request)
+    {
+        if(!empty($request->email_id)){
+            $email = Email::where('id', $request->email_id)->first();
+        }else{
+            $order = Order::where('id', $request->order_id)->first();
+            $email = Email::where('model_id', $order->id)->where('model_type', 'App\Order')->orderBy('id', 'desc')->first();
+        }
+        $content = $email->message;
+
+        // load the view for pdf and after that load that into dompdf instance, and then stream (download) the pdf
+        $html = view('orders.order_mail', compact('content'));
+        $pdf  = new Dompdf();
+        $paper_size = array(0,0,700, 1080);
+        $pdf->set_paper($paper_size);
+        $pdf->loadHtml($html->render());
+        $pdf->render();
+        $pdf->stream('orderMail.pdf');
+
+    }
+
     /**
      * Display a listing of the resource.
      *
