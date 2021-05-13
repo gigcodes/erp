@@ -774,6 +774,7 @@ class ScrapStatisticsController extends Controller
         $requestData->setMethod('POST');
 
         $scraper = \App\Scraper::find($id);
+        if(isset($request->type)) $scraper = \App\Brand::find($id);
 
         if ($scraper) {
 

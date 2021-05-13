@@ -1,8 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use DB;
 use App\Brand;
 use App\Product;
 use App\Setting;
@@ -13,6 +11,21 @@ use \App\StoreWebsiteBrand;
 use Illuminate\Http\Request;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Auth;
+
+
+use App\Exports\ScrapRemarkExport;
+use App\Scraper;
+use App\ScrapHistory;
+use App\ScrapRemark;
+use App\ScrapStatistics;
+use App\Supplier;
+use App\User;
+use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Maatwebsite\Excel\Facades\Excel;
+use Zend\Diactoros\Response\JsonResponse;
+use \Carbon\Carbon;
 
 class BrandController extends Controller
 {
@@ -49,6 +62,140 @@ class BrandController extends Controller
 
         return view('brand.index', compact('brands','storeWebsite','attachedBrands', 'category_segments'))
             ->with('i', (request()->input('page', 1) - 1) * 10);
+    }
+
+    public function scrap_brand(Request $request)
+    {
+        // Set dates
+        $endDate    = date('Y-m-d H:i:s');
+        $keyWord    = $request->get("term", "");
+        $madeby     = $request->get("scraper_made_by", 0);
+        $scrapeType = $request->get("scraper_type", 0);
+
+        $timeDropDown = self::get_times();
+
+        $serverIds = Scraper::groupBy('server_id')->where('server_id', '!=', null)->pluck('server_id');
+        $getLatestOptimization = \App\ScraperServerStatusHistory::whereRaw("id in (
+            SELECT MAX(id)
+            FROM scraper_server_status_histories
+            GROUP BY server_id
+        )")
+        ->pluck('in_percentage','server_id')->toArray();
+
+        $activeSuppliers = Brand::leftJoin("store_website_brands as swb","swb.brand_id","brands.id")
+        ->leftJoin("store_websites as sw","sw.id","swb.store_website_id")
+        ->select(["brands.*",\DB::raw("group_concat(sw.id) as selling_on"),\DB::raw("LOWER(trim(brands.name)) as lower_brand")])
+        ->groupBy("brands.id")
+        ->orderBy('lower_brand',"asc")->whereNull('brands.deleted_at');
+
+        $keyword = request('keyword');
+        if (!empty($keyWord)) {
+            $activeSuppliers->where(function ($q) use ($keyWord) {
+                $q->where("brands.name", "like", "%{$keyWord}%");
+            });
+        }
+
+        if ($madeby > 0) {
+            $activeSuppliers->whereHas("dev_tasks", function($q) use ($madeby){
+                $q->where('assigned_by', $madeby);
+            });
+        }
+
+        if ($request->get("scrapers_status", "") != '') {
+            $activeSuppliers->whereHas("dev_tasks", function($q) use ($request){
+                $q->where("status", $request->get("scrapers_status", ""));
+            });
+        }
+
+        if ($scrapeType > 0) {
+            $activeSuppliers->whereHas("dev_tasks", function($q) use ($scrapeType){
+                $q->where('task_type_id', $scrapeType);
+            });
+        }
+
+        $activeSuppliers = $activeSuppliers->paginate(Setting::get('pagination'));
+
+        // Get scrape data
+        $yesterdayDate = date("Y-m-d", strtotime("-1 day"));
+        $sql           = '
+            SELECT
+                s.id,
+                s.supplier,
+                sc.inventory_lifetime,
+                sc.scraper_new_urls,
+                sc.scraper_existing_urls,
+                sc.scraper_total_urls,
+                sc.scraper_start_time,
+                sc.scraper_logic,
+                sc.scraper_made_by,
+                sc.server_id,
+                sc.id as scraper_id,
+                ls.website,
+                ls.ip_address,
+                COUNT(ls.id) AS total,
+                SUM(IF(ls.validated=0,1,0)) AS failed,
+                SUM(IF(ls.validated=1,1,0)) AS validated,
+                SUM(IF(ls.validation_result LIKE "%[error]%",1,0)) AS errors,
+                SUM(IF(ls.validation_result LIKE "%[warning]%",1,0)) AS warnings,
+                SUM(IF(ls.created_at LIKE "%' . $yesterdayDate . '%",1,0)) AS total_new_product,
+                MAX(ls.last_inventory_at) AS last_scrape_date,
+                IF(MAX(ls.last_inventory_at) < DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY),0,1) AS running
+            FROM
+                suppliers s
+            JOIN
+                scrapers sc
+            ON
+                sc.supplier_id = s.id
+            JOIN
+                scraped_products ls
+            ON
+                sc.scraper_name=ls.website
+            WHERE
+                sc.scraper_name IS NOT NULL AND
+                ls.website != "internal_scraper" AND
+                ' . ($request->excelOnly == 1 ? 'ls.website LIKE "%_excel" AND' : '') . '
+                ' . ($request->excelOnly == -1 ? 'ls.website NOT LIKE "%_excel" AND' : '') . '
+                ls.last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)
+            GROUP BY
+                sc.id
+            ORDER BY
+                sc.scraper_priority desc
+        ';
+        $scrapeData = DB::select($sql);
+
+        $allScrapperName = [];
+
+        if (!empty($scrapeData)) {
+            foreach ($scrapeData as $data) {
+                if (isset($data->id) && $data->id > 0) {
+                    $allScrapperName[$data->id] = $data->website;
+                }
+            }
+        }
+
+        $lastRunAt = \DB::table("scraped_products")->groupBy("website")->select([\DB::raw("MAX(last_inventory_at) as last_run_at"), "website"])->pluck("last_run_at", "website")->toArray();
+
+        $users       = \App\User::all()->pluck("name", "id")->toArray();
+        $allScrapper = Scraper::whereNull('parent_id')->pluck('scraper_name', 'id')->toArray();
+        // Return view
+        return view('brand.scrap_brand', compact('activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper','getLatestOptimization'));
+    }
+
+    private static function get_times($default = '19:00', $interval = '+60 minutes')
+    {
+
+        $output = [];
+
+        $current = strtotime('00:00');
+        $end     = strtotime('23:59');
+
+        while ($current <= $end) {
+            $time          = date('G', $current);
+            $output[$time] = date('h.i A', $current);
+            $current       = strtotime($interval, $current);
+        }
+
+        return $output;
     }
 
     public function create()

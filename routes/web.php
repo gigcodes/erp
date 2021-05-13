@@ -1949,8 +1949,11 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('/task-list', 'ScrapStatisticsController@taskList')->name('scrap.task-list');
     Route::post('/{id}/create', 'ScrapStatisticsController@taskCreate')->name('scrap.task-list.create');
 
+    Route::get('scrap-brand', 'BrandController@scrap_brand')->name('scrap-brand');
+
     Route::get('/{name}', 'ScrapController@showProducts')->name('show.logFile');
     Route::post('/scrap/assignTask', 'ScrapController@assignScrapProductTask')->name('scrap.assignTask');
+ 
 });
 
 Route::resource('quick-reply', 'QuickReplyController')->middleware('auth');

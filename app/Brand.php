@@ -98,6 +98,11 @@ class Brand extends Model
         return $this->hasMany( ScrapedProducts::class, 'brand_id', 'id' );
     }
 
+    public function dev_tasks()
+    {
+        return $this->hasMany( DeveloperTask::class, 'scraper_id', 'id' );
+    }
+
     public function products()
     {
         return $this->hasMany( Product::class, 'brand', 'id' );
