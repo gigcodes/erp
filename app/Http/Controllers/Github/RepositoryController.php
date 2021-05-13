@@ -220,29 +220,12 @@ class RepositoryController extends Controller
             $allOutput[] = $cmd;
             $result = exec($cmd, $allOutput);
             \Log::info(print_r($allOutput,true));
-            $hasConflict = false;
-            if(!empty($allOutput) && is_array($allOutput)) {
-                foreach($allOutput as $output) {
-                    if(strpos(strtolower($output), "conflict") !== false){
-                        $hasConflict = true;
-                    }
-                }
-            }
-
-            if($hasConflict) {
-                return redirect(url('/github/pullRequests'))->with(
-                    [
-                        'message' => 'There is conflict in pull request please check it!',
-                        'alert-type' => 'error'
-                    ]
-                );
-            }
         } catch (Exception $e) {
             \Log::error($e);
             print_r($e->getMessage());
             return redirect(url('/github/pullRequests'))->with(
                 [
-                    'message' => $e->getMessage(),
+                    'message' => 'Failed to Merge please check branch has not any conflict !',
                     'alert-type' => 'error'
                 ]
             );
