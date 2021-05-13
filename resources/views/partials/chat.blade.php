@@ -238,7 +238,7 @@ margin-bottom: 15px !important;
 }
 
 .chat-button-float{
-	position: fixed;
+	/* position: fixed; */
     top: 1em;
     right: 2em;
     z-index: 19999;
@@ -458,6 +458,7 @@ function openChatBox(show){
 		}
 		getUserList();
 		getChatsWithoutRefresh();
+		getCustDetails();
 	}
 	else{
 		clearTimeout(chatTimerObj);
@@ -572,6 +573,118 @@ function getCustomerInfoOnLoad(){
 
 getCustomerInfoOnLoad();
 
+function getLeadOrderDetails(customer_id){
+
+	var customer_id = customer_id;
+	$.ajax({
+    	url: "{{ route('livechat.getorderdetails') }}",
+    	type: 'GET',
+    	dataType: 'json',
+    	data: { customer_id : customer_id ,   _token: "{{ csrf_token() }}" },
+    })
+    .done(function(data) {
+    	
+
+		if (data[0] == true) {
+			let information = data[1];
+			let name = information.customer.name;
+			let number = information.customer.phone;
+			let email = information.customer.email ;
+			let accordion_data = '';
+			if (information.leads_total){
+				accordion_data = get_leads_table_data(information.leads,information.leads_total)
+			}
+			if (information.orders_total){
+				accordion_data += get_orders_table_data(information.orders,information.orders_total)
+			}
+			if (information.exchanges_return_total){
+				accordion_data += get_exchanges_return_table_data(information.exchanges_return,information.exchanges_return_total)
+			}
+
+			$('#customer_order_details').html(accordion_data);
+
+		} else {
+			$('#customer_order_details').html('');
+		}
+    	
+    })
+    .fail(function() {
+		console.log("error");
+		
+    });
+
+}
+
+const createCard = (id,target,buttonName,body)=>{
+	let string = '<div class="card card-in-modal"><div class="card-header" '
+	if (id){
+		string += 'id="'+id+'"'
+	}
+	string += '><h5 class="mb-0"><button class="btn btn-link leads__button" type="button" data-toggle="collapse" '
+	if (target){
+		string += 'data-target="#'+target+'" aria-expanded="false" aria-controls="collapseOne">'
+	}
+	string += buttonName+'</button></h5></div><div id="'
+	string += target+'" class="collapse" aria-labelledby="headingOne" data-parent="#accordionTables"><div class="card-body">'
+	string += body+' </div></div></div>'
+	return string
+}
+
+const createTable = (head,body,bodyElements)=>{
+	let string = '<div class="table-responsive mt-3"><table class="table table-bordered" ><thead><tr>'
+	if (head.length){
+		for (let i in head){
+			string += '<th>'+head[i]+'</th>'
+		}
+	}
+	string += '</tr></thead><tbody>'
+	if (body.length){
+		for (let i in body){
+			string += '<tr>'
+			for (let j in bodyElements){
+				string += '<td>'
+				string += body[i][bodyElements[j]] ? body[i][bodyElements[j]] : 'N/A'
+				string += '</td>';
+			}
+			string += '</tr>'
+		}
+	}
+	string += '</tbody></table></div>'
+	return string
+}
+
+const get_leads_table_data = (leads,total) => {
+	if (leads.length){
+		let head = ['#','Status','Customer','Brand','Brand Segment','Category','Color','Size']
+		let bodyElements = ['id','status_name','customer_name','brand_name','brand_segment','cat_title','color','size']
+		let table = createTable(head,leads,bodyElements)
+		return createCard('leads__card__id','leads__target','Leads <span>('+total+')</span>	',table)
+	}
+	return ''
+}
+
+const get_orders_table_data = (orders,total) => {
+	if (orders.length){
+		let head = ['Id','Date','Site Name','Brands','Order Status']
+		let bodyElements = ['id','order_date','storeWebsite','brand_name_list','status']
+		let table = createTable(head,orders,bodyElements)
+		return createCard('orders__card__id','orders__target','Orders <span>('+total+')</span>	',table)
+	}
+	return ''
+}
+
+const get_exchanges_return_table_data = (data,total) => {
+	if (data.length){
+		let head = ['Id','Customer Name','Product Name','Type','Refund amount',
+			'Reason for refund','Status','Pickuo Address','Remarks','Created At']
+		let bodyElements = ['id','customer_name','name','type','refund_amount',
+		'reason_for_refund','status_name','pickup_address','remarks','created_at']
+		let table = createTable(head,data,bodyElements)
+		return createCard('exchanges_return__card__id','exchanges_return__target','return/exchange <span>('+total+')</span>	',table)
+	}
+	return ''
+}
+
 function getChats(id){
 
 	// Close the connection, if open.
@@ -621,7 +734,11 @@ function getChats(id){
 			runWebSocket(data.data.threadId);
 			
     	//}
+		var customer_id = data.data.id;
         console.log("success");
+		console.log("Customer_id",data.data.id);
+
+		getLeadOrderDetails(customer_id);
     })
     .fail(function() {
 		console.log("error");
@@ -630,6 +747,24 @@ function getChats(id){
     	$('#chatAdditionalInfo').html('');
     	$('#chatTechnology').html('');
     });
+}
+
+function getCustDetails()
+{
+	var lastMsgId = $("#message-recieve").find(".d-flex").last().data("chat-id");
+	$.ajax({
+		url: "{{ route('livechat.message.withoutrefresh') }}",
+		type: 'POST',
+		dataType: 'json',
+		data: { _token: "{{ csrf_token() }}", last_msg_id : lastMsgId },
+	})
+	.done(function(data) {
+		var customer_id = data.data.id;
+		getLeadOrderDetails(customer_id);
+	})
+	.fail(function() {
+		console.log("error");
+	});
 }
 
 function getChatsWithoutRefresh(){
@@ -700,7 +835,7 @@ function getUserList(){
 		data: { _token: "{{ csrf_token() }}" },
 	})
 	.done(function(data) {
-		 $('#customer-list-chat').empty().html(data.data.message);
+		//  $('#customer-list-chat').empty().html(data.data.message);
 		 $('#new_message').text(data.data.count);
 	})
 	.fail(function() {

@@ -2051,7 +2051,7 @@ $metaData = '';
 
     <div class="chat-button-wrapper">
         <div class="chat-button-float">
-            <button class="chat-button">
+            <button class="chat-button chat_btn">
                 <img src="/images/chat.png" class="img-responsive"/>
                 <span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span>
             </button>
@@ -2415,17 +2415,24 @@ $metaData = '';
            openChatBox(false);
         });
 
-        $('.chat-button').on('click', function () {
-            $('.chat-button-wrapper').toggleClass('expanded');
-            $('.page-chat-list-rt').toggleClass('dis-none');
-            if($('.chat-button-wrapper').hasClass('expanded')){
-                chatBoxOpen = true;
-                openChatBox(true);
-            }else{
-                chatBoxOpen = false;
-                openChatBox(false);
-            }
+        $('.chat_btn').on('click', function (e) {
+            e.preventDefault();
+           $("#quick-chatbox-window-modal").modal("show");
+           chatBoxOpen = true;
+           openChatBox(true);
         });
+
+        // $('.chat-button').on('click', function () {
+        //     $('.chat-button-wrapper').toggleClass('expanded');
+        //     $('.page-chat-list-rt').toggleClass('dis-none');
+        //     if($('.chat-button-wrapper').hasClass('expanded')){
+        //         chatBoxOpen = true;
+        //         openChatBox(true);
+        //     }else{
+        //         chatBoxOpen = false;
+        //         openChatBox(false);
+        //     }
+        // });
 
         var notesBtn = $(".save-user-notes");
 
