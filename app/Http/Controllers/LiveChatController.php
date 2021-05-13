@@ -605,6 +605,9 @@ if(isset($request->messageId)){
         $customerInital = substr($name, 0, 1);
         if (count($messages) != 0) {
             foreach ($messages as $message) {
+                
+                $agent       = Customer::where('id', $message->customer_id)->first();
+                $agentInital = substr($agent->name, 0, 1);
 
                 if ($message->status == 2) {
                     $type = 'end';
@@ -612,25 +615,40 @@ if(isset($request->messageId)){
                     $type = 'start';
                 }
 
-                if ($message->user_id != 0) {
-                    // Finding Agent
-                    $agent       = User::where('email', $message->user_id)->first();
-                    $agentInital = substr($agent->name, 0, 1);
-                    if(!$message->approved){
-                        $vals = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"> ' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div></div></div>';
-                    }else{
-                        $vals = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"> ' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span> </div></div>';
+                if ($message->hasMedia(config('constants.media_tags'))) {
+                    foreach ($message->getMedia(config('constants.media_tags')) as $image) {
+                       
+
+                        if(!$message->approved){
+                            $vals =  '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span><div class="d-flex mb-4"><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div><div class="msg_cotainer_send"><img src="' . $image->getUrl() . '" class="rounded-circle-livechat user_img_msg"></div></div>';
+                        }else{
+                            $vals = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div><div class="msg_cotainer_send"><img src="' . $image->getUrl() . '" class="rounded-circle-livechat user_img_msg"></div></div>';
+                        }
+                        $messagess[] = $vals;
+
                     }
-                    $messagess[] = $vals;
-                     //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
-                } else {
-                    if(!$message->approved){
-                        $vals = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div></div></div>';
-                    }else{
-                        $vals = '<div  data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' sss mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span></div></div>';
-                     //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+                }else
+                {
+                    if ($message->user_id != 0) {
+                        // Finding Agent
+                        $agent       = User::where('email', $message->user_id)->first();
+                        $agentInital = substr($agent->name, 0, 1);
+                        if(!$message->approved){
+                            $vals = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"> ' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div></div></div>';
+                        }else{
+                            $vals = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"> ' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span> </div></div>';
+                        }
+                        $messagess[] = $vals;
+                        //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+                    } else {
+                        if(!$message->approved){
+                            $vals = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div></div></div>';
+                        }else{
+                            $vals = '<div  data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' sss mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span></div></div>';
+                        //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+                        }
+                        $messagess[] = $vals;
                     }
-                    $messagess[] = $vals;
                 }
             }
 
@@ -673,8 +691,10 @@ if(isset($request->messageId)){
                 foreach ($messages as $message) {
 
                     if ($message->user_id != 0) {
+                    // if ($message->customer_id != 0) {    
                         // Finding Agent
-                        $agent       = User::where('email', $message->user_id)->first();
+                        $agent       = Customer::where('id', $message->customer_id)->first();
+                        // $agent       = User::where('email', $message->user_id)->first();
                         $agentInital = substr($agent->name, 0, 1);
 
                         if ($message->hasMedia(config('constants.media_tags'))) {
