@@ -219,6 +219,22 @@ class RepositoryController extends Controller
             $allOutput[] = $cmd;
             $result = exec($cmd, $allOutput);
             \Log::info(print_r($allOutput,true));
+
+            $sqlIssue = false;
+            if(!empty($allOutput) && is_array($allOutput)) {
+                foreach($allOutput as $output) {
+                    if(strpos(strtolower($output), "sqlstate") !== false){
+                        $sqlIssue = true;
+                    }
+                }
+            }
+            if($sqlIssue) {
+                return redirect(url('/github/pullRequests'))->with([
+                    'message' => 'Branch merged successfully but migration failed',
+                    'alert-type' => 'error'
+                ]);
+            }
+
         } catch (Exception $e) {
             \Log::error($e);
             print_r($e->getMessage());
