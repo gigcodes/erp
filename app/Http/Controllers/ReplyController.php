@@ -19,6 +19,7 @@ class ReplyController extends Controller
 
     public function index()
     {
+
       $replies = Reply::oldest()->whereNull('deleted_at')->paginate(Setting::get('pagination'));
       $reply_categories = ReplyCategory::all();
   		return view('reply.index',compact('replies','reply_categories'))
@@ -49,6 +50,7 @@ class ReplyController extends Controller
      */
     public function store(Request $request, Reply $reply)
     {
+
       $this->validate($request,[
         'reply'       => 'required|string',
   			'category_id' => 'required|numeric',
@@ -60,7 +62,7 @@ class ReplyController extends Controller
   		$reply->create($data);
 
       if ($request->ajax()) {
-        return response(trim($request->reply));
+        return response()->json(trim($request->reply));
       }
 
   		return redirect()->route('reply.index')->with('success','Quick Reply added successfully');

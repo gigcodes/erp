@@ -219,7 +219,23 @@ class RepositoryController extends Controller
             $allOutput = array();
             $allOutput[] = $cmd;
             $result = exec($cmd, $allOutput);
+            $hasConflict = false;
+            if(!empty($allOutput) && is_array($allOutput)) {
+                foreach($allOutput as $output) {
+                    if(strpos(strtolower($output), "conflict") !== false){
+                        $hasConflict = true;
+                    }
+                }
+            }
 
+            if($hasConflict) {
+                return redirect(url('/github/pullRequests'))->with(
+                    [
+                        'message' => 'There is conflict in pull request please check it!',
+                        'alert-type' => 'error'
+                    ]
+                );
+            }
         } catch (Exception $e) {
             \Log::error($e);
             print_r($e->getMessage());
@@ -239,7 +255,7 @@ class RepositoryController extends Controller
     private function getPullRequests($repoId)
     {
         $pullRequests = array();
-        $url = "https://api.github.com/repositories/" . $repoId . "/pulls";
+        $url = "https://api.github.com/repositories/" . $repoId . "/pulls?per_page=200";
         try{
             $response = $this->client->get($url);
             $decodedJson = json_decode($response->getBody()->getContents());

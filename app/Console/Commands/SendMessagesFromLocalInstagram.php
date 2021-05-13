@@ -41,7 +41,7 @@ class SendMessagesFromLocalInstagram extends Command
          $ch = curl_init();
             $username = Config('instagram.admin_account');
 
-            $url = 'https://erp.amourint.com/api/instagram/get-comments-list/'.$username;
+            $url = 'https://erp.theluxuryunlimited.com/api/instagram/get-comments-list/'.$username;
 
             // set url
             curl_setopt($ch, CURLOPT_URL, $url);
@@ -88,7 +88,7 @@ class SendMessagesFromLocalInstagram extends Command
                         'id' => $comment->id,
                     ];
 
-                    $ch = curl_init('https://erp.amourint.com/api/instagram/comment-sent');
+                    $ch = curl_init('https://erp.theluxuryunlimited.com/api/instagram/comment-sent');
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, $detail);
 

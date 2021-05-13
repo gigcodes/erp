@@ -40,6 +40,21 @@ class Helpers
         return $users;
     }
 
+    public static function getUsersRoleName($roleName = 'HOD of CRM')
+    {
+        $roleID = Role::findByName($roleName);
+
+        $users = DB::table('users AS u')
+            ->select('u.id', 'u.name')
+            ->where('r.role_id', '=', $roleID->id)
+            ->leftJoin('role_user AS r', 'r.user_id', '=', 'u.id')
+            ->distinct()
+            ->orderBy('u.name')
+            ->get();
+
+        return $users;
+    }
+
     public static function getUserArray($users)
     {
 

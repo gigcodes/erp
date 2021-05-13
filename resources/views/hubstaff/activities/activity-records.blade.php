@@ -26,7 +26,7 @@
           <th style="width:2%" class="text-center">Action <input type="checkbox" id="checkAll"> </th>
         </tr>
           @foreach ($activityrecords as $record)
-            <tr>
+            <tr >
             <td>{{ $record->OnDate }} {{$record->onHour}}:00:00</td>
               <td>{{ number_format($record->total_tracked / 60,2,".",",") }}</td>
               <td>{{ number_format($record->totalApproved / 60,2,".",",") }}</td>
@@ -44,14 +44,21 @@
                   @if(!empty($l)) 
                       <?php 
                         list($type, $id) = explode("-",$l);
+                        $task = \App\DeveloperTask::where('id', $id)->first();
+                        $estMin = $task->estimate_minutes ?? 0 ;
+
+                        $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$id)->where('attribute','estimation_minute')->where('is_approved',1)->first();
                    	?>
-                      <a style="color:#333333;" href="javascript:;">{{$a->taskSubject}}</a><br>
+                      <a style="color:#333333;" class="{{ empty($time_history) ? 'not_approve' : ''  }} {{ ( !auth()->user()->isAdmin()  && number_format($record->total_tracked / 60,2,".",",") > $estMin  ) ? 'gone_estimated' : '' }} " data-id="{{$id}}"  href="javascript:;">{{$a->taskSubject}}</a><br>
                     @endif
 
                 @endforeach
               </td>
 			  <td>
-				  <?php $listOFtask = []; ?>
+				  <?php $listOFtask = []; 
+                    
+
+                  ?>
 					@foreach ($record->activities as $a)
 						@if(!empty($a->taskSubject)) 
 						<?php 
@@ -68,6 +75,8 @@
 						@endif
 
 					@endforeach
+
+
 			  </td>
               <td>
               <div class="form-group" style="margin:0px;">
@@ -209,6 +218,7 @@
       </div>
       @endif
     @endif
+   
     @if($hubActivitySummery)
     <div class="form-group">
         <label for="">Previous remarks</label>
@@ -219,19 +229,20 @@
         <label for="">New remarks</label>
         <textarea class="form-control" name="rejection_note" id="rejection_note" cols="30" rows="5" placeholder="Rejection note..."></textarea>
     </div>
+     <div class="gone_est_notes form-group"></div>
     </div>
     <div class="modal-footer">
     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
     @if($isAdmin)
-    <button type="submit" class="btn btn-secondary final-submit-record" data-status="1">Approve</button>
-    <button type="submit" class="btn btn-secondary final-submit-record" data-status="2">Pending</button>
-    @if(count($teamLeaders) > 0)
-    <button type="submit" class="btn btn-danger submit-record">Forword</button>
-    @endif
+        <button type="submit" class="btn btn-secondary final-submit-record" data-status="1">Approve</button>
+        <button type="submit" class="btn btn-secondary final-submit-record" data-status="2">Pending</button>
+        @if(count($teamLeaders) > 0)
+            <button type="submit" class="btn btn-danger submit-record">Forword</button>
+        @endif
     @else
-    <button type="submit" class="btn btn-danger submit-record">Forword</button> 
+        <button type="submit" class="btn btn-danger submit-record">Forword</button> 
+        <button type="button" class="btn btn-secondary hide submit-notes">Submit notes</button> 
     @endif
-    
     </div>
 </form>
 
@@ -243,7 +254,53 @@
     $("#checkAll").click(function(){
         $('input:checkbox').not(this).prop('checked', this.checked);
     });
+
+    var array = [];
+    $(".gone_estimated").each(function() {
+        var id = $(this).data('id');
+        if(jQuery.inArray(id, array) != -1) {
+        } else {
+            array.push(id);
+            var $input = $("  <label> Note for "+$(this).data('id')+" </label><div class='form-group'><input name='notes_field["+id+"]' data-id='"+id+"' class='form-control notes-input' placeholder='Write note..' type='text' required></div>");
+            $('.gone_est_notes').append($input);
+        } 
+    });
+
+    if ($('.not_approve').length > 0) {
+          $('.submit-record').remove();
+          $('.submit-notes').toggleClass('hide');
+    }
     
+    $(document).on("click",".submit-notes",function() {
+
+        var vali = false;
+        $('.notes-input').each(function() {
+            if($(this).val() == ''){
+                toastr['error']('invalid notes', 'error');
+                vali = true; 
+            }
+        });
+
+        if( vali == true ){
+            return false;
+        }
+
+        var taskid = $(this).data("id");
+        var form = $(this).closest("form");
+        var data = form.serialize();
+        
+        $.ajax({
+              type: 'GET',
+              url: '/hubstaff-activities/activities/save-notes',
+              data: data
+          }).done(response => {
+            $('#records-modal').modal('hide');
+              console.log(response);
+          }).fail(function (response) {
+              
+          });
+    });
+
     $(document).on("click",".show-task-history",function() {
         var taskid = $(this).data("id");
         $.ajax({
