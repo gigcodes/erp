@@ -239,7 +239,7 @@ class RepositoryController extends Controller
     private function getPullRequests($repoId)
     {
         $pullRequests = array();
-        $url = "https://api.github.com/repositories/" . $repoId . "/pulls";
+        $url = "https://api.github.com/repositories/" . $repoId . "/pulls?per_page=200";
         try{
             $response = $this->client->get($url);
             $decodedJson = json_decode($response->getBody()->getContents());
