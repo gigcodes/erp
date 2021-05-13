@@ -128,6 +128,7 @@ use App\Console\Commands\DeleteStoreWebsiteCategory;
 use App\Console\Commands\RunGoogleAnalytics;
 use App\Console\Commands\scrappersImages;
 use App\Console\Commands\scrappersImagesDelete;
+use App\Console\Commands\productActivity;
 use App\Console\Commands\InstagramHandler;
 use App\Console\Commands\SendDailyReports;
 use App\Console\Commands\InsertPleskEmail;
@@ -257,6 +258,7 @@ class Kernel extends ConsoleKernel
 		RunGoogleAnalytics::class,
         scrappersImages::class,
         scrappersImagesDelete::class,
+        productActivity::class,
         InstagramHandler::class,
         SendDailyReports::class,
         SendDailyPlannerNotification::class,
@@ -553,6 +555,9 @@ class Kernel extends ConsoleKernel
         $schedule->command("scrappersImagesDelete")->daily();
         //cron for instagram handler daily basis
         $schedule->command("instagram:handler")->everyMinute()->withoutOverlapping();
+
+        //Cron for activity
+        $schedule->command("productActivity")->dailyAt("0:00");
     }
 
     /**
