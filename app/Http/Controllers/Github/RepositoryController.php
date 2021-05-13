@@ -134,7 +134,7 @@ class RepositoryController extends Controller
             print_r($e->getMessage());
             return redirect(url('/github/pullRequests'))->with(
                 [
-                    'message' => 'Failed to Merge!',
+                    'message' => $e->getMessage(),
                     'alert-type' => 'error'
                 ]
             );
@@ -215,17 +215,16 @@ class RepositoryController extends Controller
             //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
 
             $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch . ' 2>&1';
-
             $allOutput = array();
             $allOutput[] = $cmd;
             $result = exec($cmd, $allOutput);
-
+            \Log::info(print_r($allOutput,true));
         } catch (Exception $e) {
             \Log::error($e);
             print_r($e->getMessage());
             return redirect(url('/github/pullRequests'))->with(
                 [
-                    'message' => 'Failed to Merge!',
+                    'message' => 'Failed to Merge please check branch has not any conflict !',
                     'alert-type' => 'error'
                 ]
             );
@@ -239,7 +238,7 @@ class RepositoryController extends Controller
     private function getPullRequests($repoId)
     {
         $pullRequests = array();
-        $url = "https://api.github.com/repositories/" . $repoId . "/pulls";
+        $url = "https://api.github.com/repositories/" . $repoId . "/pulls?per_page=200";
         try{
             $response = $this->client->get($url);
             $decodedJson = json_decode($response->getBody()->getContents());

@@ -13,21 +13,24 @@
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
+        .pagination {
+     margin: 0px 0;
+    width: 100%;
+}
     </style>
 @endsection
 
 @section('content')
 <div class="container-fluid">
     <div id="myDiv">
-        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+        <img id="loading-image" src="{{asset('images/pre-loader.gif')}}" style="display:none;z-index:9999;"/>
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Scraper Logs ( {{ $scraperLogs->total() }})</h2>
+            <h2 class="page-heading">Url-Log-Scrapper ( {{ $scraperLogs->total() }})</h2>
              <div class="pull-right">
-                <button type="button" class="btn btn-image" onclick="location.reload()"><img src="/images/resend2.png" /></button>
+                <button type="button" class="btn btn-image" onclick="location.reload()"><img src="{{ asset('images/resend2.png') }}" /></button>
             </div>
-
         </div>
     </div>
     <div class="row">
@@ -35,39 +38,53 @@
             <div class="panel-group">
                 <div class="panel-body">
                     <div class="row">
-                        <form id="message-fiter-handler" action="{{ route('log-scraper.index') }}" method="GET">
-                            <div class="pull-left">
-                                <div class="form-group">
-                                    @php
-                                    if(isset($customrange)){
-                                         $range = explode(' - ', $customrange);
-                                            $from = \Carbon\Carbon::parse($range[0])->format('F d, Y'); 
-                                            $to = \Carbon\Carbon::parse(end($range))->format('F d, Y'); 
-                                        }
-                                    @endphp    
-                                    <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
-                                        <input type="hidden" name="customrange" id="custom" value="{{ isset($customrange) ? $customrange : '' }}">
-                                        <i class="fa fa-calendar"></i>&nbsp;
-                                        <span @if(isset($customrange)) style="display:none;" @endif id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{ isset($customrange) ? $from .' '.$to : '' }}</p><i class="fa fa-caret-down"></i>
+                        <div class="col-md-12">
+                            <form id="message-fiter-handler" action="{{ route('log-scraper.index') }}" method="GET">
+                           
+                                    <div class="row">
+                                        <div class="col-md-5.5">
+                                            {!! $scraperLogs->render() !!}
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                @php
+                                                if(isset($customrange)){
+                                                     $range = explode(' - ', $customrange);
+                                                        $from = \Carbon\Carbon::parse($range[0])->format('F d, Y'); 
+                                                        $to = \Carbon\Carbon::parse(end($range))->format('F d, Y'); 
+                                                    }
+                                                @endphp    
+                                                <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                                    <input type="hidden" name="customrange" id="custom" value="{{ isset($customrange) ? $customrange : '' }}">
+                                                    <i class="fa fa-calendar"></i>&nbsp;
+                                                    <span @if(isset($customrange)) style="display:none;" @endif id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{ isset($customrange) ? $from .' '.$to : '' }}</p><i class="fa fa-caret-down"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <select class="form-control" name="is_external_scraper">
+                                                    <option value="">Select type of logs</option>
+                                                    <option value="" >All</option>
+                                                    <option value="1">External Scrapper only</option>
+                                                </select>
+                                        </div>
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <button style="display: inline-block;width: 10%;float: right;" class="btn btn-sm btn-image btn-filter-report">
+                                                <img src="{{asset('images/search.png')}}" style="cursor: default;">
+                                            </button>
+                                            <button style="float:right;" data-toggle="collapse" href="#pending-error-list"  class="btn btn-secondary">
+                                                Show Errors
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="form-group">
-                                        <select class="form-control" name="is_external_scraper">
-                                            <option value="">Select type of logs</option>
-                                            <option value="" >All</option>
-                                            <option value="1">External Scrapper only</option>
-                                        </select>
-                                </div>
-                            </div>  
-                            <div class="pull-right">
-                                <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-filter-report">
-                                    <img src="/images/search.png" style="cursor: default;">
-                                </button>
-                                <button style="float:right;" data-toggle="collapse" href="#pending-error-list"  class="btn btn-secondary">
-                                    Show Errors
-                                </button>
-                            </div>
-                        </form>
+                             
+                              
+                            </form>
+                        </div>
+                        
                     </div>  
                     <div id="pending-error-list" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
                         <div class="card card-body">
@@ -92,55 +109,76 @@
                 </div>
             </div>
         </div>    
-    </div>
+    
 
-    @include('partials.flash_messages')
-
-    <div class="mt-3 col-md-12">
-        <table class="table table-bordered table-striped" id="log-table">
-            <thead>
-            <tr>
-                <th>Id</th>
-                <th>Ip address</th>
-                <th>Website</th>
-                <th>Url</th>
-                <th>Sku</th>
-                <th>Original sku</th>
-                <th>Title</th>
-                <th>Validation result</th>
-                <th>Size</th>
-                <th>Composition</th>
-                <th>Country</th>
-                <th>Supplier</th>        
-                <th>Created at</th>
-            </tr>
-            <tr>
-                <th><input type="text" class="search form-control filter-serach-string" data-id="id"></th>
-                <th><input type="text" class="search form-control filter-serach-string" data-id="ip_address"></th>
-                <th><input type="text" class="search form-control filter-serach-string" data-id="website"></th>
-                <th><input type="text" class="search form-control filter-serach-string" data-id="url"></th>
-                <th><input type="text" class="search form-control filter-serach-string" data-id="sku"></th>
-                <th><input type="text" class="search form-control filter-serach-string" data-id="original_sku"></th>
-                <th><input type="text" class="search form-control filter-serach-string" data-id="title"></th>
-                <th><input type="text" class="search form-control filter-serach-string" data-id="validation_result"></th>
-                <th><input type="text" class="search form-control filter-serach-string" data-id="size"></th>
-                <th><input type="text" class="search form-control filter-serach-string" data-id="composition"></th>
-
-                <th><input type="text" class="search form-control filter-serach-string" data-id="country"></th>
-                <th><input type="text" class="search form-control filter-serach-string" data-id="supplier"></th>
-                <th></th>
-            </tr>
-            </thead>
-
-            <tbody id="content_data" class="infinite-scroll">
-                @include('logging.partials.scraper-logs')
-            </tbody>
-
-            {!! $scraperLogs->render() !!}
-
-        </table>
+        <div class="row">
+            <div class="col-md-12">
+                    @include('partials.flash_messages')
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped" id="log-table">
+                            <thead>
+                            <tr>
+                                <th width="5%">Id</th>
+                                <th width="5%">Ip address</th>
+                                <th width="5%">Website</th>
+                                <th width="10%">Url</th>
+                                <th width="5%">Sku</th>
+                                <th width="5%">Original sku</th>
+                                <th width="10%">Created at</th>
+                            </tr>
+                            <tr>
+                                <th><input type="text" class="search form-control filter-serach-string" data-id="id"></th>
+                                <th><input type="text" class="search form-control filter-serach-string" data-id="ip_address"></th>
+                                <th><input type="text" class="search form-control filter-serach-string" data-id="website"></th>
+                                <th><input type="text" class="search form-control filter-serach-string" data-id="url"></th>
+                                <th><input type="text" class="search form-control filter-serach-string" data-id="sku"></th>
+                                <th><input type="text" class="search form-control filter-serach-string" data-id="original_sku"></th>
+                                {{-- <th><input type="text" class="search form-control filter-serach-string" data-id="title"></th>
+                                <th><input type="text" class="search form-control filter-serach-string" data-id="validation_result"></th>
+                                <th><input type="text" class="search form-control filter-serach-string" data-id="size"></th>
+                                <th><input type="text" class="search form-control filter-serach-string" data-id="composition"></th>
+                
+                                <th><input type="text" class="search form-control filter-serach-string" data-id="country"></th>
+                                <th><input type="text" class="search form-control filter-serach-string" data-id="supplier"></th> --}}
+                                <th></th>
+                            </tr>
+                            </thead>
+                
+                            <tbody id="content_data" class="infinite-scroll">
+                                @include('logging.partials.scraper-logs')
+                            </tbody>
+                        </table>
+                    </div>
+            </div>
+        </div>
     </div>
 </div>
+
+{{-- <!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+    Launch demo modal
+  </button>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          ...
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div> --}}
 
 
 @endsection

@@ -119,7 +119,7 @@ $metaData = '';
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-    <script type="text/javascript" src="//media.twiliocdn.com/sdk/js/client/v1.9/twilio.min.js"></script>
+    <script type="text/javascript" src="https://media.twiliocdn.com/sdk/js/client/v1.14/twilio.min.js"></script>
 
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.0.5/dist/js/tabulator.min.js"></script>
 
@@ -812,6 +812,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="/marketing/accounts/facebook">Facebook Config</a>
                                             <a class="dropdown-item" href="{{ route('platforms.index') }}">Platforms</a>
                                             <a class="dropdown-item" href="{{ route('broadcasts.index') }}">BroadCast</a>
+                                            <a class="dropdown-item" href="/marketing/services">Mailing Service</a>
                                             <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-template') }}">Mailinglist Templates</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-emails') }}">Mailinglist Emails</a>
@@ -1714,6 +1715,9 @@ $metaData = '';
                                     <a class="dropdown-item" href="{{ route('googlefiletranslator.list') }}">Google File Translator</a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('/google-traslation-settings') }}">Google Translator Setting</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('googlewebmaster.index') }}">Google webmaster</a>
                                 </li>
                                 <li class="nav-item">
@@ -1742,15 +1746,11 @@ $metaData = '';
                                     <a class="dropdown-item" href="{{route('password.index')}}">Password Manager</a>
                                 </li>
                                 <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{route('password.manage')}}">Multiple User Passwords Manager</a>
+                                </li>
+                                <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{route('document.index')}}">Document manager</a>
                                 </li>
-
-                                @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 65 || Auth::id() == 90)
-                                <a class="dropdown-item" href="{{route('password.index')}}">Passwords Manager</a>
-                                <a class="dropdown-item" href="{{route('password.manage')}}">Multiple User Passwords Manager</a>
-                                <a class="dropdown-item" href="{{route('document.index')}}">Documents Manager</a>
-                                @endif
-
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource Center</a>
                                 </li>
@@ -1952,7 +1952,7 @@ $metaData = '';
             <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickTaskModal">+ TASK</button>
         </div>
         @endif
-
+        @include('twilio.receive_call_popup');
         @include('partials.modals.quick-task')
         @include('partials.modals.quick-instruction')
         @include('partials.modals.quick-development-task')
@@ -2048,6 +2048,7 @@ $metaData = '';
     </div>
 
     @if(Auth::check())
+
 
     <div class="chat-button-wrapper">
         <div class="chat-button-float">

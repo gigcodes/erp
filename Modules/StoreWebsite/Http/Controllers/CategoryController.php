@@ -336,7 +336,8 @@ class CategoryController extends Controller
         return response()->json(["code" => 200, "data" => ["store_website_id" => $swi], "message" => "Category has been saved successfully"]);
     }
 
-    function list(Request $request) {
+    public function list(Request $request) {
+        ini_set("memory_limit","-1");
         $title      = "Store Category";
         $categories = Category::query();
 
@@ -351,7 +352,7 @@ class CategoryController extends Controller
         $storeWebsite = StoreWebsite::all();
         $appliedQ     = StoreWebsiteCategory::all();
 
-        return view("storewebsite::category.index", compact(['title', 'categories', 'storeWebsite', 'appliedQ']));
+    return view("storewebsite::category.index", compact(['title', 'categories', 'storeWebsite', 'appliedQ']));
     }
 
     public function saveStoreCategory(Request $request)

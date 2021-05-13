@@ -68,7 +68,15 @@
             <th width="10%"><input type="text" name="url" class="search form-control tbInput" id="moduleName"></th>
             <th></th>
             <!--  <th width="10%"><input type="text" class="search form-control" id="controllerName"></th> -->
-            <th width="10%"><input type="text" name="status" class="search form-control tbInput" id="action"></th>
+            <th width="10%">
+              <select name="status" class="search form-control tbInput" id="action">
+                <option value="">Select Status Code</option>
+                @foreach($status_codes as $status_code)
+                  <option value="{{$status_code->status_code}}">{{$status_code->status_code}}</option>
+                @endforeach
+              </select>
+              <!-- <input type="text" name="status" class="search form-control tbInput" id="action"> -->
+            </th>
             <th></th>
             <th>
                <div class='input-group' id='log-created-date'>
@@ -155,7 +163,9 @@
            filterResults();
           // console.log(data);
        })
-   
+        $(document).on('change','select[name="status"]',function(){
+          filterResults();
+        });
    
        //Expand Row
    
