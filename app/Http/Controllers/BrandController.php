@@ -115,70 +115,16 @@ class BrandController extends Controller
 
         $activeSuppliers = $activeSuppliers->paginate(Setting::get('pagination'));
 
-        // Get scrape data
-        $yesterdayDate = date("Y-m-d", strtotime("-1 day"));
-        $sql           = '
-            SELECT
-                s.id,
-                s.supplier,
-                sc.inventory_lifetime,
-                sc.scraper_new_urls,
-                sc.scraper_existing_urls,
-                sc.scraper_total_urls,
-                sc.scraper_start_time,
-                sc.scraper_logic,
-                sc.scraper_made_by,
-                sc.server_id,
-                sc.id as scraper_id,
-                ls.website,
-                ls.ip_address,
-                COUNT(ls.id) AS total,
-                SUM(IF(ls.validated=0,1,0)) AS failed,
-                SUM(IF(ls.validated=1,1,0)) AS validated,
-                SUM(IF(ls.validation_result LIKE "%[error]%",1,0)) AS errors,
-                SUM(IF(ls.validation_result LIKE "%[warning]%",1,0)) AS warnings,
-                SUM(IF(ls.created_at LIKE "%' . $yesterdayDate . '%",1,0)) AS total_new_product,
-                MAX(ls.last_inventory_at) AS last_scrape_date,
-                IF(MAX(ls.last_inventory_at) < DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY),0,1) AS running
-            FROM
-                suppliers s
-            JOIN
-                scrapers sc
-            ON
-                sc.supplier_id = s.id
-            JOIN
-                scraped_products ls
-            ON
-                sc.scraper_name=ls.website
-            WHERE
-                sc.scraper_name IS NOT NULL AND
-                ls.website != "internal_scraper" AND
-                ' . ($request->excelOnly == 1 ? 'ls.website LIKE "%_excel" AND' : '') . '
-                ' . ($request->excelOnly == -1 ? 'ls.website NOT LIKE "%_excel" AND' : '') . '
-                ls.last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)
-            GROUP BY
-                sc.id
-            ORDER BY
-                sc.scraper_priority desc
-        ';
-        $scrapeData = DB::select($sql);
-
-        $allScrapperName = [];
-
-        if (!empty($scrapeData)) {
-            foreach ($scrapeData as $data) {
-                if (isset($data->id) && $data->id > 0) {
-                    $allScrapperName[$data->id] = $data->website;
-                }
-            }
-        }
+       
 
         $lastRunAt = \DB::table("scraped_products")->groupBy("website")->select([\DB::raw("MAX(last_inventory_at) as last_run_at"), "website"])->pluck("last_run_at", "website")->toArray();
 
-        $users       = \App\User::all()->pluck("name", "id")->toArray();
         $allScrapper = Scraper::whereNull('parent_id')->pluck('scraper_name', 'id')->toArray();
         // Return view
-        return view('brand.scrap_brand', compact('activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper','getLatestOptimization'));
+        // return view('brand.scrap_brand', compact('activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper','getLatestOptimization'));
+
+
+        return view('brand.scrap_brand', compact('activeSuppliers', 'allScrapper'));
     }
 
     private static function get_times($default = '19:00', $interval = '+60 minutes')
