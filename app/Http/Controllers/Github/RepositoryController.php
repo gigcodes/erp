@@ -219,6 +219,7 @@ class RepositoryController extends Controller
             $allOutput = array();
             $allOutput[] = $cmd;
             $result = exec($cmd, $allOutput);
+            \Log::info(print_r($allOutput,true));
             $hasConflict = false;
             if(!empty($allOutput) && is_array($allOutput)) {
                 foreach($allOutput as $output) {
