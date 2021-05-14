@@ -205,7 +205,7 @@ class ScrapLogsController extends Controller
     public function databaseLog(Request $request){
     	$search = '';
 
-    	$namefile = env('DATABASE_LOGS_FOLDER');
+    	$namefile = env('DATABASE_LOGS_FILE');
 
     	if(!empty($namefile)){
 	    	$lines = @file($namefile);
