@@ -10,6 +10,7 @@
 
         <div class="pull-right">
             <button type="button" class="btn btn-secondary new-plan" data-toggle="modal" data-target="#myModal">New plan</button>
+            <button type="button" class="btn btn-secondary new-plan" data-toggle="modal" data-target="#myBasis">New basis</button>
         </div>
 
         <form action="{{ url()->current() }}" method="GET" id="searchForm" class="form-inline align-items-start">
@@ -53,6 +54,8 @@
                 <th>Sub subject</th>
                 <th>Description</th>
                 <th>Priority</th>
+                <th>Budget</th>
+                <th>DeadLine</th>
                 <th>status</th>
                 <th>Date</th>
                 <th width="280px">Action</th>
@@ -74,6 +77,8 @@
                      </span>
                 </td>
                 <td>{{$record->priority}}</td>
+                <td>{{$record->budget}}</td>
+                <td>{{$record->deadline}}</td>
                 <td>{{$record->status}}</td>
                 <td>{{$record->date}}</td>
                 <td>
@@ -86,7 +91,7 @@
                 </td>
             </tr>
             <tr class="expand-{{$record->id}} hidden">
-                <th colspan="2"></th>
+                <th colspan="4"></th>
                 <th>Remark</th>
                 <th>description</th>
                 <th>priority</th>
@@ -95,7 +100,7 @@
                 <th>Action</th>
                 @foreach( $record->subList( $record->id ) as $sublist)
                     <tr class="expand-{{$record->id}} hidden" >
-                        <td colspan="2"></td>
+                        <td colspan="4"></td>
                         <td width="10%">
                             <span class="toggle-title-box has-small" data-small-title="<?php echo substr($sublist->remark, 0, 10).'..' ?>" data-full-title="<?php echo ($sublist->remark) ? $sublist->remark : '' ?>">
                                 <?php
@@ -126,13 +131,45 @@
             </tr>
             @endforeach
             <tr>
-                <td colspan="8">{{$planList->appends(request()->except("page"))->links()}}</td>
+                <td colspan="10">{{$planList->appends(request()->except("page"))->links()}}</td>
             </tr>
         </tbody>
     </table>
 </div>
 
 <!-- The Modal -->
+<div class="modal fade" id="myBasis" tabindex="-1" role="dialog" aria-labelledby="myBasis" aria-hidden="true">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="myBasis">New basis</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+        <form method="post" id="planadd" action="{{ route('plan.create.basis') }}">
+          <div class="modal-body">
+            <div class="container-fluid">
+                  @csrf
+                  <div class="row subject-field">
+                      <div class="col-md-12">
+                          <div class="form-group">
+                            <label  class="col-form-label">Name:</label>
+                            <input type="text" name="name" class="form-control" placeholder="Enter name" required="">
+                          </div>
+                      </div>
+                  </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-secondary">Save</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModal" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
@@ -179,6 +216,31 @@
                             <select class="form-control" name="status" required>
                                 <option value="complete">complete</option>
                                 <option value="pending">pending</option>
+                            </select>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="row subject-field">
+                      <div class="col-md-4">
+                         <div class="form-group">
+                            <label  class="col-form-label">Budget:</label>
+                            <input type="number" name="budget" class="form-control">
+                          </div>
+                      </div>
+                      <div class="col-md-4">
+                         <div class="form-group">
+                            <label class="col-form-label">Deadline:</label>
+                            <input type="date" name="deadline" class="form-control">
+                          </div>
+                      </div>
+                      <div class="col-md-4">
+                         <div class="form-group">
+                            <label class="col-form-label">Basis:</label>
+                            <select class="form-control" name="basis">
+                                <option value="">Select</option>
+                                @foreach($basisList as $value )
+                                    <option value="{{$value->status}}">{{$value->status}}</option>
+                                @endforeach;
                             </select>
                           </div>
                       </div>
@@ -271,7 +333,10 @@ $(document).on('click','.add-sub-plan', function (event) {
                 $('input[name="sub_subject"]').val(data.object.sub_subject);
                 $('select[name="priority"]').val(data.object.priority).change();
                 $('select[name="status"]').val(data.object.status).change();
+                $('select[name="basis"]').val(data.object.basis).change();
                 $('input[name="date"]').val(data.object.date);
+                $('input[name="budget"]').val(data.object.budget);
+                $('input[name="deadline"]').val(data.object.deadline);
                 $('textarea[name="description"]').val(data.object.description);
                 $('textarea[name="remark"]').val(data.object.remark);
                 $('#parent_id').val(data.object.parent_id);

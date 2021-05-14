@@ -65,7 +65,9 @@ class AssetsManagerPaymentCron extends Command
           }         
     }
     public function addPaymentCycleToCashflow($payment_cycle){
-        $results = AssetsManager::where('payment_cycle',$payment_cycle)->get();
+        $results = AssetsManager::where('payment_cycle',$payment_cycle)->where(function($q){
+          $q->whereDate("due_date",date("Y-m-d"))->orWhere("due_date","=","")->orWhereNull("due_date");
+        })->get();
         if(count($results)==0){
            return $this->info(" no record exist for ".$payment_cycle." payments ");
            
@@ -95,6 +97,8 @@ class AssetsManagerPaymentCron extends Command
                 AssetsManager::where('id',$result->id)->update(['due_date'=>Carbon::now()->addWeeks(2)->toDateString()]);
             }elseif($result->payment_cycle =='Yearly'){
                 AssetsManager::where('id',$result->id)->update(['due_date'=>Carbon::now()->addYear()->toDateString()]);
+            }elseif($result->payment_cycle =='Daily'){
+                AssetsManager::where('id',$result->id)->update(['due_date'=>Carbon::now()->addDay(1)->toDateString()]);
             }
             $i++;
             if($i==$count){
