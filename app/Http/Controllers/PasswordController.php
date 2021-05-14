@@ -203,7 +203,11 @@ class PasswordController extends Controller
 
     public function changePassword(Request $request){
 
-        $users = $request->users;
+        if( empty( $request->users ) ){
+            return redirect()->back()->with('error','Please select user');
+        }
+        
+        $users = explode(",",$request->users);
         $data = array();
         foreach ($users as $key) {
             // Generate new password
