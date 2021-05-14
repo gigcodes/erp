@@ -24,7 +24,7 @@
 
     <div class="row mb-5">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Scrapped Brand <span class="total-info"></span></h2>
+            <h2 class="page-heading">Scrapped Brand ({{$brands->total()}})</h2>
         </div>
     </div>
 
@@ -56,8 +56,6 @@
         </div>
     </form>
     
-
-   <?php $totalCountedUrl = 0; ?>
     <div class="row no-gutters mt-3">
         <div class="col-md-12" id="plannerColumn">
             <div class="">
@@ -72,7 +70,6 @@
                     </thead>
                     <tbody>
                     @foreach ($brands as $brand)
-                    <?php $totalCountedUrl += 1; ?>
                             <td width="2%">
                             {{$brand->id}}
                             </td>
@@ -93,6 +90,11 @@
                             
                     @endforeach
                 </table>
+
+                <div class="text-center">
+                    {!! $brands->appends($filters)->links() !!}
+                </div>
+
                 @include('partials.modals.remarks',['type' => 'scrap'])
                 @include('partials.modals.latest-remarks',[])
             </div>
@@ -140,8 +142,6 @@
     <script src="/js/jquery-ui.js"></script>
     <script type="text/javascript">
 
-        $(".total-info").html("({{$totalCountedUrl}})");
-
          $(document).on("change", ".quickComments", function (e) {
             var message = $(this).val();
             var select = $(this);
@@ -187,11 +187,12 @@
                 }).done(function (data) {
                     if (data.code == 200) {
                         
-                        $(".quickComment").each(function(){
+                        toastr["success"]("Quick Comments Deleted successfully!", "Message");
+
+                        $(".quickComments").each(function(){
                         var selecto=  $(this)
                             $(this).children("option").not(':first').each(function(){
-                            $(this).remove();
-
+                                $(this).remove();
 
                             });
                             $.each(data.data, function (k, v) {
@@ -285,7 +286,7 @@
             $.ajax({
                 url: '/scrap/task-list',
                 type: 'GET',
-                data: {id: id},
+                data: {id: id,type: 'brand'},
                 beforeSend: function () {
                     $("#loading-image").show();
                 }
@@ -307,7 +308,7 @@
             $.ajax({
                 url: $this.attr("action"),
                 type: $this.attr("method"),
-                data: $this.serialize() + "&type=scrap",
+                data: $this.serialize() + "&type=brand",
                 beforeSend: function () {
                     $("#loading-image").show();
                 }

@@ -76,7 +76,7 @@ class BrandController extends Controller
         ->leftJoin("products as p","p.brand","brands.id")
         ->select(["brands.*",\DB::raw("group_concat(sw.id) as selling_on"),\DB::raw("LOWER(trim(brands.name)) as lower_brand"), \DB::raw('COUNT(p.id) as total_products')])
         ->groupBy("brands.id")
-        ->orderBy('lower_brand',"asc")->whereNull('brands.deleted_at');
+        ->orderBy('total_products',"desc")->whereNull('brands.deleted_at');
 
         $keyword = request('keyword');
         if (!empty($keyWord)) {
@@ -105,7 +105,9 @@ class BrandController extends Controller
 
         $brands = $brands->paginate(Setting::get('pagination'));
 
-        return view('brand.scrap_brand', compact('brands'));
+        $filters = $request->all();
+
+        return view('brand.scrap_brand', compact('brands','filters'));
     }
 
     private static function get_times($default = '19:00', $interval = '+60 minutes')
