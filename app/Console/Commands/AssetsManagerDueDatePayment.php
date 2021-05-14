@@ -43,8 +43,9 @@ class AssetsManagerDueDatePayment extends Command
            return $this->info(" no record exist");
         }
         $count = count($results);
-        $i=0;
-        $success =false;
+        
+        $i = 0;
+        $success = false;
         foreach($results as $result){
             //create entry in table cash_flows
             CashFlow::create(
