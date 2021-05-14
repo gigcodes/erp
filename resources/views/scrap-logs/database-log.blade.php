@@ -12,29 +12,31 @@
 		    <h2 class="page-heading">Databse Logs</h2>
 		</div>
 	</div>
-	<div class="mt-3 col-md-12">
-		<div class="col-lg-2">
-			<input class="form-control" type="text" id="search" placeholder="Search name" name="search" value="">
+	<form action="{{ action('ScrapLogsController@databaseLog') }}" method="get">
+		<div class="mt-3 col-md-12">
+			<div class="col-lg-2">
+				<input class="form-control" type="text" id="search" placeholder="Search name" name="search" value="{{ $search }}">
+			</div>
+			<div class="col-lg-2">
+				<button type="button" id="tabledata" class="btn btn-image">
+				<img src="/images/filter.png">
+				</button>
+			</div>
 		</div>
-		<div class="col-lg-2">
-			<button type="button" id="tabledata" class="btn btn-image">
-			<img src="/images/filter.png">
-			</button>
-		</div>
-	</div>
+	</form>
 	<div class="mt-3 col-md-12">
 		<table class="table table-bordered table-striped" id="log-table">
 		    <thead>
-				<td>Scraper ID</td>
-				<td>File Name</td>
+				<td>Index</td>
+				<!-- <td>File Name</td> -->
 				<td>Log Messages</td>
 			</thead>
 			<tbody id="log_popup_body">
 				@php $count = 1;  @endphp
-				@foreach($lines as $key => $line)
+				@foreach($output as $key => $line)
 					<tr>
 	    				<td>{{$key+1}}</td>
-	    				<td>{{$filename}}</td>
+	    				<!-- <td></td> -->
 	    				<td>{{$line}}</td>
 	    			</tr>
 				@endforeach
@@ -65,8 +67,38 @@
 @section('scripts')
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   <script>
-	$(document).ready(function(){
+	// $(document).ready(function(){
+	// 	tableData(BASE_URL);
+	// 	$("#tabledata").click(function(e) {
+	// 		tableData(BASE_URL);
+	// 	});
+	// 	function tableData(BASE_URL) {
+	// 		var search = $("input[name='search'").val() != "" ? $("input[name='search'").val() : null;
+	// 		var date = $("#datepicker").val() !="" ? $("#datepicker").val() : null;
+ //            var download = "?download=" + $("select[name='download_option'").val();
 
-	});
+ //            if($("select[name='download_option'").val() == "yes") {
+ //                window.location.href = BASE_URL+'?search='+search;
+ //            }
+
+	// 		$.ajax({
+	// 			url: BASE_URL+"/database-log/"+search+"/"+date,
+	// 			method:"get",
+	// 			headers: {
+	// 			    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+	// 			  },
+	// 			data:{},
+	// 			cache: false,
+	// 			success: function(data) {
+	// 					console.log(data)
+	// 					$("tbody").empty();
+	// 					$.each(data.file_list, function(i,row){
+	// 						$("tbody").append("<tr><td>"+(i+1)+"</td><td>"+row['foldername']+"</td><td><a href='scrap-logs/file-view/"+row['filename']+ '/' +row['foldername']+"' target='_blank'>"+row['filename']+"</a>&nbsp;<a href='javascript:;' onclick='openLasttenlogs(\""+row['scraper_id']+"\")'><i class='fa fa-weixin' aria-hidden='true'></i></a></td><td>"+row['log_msg']+"</td></tr>");
+	// 					});
+						
+	// 				}
+	// 		});
+	// 	}
+	// });
 </script> 
 @endsection

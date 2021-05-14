@@ -203,16 +203,32 @@ class ScrapLogsController extends Controller
     }
 
     public function databaseLog(Request $request){
-    	$namefile = storage_path().'/logs/laravel-2021-05-07.log';
-    	$filename = '/logs/laravel-2021-05-07.log';
-    	$lines = file($namefile);
-    	$output = array();
-		for($i = count($lines) -1; $i >= 0; $i--){
-			$output[] = $lines[$i] . '<br/>';
+    	$search = '';
+
+    	$namefile = env('DATABASE_LOGS_FOLDER');
+
+    	if(!empty($namefile)){
+	    	$lines = @file($namefile);
+	    	if($lines){
+	    		$output = array();
+				for($i = count($lines) -1; $i >= 0; $i--){
+					$output[] = $lines[$i];
+				}
+		    	if($request->search){
+		    		$search = $request->search;
+		    		$result = array_filter($output, function ($item) use ($search) {
+					    if (stripos($item, $search) !== false) {
+					        return true;
+					    }
+					    return false;
+					});
+		    		$output = $result;
+		    	}
+		    	return view('scrap-logs.database-log', compact('output','search'));
+	    	}
+	    	return 'File not found!';
 		}
-    	return view('scrap-logs.database-log',
-    		compact('lines','filename')
-    	);
+    	return 'File not found!';
     }
 
 }
