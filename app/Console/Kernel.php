@@ -534,6 +534,9 @@ class Kernel extends ConsoleKernel
         // delate chat message 
          //$schedule->command('delete:chat-messages')->dailyAt('00:00')->timezone('Asia/Kolkata');
 
+        //daily cron for checking due date and add to cashflow 
+        $schedule->command("assetsmanagerduedate:pay")->daily();
+
         //for adding due date in asset manager
         $schedule->command("assetsmanagerpayment:cron Daily")->daily();
         $schedule->command("assetsmanagerpayment:cron Weekly")->weekly();
@@ -541,8 +544,7 @@ class Kernel extends ConsoleKernel
         $schedule->command("assetsmanagerpayment:cron Monthly")->monthly();
         $schedule->command("assetsmanagerpayment:cron Bi-Weekly")->twiceMonthly(1, 16, '13:00');
         
-        //daily cron for checking due date and add to cashflow 
-        $schedule->command("assetsmanagerduedate:pay")->daily();
+        
         
         //cron for fcm push notifications
         $schedule->command("fcm:send")->everyMinute();
