@@ -202,4 +202,17 @@ class ScrapLogsController extends Controller
     	return view('scrap-logs.index',compact('name'));
     }
 
+    public function databaseLog(Request $request){
+    	$namefile = storage_path().'/logs/laravel-2021-05-07.log';
+    	$filename = '/logs/laravel-2021-05-07.log';
+    	$lines = file($namefile);
+    	$output = array();
+		for($i = count($lines) -1; $i >= 0; $i--){
+			$output[] = $lines[$i] . '<br/>';
+		}
+    	return view('scrap-logs.database-log',
+    		compact('lines','filename')
+    	);
+    }
+
 }
