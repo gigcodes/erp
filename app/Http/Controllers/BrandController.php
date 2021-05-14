@@ -67,22 +67,11 @@ class BrandController extends Controller
     public function scrap_brand(Request $request)
     {
         // Set dates
-        $endDate    = date('Y-m-d H:i:s');
         $keyWord    = $request->get("term", "");
         $madeby     = $request->get("scraper_made_by", 0);
         $scrapeType = $request->get("scraper_type", 0);
-
-        $timeDropDown = self::get_times();
-
-        $serverIds = Scraper::groupBy('server_id')->where('server_id', '!=', null)->pluck('server_id');
-        $getLatestOptimization = \App\ScraperServerStatusHistory::whereRaw("id in (
-            SELECT MAX(id)
-            FROM scraper_server_status_histories
-            GROUP BY server_id
-        )")
-        ->pluck('in_percentage','server_id')->toArray();
-
-        $activeSuppliers = Brand::leftJoin("store_website_brands as swb","swb.brand_id","brands.id")
+ 
+        $brands = Brand::leftJoin("store_website_brands as swb","swb.brand_id","brands.id")
         ->leftJoin("store_websites as sw","sw.id","swb.store_website_id")
         ->select(["brands.*",\DB::raw("group_concat(sw.id) as selling_on"),\DB::raw("LOWER(trim(brands.name)) as lower_brand")])
         ->groupBy("brands.id")
@@ -90,41 +79,32 @@ class BrandController extends Controller
 
         $keyword = request('keyword');
         if (!empty($keyWord)) {
-            $activeSuppliers->where(function ($q) use ($keyWord) {
+            $brands->where(function ($q) use ($keyWord) {
                 $q->where("brands.name", "like", "%{$keyWord}%");
             });
         }
 
         if ($madeby > 0) {
-            $activeSuppliers->whereHas("dev_tasks", function($q) use ($madeby){
+            $brands->whereHas("dev_tasks", function($q) use ($madeby){
                 $q->where('assigned_by', $madeby);
             });
         }
 
         if ($request->get("scrapers_status", "") != '') {
-            $activeSuppliers->whereHas("dev_tasks", function($q) use ($request){
+            $brands->whereHas("dev_tasks", function($q) use ($request){
                 $q->where("status", $request->get("scrapers_status", ""));
             });
         }
 
         if ($scrapeType > 0) {
-            $activeSuppliers->whereHas("dev_tasks", function($q) use ($scrapeType){
+            $brands->whereHas("dev_tasks", function($q) use ($scrapeType){
                 $q->where('task_type_id', $scrapeType);
             });
         }
 
-        $activeSuppliers = $activeSuppliers->paginate(Setting::get('pagination'));
+        $brands = $brands->paginate(Setting::get('pagination'));
 
-       
-
-        $lastRunAt = \DB::table("scraped_products")->groupBy("website")->select([\DB::raw("MAX(last_inventory_at) as last_run_at"), "website"])->pluck("last_run_at", "website")->toArray();
-
-        $allScrapper = Scraper::whereNull('parent_id')->pluck('scraper_name', 'id')->toArray();
-        // Return view
-        // return view('brand.scrap_brand', compact('activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper','getLatestOptimization'));
-
-
-        return view('brand.scrap_brand', compact('activeSuppliers', 'allScrapper'));
+        return view('brand.scrap_brand', compact('brands'));
     }
 
     private static function get_times($default = '19:00', $interval = '+60 minutes')
