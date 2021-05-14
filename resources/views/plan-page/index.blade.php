@@ -54,6 +54,8 @@
                 <th>Sub subject</th>
                 <th>Description</th>
                 <th>Priority</th>
+                <th>Budget</th>
+                <th>DeadLine</th>
                 <th>status</th>
                 <th>Date</th>
                 <th width="280px">Action</th>
@@ -75,6 +77,8 @@
                      </span>
                 </td>
                 <td>{{$record->priority}}</td>
+                <td>{{$record->budget}}</td>
+                <td>{{$record->deadline}}</td>
                 <td>{{$record->status}}</td>
                 <td>{{$record->date}}</td>
                 <td>
@@ -87,7 +91,7 @@
                 </td>
             </tr>
             <tr class="expand-{{$record->id}} hidden">
-                <th colspan="2"></th>
+                <th colspan="4"></th>
                 <th>Remark</th>
                 <th>description</th>
                 <th>priority</th>
@@ -96,7 +100,7 @@
                 <th>Action</th>
                 @foreach( $record->subList( $record->id ) as $sublist)
                     <tr class="expand-{{$record->id}} hidden" >
-                        <td colspan="2"></td>
+                        <td colspan="4"></td>
                         <td width="10%">
                             <span class="toggle-title-box has-small" data-small-title="<?php echo substr($sublist->remark, 0, 10).'..' ?>" data-full-title="<?php echo ($sublist->remark) ? $sublist->remark : '' ?>">
                                 <?php
@@ -127,7 +131,7 @@
             </tr>
             @endforeach
             <tr>
-                <td colspan="8">{{$planList->appends(request()->except("page"))->links()}}</td>
+                <td colspan="10">{{$planList->appends(request()->except("page"))->links()}}</td>
             </tr>
         </tbody>
     </table>
