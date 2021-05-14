@@ -80,7 +80,7 @@
                             {{$brand->name}}
                             </td>
                             <td width="5%">
-                            {{$brand->products->count()}}
+                            {{$brand->total_products }}
                             </td>
                             <td width="14%">
                                 <button style="padding: 3px" data-id="{{ $brand->id }}" type="button" class="btn btn-image d-inline get-tasks-remote" title="Task list">

@@ -73,7 +73,8 @@ class BrandController extends Controller
  
         $brands = Brand::leftJoin("store_website_brands as swb","swb.brand_id","brands.id")
         ->leftJoin("store_websites as sw","sw.id","swb.store_website_id")
-        ->select(["brands.*",\DB::raw("group_concat(sw.id) as selling_on"),\DB::raw("LOWER(trim(brands.name)) as lower_brand")])
+        ->leftJoin("products as p","p.brand","brands.id")
+        ->select(["brands.*",\DB::raw("group_concat(sw.id) as selling_on"),\DB::raw("LOWER(trim(brands.name)) as lower_brand"), \DB::raw('COUNT(p.id) as total_products')])
         ->groupBy("brands.id")
         ->orderBy('lower_brand',"asc")->whereNull('brands.deleted_at');
 
