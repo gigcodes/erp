@@ -190,7 +190,12 @@ class OrderController extends Controller
             $order = Order::where('id', $request->order_id)->first();
             $email = Email::where('model_id', $order->id)->where('model_type', 'App\Order')->orderBy('id', 'desc')->first();
         }
-        $content = $email->message;
+
+        if($email) {
+            $content = $email->message;
+        }else{
+            $content = "No Email found";
+        }
 
         // load the view for pdf and after that load that into dompdf instance, and then stream (download) the pdf
         $html = view('orders.order_mail', compact('content'));
@@ -200,7 +205,6 @@ class OrderController extends Controller
         $pdf->loadHtml($html->render());
         $pdf->render();
         $pdf->stream('orderMail.pdf');
-
     }
 
     /**
