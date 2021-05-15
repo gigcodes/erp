@@ -49,6 +49,7 @@ class DatabaseController extends Controller
         return view('database.index', compact('databaseHis','page'));
     }
 
+
     public function states(Request $request)
     {
 

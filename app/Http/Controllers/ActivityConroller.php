@@ -469,8 +469,15 @@ class ActivityConroller extends Controller
         return $result;
     }
 
-}
+    public function recentImport(Request $request){
+        $productStats = DB::table('productactivities')
+        ->where('status_id',$request->type)
+        ->whereDate('created_at', '>', Carbon::now()->subDays(10))
+        ->get();
+        return $productStats;
+    }
 
+}
 
 /*$total_data['selection']    += isset( $results['selection'] ) ? $results['selection'] : 0;
 		$total_data['searcher']     += isset( $results['searcher'] ) ? $results['searcher'] : 0;

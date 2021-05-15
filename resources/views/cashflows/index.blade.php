@@ -85,7 +85,7 @@
             <tbody>
               @foreach ($cash_flows as $cash_flow)
                 <tr>
-                  <td><a href="{{ route('order.show',$cash_flow->cash_flow_able_id) }}" title="View {{ class_basename($cash_flow->cashFlowAble) }} Detail" target="_blank">{{ optional($cash_flow->cashFlowAble)->order_id }}</a><br>{{ class_basename($cash_flow->cashFlowAble) }}</td>
+                  <td><a href="{{ route('order.show',[$cash_flow->cash_flow_able_id]) }}" title="View {{ class_basename($cash_flow->cashFlowAble) }} Detail" target="_blank">{{ optional($cash_flow->cashFlowAble)->order_id }}</a><br>{{ class_basename($cash_flow->cashFlowAble) }}</td>
                   <td class="small">{{ date('Y-d-m', strtotime($cash_flow->date)) }}</td>
                   <td>
                     {{ $cash_flow->description }}

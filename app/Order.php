@@ -277,6 +277,11 @@ class Order extends Model
         return $this->orderCustomerAddress()->where("address_type","billing")->first();
     }
 
+    public function email()
+    {
+        return $this->belongsTo(Email::class,'id', 'model_id');
+    }
+
 
     // public function calculateTotal($order)
     // {

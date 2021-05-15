@@ -104,7 +104,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('sku-logs', 'Logging\LogScraperController@logSKU')->name('logging.scrap.log');
     Route::get('sku-logs-errors', 'Logging\LogScraperController@logSKUErrors')->name('logging.sku.errors.log');
     Route::get('list-visitor-logs', 'VisitorController@index')->name('logging.visitor.log');
-    Route::get('log-scraper', 'Logging\LogScraperController@index')->name('log-scraper.index');
+    // Route::get('log-scraper', 'Logging\LogScraperController@index')->name('log-scraper.index');
     Route::get('live-scraper-logs', 'LaravelLogController@scraperLiveLogs')->name('logging.live.scraper-logs');
     Route::get('live-laravel-logs/downloads', 'LaravelLogController@liveLogDownloads')->name('logging.live.downloads');
     Route::get('live-magento-logs/downloads', 'LaravelLogController@liveMagentoDownloads')->name('logging.live.magento.downloads');
@@ -112,6 +112,8 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('magento-product-api-call', 'Logging\LogListMagentoController@showMagentoProductAPICall')->name('logging.magento.product.api.call');
     Route::post('magento-product-skus-ajax', 'Logging\LogListMagentoController@getMagentoProductAPIAjaxCall')->name('logging.magento.product.api.ajax.call');
 });
+
+Route::get('log-scraper', 'Logging\LogScraperController@index')->middleware('auth')->name('log-scraper.index');
 
 Route::prefix('category-messages')->middleware('auth')->group(function () {
     Route::post('bulk-messages/keyword', 'BulkCustomerRepliesController@storeKeyword');
@@ -237,7 +239,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('product/relist-product', 'ProductController@relistProduct');
     Route::get('products/stats', 'ProductController@productStats');
     //ajay singh
-    Route::get('products/scrap-logs', 'ProductController@productScrapLog');
+    //Route::get('products/scrap-logs', 'ProductController@productScrapLog');
+    Route::get('products/status-history', 'ProductController@productScrapLog');
     Route::get('products/description', 'ProductController@productDescription');
 
     Route::post('products/{id}/updateName', 'ProductController@updateName');
@@ -304,6 +307,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::prefix('product-inventory')->group(function () {
         Route::get('/', 'NewProductInventoryController@index')->name('product-inventory.new');
+        Route::get('fetch/images', 'NewProductInventoryController@fetchImgGoogle')->name('product-inventory.fetch.img.google');
         Route::post('/push-in-shopify-records', 'NewProductInventoryController@pushInStore')->name('product-inventory.pushInStore');
         Route::prefix('{id}')->group(function () {
             Route::get('push-in-shopify', 'NewProductInventoryController@pushInShopify')->name('product-inventory.push-in-shopify');
@@ -591,6 +595,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/generate/awb/rate-request', 'OrderController@generateRateRequet')->name('order.generate.rate-request');
     Route::post('order/generate/awb/rate-request', 'OrderController@generateRateRequet')->name('order.generate.rate-request');
     Route::get('orders/download', 'OrderController@downloadOrderInPdf');
+    Route::get('order/email/download/{order_id?}/{email_id?}', 'OrderController@downloadOrderMailPdf')->name('order.generate.order-mail.pdf');
     Route::post('order/{id}/change-status-template', 'OrderController@statusChangeTemplate');
     Route::get('order/change-status', 'OrderController@statusChange');
 
@@ -795,6 +800,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('user-search/', 'UserController@searchUser');
 
     Route::get('activity/', 'ActivityConroller@showActivity')->name('activity');
+    Route::post('activity/modal', 'ActivityConroller@recentImport')->name('activity');
     Route::get('graph/', 'ActivityConroller@showGraph')->name('graph');
     Route::get('graph/user', 'ActivityConroller@showUserGraph')->name('graph_user');
 
@@ -1084,6 +1090,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Social Media Image Module
     Route::get('lifestyle/images/grid', 'ImageController@index')->name('image.grid');
+    Route::get('lifestyle/images/grid-new', 'ImageController@indexNew')->name('image.grid.new');
     Route::post('images/grid', 'ImageController@store')->name('image.grid.store');
     Route::post('images/grid/attachImage', 'ImageController@attachImage')->name('image.grid.attach');
     Route::get('images/grid/approvedImages', 'ImageController@approved')->name('image.grid.approved');
@@ -1390,6 +1397,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('/details', 'HubstaffActivitiesController@getActivityDetails')->name('hubstaff-acitivties.activity-details');
             Route::post('/details', 'HubstaffActivitiesController@approveActivity')->name('hubstaff-acitivties.approve-activity');
             Route::post('/final-submit', 'HubstaffActivitiesController@finalSubmit')->name('hubstaff-activities/activities/final-submit');
+            Route::post('/task-notes', 'HubstaffActivitiesController@NotesHistory')->name('hubstaff-activities.task.notes');
+            Route::get('/save-notes', 'HubstaffActivitiesController@saveNotes')->name('hubstaff-activities.task.save.notes');
+            Route::get('/approve-all-time', 'HubstaffActivitiesController@approveTime')->name('hubstaff-acitivties.approve.time');
             Route::post('/fetch', 'HubstaffActivitiesController@fetchActivitiesFromHubstaff')->name('hubstaff-activities/activities/fetch');
             Route::post('/manual-record', 'HubstaffActivitiesController@submitManualRecords')->name('hubstaff-acitivties.manual-record');
             Route::get('/records', 'HubstaffActivitiesController@notificationRecords')->name('hubstaff-acitivties.notification.records');
@@ -1577,7 +1587,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
 Route::get('twilio/token', 'TwilioController@createToken');
-Route::post('twilio/ivr', 'TwilioController@ivr');
+Route::post('twilio/ivr', 'TwilioController@ivr')->name('ivr');
 Route::post('twilio/gatherAction', 'TwilioController@gatherAction');
 Route::post('twilio/incoming', 'TwilioController@incomingCall');
 Route::post('twilio/outgoing', 'TwilioController@outgoingCall');
@@ -1588,6 +1598,12 @@ Route::post('twilio/handleOutgoingDialCallStatus', 'TwilioController@handleOutgo
 Route::post('twilio/storerecording', 'TwilioController@storeRecording');
 Route::post('twilio/storetranscript', 'TwilioController@storetranscript');
 Route::post('twilio/eventsFromFront', 'TwilioController@eventsFromFront');
+
+Route::post('twilio/twilio_menu_response', 'TwilioController@twilio_menu_response')->name('twilio_menu_response');
+Route::post('twilio/change_agent_status', 'TwilioController@change_agent_status')->name('change_agent_status');
+Route::post('twilio/change_agent_call_status', 'TwilioController@change_agent_call_status')->name('change_agent_call_status');
+Route::post('twilio/leave_message_rec', 'TwilioController@leave_message_rec')->name('leave_message_rec');
+
 Route::get(
     '/twilio/hangup',
     [
@@ -1714,6 +1730,7 @@ Route::prefix('pinterest')->middleware('auth')->group(function () {
 
 Route::prefix('database')->middleware('auth')->group(function () {
     Route::get('/', 'DatabaseController@index')->name("database.index");
+    Route::get('/tables/{id}', 'DatabaseTableController@index')->name("database.tables");
     Route::get('/states', 'DatabaseController@states')->name("database.states");
     Route::get('/process-list', 'DatabaseController@processList')->name("database.process.list");
     Route::get('/process-kill', 'DatabaseController@processKill')->name("database.process.kill");
@@ -2918,4 +2935,14 @@ Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@s
 Route::get('product-pricing', 'product_price\ProductPriceController@index')->name('product.pricing');
 // Route::post('gtmetrix/save-time', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronType')->name('saveGTmetrixCronType');
 
+Route::group(['middleware' => 'auth', 'admin'], function () {
+    Route::prefix('plan')->group(static function () {
+        Route::get('/', 'PlanController@index')->name('plan.index');
+        Route::post('/create', 'PlanController@store')->name('plan.store');
+        Route::get('/edit', 'PlanController@edit')->name('plan.edit');
+        Route::post('/{id}/update', 'PlanController@update')->name('plan.update');
+        Route::get('/delete/{id}', 'PlanController@delete')->name('plan.delete');
 
+        Route::post('plan/basis/create', 'PlanController@newBasis')->name('plan.create.basis');
+    });
+});

@@ -145,7 +145,7 @@ class TemplatesController extends Controller
 
         foreach ($templates as $key => $row) {
             
-            $template=array('name'=>$row->name,'uid'=>$row->uid);
+            $template=array('name'=>$row->name,'uid'=>$row->uid, 'is_processed' => 1);
 
             if($existingTemplate=Template::whereUid($row->uid)->first())
             {

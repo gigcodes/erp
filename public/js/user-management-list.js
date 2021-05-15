@@ -454,6 +454,7 @@ var page = {
     },
     taskListHistoryResult : function(response) {
         var communicationHistoryTemplate = $.templates("#template-task-history");
+        console.log(response);
         var tplHtml = communicationHistoryTemplate.render(response);
         // $('.modal').css({
         //     "padding": "0 !important"
@@ -470,6 +471,12 @@ var page = {
         // $('.modal .modal-body').css({
         //     "overflow-y": "auto"
         // });
+        // $.each(response.statusList, function(key, value) {
+        //      $('.statusList')
+        //           .append($('<option>', { value : key })
+        //           .text(value));
+        // });
+
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");

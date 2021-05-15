@@ -1,30 +1,31 @@
-<!-- <script type="text/x-jsrender" id="template-result-block"> -->
-<script  id="template-result-block">
-	<div class="row page-template-{{:page}} table-responsive">
-		<table class="table table-bordered" style="table-layout:fixed;">
+<script type="text/x-jsrender" id="template-result-block">
+	<div class="page-template-{{:page}} table-responsive">
+		<table class="table table-bordered" style="">
 		    <thead>
 		      <tr>
 		      	<th><input type="checkbox" class="select-all-records"></th>
+		        <th>ID</th>
 		        <th>Customer</th>
 		        <th>Product</th>
 				<th>Website</th>
 		        <th>Type</th>
 		        <th>Refund</th>
-		        <th>Reason for refund</th>
+		        <th>Refund Reason</th>
 		        <th>Status</th>
-				<th>Change Status</th>
+				<!-- <th>Change Status</th> -->
 		        <th>Pickup Address</th>
 		        <th>Refund details</th>
-		        <th>Est Refund / Exchange date</th>
+		        <th>Est Refund / Ex. date</th>
 		        <th>Remarks</th>
 		        <th>Created At</th>
-		        <th>Action</th>
+		        <th style="min-width: 100px">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
 		    	{{props data}}
 				<tr>
-			      	<td><input class="select-id-input" type="checkbox" name="ids[]" value="{{:prop.id}}">&nbsp;{{:prop.id}}</td>
+			      	<td><input class="select-id-input" type="checkbox" name="ids[]" value="{{:prop.id}}"></td>
+					<td>{{:prop.id}}</td>
 			      	<td class="expand-row-msg" data-name="customer" data-id="{{:prop.id}}">
 					  <span class="show-short-customer-{{:prop.id}}">{{:~trimlength(prop.customer_name, 10)}}</span>
 					  <span class="show-full-customer-{{:prop.id}} hidden">{{:prop.customer_name}}</span>
@@ -41,15 +42,18 @@
 			        <td>{{:prop.refund_amount}}</td>
 
 					<td class="expand-row-msg" data-name="reason" data-id="{{:prop.id}}">
-						<span class="show-short-reason-{{:prop.id}}">{{:~trimlength(prop.reason_for_refund, 10)}}</span>
+						<span class="show-short-reason-{{:prop.id}}">{{:~trimlength(prop.reason_for_refund, 10)}} at {{:prop.date_of_refund_formated}} </span>
 					   <span class="show-full-reason-{{:prop.id}} hidden"><span style="word-break:break-all;">{{:prop.reason_for_refund}}</span></span>
 					</td>
 
-					<td class="expand-row-msg" data-name="statusName" data-id="{{:prop.id}}">
-						<span class="show-short-statusName-{{:prop.id}}">{{:~trimlength(prop.status_name, 7)}}</span>
-					   <span class="show-full-statusName-{{:prop.id}} hidden"><span style="word-break:break-all;">{{:prop.status_name}}</span></span>
+					<td class="expand-row-msg" data-name="statusName" data-id="{{:prop.id}}" >
+						<p style="display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; overflow: hidden; border: none; line-height: 21px;">
+							<span class="show-short-statusName-{{:prop.id}}" style="white-space : nowrap;">{{:~trimlength(prop.status_name, 7)}}</span>
+							<span class="show-full-statusName-{{:prop.id}} hidden"><span style="word-break:inherit;">{{:prop.status_name}}</span></span><br>
+							<span class="show-short-statusName-{{:prop.id}}" style="white-space : nowrap;">{{:~trimlength('to be added', 7)}}</span>
+							<span class="show-full-statusName-{{:prop.id}} hidden"><span style="word-break:inherit;">to be added</span></span>
+						</p>
 					</td>
-					<td>to be added</td>
 					<td class="expand-row-msg" data-name="pickupAdd" data-id="{{:prop.id}}">
 						<span class="show-short-pickupAdd-{{:prop.id}}">{{:~trimlength(prop.pickup_address, 10)}}</span>
 					   <span class="show-full-pickupAdd-{{:prop.id}} hidden"><span style="word-break:break-all;">{{:prop.pickup_address}}</span></span>
@@ -67,13 +71,13 @@
 					</td>
 					<td style="padding:1px;">
 					<div class="form-group" style="margin-bottom:0px;">
-					<div class="d-flex">
+					<div class="">
 						<div class='input-group estimate_dates'>
 							<input style="min-width: 30px;" placeholder="E.Date" value="{{>prop.est_completion_date}}" type="text" class="form-control estimate-date" name="estimate_date_{{>prop.id}}" data-id="{{>prop.id}}" id="estimate_date_{{>prop.id}}">
 							
 						</div>
-						<button style="padding: 0px;" class="btn btn-sm btn-image estimate-date-submit" data-id="{{>prop.id}}"><img src="images/filled-sent.png" style="cursor: nwse-resize;"></button>
-						<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-date-history" title="Show Date History" data-id="{{>prop.id}}"><i class="fa fa-info-circle"></i></button>
+						<button style="padding: 0px;" class="btn btn-sm btn-image estimate-date-submit ml-3" data-id="{{>prop.id}}"><img src="images/filled-sent.png" style="cursor: nwse-resize;"></button>
+						<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-date-history mr-3" title="Show Date History" data-id="{{>prop.id}}"><i class="fa fa-info-circle"></i></button>
 					</div>
 					</div>
 					</td>
@@ -96,7 +100,7 @@
 						{{if !prop.credited}}
 						<button type="button" data-id="{{>prop.id}}" class="btn create-update-refund no_pd" title="Create or update refund"><i class="fa fa-exchange"></i></button>
 						{{/if}}
-            			<button type="button" class="btn resend-confirmation-email" data-id="{{>prop.customer_id}}">
+            			<button type="button" class="btn resend-confirmation-email no_pd" data-id="{{>prop.customer_id}}">
             				<i class="fa fa-paper-plane" aria-hidden="true"></i>
             			</button>
 						</div>

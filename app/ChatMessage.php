@@ -438,6 +438,30 @@ class ChatMessage extends Model
         }
     }
 
+    /**
+    * Check send lead dimention
+    * $customer object
+    * customer
+    **/
+    public function sendLeadDimention($customer)
+    {
+        $media = $this->getMedia(config('constants.attach_image_tag'))->first();
+        if($media) {
+            \Log::channel('customer')->info("Media image found for customer id : ". $customer->id);
+           $mediable = \DB::table("mediables")->where("media_id",$media->id)
+           ->where("mediable_type",\App\Product::class)
+           ->first();
+           if(!empty($mediable)) {
+            \Log::channel('customer')->info("Mediable for customer id : ". $customer->id);
+                try{
+                    app('App\Http\Controllers\CustomerController')->dispatchBroadSendPrice($customer, array_unique([$mediable->mediable_id]),true);
+                }catch(\Exception $e) {
+                    \Log::channel('customer')->info($e->getMessage());
+                }
+           }
+        }
+    }
+
 
     public function getRecieverUsername() {
         return $this->hasOne(\App\InstagramUsersList::class, 'id', 'instagram_user_id');

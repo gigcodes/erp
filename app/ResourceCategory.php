@@ -15,7 +15,6 @@ class ResourceCategory extends Model{
      * @SWG\Property(property="product_id",type="integer")
      * @SWG\Property(property="title",type="string")
      */
-    prote
 
   use NestableTrait;
 

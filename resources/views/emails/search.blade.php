@@ -5,16 +5,23 @@
                     <input name="selector[]" id="ad_Checkbox_{{ $email->id }}" class="ads_Checkbox" type="checkbox" value="{{ $email->id }}" style="margin-left: 41%;" />
                 @endif
             </td>
+            
             <td>{{ Carbon\Carbon::parse($email->created_at)->format('d-m-Y') }}</td>
+            
             <td data-toggle="modal" data-target="#viewMore"  onclick="opnModal('{{$email->from}}')"> 
             {{ substr($email->from, 0,  10) }} {{strlen($email->from) > 10 ? '...' : '' }}
             </td>
+            
             <td  data-toggle="modal" data-target="#viewMore"  onclick="opnModal('{{$email->to}}')">
                 {{ substr($email->to, 0,  10) }} {{strlen($email->to) > 10 ? '...' : '' }}
             </td>
+            
             <td>{{ $email->type }}</td>
-			<td data-toggle="modal" data-target="#viewMail"  onclick="opnMsg({{$email}})" style="cursor: pointer;">{{ substr($email->subject, 0,  10) }} {{strlen($email->subject) > 10 ? '...' : '' }}</td>
-			<td>{{ substr($email->message, 0,  10) }} {{strlen($email->message) > 10 ? '...' : '' }}</td>
+			
+            <td data-toggle="modal" data-target="#viewMail"  onclick="opnMsg({{$email}})" style="cursor: pointer;">{{ substr($email->subject, 0,  10) }} {{strlen($email->subject) > 10 ? '...' : '' }}</td>
+			
+            <td>{{ substr($email->message, 0,  10) }} {{strlen($email->message) > 10 ? '...' : '' }}</td>
+            
             <td width="1%">
             @if($email->status != 'bin')
                 <select class="select selecte2 status">
@@ -31,7 +38,8 @@
                 Deleted
             @endif
 			</td>
-
+            <td>{{ ($email->is_draft == 1) ? "Yes" : "No" }}</td>
+            <td>{!! wordwrap($email->error_message,15,"<br>\n") !!}</td>
 			<td>
 				@foreach ($email_categories as $category)
 					@if($category->id == $email->email_category_id)
@@ -39,9 +47,6 @@
 					@endif
 				@endforeach
 			</td>
-			
-            <td>{{ ($email->is_draft == 1) ? "Yes" : "No" }}</td>
-            <td>{!! wordwrap($email->error_message,15,"<br>\n") !!}</td>
 			<td>
 				
                 <a title="Resend" class="btn-image resend-email-btn" data-type="resend" data-id="{{ $email->id }}" >
@@ -69,6 +74,9 @@
                 @if($email->approve_mail == 1)
                   <a title="Approve and send watson reply" class="btn-image resend-email-btn" data-id="{{ $email->id }}" data-type="approve" href="javascript:void(0);">  <i class="fa fa-check-circle"></i></a>
                 @endif
+                <a class="btn btn-image btn-ht" href="{{route('order.generate.order-mail.pdf', ['order_id' => 'empty', 'email_id' => $email->id])}}">
+                  <i class="fa fa-file-pdf-o" aria-hidden="true"></i>      
+                </a>
             </td>
         </tr>
     @endforeach

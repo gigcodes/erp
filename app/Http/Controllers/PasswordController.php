@@ -105,7 +105,7 @@ class PasswordController extends Controller
     {
       $this->validate($request, [
         'website'   => 'sometimes|nullable|string|max:255',
-        'url'       => 'required|url',
+        'url'       => 'required',
         'username'  => 'required|min:3|max:255',
         'password'  => 'required|min:6|max:255'
       ]);
@@ -151,7 +151,7 @@ class PasswordController extends Controller
     {
         $this->validate($request, [
             'website'   => 'sometimes|nullable|string|max:255',
-            'url'       => 'required|url',
+            'url'       => 'required',
             'username'  => 'required|min:3|max:255',
             'password'  => 'required|min:6|max:255'
         ]);
@@ -203,7 +203,11 @@ class PasswordController extends Controller
 
     public function changePassword(Request $request){
 
-        $users = $request->users;
+        if( empty( $request->users ) ){
+            return redirect()->back()->with('error','Please select user');
+        }
+        
+        $users = explode(",",$request->users);
         $data = array();
         foreach ($users as $key) {
             // Generate new password

@@ -38,14 +38,14 @@ class AssetsManagerDueDatePayment extends Command
      */
     public function handle()
     {
-        $results = AssetsManager::where('due_date',date('Y-m-d'))->get();
+        $results = AssetsManager::whereDate('due_date',date('Y-m-d'))->get();
         if(count($results)==0){
            return $this->info(" no record exist");
-           
         }
         $count = count($results);
-        $i=0;
-        $success =false;
+        
+        $i = 0;
+        $success = false;
         foreach($results as $result){
             //create entry in table cash_flows
             CashFlow::create(

@@ -76,6 +76,14 @@ $metaData = '';
             color:#fff;
         }
 
+        .refresh-btn-stop {
+            color:  red
+        }
+
+        .refresh-btn-start {
+            color:  green
+        }
+
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
 
@@ -111,7 +119,7 @@ $metaData = '';
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-    <script type="text/javascript" src="//media.twiliocdn.com/sdk/js/client/v1.9/twilio.min.js"></script>
+    <script type="text/javascript" src="https://media.twiliocdn.com/sdk/js/client/v1.14/twilio.min.js"></script>
 
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.0.5/dist/js/tabulator.min.js"></script>
 
@@ -804,6 +812,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="/marketing/accounts/facebook">Facebook Config</a>
                                             <a class="dropdown-item" href="{{ route('platforms.index') }}">Platforms</a>
                                             <a class="dropdown-item" href="{{ route('broadcasts.index') }}">BroadCast</a>
+                                            <a class="dropdown-item" href="/marketing/services">Mailing Service</a>
                                             <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-template') }}">Mailinglist Templates</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-emails') }}">Mailinglist Emails</a>
@@ -1706,6 +1715,9 @@ $metaData = '';
                                     <a class="dropdown-item" href="{{ route('googlefiletranslator.list') }}">Google File Translator</a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('/google-traslation-settings') }}">Google Translator Setting</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('googlewebmaster.index') }}">Google webmaster</a>
                                 </li>
                                 <li class="nav-item">
@@ -1734,15 +1746,11 @@ $metaData = '';
                                     <a class="dropdown-item" href="{{route('password.index')}}">Password Manager</a>
                                 </li>
                                 <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{route('password.manage')}}">Multiple User Passwords Manager</a>
+                                </li>
+                                <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{route('document.index')}}">Document manager</a>
                                 </li>
-
-                                @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 65 || Auth::id() == 90)
-                                <a class="dropdown-item" href="{{route('password.index')}}">Passwords Manager</a>
-                                <a class="dropdown-item" href="{{route('password.manage')}}">Multiple User Passwords Manager</a>
-                                <a class="dropdown-item" href="{{route('document.index')}}">Documents Manager</a>
-                                @endif
-
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource Center</a>
                                 </li>
@@ -1944,7 +1952,7 @@ $metaData = '';
             <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickTaskModal">+ TASK</button>
         </div>
         @endif
-
+        @include('twilio.receive_call_popup');
         @include('partials.modals.quick-task')
         @include('partials.modals.quick-instruction')
         @include('partials.modals.quick-development-task')
@@ -2007,6 +2015,11 @@ $metaData = '';
                             <span><i class="fa fa-credit-card-alt fa-2x" aria-hidden="true"></i></span>
                         </a>
                     </li>
+                    <li>
+                        <a title="Auto Refresh" class="auto-refresh-run-btn quick-icon">
+                            <span><i class="fa fa-refresh fa-2x" aria-hidden="true"></i></span>
+                        </a>
+                    </li>
                 </ul>
             </nav>
             <!-- end section for sidebar toggle -->
@@ -2034,6 +2047,7 @@ $metaData = '';
     </div>
 
     @if(Auth::check())
+
 
     <div class="chat-button-wrapper">
         <div class="chat-button-float">
@@ -2245,10 +2259,36 @@ $metaData = '';
 
     @yield('scripts')
     <script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
+    <script type="text/javascript" src="{{asset('js/jquery.cookie.js')}}"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script>
         $(document).ready(function() {
+            //$.cookie('auto_refresh', '0', { path: '/{{ Request::path() }}' });
+
+            var autoRefresh = $.cookie('auto_refresh');
+                if(typeof autoRefresh == "undefined"  || autoRefresh == 1) {
+                   $(".auto-refresh-run-btn").attr("title","Stop Auto Refresh");
+                   $(".auto-refresh-run-btn").find("i").removeClass("refresh-btn-stop").addClass("refresh-btn-start");
+                }else{
+                   $(".auto-refresh-run-btn").attr("title","Start Auto Refresh");
+                   $(".auto-refresh-run-btn").find("i").removeClass("refresh-btn-start").addClass("refresh-btn-stop");
+                }
+            //auto-refresh-run-btn
+
+            $(document).on("click",".auto-refresh-run-btn",function() {
+                let autoRefresh = $.cookie('auto_refresh');
+                if(autoRefresh == 0) {
+                   alert("Auto refresh has been enable for this page"); 
+                   $.cookie('auto_refresh', '1', { path: '/{{ Request::path() }}' });
+                   $(".auto-refresh-run-btn").find("i").removeClass("refresh-btn-stop").addClass("refresh-btn-start");
+                }else{
+                    alert("Auto refresh has been disable for this page");
+                   $.cookie('auto_refresh', '0', { path: '/{{ Request::path() }}' });
+                   $(".auto-refresh-run-btn").find("i").removeClass("refresh-btn-start").addClass("refresh-btn-stop");
+                }
+            });
+
             $('#editor-note-content').richText();
             $('#editor-instruction-content').richText();
             $('#notification-date').datetimepicker({
@@ -2552,7 +2592,28 @@ $metaData = '';
             $hasPage = \App\AutoRefreshPage::where("page",$path)->where("user_id",\Auth()->user()->id)->first();
             if($hasPage) {
          ?>
-            setTimeout("location.reload(true);", <?php echo $hasPage->time * 1000; ?>);
+
+            var idleTime = 0;
+            function reloadPageFun() {
+                idleTime = idleTime + 1000;
+                var autoRefresh = $.cookie('auto_refresh');
+                if (idleTime > <?php echo $hasPage->time * 1000; ?> && (typeof autoRefresh == "undefined" || autoRefresh == 1)) {
+                    window.location.reload();
+                }
+            }
+
+            $(document).ready(function () {
+                //Increment the idle time counter every minute.
+                setInterval(function(){ reloadPageFun() }, 3000);
+                //Zero the idle timer on mouse movement.
+                $(this).mousemove(function (e) {
+                    idleTime = 0;
+                });
+                $(this).keypress(function (e) {
+                    idleTime = 0;
+                });
+            });
+
         <?php } } ?>
 
         function filterFunction() {

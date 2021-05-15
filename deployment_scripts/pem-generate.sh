@@ -10,12 +10,9 @@ if [ "$server" == "Erp-Server" ]		### Check for Erp Server
 then
 	ssh -i ~/.ssh/id_rsa root@erp.theluxuryunlimited.com "sed -i \"s%.*erp@$server%$pubkey%g\" .ssh/authorized_keys"
 
-elif [ "$server" == "Scrap-Server" ]		### Check for Scrapper Server
+elif [ "$server" == "s01" ] || [ "$server" == "s02" ] || [ "$server" == "s03" ] || [ "$server" == "s04" ] || [ "$server" == "s05" ] || [ "$server" == "s06" ] || [ "$server" == "s07" ] || [ "$server" == "s08" ] || [ "$server" == "s09" ] || [ "$server" == "s10" ] || [ "$server" == "s11" ] || [ "$server" == "s12" ] || [ "$server" == "s13" ] || [ "$server" == "s14" ] || [ "$server" == "s15" ]
 then
-	for id in 0{1..9} {10..15} 
-	do
-		ssh -i ~/.ssh/id_rsa root@s$id.theluxuryunlimited.com "sed -i \"s%.*erp@$server%$pubkey%g\" .ssh/authorized_keys"
-	done
+	ssh -i ~/.ssh/id_rsa root@$server.theluxuryunlimited.com "sed -i \"s%.*erp@$server%$pubkey%g\" .ssh/authorized_keys"
 
 elif [ "$server" == "Cropper-Server" ]		### Check for Cropper Server
 then

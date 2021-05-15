@@ -6,6 +6,7 @@ use App\BulkCustomerRepliesKeyword;
 use App\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Helpers;
 
 class BulkCustomerRepliesController extends Controller
 {
@@ -16,6 +17,7 @@ class BulkCustomerRepliesController extends Controller
      */
     public function index(Request $request)
     {
+        set_time_limit(0);
         $keywords = BulkCustomerRepliesKeyword::where('is_manual', 1)->get();
         $autoKeywords = BulkCustomerRepliesKeyword::where('count', '>', 10)
             ->whereNotIn('value', [
@@ -36,8 +38,21 @@ class BulkCustomerRepliesController extends Controller
             $searchedKeyword = BulkCustomerRepliesKeyword::where('value', $keyword)->first();
 
         }
+        $groups           = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
+        $pdfList = [];
+        $nextActionArr = DB::table('customer_next_actions')->pluck('name', 'id');
+        $reply_categories = \App\ReplyCategory::orderby('id', 'DESC')->get();
+        $settingShortCuts = [
+            "image_shortcut"      => \App\Setting::get('image_shortcut'),
+            "price_shortcut"      => \App\Setting::get('price_shortcut'),
+            "call_shortcut"       => \App\Setting::get('call_shortcut'),
+            "screenshot_shortcut" => \App\Setting::get('screenshot_shortcut'),
+            "details_shortcut"    => \App\Setting::get('details_shortcut'),
+            "purchase_shortcut"   => \App\Setting::get('purchase_shortcut'),
+        ];
+        $users_array      = Helpers::getUserArray(\App\User::all());
 
-        return view('bulk-customer-replies.index', compact('keywords','autoKeywords', 'searchedKeyword'));
+        return view('bulk-customer-replies.index', compact('keywords','autoKeywords', 'searchedKeyword', 'nextActionArr','groups','pdfList','reply_categories','settingShortCuts','users_array'));
     }
 
     public function storeKeyword(Request $request) {
@@ -77,7 +92,9 @@ class BulkCustomerRepliesController extends Controller
                 'customer_id' => $customer,
                 'status' => 1
             ]);
-            app(WhatsAppController::class)->sendWithThirdApi($myRequest, 'customer');
+            
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($myRequest, 'customer');
+
             DB::table('bulk_customer_replies_keyword_customer')->where('customer_id', $customer)->delete();
         }
 
