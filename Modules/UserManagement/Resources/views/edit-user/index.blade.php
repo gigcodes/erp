@@ -29,7 +29,7 @@
 <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="pull-left">
-                <h2>Edit New User</h2>
+                <h2>Edit New User</h2>ssss
             </div>
             <div class="pull-right">
                 <a class="btn btn-secondary" href="{{ route('user-management.index') }}"> Back</a>
