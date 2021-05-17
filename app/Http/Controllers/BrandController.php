@@ -85,24 +85,6 @@ class BrandController extends Controller
             });
         }
 
-        if ($madeby > 0) {
-            $brands->whereHas("dev_tasks", function($q) use ($madeby){
-                $q->where('assigned_by', $madeby);
-            });
-        }
-
-        if ($request->get("scrapers_status", "") != '') {
-            $brands->whereHas("dev_tasks", function($q) use ($request){
-                $q->where("status", $request->get("scrapers_status", ""));
-            });
-        }
-
-        if ($scrapeType > 0) {
-            $brands->whereHas("dev_tasks", function($q) use ($scrapeType){
-                $q->where('task_type_id', $scrapeType);
-            });
-        }
-
         $brands = $brands->paginate(Setting::get('pagination'));
 
         $filters = $request->all();

@@ -103,6 +103,11 @@ class Brand extends Model
         return $this->hasMany( DeveloperTask::class, 'scraper_id', 'id' );
     }
 
+    public function brandTask()
+    {
+        return $this->hasMany( DeveloperTask::class, 'brand_id', 'id' );
+    }
+
     public function products()
     {
         return $this->hasMany( Product::class, 'brand', 'id' );

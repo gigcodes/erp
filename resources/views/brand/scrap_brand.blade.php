@@ -36,20 +36,7 @@
             <div class="form-group mb-3 col-md-2">
                 <input name="term" type="text" class="form-control" id="brand-search" value="{{ request()->get('term','') }}" placeholder="Enter Brand name">
             </div>
-            <div class="form-group mb-3 col-md-2">
-                <?php echo Form::select("scraper_made_by", ['' => '-- Select Made By --'] + \App\User::all()->pluck("name", "id")->toArray(), request("scraper_made_by"), ["class" => "form-control select2"]) ?>
-            </div>
-            <div class="form-group mb-3 col-md-2">
-                <?php echo Form::select("scraper_type", ['' => '-- Select Type --'] + \App\Helpers\DevelopmentHelper::scrapTypes(), request("scraper_type"), ["class" => "form-control select2"]) ?>
-            </div>
             
-            <div class="form-group mb-3 col-md-2">
-                <select name="scrapers_status" class="form-control form-group">
-                    @foreach(\App\Scraper::STATUS as $k => $v)
-                        <option <?php echo request()->get('scrapers_status','') == $k ? 'selected=selected' : '' ?> value="<?php echo $k; ?>"><?php echo $v; ?></option>
-                    @endforeach
-                </select>
-            </div>
             <div class="form-group mb-3 col-md-2">
                 <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
             </div>
