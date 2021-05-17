@@ -18,8 +18,8 @@
 				<input class="form-control" type="text" id="search" placeholder="Search name" name="search" value="{{ $search }}">
 			</div>
 			<div class="col-lg-2">
-				<button type="button" id="tabledata" class="btn btn-image">
-				<img src="/images/filter.png">
+				<button type="submit" id="tabledata" class="btn btn-image">
+				    <img src="/images/filter.png">
 				</button>
 			</div>
 		</div>
