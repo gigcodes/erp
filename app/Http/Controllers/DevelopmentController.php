@@ -1196,6 +1196,7 @@ class DevelopmentController extends Controller
         $task->status = $request->get("status",'Issue');
         $task->task_type_id = $request->get("task_type_id",3);
         $task->scraper_id = $request->input('scraper_id',null);
+        $task->brand_id = $request->input('brand_id',null);
         $task->save();
 
         $repo = GithubRepository::where('name', 'erp')->first();
