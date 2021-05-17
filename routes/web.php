@@ -799,7 +799,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('user-search/', 'UserController@searchUser');
 
     Route::get('activity/', 'ActivityConroller@showActivity')->name('activity');
-    Route::post('activity/modal', 'ActivityConroller@recentImport')->name('activity');
+    Route::post('activity/modal', 'ActivityConroller@recentActivities')->name('activity');
     Route::get('graph/', 'ActivityConroller@showGraph')->name('graph');
     Route::get('graph/user', 'ActivityConroller@showUserGraph')->name('graph_user');
 

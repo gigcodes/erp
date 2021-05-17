@@ -281,7 +281,7 @@
                     </tr>
                     @foreach ($userActions as $key => $user)
                         <tr>
-                            <td>{{ $users[$user->user_id] }}</td>
+                            <td>{{-- $users[$user->user_id] --}}</td>
                             @if ( $user->crop_approval_denied > 0 )
                                 <td>{{ $user->crop_approved }} - {{ $user->crop_approval_denied }} = {{ $user->crop_approved - $user->crop_approval_denied }}</td>
                             @else
@@ -406,7 +406,7 @@
             event.preventDefault();
             var title=$(this).attr('data-title');
             $.ajax({
-                url: "{{action('ActivityConroller@recentImport')}}",
+                url: "{{action('ActivityConroller@recentActivities')}}",
                 type: 'POST',
                 //data : formData,
                 data: {
