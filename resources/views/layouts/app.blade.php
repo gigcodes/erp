@@ -1339,6 +1339,9 @@ $metaData = '';
                                     <a class="dropdown-item" href="{{ route('database.states') }}">Database States</a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('database-log') }}">MYSQL Log</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('manage-modules.index') }}">Manage Module</a>
                                 </li>
                                 <li class="nav-item">
