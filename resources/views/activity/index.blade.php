@@ -406,7 +406,7 @@
             event.preventDefault();
             var title=$(this).attr('data-title');
             $.ajax({
-                url: "{{action('ActivityConroller@recentImport')}}",
+                url: "{{action('ActivityConroller@recentActivities')}}",
                 type: 'POST',
                 //data : formData,
                 data: {
