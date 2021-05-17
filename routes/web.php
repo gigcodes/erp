@@ -2925,6 +2925,9 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::any('/erp-log', 'ErpLogController@index')->name('erp-log');
 });
 
+Route::group(['middleware' => 'auth', 'admin'], function () {
+    Route::any('/database-log', 'ScrapLogsController@databaseLog');
+});
 
 Route::get('gtmetrix', 'gtmetrix\WebsiteStoreViewGTMetrixController@index')->name('gt-metrix');
 Route::get('gtmetrix/status/{status}', 'gtmetrix\WebsiteStoreViewGTMetrixController@saveGTmetrixCronStatus')->name('gt-metrix.status');
