@@ -1694,9 +1694,9 @@
             }).done(function(response) {
                  $("#loading-image").hide();
                  if(response.data.flag == 1) {
-                    $this.closest(".flag-scraper-div").append('<button type="button" class="btn btn-image flag-scraper" data-flag="0" data-id="'+response.data.supplier_id+'"><img src="/images/flagged.png" /></button>');
+                    $this.closest(".flag-scraper-div").append('<button type="button" style="padding:1px;" class="btn btn-image flag-scraper" data-flag="0" data-id="'+response.data.supplier_id+'"><img src="/images/flagged.png" /></button>');
                  }else{
-                    $this.closest(".flag-scraper-div").append('<button type="button" class="btn btn-image flag-scraper" data-flag="1" data-id="'+response.data.supplier_id+'"><img src="/images/unflagged.png" /></button>');
+                    $this.closest(".flag-scraper-div").append('<button type="button" style="padding:1px;" class="btn btn-image flag-scraper" data-flag="1" data-id="'+response.data.supplier_id+'"><img src="/images/unflagged.png" /></button>');
                  }
                  $this.remove();
             }).fail(function() {
@@ -1724,9 +1724,9 @@
             }).done(function(response) {
                  $("#loading-image").hide();
                  if(response.data.developer_flag == 1) {
-                    $this.closest(".flag-scraper-developer-div").append('<button type="button" class="btn btn-image flag-scraper-developer" data-flag="0" data-id="'+response.data.supplier_id+'"><img src="/images/flagged-green.png" /></button>');
+                    $this.closest(".flag-scraper-developer-div").append('<button type="button" style="padding:1px;" class="btn btn-image flag-scraper-developer" data-flag="0" data-id="'+response.data.supplier_id+'"><img src="/images/flagged-green.png" /></button>');
                  }else{
-                    $this.closest(".flag-scraper-developer-div").append('<button type="button" class="btn btn-image flag-scraper-developer" data-flag="1" data-id="'+response.data.supplier_id+'"><img src="/images/flagged-yellow.png" /></button>');
+                    $this.closest(".flag-scraper-developer-div").append('<button type="button" style="padding:1px;" class="btn btn-image flag-scraper-developer" data-flag="1" data-id="'+response.data.supplier_id+'"><img src="/images/flagged-yellow.png" /></button>');
                  }
                  $this.remove();
             }).fail(function() {
