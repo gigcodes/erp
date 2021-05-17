@@ -1,18 +1,18 @@
 #!/bin/bash
 
 function Add {
-	ufw insert 1 allow proto tcp from $IP to any port '80,443'
+	ssh -p2112 -i ~/.ssh/id_rsa root@erp.theluxuryunlimited.com "ufw insert 1 allow proto tcp from $IP to any port '80,443'"
 }
 
 function List {
-	ufw status numbered|tr '][' ' '|grep 80,443|awk '{print $1,$5}'
+	ssh -p2112 -i ~/.ssh/id_rsa root@erp.theluxuryunlimited.com "ufw status numbered|tr '][' ' '|grep 80,443|awk '{print \$1,\$5}'"
 }
 
 function Delete {
-	ufw status numbered|tr '][' ' '|grep 80,443|awk '{print $1}' |grep -w "$IP_Numbered"
+	ssh -p2112 -i ~/.ssh/id_rsa root@erp.theluxuryunlimited.com "ufw status numbered|tr '][' ' '|grep 80,443|awk '{print \$1}' |grep -w \"$IP_Numbered\""
 	if [ $? -eq 0 ]
 	then
-		yes|ufw delete $IP_Numbered
+		ssh -p2112 -i ~/.ssh/id_rsa root@erp.theluxuryunlimited.com "yes|ufw delete $IP_Numbered"
 	else
 		echo "Number is not in the list"
 		exit 1
