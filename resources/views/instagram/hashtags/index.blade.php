@@ -314,7 +314,7 @@ input:checked + .slider:before {
                   $("#loading-image").hide();
                     if(data.status == 'error'){
                        alert('Something went wrong'); 
-                       //location.reload(true);
+                       location.reload(true);
                     }else{
                        alert(data.message); 
                     }
