@@ -15,10 +15,10 @@ class CreateScrapInde132156xTable extends Migration
     {
         Schema::table('scrapers', function(Blueprint $table)
         {
-            $table->index('supplier_id');
-            $table->index('scraper_name');
-            $table->index('scraper_priority');
-            $table->index('scraper_name');
+            //$table->index('supplier_id');
+            //$table->index('scraper_name');
+            //$table->index('scraper_priority');
+            //$table->index('scraper_name');
         });
     }
 
@@ -31,7 +31,7 @@ class CreateScrapInde132156xTable extends Migration
     {
         Schema::table('scrapers', function (Blueprint $table)
         {
-            $table->dropIndex(['supplier_id','scraper_name','scraper_priority','scraper_name']);
+            //$table->dropIndex(['supplier_id','scraper_name','scraper_priority','scraper_name']);
         });
     }
 }
