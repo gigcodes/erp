@@ -166,7 +166,8 @@
             });
 
             $(".multiselect").multiselect({
-                nonSelectedText:'Please Select'
+                allSelectedText: 'All',
+                includeSelectAllOption: true
             });
 
             $(window).scroll(function() {
