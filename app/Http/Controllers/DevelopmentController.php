@@ -440,9 +440,9 @@ class DevelopmentController extends Controller
 
         $statusList = \DB::table("task_statuses")->select("name")->pluck("name", "name")->toArray();
 
-        $statusList = array_merge([
+        /*$statusList = array_merge([
             "" => "Select Status",
-        ], $statusList);
+        ], $statusList);*/
 
         // Hide resolved
         /*if ((int)$request->show_resolved !== 1) {
