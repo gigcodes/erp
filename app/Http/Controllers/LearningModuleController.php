@@ -12,7 +12,7 @@ use App\Helpers;
 use App\User;
 use App\Task;
 use App\Learning;
-use App\TaskCategory;
+use App\LearningModule;
 use App\TaskStatus;
 use App\Contact;
 use App\Setting;
@@ -60,7 +60,7 @@ class LearningModuleController extends Controller {
 		} else {
 			$type = $request->input( 'type' );
 		}
-		$activeCategories = TaskCategory::where('is_active',1)->pluck('id')->all();
+		$activeCategories = LearningModule::where('is_active',1)->pluck('id')->all();
 
 		$categoryWhereClause = '';
 		$category = '';
@@ -86,12 +86,12 @@ class LearningModuleController extends Controller {
 		if ($request->term != '') {
 			$searchWhereClause = ' AND (id LIKE "%' . $term . '%" OR category IN (SELECT id FROM task_categories WHERE title LIKE "%' . $term . '%") OR task_subject LIKE "%' . $term . '%" OR task_details LIKE "%' . $term . '%" OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%") OR id IN (SELECT task_id FROM task_users WHERE user_id IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")))';
 		}
-		if ($request->get('is_statutory_query') != '' && $request->get('is_statutory_query') != null) {
-		    $searchWhereClause .= ' AND is_statutory = ' . $request->get('is_statutory_query');
-		}
-		else {
-			$searchWhereClause .= ' AND is_statutory != 3';
-		}
+		// if ($request->get('is_statutory_query') != '' && $request->get('is_statutory_query') != null) {
+		//     $searchWhereClause .= ' AND is_statutory = ' . $request->get('is_statutory_query');
+		// }
+		// else {
+		// 	$searchWhereClause .= ' AND is_statutory != 3';
+		// }
 		$orderByClause = ' ORDER BY';
 		if($request->sort_by == 1) {
 			$orderByClause .= ' learnings.created_at desc,';
@@ -142,10 +142,10 @@ class LearningModuleController extends Controller {
 				  chat_messages.created_at as message_created_at, 
 				  chat_messages.is_reminder AS message_is_reminder,
 				  chat_messages.user_id AS message_user_id
-				  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
+				  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\Task"
 			  ) as chat_messages  ON chat_messages.task_id = learnings.id
 			) AS learnings
-			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$isCompleteWhereClose.$userquery. $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.'; ');
+			WHERE (id IS NOT NULL) AND is_statutory != 1 '.$isCompleteWhereClose.$userquery. $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.'; ');
 
 
 			foreach ($data['task']['pending'] as $task) {
@@ -206,7 +206,7 @@ class LearningModuleController extends Controller {
 					FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
                  ) AS chat_messages ON chat_messages.task_id = learnings.id
                 ) AS learnings
-                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL '.$userquery . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.';');
+                WHERE (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL '.$userquery . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.';');
 				
 
 				foreach ($data['task']['completed'] as $task) {
@@ -269,7 +269,7 @@ class LearningModuleController extends Controller {
 	                 ) AS chat_messages ON chat_messages.task_id = learnings.id
 
 	               ) AS learnings
-				   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL '.$userquery . $categoryWhereClause . $orderByClause .' limit '.$paginate.' offset '.$offSet.';');
+				   WHERE (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL '.$userquery . $categoryWhereClause . $orderByClause .' limit '.$paginate.' offset '.$offSet.';');
 				   
 				   foreach ($data['task']['statutory_not_completed'] as $task) {
 					array_push($assign_to_arr, $task->assign_to);
@@ -303,7 +303,7 @@ class LearningModuleController extends Controller {
 				}
 		}
 		else {
-			return;
+			//return;
 		}
 
 					 
@@ -570,17 +570,17 @@ class LearningModuleController extends Controller {
 		//My code start
 		$selected_user = $request->input( 'selected_user' );
 		$users         = Helpers::getUserArray( User::all() );
-		$task_categories = TaskCategory::where('parent_id', 0)->get();
-		$task_categories_dropdown = nestable(TaskCategory::where('is_approved', 1)->get()->toArray())->attr(['name' => 'category','class' => 'form-control input-sm'])
+		$task_categories = LearningModule::where('parent_id', 0)->get();
+		$learning_module_dropdown = nestable(LearningModule::where('is_approved', 1)->where('parent_id', 0)->get()->toArray())->attr(['name' => 'category','class' => 'form-control input-sm parent-module'])
 		->selected($request->category)
 		->renderAsDropdown();
 
+		$learning_submodule_dropdown = LearningModule::where('is_approved', 1)->where('parent_id', '1')->get();
 
 		$categories = [];
-		foreach (TaskCategory::all() as $category) {
+		foreach (LearningModule::all() as $category) {
 			$categories[$category->id] = $category->title;
 		}
-
 		if ( ! empty( $selected_user ) && ! Helpers::getadminorsupervisor() ) {
 			return response()->json( [ 'user not allowed' ], 405 );
 		}
@@ -603,8 +603,6 @@ class LearningModuleController extends Controller {
 
 	    $task_statuses=TaskStatus::all();
 
-
-
 		if ($request->ajax()) {
 			if($type == 'pending') {
 				return view( 'learning-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses'));
@@ -621,10 +619,10 @@ class LearningModuleController extends Controller {
 		}
 
 		if($request->is_statutory_query == 3) {
-			return view( 'learning-module.discussion-tasks', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses'));
+			return view( 'learning-module.discussion-tasks', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'learning_module_dropdown', 'learning_submodule_dropdown', 'priority','openTask','type','title','task_statuses'));
 		}
 		else {
-			return view( 'learning-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses'));
+			return view( 'learning-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'learning_module_dropdown', 'learning_submodule_dropdown', 'priority','openTask','type','title','task_statuses'));
 		}
 	}
 
@@ -1256,7 +1254,7 @@ class LearningModuleController extends Controller {
 
 		$users = User::all();
 		$users_array = Helpers::getUserArray(User::all());
-		$categories = TaskCategory::attr(['title' => 'category','class' => 'form-control input-sm', 'placeholder' => 'Select a Category', 'id' => 'task_category'])
+		$categories = LearningModule::attr(['title' => 'category','class' => 'form-control input-sm', 'placeholder' => 'Select a Category', 'id' => 'task_category'])
 																						->selected($task->category)
 												->renderAsDropdown();
 		
@@ -1989,6 +1987,8 @@ class LearningModuleController extends Controller {
 		$this->validate($request, [
 			'task_subject'	=> 'required',
 			'task_detail'	=> 'required',
+			'category'	=> 'required',
+			'submodule'	=> 'required',
 			'task_asssigned_to' => 'required_without:assign_to_contacts',
 			'cost'=>'sometimes|integer'
 		]);
@@ -1996,208 +1996,38 @@ class LearningModuleController extends Controller {
 		
 		$taskType = $request->get("task_type");
 
-			
 
-		if($taskType == "4" || $taskType == "5" || $taskType == "6") {
-			$data = [];
+		$data = [];
 
-			if(is_array($request->task_asssigned_to)) {
-				$data["assigned_to"] = $request->task_asssigned_to[0];
-			}
-			else {
-				$data["assigned_to"] = $request->task_asssigned_to;
-			}
-			
-			$data["subject"] 		= $request->get("task_subject");
-			$data["task"] 			= $request->get("task_detail");
-			$data["task_type_id"]	= 1;
-			$data["site_developement_id"]	= $request->get("site_id");
-			$data["cost"]	= $request->get("cost",0);
-			$data["status"]	= 'In Progress';
-			$data["created_by"]	= Auth::id();
-			//echo $data["site_developement_id"]; die;
-			
-			if($taskType == 5 || $taskType == 6) {
-				$data["task_type_id"]	= 3;
-			}
-			$task = Learning::create($data);
-			$created = 1;
-			$message = '#DEVTASK-' . $task->id . ' => ' . $task->subject;
-			$assignedUserId = $task->assigned_to;
-			$requestData = new Request();
-	        $requestData->setMethod('POST');
-	        $requestData->request->add(['issue_id' => $task->id, 'message' => $request->get("task_detail"), 'status' => 1]);
-			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
-		}else {
-			if ($request->task_type == 'quick_task') {
-				$data['is_statutory'] = 0;
-				$data['category'] = 6;
-				$data['model_type'] = $request->model_type;
-				$data['model_id'] = $request->model_id;
-			}
-	
-			if ($request->task_type == 'note-task') {
-				$main_task = Learning::find($request->task_id);
-				if(is_array($request->task_asssigned_to)) {
-					$data["assign_to"] = $request->task_asssigned_to[0];
-				}
-				else {
-					$data["assign_to"] = $request->task_asssigned_to;
-				}
-
-			} else {
-				if ($request->task_asssigned_to) {
-					if(is_array($request->task_asssigned_to)) {
-						$data["assign_to"] = $request->task_asssigned_to[0];
-					}
-					else {
-						$data["assign_to"] = $request->task_asssigned_to;
-					}
-				} else {
-					$data['assign_to'] = $request->assign_to_contacts[0];
-				}
-			}
-			//discussion task
-			if($request->get("task_type") == 3) {
-				$task = Learning::find($request->get("task_subject"));
-				$data['is_statutory'] = $request->get("task_type");
-				$data['task_details'] = $request->get("task_detail");
-				$data['task_subject'] = $request->get("task_subject");
-				$data["customer_id"]	= $request->get("customer_id");
-				if($request->category_id != null) {
-					$data['category'] 	  = $request->category_id;
-				}
-				if(!$task) {
-					$task = Learning::create($data);
-					$remarks = $request->get("task_subject");
-					$created = 1;
-					$assignedUserId = $task->assign_to;
-					$message = '#TASK-' . $task->id . ' => ' . $task->task_subject. ". " . $task->task_details;
-				}
-				else {
-					$remarks = $task->task_subject;
-				}
-				$exist = Remark::where('taskid',$task->id)->where('remark', $remarks)->where('module_type','task-note')->first();
-				if(!$exist) {
-					Remark::create([
-						'taskid'	=> $task->id,
-						'remark'	=> $remarks,
-						'module_type'	=> 'task-note'
-					]);
-				}
-				if($request->note) {
-					foreach ($request->note as $note) {
-						if ($note != null) {
-							Remark::create([
-								'taskid'	=> $task->id,
-								'remark'	=> $note,
-								'module_type'	=> 'task-note'
-							]);
-						}
-					}
-				}
-			}
-			else {
-				$data['is_statutory'] = $request->get("task_type");
-				$data['task_details'] = $request->get("task_detail");
-				$data['task_subject'] = $request->get("task_subject");
-				$data["customer_id"]	= $request->get("customer_id");
-				$data["site_developement_id"]	= $request->site_id;
-				$data["cost"]	= $request->get("cost");
-				if($request->category_id != null) {
-					$data['category'] 	  = $request->category_id;
-				}
-				$task = Learning::create($data);
-				$created = 1;
-				$assignedUserId = $task->assign_to;
-				if ($task->is_statutory != 1) {
-					$message = "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details;
-				} else {
-					$message = $task->task_subject . ". " . $task->task_details;
-				}
-			}
-
-
-			if ($request->task_type != 'note-task') {
-				if ($request->task_asssigned_to) {
-					if(is_array($request->task_asssigned_to)) {
-						foreach ($request->task_asssigned_to as $user_id) {
-							$task->users()->attach([$user_id => ['type' => User::class]]);
-						}
-					}
-					else {
-						$task->users()->attach([$request->task_asssigned_to => ['type' => User::class]]);
-					}
-				}
-
-				
-
-				if ($request->assign_to_contacts) {
-					foreach ($request->assign_to_contacts as $contact_id) {
-						$task->users()->attach([$contact_id => ['type' => Contact::class]]);
-					}
-				}
-			}
-
-		
-
-			$params = [
-			 	'number'       => NULL,
-			 	'user_id'      => Auth::id(),
-			 	'approved'     => 1,
-			 	'status'       => 2,
-			 	'task_id'	   => $task->id,
-			 	'message'      => $message
-		    ];
-
-		 	if (count($task->users) > 0) {
-				if ($task->assign_from == Auth::id()) {
-				 	foreach ($task->users as $key => $user) {
-					 	if ($key == 0) {
-						 	$params['erp_user'] = $user->id;
-					 	} else {
-							 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
-					 	}
-				 	}
-			 	} else {
-				 	foreach ($task->users as $key => $user) {
-					 	if ($key == 0) {
-						 	$params['erp_user'] = $task->assign_from;
-					 	} else {
-						 	if ($user->id != Auth::id()) {
-							 	app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
-						 	}
-					 	}
-				 	}
-			 	}
-			 }
-
-			 if (count($task->contacts) > 0) {
-				foreach ($task->contacts as $key => $contact) {
-					if ($key == 0) {
-						$params['contact_id'] = $task->assign_to;
-					} else {
-						app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($contact->phone, NULL, $params['message']);
-					}
-				}
-			}
-
-			$chat_message = ChatMessage::create($params);
-			ChatMessagesQuickData::updateOrCreate([
-                'model' => \App\Learning::class,
-                'model_id' => $params['task_id']
-                ], [
-                'last_communicated_message' => @$params['message'],
-                'last_communicated_message_at' => $chat_message->created_at,
-                'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
-            ]);
-
-			$myRequest = new Request();
-      		$myRequest->setMethod('POST');
-      		$myRequest->request->add(['messageId' => $chat_message->id]);
-
-			  app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);				
+		if(is_array($request->task_asssigned_to)) {
+			$data["assigned_to"] = $request->task_asssigned_to[0];
 		}
+		else {
+			$data["assigned_to"] = $request->task_asssigned_to;
+		}
+		
+		$data["subject"] 		= $request->get("task_subject");
+		$data["task"] 			= $request->get("task_detail");
+		$data["task_type_id"]	= 1;
+		$data["site_developement_id"]	= $request->get("site_id");
+		$data["cost"]	= $request->get("cost",0);
+		$data["status"]	= 'In Progress';
+		$data["created_by"]	= Auth::id();
+		$data["category"]	= $request->get("category");
+		$data["general_category_id"]	= $request->get("submodule");
+		//echo $data["site_developement_id"]; die;
+		
+		if($taskType == 5 || $taskType == 6) {
+			$data["task_type_id"]	= 3;
+		}
+		$task = Learning::create($data);
+		$created = 1;
+		$message = '#DEVTASK-' . $task->id . ' => ' . $task->subject;
+		$assignedUserId = $task->assigned_to;
+		$requestData = new Request();
+        $requestData->setMethod('POST');
+        $requestData->request->add(['issue_id' => $task->id, 'message' => $request->get("task_detail"), 'status' => 1]);
+		app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
 
 
 		if($created) {
@@ -2554,7 +2384,7 @@ class LearningModuleController extends Controller {
 		}
 
 		public function getTaskCategories() {
-			$categories = TaskCategory::where('is_approved',1)->get();
+			$categories = LearningModule::where('is_approved',1)->get();
 			return view( 'learning-module.partials.all-task-category', compact('categories'));
 		}
 
