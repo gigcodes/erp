@@ -67,6 +67,16 @@ class ProductTemplatesController extends Controller
         ->select(["product_templates.*","b.name as brand_name","sw.title as website_name"])
         ->paginate(Setting::get('pagination')); 
 
+        $array = [];
+        foreach($records as $record) {
+            if($record->hasMedia('template-image')) {
+                $media = $record->getMedia('template-image')->first();
+                 if(!empty($media))  {
+                    $record->image_url = $media->getUrl();
+                 }
+            }
+        }
+
         return response()->json([
             "code" => 1,
             "result" => $records,
