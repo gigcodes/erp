@@ -230,9 +230,9 @@ class ProductTemplatesController extends Controller
                 "logo" => ($record->storeWebsite) ? $record->storeWebsite->icon : ""
             ];
 
-            if ($record->hasMedia('template-image')) {
+            if ($record->hasMedia('template-image-attach')) {
                 $images = [];
-                foreach ($record->getMedia('template-image') as $i => $media) {
+                foreach ($record->getMedia('template-image-attach') as $i => $media) {
                     $images[] = $media->getUrl();
                 }
                 $data[ "image" ] = $images;
@@ -415,7 +415,7 @@ class ProductTemplatesController extends Controller
             if (!empty($request->get('product_media_list')) && is_array($request->get('product_media_list'))) {
                 foreach ($request->get('product_media_list') as $mediaid) {
                     $media = Media::find($mediaid);
-                    $template->attachMedia($media, ['template-image']);
+                    $template->attachMedia($media, ['template-image-attach']);
                     $template->save();
                     $imagesArray[]=$media->getUrl();
                 }
@@ -425,7 +425,7 @@ class ProductTemplatesController extends Controller
                 foreach ($request->file('files') as $image) {
                     $media = MediaUploader::fromSource($image)->toDirectory('product-template-images')->upload();
 
-                    $template->attachMedia($media,['template-image']);
+                    $template->attachMedia($media,['template-image-attach']);
                     $template->save();
                     $imagesArray[]=$media->getUrl();
                 }
