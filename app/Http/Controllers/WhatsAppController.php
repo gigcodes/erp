@@ -3774,7 +3774,6 @@ class WhatsAppController extends FindByNumberController
                     ]);
                 }
             }
-
             if (isset($customer)) {
                 $phone = $customer->phone;
                 $whatsapp_number = $customer->whatsapp_number;
