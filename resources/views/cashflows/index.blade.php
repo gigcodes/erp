@@ -75,6 +75,7 @@
                 <th>Module</th>
                 <th>Date</th>
                 <th>Description</th>
+                <th>Amount</th>
                 <th>Expected</th>
                 <th>Actual</th>
                 <th>Type</th>
@@ -97,6 +98,7 @@
                       </ul>
                     @endif
                   </td>
+                  <td>{{ $cash_flow->amount }}</td>
                   <td>{{ $cash_flow->expected }}</td>
                   <td>{{ $cash_flow->actual }}</td>
                   <td>{{ ucwords($cash_flow->type) }}</td>
