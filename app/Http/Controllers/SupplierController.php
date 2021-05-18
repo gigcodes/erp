@@ -260,6 +260,7 @@ class SupplierController extends Controller
         exit; */
         $reply_categories = ReplyCategory::all();
         $sizeSystem       = \App\SystemSize::pluck('name', 'id')->toArray();
+        
 
         return view('suppliers.index', [
             'suppliers'              => $suppliers,
