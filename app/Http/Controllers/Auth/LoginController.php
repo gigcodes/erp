@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use App\UserLoginIp;
 
 class LoginController extends Controller
 {
@@ -50,7 +51,6 @@ class LoginController extends Controller
         // the IP address of the client making these requests into this application.
         if ($this->hasTooManyLoginAttempts($request)) {
             $this->fireLockoutEvent($request);
-
             return $this->sendLockoutResponse($request);
         }
         $credentials =['email'=>$request->email, 'password'=>$request->password];
@@ -60,11 +60,27 @@ class LoginController extends Controller
                 return back()
                     ->withInput()
                     ->withErrors(['email'=>'Your account is inactive. You are not authorized to access this erp']);
-
             }
             if(!auth()->user()->isAdmin()) {
                 $date =  date('Y-m-d', strtotime('-2 days'));
                 $hubstaff_activities = \App\Hubstaff\HubstaffActivity::join('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at',$date)->where('hubstaff_members.user_id',auth()->user()->id)->count();
+                //if(!auth()->user()->isAdmin()) {
+                $user_ip = UserLoginIp::where('ip',$request->getClientIp())->where('user_id',auth()->user()->id)->orderBy('created_at','DESC')->get();
+                if(!$user_ip->isEmpty()){
+                    if($user_ip[0]->is_active){
+                        $this->logout($request);
+                        return back()
+                            ->withInput()
+                            ->withErrors(['message'=>'Please ask admin for login approval.']);
+                    }
+                }else{
+                    $user_ip_add = New UserLoginIp();
+                    $user_ip_add->user_id = auth()->user()->id;
+                    $user_ip_add->ip = $request->getClientIp();
+                    $user_ip_add->is_active = 0;
+                    $user_ip_add->save();
+                }
+                if($request->getClientIp()){}
                 if($hubstaff_activities) {
                     $activity = \App\Hubstaff\HubstaffActivitySummary::where('user_id',auth()->user()->id)->where('date',$date)->first();
                     if(!$activity) {
