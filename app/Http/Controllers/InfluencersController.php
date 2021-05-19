@@ -404,5 +404,17 @@ class InfluencersController extends Controller
         
     }
 
+    public function getKeywordsWithAccount()
+    {
+        $getKeywords = InfluencerKeyword::all();
+        $data = [];
+        foreach ($getKeywords as $key => $value) {
+            $account = DB::table('accounts')->where('id',$value->instagram_account_id)->get();
+            $data[]['keyword'] = $value->name;
+            $data[]['account'] = $account;
+        }
+        return $data;
+    }
+
 
 }
