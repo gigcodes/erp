@@ -524,6 +524,18 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         });
     });
 
+    //semrush
+    Route::prefix('semrush')->middleware('auth')->group(static function () {
+        Route::get('/domain_report', 'SemrushController@index')->name('semrush.domain_report');
+        Route::get('/keyword_report', 'SemrushController@keyword_report')->name('semrush.keyword_report');
+        Route::get('/url_report', 'SemrushController@url_report')->name('semrush.url_report');
+        Route::get('/backlink_reffring_report', 'SemrushController@backlink_reffring_report')->name('semrush.backlink_reffring_report');
+        Route::get('/publisher_display_ad', 'SemrushController@publisher_display_ad')->name('semrush.publisher_display_ad');
+        Route::get('/traffic_analitics_report', 'SemrushController@traffic_analitics_report')->name('semrush.traffic_analitics_report');
+        Route::get('/competitor_analysis', 'SemrushController@competitor_analysis')->name('semrush.competitor_analysis');
+    });
+
+
     Route::prefix('content-management-status')->group(function () {
         Route::get('/', 'StoreSocialContentStatusController@index')->name('content-management-status.index');
         Route::post('save', 'StoreSocialContentStatusController@save')->name('content-management-status.save');

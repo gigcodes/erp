@@ -1280,6 +1280,21 @@ $metaData = '';
                                                 </li>
                                             </ul>
                                         </li>
+
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>SEMrush<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('semrush.domain_report')}}">Domain Report</a>
+                                            <a class="dropdown-item" href="{{route('semrush.keyword_report')}}">Keyword Report</a>
+                                            <a class="dropdown-item" href="{{route('semrush.url_report')}}">URL Report</a>
+                                            <a class="dropdown-item" href="{{route('semrush.backlink_reffring_report')}}">Backlink & Reffring Domain</a>
+                                            <a class="dropdown-item" href="{{route('semrush.publisher_display_ad')}}">Publisher Display Ad</a>
+                                            <a class="dropdown-item" href="{{route('semrush.traffic_analitics_report')}}">Traffic analitics Report</a>
+                                            <a class="dropdown-item" href="{{route('semrush.competitor_analysis')}}">Competitor analyasis</a>
+                                        </li>
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
