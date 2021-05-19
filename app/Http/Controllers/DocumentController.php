@@ -133,7 +133,7 @@ class DocumentController extends Controller
             $data[ 'filename' ] = $file->getClientOriginalName();
             $data[ 'file_contents' ] = $file->openFile()->fread($file->getSize());
 
-            $file->storeAs("documents", $data[ 'filename' ], 'files');
+            //$file->storeAs("documents", $data[ 'filename' ], 'files');
 
             Document::create($data);
         }
