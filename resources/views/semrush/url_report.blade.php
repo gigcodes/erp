@@ -157,25 +157,53 @@
         </li>
         <li>
           <a href="#url_paid_search_keywords" data-toggle="tab">URL PAID SEARCH KEYWORDS</a>
-        </li>
-        
-        
+        </li> 
       </u>
     </div>
-
-
-   
-
-   
-        
-
-
-
-    
-
-    
-
-   
+ 
+    <div class="tab-content" style="margin-top:20px;">
+        <form>
+            <div class="form-row">
+                <div class="form-group col-md-3 col-sm-6" >
+                    <input type="text" class="form-control" name="type" id="type" placeholder="Type" >
+                </div>
+                <div class="form-group col-md-3 col-sm-6" >
+                    <input type="text" class="form-control" name="key" id="key" placeholder="Key" >
+                </div>
+                <div class="form-group col-md-3 col-sm-6" >
+                    <input type="text" class="form-control" name="url" id="url" placeholder="Url" >
+                </div>
+                <div class="form-group col-md-3 col-sm-6" >
+                    <input type="text" class="form-control" name="database" id="database" placeholder="Database" >
+                </div>
+                <div class="form-group col-md-3 col-sm-6" >
+                    <input type="text" class="form-control" name="display_limit" id="display_limit" placeholder="Display Limit" >
+                </div>
+                <div class="form-group col-md-3 col-sm-6" >
+                    <input type="text" class="form-control" name="display_offset" id="display_offset" placeholder="Display Offset" >
+                </div>
+                <div class="form-group col-md-3 col-sm-6" >
+                    <input type="text" class="form-control" name="export_escape" id="export_escape" placeholder="Export Escape" >
+                </div>
+                <div class="form-group col-md-3 col-sm-6" >
+                    <input type="text" class="form-control" name="export_decode" id="export_decode" placeholder="Export Decode" >
+                </div>
+                <div class="form-group col-md-3 col-sm-6" >
+                    <input type="text" class="form-control" name="display_date" id="display_date" placeholder="Display Date" >
+                </div> 
+                <div class="form-group col-md-3 col-sm-6" >
+                    <input type="text" class="form-control" name="export_columns" id="export_columns" placeholder="Export Columns" >
+                </div>
+                <div class="form-group col-md-3 col-sm-6" >
+                    <input type="text" class="form-control" name="display_sort" id="display_sort" placeholder="Display sort" >
+                </div> 
+                <div class="form-group col-md-3 col-sm-6" >
+                    <input type="text" class="form-control" name="display_filter" id="display_filter" placeholder="Display Filter" >
+                </div>
+            </div>
+            <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+        </form>
+    </div> 
 
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
               50% 50% no-repeat;display:none;">
@@ -189,5 +217,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
-    
+    <script>
+    let res = `Keyword;Position;Search Volume;CPC;Competition;Traffic (%);Traffic Cost;Number of Results;Trends;Title;Description
+amazon;1;83100000;0.02;0.16;0.68;78114;81;1.00,0.67,0.67,0.67,0.67,0.67,0.67,0.81,0.67,0.67,0.67,0.81;Amazon.com Official Site | Huge Selection & Great Prices;Free Two-Day Shipping with Prime. Read Ratings & Reviews. Try Prime for Free. Explore Amazon Devices. Shop Best Sellers & Deals. Save with Our Low Prices. Shop Our Huge Selection. Fast Shipping.
+amazon;1;83100000;0.02;0.16;0.68;78114;75;1.00,0.67,0.67,0.67,0.67,0.67,0.67,0.81,0.67,0.67,0.67,0.81;Amazon.com Official Site | Huge Selection & Great Prices;Free Two-Day Shipping with Prime. Shop Our Huge Selection. Try Prime for Free.
+amazon;1;83100000;0.02;0.16;0.68;78114;2680000000;1.00,0.67,0.67,0.67,0.67,0.67,0.67,0.81,0.67,0.67,0.67,0.81;Amazon.com | Amazon® Official Site | Huge Selection & Great Prices;Free Two-Day Shipping with Prime. Explore Amazon Devices. Shop Our Huge Selection. Read Ratings & Reviews. Try Prime for Free. Fast Shipping. Save with Our Low Prices.
+amazon;1;83100000;0.02;0.16;0.68;78114;84;1.00,0.67,0.67,0.67,0.67,0.67,0.67,0.81,0.67,0.67,0.67,0.81;Amazon® Official Site | Huge Selection & Great Prices;Free Two-Day Shipping with Prime. Shop Our Huge Selection. Fast Shipping. Read Ratings & Reviews. Shop Best Sellers & Deals. Stream Videos Instantly. Save with Our Low Prices.
+amazon;1;83100000;0.02;0.16;0.68;78114;76;1.00,0.67,0.67,0.67,0.67,0.67,0.67,0.81,0.67,0.67,0.67,0.81;Amazon.com Official Site | Free 2-Day Shipping with Prime;Earth's biggest selection of books, electronics, apparel & more at low prices.
+`;
+    console.log(res, 9999999999999999999);
+    </script>
 @endsection
