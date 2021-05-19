@@ -43,7 +43,7 @@ class errorAlertMessage extends Command
     public function handle()
     {
         $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
-        //$filename = '/laravel-2020-09-10.log';
+
         $path         = storage_path('logs');
         $fullPath     = $path . $filename;
         $errSelection = [];
@@ -54,7 +54,6 @@ class errorAlertMessage extends Command
             
             foreach ($match[0] as $value) {
                 foreach ($logKeywords as $key => $logKeyword) {
-                    //$value->text
                     if (strpos(strtolower($value), strtolower($logKeyword->text)) !== false && preg_match("/" . $defaultSearchTerm . "/", $value)) {
                         $context = 'site_development';
                         $user_id = 6;

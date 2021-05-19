@@ -132,9 +132,25 @@
                     <h4 class="modal-title">Keywords</h4>
                 </div>
                 <div class="modal-body">
-                    @foreach($logKeywords as $logKeyword)
-                        <p>{{ $logKeyword->title }}</p>
-                    @endforeach
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <td>Index</td>
+                                <td>Keyword</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($logKeywords as $logKeyword)
+                                <tr>
+                                    <td>{{ $logKeyword->id }}</td>
+                                    <td>{{ $logKeyword->text }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default close-setting" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -479,10 +495,11 @@
                     $("#loading-image").show();
                 },
             }).done(function (data) {
-                toastr['success'](data.message, 'Message');
+                toastr['success'](data.message, 'Keyword Added Successfully.');
                 $("#loading-image").hide();
+                window.location.reload();
             }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                toastr['error'](data.message, 'Message');
+                toastr['error'](data.message, 'Error ocuured!');
                 $("#loading-image").hide();
             });
          })
