@@ -7,6 +7,7 @@ use App\InfluencersDM;
 use App\InfluencerKeyword;
 use App\InfluencersHistory;
 use Illuminate\Http\Request;
+use DB;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class InfluencersController extends Controller
@@ -410,8 +411,9 @@ class InfluencersController extends Controller
         $data = [];
         foreach ($getKeywords as $key => $value) {
             $account = DB::table('accounts')->where('id',$value->instagram_account_id)->get();
-            $data[]['keyword'] = $value->name;
-            $data[]['account'] = $account;
+            $datas['keyword'] = $value->name;
+            $datas['account'] = $account;
+            array_push($data, $datas);
         }
         return $data;
     }
