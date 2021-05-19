@@ -30,6 +30,7 @@ use Auth;
 use Log;
 use Carbon\Carbon;
 use DateTime;
+use App\UserLoginIp;
 
 class UserController extends Controller
 {
@@ -661,5 +662,27 @@ class UserController extends Controller
 			->get();
 
 		return $results;
+	}
+
+	public function loginIps(Request $request)
+	{
+		$user_ips = UserLoginIp::join('users', 'user_login_ips.user_id', '=', 'users.id')
+						->select('user_login_ips.*', 'users.email')
+						->get();
+		return view('users.ips', compact('user_ips'));
+	}
+	public function statusChange(Request $request)
+	{
+		if($request->status){
+			$user_ip_status = UserLoginIp::where('id',$request->id)->get();
+			if($request->status == 'Active'){
+				$user_ip_status->is_status = UserLoginIp::where('id',$request->id)
+														->update(['is_active' => true]);
+			}else{
+				$user_ip_status->is_status = UserLoginIp::where('id',$request->id)
+														->update(['is_active' => false]);
+			}
+		}
+		return $request->status;
 	}
 }
