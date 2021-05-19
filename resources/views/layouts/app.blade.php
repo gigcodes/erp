@@ -900,8 +900,7 @@ $metaData = '';
                                                 <a class="dropdown-item" href="{{ route('permissions.index') }}">List Permissions</a>
                                                 <a class="dropdown-item" href="{{ route('permissions.create') }}">Add New</a>
                                                 <a class="dropdown-item" href="{{ route('permissions.users') }}">User Permission List</a>
-
-
+                                                <a class="dropdown-item" href="{{ route('users.login.ips') }}">User Login IP(s)</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown">
