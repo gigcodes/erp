@@ -166,4 +166,11 @@ class DeveloperTask extends Model
     {
         return $this->hasMany(ChatMessage::class, 'developer_task_id', 'id')->orderBy('id','desc');
     }
+
+    public function scopeAdminApproved($query , $value ){
+       return $query->select("SELECT  * FROM `developer_tasks` dt
+       LEFT JOIN ( SELECT developer_task_id , is_approved   FROM `developer_tasks_history` WHERE `attribute` LIKE 'estimation_minute' AND `model` LIKE '%DeveloperTask%') th ON th.developer_task_id = dt.id 
+       WHERE th.is_approved = {$value}
+       ");
+    }
 }

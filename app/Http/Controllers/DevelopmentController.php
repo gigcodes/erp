@@ -409,6 +409,14 @@ class DevelopmentController extends Controller
         if (!empty($request->get('task_status', []))) {
             $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
         }
+        if( isset( $request->is_estimated ) ){
+            if( $request->get('is_estimated') == 'null' ){
+                $issues = $issues->where('estimate_time', null );
+            }
+            if( $request->get('is_estimated') == 'not_approved'){
+                $issues = $issues->adminApproved( 0 );
+            }
+        }
         else {
             //$issues = $issues->where('developer_tasks.status', 'In Progress');
         }
