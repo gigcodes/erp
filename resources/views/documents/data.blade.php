@@ -14,12 +14,12 @@
                         {!! Form::open(['method' => 'DELETE','route' => ['document.destroy', $document->id],'style'=>'display:inline']) !!}
 
                         <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                        <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $document->id }}"><img src="/images/remark.png" /></button>
 
                         {!! Form::close() !!}
                         <button type="button" class="btn btn-image uploadDocument" data-id="{{ $document->id }}"><img src="/images/upload.png" /></button>
 
                         V: {{ $document->version }}
                     </td>
-                    <td><button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $document->id }}"><img src="/images/remark.png" /></button></td>
                 </tr>
             @endforeach
