@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Semrush;
 
 class SemrushController extends Controller
 {
@@ -52,6 +53,13 @@ class SemrushController extends Controller
     {
         $title = 'Competitor analyasis';
         return view('semrush.competitor_analysis', compact('title'));
+    }
+
+    public function manageSemrushAccounts()
+    {
+       // $all_accounts = Semrush::where(['status' => 1])->get();
+        //return view('semrush.manage-accounts', compact('all_accounts'));
+        return view('semrush.manage-accounts');
     }
 
     /**

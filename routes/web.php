@@ -524,7 +524,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         });
     });
 
-    //semrush
+    //SEMrush Account Management
+    Route::get('semrush/manage-semrush-account', 'SemrushController@manageSemrushAccounts')->name('semrush-manage-accounts');
+
+    //SEMrush
     Route::prefix('semrush')->middleware('auth')->group(static function () {
         Route::get('/domain_report', 'SemrushController@index')->name('semrush.domain_report');
         Route::get('/keyword_report', 'SemrushController@keyword_report')->name('semrush.keyword_report');
