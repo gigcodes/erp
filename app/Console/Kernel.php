@@ -562,7 +562,7 @@ class Kernel extends ConsoleKernel
 
         //Cron for activity
         $schedule->command("productActivity")->dailyAt("0:00");
-        $schedule->command("errorAlertMessage")->hourly();
+        $schedule->command("errorAlertMessage")->daily();
     }
 
     /**
