@@ -102,9 +102,9 @@
 
         <div class="col-md-2 pd-sm">
             <select class="form-control" name="is_estimated" id="is_estimated">
-                <option value="">All</option>
-                <option value="null">Not Estimated Yet</option>
-                <option value="not_approved">Not Approved By Admin</option>
+                <option {{$request->get('is_estimated')=='' ? 'selected' : ''}} value="">All</option>
+                <option {{$request->get('is_estimated')=='null' ? 'selected' : ''}} value="null">Not Estimated Yet</option>
+                <option {{$request->get('is_estimated')=='not_approved' ? 'selected' : ''}} value="not_approved">Not Approved By Admin</option>
             </select>
         </div>
 

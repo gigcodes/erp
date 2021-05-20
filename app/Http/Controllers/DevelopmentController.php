@@ -411,10 +411,10 @@ class DevelopmentController extends Controller
         }
         if( isset( $request->is_estimated ) ){
             if( $request->get('is_estimated') == 'null' ){
-                $issues = $issues->where('estimate_time', null );
+                $issues = $issues->notEstimated();
             }
             if( $request->get('is_estimated') == 'not_approved'){
-                $issues = $issues->adminApproved( 0 );
+                $issues = $issues->adminNotApproved();
             }
         }
         else {

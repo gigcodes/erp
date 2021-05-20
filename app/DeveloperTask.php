@@ -8,6 +8,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Plank\Mediable\Mediable;
+use Illuminate\Support\Facades\DB;
 
 class DeveloperTask extends Model
 {
@@ -167,10 +168,19 @@ class DeveloperTask extends Model
         return $this->hasMany(ChatMessage::class, 'developer_task_id', 'id')->orderBy('id','desc');
     }
 
-    public function scopeAdminApproved($query , $value ){
-       return $query->select("SELECT  * FROM `developer_tasks` dt
-       LEFT JOIN ( SELECT developer_task_id , is_approved   FROM `developer_tasks_history` WHERE `attribute` LIKE 'estimation_minute' AND `model` LIKE '%DeveloperTask%') th ON th.developer_task_id = dt.id 
-       WHERE th.is_approved = {$value}
-       ");
+    public function scopeNotEstimated($query){
+        return $query->whereNull('estimate_time');
+    }
+
+    public function scopeEstimated($query){
+        return $query->whereNotNull('estimate_time');
+    }
+
+    public function scopeAdminNotApproved( $query ){
+        return $query->join('developer_tasks_history' , 'developer_tasks_history.developer_task_id' , 'developer_tasks.id' )
+                    //   ->estimated()
+                    //   ->where('attribute','estimation_minute')
+                      ->where('model','App\DeveloperTask')
+                      ->where('is_approved','0');
     }
 }
