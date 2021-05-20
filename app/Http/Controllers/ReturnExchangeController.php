@@ -14,9 +14,11 @@ use App\Reply;
 use App\ReturnExchange;
 use App\ReturnExchangeHistory;
 use App\ReturnExchangeStatus;
+use App\Email;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Http\Requests\CreateCouponRequest;
 
 class ReturnExchangeController extends Controller
 {
@@ -270,21 +272,66 @@ class ReturnExchangeController extends Controller
         $params = $request->all();
 
         $returnExchange = \App\ReturnExchange::find($id);
+        $status =  ReturnExchangeStatus::find($request->status);
 
         if (!empty($returnExchange)) {
             $returnExchange->fill($params);
             $returnExchange->save();
+            
+            if(  isset( $status->status_name ) && $status->status_name == 'approve' ){
+                $code = 'REFUND-'.date('Ym').'-'.rand(1000,9999);
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $requestData->request->add([
+                    'name'             => $code,
+                    'store_website_id' => $returnExchange->customer->id,
+                    'website_ids'      => array($returnExchange->customer->storeWebsite->id),
+                    'start'            => date('Y-m-d H:i:s'),
+                    'active'           => '1',
+                    'uses_per_coustomer' => 1,
+                    'simple_action' => 'by_fixed',
+                    'discount_amount' => $request->refund_amount,
+                ]);
+                
+                try {
+                    $response = app('App\Http\Controllers\CouponController')->addRules($requestData);
+                    $emailClass = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
+                    $email = Email::create([
+                        'model_id'         => $returnExchange->id,
+                        'model_type'       => \App\ReturnExchange::class,
+                        'from'             => $emailClass->fromMailer,
+                        'to'               => $returnExchange->customer->email,
+                        'subject'          => $emailClass->subject,
+                        'message'          => 'Your refund coupon :'.$code,
+                        'template'         => 'refund-coupon',
+                        'additional_data'  => $returnExchange->id,
+                        'status'           => 'pre-send',
+                        'store_website_id' => null,
+                        'is_draft'        => 1,
+                    ]);
+                    
+                    $response = json_decode($response->getContent());
+                    if( $response->status() == 500 ){
+                        return response()->json(["code" => 500, "data" => [], "message" => json_decode($response->getContent())->message,"error" => json_decode($response->getContent())->error]);
+                    }
+                    if($response->status() == 200){
+                        \App\Jobs\SendEmail::dispatch($email);
+                    }
+                } catch (Exception $e) {
+                    return response()->json(["code" => 500, "data" => [], "message" => "Something went wrong"]);
+                }
+            }
 
             //Sending Mail on changing of order status
             if (isset($request->send_message) && $request->send_message == '1') {
+                
                 //sending order message to the customer
                 UpdateReturnStatusMessageTpl::dispatch($returnExchange->id, request('message', null))->onQueue("customer_message");
                 try {
                     if ($returnExchange->type == "refund") {
 
                         $emailClass = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
-                    
-                        $email = Email::create([
+                        $email = App\Email::create([
                             'model_id'         => $returnExchange->id,
                             'model_type'       => \App\ReturnExchange::class,
                             'from'             => $emailClass->fromMailer,
@@ -297,14 +344,12 @@ class ReturnExchangeController extends Controller
                             'store_website_id' => null,
                             'is_draft'        => 1,
                         ]);
-
                         \App\Jobs\SendEmail::dispatch($email);
 
                     } else if ($returnExchange->type == "return") {
 
                         $emailClass = (new \App\Mails\Manual\StatusChangeReturn($returnExchange))->build();
-                    
-                        $email = Email::create([
+                        $email = App\Email::create([
                             'model_id'         => $returnExchange->id,
                             'model_type'       => \App\ReturnExchange::class,
                             'from'             => $emailClass->fromMailer,
@@ -317,14 +362,12 @@ class ReturnExchangeController extends Controller
                             'store_website_id' => null,
                             'is_draft'        => 1,
                         ]);
-
                         \App\Jobs\SendEmail::dispatch($email);
 
                     } else if ($returnExchange->type == "exchange") {
 
                         $emailClass = (new \App\Mails\Manual\StatusChangeExchange($returnExchange))->build();
-                    
-                        $email = Email::create([
+                        $email = App\Email::create([
                             'model_id'         => $returnExchange->id,
                             'model_type'       => \App\ReturnExchange::class,
                             'from'             => $emailClass->fromMailer,
@@ -351,6 +394,32 @@ class ReturnExchangeController extends Controller
         return response()->json(["code" => 200, "data" => [], "message" => "Request updated succesfully!!"]);
     }
 
+    public function regenerateCoupon(Request $request, $id)
+    {
+        $returnExchange = \App\ReturnExchange::find($id);
+        $requestData = new CreateCouponRequest();
+        $requestData->setMethod('POST');
+        $code = 'REFUND-'.date('Ym').'-'.rand(1000,9999);
+        
+        $requestData->request->add([
+            'name'             => $code,
+            'store_website_id' => $returnExchange->customer_id,
+            'customer_group_ids' => $returnExchange->customer_id,
+            'website_ids'      => array($returnExchange->website_id),
+            'start'            => date('Y-m-d H:i:s'),
+            'active'           => '1',
+            'uses_per_coustomer' => 1,
+            'simple_action' => 'by_fixed',
+            'discount_amount' => $request->refund_amount,
+        ]);
+        
+        try {
+            $response = app('App\Http\Controllers\CouponController')->addRules($requestData);
+            return response()->json(["code" => $response->status(), "data" => [], "message" => json_decode($response->getContent())->message]);
+        } catch (Exception $e) {
+            return response()->json(["code" => 500, "data" => [], "message" => $e->getMessage()]);
+        }
+    }
     public function delete(Request $request, $id)
     {
         $ids = explode(",", $id);
