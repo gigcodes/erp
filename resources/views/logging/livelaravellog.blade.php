@@ -65,7 +65,7 @@
     <div class="conatainer">
         <div class="row mt-3">
             <form action="{{ action('LaravelLogController@LogKeyword') }}" class="form-horizontal logKeyword" role="form" method="post">
-                <div class="col-md-6">
+                <div class="col-md-3">
                     <input type="text" name="title" value="" class="form-control" placeholder="Keyword" required>
                 </div>
                 <div class="col-md-3">
@@ -73,6 +73,9 @@
                 </div>
                 <div class="col-md-3">
                     <button type='button' class="btn btn-default show-keywords">Show Keyword</button>
+                </div>
+                <div class="col-md-3">
+                    <button type='button' class="btn btn-default load-messages" data-object="user" data-id="6">Show Messages</button>
                 </div>
             </form>
         </div>
@@ -144,6 +147,39 @@
                                 <tr>
                                     <td>{{ $logKeyword->id }}</td>
                                     <td>{{ $logKeyword->text }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default close-setting" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="load_messages" class="modal fade" role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Keywords</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <td>Index</td>
+                                <td>Message</td>
+                                <td>Sent On</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php $count=0; @endphp
+                            @foreach($ChatMessages as $ChatMessage)
+                                <tr>
+                                    <td>{{ $count++ }}</td>
+                                    <td>{{ $ChatMessage->message }}</td>
+                                    <td>{{ $ChatMessage->created_at }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -379,7 +415,7 @@
                     blank : blank
                 },
                 beforeSend: function() {
-                       $("#loading-image").show();
+                    $("#loading-image").show();
                 },
             
             }).done(function (data) {
@@ -480,6 +516,10 @@
         $(document).on('click','.show-keywords',function(event){
             event.preventDefault();
             $('#show_keywords').modal('show');
+        });
+        $(document).on('click','.load-messages',function(event){
+            event.preventDefault();
+            $('#load_messages').modal('show');
         });
 
         $(document).on('submit','.logKeyword',function(event){

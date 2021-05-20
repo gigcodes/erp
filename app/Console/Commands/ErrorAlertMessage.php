@@ -7,6 +7,7 @@ use App\LogKeyword;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\File;
+use App\ChatMessage;
 
 class errorAlertMessage extends Command
 {
@@ -59,6 +60,14 @@ class errorAlertMessage extends Command
                         $user_id = 6;
                         $message = "You have error which matched the keyword  '".$logKeyword->text."'";
                         $message .=" | ".$value;
+                        $params = [];
+                        $params['message'] = $message;
+                        $params['erp_user'] = $user_id;
+                        $params['user_id'] = $user_id;
+                        $params['approved'] = 1;
+                        $params['status'] = 2;
+                        $params['message_application_id'] = 10001;
+                        $chat_message = ChatMessage::create($params);
                         $requestData = new Request();
                         $requestData->setMethod('POST');
                         $requestData->request->add(['user_id' => $user_id, 'message' => $message, 'status' => 1]);
