@@ -107,6 +107,9 @@ Route::get('instagram/get-comments-list/{username}', 'InstagramPostsController@g
 Route::post('instagram/comment-sent', 'InstagramPostsController@commentSent');
 Route::get('instagram/get-hashtag-list','InstagramPostsController@getHashtagList');
 
+//Get all the instagram accounts attached to keywords
+Route::get('instagram/accounts','InfluencersController@getKeywordsWithAccount');
+
 //Giving All Brands with Reference
 Route::get('brands','BrandController@brandReference');
 
