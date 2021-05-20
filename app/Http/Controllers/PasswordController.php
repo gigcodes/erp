@@ -203,7 +203,11 @@ class PasswordController extends Controller
 
     public function changePassword(Request $request){
 
-        $users = $request->users;
+        if( empty( $request->users ) ){
+            return redirect()->back()->with('error','Please select user');
+        }
+        
+        $users = explode(",",$request->users);
         $data = array();
         foreach ($users as $key) {
             // Generate new password
@@ -233,7 +237,7 @@ class PasswordController extends Controller
             $message = 'Your New Password For ERP desk is Username : ' . $user->email . ' Password : ' . $password;
 
             $whatsappmessage = new WhatsAppController();
-            $whatsappmessage->sendWithThirdApi($number, null, $message);
+            $whatsappmessage->sendWithThirdApi($number, $user->whatsapp_number, $message);
             $params['user_id'] = $user_id;
             $params['message'] = $message;
             $chat_message = ChatMessage::create($params);
@@ -252,7 +256,7 @@ class PasswordController extends Controller
                     $message = 'Your New Password For ERP desk is Username : ' . $user->email . ' Password : ' . $password[$i];
 
                     $whatsappmessage = new WhatsAppController();
-                    $whatsappmessage->sendWithThirdApi($number, null, $message);
+                    $whatsappmessage->sendWithThirdApi($number, $user->whatsapp_number, $message);
                     $params['user_id'] = $user->id;
                     $params['message'] = $message[$i];
                     $chat_message = ChatMessage::create($params);

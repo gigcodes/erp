@@ -367,13 +367,14 @@ class UserManagementController extends Controller
 		} else {
 			$input = array_except($input, array('password'));
 		}
-
+        //return $input;
 		$user = User::find($id);
 		$user->update($input);
-
-		if ($request->customer[0] != '') {
-			$user->customers()->sync($request->customer);
-		}
+        if($request->customer){
+    		if ($request->customer[0] != '') {
+    			$user->customers()->sync($request->customer);
+    		}
+        }
 
 
 		$user->listing_approval_rate = $request->get('listing_approval_rate') ?? '0';

@@ -448,9 +448,9 @@ class DevelopmentController extends Controller
 
         $statusList = \DB::table("task_statuses")->select("name")->pluck("name", "name")->toArray();
 
-        $statusList = array_merge([
+        /*$statusList = array_merge([
             "" => "Select Status",
-        ], $statusList);
+        ], $statusList);*/
 
         // Hide resolved
         /*if ((int)$request->show_resolved !== 1) {
@@ -1204,6 +1204,7 @@ class DevelopmentController extends Controller
         $task->status = $request->get("status",'Issue');
         $task->task_type_id = $request->get("task_type_id",3);
         $task->scraper_id = $request->input('scraper_id',null);
+        $task->brand_id = $request->input('brand_id',null);
         $task->save();
 
         $repo = GithubRepository::where('name', 'erp')->first();

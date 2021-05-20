@@ -727,7 +727,12 @@ class ScrapStatisticsController extends Controller
     public function taskList(Request $request)
     {
         $id             = $request->id;
-        $developerTasks = \App\DeveloperTask::where("scraper_id", $request->id)->latest()->get();
+
+        if(isset($request->type) && $request->type == 'brand') 
+            $developerTasks = \App\DeveloperTask::where("brand_id", $request->id)->latest()->get();
+        else
+            $developerTasks = \App\DeveloperTask::where("scraper_id", $request->id)->latest()->get();
+
         $replies        = \App\Reply::where("model", "scrap-statistics")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
         return view("scrap.partials.task", compact('developerTasks', 'id', 'replies'));
     }
@@ -775,6 +780,9 @@ class ScrapStatisticsController extends Controller
 
         $scraper = \App\Scraper::find($id);
 
+        // if(isset($request->type)) $scraper = \App\Brand::find($id);
+        if(isset($request->type) && $request->type == 'brand') $scraper = \App\Brand::find($id);
+
         if ($scraper) {
 
             $requestData->request->add([
@@ -788,10 +796,23 @@ class ScrapStatisticsController extends Controller
                 'task_type_id' => 1,
             ]);
 
+            if(isset($request->type) && $request->type == 'brand') 
+            {
+                $requestData->request->add([
+                    'brand_id'     => $id,
+                    'scraper_id'   => '',
+                    'subject'      => 'EXTERNAL SCRAPPER '.$scraper->name. " - " . $request->task_subject,
+                ]);
+            }
+
             app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
         }
 
-        $developerTasks = \App\DeveloperTask::where("scraper_id", $request->id)->latest()->get();
+        if(isset($request->type) && $request->type == 'brand') 
+            $developerTasks = \App\DeveloperTask::where("brand_id", $request->id)->latest()->get();
+        else
+            $developerTasks = \App\DeveloperTask::where("scraper_id", $request->id)->latest()->get();
+        
         $replies        = \App\Reply::where("model", "scrap-statistics")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
 
         return view("scrap.partials.task", compact('developerTasks', 'id', 'replies'));

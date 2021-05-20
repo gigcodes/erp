@@ -30,6 +30,31 @@
         <h2 class="page-heading">Pull Requests ({{sizeof($pullRequests)}})</h2>
     </div>
 </div>
+<div class="row">
+    <div class="col-lg-12 margin-tb page-heading">
+        @if(session()->has('message'))
+            @php $type = Session::get('alert-type', 'info'); @endphp
+            @if($type == "info")
+                <div class="alert alert-secondary">
+                    {{ session()->get('message') }}
+                </div>
+            @elseif($type == "warning")
+                <div class="alert alert-warning">
+                    {{ session()->get('message') }}
+                </div>
+            @elseif($type == "success")
+                <div class="alert alert-success">
+                    {{ session()->get('message') }}
+                </div>    
+            @elseif($type == "error")
+                <div class="alert alert-error">
+                    {{ session()->get('message') }}
+                </div>    
+            @endif
+        @endif
+    </div>
+</div>
+
 <div class="container">
     <table id="pull-request-table" class="table table-bordered">
         <thead>
