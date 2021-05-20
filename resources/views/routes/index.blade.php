@@ -49,14 +49,22 @@
 								<th>Page URI</th>
 								<th>Page Title</th>
 								<th>Page Description</th>
+								<th>Status</th>
 								<th>Action</th>
 							</tr>
 							@foreach ($routesData as $data )
 								<tr>
-									<td>{{$base_url.'/'.$data->url}}</td>
-									<td>{{$data->page_title}}</td>
-									<td>{{$data->page_description}}</td>
-									<td><a class="btn btn-default" href="{{ route('routes.update',$data->id) }}">Edit</a></td>
+									<td width="40%"><a href="{{$base_url.'/'.$data->url}}" target="_blank" >{{$base_url.'/'.$data->url}}</a></td>
+									<td width="20%">{{$data->page_title}}</td>
+									<td width="20%">{{$data->page_description}}</td>
+									<td width="15%">
+										<select class="form-control status-change" name="status" data-url="{{ route('routes.update',$data->id) }}">
+						                  <option value="">Select Status</option>
+						                  <option value="active" {{ 'active' == $data->status ? 'selected' : '' }}>Active</option>
+						                  <option value="inactive" {{ 'inactive' == $data->status ? 'selected' : '' }}>InActive</option>
+						                </select>
+									</td>
+									<td width="5%"><a class="btn btn-default" href="{{ route('routes.update',$data->id) }}">Edit</a></td>
 								</tr>
 							@endforeach
 						</table>
@@ -67,4 +75,31 @@
             </div>
 		</div>
 	</div>
+@endsection
+
+
+@section('scripts')
+    <script type="text/javascript">
+
+        //Change Status
+        $(document).on('change', '.status-change', function () {
+           	var _this = jQuery(this);
+            $.ajax({
+            	headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: jQuery(_this).data('url'),
+                type: 'POST',
+                data: {status: jQuery(_this).val()},
+                dataType: "JSON",
+                success: function (resp) {
+                    console.log(resp);
+                    if(resp.status == 'ok') {
+                        $("body").append(resp.html);
+                        $('#newTaskModal').modal('show');
+                    }
+                }
+            });
+        });
+    </script>
 @endsection
