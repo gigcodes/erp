@@ -5,6 +5,9 @@
 @section('title', 'Server Statistics')
 
 @section('styles')
+<style type="text/css">
+
+</style>
 @endsection
 
 @section('large_content')
