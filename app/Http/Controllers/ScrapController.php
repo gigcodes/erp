@@ -2281,5 +2281,46 @@ class ScrapController extends Controller
     }
 
 
+    public function getServerStatistics(Request $request)
+    {
+        $servers = Scraper::whereNotNull('server_id')->groupBy('server_id')->pluck('server_id', 'id')->toArray();
+        $scrapers = Scraper::whereNotNull('server_id');
+
+        if($request->has('q') && !empty($request->get('q')))
+        {
+            $scrapers->where('scraper_name','LIKE','%'.$request->get('q').'%');
+        }
+        $scrapers = $scrapers->select('id','server_id','scraper_name','scraper_start_time')->get();
+        $data = array();
+        foreach ($scrapers as $scraper) {
+            if($scraper->scraper_start_time >= 0  && $scraper->scraper_start_time <= 3){
+                $data[$scraper->server_id][3][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 3  && $scraper->scraper_start_time <= 6){
+                $data[$scraper->server_id][6][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 6  && $scraper->scraper_start_time <= 9){
+                $data[$scraper->server_id][9][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 9  && $scraper->scraper_start_time <= 12){
+                $data[$scraper->server_id][12][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 12  && $scraper->scraper_start_time <= 15){
+                $data[$scraper->server_id][15][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 15  && $scraper->scraper_start_time <= 18){
+                $data[$scraper->server_id][18][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 18  && $scraper->scraper_start_time <= 21){
+                $data[$scraper->server_id][21][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 21  && $scraper->scraper_start_time <= 24){
+                $data[$scraper->server_id][24][] = $scraper->scraper_name;
+            }
+        }
+        return view()->make('scrap.server-statistics',compact('servers', 'data'));
+    }
+
+
 
 }
