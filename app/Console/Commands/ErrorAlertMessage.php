@@ -68,6 +68,7 @@ class errorAlertMessage extends Command
                         $params['status'] = 2;
                         $params['message_application_id'] = 10001;
                         $chat_message = ChatMessage::create($params);
+                        
                         $requestData = new Request();
                         $requestData->setMethod('POST');
                         $requestData->request->add(['user_id' => $user_id, 'message' => $message, 'status' => 1]);
