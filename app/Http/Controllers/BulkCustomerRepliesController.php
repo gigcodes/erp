@@ -51,8 +51,23 @@ class BulkCustomerRepliesController extends Controller
             "purchase_shortcut"   => \App\Setting::get('purchase_shortcut'),
         ];
         $users_array      = Helpers::getUserArray(\App\User::all());
+        $whatsappNos = getInstanceNo();
+        $chatbotKeywords = \App\ChatbotKeyword::all();
 
-        return view('bulk-customer-replies.index', compact('keywords','autoKeywords', 'searchedKeyword', 'nextActionArr','groups','pdfList','reply_categories','settingShortCuts','users_array'));
+        return view('bulk-customer-replies.index', compact('keywords','autoKeywords', 'searchedKeyword', 'nextActionArr','groups','pdfList','reply_categories','settingShortCuts','users_array','whatsappNos','chatbotKeywords'));
+    }
+
+    public function updateWhatsappNo(Request $request)
+    {
+        $no = $request->get("whatsapp_no");
+        $customers = explode(",",$request->get("customers",""));
+        $total = 0;
+        if(!empty($no) && is_array(array_filter($customers))) {
+            $lCustomer  = array_filter($customers);
+            $total      = count($lCustomer);
+            $customers  = \App\Customer::whereIn("id",$lCustomer)->update(["whatsapp_number" => $no]);
+        }
+        return response()->json(["code" => 200, "total" => $total]);
     }
 
     public function storeKeyword(Request $request) {
