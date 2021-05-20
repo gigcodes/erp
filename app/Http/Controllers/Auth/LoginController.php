@@ -56,7 +56,7 @@ class LoginController extends Controller
         if($this->guard()->attempt($credentials,$request->has('remember'))){
             $this->validateLogin($request);
             $user_ip = UserLoginIp::where('ip',$request->getClientIp())->where('user_id',auth()->user()->id)->orderBy('created_at','DESC')->first();
-            if($user_ip->isEmpty()){
+            if(is_null($user_ip)){
                 $user_ip_add = New UserLoginIp();
                 $user_ip_add->user_id = auth()->user()->id;
                 $user_ip_add->ip = $request->getClientIp();
