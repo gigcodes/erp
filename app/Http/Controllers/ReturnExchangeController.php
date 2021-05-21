@@ -279,16 +279,23 @@ class ReturnExchangeController extends Controller
             $returnExchange->save();
             
             if(  isset( $status->status_name ) && $status->status_name == 'approve' ){
+                
+                $storeList = \App\Website::where('store_website_id', $returnExchange->customer->storeWebsite->id)->get();
+                // dd($returnExchange->customer->storeWebsite->id);
+
                 $code = 'REFUND-'.date('Ym').'-'.rand(1000,9999);
                 $requestData = new Request();
                 $requestData->setMethod('POST');
                 $requestData->request->add([
                     'name'             => $code,
-                    'store_website_id' => $returnExchange->customer->id,
-                    'website_ids'      => array($returnExchange->customer->storeWebsite->id),
+                    'store_website_id' => $returnExchange->customer->storeWebsite->id,
+                    'website_ids'      => array($storeList[0]['platform_id'] ?? 0),
                     'start'            => date('Y-m-d H:i:s'),
                     'active'           => '1',
                     'uses_per_coustomer' => 1,
+                    'customer_groups' => [0],
+                    'coupon_type' => 'SPECIFIC_COUPON',
+                    'code' => $code,
                     'simple_action' => 'by_fixed',
                     'discount_amount' => $request->refund_amount,
                 ]);
@@ -311,10 +318,10 @@ class ReturnExchangeController extends Controller
                     ]);
                     
                     $response = json_decode($response->getContent());
-                    if( $response->status() == 500 ){
+                    if( $response->type == 'error' ){
                         return response()->json(["code" => 500, "data" => [], "message" => json_decode($response->getContent())->message,"error" => json_decode($response->getContent())->error]);
                     }
-                    if($response->status() == 200){
+                    if($response->type == 'error'){
                         \App\Jobs\SendEmail::dispatch($email);
                     }
                 } catch (Exception $e) {
@@ -401,11 +408,13 @@ class ReturnExchangeController extends Controller
         $requestData->setMethod('POST');
         $code = 'REFUND-'.date('Ym').'-'.rand(1000,9999);
         
+        $storeList = \App\Website::where('store_website_id', $returnExchange->customer->storeWebsite->id)->get();
+
         $requestData->request->add([
             'name'             => $code,
-            'store_website_id' => $returnExchange->customer_id,
+            'store_website_id' => $returnExchange->customer->storeWebsite->id,
             'customer_group_ids' => $returnExchange->customer_id,
-            'website_ids'      => array($returnExchange->website_id),
+            'website_ids'      => array($storeList[0]['platform_id'] ?? 0),
             'start'            => date('Y-m-d H:i:s'),
             'active'           => '1',
             'uses_per_coustomer' => 1,
