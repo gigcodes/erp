@@ -178,7 +178,7 @@ class DeveloperTask extends Model
 
     public function scopeAdminNotApproved( $query ){
         return $query->join('developer_tasks_history' , 'developer_tasks_history.developer_task_id' , 'developer_tasks.id' )
-                    //   ->estimated()
+                     ->estimated()
                     //   ->where('attribute','estimation_minute')
                       ->where('model','App\DeveloperTask')
                       ->where('is_approved','0');
