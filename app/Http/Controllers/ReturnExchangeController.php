@@ -424,7 +424,7 @@ class ReturnExchangeController extends Controller
         
         try {
             $response = app('App\Http\Controllers\CouponController')->addRules($requestData);
-            return response()->json(["code" => $response->status(), "data" => [], "message" => json_decode($response->getContent())->message]);
+            return response()->json(["code" => 200, "data" => [], "message" => json_decode($response->getContent())->message]);
         } catch (Exception $e) {
             return response()->json(["code" => 500, "data" => [], "message" => $e->getMessage()]);
         }
