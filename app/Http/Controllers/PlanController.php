@@ -39,6 +39,8 @@ class PlanController extends Controller
         if(request('term')){
             $query->where('subject', 'LIKE', '%' . request('term') . '%');
             $query->orwhere('sub_subject', 'LIKE', '%' . request('term') . '%');
+            $query->orwhere('basis', 'LIKE', '%' . request('term') . '%');
+            $query->orwhere('implications', 'LIKE', '%' . request('term') . '%');
         }
 
         $planList = $query->orderBy('id','DESC')->paginate(10);
