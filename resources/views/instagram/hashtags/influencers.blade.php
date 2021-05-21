@@ -13,6 +13,97 @@
             margin: -50px 0px 0px -50px;
         }
 
+        .navbar{
+          height: 60px;
+          background:#f1f1f1ad; 
+        }
+
+
+        h1{
+            font-size:30px;
+            font-weight:600;
+            padding: 20px 0;
+
+        }
+
+h2{
+	font-size:24px;
+	font-weight:600;
+
+}
+
+h3 {
+	font-size:20px;
+	font-weight:600;
+        
+
+}
+
+p{ 
+	font-size: 14px;
+	font-weight: 400;
+	margin-bottom: 15px;
+}
+
+a.navbar-brand{
+    font-size: 22px;
+	font-weight: 600;
+	color: #5a5555;  
+}
+
+.navbar-light .navbar-nav .nav-link{
+    font-size: 14px;
+	color: #757575;
+}
+
+#search_li input{
+    height:35px !important;
+	border: 1px !important;
+	font-size:14px !important;
+	/* max-width: */
+
+}
+
+.btn{
+	padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    border-radius: 4px;
+    color: #fff;
+    background-color: #828282;
+    cursor: pointer;
+    
+}
+
+.btn:hover{
+ background:#565656;
+}
+
+.btn:disabled{
+	opacity : 0.5;
+    pointer-events: none;
+}
+
+button[disabled]:hover {
+    background: none;
+}
+
+.action-icon{
+    width:20px;
+    height:20px;
+	padding:3px;
+	border-radius: 4px;
+}
+
+.action-icon:hover{
+    background-color: #ccc; 
+    cursor: pointer;
+}
+
+
+
         .chat-righbox a{
             color: #555 !important;
             font-size: 18px;
@@ -64,6 +155,33 @@
     .pd-2 {
         padding:2px;
     }
+
+    table{
+        border: 1px;
+	    border-radius: 4px;  
+        /* font-size: 13px;  */
+        word-break: break-all;
+    }
+    
+    .table>thead>tr>th{
+        font-weight: normal;
+        font-size: 15px;
+        color: #000;
+    }
+
+    .table>tbody>tr>td{
+        font-weight: normal;
+        font-size: 14px;
+        color: #757575;
+    }
+
+   .form-control{
+        height:35px !important;
+	    border: 1px !important;
+	    font-size:14px !important;
+	    border-radius: 4px !important;
+    }
+
     </style>
 @endsection
 @section('large_content')
@@ -205,23 +323,42 @@
             </div>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script>
+        $('.popover-dismiss').popover({
+  trigger: 'focus'
+})
+    </script>
+    <!-- HTML to write -->
+<a href="#" data-toggle="tooltip" title="Some tooltip text!">Hover over me</a>
+
+<!-- Generated markup by the plugin -->
+<div class="tooltip bs-tooltip-top" role="tooltip">
+  <div class="arrow"></div>
+  <div class="tooltip-inner">
+    Some tooltip text!
+  </div>
+</div>
+
+
+    
             <div class="table-responsive">
                 <table class="table-striped table table-bordered" id="data-table" style="table-layout:fixed;">
                     <thead >
                     <tr>
 
-                        <th style="width:2%">#</th>
-                        <th style="width:7%">Date</th>
-                        <th style="width:10%">Username</th>
-                        <th style="width:10%">Email</th>
-                        <th style="width:10%">Hashtag</th>
-                        <th style="width:5%">Posts</th>
+                        <th style="width:2.5%">#</th>
+                        <th>Date</th>
+                        <th style="width: 10%">Username</th>
+                        <th style="width:8%">Email</th>
+                        <th style="width:7%">Hashtag</th>
+                        <th >Posts</th>
                         <th style="width:7%">Followers</th>
                         <th style="width:7%">Following</th>
-                        <th style="width:8%">Country</th>
-                        <th style="width:10%">Description</th>
-                        <th style="width:41%">Communication</th>
-                        <th style="width:6%">Action</th>
+                        <th style="width:7%">Country</th>
+                        <th style="width:15%">Description</th>
+                        <th style="width:20%">Communication</th>
+                        <th>Action</th>
                         <!-- <th>Phone</th>
                         <th>Website</th>
                         <th>Twitter</th>
