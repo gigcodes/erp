@@ -200,13 +200,41 @@
             ], 
         }
 
+        var domain_report_data = {
+            "type" : {
+                "domain_organic_search_keywords":"domain_organic",
+                "domain_paid_search_keywords":"domain_adwords",
+                "ads_copies":"domain_adwords_unique",
+                "competitors_in_organic_search":"domain_organic_organic",
+                "competitors_in_paid_search":"domain_adwords_adwords",
+                "domain_ad_history":"domain_adwords_historical",
+                "domain_vs_domain":"domain_domains",
+                "domain_pla_search_keywords":"domain_shopping",
+                "pla_cpoies":"domain_shopping_unique",
+                "pla_competitors":"domain_shopping_shopping",
+                "domain_organic_pages":"domain_organic_unique",
+                "domain_organic_subdomains":"domain_organic_subdomains",
+            }
+        }
+
+        console.log("++++++++++++++++++");
+        console.log(domain_report_data);
 
         $.each( all_field, function( index, value ){
+
+            if(domain_report_data[index] != undefined && domain_report_data[index][tab] != undefined)
+            {
+                console.log("++++++++index++++++++++");
+                console.log(index);
+                console.log(domain_report_data[index][tab]);
+            }
+
             if(value.includes(tab))
             {
                 $('#'+index).parent().removeClass('d-none');
             }else{
-                $('#'+index).parent().addClass('d-none');            }
+                $('#'+index).parent().addClass('d-none');            
+            }
         });
     }
     </script>
