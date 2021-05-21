@@ -73,6 +73,7 @@ class PlanController extends Controller
                     'budget' => $request->budget,
                     'deadline' => $request->deadline,
                     'basis' => $request->basis,
+                    'implications' => $request->implications,
                 );
                 if( $request->parent_id ){
                     $data['parent_id'] = $request->parent_id;
