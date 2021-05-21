@@ -159,7 +159,7 @@ class ProductTemplatesController extends Controller
      */
     public function apiIndex(Request $request)
     {
-        $record = \App\ProductTemplate::latest()->first();
+        $record = \App\ProductTemplate::where('is_processed','!=',2)->where('template_status','python')->latest()->first();
 
 
         if(!$record) {

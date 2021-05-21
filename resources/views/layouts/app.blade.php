@@ -1144,7 +1144,9 @@ $metaData = '';
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('image.grid') }}">Lifestyle Image Grid</a>
                                         </li>
-
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('image.grid.new') }}">Lifestyle Image Grid New</a>
+                                        </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('image.grid.approved') }}">Final Images</a>
                                         </li>

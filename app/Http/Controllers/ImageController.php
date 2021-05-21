@@ -124,55 +124,55 @@ class ImageController extends Controller
       $category = '';
       $price = null;
 
-      if ($request->brand[0] != null) {
-         $images = $images->whereIn('brand', $request->brand);
+      // if ($request->brand[0] != null) {
+      //    $images = $images->whereIn('brand', $request->brand);
 
-         $brand = $request->brand[0];
-        }
+      //    $brand = $request->brand[0];
+      //   }
 
-      if ($request->category[0] != null && $request->category[0] != 1) {
-         $is_parent = Category::isParent($request->category[0]);
-         $category_children = [];
+      // if ($request->category[0] != null && $request->category[0] != 1) {
+      //    $is_parent = Category::isParent($request->category[0]);
+      //    $category_children = [];
 
-         if ($is_parent) {
-             $childs = Category::find($request->category[0])->childs()->get();
+      //    if ($is_parent) {
+      //        $childs = Category::find($request->category[0])->childs()->get();
 
-             foreach ($childs as $child) {
-                 $is_parent = Category::isParent($child->id);
+      //        foreach ($childs as $child) {
+      //            $is_parent = Category::isParent($child->id);
 
-                 if ($is_parent) {
-                     $children = Category::find($child->id)->childs()->get();
+      //            if ($is_parent) {
+      //                $children = Category::find($child->id)->childs()->get();
 
-                     foreach ($children as $chili) {
-                         array_push($category_children, $chili->id);
-                     }
-                 } else {
-                     array_push($category_children, $child->id);
-                 }
-             }
-         } else {
-             array_push($category_children, $request->category[0]);
-         }
+      //                foreach ($children as $chili) {
+      //                    array_push($category_children, $chili->id);
+      //                }
+      //            } else {
+      //                array_push($category_children, $child->id);
+      //            }
+      //        }
+      //    } else {
+      //        array_push($category_children, $request->category[0]);
+      //    }
 
-                $images = $images->whereIn('category', $category_children);
+      //           $images = $images->whereIn('category', $category_children);
 
-         $category = $request->category[0];
-        }
+      //    $category = $request->category[0];
+      //   }
 
-      // dd($images->get());
+      // // dd($images->get());
 
-      if ($request->price != null) {
-            $exploded = explode(',', $request->price);
-            $min = $exploded[0];
-            $max = $exploded[1];
+      // if ($request->price != null) {
+      //       $exploded = explode(',', $request->price);
+      //       $min = $exploded[0];
+      //       $max = $exploded[1];
 
-            if ($min != '0' || $max != '10000000') {
-                    $images = $images->whereBetween('price_inr_special', [$min, $max]);
-            }
+      //       if ($min != '0' || $max != '10000000') {
+      //               $images = $images->whereBetween('price_inr_special', [$min, $max]);
+      //       }
 
-            $price[0] = $min;
-            $price[1] = $max;
-        }
+      //       $price[0] = $min;
+      //       $price[1] = $max;
+      //   }
 
       $brands = Brand::getAll();
       $selected_categories = $request->category ? $request->category : 1;
