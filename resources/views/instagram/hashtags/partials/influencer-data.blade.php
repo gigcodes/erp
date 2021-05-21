@@ -19,7 +19,7 @@
         </td>
 
         <td class="expand-row-msg" data-name="email" data-id="{{$influencer->id}}">
-	            	<span class="show-short-email-{{$influencer->id}}">
+	            	<span onclick="showModal('{{$influencer->email}}','Email')" class="show-short-email-{{$influencer->id}}">
                   {{ str_limit($influencer->email, 12, '...')}}
                 </span>
 	            	<span style="word-break:break-all;" class="show-full-email-{{$influencer->id}} hidden">
@@ -28,7 +28,7 @@
         </td>
 
         <td class="expand-row-msg" data-name="keyword" data-id="{{$influencer->id}}">
-	      	<span class="show-short-keyword-{{$influencer->id}}">
+	      	<span onclick="showModal('{{$influencer->keyword}}','Influencer Name')" class="show-short-keyword-{{$influencer->id}}">
             {{ str_limit($influencer->keyword, 12, '...')}}
           </span>
 		      <span style="word-break:break-all;" class="show-full-keyword-{{$influencer->id}} hidden">
@@ -48,11 +48,18 @@
         <!-- <td>{{ $influencer->twitter }}</td> -->
         <!-- <td>{{ $influencer->facebook }}</td> -->
         <td class="expand-row-msg" data-name="country" data-id="{{$influencer->id}}">
-            <span class="show-short-country-{{$influencer->id}}">{{ str_limit($influencer->country, 8, '...')}}</span>
+            <span 
+                  onclick="showModal('{{$influencer->country}}' , 'Country')"
+                  class="show-short-country-{{$influencer->id}}"
+                  style="cursor:pointer"
+                  >
+                  {{ str_limit($influencer->country, 8, '...')}}
+            </span>
         <span style="word-break:break-all;" class="show-full-country-{{$influencer->id}} hidden">{{$influencer->country}}</span>
         </td>
         <td class="expand-row-msg" data-name="description" data-id="{{$influencer->id}}">
-        <span class="show-short-description-{{$influencer->id}}">{{ str_limit($influencer->description, 12, '...')}}</span>
+
+        <span onclick="showModal( '{{$influencer->description}}' , 'Description' )" class="show-short-description-{{$influencer->id}}">{{ str_limit($influencer->description, 17, '...')}}</span>
         <span style="word-break:break-all;" class="show-full-description-{{$influencer->id}} hidden">{{$influencer->description}}</span>
         </td>  
 
@@ -200,3 +207,34 @@
 
 
 
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-body-content">
+     
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+  function showModal( body , name ){
+      $('#exampleModalLabel').html( name );
+      $('#modal-body-content').html( body );
+      $('#exampleModal').modal();
+  }
+</script>
