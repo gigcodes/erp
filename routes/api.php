@@ -228,3 +228,5 @@ Route::post('wishlist/create','\App\Http\Controllers\Api\v1\ProductController@wi
 Route::post('wishlist/remove','\App\Http\Controllers\Api\v1\ProductController@wishListRemove');
 
 Route::post('magento/order-create','MagentoCustomerReferenceController@createOrder');
+
+Route::post('scraper-images-save','scrapperPhyhon@imageSave');
