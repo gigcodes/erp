@@ -332,8 +332,26 @@ class EmailController extends Controller
        }
 
        $email = Email::find($request->forward_email_id);
+
+       $emailClass = (new ForwardEmail($email, $email->message))->build();
+
+        $email             = \App\Email::create([
+            'model_id'         => $email->id,
+            'model_type'       => \App\Email::class,
+            'from'             => @$emailClass->from[0]['address'],
+            'to'               => $request->email,
+            'subject'          => $emailClass->subject,
+            'message'          => $emailClass->render(),
+            'template'         => 'forward-email',
+            'additional_data'  => "",
+            'status'           => 'pre-send',
+            'store_website_id' => null,
+            'is_draft'         => 1
+        ]);
+
+        \App\Jobs\SendEmail::dispatch($email);
        
-       Mail::to($request->email)->send(new ForwardEmail($email, $email->message));
+       //Mail::to($request->email)->send(new ForwardEmail($email, $email->message));
 
        return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
    }

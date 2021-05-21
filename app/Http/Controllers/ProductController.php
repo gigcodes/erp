@@ -2936,7 +2936,7 @@ class ProductController extends Controller
         //$link = $image->getUrl();
 
 
-        //$link = 'https://erp.amourint.com/uploads/15d428fb0c6944.jpg';
+        //$link = 'https://erp.theluxuryunlimited.com/uploads/15d428fb0c6944.jpg';
         // $vision = LogGoogleVision::where('image_url','LIKE','%'.$link.'%')->first();
         // if($vision != null){
         //    $keywords = preg_split('/[\n,]+/',$vision->response);

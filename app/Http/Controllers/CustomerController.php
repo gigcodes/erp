@@ -2397,7 +2397,7 @@ class CustomerController extends Controller
         return response()->json(["code" => 1, "message" => "Broadcast run successfully"]);
     }
 
-    public function dispatchBroadSendPrice($customer, $product_ids)
+    public function dispatchBroadSendPrice($customer, $product_ids, $dimention = false)
     {
         if (!empty($customer) && is_numeric($customer->phone)) {
             \Log::info("Customer with phone found for customer id : ". $customer->id." and product ids ".json_encode($product_ids));
@@ -2423,7 +2423,12 @@ class CustomerController extends Controller
 
                 $requestData = new Request();
                 $requestData->setMethod('POST');
-                $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $product_ids]);
+                if($dimention){
+                    $requestData->request->add(['customer_id' => $customer->id, 'dimension' => true, 'lead_id' => $quick_lead->id, 'selected_product' => $product_ids]);
+                }else{
+                    $requestData->request->add(['customer_id' => $customer->id, 'lead_id' => $quick_lead->id, 'selected_product' => $product_ids]);
+                }
+                
 
                 $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
 

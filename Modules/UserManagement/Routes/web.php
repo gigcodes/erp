@@ -15,6 +15,7 @@
 Route::prefix('user-management')->middleware('auth')->group(function() {
     Route::get('/', 'UserManagementController@index')->name("user-management.index");
     Route::post('/request-list', 'UserManagementController@permissionRequest')->name("user-management.permission.request");
+    Route::post('/task-activity', 'UserManagementController@taskActivity')->name("user-management.task.activity");
     Route::post('modifiy-permission', 'UserManagementController@modifiyPermission')->name("user-management.modifiy.permission");
     Route::get('/edit/{id}', 'UserManagementController@edit')->name("user-management.edit");
     Route::get('/role/{id}', 'UserManagementController@getRoles')->name("user-management.get-role");

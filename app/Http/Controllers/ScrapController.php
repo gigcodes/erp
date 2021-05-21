@@ -85,24 +85,30 @@ class ScrapController extends Controller
             'data' => 'required|array',
         ]);
         $data = $request->get('data');
+        $product_id = $request->get('product_id');
 
         $images = [];
 
         foreach ($data as $key => $datum) {
             try {
                 $imgData = file_get_contents($datum);
+
+                $fileName = md5(time().microtime()) . '.png';
+                Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
+
+                $i           = new Image();
+                $i->filename = $fileName;
+                if( !empty($product_id) ){
+                    $i->product_id = $product_id;
+                }
+                $i->save();
+
+                $images[] = $fileName;
             } catch (\Exception $exception) {
+                \Log::error('Image save :: '.$exception->getMessage());
                 continue;
             }
 
-            $fileName = md5(time()) . '.png';
-            Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
-
-            $i           = new Image();
-            $i->filename = $fileName;
-            $i->save();
-
-            $images[] = $fileName;
         }
 
         $downloaded = true;
@@ -736,7 +742,7 @@ class ScrapController extends Controller
     public function saveFromNewSupplier(Request $request)
     {
         \Log::channel('scraper')->debug("\n##!EXTERNAL-SCRAPER!##\n" . json_encode($request->all()) . "\n##!EXTERNAL-SCRAPER!##\n");
-
+        
         // Overwrite website
         //$request->website = 'internal_scraper';
 
@@ -747,9 +753,9 @@ class ScrapController extends Controller
         // Find product
         $product = Product::find($receivedJson->id);
 
+
         // Get brand
         $brand = Brand::where('name', $receivedJson->brand)->first();
-
         // No brand found?
         if (!$brand) {
             // Check for reference
@@ -762,7 +768,6 @@ class ScrapController extends Controller
                 ]);
             }
         }
-
         //add log in scraped product
         $website        = isset($receivedJson->website) ? $receivedJson->website : "";
         $scrapedProduct = null;
@@ -818,7 +823,7 @@ class ScrapController extends Controller
             ], 400);
 
         }
-
+        
         if (isset($receivedJson->status)) {
 
             // Search For ScraperQueue
@@ -843,7 +848,7 @@ class ScrapController extends Controller
         $product->save();*/
 
         $input = get_object_vars($receivedJson);
-
+        
         // Validate request
         $validator = Validator::make($input, [
             'id'          => 'required',
@@ -852,6 +857,7 @@ class ScrapController extends Controller
             'description' => 'required',
         ]);
 
+        
         // Return an error if the validator fails
         if ($validator->fails()) {
 
@@ -880,13 +886,13 @@ class ScrapController extends Controller
             ];
 
             $formatter = (new \App\Services\Products\ProductsCreator)->getGeneralDetails($propertiesArray);
-
+        
             $color       = \App\ColorNamesReference::getColorRequest($formatter['color'], $receivedJson->url, $receivedJson->title, $receivedJson->description);
             $composition = $formatter['composition'];
             if (!empty($formatter['composition'])) {
                 $composition = \App\Compositions::getErpName($formatter['composition']);
             }
-
+        
             $description = $receivedJson->description;
             if (!empty($receivedJson->description)) {
                 $description = \App\DescriptionChange::getErpName($receivedJson->description);
@@ -965,6 +971,7 @@ class ScrapController extends Controller
 
             //$product->status_id = StatusHelper::$autoCrop;
             // Save
+            $product->status_id = StatusHelper::$externalScraperFinished;
             $product->save();
 
             // Check if we have images
@@ -974,6 +981,7 @@ class ScrapController extends Controller
                 $supplierModel = Supplier::leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($receivedJson) {
                     $query->where('supplier', '=', $receivedJson->website)->orWhere('sc.scraper_name', '=', $receivedJson->website);
                 })->first();
+
 
                 if ($supplierModel) {
                     $productSupplier = \App\ProductSupplier::where("supplier_id", $supplierModel->id)->where("product_id", $product->id)->first();
@@ -1887,7 +1895,7 @@ class ScrapController extends Controller
             ->leftJoin('suppliers', function ($join) {
                 $join->on('products.supplier_id', '=', 'suppliers.id');
             })
-            ->select(["products.id", "products.sku", "products.supplier", "brands.name"])
+            ->select(["products.id", "products.sku", "products.supplier","products.status_id", "brands.name"])
             ->orderBy('brands.priority', 'desc')
             ->orderBy('suppliers.priority', 'desc')
             ->latest("products.created_at")
@@ -1895,7 +1903,9 @@ class ScrapController extends Controller
 
             ->get()
             ->toArray();
-
+        foreach ($products as $value) {
+            Product::where('id', $value['id'])->update(['status_id' => StatusHelper::$sendtoExternalScraper]);
+        }
         return response()->json($products);
     }
 

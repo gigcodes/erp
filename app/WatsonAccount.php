@@ -26,6 +26,8 @@ class WatsonAccount extends Model
         'api_key',
         'work_space_id',
         'assistant_id',
+        'user_name',
+        'password',
         'url',
         'is_active',
         'watson_push'

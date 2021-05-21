@@ -372,6 +372,7 @@
                 }
             });
         });
+
         $(document).on("click",".change-whatsapp",function(){
             $("#modal-change-whatsapp").modal("show");
         });
@@ -422,5 +423,6 @@
             $("p.message:containsi('"+searchedText+"')").css("background-color", "yellow");
         }
     });
+
     </script>
 @endsection

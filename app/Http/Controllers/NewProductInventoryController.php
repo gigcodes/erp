@@ -147,6 +147,7 @@ class NewProductInventoryController extends Controller
         }
 
         $q  = $request->get('name');
+        $id = $request->get('id');
 
         $googleData = $this->googleImageScraper->scrapGoogleImages($q, 'lifestyle', 10);
         
@@ -155,8 +156,10 @@ class NewProductInventoryController extends Controller
             $requestData->setMethod('POST');
             $requestData->request->add([
                 'data' => $googleData,
+                'product_id' => $id,
             ]);
-            return app('App\Http\Controllers\ScrapController')->downloadImages($requestData);
+            app('App\Http\Controllers\ScrapController')->downloadImages($requestData);
+            return back()->with('message', 'Images has been saved on lifestyle grid');
         }
         return back()->with('error', 'No any images found on google');
     }

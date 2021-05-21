@@ -66,7 +66,8 @@
                     @if(auth()->user()->isInCustomerService())
                         #{{ $customerId }} 
                     @else
-                        {{ \App\Customer::find($customerId)->name }} 
+                        @php $customer = \App\Customer::find($customerId)  @endphp
+                        {{  ($customer) ? $customer->name : "" }} 
                     @endif
                 @endif</h2>
 

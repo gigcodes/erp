@@ -156,6 +156,7 @@ a {
 					<?php if(Auth::user()->isAdmin()) { ?>
 						<button title="Create database" type="button" class="btn btn-create-database pd-5" data-id="{{:prop.id}}"> <i class="fa fa-database" aria-hidden="true"></i></button>
 					<?php } ?>
+					<button title="Task acitivity" type="button" class="btn task-activity pd-5" data-id="{{:prop.id}}"><i class="fa fa-history"></i></button>
 					</td>
 			      </tr>
 			    {{/props}}  

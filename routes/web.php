@@ -100,6 +100,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
 
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
     Route::get('live-laravel-logs', 'LaravelLogController@liveLogs')->name('logging.live.logs');
+    Route::get('keyword-create', 'LaravelLogController@LogKeyword');
     Route::post('assign', 'LaravelLogController@assign')->name('logging.assign');
     Route::get('sku-logs', 'Logging\LogScraperController@logSKU')->name('logging.scrap.log');
     Route::get('sku-logs-errors', 'Logging\LogScraperController@logSKUErrors')->name('logging.sku.errors.log');
@@ -192,6 +193,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('permissions/grandaccess/users', 'PermissionController@users')->name('permissions.users');
     Route::get('unauthorized', 'RoleController@unAuthorized');
     Route::get('users/logins', 'UserController@login')->name('users.login.index');
+    Route::post('users/status-change', 'UserController@statusChange');
+    Route::get('users/loginips', 'UserController@loginIps')->name('users.login.ips');
     Route::get('permissions/grandaccess/users', 'PermissionController@users')->name('permissions.users');
     Route::get('userlogs', 'UserLogController@index')->name('userlogs.index');
     Route::get('userlogs/{$id}', 'UserLogController@index');

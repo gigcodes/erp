@@ -480,7 +480,7 @@ class VendorController extends Controller
         $user->save();
         $role = Role::where('name', 'Developer')->first();
         $user->roles()->sync($role->id);
-        $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.amourint.com/ username: ' . $email . ' password:  ' . $password . '';
+        $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.theluxuryunlimited.com/ username: ' . $email . ' password:  ' . $password . '';
         app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($request->phone,$user->whatsapp_number, $message);
       } else {
         if(!empty($source)) {
@@ -1114,7 +1114,7 @@ class VendorController extends Controller
       $user->save();
       $role = Role::where('name', 'Developer')->first();
       $user->roles()->sync($role->id);
-      $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.amourint.com/ username: ' . $email . ' password:  ' . $password . '';
+      $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.theluxuryunlimited.com/ username: ' . $email . ' password:  ' . $password . '';
       app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($vendor->phone, '', $message);
       return response()->json(["code" => 200, "data" => "User Created"]);
     } else {

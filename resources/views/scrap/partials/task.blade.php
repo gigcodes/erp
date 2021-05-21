@@ -3,7 +3,9 @@
            {!! csrf_field() !!}
           <input type="text" name="task_subject" class="form-control mb-2 mr-sm-2" placeholder="Enter task subject" id="task-subject">
           <input type="text" name="task_description" class="form-control mb-2 mr-sm-2" placeholder="Enter Task Description" id="task-description">
-          <?php echo Form::select("assigned_to",["" => "Select-user"] + \App\User::pluck("name","id")->toArray(),null, ["class" => "form-control mb-2 mr-sm-2 select2 col-md-2"]); ?>
+        
+          <?php echo Form::select("assigned_to",["" => "Select-user"] + \App\User::where('id', '!=', Auth::user()->id)->pluck("name","id")->toArray(),null, ["class" => "form-control mb-2 mr-sm-2 select2 col-md-2"]); ?>
+         
           <button type="submit" class="btn btn-secondary mb-2 btn-create-task">Submit</button>
         </form>
     </div>  

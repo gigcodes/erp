@@ -1248,7 +1248,7 @@ class TaskModuleController extends Controller {
 	public function show($id)
 	{
 		$task = Task::find($id);
-
+		$chatMessages = ChatMessage::where('task_id',$id)->get();
 		if ((!$task->users->contains(Auth::id()) && $task->is_private == 1) || ($task->assign_from != Auth::id() && $task->contacts()->count() > 0) || (!$task->users->contains(Auth::id()) && $task->assign_from != Auth::id() && Auth::id() != 6)) {
 			return redirect()->back()->withErrors("This task is private!");
 		}
@@ -1273,6 +1273,7 @@ class TaskModuleController extends Controller {
 			'categories'	=> $categories,
 			'taskNotes'	=> $taskNotes,
 			'hiddenRemarks'	=> $hiddenRemarks,
+			'chatMessages'	=> $chatMessages,
 		]);
 	}
 

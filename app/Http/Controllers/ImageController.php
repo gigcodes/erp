@@ -100,9 +100,91 @@ class ImageController extends Controller
   		                                        ->selected($selected_categories)
   		                                        ->renderAsDropdown();
 
-      $images = $images->paginate(Setting::get('pagination'));
-
+      $images = $images->orderBy('id','desc')->with('product')->paginate(Setting::get('pagination'));
+      
       return view('images.index')->with([
+        'images'  => $images,
+        'brands'  => $brands,
+        'category_selection'  => $category_selection,
+        'brand'  => $brand,
+        'category'  => $category,
+        'price'  => $price
+      ]);
+    }
+
+    public function indexNew(Request $request)
+    {
+      if (!isset($request->sortby) || $request->sortby == 'asc') {
+        $images = Images::where('status', '1')->whereNull('approved_date');
+      } else {
+        $images = Images::where('status', '1')->whereNull('approved_date')->latest();
+      }
+
+      $brand = '';
+      $category = '';
+      $price = null;
+
+      if ($request->brand[0] != null) {
+         $images = $images->whereIn('brand', $request->brand);
+
+         $brand = $request->brand[0];
+        }
+
+      if ($request->category[0] != null && $request->category[0] != 1) {
+         $is_parent = Category::isParent($request->category[0]);
+         $category_children = [];
+
+         if ($is_parent) {
+             $childs = Category::find($request->category[0])->childs()->get();
+
+             foreach ($childs as $child) {
+                 $is_parent = Category::isParent($child->id);
+
+                 if ($is_parent) {
+                     $children = Category::find($child->id)->childs()->get();
+
+                     foreach ($children as $chili) {
+                         array_push($category_children, $chili->id);
+                     }
+                 } else {
+                     array_push($category_children, $child->id);
+                 }
+             }
+         } else {
+             array_push($category_children, $request->category[0]);
+         }
+
+                $images = $images->whereIn('category', $category_children);
+
+         $category = $request->category[0];
+        }
+
+      // // dd($images->get());
+
+      if ($request->price != null) {
+            $exploded = explode(',', $request->price);
+            $min = $exploded[0];
+            $max = $exploded[1];
+
+            if ($min != '0' || $max != '10000000') {
+                    $images = $images->whereBetween('price_inr_special', [$min, $max]);
+            }
+
+            $price[0] = $min;
+            $price[1] = $max;
+        }
+
+      $brands = Brand::getAll();
+      $selected_categories = $request->category ? $request->category : 1;
+        $category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple'])
+                                                ->selected($selected_categories)
+                                                ->renderAsDropdown();
+
+      $images = $images->select('images.*')->orderBy('id','desc')
+                ->groupBy(\DB::raw('ifnull(product_id,id)'))
+                ->paginate(Setting::get('pagination'));
+      // dd($images);
+      return view('images.index-new')->with([
         'images'  => $images,
         'brands'  => $brands,
         'category_selection'  => $category_selection,

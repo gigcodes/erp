@@ -233,10 +233,10 @@ class ReturnExchangeController extends Controller
         $items = $returnExchange->items();
         foreach ($items as &$item) {
             $item["created_at_formated"]      = date('d-m', strtotime($item->created_at));
-            $item["date_of_refund_formated"]  = date('d-m-Y', strtotime($item->date_of_refund));
-            $item["dispatch_date_formated"]   = date('d-m-Y', strtotime($item->dispatch_date));
-            $item["date_of_request_formated"] = date('d-m-Y', strtotime($item->date_of_request));
-            $item["date_of_issue_formated"]   = date('d-m-Y', strtotime($item->date_of_issue));
+            $item["date_of_refund_formated"]  = !empty($item->date_of_refund) ? date('d-m-Y', strtotime($item->date_of_refund)) : '-';
+            $item["dispatch_date_formated"]   = !empty($item->dispatch_date) ? date('d-m-Y', strtotime($item->dispatch_date)) : '-';
+            $item["date_of_request_formated"] = !empty($item->date_of_request) ? date('d-m-Y', strtotime($item->date_of_request)) : '-';
+            $item["date_of_issue_formated"]   = !empty($item->date_of_issue) ? date('d-m-Y', strtotime($item->date_of_issue)) : '-';
 
         }
 
