@@ -138,6 +138,7 @@
         <thead>
           <th>#ID</th>
           <th>Category</th>
+          <th>Brand</th>
           <th>Price</th>
           <th>Product name</th>
           <th>Date</th>
@@ -147,8 +148,9 @@
           @foreach($images as $image)
             <tr>
               <td>{{ $image->id }}</td>
-              <td>{{ $image->category }}</td>
-              <td>{{ $image->price }}</td>
+              <td>{{  ( !empty($image->product) ) ?  $image->product->categories->title : $image->category }}</td>
+              <td>{{  ( !empty($image->product) ) ?  $image->product->brands->name : $image->brand }}</td>
+              <td>{{ ( !empty($image->product) ) ?  $image->product->price :$image->price }}</td>
               <td>{{ $image->product->name ?? '--' }}</td>
               <td>{{ date( 'd-M-Y' ,strtotime($image->created_at))  }}</td>
               <td>
