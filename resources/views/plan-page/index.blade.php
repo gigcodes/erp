@@ -4,6 +4,22 @@
 @section('title', 'Plans')
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
 @section('content')
+
+<style>
+
+.edit-plan{background: transparent;color: #000;border:0;padding:10px 5px 5px 10px;font-size:15px;}
+.delete-btn{padding:7px 5px 5px;border:0;}
+.edit-plan:hover ,.add-sub-plan:hover { background: transparent; color: #000 !important; border: 0; }
+.add-sub-plan {background: transparent;color: #000;border:0;font-size:20px;padding:10px 5px 5px;}
+.edit-plan:focus, .add-sub-plan:focus,.delete-btn:focus { background: transparent; color: #000 !important; border: none; box-shadow: none; outline: 0; }
+.edit-plan:active, .add-sub-plan:active, .delete-btn:active { background-color: transparent !important; color: #000 !important; border: none; box-shadow: none !important; outline: 0 !important; }
+.add-sub-plan:focus-visible, .edit-sub-plan:focus-visible{ outline: 0; }
+.expand-2 > td:first-child { border-bottom: 0 !important; border-top: 0; }
+table#store_website-analytics-table tr td:last-child { width: 150px; }
+.r-date{width:120px;}
+.no-border {border-bottom: 0 !important; border-top: 0 !important;}
+
+</style>
 <div class="row mb-5">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Plans page</h2>
@@ -55,6 +71,8 @@
                 <th>Description</th>
                 <th>Priority</th>
                 <th>Budget</th>
+                <th>Basis</th>
+                <th>Implications</th>
                 <th>DeadLine</th>
                 <th>status</th>
                 <th>Date</th>
@@ -78,12 +96,14 @@
                 </td>
                 <td>{{$record->priority}}</td>
                 <td>{{$record->budget}}</td>
-                <td>{{$record->deadline}}</td>
+                <td>{{$record->basis}}</td>
+                <td>{{$record->implications}}</td>
+                <td class="r-date">{{$record->deadline}}</td>
                 <td>{{$record->status}}</td>
-                <td>{{$record->date}}</td>
-                <td>
+                <td class="r-date">{{$record->date}}</td>
+                <td class="actions-main">
                     <button type="button" class="btn btn-secondary edit-plan" data-id="{{$record->id}}"><i class="fa fa-edit"></i></button>
-                    <a href="{{route('plan.delete',$record->id)}}" class="btn btn-image" title="Delete Record"><img src="/images/delete.png"></a>
+                    <a href="{{route('plan.delete',$record->id)}}" class="btn btn-image delete-btn" title="Delete Record"><img src="/images/delete.png"></a>
                     <button title="Add step" type="button" class="btn btn-secondary btn-sm add-sub-plan" data-id="{{$record->id}}" data-toggle="modal" data-target="#myModal">+</button>
                     <button title="Open step" type="button" class="btn preview-attached-img-btn btn-image no-pd" data-id="{{$record->id}}">
                         <img src="/images/forward.png" style="cursor: default;">
@@ -91,7 +111,7 @@
                 </td>
             </tr>
             <tr class="expand-{{$record->id}} hidden">
-                <th colspan="4"></th>
+                <th colspan="6"></th>
                 <th>Remark</th>
                 <th>description</th>
                 <th>priority</th>
@@ -100,7 +120,7 @@
                 <th>Action</th>
                 @foreach( $record->subList( $record->id ) as $sublist)
                     <tr class="expand-{{$record->id}} hidden" >
-                        <td colspan="4"></td>
+                        <td colspan="6" class="no-border"></td>
                         <td width="10%">
                             <span class="toggle-title-box has-small" data-small-title="<?php echo substr($sublist->remark, 0, 10).'..' ?>" data-full-title="<?php echo ($sublist->remark) ? $sublist->remark : '' ?>">
                                 <?php
@@ -221,19 +241,21 @@
                       </div>
                   </div>
                   <div class="row subject-field">
-                      <div class="col-md-4">
+                      <div class="col-md-6">
                          <div class="form-group">
                             <label  class="col-form-label">Budget:</label>
                             <input type="number" name="budget" class="form-control">
                           </div>
                       </div>
-                      <div class="col-md-4">
+                      <div class="col-md-6">
                          <div class="form-group">
                             <label class="col-form-label">Deadline:</label>
                             <input type="date" name="deadline" class="form-control">
                           </div>
                       </div>
-                      <div class="col-md-4">
+                  </div>
+                  <div class="row">
+                  <div class="col-md-6">
                          <div class="form-group">
                             <label class="col-form-label">Basis:</label>
                             <select class="form-control" name="basis">
@@ -242,6 +264,12 @@
                                     <option value="{{$value->status}}">{{$value->status}}</option>
                                 @endforeach;
                             </select>
+                          </div>
+                      </div>
+                      <div class="col-md-6">
+                         <div class="form-group">
+                            <label class="col-form-label">Implications</label>
+                            <input type="text" name="implications" class="form-control">
                           </div>
                       </div>
                   </div>
