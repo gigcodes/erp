@@ -19,6 +19,7 @@ class CreateLearningModulesTable extends Migration
             $table->longText('title');
             $table->integer('is_approved')->nullable();
             $table->integer('is_active')->nullable();
+            $table->timestamp('deleted_at')->nullable();
             $table->timestamps();
         });
     }
