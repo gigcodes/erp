@@ -60,7 +60,8 @@ class BookshelfController extends Controller
 
         $this->entityContextManager->clearShelfContext();
         $this->setPageTitle(trans('bookstack::entities.shelves'));
-        return view('bookstack::shelves.index', [
+        // return view('bookstack::shelves.index', [
+            return view('bookstack::shelves.index2', [
             'shelves' => $shelves,
             'recents' => $recents,
             'popular' => $popular,
@@ -126,6 +127,24 @@ class BookshelfController extends Controller
         $this->setPageTitle($shelf->getShortName());
 
         return view('bookstack::shelves.show', [
+            'shelf' => $shelf,
+            'books' => $books,
+            'activity' => Activity::entityActivity($shelf, 20, 1)
+        ]);
+    }
+    public function showShelf(string $slug)
+    {
+        /** @var Bookshelf $shelf */
+        $shelf = $this->entityRepo->getBySlug('bookshelf', $slug);
+        $this->checkOwnablePermission('book-view', $shelf);
+
+        $books = $this->entityRepo->getBookshelfChildren($shelf);
+        Views::add($shelf);
+        $this->entityContextManager->setShelfContext($shelf->id);
+
+        $this->setPageTitle($shelf->getShortName());
+
+        return response()->json([
             'shelf' => $shelf,
             'books' => $books,
             'activity' => Activity::entityActivity($shelf, 20, 1)

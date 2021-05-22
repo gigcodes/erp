@@ -38,6 +38,7 @@ Route::group(['middleware' => 'auth'], function () {
 
             Route::get('/{shelfSlug}/create-book', 'BookController@create');
             Route::post('/{shelfSlug}/create-book', 'BookController@store');
+            Route::get('/show/{slug}', 'BookshelfController@showShelf');
         });
 
         Route::get('/create-book', 'BookController@create');
