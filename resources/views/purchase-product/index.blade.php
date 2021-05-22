@@ -173,7 +173,7 @@ color:black!important;
       @foreach ($orders_array as $key => $order)
                 @php
                 if($order->supplier_discount_info_id) {
-                  $supplier = \App\SupplierDiscountInfo::join('suppliers','suppliers.id','supplier_discount_infos.supplier_id')->where('supplier_discount_infos.id',$order->supplier_discount_info_id)->select(['suppliers.*','product_suppliers.supplier_link'])->get();
+                  $supplier = \App\SupplierDiscountInfo::join('suppliers','suppliers.id','supplier_discount_infos.supplier_id')->where('supplier_discount_infos.id',$order->supplier_discount_info_id)->select(['suppliers.*'])->get();
                 }
                 else {
                   $supplier = \App\ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')->where('product_suppliers.product_id',$order->product_id)->select(['suppliers.*','product_suppliers.supplier_link'])->get();

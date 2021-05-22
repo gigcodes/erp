@@ -341,39 +341,38 @@ class SupplierController extends Controller
                 ->whereRaw("find_in_set(" . self::DEFAULT_FOR . ",default_for)")
                 ->first();
 
-            if ($task_info) {
-                $data["whatsapp_number"] = $task_info->number;
-            }
-
-        }
+      if($task_info){
+			   $data["whatsapp_number"] = $task_info->number;
+      }
+		
+		}
         $scrapper_name = preg_replace("/\s+/", "", $request->supplier);
-        $scrapper_name = strtolower($scrapper_name);
-        $supplier      = Supplier::where('supplier', $scrapper_name)->first();
-        if (empty($supplier)) {
-            $supplier = Supplier::create($data);
-            if ($supplier->id > 0) {
-                $scraper = \App\Scraper::create([
-                    "supplier_id"        => $supplier->id,
-                    "scraper_name"       => $request->get("scraper_name", $scrapper_name),
-                    "inventory_lifetime" => $request->get("inventory_lifetime", ""),
-                ]);
-            }
+        $supplier = Supplier::where('supplier',$scrapper_name)->get();
+        if(empty($supplier)){
+          $supplier = Supplier::create($data);
+          if ($supplier->id > 0) {
+              $scraper = \App\Scraper::create([
+                  "supplier_id" => $supplier->id,
+                  "scraper_name" => $request->get("scraper_name", $scrapper_name),
+                  "inventory_lifetime" => $request->get("inventory_lifetime", ""),
+              ]);
+          }
+          $supplier->scrapper = $scraper->id;
+          $supplier->save();
+        }else{
+          $scraper = \App\Scraper::where('scraper_name',$scrapper_name)->get();
+          if(empty($scraper)){
+            $scraper = \App\Scraper::create([
+                  "supplier_id" => $supplier->id,
+                  "scraper_name" => $request->get("scraper_name", $scrapper_name),
+                  "inventory_lifetime" => $request->get("inventory_lifetime", ""),
+              ]);
             $supplier->scrapper = $scraper->id;
             $supplier->save();
-        } else {
-            $scraper = \App\Scraper::where('scraper_name', $scrapper_name)->first();
-            if (empty($scraper)) {
-                $scraper = \App\Scraper::create([
-                    "supplier_id"        => $supplier->id,
-                    "scraper_name"       => $request->get("scraper_name", $scrapper_name),
-                    "inventory_lifetime" => $request->get("inventory_lifetime", ""),
-                ]);
-                $supplier->scrapper = $scraper->id;
-                $supplier->save();
-            } else {
-                $supplier->scrapper = $scraper->id;
-                $supplier->save();
-            }
+          }else{
+            $supplier->scrapper = $scraper->id;
+            $supplier->save();
+          }
         }
 
         if (!empty($source)) {
@@ -391,6 +390,7 @@ class SupplierController extends Controller
      */
     public function show($id)
     {
+
         $supplier               = Supplier::find($id);
         $user                   = User::where('id', $supplier->updated_by)->first();
         $suppliers              = Supplier::select(['id', 'supplier'])->where('supplier_status_id', 1)->orderby('supplier', 'asc')->get();
