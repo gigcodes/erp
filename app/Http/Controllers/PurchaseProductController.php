@@ -20,7 +20,10 @@ use App\Exports\EnqueryExport;
 use Storage;
 use App\Mails\Manual\PurchaseExport;
 use Mail;
+use App\Email;
 use App\InventoryStatus;
+use App\ChatMessage;
+
 class PurchaseProductController extends Controller
 {
     /**
@@ -328,6 +331,9 @@ class PurchaseProductController extends Controller
     public function sendProducts($type,$supplier_id,Request $request)
     {
         if($type == 'inquiry') {
+
+            // ChatMessage::sendWithChatApi('919825282', null, $message);
+
             $supplier = Supplier::find($supplier_id);            
             $path = "inquiry_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_enquiry_exports.xlsx";
             $subject = 'Product enquiry';
@@ -345,7 +351,7 @@ class PurchaseProductController extends Controller
                 'subject'          => $subject,
                 'message'          => $message,
                 'template'         => 'purchase-simple',
-                'additional_data'  => json_encode(['attachment' => $path]),
+                'additional_data'  => json_encode(['attachment' => [$path]]),
                 'status'           => 'pre-send',
                 'is_draft'         => 0,
             ]);
@@ -373,7 +379,7 @@ class PurchaseProductController extends Controller
                 'subject'          => $subject,
                 'message'          => $message,
                 'template'         => 'purchase-simple',
-                'additional_data'  => json_encode(['attachment' => $path]),
+                'additional_data'  => json_encode(['attachment' => [$path]]),
                 'status'           => 'pre-send',
                 'is_draft'         => 0,
             ]);

@@ -41,8 +41,16 @@
   width:100%;
   padding: 0;
 }
-.table.table-bordered.order-table a{
-color:black!important;
+.table.table-bordered.order-table tr th a{
+  color:#000!important;
+}
+.table.table-bordered.order-table tr td a{
+  /* color:black!important; */
+  color:#757575!important;
+}
+.table.table-bordered.order-table tr td{
+  font-size:14px;
+  color:#757575;
 }
 </style>
 @endsection
@@ -155,7 +163,7 @@ color:black!important;
       <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;">
         <thead>
         <tr>
-            <th width="5%">select</th>
+            <th width="2%">select</th>
             <th width="5%"><a href="">ID</a></th>
             <th width="6%"><a href="">Customer</a></th>
             <th width="10%"><a href="">Supplier</a></th>
@@ -163,7 +171,7 @@ color:black!important;
             <th width="10%">Buying Price</th>
             <th width="10%"><a href="">Selling price</a></th>
             <th width="8%"><a href="">Order Date</a></th>
-           <th style="width: 5%"><a href="">Del Date</a></th>
+           <th width="8%"><a href="">Del Date</a></th>
             <th style="width: 8%"><a href="">Inv Status</a></th>
             <th width="10%">Action</th>
          </tr>
@@ -221,9 +229,11 @@ color:black!important;
                   $order_product = \App\OrderProduct::find($order->order_product_id);
                   @endphp
                       @if ($order_product && $order_product->product)
+                      {{$order_product->product->name}}
                         @if ($order_product->product->hasMedia(config('constants.media_tags')))
                           <span class="td-mini-container">
-                              <a data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}">View</a>
+                              <br/>
+                              <a style="color:#000!important;" data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}">View</a>
                           </span>
                         @endif
                       @endif
@@ -231,6 +241,9 @@ color:black!important;
                 </div>
               </td>
               <td class="expand-row table-hover-cell">
+              @if ($order_product && $order_product->product)
+                {{$order_product->product->price}}
+              @endif
               </td>
               <td class="expand-row table-hover-cell">
               {{$order->product_price}}
