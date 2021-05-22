@@ -176,6 +176,13 @@ class RepositoryController extends Controller
         $devTask = DeveloperTask::find($devTaskId);
 
         if ($devTask) {
+            
+            try {
+                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($devTask->user->phone, $devTask->user->phone, $branchName.':: PR has been merged', false);
+            } catch (Exception $e) {
+                \Log::error('PR merge msg ::'. $e->getMessage());                
+            }
+
             $devTask->status = 'In Review';
             $devTask->save();
         }
@@ -245,6 +252,8 @@ class RepositoryController extends Controller
                 ]
             );
         }
+
+
         return redirect(url('/github/pullRequests'))->with([
             'message' => 'Branch merged successfully',
             'alert-type' => 'success'
