@@ -7,7 +7,7 @@
 
 @foreach ($data as $key => $ticket)
 <tr style="width:100%">
-    <td>{{ ++$i }}</td>
+    <td style="width: 1%">{{ ++$i }}</td>
     <td>{{ substr($ticket->ticket_id, -5) }}</td>
     <td style="width: 65px;">
         <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->source_of_ticket }}">
@@ -27,7 +27,7 @@
     </td>
     <td style="width:77px">
         <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->message }}">
-            {{ str_limit($ticket->message,8)}}
+            {{ str_limit($ticket->message,5)}}
         </a>
     </td>
     <td>{{ $ticket->assigned_to_name }}</td>
@@ -37,9 +37,9 @@
     <td>{{ $ticket->phone_no }}</td>
     
     <td class="table-hover-cell">
-        <div class="row d-flex flex-row w-100">
-            <div class="col-10">
-                <textarea  style="width:176px;height:41px;" class="form-control" id="messageid_{{ $ticket->id }}" name="message" placeholder="Message"></textarea>
+        <div class="row d-flex flex-row w-100 justify-content-between">
+            <div class="col-9">
+                <textarea  style="width:100px;height:35px;" class="form-control" id="messageid_{{ $ticket->id }}" name="message" placeholder="Message"></textarea>
             </div>
             <div class="col-2">  
                   <button class="btn btn-sm btn-image send-message1" data-ticketid="{{ $ticket->id }}"><img src="<?php echo $base_url;?>/images/filled-sent.png"/></button>
