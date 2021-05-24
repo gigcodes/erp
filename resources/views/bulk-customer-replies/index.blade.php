@@ -51,6 +51,7 @@
         </div>
     </div>
     <div class="col-md-12">
+        <a class="btn btn-secondary change-whatsapp" href="javascript:;">Change Whatsapp</a>
         @if($searchedKeyword)
             @if($searchedKeyword->customers)
                 @php
@@ -82,7 +83,7 @@
                         </tr>
                         @foreach($customers as $key=>$customer)
                             <tr>
-                                <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}"></td>
+                                <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}" class="customer_message"></td>
                                 <td>{{ $key+1 }}</td>
                                 <td>{{ $customer->name }}</td>
                                 <td>
@@ -113,6 +114,25 @@
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
+        </div>
+    </div>
+    <div id="modal-change-whatsapp" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <form action="{{ route('bulk-messages.whatsapp-no') }}" method="post">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Change Whatsapp no?</h4>
+                    </div>
+                    <div class="modal-body">
+                        {{ csrf_field() }}
+                        <?php echo Form::select("whatsapp_no",$whatsappNos,null,["class" => "form-control select2 whatsapp_no" , "style" => "width:100%"]); ?>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default modal-change-whatsapp-btn">Change ?</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 @endsection
@@ -352,5 +372,57 @@
                 }
             });
         });
+
+        $(document).on("click",".change-whatsapp",function(){
+            $("#modal-change-whatsapp").modal("show");
+        });
+        $(document).on("click",".modal-change-whatsapp-btn",function(){
+            var customers = [];
+            var all_customers = [];
+            $(".customer_message").each(function () {
+                if ($(this).prop("checked") == true) {
+                    customers.push($(this).val());
+                }
+            });
+            if (all_customers.length != 0) {
+                customers = all_customers;
+            }
+            if (customers.length == 0) {
+                alert('Please select Customer');
+                return false;
+            }
+            var form = $(this).closest("form");
+            $.ajax({
+                type: form.attr("method"),
+                url: form.attr("action"),
+                dataType : "json",
+                data : {
+                    _token : $('meta[name="csrf-token"]').attr('content'),
+                    customers: customers.join(),
+                    whatsapp_no: form.find(".whatsapp_no").val()
+                },
+                success: function(data) {
+                    toastr['success'](data.total + ' record has been update successfully', 'success');
+                    //location.reload();
+                }
+            });
+        });
+    $.extend($.expr[':'], {
+      'containsi': function(elem, i, match, array) {
+        return (elem.textContent || elem.innerText || '').toLowerCase()
+            .indexOf((match[3] || "").toLowerCase()) >= 0;
+      }
+    });
+     $(document).on('keyup','.search_chat_pop',function(event){
+        event.preventDefault();
+        if($('.search_chat_pop').val().toLowerCase() != ''){
+            $(".message").css("background-color", "#999999");
+            page = $('.message').text().toLowerCase();
+            searchedText = $('.search_chat_pop').val().toLowerCase();
+            console.log(searchedText);
+            $("p.message:containsi('"+searchedText+"')").css("background-color", "yellow");
+        }
+    });
+
     </script>
 @endsection

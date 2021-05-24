@@ -118,6 +118,7 @@ Route::get('log-scraper', 'Logging\LogScraperController@index')->middleware('aut
 
 Route::prefix('category-messages')->middleware('auth')->group(function () {
     Route::post('bulk-messages/keyword', 'BulkCustomerRepliesController@storeKeyword');
+    Route::post('bulk-messages/keyword/update-whatsappno', 'BulkCustomerRepliesController@updateWhatsappNo')->name('bulk-messages.whatsapp-no');
     Route::post('bulk-messages/send-message', 'BulkCustomerRepliesController@sendMessagesByKeyword');
     Route::resource('bulk-messages', 'BulkCustomerRepliesController');
     Route::resource('keyword', 'KeywordToCategoryController');
@@ -192,6 +193,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('permissions/grandaccess/users', 'PermissionController@users')->name('permissions.users');
     Route::get('unauthorized', 'RoleController@unAuthorized');
     Route::get('users/logins', 'UserController@login')->name('users.login.index');
+    Route::post('users/status-change', 'UserController@statusChange');
+    Route::get('users/loginips', 'UserController@loginIps')->name('users.login.ips');
     Route::get('permissions/grandaccess/users', 'PermissionController@users')->name('permissions.users');
     Route::get('userlogs', 'UserLogController@index')->name('userlogs.index');
     Route::get('userlogs/{$id}', 'UserLogController@index');
@@ -344,7 +347,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('deliveryapproval/{id}/updateStatus', 'DeliveryApprovalController@updateStatus')->name('deliveryapproval.updateStatus');
     Route::resource('deliveryapproval', 'DeliveryApprovalController');
 
-    //	Route::resource('activity','ActivityConroller');
+    //  Route::resource('activity','ActivityConroller');
 
     // For Brand size chart
     Route::get('brand/size/chart', 'BrandSizeChartController@index')->name('brand/size/chart');
@@ -550,7 +553,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //     });
     // });
 
-    //	Route::resource('task','TaskController');
+    //  Route::resource('task','TaskController');
 
     // Instruction
     Route::get('instruction/quick-instruction', 'InstructionController@quickInstruction');
@@ -810,8 +813,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('loadEnvManager/', 'EnvController@loadEnvManager')->name('load_env_manager');
 
-    //	Route::post('productAttachToSale/{sale}/{product_id}','SaleController@attachProduct');
-    //	Route::get('productSelectionGrid/{sale}','SaleController@selectionGrid')->name('productSelectionGrid');
+    //  Route::post('productAttachToSale/{sale}/{product_id}','SaleController@attachProduct');
+    //  Route::get('productSelectionGrid/{sale}','SaleController@selectionGrid')->name('productSelectionGrid');
 
     //Attach Products
     Route::get('attachProducts/{model_type}/{model_id}/{type?}/{customer_id?}', 'ProductController@attachProducts')->name('attachProducts');
@@ -1081,7 +1084,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task-remark/{id}/delete', 'TaskModuleController@archiveTaskRemark')->name('task.archive.remark');
     Route::post('tasks/deleteTask', 'TaskModuleController@deleteTask');
     Route::post('tasks/{id}/delete', 'TaskModuleController@archiveTask')->name('task.archive');
-    //	Route::get('task/completeStatutory/{satutory_task}','TaskModuleController@completeStatutory');
+    //  Route::get('task/completeStatutory/{satutory_task}','TaskModuleController@completeStatutory');
     Route::post('task/deleteStatutoryTask', 'TaskModuleController@deleteStatutoryTask');
 
     Route::post('task/export', 'TaskModuleController@exportTask')->name('task.export');

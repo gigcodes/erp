@@ -59,6 +59,15 @@
                             {!! Form::password('confirm-password', array('placeholder' => 'Confirm Password','class' => 'form-control')) !!}
                         </div>
                     </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
+                            <strong>Logout Timeout:</strong>
+                            <input type="number" name="user_timeout" class="form-control" value="{{ $user->user_timeout }}">
+                            <small>Please addd time in seconds. 1 Minute = 60 Seconds</small>
+                        </div>
+                    </div>
+
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div class="form-group">
                             <strong>Amount of Assigned Products:</strong>

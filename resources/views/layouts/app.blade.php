@@ -3,11 +3,8 @@ $currentRoutes = \Route::current();
 //$metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
 $metaData = '';
 @endphp
-
 <!DOCTYPE html>
-
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
 <head>
 
     <meta charset="utf-8">
@@ -900,8 +897,7 @@ $metaData = '';
                                                 <a class="dropdown-item" href="{{ route('permissions.index') }}">List Permissions</a>
                                                 <a class="dropdown-item" href="{{ route('permissions.create') }}">Add New</a>
                                                 <a class="dropdown-item" href="{{ route('permissions.users') }}">User Permission List</a>
-
-
+                                                <a class="dropdown-item" href="{{ route('users.login.ips') }}">User Login IP(s)</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown">
@@ -1146,7 +1142,9 @@ $metaData = '';
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('image.grid') }}">Lifestyle Image Grid</a>
                                         </li>
-
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('image.grid.new') }}">Lifestyle Image Grid New</a>
+                                        </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('image.grid.approved') }}">Final Images</a>
                                         </li>
