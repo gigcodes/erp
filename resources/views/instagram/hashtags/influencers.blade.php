@@ -13,10 +13,10 @@
             margin: -50px 0px 0px -50px;
         }
 
-        .navbar{
+        /* .navbar{
           height: 60px;
           background:#f1f1f1ad; 
-        }
+        } */
 
 
         h1{
@@ -44,12 +44,12 @@ p{
 	font-weight: 400;
 	margin-bottom: 15px;
 }
-
+/* 
 a.navbar-brand{
     font-size: 22px;
 	font-weight: 600;
 	color: #5a5555;  
-}
+} */
 
 .navbar-light .navbar-nav .nav-link{
     font-size: 14px;
@@ -323,26 +323,8 @@ button[disabled]:hover {
             </div>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-    <script>
-        $('.popover-dismiss').popover({
-  trigger: 'focus'
-})
-    </script>
-    <!-- HTML to write -->
-<a href="#" data-toggle="tooltip" title="Some tooltip text!">Hover over me</a>
-
-<!-- Generated markup by the plugin -->
-<div class="tooltip bs-tooltip-top" role="tooltip">
-  <div class="arrow"></div>
-  <div class="tooltip-inner">
-    Some tooltip text!
-  </div>
-</div>
-
-
     
-            <div class="table-responsive">
+            <div class="table-responsive mt-2">
                 <table class="table-striped table table-bordered" id="data-table" style="table-layout:fixed;">
                     <thead >
                     <tr>
