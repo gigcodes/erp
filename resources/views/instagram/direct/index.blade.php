@@ -92,15 +92,16 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
 
         <div class="row">
             <div class="table-responsive">
-                <table class="table table-striped table-bordered" id="direct-table">
+                <table class="table table-bordered" id="direct-table">
                     <thead>
                         <tr>
-                            <th style="width: 1%;">Sr. No.</th>
-                            <th style="width: 5%;">Site Name</th>
-                            <th style="width: 10%;">User</th>
-                            <th style="width: 10%;">Translation Language</th>
-                            <th style="width: 30%;">Communication</th>
-                            <th style="width: 10%;">Actions</th>
+                            <th style="">Sr. No.</th>
+                            <th style="">Site Name</th>
+                            <th style="">To</th>
+                            <th style="">From</th>
+                            <th style="width:10%">Translation Language</th>
+                            <th style="">Communication</th>
+                            <th style="">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -114,6 +115,8 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Communication</h4>
+                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+                    <input type="text" name="search_chat_pop_time"  class="form-control search_chat_pop_time" placeholder="Search Time" style="width: 200px;">
                 </div>
                 <div class="modal-body" style="background-color: #999999;" id="direct-modal-chat">
                 </div>
@@ -123,6 +126,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
             </div>
         </div>
     </div>
+    
 @endsection
 @include('instagram.partials.customer-form-modals')
 @include('instagram.direct.history')
@@ -348,6 +352,151 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                     toastr['success']('No response from server', 'success');
                 });
             });
+            $(document).on('click', '.quick_category_add', function () {
+            event.preventDefault();
+            if($('input[name="category_name"]').val() == ''){
+                alert("Please Enter category name!");
+                return false;
+            }
+            $.ajax({
+                url: "/add-reply-category",
+                type: 'POST',
+                data: {
+                    name : $('input[name="category_name"]').val(),
+                    "_token": "{{csrf_token()}}",
+                },
+                dataType: "json",
+                success: function (response) {
+                    toastr["success"]("Category added successfully!", "Message");
+                    //$('#message_list_' + issueId).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                    $(this).removeAttr('disabled');
+                    $('input[name="category_name"]').removeAttr('disabled');
+                    $('input[name="category_name"]').val('');
+                    location.reload();
+                },
+                beforeSend: function () {
+                    $('input[name="category_name"]').attr('disabled', true);
+                    $('input[name="category_name"]').attr('disabled',true);
+                },
+                error: function () {
+                    alert('There was an error sending the message...');
+                    $(this).removeAttr('disabled');
+                    $('input[name="category_name"]').removeAttr('disabled');
+                    $('input[name="category_name"]').val('');
+                }
+            });
+            //siteHelpers.quickCategoryAdd($(this));
+        });
+        $(document).on('click', '.quick_comment_add', function () {
+            event.preventDefault();
+            if ($('input[name="quick_comment"]').val() == "") {
+                alert("Please Enter New Quick Comment!!");
+                return false;
+            }
+            if ($('select[name="quickCategory"]').val() == "") {
+                alert("Please Select Category!!");
+                return false;
+            }
+            var quickCategoryId = $('select[name="quickCategory"]').children("option:selected").data('id');
+            var formData = new FormData();
+            formData.append("_token", "{{csrf_token()}}");
+            formData.append("reply", $('input[name="quick_comment"]').val());
+            formData.append("category_id", quickCategoryId);
+            formData.append("model", 'Approval Lead');
+            $.ajax({
+                url: "/reply",
+                type: 'POST',
+                //data : formData,
+                data: {
+                    "reply":  $('input[name="quick_comment"]').val(),
+                    "category_id": quickCategoryId,
+                    "model": 'Approval Lead',
+                    "_token": "{{csrf_token()}}",
+                },
+                dataType: "json",
+                success: function (response) {
+                    toastr["success"]("Category added successfully!", "Message");
+                    //$('#message_list_' + issueId).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                    $(self).removeAttr('disabled');
+                    $(self).val('');
+                    location.reload();
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending the message...');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
+        });
+        $(document).on('click', '.delete_category', function (event) {
+            event.preventDefault();
+            var quickCategory  = $(this).parents("div").siblings().children(".quickCategory");
+            console.log(quickCategory.val());
+            let quickCategoryId = quickCategory.children("option:selected").data('id');
+            if (quickCategory.val() == '') {
+                alert('Please select category to delete!')
+                return false;
+            }
+            $.ajax({
+                url: "/destroy-reply-category",
+                type: 'POST',
+                data: {
+                    "_token": "{{csrf_token()}}",
+                    id : quickCategoryId
+                },
+                dataType: "json",
+                success: function (response) {
+                    toastr["success"]("Category deleted successfully!", "Message");
+                    //$('#message_list_' + issueId).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                    $(self).removeAttr('disabled');
+                    $(self).val('');
+                    location.reload();
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending the message...');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
+        });
+        $(document).on('click', '.shortcuts', function (event) {
+            $('#shortcuts').modal('show');
+        });
+        $(document).on('click', '.delete_quick_comment', function (event) {
+            event.preventDefault();
+            var quickComment  = $(this).parents("div").siblings().children(".quickCategory");
+            let quickCommentId = quickComment.children("option:selected").data('id');
+            if (quickComment.val() == '') {
+                alert('Please select comment to delete!')
+                return false;
+            }
+            $.ajax({
+                url: "/reply/" + quickCommentId,
+                type: 'POST',
+                data: {
+                    "_token": "{{csrf_token()}}",
+                },
+                dataType: "json",
+                success: function (response) {
+                    toastr["success"]("Category deleted successfully!", "Message");
+                    //$('#message_list_' + issueId).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                    $(self).removeAttr('disabled');
+                    $(self).val('');
+                    location.reload();
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending the message...');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
+        });
     </script>
 
 @endsection
