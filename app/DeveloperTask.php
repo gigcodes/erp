@@ -169,7 +169,8 @@ class DeveloperTask extends Model
     }
 
     public function scopeNotEstimated($query){
-        return $query->whereNull('estimate_time');
+        return $query->whereNull('estimate_time')
+                      ->where('estimate_date','0000-00-00');
     }
 
     public function scopeEstimated($query){
@@ -178,8 +179,8 @@ class DeveloperTask extends Model
 
     public function scopeAdminNotApproved( $query ){
         return $query->join('developer_tasks_history' , 'developer_tasks_history.developer_task_id' , 'developer_tasks.id' )
-                     ->estimated()
-                    //   ->where('attribute','estimation_minute')
+                      ->estimated()
+                      ->where('attribute','estimation_minute')
                       ->where('model','App\DeveloperTask')
                       ->where('is_approved','0');
     }
