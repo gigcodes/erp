@@ -4,7 +4,7 @@ namespace App\Helpers;
 
 class CompareImagesHelper
 {
-    private function mimeType($i)
+    static function mimeType($i)
     {
         /*returns array with mime type and if its jpg or png. Returns false if it isn't jpg or png*/
         $mime = getimagesize($i);
@@ -21,12 +21,12 @@ class CompareImagesHelper
             default:
                 return false;
         }
-    }  
+    }
     
-    private function createImage($i)
+    static function createImage($i)
     {
         /*retuns image resource or false if its not jpg or png*/
-        $mime = $this->mimeType($i);
+        $mime = self::mimeType($i);
       
         if($mime[2] == 'jpg')
         {
@@ -42,21 +42,21 @@ class CompareImagesHelper
         } 
     }
     
-    private function resizeImage($i,$source)
+    static function resizeImage($i,$source)
     {
         /*resizes the image to a 8x8 squere and returns as image resource*/
-        $mime = $this->mimeType($source);
+        $mime = self::mimeType($source);
       
         $t = imagecreatetruecolor(8, 8);
         
-        $source = $this->createImage($source);
+        $source = self::createImage($source);
         
         imagecopyresized($t, $source, 0, 0, 0, 0, 8, 8, $mime[0], $mime[1]);
         
         return $t;
     }
     
-    private function colorMeanValue($i)
+    static function colorMeanValue($i)
     {
         /*returns the mean value of the colors and the list of all pixel's colors*/
         $colorList = array();
@@ -78,7 +78,7 @@ class CompareImagesHelper
         return array($colorSum/64,$colorList);
     }
     
-    private function bits($colorMean)
+    static function bits($colorMean)
     {
         /*returns an array with 1 and zeros. If a color is bigger than the mean value of colors it is 1*/
         $bits = array();
@@ -89,31 +89,30 @@ class CompareImagesHelper
 
     }
     
-    public function compare($a,$b)
+    static function compare($a,$b)
     {
         /*main function. returns the hammering distance of two images' bit value*/
-        $i1 = $this->createImage($a);
-        $i2 = $this->createImage($b);
+        $i1 = self::createImage($a);
+        $i2 = self::createImage($b);
         
         if(!$i1 || !$i2){return false;}
         
-        $i1 = $this->resizeImage($i1,$a);
-        $i2 = $this->resizeImage($i2,$b);
+        $i1 = self::resizeImage($i1,$a);
+        $i2 = self::resizeImage($i2,$b);
         
         imagefilter($i1, IMG_FILTER_GRAYSCALE);
         imagefilter($i2, IMG_FILTER_GRAYSCALE);
         
-        $colorMean1 = $this->colorMeanValue($i1);
-        $colorMean2 = $this->colorMeanValue($i2);
+        $colorMean1 = self::colorMeanValue($i1);
+        $colorMean2 = self::colorMeanValue($i2);
         
-        $bits1 = $this->bits($colorMean1);
-        $bits2 = $this->bits($colorMean2);
+        $bits1 = self::bits($colorMean1);
+        $bits2 = self::bits($colorMean2);
         
         $hammeringDistance = 0;
         
         for($a = 0;$a<64;$a++)
         {
-        
             if($bits1[$a] != $bits2[$a])
             {
                 $hammeringDistance++;
