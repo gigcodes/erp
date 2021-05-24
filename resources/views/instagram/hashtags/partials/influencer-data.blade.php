@@ -101,15 +101,35 @@
 
             <div class="row" style="margin-bottom:10px;">
 
-              <div class="col-md-12 form-inline">
-                  <textarea placeholder="Type your message..." rows="2" style="width: 80%" name="" class="form-control quick-message-field" 
+              <div class="col-md-12 form-inline d-flex ">
+                  <textarea placeholder="Message..." style="width:110px;border:none;" name="" class="quick-message-field" 
                             id="message{{ $influencer->id }}"></textarea>
                  <input type="hidden" id="message-id" name="message-id" />
-                  <a style="display: inline-block;width: 20%" class="btn btn-sm btn-image send-message" href="javascript:void(0)">
+                  <a style="margin-right: -16px;
+                  margin-left: 18px;" class="btn btn-sm btn-image send-message" href="javascript:void(0)">
                     <span class="send_btn" data-id="{{$influencer->id}}">
                       <img src="{{asset('images/filled-sent.png')}}"/>
                     </span>
                   </a>
+                  <a class="btn btn-image delete_quick_comment">
+                    <img src="<?php echo url('/');?>/images/delete.png" style="cursor: default; width: 16px;">
+                  </a>
+              </div>
+
+              <div class="col-md-4"  style="margin-top:10px" >
+              
+                
+  
+                @if($thread)
+                          <a href="{{ route('attachImages', ['direct', @$thread->id, 1]) .'?'.http_build_query(['return_url' => 'instagram/influencers'])}}" 
+                             class="btn btn-image px-1">
+                            <img src="{{asset('images/attach.png')}}"/>
+                          </a>
+                @endif
+  
+                @if($thread)
+                  <button type="button" class="btn btn-xs btn-image load-direct-chat-model" data-object="direct" data-id="{{ $thread->id  }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                @endif
               </div>
 
               {{-- <div class="col-md-3 " tyle="padding:0px;">
@@ -129,42 +149,23 @@
 
             </div> --}}
 
-            <div class="col-md-8" style="margin-top:10px">
-              <select class="form-control" name="quickComment">
-                <option  data-vendorid="{{ $influencer->id }}"  value="">Auto Reply</option>
-                <?php
-                foreach ($replies ?? [] as $key_r => $value_r) { ?>
-                  <option title="<?php echo $value_r;?>" data-vendorid="{{ $influencer->id }}" value="<?php echo $key_r;?>">
-                    <?php
-                    $reply_msg = strlen($value_r) > 12 ? substr($value_r, 0, 12) : $value_r;
-                    echo $reply_msg;
-                    ?>
-                  </option>
-                <?php }
-                ?>
-              </select>
-            </div>
-		
-
-			      <div class="col-md-4"  style="margin-top:10px" >
-              
-              <a class="btn btn-image delete_quick_comment">
-                <img src="<?php echo url('/');?>/images/delete.png" style="cursor: default; width: 16px;">
-              </a>
-
-              @if($thread)
-                      	<a href="{{ route('attachImages', ['direct', @$thread->id, 1]) .'?'.http_build_query(['return_url' => 'instagram/influencers'])}}" 
-                           class="btn btn-image px-1">
-                          <img src="{{asset('images/attach.png')}}"/>
-                        </a>
-              @endif
-
-              @if($thread)
-                <button type="button" class="btn btn-xs btn-image load-direct-chat-model" data-object="direct" data-id="{{ $thread->id  }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
-              @endif
-            </div>
-
 	  	</div>
+    </td>
+    
+    <td>
+        <select style="border:1px;padding:2px" name="quickComment">
+          <option  data-vendorid="{{ $influencer->id }}"  value="">Auto Reply</option>
+          <?php
+          foreach ($replies ?? [] as $key_r => $value_r) { ?>
+            <option title="<?php echo $value_r;?>" data-vendorid="{{ $influencer->id }}" value="<?php echo $key_r;?>">
+              <?php
+              $reply_msg = strlen($value_r) > 12 ? substr($value_r, 0, 12) : $value_r;
+              echo $reply_msg;
+              ?>
+            </option>
+          <?php }
+          ?>
+        </select>
     </td> 
 
     <td>

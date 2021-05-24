@@ -330,17 +330,18 @@ button[disabled]:hover {
                     <tr>
 
                         <th style="width:2.5%">#</th>
-                        <th>Date</th>
+                        <th style="width:6%">Date</th>
                         <th style="width: 10%">Username</th>
                         <th style="width:8%">Email</th>
                         <th style="width:7%">Hashtag</th>
-                        <th >Posts</th>
-                        <th style="width:7%">Followers</th>
-                        <th style="width:7%">Following</th>
+                        <th style="width:5%" >Posts</th>
+                        <th style="width:5%">Followers</th>
+                        <th style="width:5%">Following</th>
                         <th style="width:7%">Country</th>
                         <th style="width:8%">Description</th>
                         <th style="width:7%">Sender</th>
-                        <th style="width:18%">Communication</th>
+                        <th style="width:17%">Communication</th>
+                        <th style="width:6%">Auto Reply</th>
                         <th style="width:5%">Action</th>
                         <!-- <th>Phone</th>
                         <th>Website</th>
