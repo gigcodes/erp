@@ -338,9 +338,10 @@ button[disabled]:hover {
                         <th style="width:7%">Followers</th>
                         <th style="width:7%">Following</th>
                         <th style="width:7%">Country</th>
-                        <th style="width:15%">Description</th>
-                        <th style="width:20%">Communication</th>
-                        <th>Action</th>
+                        <th style="width:8%">Description</th>
+                        <th style="width:7%">Sender</th>
+                        <th style="width:18%">Communication</th>
+                        <th style="width:5%">Action</th>
                         <!-- <th>Phone</th>
                         <th>Website</th>
                         <th>Twitter</th>

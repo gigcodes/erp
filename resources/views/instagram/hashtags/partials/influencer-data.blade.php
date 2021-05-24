@@ -57,12 +57,25 @@
             </span>
         <span style="word-break:break-all;" class="show-full-country-{{$influencer->id}} hidden">{{$influencer->country}}</span>
         </td>
+
         <td class="expand-row-msg" data-name="description" data-id="{{$influencer->id}}">
 
         <span onclick="showModal( '{{$influencer->description}}' , 'Description' )" class="show-short-description-{{$influencer->id}}">{{ str_limit($influencer->description, 17, '...')}}</span>
         <span style="word-break:break-all;" class="show-full-description-{{$influencer->id}} hidden">{{$influencer->description}}</span>
         </td>  
-
+        
+        <td>
+          <div class="row" style="margin-bottom:8px">
+            <div class="col-md-12">
+                <select class="form-control account-search-{{$influencer->id}} select2" name="account_id" data-placeholder="Sender...">
+                    <option value="">Select sender...</option>
+                    @foreach ($accounts as $key => $account)
+                      <option value="{{ $key }}" {{ isset($thread) && $thread->account_id == $key ? 'selected' : '' }}>{{ $account }}</option>
+                    @endforeach
+                </select>
+            </div>
+          </div>
+        </td>
 
         <td>
 		        <div class="d-flex" style="flex-direction: column;">
@@ -82,16 +95,7 @@
               @endif
 
 
-		        <div class="row" style="margin-bottom:8px">
-		          <div class="col-md-9">
-				          <select class="form-control account-search-{{$influencer->id}} select2" name="account_id" data-placeholder="Sender...">
-				            	<option value="">Select sender...</option>
-				            	@foreach ($accounts as $key => $account)
-					            	<option value="{{ $key }}" {{ isset($thread) && $thread->account_id == $key ? 'selected' : '' }}>{{ $account }}</option>
-				            	@endforeach
-                  </select>
-			        </div>
-            </div>
+		        
 
             
 
