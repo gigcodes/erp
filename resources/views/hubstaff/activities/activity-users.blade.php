@@ -70,9 +70,10 @@
                         </div>
                         <div class="form-group col-md-2">
                             <label for="button">&nbsp;</label>
-                            <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
+                            <button type="submit" name="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
                                 <img src="/images/search.png" style="cursor: default;">
                             </button>
+                            <button type="submit" name="submit" value="report_download" title="Download report" class="btn btn-sm btn-secondary ml-5"><i class="fa fa-file-excel-o"></i></button>
                         </div>  
                     </form> 
                 </div>    

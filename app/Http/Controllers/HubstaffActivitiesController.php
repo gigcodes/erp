@@ -19,6 +19,8 @@ use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\hubstaffTrait;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\HubstaffActivityReport;
 
 class HubstaffActivitiesController extends Controller
 {
@@ -458,8 +460,16 @@ class HubstaffActivitiesController extends Controller
         }
 
         //dd($activityUsers);
+        if( request('submit') ==  'report_download'){
+           return $this->downloadExcelReport( $activityUsers );
+        }
         $status = $request->status;
         return view("hubstaff.activities.activity-users", compact('title', 'status', 'activityUsers', 'start_date', 'end_date', 'users', 'user_id', 'task_id'));
+    }
+
+    public function downloadExcelReport($activityUsers)
+    {
+        return Excel::download(new HubstaffActivityReport($activityUsers->toArray()), 'customers.xlsx');
     }
 
     public function approveTime(Request $request)
