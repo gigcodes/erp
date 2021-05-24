@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Session;
 use App\ChatMessage;
+use Illuminate\Support\Carbon;
 
 class LaravelLogController extends Controller
 {
