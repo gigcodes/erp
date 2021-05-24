@@ -1721,6 +1721,7 @@
                         }
                     }).done(function (response) {
                         $(thiss).siblings('input').val('');
+                        $('#getMsg'+task_id).val('');
 
                         if (cached_suggestions) {
                             suggestions = JSON.parse(cached_suggestions);
