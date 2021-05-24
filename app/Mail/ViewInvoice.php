@@ -40,7 +40,18 @@ class ViewInvoice extends Mailable
         }
 
         if (!empty($params["orders"])) {
-            $this->duty_tax = $this->viewDutyTax($this->orders);
+
+            // $this->duty_tax = $this->viewDutyTax($this->orders);
+            // dd($this->duty_tax->website_code->code);
+            $website_code_data = $this->viewDutyTax($this->orders);
+            $code = $website_code_data->website_code->code;
+           
+            $duty_countries = $website_code_data->website_code->duty_of_country->default_duty;
+            $shipping_countries = $website_code_data->website_code->shipping_of_country($code)->price;
+            
+            $order_pro =  $this->orders[0]->order_product;
+            $product_price = $order_pro[0]->product_price;
+            
         }
 
         $this->customer = $this->orders !== null ? $this->getCustomerDetails($this->orders[0]) : null;
@@ -139,6 +150,6 @@ class ViewInvoice extends Mailable
 
     public function viewDutyTax($order)
     {
-        return $order->duty_tax();
+        return $order[0]->duty_tax;
     }
 }

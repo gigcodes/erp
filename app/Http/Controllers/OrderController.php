@@ -2541,7 +2541,7 @@ class OrderController extends Controller
 //TODO downloadInvoice - added by jammer
     public function downloadInvoice(Request $request, $id)
     {
-        $invoice = Invoice::where("id", $id)->first();
+        $invoice = Invoice::with('orders.duty_tax')->where("id", $id)->first();
         if ($invoice) {
             $data["invoice"]      = $invoice;
             $data["orders"]       = $invoice->orders;
