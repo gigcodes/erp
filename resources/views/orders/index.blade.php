@@ -397,6 +397,12 @@
                   <i class="fa fa-file-pdf-o" aria-hidden="true"></i>      
                 </a>
                 @endif
+
+                @if($order->invoice_id)
+                <a title="Download Invoice" class="btn btn-image" href="{{ route('order.download.invoice',$order->invoice_id) }}">
+                  <i class="fa fa-download"></i>
+               </a>
+                @endif
                 </div>
               </td>
             </tr>
