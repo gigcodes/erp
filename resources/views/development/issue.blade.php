@@ -77,7 +77,7 @@
             @include("development.partials.task-issue-search")
             <div class="pull-right mt-4">
 
-                <a class="btn btn-secondary" href="{{ action('DevelopmentController@exportTask') }}" role="link"> Download Tasks </a>
+                <a class="btn btn-secondary" href="{{ route('task.export') }}" role="link"> Download Tasks </a>
 
             <a class="btn btn-secondary" 
                         data-toggle="collapse" href="#plannedFilterCount" role="button" aria-expanded="false" aria-controls="plannedFilterCount">
