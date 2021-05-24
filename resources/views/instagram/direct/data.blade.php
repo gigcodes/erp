@@ -152,9 +152,7 @@
         <div class="modal-dialog" style="width: 1000px; max-width: 1000px;">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Shortcuts</h4>
-                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
-                    <input type="text" name="search_chat_pop_time"  class="form-control search_chat_pop_time" placeholder="Search Time" style="width: 200px;">
+                    <h4 class="modal-title">Shortcuts Actions</h4>
                 </div>
                 <div class="modal-body" style="" id="">
                     <div class="col-md-12">
