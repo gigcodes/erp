@@ -461,15 +461,20 @@ class HubstaffActivitiesController extends Controller
 
         //dd($activityUsers);
         if( request('submit') ==  'report_download'){
-           return $this->downloadExcelReport( $activityUsers );
+           return $this->downloadExcelReport( $activityUsers , $users);
         }
         $status = $request->status;
         return view("hubstaff.activities.activity-users", compact('title', 'status', 'activityUsers', 'start_date', 'end_date', 'users', 'user_id', 'task_id'));
     }
 
-    public function downloadExcelReport($activityUsers)
-    {
-        return Excel::download(new HubstaffActivityReport($activityUsers->toArray()), 'customers.xlsx');
+    public function downloadExcelReport($activityUsers, $users)
+    {   
+        if(request('user_id')){
+            $user = User::where('id', request('user_id'))->first();
+        }else{
+            $user = User::where('id', Auth::user()->id)->first();
+        }
+        return Excel::download(new HubstaffActivityReport($activityUsers->toArray()), $user->name.'-'.request('start_date').'-To-'.request('end_date').'.xlsx');
     }
 
     public function approveTime(Request $request)
