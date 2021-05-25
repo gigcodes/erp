@@ -111,9 +111,9 @@ class OrderReportController extends Controller
       ->join('customers','orders.customer_id','customers.id')
       ->select('orders.id', 'customer_id','orders.created_at as date', DB::raw("'order' as type"),'customers.phone', 'customers.name','order_status_id','estimated_delivery_date');
 
-      $order_n_refunds = DB::table('refunds')
-      ->join('customers','refunds.customer_id','customers.id')
-      ->select('refunds.id', 'customer_id','refunds.created_at as date', DB::raw("'refund' as type"),'customers.phone','customers.name',DB::raw("'' as order_status_id"),DB::raw("'' as estimated_delivery_date"))
+      $order_n_refunds = DB::table('return_exchanges')
+      ->join('customers','return_exchanges.customer_id','customers.id')
+      ->select('return_exchanges.id', 'customer_id','return_exchanges.created_at as date', DB::raw("'refund' as type"),'customers.phone','customers.name',DB::raw("'' as order_status_id"),DB::raw("return_exchanges.est_completion_date as estimated_delivery_date"))
       ->union($orders)
       ->orderBy('date',"DESC")
       ->get();
@@ -134,7 +134,7 @@ class OrderReportController extends Controller
             }else if($type == 'chatbot_unapproved')  {
               $type = 11;
             }else{
-                $type = 1;
+              $type = 1;
             }
             $q = $q->where('chat_messages.status', $type);
         }else if ($type == "last_communicated") {
