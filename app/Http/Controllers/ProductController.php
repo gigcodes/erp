@@ -5357,6 +5357,46 @@ class ProductController extends Controller
         return response()->json($data);
     }
 
+
+
+    public function add_product_def_cust($product_id,Request $request)
+    {
+        $product = Product::find($product_id);
+        
+        $def_cust_id = getenv('DEFAULT_CUST_ID');
+
+        $customers = \App\Customer::find($def_cust_id);
+
+        $statement = \DB::select("SHOW TABLE STATUS LIKE 'orders'");
+        $nextId    = 0;
+        if (!empty($statement)) {
+            $nextId = $statement[0]->Auto_increment;
+        }
+
+        $order_id = "OFF-" . date('Ym') .'-'. $nextId;
+       
+        $order_data = array(
+            'customer_id' => $def_cust_id,
+            'order_id' => $order_id,
+            'order_date' => date('Y-m-d'),
+            'client_name' => $customers->name,
+        );
+        $order = Order::create($order_data);
+
+        $order_id = $order->id;
+
+        $orderproduct_data = array(
+            'order_id' => $order_id,
+            'sku' => $product->sku,
+            'product_id' => $product->id,
+            'product_price' => $product->price,
+        );
+        
+        $order_products = OrderProduct::create($orderproduct_data);
+
+        return response()->json(['code' => 200, 'message' => 'Purchase Products Added successfully']);
+    }
+
 }
 
 
