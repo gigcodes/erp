@@ -49,7 +49,7 @@
     <td class="expand-row table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
         @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
             <div class="d-flex">
-                <input type="text" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
+                <input type="text" class="form-control quick-message-field input-sm" name="message" id="getMsg{{$task->id}}" placeholder="Message" value="">
                 <button class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png"/></button>
                 @if (isset($task->message))
                 <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="/images/chat.png" alt=""></button>
