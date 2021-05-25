@@ -348,7 +348,9 @@ class SupplierController extends Controller
 		}
         $scrapper_name = preg_replace("/\s+/", "", $request->supplier);
         $supplier = Supplier::where('supplier',$scrapper_name)->get();
-        if(empty($supplier)){
+        
+        // if(empty($supplier)){
+        if($supplier->isEmpty()){   
           $supplier = Supplier::create($data);
           if ($supplier->id > 0) {
               $scraper = \App\Scraper::create([
