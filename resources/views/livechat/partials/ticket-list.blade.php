@@ -33,16 +33,36 @@
     <td>{{ $ticket->assigned_to_name }}</td>
     <td>{{ $ticket->type_of_inquiry }}</td>
     <td>{{ $ticket->country }}</td>
-    <td>{{ str_limit($ticket->order_no,4)}}</td>
-    <td>{{ $ticket->phone_no }}</td>
+    <td>
+        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->order_no}}">
+            {{ str_limit($ticket->order_no,4)}}
+        </a>
+    </td>
+    <td> 
+        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->phone_no }}">
+         {{ str_limit($ticket->phone_no,5)}} 
+        </a>
+    </td>
     
     <td class="table-hover-cell">
         <div class="row d-flex flex-row w-100 justify-content-between">
             <div class="col-9">
-                <textarea  style="width:100px;height:35px;" class="form-control" id="messageid_{{ $ticket->id }}" name="message" placeholder="Message"></textarea>
+                <textarea  style="width:150px;height:37px;" class="form-control" id="messageid_{{ $ticket->id }}" name="message" placeholder="Message"></textarea>
             </div>
-            <div class="col-2">  
-                  <button class="btn btn-sm btn-image send-message1" data-ticketid="{{ $ticket->id }}"><img src="<?php echo $base_url;?>/images/filled-sent.png"/></button>
+            <div class="col-2" style="margin:-8px; ">  
+
+                <button class="btn btn-sm btn-image send-message1" 
+                        data-ticketid="{{ $ticket->id }}">
+                    <img src="<?php echo $base_url;?>/images/filled-sent.png"/>
+                </button>
+
+                <button type="button" 
+                        style="margin-left:6px;"
+                        class="btn btn-xs btn-image load-communication-modal" 
+                        data-id="{{$ticket->id}}">
+                        <i class="fa fa-comments-o"></i>
+                </button>
+
             </div>
        </div>
     </td>    
@@ -66,8 +86,23 @@
                   data-id="{{$ticket->id}}">
             <i class="fa fa-envelope-square"></i>
           </button>
-          <button type="button" class="btn btn-xs load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="ticket" data-id="{{$ticket->id}}" data-load-type="text" data-all="1" title="Load messages"><i class="fa fa-whatsapp"></i></button>
-          <button type="button" class="btn btn-xs btn-assigned-to-ticket" data-id="{{$ticket->id}}"><i class="fa fa-comments-o"></i></button>
+
+          <button type="button" 
+                  class="btn btn-xs load-communication-modal" 
+                  data-is_admin="{{ Auth::user()->hasRole('Admin') }}" 
+                  data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" 
+                  data-object="ticket" data-id="{{$ticket->id}}" 
+                  data-load-type="text" 
+                  data-all="1" 
+                  title="Load messages">
+                  <i class="fa fa-whatsapp"></i>
+          </button>
+
+          <button type="button" 
+                  class="btn btn-xs btn-assigned-to-ticket" 
+                  data-id="{{$ticket->id}}">
+                <i class="fa fa-comments-o"></i>
+            </button>
           
         </div>
     </td>
