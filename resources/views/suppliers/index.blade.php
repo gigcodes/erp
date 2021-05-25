@@ -184,57 +184,43 @@
       <table class="table table-bordered table-responsive table-striped">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Scrapper</th>
-              {{-- <th>Source</th> --}}
-              <th>Designers</th>
-              <th>Status</th>
-              <th>Size System</th>
-              <th>Supplier Size</th>
-              <th>Category</th>
-              <th>Sub Category</th>
-              <th>Price Range</th>
-              {{-- <th>No.of Brands</th> --}}
-            {{-- <th width="10%">Social handle</th> --}}
-            {{-- <th>Agents</th> --}}
-            {{-- <th width="5%">GST</th> --}}
-            {{-- <th width="20%">Order</th> --}}
-            {{-- <th width="20%">Emails</th> --}}
-            <th>Communication</th>
-            {{-- <th>Created At</th> --}}
-            {{-- <th>Updated At</th> --}}
-            <th>Inventory Lifetime (Days)</th>
-			<th>Inventory</th>
-            <th>Translation</th>
-            <th>Priority</th>
-            <th width="15%">Action</th>
+              <th width="2%">ID</th>
+              <th width="10%">Name</th>
+              <th width="5%">Scrapper</th>
+              <th width="5%">Designers</th>
+              <th width="7%">Status</th>
+              <th width="5%">Size System</th>
+              <th width="7%">Category</th>
+              <th width="7%">Sub Category</th>
+              <th width="20%">Communication</th>
+              <th width="5%">Translation</th>
+              <th width="5%">Priority</th>
+              <th width="10%">Action</th>
           </tr>
         </thead>
         <tbody>
           @foreach ($suppliers as $supplier)
 			<tr>
 				<td>{{ $supplier->id }}
-                    <input type="checkbox" name="supplier_message[]" class="d-inline supplier_message" value="{{$supplier->id}}">
-                </td>
+            <input type="checkbox" name="supplier_message[]" class="d-inline supplier_message" value="{{$supplier->id}}">
+        </td>
 				<td>
 					{{ $supplier->supplier }}
          
 					@if ($supplier->has_error == 1)
 						<span class="text-danger">!!!</span>
 					@endif
-                    <div class="form-group">
-                            <select class="form-control change-whatsapp-no" data-supplier-id="<?php echo $supplier->id; ?>">
-                                <option value="">-No Selected-</option>
-                                @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
-                                    @if($number != "0")
-                                        <option {{ ($number == $supplier->whatsapp_number && $supplier->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
-                                    @endif
-                                @endforeach
-                            </select>
-                    </div>
+            <div class="form-group">
+                <select class="form-control change-whatsapp-no" data-supplier-id="<?php echo $supplier->id; ?>">
+                    <option value="">-No Selected-</option>
+                    @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+                        @if($number != "0")
+                            <option {{ ($number == $supplier->whatsapp_number && $supplier->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
+                        @endif
+                    @endforeach
+                </select>
+            </div>
 				</td>
-			
         <td>
         <select name="scrapper" class="form-control scrapper" data-scrapper-id="{{ $supplier->id }}">
               <option value="">Select</option>
@@ -281,15 +267,6 @@
                     </select>
                 </td>
                 <td>
-                    <select name="supplier_size" class="form-control supplier_size" data-size-id="{{ $supplier->id }}">
-                        <option value="">Select</option>
-                        @forelse ($suppliersize as $suppliersize_key => $item)
-                            <option value="{{ $suppliersize_key }}" {{ ($supplier->supplier_size_id == $suppliersize_key) ? 'selected' : ''}} >{{ $item }}</option>
-                        @empty
-                        @endforelse
-                    </select>
-                </td>
-                <td>
                     <select name="supplier_cat" class="form-control supplier_cat" data-supplier-id="{{ $supplier->id }}">
                         <option value="">Select</option>
                         @forelse ($suppliercategory as $key => $item)
@@ -305,14 +282,6 @@
                             <option value="{{ $key }}" {{ ($supplier->supplier_sub_category_id == $key) ? 'selected' : ''}} >{{ $item }}</option>
                         @empty
                         @endforelse
-                    </select>
-                </td>
-				<td>
-                    <select name="supplier_price_range_id" class="form-control supplier_price_range" data-supplier-id="{{ $supplier->id }}">
-                        <option value="">Select</option>
-						@foreach($allSupplierPriceRanges as $priceRange)
-							<option value="{{$priceRange['id']}}" {{ ($supplier->supplier_price_range_id == $priceRange['id']) ? 'selected' : ''}}>{{$priceRange['full_range']}}</option>
-						@endforeach
                     </select>
                 </td>
 
@@ -369,25 +338,7 @@
 					</td-->
 					{{-- <td>{{ $supplier->created_at }}</td> --}}
 					{{-- <td>{{ $supplier->updated_at }}</td> --}}
-					<td>
-          <input class="inventory_lifetime" style="width:50px;"  type="text" data-supplier-id="{{ $supplier->id }}" value="{{ $supplier->inventory_lifetime }}" data-width="10">
-          <span>Est. Delivery : {{ $supplier->est_delivery_time }} </span>
-          </td>
-				<td>
-					<div class="form-group">
-						<select name="inventory" class="form-control input-sm mb-3">
-							<option value="">Inventory</option>
-							@foreach($allSupplierProduct as $inventory)
-							{
-								@if($inventory->supplier_id==$supplier->id)
-									<option value="{{$inventory->product_id}}">{{$inventory->name}}</option>
-								@endif`
-							}
-							@endforeach
-						</select>
-					</div>
-				</td>
-				<td>
+			  <td>
 					<div class="form-group">
 						<select name="autoTranslate" data-id="{{ $supplier->id }}" class="form-control input-sm mb-3 autoTranslate">
 							<option value="">Translations Languages</option>

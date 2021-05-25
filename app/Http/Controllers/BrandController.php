@@ -1,8 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use DB;
 use App\Brand;
 use App\Product;
 use App\Setting;
@@ -13,6 +11,21 @@ use \App\StoreWebsiteBrand;
 use Illuminate\Http\Request;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Auth;
+
+
+use App\Exports\ScrapRemarkExport;
+use App\Scraper;
+use App\ScrapHistory;
+use App\ScrapRemark;
+use App\ScrapStatistics;
+use App\Supplier;
+use App\User;
+use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Maatwebsite\Excel\Facades\Excel;
+use Zend\Diactoros\Response\JsonResponse;
+use \Carbon\Carbon;
 
 class BrandController extends Controller
 {
@@ -49,6 +62,56 @@ class BrandController extends Controller
 
         return view('brand.index', compact('brands','storeWebsite','attachedBrands', 'category_segments'))
             ->with('i', (request()->input('page', 1) - 1) * 10);
+    }
+
+    public function scrap_brand(Request $request)
+    {
+        // Set dates
+        $keyWord    = $request->get("term", "");
+        $madeby     = $request->get("scraper_made_by", 0);
+        $scrapeType = $request->get("scraper_type", 0);
+ 
+        // $brands = Brand::leftJoin("store_website_brands as swb","swb.brand_id","brands.id")
+        // ->leftJoin("store_websites as sw","sw.id","swb.store_website_id")
+        // ->leftJoin("products as p","p.brand","brands.id")
+        // ->select(["brands.*",\DB::raw("group_concat(sw.id) as selling_on"),\DB::raw("LOWER(trim(brands.name)) as lower_brand"), \DB::raw('COUNT(p.id) as total_products')])
+        // ->groupBy("brands.id")
+        // ->orderBy('total_products',"desc")->whereNull('brands.deleted_at');
+
+        $brands = Brand::leftJoin("products as p","p.brand","brands.id")
+        ->select(["brands.*",\DB::raw("LOWER(trim(brands.name)) as lower_brand"), \DB::raw('COUNT(p.id) as total_products')])
+        ->groupBy("brands.id")
+        ->orderBy('total_products',"desc")->whereNull('brands.deleted_at');
+
+        $keyword = request('keyword');
+        if (!empty($keyWord)) {
+            $brands->where(function ($q) use ($keyWord) {
+                $q->where("brands.name", "like", "%{$keyWord}%");
+            });
+        }
+
+        $brands = $brands->paginate(Setting::get('pagination'));
+
+        $filters = $request->all();
+
+        return view('brand.scrap_brand', compact('brands','filters'));
+    }
+
+    private static function get_times($default = '19:00', $interval = '+60 minutes')
+    {
+
+        $output = [];
+
+        $current = strtotime('00:00');
+        $end     = strtotime('23:59');
+
+        while ($current <= $end) {
+            $time          = date('G', $current);
+            $output[$time] = date('h.i A', $current);
+            $current       = strtotime($interval, $current);
+        }
+
+        return $output;
     }
 
     public function create()

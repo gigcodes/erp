@@ -4552,6 +4552,39 @@ class ProductController extends Controller
 
     }
     
+    public function createTemplate(Request $request)
+    {   
+
+        $this->validate($request, [
+            'template_no'   => 'required',
+            'product_media_id'   => 'required',
+            'background'   => 'required',
+            'text'   => 'required',
+        ]);
+
+        $product_media_id = explode(',', $request->product_media_id);
+        $template = new \App\ProductTemplate;
+        $template->template_no = $request->template_no;
+        $template->text = $request->text;
+        $template->background_color = $request->background;
+        $template->template_status = 'python';
+
+        if ($template->save()) {
+
+            if (!empty($request->get('product_media_id')) && is_array($request->get('product_media_id'))) {
+                foreach ($request->get('product_media_id') as $mediaid) {
+                    $media = Media::find($mediaid);
+                    $template->attachMedia($media, ['template-image-attach']);
+                    $template->save();
+                    $imagesArray[]=$media->getUrl();
+                }
+            }
+
+            return redirect()->back()->with('success','Template has been created successfully');
+        }
+        return redirect()->back()->with('error','Something went wrong, Please try again!');
+    }
+
     public function attachedImageGrid($model_type = null, $model_id = null, $status = null, $assigned_user = null, Request $request) {
         $model_type = 'customer';
         if ($model_type == 'customer') {
@@ -4670,7 +4703,7 @@ class ProductController extends Controller
             }
         }
 
-        
+        $templateArr = \App\Template::all();
 
         $all_product_ids = [];
         $model_type = 'customer';
@@ -4715,7 +4748,7 @@ class ProductController extends Controller
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         $customers = \App\Customer::pluck('name','id');
         return view('partials.attached-image-grid', compact(
-                        'suggestedProducts', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups', 'countBrands', 'countCategory', 'countSuppliers', 'customerId', 'categoryArray', 'term','customers'
+                        'suggestedProducts', 'templateArr', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups', 'countBrands', 'countCategory', 'countSuppliers', 'customerId', 'categoryArray', 'term','customers'
         ));
     }
     public function crop_rejected_status(Request $request)

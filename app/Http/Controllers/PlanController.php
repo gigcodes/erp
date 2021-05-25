@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\StoreWebsiteAnalytic;
 use App\StoreWebsite;
 use App\Plan;
+use App\PlanBasisStatus;
 use Illuminate\Support\Facades\Validator;
 use Storage;
 use File;
@@ -21,6 +22,7 @@ class PlanController extends Controller
     public function index()
     {
         $query = Plan::whereNull('parent_id');
+        $basisList = PlanBasisStatus::all();
 
         if(request('status')){
             $query->where('status',request('status'));
@@ -37,10 +39,12 @@ class PlanController extends Controller
         if(request('term')){
             $query->where('subject', 'LIKE', '%' . request('term') . '%');
             $query->orwhere('sub_subject', 'LIKE', '%' . request('term') . '%');
+            $query->orwhere('basis', 'LIKE', '%' . request('term') . '%');
+            $query->orwhere('implications', 'LIKE', '%' . request('term') . '%');
         }
 
         $planList = $query->orderBy('id','DESC')->paginate(10);
-        return view('plan-page.index', compact('planList'));
+        return view('plan-page.index', compact('planList','basisList'));
     }
 
     public function store(Request $request)
@@ -68,6 +72,10 @@ class PlanController extends Controller
                     'priority' => $request->priority,
                     'date' => $request->date,
                     'status' => $request->status,
+                    'budget' => $request->budget,
+                    'deadline' => $request->deadline,
+                    'basis' => $request->basis,
+                    'implications' => $request->implications,
                 );
                 if( $request->parent_id ){
                     $data['parent_id'] = $request->parent_id;
@@ -84,6 +92,30 @@ class PlanController extends Controller
                 }
             }
         
+    }
+
+    public function newBasis(Request $request)
+    {
+        $rules = [
+            'name' => 'required',
+        ];
+
+        $validation = validator(
+           $request->all(),
+           $rules
+        );
+        if($validation->fails()) {
+            return redirect()->back()->withErrors($validation)->withInput();
+        }
+
+        $data = array(
+            'status' => $request->name,
+        );
+
+        PlanBasisStatus::insert($data);
+
+        return redirect()->back()->with('success','New status created successfully.');
+
     }
 
     public function edit(Request $request)

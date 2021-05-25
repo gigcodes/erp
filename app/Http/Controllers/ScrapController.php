@@ -105,6 +105,7 @@ class ScrapController extends Controller
 
                 $images[] = $fileName;
             } catch (\Exception $exception) {
+                \Log::error('Image save :: '.$exception->getMessage());
                 continue;
             }
 

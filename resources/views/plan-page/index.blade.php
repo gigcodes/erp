@@ -4,12 +4,29 @@
 @section('title', 'Plans')
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
 @section('content')
+
+<style>
+
+.edit-plan{background: transparent;color: #000;border:0;padding:10px 5px 5px 10px;font-size:15px;}
+.delete-btn{padding:7px 5px 5px;border:0;}
+.edit-plan:hover ,.add-sub-plan:hover { background: transparent; color: #000 !important; border: 0; }
+.add-sub-plan {background: transparent;color: #000;border:0;font-size:20px;padding:10px 5px 5px;}
+.edit-plan:focus, .add-sub-plan:focus,.delete-btn:focus { background: transparent; color: #000 !important; border: none; box-shadow: none; outline: 0; }
+.edit-plan:active, .add-sub-plan:active, .delete-btn:active { background-color: transparent !important; color: #000 !important; border: none; box-shadow: none !important; outline: 0 !important; }
+.add-sub-plan:focus-visible, .edit-sub-plan:focus-visible{ outline: 0; }
+.expand-2 > td:first-child { border-bottom: 0 !important; border-top: 0; }
+table#store_website-analytics-table tr td:last-child { width: 150px; }
+.r-date{width:120px;}
+.no-border {border-bottom: 0 !important; border-top: 0 !important;}
+
+</style>
 <div class="row mb-5">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Plans page</h2>
 
         <div class="pull-right">
             <button type="button" class="btn btn-secondary new-plan" data-toggle="modal" data-target="#myModal">New plan</button>
+            <button type="button" class="btn btn-secondary new-plan" data-toggle="modal" data-target="#myBasis">New basis</button>
         </div>
 
         <form action="{{ url()->current() }}" method="GET" id="searchForm" class="form-inline align-items-start">
@@ -53,6 +70,10 @@
                 <th>Sub subject</th>
                 <th>Description</th>
                 <th>Priority</th>
+                <th>Budget</th>
+                <th>Basis</th>
+                <th>Implications</th>
+                <th>DeadLine</th>
                 <th>status</th>
                 <th>Date</th>
                 <th width="280px">Action</th>
@@ -74,11 +95,15 @@
                      </span>
                 </td>
                 <td>{{$record->priority}}</td>
+                <td>{{$record->budget}}</td>
+                <td>{{$record->basis}}</td>
+                <td>{{$record->implications}}</td>
+                <td class="r-date">{{$record->deadline}}</td>
                 <td>{{$record->status}}</td>
-                <td>{{$record->date}}</td>
-                <td>
+                <td class="r-date">{{$record->date}}</td>
+                <td class="actions-main">
                     <button type="button" class="btn btn-secondary edit-plan" data-id="{{$record->id}}"><i class="fa fa-edit"></i></button>
-                    <a href="{{route('plan.delete',$record->id)}}" class="btn btn-image" title="Delete Record"><img src="/images/delete.png"></a>
+                    <a href="{{route('plan.delete',$record->id)}}" class="btn btn-image delete-btn" title="Delete Record"><img src="/images/delete.png"></a>
                     <button title="Add step" type="button" class="btn btn-secondary btn-sm add-sub-plan" data-id="{{$record->id}}" data-toggle="modal" data-target="#myModal">+</button>
                     <button title="Open step" type="button" class="btn preview-attached-img-btn btn-image no-pd" data-id="{{$record->id}}">
                         <img src="/images/forward.png" style="cursor: default;">
@@ -86,7 +111,7 @@
                 </td>
             </tr>
             <tr class="expand-{{$record->id}} hidden">
-                <th colspan="2"></th>
+                <th colspan="6"></th>
                 <th>Remark</th>
                 <th>description</th>
                 <th>priority</th>
@@ -95,7 +120,7 @@
                 <th>Action</th>
                 @foreach( $record->subList( $record->id ) as $sublist)
                     <tr class="expand-{{$record->id}} hidden" >
-                        <td colspan="2"></td>
+                        <td colspan="6" class="no-border"></td>
                         <td width="10%">
                             <span class="toggle-title-box has-small" data-small-title="<?php echo substr($sublist->remark, 0, 10).'..' ?>" data-full-title="<?php echo ($sublist->remark) ? $sublist->remark : '' ?>">
                                 <?php
@@ -126,13 +151,45 @@
             </tr>
             @endforeach
             <tr>
-                <td colspan="8">{{$planList->appends(request()->except("page"))->links()}}</td>
+                <td colspan="10">{{$planList->appends(request()->except("page"))->links()}}</td>
             </tr>
         </tbody>
     </table>
 </div>
 
 <!-- The Modal -->
+<div class="modal fade" id="myBasis" tabindex="-1" role="dialog" aria-labelledby="myBasis" aria-hidden="true">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="myBasis">New basis</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+        <form method="post" id="planadd" action="{{ route('plan.create.basis') }}">
+          <div class="modal-body">
+            <div class="container-fluid">
+                  @csrf
+                  <div class="row subject-field">
+                      <div class="col-md-12">
+                          <div class="form-group">
+                            <label  class="col-form-label">Name:</label>
+                            <input type="text" name="name" class="form-control" placeholder="Enter name" required="">
+                          </div>
+                      </div>
+                  </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-secondary">Save</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModal" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
@@ -180,6 +237,39 @@
                                 <option value="complete">complete</option>
                                 <option value="pending">pending</option>
                             </select>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="row subject-field">
+                      <div class="col-md-6">
+                         <div class="form-group">
+                            <label  class="col-form-label">Budget:</label>
+                            <input type="number" name="budget" class="form-control">
+                          </div>
+                      </div>
+                      <div class="col-md-6">
+                         <div class="form-group">
+                            <label class="col-form-label">Deadline:</label>
+                            <input type="date" name="deadline" class="form-control">
+                          </div>
+                      </div>
+                  </div>
+                  <div class="row">
+                  <div class="col-md-6">
+                         <div class="form-group">
+                            <label class="col-form-label">Basis:</label>
+                            <select class="form-control" name="basis">
+                                <option value="">Select</option>
+                                @foreach($basisList as $value )
+                                    <option value="{{$value->status}}">{{$value->status}}</option>
+                                @endforeach;
+                            </select>
+                          </div>
+                      </div>
+                      <div class="col-md-6">
+                         <div class="form-group">
+                            <label class="col-form-label">Implications</label>
+                            <input type="text" name="implications" class="form-control">
                           </div>
                       </div>
                   </div>
@@ -271,7 +361,10 @@ $(document).on('click','.add-sub-plan', function (event) {
                 $('input[name="sub_subject"]').val(data.object.sub_subject);
                 $('select[name="priority"]').val(data.object.priority).change();
                 $('select[name="status"]').val(data.object.status).change();
+                $('select[name="basis"]').val(data.object.basis).change();
                 $('input[name="date"]').val(data.object.date);
+                $('input[name="budget"]').val(data.object.budget);
+                $('input[name="deadline"]').val(data.object.deadline);
                 $('textarea[name="description"]').val(data.object.description);
                 $('textarea[name="remark"]').val(data.object.remark);
                 $('#parent_id').val(data.object.parent_id);
