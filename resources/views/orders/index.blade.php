@@ -184,14 +184,21 @@
             {{-- <th style="width: 8%">Message Status</th> --}}
             {{-- <th style="width: 20%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th> --}}
             <th>Waybill</th>
+            <th>Price</th>
+            <th>Shipping</th>
+            <th>Duty</th>
             <th width="10%">Action</th>
          </tr>
         </thead>
 
         <tbody style="color:font-size: small;">
 			@foreach ($orders_array as $key => $order)
+      
              @php
                $extraProducts = [];
+               $orderProductPrice = 0;
+               $productQty = 0;
+               
                if(!$order->order_product->isEmpty())  {
                   foreach($order->order_product as $orderProduct) {
                     $extraProducts[] = [
@@ -200,10 +207,14 @@
                       "product_price" => $orderProduct->product_price,
                       "name" => ($orderProduct->product) ? $orderProduct->product->name : ""
                     ];
+
+                    $orderProductPrice = $orderProduct->product_price;
+
                   }
                }
              @endphp
 
+             
             <tr style="background:#f1f1f1;" class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
               <td><span class="td-mini-container">
                   <input type="checkbox" class="selectedOrder" name="selectedOrder" value="{{$order->id}}">
@@ -277,7 +288,11 @@
                           </span>	                 
                         @endif	                 
                       @endif	             
-                    @endforeach	            
+                    @endforeach	   
+
+                    @php
+                      $productQty = count($order->order_product);     
+                    @endphp    
                   </div>	    
                   @if (($count - 1) > 1)	           
                     <span class="ml-1">	         
@@ -330,6 +345,9 @@
                   -
                 @endif
               </td>
+              <td>{{$orderProductPrice * $productQty}}</td>
+              <td>{{$duty_shipping[$order->id]['shipping']}}</td>
+              <td>{{$duty_shipping[$order->id]['duty']}}</td>
               <td>
                 <div class="d-flex">
                   <a class="btn btn-image pd-5 btn-ht" href="{{route('purchase.grid')}}?order_id={{$order->id}}">
