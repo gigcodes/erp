@@ -271,6 +271,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     ', 'ProductController@updateApprovedBy');
     //    Route::get('products/{id}/color-historyproducts/{id}/color-history', 'ProductColorController@history');
 
+    Route::post('products/add/def_cust/{id}', 'ProductController@add_product_def_cust')->name('products.add.def_cust');
+
     Route::post('products/{id}/changeCategorySupplier', 'ProductController@changeAllCategoryForAllSupplierProducts');
     Route::post('products/{id}/changeColorSupplier', 'ProductController@changeAllColorForAllSupplierProducts');
     Route::resource('products', 'ProductController');
