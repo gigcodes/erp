@@ -40,14 +40,24 @@ class ViewInvoice extends Mailable
         }
 
         if (!empty($params["orders"])) {
-
-            // $this->duty_tax = $this->viewDutyTax($this->orders);
-            // dd($this->duty_tax->website_code->code);
             $website_code_data = $this->viewDutyTax($this->orders);
-            $code = $website_code_data->website_code->code;
-           
-            $duty_countries = $website_code_data->website_code->duty_of_country->default_duty;
-            $shipping_countries = $website_code_data->website_code->shipping_of_country($code)->price;
+
+            $duty_shipping = 0;
+            if($website_code_data != null)
+            {
+                $code = $website_code_data->website_code->code;
+
+                $duty_countries = $website_code_data->website_code->duty_of_country;
+                $shipping_countries = $website_code_data->website_code->shipping_of_country($code);
+                
+                $duty_amount = $duty_countries->default_duty;
+                $shipping_amount = $shipping_countries->price;
+
+                if($duty_amount+$shipping_amount != '' && $duty_amount+$shipping_amount != 'undefined' &&  $duty_amount+$shipping_amount != null)
+                    $duty_shipping = $duty_amount+$shipping_amount;
+            }
+
+            $this->duty_tax = $duty_shipping;
             
             $order_pro =  $this->orders[0]->order_product;
             $product_price = $order_pro[0]->product_price;
