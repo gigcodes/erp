@@ -1772,6 +1772,13 @@ class SupplierController extends Controller
         return redirect()->route('supplier.index')->withSuccess('You have successfully saved a supplier size!');
     }
 
+    public function MessageTranslateHistory( Request $request ){
+
+        $history = \App\SupplierTranslateHistory::orderBy("id","desc")->where('supplier_id',$request->supplier)->get();
+        return response()->json( ["code" => 200 , "data" => $history] );
+        
+    }
+
     public function sendMessage(Request $request)
     {
         // return $request->all();
