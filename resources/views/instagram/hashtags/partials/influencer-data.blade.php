@@ -14,7 +14,7 @@
 
         <td>
             <a href="{{ $influencer->url }}" target="_blank">
-              {{ $influencer->name }}
+              {{ str_limit($influencer->name, 12, '...')}}
             </a>
         </td>
 
@@ -53,14 +53,14 @@
                   class="show-short-country-{{$influencer->id}}"
                   style="cursor:pointer"
                   >
-                  {{ str_limit($influencer->country, 8, '...')}}
+                  {{ str_limit($influencer->country, 5, '...')}}
             </span>
         <span style="word-break:break-all;" class="show-full-country-{{$influencer->id}} hidden">{{$influencer->country}}</span>
         </td>
 
         <td class="expand-row-msg" data-name="description" data-id="{{$influencer->id}}">
 
-        <span onclick="showModal( '{{$influencer->description}}' , 'Description' )" class="show-short-description-{{$influencer->id}}">{{ str_limit($influencer->description, 17, '...')}}</span>
+        <span onclick="showModal( '{{$influencer->description}}' , 'Description' )" class="show-short-description-{{$influencer->id}}">{{ str_limit($influencer->description, 6, '...')}}</span>
         <span style="word-break:break-all;" class="show-full-description-{{$influencer->id}} hidden">{{$influencer->description}}</span>
         </td>  
         
@@ -99,10 +99,14 @@
 
             
 
-            <div class="row" style="margin-bottom:10px;">
+            <div class="row">
 
               <div class="col-md-12 form-inline d-flex ">
-                  <textarea placeholder="Message..." style="width:110px;border:none;" name="" class="quick-message-field" 
+                  <textarea placeholder="Message..." style="width: 110px;
+                  /* border: none; */
+                  padding: 2px;
+                  height: 30px;
+    border-radius: 5px;" name="" class="quick-message-field" 
                             id="message{{ $influencer->id }}"></textarea>
                  <input type="hidden" id="message-id" name="message-id" />
                   <a style="margin-right: -16px;
