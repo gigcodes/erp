@@ -113,12 +113,7 @@ $metaData = '';
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.js"></script>
-
-    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-    <script type="text/javascript" src="https://media.twiliocdn.com/sdk/js/client/v1.14/twilio.min.js"></script>
-
-    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.0.5/dist/js/tabulator.min.js"></script>
+ 
 
     <script src="{{ asset('js/bootstrap-notify.js') }}"></script>
     <script src="{{ asset('js/calls.js') }}"></script>
@@ -168,14 +163,11 @@ $metaData = '';
 
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
 
-    {{-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"> --}}
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.3.3/css/bootstrap-slider.min.css">
 
-    <link href="https://unpkg.com/tabulator-tables@4.0.5/dist/css/tabulator.min.css" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.css">
 
     @yield("styles")
 
@@ -226,68 +218,9 @@ $metaData = '';
 <body>
 
 
-    <div class="modal fade" id="developerAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title">Developer Task Reminder</h3>
-                </div>
-                <div class="modal-body">
-                    ...
-                </div>
-                <div class="modal-footer">
-                    <a href="" id="developerAlertUrl" class="btn btn-secondary mx-auto">OK</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="masterControlAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title">Master Control Alert</h3>
-                </div>
-                <div class="modal-body">
-                    ...
-                </div>
-                <div class="modal-footer">
-                    <a href="" id="masterControlAlertUrl" class="btn btn-secondary mx-auto">OK</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- <div id="fb-root"></div> --}}
-
-
-    <div class="notifications-container">
-
-        <div class="stack-container stacked" id="leads-notification"></div>
-
-        <div class="stack-container stacked" id="orders-notification"></div>
-
-        {{-- <div class="stack-container stacked" id="messages-notification"></div> --}}
-
-        <div class="stack-container stacked" id="tasks-notification"></div>
-
-    </div>
-
-
     <div id="app">
 
-
-        @if (Auth::check())
-
-        @php
-            $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
-            $key = \App\LivechatincSetting::first();
-        @endphp
-        @if($liveChatUsers != '' && $liveChatUsers != null)
-        <input type="hidden" id="live_chat_key" value="@if(isset($key)){{ $key->key}}@else @endif">
-        @include('partials.chat')
-        @endif
-        @endif
+ 
         @if(Auth::check())
             <!---start section for the sidebar toggle -->
             <nav id="quick-sidebar">
@@ -297,39 +230,13 @@ $metaData = '';
         @if (trim($__env->yieldContent('large_content')))
             <div class="col-md-11">
                 @yield('large_content')
-            </div>
-        @elseif (trim($__env->yieldContent('core_content')))
-            @yield('core_content')
-        @else
-            <main class="container container-grow" style="display: inline-block;">
-                <!-- Showing fb like page div to all pages  -->
-                {{-- @if(Auth::check())
-                <div class="fb-page" data-href="https://www.facebook.com/devsofts/" data-small-header="true" data-adapt-container-width="false" data-hide-cover="true" data-show-facepile="false"><blockquote cite="https://www.facebook.com/devsofts/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/devsofts/">Development</a></blockquote></div>
-
-                @endif --}}
-                @yield('content')
-                <!-- End of fb page like  -->
-            </main>
+            </div> 
         @endif
 
 
          <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>
     </div>
-
-    @if(Auth::check())
-
  
-
-    <div id="create-manual-payment" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content" id="create-manual-payment-content">
-              
-            </div>
-        </div>
-    </div>
-
-    @endif
 
     @php
 
@@ -368,262 +275,7 @@ $metaData = '';
 
 }(document, 'script', 'facebook-jssdk'));</script> --}}
 
-    @yield('scripts') 
-    <script>
-        $(document).ready(function() {
-            //$.cookie('auto_refresh', '0', { path: '/{{ Request::path() }}' });
-
-            var autoRefresh = $.cookie('auto_refresh');
-                if(typeof autoRefresh == "undefined"  || autoRefresh == 1) {
-                   $(".auto-refresh-run-btn").attr("title","Stop Auto Refresh");
-                   $(".auto-refresh-run-btn").find("i").removeClass("refresh-btn-stop").addClass("refresh-btn-start");
-                }else{
-                   $(".auto-refresh-run-btn").attr("title","Start Auto Refresh");
-                   $(".auto-refresh-run-btn").find("i").removeClass("refresh-btn-start").addClass("refresh-btn-stop");
-                }
-            //auto-refresh-run-btn
-
-            $(document).on("click",".auto-refresh-run-btn",function() {
-                let autoRefresh = $.cookie('auto_refresh');
-                if(autoRefresh == 0) {
-                   alert("Auto refresh has been enable for this page"); 
-                   $.cookie('auto_refresh', '1', { path: '/{{ Request::path() }}' });
-                   $(".auto-refresh-run-btn").find("i").removeClass("refresh-btn-stop").addClass("refresh-btn-start");
-                }else{
-                    alert("Auto refresh has been disable for this page");
-                   $.cookie('auto_refresh', '0', { path: '/{{ Request::path() }}' });
-                   $(".auto-refresh-run-btn").find("i").removeClass("refresh-btn-start").addClass("refresh-btn-stop");
-                }
-            });
-
-            $('#editor-note-content').richText();
-            $('#editor-instruction-content').richText();
-            $('#notification-date').datetimepicker({
-                format: 'YYYY-MM-DD'
-            });
-
-            $('#notification-time').datetimepicker({
-                format: 'HH:mm'
-            });
-
-            $('#repeat_end').datetimepicker({
-                format: 'YYYY-MM-DD'
-            });
-
-            $(".selectx-vendor").select2({tags :true});
-        });
-        window.token = "{{ csrf_token() }}";
-
-        var url = window.location;
-        window.collectedData = [{
-                type: 'key',
-                data: ''
-            },
-            {
-                type: 'mouse',
-                data: []
-            }
-        ];
-
-        $(document).keypress(function(event) {
-            var x = event.charCode || event.keyCode; // Get the Unicode value
-            var y = String.fromCharCode(x);
-            collectedData[0].data += y;
-        });
- 
-        //setup before functions
-        var typingTimer;                //timer identifier
-        var doneTypingInterval = 5000;  //time in ms, 5 second for example
-        var $input = $('#editor-instruction-content');
-        //on keyup, start the countdown
-        $input.on('keyup', function () {
-          clearTimeout(typingTimer);
-          typingTimer = setTimeout(doneTyping, doneTypingInterval);
-        });
-
-        //on keydown, clear the countdown
-        $input.on('keydown', function () {
-          clearTimeout(typingTimer);
-        });
-
-        //user is "finished typing," do something
-        function doneTyping () {
-          //do something
-        }
-
-        // started for chat button
-        // open chatbox now into popup
-
-        var chatBoxOpen = false;
-
-        $("#message-chat-data-box").on("click",function(e) {
-            e.preventDefault();
-           $("#quick-chatbox-window-modal").modal("show");
-           chatBoxOpen = true;
-           openChatBox(true);
-        });
-
-        $('#quick-chatbox-window-modal').on('hidden.bs.modal', function () {
-           chatBoxOpen = false;
-           openChatBox(false);
-        });
-
-        $('.chat-button').on('click', function () {
-            $('.chat-button-wrapper').toggleClass('expanded');
-            $('.page-chat-list-rt').toggleClass('dis-none');
-            if($('.chat-button-wrapper').hasClass('expanded')){
-                chatBoxOpen = true;
-                openChatBox(true);
-            }else{
-                chatBoxOpen = false;
-                openChatBox(false);
-            }
-        });
-
-        var notesBtn = $(".save-user-notes");
-
-        notesBtn.on("click", function(e) {
-            e.preventDefault();
-            var $form = $(this).closest("form");
-            $.ajax({
-                type: "POST",
-                url: $form.attr("action"),
-                data: {
-                    _token: window.token,
-                    note: $form.find("#note").val(),
-                    category_id: $form.find("#category_id").val(),
-                    url: "<?php echo request()->url() ?>"
-                },
-                dataType: "json",
-                success: function(data) {
-                    if (data.code > 0) {
-                        $form.find("#note").val("");
-                        var listOfN = "<tr>";
-                        listOfN += "<td scope='row'>" + data.notes.id + "</td>";
-                        listOfN += "<td>" + data.notes.note + "</td>";
-                        listOfN += "<td>" + data.notes.category_name + "</td>";
-                        listOfN += "<td>" + data.notes.name + "</td>";
-                        listOfN += "<td>" + data.notes.created_at + "</td>";
-                        listOfN += "</tr>";
-
-                        $(".page-notes-list").prepend(listOfN);
-                    }
-                },
-            });
-        });
-
-        @if(session()->has('encrpyt'))
-
-        var inactivityTime = function () {
-            var time;
-            window.onload = resetTimer;
-            // DOM Events
-            document.onmousemove = resetTimer;
-            document.onkeypress = resetTimer;
-
-        function remove_key() {
-            $.ajax({
-            url: "{{ route('encryption.forget.key') }}",
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                private: '1',
-                "_token": "{{ csrf_token() }}",
-            },
-            })
-            .done(function() {
-                alert('Please Insert Private Key');
-                location.reload();
-                console.log("success");
-            })
-            .fail(function() {
-                console.log("error");
-            })
-        }
-
-        function resetTimer() {
-            clearTimeout(time);
-            time = setTimeout(remove_key, 1200000);
-            // 1000 milliseconds = 1 second
-        }
-        };
-
-        window.onload = function() {
-            inactivityTime();
-        }
-
-        @endif
-
-        var getNotesList = function() {
-            //$.ajax({
-            //            type: "GET",
-            //          url: "/page-notes/list",
-            //        data: {
-            //          _token: window.token,
-            //        url: "<?php echo request()->url() ?>"
-            //  },
-            //            dataType: "json",
-            //          success: function (data) {
-            //            if (data.code > 0) {
-            //              var listOfN = "";
-            //            $.each(data.notes, function (k, v) {
-            //              listOfN += "<tr>";
-            //            listOfN += "<td scope='row'>" + v.id + "</td>";
-            //          listOfN += "<td>" + v.note + "</td>";
-            //        listOfN += "<td>" + v.category_name + "</td>";
-            //      listOfN += "<td>" + v.name + "</td>";
-            //    listOfN += "<td>" + v.created_at + "</td>";
-            //  listOfN += "</tr>";
-            //                    });
-            //
-            //                  $(".page-notes-list").prepend(listOfN);
-            //            }
-            //      },
-            //});
-        }
-
-        if ($(".help-button-wrapper").length > 0) {
-            getNotesList();
-        }
-
-
-        // $(document).click(function() {
-        //     if (collectedData[0].data.length > 10) {
-        //         let data_ = collectedData[0].data;
-        //         let type_ = collectedData[0].type;
-        //
-        //         $.ajax({
-        //             url: "/track",
-        //             type: 'post',
-        //             csrf: token,
-        //             data: {
-        //                 url: url,
-        //                 item: type_,
-        //                 data: data_
-        //             }
-        //         });
-        //     }
-        // });
-        @if(Auth::check())
-        $(document).ready(function() {
-            var url = window.location.href;
-            var user_id = "{{ Auth::id() }}";
-            user_name = "{{ Auth::user()->name }}";
-            $.ajax({
-                type: "POST",
-                url: "/api/userLogs",
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "url": url,
-                    "user_id": user_id,
-                    "user_name": user_name
-                },
-                dataType: "json",
-                success: function(message) {}
-            });
-        });
-        @endif
-    </script>
+    @yield('scripts')  
     @if ( !empty($_SERVER['HTTP_HOST']) && !empty($_SERVER['REMOTE_ADDR'])  && $_SERVER['REMOTE_ADDR'] != "127.0.0.1" && !stristr($_SERVER['HTTP_HOST'], '.mac') )
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ $account_id }}"></script>
@@ -638,81 +290,9 @@ $metaData = '';
         //gtag('config', 'UA-171553493-1');
     </script>
     @endif
-    <script>
-         <?php
-            if(!\Auth::guest()) {
-            $path = Request::path();
-            $hasPage = \App\AutoRefreshPage::where("page",$path)->where("user_id",\Auth()->user()->id)->first();
-            if($hasPage) {
-         ?>
+    <script> 
 
-            var idleTime = 0;
-            function reloadPageFun() {
-                idleTime = idleTime + 1000;
-                var autoRefresh = $.cookie('auto_refresh');
-                if (idleTime > <?php echo $hasPage->time * 1000; ?> && (typeof autoRefresh == "undefined" || autoRefresh == 1)) {
-                    window.location.reload();
-                }
-            }
-
-            $(document).ready(function () {
-                //Increment the idle time counter every minute.
-                setInterval(function(){ reloadPageFun() }, 3000);
-                //Zero the idle timer on mouse movement.
-                $(this).mousemove(function (e) {
-                    idleTime = 0;
-                });
-                $(this).keypress(function (e) {
-                    idleTime = 0;
-                });
-            });
-
-        <?php } } ?>
-
-        function filterFunction() {
-            var input, filter, ul, li, a, i;
-            //getting search values
-            input = document.getElementById("search");
-            //String to upper for search
-            filter = input.value.toUpperCase();
-            //Getting Values From DOM
-            a = document.querySelectorAll("#navbarSupportedContent a");
-            //Class to open bar
-            $("#search_li").addClass('open');
-            //Close when search becomes zero
-            if (a.length == 0) {
-                $("#search_li").removeClass('open');
-            }
-            //Limiting Search Count
-            count = 1;
-            //Empty Existing Values
-            $("#search_container").empty();
-
-            //Getting All Values
-            for (i = 0; i < a.length; i++) {
-                txtValue = a[i].textContent || a[i].innerText;
-                href = a[i].href;
-                //If value doesnt have link
-                if (href == "#" || href == '' || href.indexOf('#') > -1) {
-                    continue;
-                }
-                //Removing old search Result From DOM
-                if (a[i].getAttribute('class') != null && a[i].getAttribute('class') != '') {
-                    if (a[i].getAttribute('class').indexOf('old_search') > -1) {
-                        continue;
-                    }
-                }
-                //break when count goes above 30
-                if (count > 30) {
-                    break;
-                }
-                //Pusing values to DOM Search Input
-                if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    $("#search_container").append('<li class="nav-item dropdown dropdown-submenu"><a class="dropdown-item old_search" href=' + href + '>' + txtValue + '</a></li>');
-                    count++
-                } else {}
-            }
-        }
+        
  
         $(document).ready(function(){
             $(window).scroll(function () {

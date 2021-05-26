@@ -51,6 +51,7 @@ class BookController extends Controller
      */
     public function index()
     {
+        return redirect()->route('searchGrid');
         $view = setting()->getUser($this->currentUser, 'books_view_type', config('app.views.books'));
         $sort = setting()->getUser($this->currentUser, 'books_sort', 'name');
         $order = setting()->getUser($this->currentUser, 'books_sort_order', 'asc');

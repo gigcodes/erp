@@ -41,6 +41,7 @@ class BookshelfController extends Controller
      */
     public function index()
     {
+        return redirect()->route('searchGrid');
         $view = setting()->getUser($this->currentUser, 'bookshelves_view_type', config('app.views.bookshelves', 'grid'));
         $sort = setting()->getUser($this->currentUser, 'bookshelves_sort', 'name');
         $order = setting()->getUser($this->currentUser, 'bookshelves_sort_order', 'asc');
@@ -61,7 +62,7 @@ class BookshelfController extends Controller
 
         $this->entityContextManager->clearShelfContext();
         $this->setPageTitle(trans('bookstack::entities.shelves'));
-        return view('bookstack::shelves.index_grid', [
+        return view('bookstack::shelves.index', [
             'shelves' => $shelves,
             'recents' => $recents,
             'popular' => $popular,

@@ -178,7 +178,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/custom-head-content', 'HomeController@customHeadContent');
 
     // Search
-//    Route::get('/search', 'SearchController@search');
+//    Route::get('/search', 'SearchController@search');                                                                                                                             
+   Route::get('/searchGrid', 'SearchController@searchGrid')->name('searchGrid');
 //    Route::get('/search/book/{bookId}', 'SearchController@searchBook');
 //    Route::get('/search/chapter/{bookId}', 'SearchController@searchChapter');
 //    Route::get('/search/entity/siblings', 'SearchController@searchSiblings');
