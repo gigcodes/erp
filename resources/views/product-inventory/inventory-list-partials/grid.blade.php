@@ -1,16 +1,17 @@
 @if(!empty($inventory_data->items()))
   @foreach ($inventory_data as $row => $data)
     <tr>
-    <td><input type="checkbox" class="selected-product-ids" name="selected_product_ids[]" value="{{ $data['id'] }}"> {{ $data['id'] }}</td>
+    <td><input type="checkbox" class="selected-product-ids" name="selected_product_ids[]" value="{{ $data['id'] }}"></td>
+    <td>{{ $data['id'] }}</td>
     <td>
       <span id="sku_long_string_{{$data['id']}}" style="display: none">{{ $data['sku'] }}</span>
       <a href="/products/{{ $data['id'] }}">
-      <span id="sku_small_string_{{$data['id']}}"><?php echo \Illuminate\Support\Str::substr($data['sku'],-10) ?> </span></a> @if(strlen($data['sku'])>10) ...<a href="javascript:;" data-id="{{$data['id']}}" class="show_sku_long">More</a> @endif
-      <br>Supplier count : <a  title="show suppliers" data-id="{{ $data['id'] }}" class="btn btn-image show-supplier-modal des-pd">{{$data['total_product']}}</a>
+      <span id="sku_small_string_{{$data['id']}}"><?php echo \Illuminate\Support\Str::substr($data['sku'],-10) ?> </span></a> @if(strlen($data['sku'])>10) ...<!-- <a href="javascript:;" data-id="{{$data['id']}}" class="show_sku_long">More</a> --> @endif
     </td>
+    <td><a  title="show suppliers" data-id="{{ $data['id'] }}" class="btn btn-image show-supplier-modal des-pd">{{$data['total_product']}}</a></td>
     <td>
     <span id="prod_long_string_{{$data['id']}}" style="display: none">{{ $data['product_name'] }}</span>
-      <span id="prod_small_string_{{$data['id']}}"><?php echo \Illuminate\Support\Str::substr($data['product_name'],-10) ?> @if(strlen($data['product_name'])>10) ...<a href="javascript:;" data-id="{{$data['id']}}" class="show_prod_long">More</a> @endif
+      <span id="prod_small_string_{{$data['id']}}"><?php echo \Illuminate\Support\Str::substr($data['product_name'],-10) ?> @if(strlen($data['product_name'])>10) ...<!-- <a href="javascript:;" data-id="{{$data['id']}}" class="show_prod_long">More</a> --> @endif
 
 
     </td>

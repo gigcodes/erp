@@ -12,6 +12,9 @@
 .des-pd {
     padding:2px;
 }
+table.table.table-bordered.infinite-scroll th:nth-child(2),table.table.table-bordered.infinite-scroll td:nth-child(2){
+    width: 50px !important;
+}
 </style>
 @endsection
 
@@ -52,7 +55,7 @@
         <div class="form-group mr-pd col-md-2">
             {!! Form::select('in_stock',["" => "--All--" , "1" => "In Stock", "2" => "Out Of Stock"], request("in_stock",null), ['data-placeholder' => 'Select a In Stock','class' => 'form-control']) !!}
         </div>
-        <div class="form-group mr-3 mb-3">
+        <div class="form-group mr- mb-3 col-md-3">
             {!! Form::select('supplier[]',$supplier_list, request("supplier",[]), ['data-placeholder' => 'Select a Supplier','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
         </div>
         <!-- <div class="form-group mr-3 mb-3">
@@ -64,12 +67,13 @@
         <div class="form-group mr-pd col-md-1">
             {!! Form::select('product_sub_status[]',\App\Helpers\StatusHelper::subStatus(), request("product_sub_status",[]), ['data-placeholder' => 'Select a sub status','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
         </div>
-        <div class="form-group mr-pd col-md-1">
-            {!! Form::checkbox('no_category',"on",request("no_category"), ['class' => 'form-control']) !!} No Category
+        <div class="form-group mr-pd col-md-2">
+            {!! Form::checkbox('no_category',"on",request("no_category"), ['class' => 'form-control', 'style'=>'vertical-align: sub;width: 15px;height: 15px;']) !!} No Category
+            {!! Form::checkbox('no_size',"on",request("no_size"), ['class' => 'form-control', 'style'=>'vertical-align: sub;width: 15px;height: 15px;']) !!} No Size
         </div>
-        <div class="form-group mr-pd col-md-1">
-            {!! Form::checkbox('no_size',"on",request("no_size"), ['class' => 'form-control']) !!} No Size
-        </div>
+        <!-- <div class="form-group mr-pd col-md-1">
+            
+        </div> -->
         <div class="form-group mr-pd col-md-2">
             {!! Form::text('supplier_count',request("supplier_count"), ['class' => 'form-control', 'placeholder' => 'Supplier count']) !!}
         </div>
@@ -84,47 +88,51 @@
         <div class="form-group mr-pd col-md-1">
             <button type="submit" class="btn btn-secondary"><i class="fa fa-filter"></i>Filter</button>
         </div>
+    </form>
+</div>
+<div class="col-lg-12 margin-tb mb-5">
         <div class="form-group mr-pd col-md-2">
             {!! Form::select('size_system',["" => "Select Size Sytem"] + \App\SystemSize::pluck('name','name')->toArray(), request("size_system"), ['data-placeholder' => 'Select a Size System','class' => 'form-control change-selectable-size']) !!}
         </div>
         <div class="form-group mr-pd col-md-2">    
             <button type="button" class="btn btn-secondary btn-change-size-system"></i>Change Size System</button>
         </div>
-    </form>
-    <div class="form-group mr-pd col-md-2">
-        {!! Form::select('size_system',["" => "Select status"] + \App\Helpers\StatusHelper::getStatus(), request("status"), ['data-placeholder' => 'Select status','class' => 'form-control change-status']) !!}
-    </div>
-    <div class="form-group mr-pd col-md-2">    
-        <button type="button" class="btn btn-secondary btn-change-status"></i>Change status</button>
-    </div>
-    <div class="form-group mr-pd col-md-2">    
-        <button type="button" data-toggle="modal" data-target="#missing-report-modal" class="btn btn-secondary"></i>Report</button>
-    </div>
+        <div class="form-group mr-pd col-md-2">
+            {!! Form::select('size_system',["" => "Select status"] + \App\Helpers\StatusHelper::getStatus(), request("status"), ['data-placeholder' => 'Select status','class' => 'form-control change-status']) !!}
+        </div>
+        <div class="form-group mr-pd col-md-2">    
+            <button type="button" class="btn btn-secondary btn-change-status"></i>Change status</button>
+        </div>
+        <div class="form-group mr-pd col-md-2">    
+            <button type="button" data-toggle="modal" data-target="#missing-report-modal" class="btn btn-secondary"></i>Report</button>
+        </div>
 </div>
 <div class="table-responsive" id="inventory-data">
     <table class="table table-bordered infinite-scroll">
         <thead>
             <tr>
-                <th><input type="checkbox" class="chk-select-call" name="select-all">&nbsp;ID</th>
+                <th width="40%"><input type="checkbox" class="chk-select-call" name="select-all"></th>
+                <th>ID</th>
                 <th>Sku</th>
+                <th>Supplier count</th>
                 <th>Name</th>
                 <th>Category</th>
                 <th>Brand</th>
                 <th>Supplier</th>
                 <th>Color</th>
                 <th>S.Color</th>
-                <th>Composition</th>
+                <th width="7%">Composition</th>
                 <th>Size system</th>
                 <th>Size</th>
                 <th>Size(IT)</th>
                 <th>Status</th>
                 <th>Sub Status</th>
-                <th>Created Date</th>
-                <th>Actions</th>
+                <th width="15%">Created Date</th>
+                <th width="15%">Actions</th>
             </tr>
         </thead>
         <tbody>
-            @include("product-inventory.inventory-list-partials.grid")
+        @include("product-inventory.inventory-list-partials.grid")
         </tbody>
     </table>
 </div>
@@ -205,7 +213,7 @@
 </div>
 
 <div id="missing-report-modal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" style="max-width: 1000px">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Report</h4>
@@ -216,12 +224,15 @@
                 <table class="table table-bordered infinite-scroll">
                     <thead>
                         <tr>
-                            <th>Supplier</th>
+                            <th width="10%">Supplier</th>
                             <th>Missing Category</th>
                             <th>Missing Color</th>
                             <th>Missing Composition</th>
                             <th>Missing Name</th>
                             <th>Missing Short Description</th>
+                            <th>Missing Price</th>
+                            <th>Missing Size</th>
+                            <th>Missing Dimention</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -233,6 +244,9 @@
                             <td>{{$value->missing_composition}}</td>
                             <td>{{$value->missing_name}}</td>
                             <td>{{$value->missing_short_description}}</td>
+                            <td>{{$value->missing_price}}</td>
+                            <td>{{$value->missing_size}}</td>
+                            <td>{{$value->missing_measurement}}</td>
                         </tr>
                         @endforeach
                     </tbody>
