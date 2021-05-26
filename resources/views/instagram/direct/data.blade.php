@@ -39,9 +39,9 @@
                                     <td>
                                         <div class="row">
                                             <div class="col-md-12 cls_remove_rightpaddings">
-                                                <input type="text" name="" class="form-control type_msg message_textareas cls_message_textareas" placeholder="Type your message..." id="message{{ $thread->id }}" style="width: 75%;display: inline;float: left;">
+                                                <input type="text" name="" class="form-control type_msg message_textareas cls_message_textareas" placeholder="Type your message..." id="message{{ $thread->id }}" style="width: 85%;display: inline;float: left;">
                                                 <input type="hidden" id="message-id" name="message-id" />
-                                                <div class="input-group-append">
+                                                <div class="input-group-appends">
                                                     <a href="{{ route('attachImages', ['direct', @$thread->id, 1]) .'?'.http_build_query(['return_url' => 'instagram/direct'])}}" class="btn btn-image px-1 attach-media-btn" data-target="{{ $thread->id }}" ><img src="{{asset('images/attach.png')}}"/></a>
                                                     <a class="btn btn-image px-1" href="javascript:;" onclick="sendMessage('{{ $thread->id }}')"><span class="send_btn" ><i class="fa fa-location-arrow"></i></span></a>
                                                 </div>
@@ -128,6 +128,41 @@
                                         </div>
                                     </td> -->
                                     <td>
+                                        <div class="row">
+                                            <div class="col-6 d-inline form-inline">
+                                                <input style="width: 87%" type="text" name="category_name" placeholder="Enter New Category" class="form-control mb-3 quick_category">
+                                                <button class="btn btn-secondary quick_category_add" style="position: absolute;  margin-left: 8px;">+</button>
+                                            </div>
+                                            <div class="col-6 d-inline form-inline" style="padding-left: 0px;">
+                                                <div style="float: left; width: 86%">
+                                                    <select name="quickCategory" class="form-control mb-3 quickCategory">
+                                                        <option value="">Select Category</option>
+                                                        @foreach($all_categories as $category)
+                                                        <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div style="float: right; width: 14%;">
+                                                    <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 d-inline form-inline">
+                                                <input style="width: 87%" type="text" name="quick_comment" placeholder="Enter New Quick Comment" class="form-control mb-3 quick_comment">
+                                                <button class="btn btn-secondary quick_comment_add" style="position: absolute;  margin-left: 8px;">+</button>
+                                            </div>
+                                            <div class="col-6 d-inline form-inline" style="padding-left: 0px;">
+                                                <div style="float: left; width: 86%">
+                                                    <select name="quickComment" class="form-control quickComment">
+                                                        <option value="">Quick Reply</option>
+                                                    </select>
+                                                </div>
+                                                <div style="float: right; width: 14%;">
+                                                    <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
                                         @if($thread->erpUser && !empty($thread->erpUser))
                                             Existing Customer
                                         @else
@@ -137,7 +172,7 @@
                                         @endif
                                         <button type="button" class="btn btn-xs btn-image load-direct-chat-model" data-object="direct" data-id="{{ $thread->id }}" title="Load messages"><img src="/images/chat.png" alt="" style="cursor: default;"></button>
                                         <button type="button" class="btn btn-xs btn-image task-history" data-object="direct" data-id="{{ $thread->thread_id }}" title="Show history"><i class="fa fa-repeat" aria-hidden="true"></i></button>
-                                        <button type="button" class="btn btn-xs btn-image shortcuts" title="Shortcut Actions"><i class="fa fa-sign-out" aria-hidden="true"></i></button>
+                                        <!-- <button type="button" class="btn btn-xs btn-image shortcuts" title="Shortcut Actions"><i class="fa fa-sign-out" aria-hidden="true"></i></button> -->
                                         <div class="typing-indicator" id="typing-indicator" @if($thread->lastMessage) @if($thread->lastMessage->sent == 1)  @else  @endif>{{ $thread->lastMessage->message }}@endif </div>
                                     </td>
                                    </tr>

@@ -100,8 +100,9 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                             <th style="">To</th>
                             <th style="">From</th>
                             <th style="width:10%">Translation Language</th>
-                            <th style="">Communication</th>
-                            <th style="">Actions</th>
+                            <th style="width: 25%;">Communication</th>
+                            <th style="">Quick Replies</th>
+                            <th style="width: 7%;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
