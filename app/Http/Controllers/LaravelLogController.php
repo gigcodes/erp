@@ -92,6 +92,92 @@ class LaravelLogController extends Controller
         return view('logging.laravellog', compact('logs'));
     }
 
+    public function liveLogsSingle(Request $request)
+    {
+        $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
+        //$filename = '/laravel-2020-09-10.log';
+        $path         = storage_path('logs');
+        $fullPath     = $path . $filename;
+        $errSelection = [];
+        try {
+            $content = File::get($fullPath);
+            preg_match_all("/\[(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\](.*)/", $content, $match);
+            $errorTypeArr       = ['ERROR', 'INFO', 'WARNING'];
+            $errorTypeSeparated = implode('|', $errorTypeArr);
+
+            $defaultSearchTerm = 'ERROR';
+            if ($request->get('type')) {
+                $defaultSearchTerm = $request->get('type');
+            }
+
+            foreach ($match[0] as $value) {
+                foreach ($errorTypeArr as $errType) {
+                    if (preg_match("/" . $errType . "/", $value)) {
+                        $errSelection[] = $errType;
+
+                        break;
+                    }
+                }
+                if ($request->get('search') && $request->get('search') != '') {
+                    //if(preg_match("/".$request->get('search')."/", $value) && preg_match("/".$defaultSearchTerm."/", $value)) {
+                    if (strpos(strtolower($value), strtolower($request->get('search'))) !== false && preg_match("/" . $defaultSearchTerm . "/", $value)) {
+                        $str   = $value;
+                        $temp1 = explode(".", $str);
+                        $temp2 = explode(" ", $temp1[0]);
+                        $type  = $temp2[2];
+                        array_push($this->channel_filter, $type);
+
+                        $errors[] = $value . "===" . str_replace('/', '', $filename);
+                    }
+                } else {
+                    if (preg_match("/" . $defaultSearchTerm . "/", $value)) {
+                        $str   = $value;
+                        $temp1 = explode(".", $str);
+                        $temp2 = explode(" ", $temp1[0]);
+                        $type  = $temp2[2];
+                        array_push($this->channel_filter, $type);
+
+                        $errors[] = $value . "===" . str_replace('/', '', $filename);
+                    }
+                }
+
+            }
+            //if(isset($_GET['channel']) && $_GET['channel'] == "local"){
+            $errors = array_reverse($errors);
+            //}
+        } catch (\Exception $e) {
+            $errors = [];
+
+        }
+
+        $other_channel_data = $this->getDirContents($path);
+        foreach ($other_channel_data as $other) {
+            array_push($errors, $other);
+        }
+        $allErrorTypes = array_values(array_unique($errSelection));
+
+        $users       = User::all();
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+
+        $perPage = Setting::get('pagination');
+
+        $final = $key = [];
+        if (isset($_GET['channel'])) {
+            session(['channel' => $_GET['channel']]);
+        }
+        foreach ($errors as $key => $error) {
+
+            $str   = $error;
+            $temp1 = explode(".", $str);
+            $temp2 = explode(" ", $temp1[0]);
+            $type  = $temp2[2];
+            $if_available = false;
+            if (stripos(strtolower($request->msg), $temp1[1]) !== false){
+                array_push($final, $temp2[0].$temp2[1]);
+            }
+        }
+        return $final;
+    }
     public function liveLogs(Request $request)
     {
         $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
@@ -171,18 +257,30 @@ class LaravelLogController extends Controller
             $temp1 = explode(".", $str);
             $temp2 = explode(" ", $temp1[0]);
             $type  = $temp2[2];
+            
+            $if_available = false;
             if (isset($_GET['channel']) && $_GET['channel'] == $type) {
-                // echo "<pre>";
-                // print_r($key);
-                array_push($final, $error);
-
+                foreach ($final as $value) {
+                    if (stripos(strtolower($value), $temp1[1]) !== false) $if_available = true;
+                }
+                if($if_available){
+                    continue;
+                }else{
+                    array_push($final, $error);
+                }
             }
 
             if (!isset($_GET['channel'])) {
-
-                // echo "<pre>";
-                // print_r($key);
-                array_push($final, $error);
+                
+                foreach ($final as $value) {
+                    if (stripos(strtolower($value), $temp1[1]) !== false) $if_available = true;
+                }
+                if($if_available){
+                    continue;
+                }else{
+                    array_push($final, $error);
+                }
+                
             }
         }
         //     dd($final);
