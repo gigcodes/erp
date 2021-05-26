@@ -23,6 +23,7 @@ use Mail;
 use App\Email;
 use App\InventoryStatus;
 use App\ChatMessage;
+use App\Product;
 
 class PurchaseProductController extends Controller
 {
@@ -412,7 +413,42 @@ class PurchaseProductController extends Controller
         }
         return response()->json(['message' => 'Status not changed' ,'code' => 500]);
     }
+    
+    public function insert_suppliers_product(Request $request){
+       
+        $product_data = Product::find($request->product_id);
+        $suppliers = $request->supplier_id;
 
+        $isexist = ProductSupplier::where('product_id',$product_data->id)->whereIn('supplier_id',$suppliers)->exists();
+
+        if($isexist == true)
+        {
+            return response()->json(['message' => 'This Supplier Alreday Added For this Product.' ,'code' => 400]);
+        }
+
+        foreach($suppliers as $key => $val)
+        {
+            $add_product_supplier             = ProductSupplier::create([
+                'product_id' => $product_data->id,
+                'supplier_id' => $val,
+                'sku' => $product_data->sku,
+                'title' => $product_data->name,
+                'description' => $product_data->short_description,
+                'supplier_link' => $product_data->supplier_link,
+                'price'         => $product_data->price,
+                'stock'         => $product_data->stock,
+                'price'         => $product_data->price,
+                'price_special' => $product_data->price_eur_special,
+                'price_discounted' => $product_data->price_eur_discounted,
+                'size'          => $product_data->size,
+                'color'         => $product_data->color,
+                'composition'   => $product_data->composition
+            ]);
+        }
+
+        return response()->json(['message' => 'Supplier Added successfully' ,'code' => 200]);
+    }
+    
     /**
      * Store a newly created resource in storage.
      *

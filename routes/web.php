@@ -1021,6 +1021,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('purchase-product/customer-details/{type}/{order_id}', 'PurchaseProductController@getCustomerDetails');
     Route::resource('purchase-product', 'PurchaseProductController');
 
+    Route::post('purchase-product/insert_suppliers_product', 'PurchaseProductController@insert_suppliers_product')->name('purchase-product.insert_suppliers_product');
+
     // Cash Vouchers
     Route::get('/voucher/payment/request', 'VoucherController@paymentRequest')->name("voucher.payment.request");
     Route::post('/voucher/payment/request', 'VoucherController@createPaymentRequest')->name('voucher.payment.request-submit');
