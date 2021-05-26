@@ -126,7 +126,7 @@ class ScrapStatisticsController extends Controller
                 sc.scraper_name=ls.website
             WHERE
                 sc.scraper_name IS NOT NULL AND
-                ls.website != "internal_scraper" AND
+                
                 ' . ($request->excelOnly == 1 ? 'ls.website LIKE "%_excel" AND' : '') . '
                 ' . ($request->excelOnly == -1 ? 'ls.website NOT LIKE "%_excel" AND' : '') . '
                 ls.last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)
@@ -248,7 +248,7 @@ class ScrapStatisticsController extends Controller
                 sc.scraper_name=ls.website
             WHERE
                 sc.scraper_name IS NOT NULL AND
-                ls.website != "internal_scraper" AND
+                
                 ' . ($request->excelOnly == 1 ? 'ls.website LIKE "%_excel" AND' : '') . '
                 ' . ($request->excelOnly == -1 ? 'ls.website NOT LIKE "%_excel" AND' : '') . '
                 ls.last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)

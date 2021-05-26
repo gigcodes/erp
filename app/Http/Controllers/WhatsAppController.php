@@ -3874,8 +3874,29 @@ class WhatsAppController extends FindByNumberController
                     $supplierDetails = Supplier::find($message->supplier_id);
                     $language = $supplierDetails->language;
                     if ($language != null) {
-                        $result = TranslationHelper::translate('en', $language, $message->message);
-                        $message->message = $result;
+                        try {
+                            $result = TranslationHelper::translate('en', $language, $message->message);
+                            $history = array(
+                                'msg_id' => $message->id,
+                                'supplier_id' => $message->supplier_id,
+                                'original_msg' => $message->message,
+                                'translate_msg' => '('.$language.') '.$result,
+                                'error_log' => 'N/A',
+                            );
+                            \App\SupplierTranslateHistory::insert( $history );
+                        } catch (\Throwable $e) {
+                            $history = array(
+                                'msg_id' => $message->id,
+                                'supplier_id' => $message->supplier_id,
+                                'original_msg' => $message->message,
+                                'translate_msg' => null,
+                                'error_log' => $e->getMessage(),
+                            );
+                            \App\SupplierTranslateHistory::insert( $history );
+                            throw new \Exception($e->getMessage(), 1);
+                            
+                        }
+                        $message->message = $result.' ( '.$message->message.' )';
                     }
                 }
                 if ($context == 'customer') {
