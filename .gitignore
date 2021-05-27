@@ -84,3 +84,4 @@ app/Library/_MACOSX/*
 /public/wetransfer/*
 /resources/assets/analytics_files/*
 /.phpintel
+public/scrappersImages/*

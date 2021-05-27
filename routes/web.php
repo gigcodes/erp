@@ -271,6 +271,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     ', 'ProductController@updateApprovedBy');
     //    Route::get('products/{id}/color-historyproducts/{id}/color-history', 'ProductColorController@history');
 
+    Route::post('products/add/def_cust/{id}', 'ProductController@add_product_def_cust')->name('products.add.def_cust');
+
     Route::post('products/{id}/changeCategorySupplier', 'ProductController@changeAllCategoryForAllSupplierProducts');
     Route::post('products/{id}/changeColorSupplier', 'ProductController@changeAllColorForAllSupplierProducts');
     Route::resource('products', 'ProductController');
@@ -514,6 +516,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/send-document', 'ContentManagementController@sendDocument')->name("content-management.send-documents");
         Route::post('/save-reviews', 'ContentManagementController@saveReviews')->name("content-management.save-reviews");
         Route::post('/manage/milestone-task/submit', 'ContentManagementController@submitMilestones')->name("content-management.submit-milestones");
+        Route::post('/manage/attach/images', 'ContentManagementController@getAttachImages')->name("content-management.attach.images");
         Route::prefix('{id}')->group(function () {
             Route::get('list-documents', 'ContentManagementController@listDocuments')->name("content-management.list-documents");
             Route::prefix('remarks')->group(function () {
@@ -1492,6 +1495,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('supplier/{id}/loadMoreMessages', 'SupplierController@loadMoreMessages');
     Route::post('supplier/flag', 'SupplierController@flag')->name('supplier.flag');
+    
+    Route::post('supplier/trasnlate/history', 'SupplierController@MessageTranslateHistory')->name('supplier.history');
     Route::resource('supplier', 'SupplierController');
     Route::resource('google-server', 'GoogleServerController');
     Route::post('log-google-cse', 'GoogleServerController@logGoogleCse')->name('log.google.cse');
@@ -2805,6 +2810,7 @@ Route::get('store-website-country-shipping/edit/{id}', 'StoreWebsiteCountryShipp
 Route::get('store-website-country-shipping/delete/{id}', 'StoreWebsiteCountryShippingController@delete')->name('store-website-country-shipping.delete');
 
 Route::get('/attached-images-grid/customer/', 'ProductController@attachedImageGrid');
+Route::post('/attached-images-grid/customer/create-template', 'ProductController@createTemplate')->name('attach.cus.create.tpl');
 Route::post('/attached-images-grid/add-products/{suggested_products_id}', 'ProductController@attachMoreProducts');//
 Route::post('/attached-images-grid/remove-products/{customer_id}', 'ProductController@removeProducts');//
 Route::post('/attached-images-grid/remove-single-product/{customer_id}', 'ProductController@removeSingleProduct');//
