@@ -98,6 +98,10 @@ class Scraper extends Model
         return \App\ScrapRemark::where("scraper_name", $this->scraper_name)->latest()->first();
     }
 
+    public function scrpRemark(){
+        return $this->hasOne(ScrapRemark::class, 'scraper_name', 'scraper_name');
+    }
+
     public function developerTask($id)
     {
         return \App\DeveloperTask::where("scraper_id", $id)->first();
@@ -113,6 +117,11 @@ class Scraper extends Model
         ->first();
     }
 
+    public function latestMessageNew()
+    {
+        return $this->hasManyThrough(ChatMessage::class, DeveloperTask::class, 'scraper_id', 'developer_task_id', 'id', 'id');
+    }
+
     public function latestLog()
     {
         return \App\ScrapRemark::where("scraper_name",$this->scraper_name)->where("scrap_field", 'last_line_error')->latest()->first();
@@ -121,6 +130,19 @@ class Scraper extends Model
     public function lastErrorFromScrapLog()
     {
         return \App\ScrapLog::where("scraper_id",$this->scrapper_id)->latest()->first();
+    }
+
+    public function lastErrorFromScrapLogNew()
+    {
+        return $this->hasOne(ScrapLog::class, 'scraper_id', 'id')->latest();
+    }
+
+
+    public function childrenScraper()
+    {
+
+        return  $this->hasMany(Scraper::class, 'parent_id', 'id');
+
     }
 
 }

@@ -64,8 +64,20 @@ class ScrapStatisticsController extends Controller
 
 
         // Get active suppliers
-        $activeSuppliers = Scraper::join("suppliers as s", "s.id", "scrapers.supplier_id")
-            ->select('scrapers.id as scrapper_id', 'scrapers.*', "s.*", "scrapers.status as scrapers_status")
+        $activeSuppliers = Scraper::with([
+            'scrpRemark' => function($q){
+                $q->whereNull("scrap_field")->where('user_name','!=','')->orderBy('created_at','desc');
+            },
+            'latestMessageNew' => function($q){
+                $q->whereNotIn('chat_messages.status', ['7', '8', '9', '10'])
+                ->take(1)
+                ->orderBy("id","desc");
+            },
+            'lastErrorFromScrapLogNew'
+        ])
+        ->withCount('childrenScraper')
+        ->join("suppliers as s", "s.id", "scrapers.supplier_id")
+           // ->select('scrapers.id as scrapper_id', 'scrapers.*', "s.*", "scrapers.status as scrapers_status")
             ->where('supplier_status_id', 1)
             ->whereIn("scrapper", [1, 2])
             ->whereNull('parent_id');
@@ -89,6 +101,7 @@ class ScrapStatisticsController extends Controller
         }
 
         $activeSuppliers = $activeSuppliers->orderby('scrapers.flag', 'desc')->orderby('s.supplier', 'asc')->get();
+        // dd($activeSuppliers[0]);
         // Get scrape data
         $yesterdayDate = date("Y-m-d", strtotime("-1 day"));
         $sql           = '
