@@ -22,6 +22,11 @@
       </div>
 
       <div class="form-group mr-3">
+        <strong class="mr-3">Product</strong>
+        <input type="text" name="product_name" class="form-control" value="{{ request('product_name') }}" placeholder="Enter product name" />
+      </div>
+
+      <div class="form-group mr-3">
         <strong class="mr-3">Price</strong>
         <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="10000000" data-slider-step="10" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '10000000' }}]"/>
       </div>
