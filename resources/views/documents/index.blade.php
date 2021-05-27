@@ -77,14 +77,13 @@
         <table class="table table-bordered" id="documents-table">
             <thead>
             <tr>
-                <th>Date</th>
+                <th style="width:10%">Date</th>
                 <th>User</th>
                 <th>Department</th>
                 <th>Document Type</th>
                 <th>Category</th>
                 <th>Filename</th>
-                <th>Actions</th>
-                <th>Remarks</th>
+                <th style="width:20%">Actions</th>
             </tr>
             <tr>
             <th></th>    
@@ -93,7 +92,6 @@
             <th><input type="text" id="document_type" class="search form-control"></th>
             <th><input type="text" id="category" class="search form-control"></th>
             <th><input type="text" id="filename" class="search form-control"></th>
-            <th></th>
             <th></th>
           </tr>
             </thead>
