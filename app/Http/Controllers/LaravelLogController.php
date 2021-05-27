@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\LaravelLog;
 use App\Setting;
 use App\User;
+use App\LogKeyword;
 use File;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -93,7 +94,6 @@ class LaravelLogController extends Controller
 
     public function liveLogs(Request $request)
     {
-
         $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
         //$filename = '/laravel-2020-09-10.log';
         $path         = storage_path('logs');
@@ -120,7 +120,7 @@ class LaravelLogController extends Controller
                 }
                 if ($request->get('search') && $request->get('search') != '') {
                     //if(preg_match("/".$request->get('search')."/", $value) && preg_match("/".$defaultSearchTerm."/", $value)) {
-                    if (strpos($value, $request->get('search')) !== false && preg_match("/" . $defaultSearchTerm . "/", $value)) {
+                    if (strpos(strtolower($value), strtolower($request->get('search'))) !== false && preg_match("/" . $defaultSearchTerm . "/", $value)) {
                         $str   = $value;
                         $temp1 = explode(".", $str);
                         $temp2 = explode(" ", $temp1[0]);
@@ -206,11 +206,27 @@ class LaravelLogController extends Controller
                 array_push($filter_channel, $ch);
             }
         }
-
-        return view('logging.livelaravellog', ['logs' => $logs, 'filename' => str_replace('/', '', $filename), 'errSelection' => $allErrorTypes, 'users' => $users, 'filter_channel' => $filter_channel]);
+        $logKeywords = LogKeyword::all();
+        return view('logging.livelaravellog', ['logs' => $logs, 'filename' => str_replace('/', '', $filename), 'errSelection' => $allErrorTypes, 'users' => $users, 'filter_channel' => $filter_channel, 'logKeywords' => $logKeywords]);
 
     }
 
+    public function LogKeyword(Request $request)
+    {
+        if($request->title){
+            //creating message
+            $params = [
+                'text'              => $request->title,
+            ];
+            $logKeyword = LogKeyword::create($params);
+            return response()->json([
+                'status' => 'success',
+            ]);
+        }
+        return response()->json([
+            'status' => 'errors',
+        ]);
+    }
     /**
      * to get relelated records for scraper
      *
@@ -304,7 +320,15 @@ class LaravelLogController extends Controller
         $message         = $request->message;
         $website         = $request->website;
         $module_name     = $request->module_name;
+        if(!empty($request->modulename)) {
+            $module_name = $request->modulename;
+        }
+
         $controller_name = $request->controller_name;
+        if(!empty($request->controller)) {
+            $controller_name = $request->controller;
+        }
+
         $action          = $request->action;
 
         if ($url == '') {
@@ -434,6 +458,7 @@ class LaravelLogController extends Controller
         $count = $logs->count();
 
         $logs = $logs->orderBy("id", "desc")->paginate(Setting::get('pagination'));
+        $status_codes = \App\LogRequest::distinct()->get(['status_code']);
 
         if ($request->ajax()) {
             //$request->render('logging.partials.apilogdata',compact('logs'));
@@ -445,7 +470,7 @@ class LaravelLogController extends Controller
                 return array('status' => 0, 'html' => '<tr id="noresult_tr"><td colspan="7">No More Records</td></tr>');
             }
         }
-        return view('logging.apilog', compact('logs', 'count'));
+        return view('logging.apilog', compact('logs', 'count','status_codes'));
     }
 
     public function generateReport(Request $request)

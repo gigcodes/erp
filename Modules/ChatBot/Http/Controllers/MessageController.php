@@ -170,8 +170,7 @@ class MessageController extends Controller
                 if($customer) {
                     $params = $chatMessage->getAttributes();
                     \App\Helpers\MessageHelper::whatsAppSend($customer,$chatMessage->message, null , $chatMessage);
-                    \App\Helpers\MessageHelper::sendwatson($customer,$chatMessage->message, null , $chatMessage, $params);
-
+                    \App\Helpers\MessageHelper::sendwatson($customer,$chatMessage->message, null , $chatMessage, $params, false, 'customer');
                     return response()->json(["code" => 200 , "data" => [] , "message" => "Message sent Successfully"]);
                 }
             }

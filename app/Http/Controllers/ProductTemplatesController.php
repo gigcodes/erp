@@ -12,6 +12,7 @@ use App\ProductTemplate;
 use App\Template;
 use App\Category;
 use App\Product;
+use App\StoreWebsite;
 
 class ProductTemplatesController extends Controller
 {
@@ -66,6 +67,16 @@ class ProductTemplatesController extends Controller
         $records = $records->orderBy("id", "desc")
         ->select(["product_templates.*","b.name as brand_name","sw.title as website_name"])
         ->paginate(Setting::get('pagination')); 
+
+        $array = [];
+        foreach($records as $record) {
+            if($record->hasMedia('template-image')) {
+                $media = $record->getMedia('template-image')->first();
+                 if(!empty($media))  {
+                    $record->image_url = $media->getUrl();
+                 }
+            }
+        }
 
         return response()->json([
             "code" => 1,
@@ -220,9 +231,9 @@ class ProductTemplatesController extends Controller
                 "logo" => ($record->storeWebsite) ? $record->storeWebsite->icon : ""
             ];
 
-            if ($record->hasMedia('template-image')) {
+            if ($record->hasMedia('template-image-attach')) {
                 $images = [];
-                foreach ($record->getMedia('template-image') as $i => $media) {
+                foreach ($record->getMedia('template-image-attach') as $i => $media) {
                     $images[] = $media->getUrl();
                 }
                 $data[ "image" ] = $images;
@@ -380,9 +391,7 @@ class ProductTemplatesController extends Controller
 
      public function create(Request $request)
     {
-
-        
-
+        // dd( $request->store_website_id );
         $template = new \App\ProductTemplate;
         $params = request()->all();
         $imagesArray=[];
@@ -400,12 +409,16 @@ class ProductTemplatesController extends Controller
 
         if ($template->save()) {
 
-            
+            $StoreWebsite = StoreWebsite::where('id',$request->store_website_id)->first();
 
             if (!empty($request->get('product_media_list')) && is_array($request->get('product_media_list'))) {
                 foreach ($request->get('product_media_list') as $mediaid) {
                     $media = Media::find($mediaid);
-                   // $template->attachMedia($media, ['template-image']);
+                    $template->attachMedia($media, ['template-image-attach']);
+                    $template->save();
+
+                    $StoreWebsite->attachMedia($media, ['website-image-attach']);
+
                     $imagesArray[]=$media->getUrl();
                 }
             }
@@ -414,12 +427,20 @@ class ProductTemplatesController extends Controller
                 foreach ($request->file('files') as $image) {
                     $media = MediaUploader::fromSource($image)->toDirectory('product-template-images')->upload();
 
-                   // $template->attachMedia($media,['template-image']);
+                    $template->attachMedia($media,['template-image-attach']);
+                    $template->save();
                     $imagesArray[]=$media->getUrl();
+
+                    $StoreWebsite->attachMedia($media, ['website-image-attach']);
                 }
             }
 
-            return $res = $this->makeBearBannerImage($request,$imagesArray,$template);
+            if( $request->generate_image_from == 'banner-bear' ){
+                return $res = $this->makeBearBannerImage($request,$imagesArray,$template);
+            }else{
+                $template->template_status = 'python';
+                $template->save();
+            }
         }
 
         return response()->json(["code" => 1, "message" => "Product Template Created successfully!"]);
@@ -467,7 +488,7 @@ class ProductTemplatesController extends Controller
             $response = \App\Helpers\GuzzleHelper::post($url,$body,$headers);
             
             if( isset( $response->uid ) ){
-                ProductTemplate::where('id',$template->id)->update([ 'uid' => $response->uid, 'template_status' => $response->status ]);
+                ProductTemplate::where('id',$template->id)->update([ 'uid' => $response->uid, 'is_processed' => 2, 'template_status' => $response->status ]);
             }
             return response()->json(["code" => 1, "message" => "Product Template Created successfully!"]);
 
@@ -519,7 +540,16 @@ class ProductTemplatesController extends Controller
             $response = \App\Helpers\GuzzleHelper::get($url,$headers);
             
             if( isset( $response->uid ) ){
-                ProductTemplate::where('id',$response->metadata)->where( 'uid', $response->uid )->update([ 'template_status' => $response->status, 'image_url' => $response->image_url_png ]);
+
+                $template = ProductTemplate::where('id',$response->metadata)->first();
+                
+                $path = $response->image_url_png;
+                $filename = basename($path);
+                $media = MediaUploader::fromSource($image)->toDirectory(date('Y/m/d'))->useFilename($filename)->upload();
+                $template->attachMedia($media,'template-image');
+                $template->save();
+
+                ProductTemplate::where('id',$response->metadata)->where( 'uid', $response->uid )->update([ 'template_status' => $response->status, 'is_processed' => 1, 'image_url' => $response->image_url_png ]);
             }
             return response()->json(["code" => 1, "message" => "Image fetched successfully!" , "image" => $response->image_url_png ]);
 

@@ -6,6 +6,7 @@ use App\BulkCustomerRepliesKeyword;
 use App\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Helpers;
 
 class BulkCustomerRepliesController extends Controller
 {
@@ -37,8 +38,38 @@ class BulkCustomerRepliesController extends Controller
             $searchedKeyword = BulkCustomerRepliesKeyword::where('value', $keyword)->first();
 
         }
+        $groups           = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
+        $pdfList = [];
+        $nextActionArr = DB::table('customer_next_actions')->pluck('name', 'id');
+        $reply_categories = \App\ReplyCategory::orderby('id', 'DESC')->get();
+        $settingShortCuts = [
+            "image_shortcut"      => \App\Setting::get('image_shortcut'),
+            "price_shortcut"      => \App\Setting::get('price_shortcut'),
+            "call_shortcut"       => \App\Setting::get('call_shortcut'),
+            "screenshot_shortcut" => \App\Setting::get('screenshot_shortcut'),
+            "details_shortcut"    => \App\Setting::get('details_shortcut'),
+            "purchase_shortcut"   => \App\Setting::get('purchase_shortcut'),
+        ];
+        $users_array      = Helpers::getUserArray(\App\User::all());
 
-        return view('bulk-customer-replies.index', compact('keywords','autoKeywords', 'searchedKeyword'));
+        $whatsappNos = getInstanceNo();
+        $chatbotKeywords = \App\ChatbotKeyword::all();
+
+        return view('bulk-customer-replies.index', compact('keywords','autoKeywords', 'searchedKeyword', 'nextActionArr','groups','pdfList','reply_categories','settingShortCuts','users_array','whatsappNos','chatbotKeywords'));
+    }
+
+    public function updateWhatsappNo(Request $request)
+    {
+        $no = $request->get("whatsapp_no");
+        $customers = explode(",",$request->get("customers",""));
+        $total = 0;
+        if(!empty($no) && is_array(array_filter($customers))) {
+            $lCustomer  = array_filter($customers);
+            $total      = count($lCustomer);
+            $customers  = \App\Customer::whereIn("id",$lCustomer)->update(["whatsapp_number" => $no]);
+        }
+        return response()->json(["code" => 200, "total" => $total]);
+
     }
 
     public function storeKeyword(Request $request) {

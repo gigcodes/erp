@@ -208,6 +208,37 @@ input:checked + .slider:before {
     </div>
 @endsection
 
+<div class="modal fade" id="instagram-user-selections" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+             <form method="POST" id="instagram-user-form" enctype="multipart/form-data">
+                {{csrf_field()}}
+                <input type="hidden" name="hash_tag_id" id="hash-tag-id-input">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Select Account</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                  <div class="row mt-4">
+                    <div class="col-md-6">
+                      <label>Account Name</label>
+                      <select name="instagram_accounts" id="instagram-account-select" class="form-control">
+                        @foreach(\App\Marketing\InstagramConfig::where('provider','instagram')->get() as $instagramConfig) 
+                          <option value="{{$instagramConfig->id}}">{{$instagramConfig->username}}</option>
+                        @endforeach
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" id="instagram-user-form-submit" class="btn btn-secondary">Create</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section('styles')
     <link rel="stylesheet" href="{{ asset('css/media-card.css') }}">
 @endsection
@@ -229,7 +260,6 @@ input:checked + .slider:before {
 
         $(".checkbox").change(function() {
             id = $(this).val();
-               
             if(this.checked) {
                $.ajax({
                     type: 'GET',
@@ -267,31 +297,37 @@ input:checked + .slider:before {
             }
         });
 
-        function runCommand(id) {
-             $.ajax({
-                    type: 'POST',
-                    url: '{{ route('hashtag.command') }}',
-                    data: {
-                        id:id,
-                         _token: "{{ csrf_token() }}"
-                    },beforeSend: function() {
-                       $("#loading-image").show();
-                    },success: function (data) {
-                      $("#loading-image").hide();
-                        if(data.status == 'error'){
-                           alert('Something went wrong'); 
-                           location.reload(true);
-                           
-                        }else{
-                           alert(data.message); 
-
-                        }
-                      
-                    },
-                    error: function (data) {
-                       alert('Something went wrong');
+        $(document).on("click","#instagram-user-form-submit",function(e){ 
+           e.preventDefault();
+           var id = $("#hash-tag-id-input").val();
+           var account = $("#instagram-account-select").val();
+           $.ajax({
+                type: 'POST',
+                url: '{{ route('hashtag.command') }}',
+                data: {
+                    id:id,
+                    _token: "{{ csrf_token() }}",
+                    account:account
+                },beforeSend: function() {
+                   $("#loading-image").show();
+                },success: function (data) {
+                  $("#loading-image").hide();
+                    if(data.status == 'error'){
+                       alert('Something went wrong'); 
+                       location.reload(true);
+                    }else{
+                       alert(data.message); 
                     }
-                        });
+                },
+                error: function (data) {
+                   alert('Something went wrong');
+                }
+            });
+        });
+
+        function runCommand(id) {
+            $("#hash-tag-id-input").val(id);
+            $("#instagram-user-selections").modal("show");
         }
 
         function killCommand(id) {

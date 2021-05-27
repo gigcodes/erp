@@ -324,7 +324,31 @@
 		</div>
 		</div>
     @else
-        <div class="col-xs-12 col-md-4 py-3 border">
+    <!-- http://erp.luxury.local/chat-messages/task/10666/loadMoreMessages?limit=1000&load_attached=1 -->
+        <table class="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th>Update</th>
+              <th>Remarks</th>
+              <th>Action</th>
+            </tr>
+            <tr>
+              <th><input type="text" class="form-control input-sm create-subnote-for-appointment" data-id="" name="note" placeholder="Note" value=""></th>
+              <th></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach($chatMessages as $chatMessage)
+              <tr>
+                <td data-message="{{ $chatMessage->id }}">@php echo substr($chatMessage->message, 0, 70); @endphp</td>
+                <td></td>
+                <td><a title="Dialog" href="javascript:;" class="btn btn-xs btn-secondary ml-1 create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a> <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" id="message-wrappers" data-message="{{$chatMessage->message}}" data-object="task" data-attached="1" data-object="task" data-id="{{ $chatMessage->task_id}}" title="Load messages"><img src="https://erp.theluxuryunlimited.com/images/chat.png" alt="" style="cursor: default;"></button> <button type="button" class="btn preview-img-btn pd-5" data-id="{{ $chatMessage->id}}"><i class="fa fa-list" aria-hidden="true"></i></button> <i class="fa fa-mail" aria-hidden="true"></i> <a title="Remove" href="javascript:;" class="btn btn-xs btn-secondary ml-1 delete-message remove-task-note" data-id="{{ $chatMessage->id}}"><i class="fa fa-trash" aria-hidden="true"></i></a> <i class="fa fa-eye" aria-hidden="true"></i></td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+        <!-- <div class="col-xs-12 col-md-4 py-3 border">
             <div class="row text-muted">
                 <div class="col-6">
                     <div class="form-group">
@@ -486,14 +510,13 @@
 
                 <button type="submit" class="btn btn-xs btn-secondary">Update</button>
             </form>
-        </div>
+        </div> -->
 
-        <div class="col-xs-12 col-md-4 mb-3">
+        <!-- <div class="col-xs-12 col-md-4 mb-3">
             <div class="border">
                 <form action="{{ route('whatsapp.send', 'task') }}" method="POST" enctype="multipart/form-data">
                     <div class="d-flex">
                         @csrf
-
                         <div class="form-group">
                             <div class="upload-btn-wrapper btn-group pr-0 d-flex">
                                 <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
@@ -584,9 +607,9 @@
                 </form>
 
             </div>
-        </div>
+        </div> -->
 
-        <div class="col-xs-12 col-md-4">
+        <!-- <div class="col-xs-12 col-md-4">
             <div class="border">
                 {{-- <h4>Messages</h4> --}}
 
@@ -602,7 +625,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
     @endif
 </div>
 
@@ -637,6 +660,31 @@
 	</div>
   </div>
 
+  <div id="message_show" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+  
+    <!-- Modal content-->
+    <div class="modal-content">
+    <div class="modal-header">
+      <h4 class="modal-title">Message</h4>
+      <button type="button" class="close" data-dismiss="modal">&times;</button>
+    </div>
+      <div class="modal-body">
+      <div class="row">
+        <div class="col-md-12">
+          <p class="displayMessage"></p>
+        </div>
+      </div>
+      </div>
+  
+      <div class="modal-footer">
+      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  
+  </div>
+  </div>
+
 @endsection
 
 @section('scripts')
@@ -648,7 +696,16 @@
 
   <script type="text/javascript">
     $(document).ready(function() {
-        $('.load-communication-modal').trigger('click');
+        $(document).on('click','.load-communication-modal', function(){
+          var $html = $(this).attr('data-message');
+          $('.displayMessage').html($html);
+          $('#message_show').modal('show');
+        });
+
+        $(document).on('click','.delete-message', function(){
+          var $id = $(this).attr('data-id');
+          
+        });
 
         $(document).on('click', '.flag-task', function () {
             var remark_id = $(this).data('id');

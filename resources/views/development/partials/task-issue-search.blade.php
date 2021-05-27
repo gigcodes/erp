@@ -1,4 +1,4 @@
-<form action="{{ url("development/list") }}" method="get">
+<form action="{{ url("development/list") }}" method="get" class="search">
     <div class="row">
         @if(auth()->user()->isReviwerLikeAdmin())
             <div class="col-md-2 pd-sm">
@@ -99,6 +99,15 @@
         <div class="col-md-2 pd-sm">
             <input placeholder="E. Date" type="text" class="form-control estimate-date_picker" id="estimate_date_picker" name="estimate_date" >
         </div>
+
+        <div class="col-md-2 pd-sm">
+            <select class="form-control" name="is_estimated" id="is_estimated">
+                <option {{$request->get('is_estimated')=='' ? 'selected' : ''}} value="">All</option>
+                <option {{$request->get('is_estimated')=='null' ? 'selected' : ''}} value="null">Not Estimated Yet</option>
+                <option {{$request->get('is_estimated')=='not_approved' ? 'selected' : ''}} value="not_approved">Not Approved By Admin</option>
+            </select>
+        </div>
+
         <div class="col-md-1 pd-sm">
             {{--
             @if ( isset($_REQUEST['show_resolved']) && $_REQUEST['show_resolved'] == 1 )
@@ -107,9 +116,10 @@
                 <input type="checkbox" name="show_resolved" value="1"> incl.resolved
             @endif
              --}}
-            <button class="btn btn-image">
+             <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
                 <img src="{{ asset('images/search.png') }}" alt="Search">
             </button>
+            <input type="hidden" id="download" name="download" value="1">
         </div>
        
         <!-- <div class="col-md-1">

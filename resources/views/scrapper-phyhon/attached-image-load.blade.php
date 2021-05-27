@@ -2,7 +2,7 @@
     <tr>
     <td>{{ \Carbon\Carbon::parse($list->created_at)->format('d-m-y') }} </td>
     <td>{{$list->id}}</td>
-    <td>{{$list->storeWebsite->website}}</td>
+    <td>{{$list->storeWebsite->website ?? ''}}</td>
     <td>{{$list->name}}</td>
 
     <td>
@@ -38,7 +38,7 @@
         
     <td>{{ \Carbon\Carbon::parse($store->created_at)->format('d-m-y') }}</td>
     <td>{{$store->id}}</td>
-    <td>{{$list->storeWebsite->website}}</td>
+    <td>{{$list->storeWebsite->website ?? ''}}</td>
     <td>{{$store->name}}</td>
 
     <td>
@@ -66,11 +66,9 @@
 
     <tr class="expand-images-{{$store->id}} hidden">
         <td colspan="7" id="attach-image-list-{{$store->id}}">
-            @if ($store->scrapperImage)
-
-            @include('scrapper-phyhon.list-image-products')
-                
-            @endif
+            {{-- @if ($store->scrapperImage) --}}
+                @include('scrapper-phyhon.list-image-products')
+            {{-- @endif --}}
         </td>
     </tr>
 

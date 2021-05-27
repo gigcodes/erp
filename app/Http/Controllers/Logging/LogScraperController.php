@@ -13,16 +13,17 @@ use App\Setting;
 
 class LogScraperController extends Controller
 {
-    public function index(Request $request)
-    {
-        $customrange = $request->get("customrange",null);
+    public function index(Request $request){
 
+        $customrange = $request->get("customrange",null);
         $from = null;
         $to  = null;
+
 
         if(!empty($customrange)) {
             list($from,$to) = explode(" - ", $customrange);
         }
+
 
         $scraperLogs = DB::table('scraped_products');
 
@@ -66,14 +67,19 @@ class LogScraperController extends Controller
             $scraperLogs = $scraperLogs->where('is_external_scraper', $request->is_external_scraper);
         }
 
+
         $logsByGroup  = clone($scraperLogs);
         $logsByGroup  = $logsByGroup->where("validation_result","!=" ,"");
         $logsByGroup  = $logsByGroup->select(["website",\DB::raw("count(*) as total_error")]);
         $logsByGroup  = $logsByGroup->groupBy("website");
         $logsByGroup  = $logsByGroup->having("total_error",">",0)->get();
 
+
+
+
         $scraperLogs = $scraperLogs->orderBy('created_at', 'DESC')->paginate(25);
-        
+
+
         // For ajax
         if ($request->ajax()) {
             return response()->json([
@@ -82,10 +88,12 @@ class LogScraperController extends Controller
             ], 200);
         }
 
+
         return view('logging.scraper', compact('scraperLogs','customrange','logsByGroup'));
+
     }
 
-    public function logSKU(Request $request)
+    public function logSKU( Request $request )
     {
        
         $logScrapper = \App\ScrapedProducts::select('scraped_products.*','scrapers.inventory_lifetime')->leftJoin('scrapers', function($join) {

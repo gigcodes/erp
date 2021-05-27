@@ -3,11 +3,8 @@ $currentRoutes = \Route::current();
 //$metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
 $metaData = '';
 @endphp
-
 <!DOCTYPE html>
-
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
 <head>
 
     <meta charset="utf-8">
@@ -119,7 +116,7 @@ $metaData = '';
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-    <script type="text/javascript" src="//media.twiliocdn.com/sdk/js/client/v1.9/twilio.min.js"></script>
+    <script type="text/javascript" src="https://media.twiliocdn.com/sdk/js/client/v1.14/twilio.min.js"></script>
 
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.0.5/dist/js/tabulator.min.js"></script>
 
@@ -556,6 +553,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
                                             <a class="dropdown-item" href="{{ action('DubbizleController@index') }}">Dubzzle</a>
                                             <a class="dropdown-item" href="{{ route('log-scraper.index') }}">Scraper log</a>
+                                            <a class="dropdown-item" href="{{ route('scrap-brand') }}">Scrap Brand</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -812,6 +810,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="/marketing/accounts/facebook">Facebook Config</a>
                                             <a class="dropdown-item" href="{{ route('platforms.index') }}">Platforms</a>
                                             <a class="dropdown-item" href="{{ route('broadcasts.index') }}">BroadCast</a>
+                                            <a class="dropdown-item" href="/marketing/services">Mailing Service</a>
                                             <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-template') }}">Mailinglist Templates</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-emails') }}">Mailinglist Emails</a>
@@ -898,8 +897,7 @@ $metaData = '';
                                                 <a class="dropdown-item" href="{{ route('permissions.index') }}">List Permissions</a>
                                                 <a class="dropdown-item" href="{{ route('permissions.create') }}">Add New</a>
                                                 <a class="dropdown-item" href="{{ route('permissions.users') }}">User Permission List</a>
-
-
+                                                <a class="dropdown-item" href="{{ route('users.login.ips') }}">User Login IP(s)</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown">
@@ -1339,6 +1337,9 @@ $metaData = '';
                                     <a class="dropdown-item" href="{{ route('database.states') }}">Database States</a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('database-log') }}">Database Log</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('manage-modules.index') }}">Manage Module</a>
                                 </li>
                                 <li class="nav-item">
@@ -1716,6 +1717,9 @@ $metaData = '';
                                     <a class="dropdown-item" href="{{ route('googlefiletranslator.list') }}">Google File Translator</a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('/google-traslation-settings') }}">Google Translator Setting</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('googlewebmaster.index') }}">Google webmaster</a>
                                 </li>
                                 <li class="nav-item">
@@ -1744,15 +1748,11 @@ $metaData = '';
                                     <a class="dropdown-item" href="{{route('password.index')}}">Password Manager</a>
                                 </li>
                                 <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{route('password.manage')}}">Multiple User Passwords Manager</a>
+                                </li>
+                                <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{route('document.index')}}">Document manager</a>
                                 </li>
-
-                                @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 56 || Auth::id() == 65 || Auth::id() == 90)
-                                <a class="dropdown-item" href="{{route('password.index')}}">Passwords Manager</a>
-                                <a class="dropdown-item" href="{{route('password.manage')}}">Multiple User Passwords Manager</a>
-                                <a class="dropdown-item" href="{{route('document.index')}}">Documents Manager</a>
-                                @endif
-
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('resourceimg.index') }}">Resource Center</a>
                                 </li>
@@ -1864,6 +1864,22 @@ $metaData = '';
                                 </li>
                             </ul>
                         </li>
+                        
+                        <!------    System Menu     !-------->
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin Menu <span class="caret"></span></a>
+                            <ul class="dropdown-menu multi-level">
+                                {{-- Sub Menu Admin Menu --}} 
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Database Menu<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('admin.databse.menu.direct.dbquery')}}">Direct DB Query</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
 
                     </ul>
 
@@ -1954,7 +1970,7 @@ $metaData = '';
             <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickTaskModal">+ TASK</button>
         </div>
         @endif
-
+        @include('twilio.receive_call_popup');
         @include('partials.modals.quick-task')
         @include('partials.modals.quick-instruction')
         @include('partials.modals.quick-development-task')
@@ -2049,6 +2065,7 @@ $metaData = '';
     </div>
 
     @if(Auth::check())
+
 
     <div class="chat-button-wrapper">
         <div class="chat-button-float">

@@ -41,12 +41,34 @@ class UserManagementController extends Controller
     {
         $title = "User management";
         $permissionRequest = PermissionRequest::count();
-        return view('usermanagement::index', compact('title','permissionRequest'));
+        $statusList = \DB::table("task_statuses")->select("name")->get()->toArray();
+        return view('usermanagement::index', compact('title','permissionRequest','statusList'));
     }
 
     public function permissionRequest( Request $request ){
         $history = PermissionRequest::leftjoin('users','permission_request.user_id','users.id')->orderBy("permission_request.id","desc")->get();
         return response()->json( ["code" => 200 , "data" => $history] );
+    }
+
+    public function taskActivity( Request $request ){
+        $history = HubstaffActivity::select('users.name','developer_tasks.subject','hubstaff_activities.starts_at' ,\DB::raw("SUM(tracked) as day_tracked"))
+                  ->leftjoin('hubstaff_members','hubstaff_activities.user_id','hubstaff_members.hubstaff_user_id')
+                  ->leftjoin('users','hubstaff_members.user_id','users.id')
+                  ->leftjoin('developer_tasks','hubstaff_activities.task_id','developer_tasks.hubstaff_task_id')
+                  ->whereBetween('hubstaff_activities.starts_at', [date('Y-m-d', strtotime('-7 days')),date('Y-m-d')])
+                  ->groupBy('hubstaff_activities.starts_at','hubstaff_activities.user_id')
+                  ->where('users.id',$request->id)
+                  ->orderBy("hubstaff_activities.id","desc")->get();
+        $filterList = [];
+        foreach ($history as $key => $value) {
+            $filterList = array(
+                'user_name' => $value->name,
+                'task'      => $value->subject,
+                'date'      => $value->starts_at,
+                'tracked'   => number_format($value->day_tracked / 60,2,".",","),
+            );
+        }
+        return response()->json( ["code" => empty($filterList ) ? 500 : 200 , "data" => array($filterList)] );
     }
 
     public function modifiyPermission( Request $request )
@@ -55,6 +77,25 @@ class UserManagementController extends Controller
             $user = User::findorfail($request->user);
             $user->permissions()->attach($request->permission);
             PermissionRequest::where('user_id',$request->user)->where('permission_id',$request->permission)->delete();
+
+            // user need to send message
+            //\App\ChatMessage::sendWithChatApi($act->phone_number, null, $userMessage);
+            $permission = \App\Permission::find($request->permission);
+            $permissionName = "";
+            if($permission) {
+                $permissionName = $permission->name;
+            }
+
+            $params = [];
+            $params['user_id'] = $user->id;
+            $params['message'] = "Your permission request has been approved for the permission :" .$permissionName;
+            // send chat message
+            $chat_message = \App\ChatMessage::create($params);
+            // send
+            app('App\Http\Controllers\WhatsAppController')
+                ->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
+
+
             return response()->json( ["code" => 200 , "data" => 'Permission added Successfully'] );       
         }
         if ( $request->type == 'reject' ) {
@@ -86,12 +127,12 @@ class UserManagementController extends Controller
         }
     
 
-        $user = $user->select(["users.*"])
-                // ->leftJoin('hubstaff_members', 'hubstaff_members.user_id', '=', 'users.id')
-                // ->leftJoin('hubstaff_activities', 'hubstaff_activities.user_id', '=', 'hubstaff_members.hubstaff_user_id')
-                // ->groupBy('users.id')
-                // ->orderBy('hubstaff_activities.starts_at','DESC')
-                ->orderBy('is_active','DESC')
+        $user = $user->select(["users.*","hubstaff_activities.starts_at"])
+                ->leftJoin('hubstaff_members', 'hubstaff_members.user_id', '=', 'users.id')
+                ->leftJoin('hubstaff_activities', 'hubstaff_activities.user_id', '=', 'hubstaff_members.hubstaff_user_id')
+                ->groupBy('users.id')
+                ->orderBy('hubstaff_activities.starts_at','DESC')
+                // ->orderBy('is_active','DESC')
                 ->paginate(12);
         $limitchacter = 50;
 
@@ -194,6 +235,7 @@ class UserManagementController extends Controller
             $replies = \App\Reply::where("model", "User")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
         }
         
+
         $isAdmin = Auth::user()->isAdmin();
         return response()->json([
             "code"       => 200,
@@ -325,13 +367,14 @@ class UserManagementController extends Controller
 		} else {
 			$input = array_except($input, array('password'));
 		}
-
+        //return $input;
 		$user = User::find($id);
 		$user->update($input);
-
-		if ($request->customer[0] != '') {
-			$user->customers()->sync($request->customer);
-		}
+        if($request->customer){
+    		if ($request->customer[0] != '') {
+    			$user->customers()->sync($request->customer);
+    		}
+        }
 
 
 		$user->listing_approval_rate = $request->get('listing_approval_rate') ?? '0';
@@ -938,13 +981,13 @@ class UserManagementController extends Controller
         $today_avaibility_hour = $this->getTimeFormat($today_avaibility_hour);
         $u['today_avaibility_hour'] = $today_avaibility_hour;
 
-
-
+        $statusList = \DB::table("task_statuses")->select("name")->get()->toArray();
 
             return response()->json([
                 "code"       => 200,
                 "user"       => $user,
-                "taskList"       => $taskList,
+                "statusList" => $statusList,
+                "taskList"    => $taskList,
                 'userTiming'  => $u
             ]); 
     }
