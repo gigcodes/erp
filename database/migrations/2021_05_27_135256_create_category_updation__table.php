@@ -13,7 +13,7 @@ class CreateCategoryUpdationTable extends Migration
      */
     public function up()
     {
-        Schema::create('category_updations', function (Blueprint $table) {
+        Schema::create('temporary_category_updations', function (Blueprint $table) {
             $table->increments('id');
             $table->string('category_name')->nullable();
             $table->integer('attribute_id')->nullable();

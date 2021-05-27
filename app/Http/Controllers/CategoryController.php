@@ -607,7 +607,7 @@ class CategoryController extends Controller
 
         // $need_to_skip_rec = \App\UserUpdatedAttributeHistory::where("user_id", \Auth::user()->id)->where('need_to_skip',1)->first(); 
 
-        $need_to_skip_rec = \App\CategoryUpdation::where("user_id", \Auth::user()->id)->where('need_to_skip',1)->first(); 
+        $need_to_skip_rec = \App\TemporaryCategoryUpdation::where("user_id", \Auth::user()->id)->where('need_to_skip',1)->first(); 
 
         if($need_to_skip_rec)
             $need_to_skip_status = 1;
@@ -657,7 +657,7 @@ class CategoryController extends Controller
             
             $category_ids = array_column($need_ro_skip_true_record, 'attribute_id');
 
-            $category_name = \App\CategoryUpdation::where("user_id", \Auth::user()->id)->where('need_to_skip',1)->get()->toArray(); 
+            $category_name = \App\TemporaryCategoryUpdation::where("user_id", \Auth::user()->id)->where('need_to_skip',1)->get()->toArray(); 
 
             $category_name_ar = array_column($category_name, 'category_name');
         }
@@ -699,7 +699,7 @@ class CategoryController extends Controller
                     //         ];
                     //     }
                     // }else{
-
+                        
                         if(!in_array($unkc, $category_name_ar))
                         {
                             $links[] = [
@@ -809,8 +809,8 @@ class CategoryController extends Controller
                                 $filter->references = implode(",", array_unique($existingRef));
                                 $filter->save();
 
-                                //START - Add CategoryEntry in CategoryUpdation Table - #DEVTASK-4143
-                                $category_status_updation = \App\CategoryUpdation::create([
+                                //START - Add CategoryEntry in TemporaryCategoryUpdation Table - #DEVTASK-4143
+                                $category_status_updation = \App\TemporaryCategoryUpdation::create([
                                     'category_name'      => $k,
                                     'attribute_id'      => $filter->id,
                                     'need_to_skip' => 1,
@@ -821,9 +821,9 @@ class CategoryController extends Controller
                         }
                     }
                 }
-                //START - Add CategoryEntry in CategoryUpdation Table - #DEVTASK-4143
+                //START - Add CategoryEntry in TemporaryCategoryUpdation Table - #DEVTASK-4143
                 else{
-                    $category_status_updation =  \App\CategoryUpdation::create([
+                    $category_status_updation =  \App\TemporaryCategoryUpdation::create([
                         'category_name'      => $k,
                         'attribute_id'      => 0,
                         'need_to_skip' => 1,

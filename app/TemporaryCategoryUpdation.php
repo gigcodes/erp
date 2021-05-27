@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CategoryUpdation extends Model
+class TemporaryCategoryUpdation extends Model
 {
     //
     
