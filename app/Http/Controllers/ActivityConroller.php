@@ -469,10 +469,11 @@ class ActivityConroller extends Controller
         return $result;
     }
 
-    public function recentImport(Request $request){
+    public function recentActivities(Request $request){
         $productStats = DB::table('productactivities')
         ->where('status_id',$request->type)
         ->whereDate('created_at', '>', Carbon::now()->subDays(10))
+        ->orderBy('created_at','DESC')
         ->get();
         return $productStats;
     }

@@ -202,4 +202,33 @@ class ScrapLogsController extends Controller
     	return view('scrap-logs.index',compact('name'));
     }
 
+    public function databaseLog(Request $request){
+    	$search = '';
+
+    	$namefile = env('DATABASE_LOGS_FILE');
+
+    	if(!empty($namefile)){
+	    	$lines = @file($namefile);
+	    	if($lines){
+	    		$output = array();
+				for($i = count($lines) -1; $i >= 0; $i--){
+					$output[] = $lines[$i];
+				}
+		    	if($request->search){
+		    		$search = $request->search;
+		    		$result = array_filter($output, function ($item) use ($search) {
+					    if (stripos($item, $search) !== false) {
+					        return true;
+					    }
+					    return false;
+					});
+		    		$output = $result;
+		    	}
+		    	return view('scrap-logs.database-log', compact('output','search'));
+	    	}
+	    	return 'File not found!';
+		}
+    	return 'File not found!';
+    }
+
 }

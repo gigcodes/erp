@@ -59,6 +59,7 @@ use App\ProductSupplier;
 use App\Website;
 use App\WebsiteStore;
 use App\scraperImags;
+use Validator;
 
 
 class scrapperPhyhon extends Controller
@@ -70,7 +71,7 @@ class scrapperPhyhon extends Controller
      */
     function __construct()
     {
-        $this->middleware('permission:product-lister', ['only' => ['listing']]);
+        // $this->middleware('permission:product-lister', ['only' => ['listing']]);
     }
 
     /**
@@ -196,6 +197,60 @@ class scrapperPhyhon extends Controller
         return $response;
     }
 
+    public function imageSave(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+           'country_code'   => 'required',
+           'image'          => 'required',
+           'image_name'     => 'required',
+           'store_website'  => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(["code" => 500, "message" => 'Invalid request',"error" => $validator->errors()]);
+        }
+
+        if (base64_decode( $request->image,true) ) {
+            return response()->json(["code" => 500, "message" => 'Invalid request',"error" => 'Image not valied']);
+        }
+
+        $StoreWebsite = \App\StoreWebsite::where('website',$request->store_website)->first();
+        if( $this->saveBase64Image( $request->image_name,  $request->image ) ){
+            $newImage = array(
+                'website_id' => $request->country_code,
+                'store_website' => $StoreWebsite->id ?? 0,
+                'img_name'   => $request->image_name,
+                'img_url'    => $request->image_name,
+            );
+            scraperImags::insert( $newImage );
+            return response()->json(["code" => 200, "message" => 'Image successfully saved']);
+        }else{
+            return response()->json(["code" => 500, "message" => 'Something went wrong!']);
+        }
+
+    }
+
+
+    public function saveBase64Image( $file_name, $base64Image )
+    {   
+        try {
+            $base64Image = trim($base64Image);
+            $base64Image = str_replace('data:image/png;base64,', '', $base64Image);
+            $base64Image = str_replace('data:image/jpg;base64,', '', $base64Image);
+            $base64Image = str_replace('data:image/jpeg;base64,', '', $base64Image);
+            $base64Image = str_replace('data:image/gif;base64,', '', $base64Image);
+            $base64Image = str_replace(' ', '+', $base64Image);
+            $imageData = base64_decode( $base64Image );
+    
+            // //Set image whole path here 
+            $filePath = public_path('scrappersImages').'/' . $file_name;
+            file_put_contents($filePath, $imageData);
+            return true;
+        } catch (\Throwable $th) {
+            \Log::error('scrapper_images :: ' .$th->getMessage());
+            return false;
+        }
+    }
 }
 
 

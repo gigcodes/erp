@@ -73,6 +73,11 @@ class LogLastUserActivity
 
     protected function getTimeOut()
     {
-      return (env('TIMEOUT')) ?: $this->timeout;
+      if(Auth::user()){
+        $timeout =(Auth::user()->user_timeout != 0 ) ? Auth::user()->user_timeout : $this->timeout;
+      }else{
+        $timeout = $this->timeout;
+      }
+      return $timeout;
     }
 }

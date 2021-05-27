@@ -159,7 +159,7 @@ class ImageController extends Controller
          $category = $request->category[0];
         }
 
-      // dd($images->get());
+      // // dd($images->get());
 
       if ($request->price != null) {
             $exploded = explode(',', $request->price);

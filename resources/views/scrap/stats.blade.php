@@ -44,6 +44,10 @@
             overflow-x: auto;
             max-width: 20px;
         }
+
+        .status .select2 .select2-selection{
+            width:80px;
+        }
     </style>
 @endsection
 
@@ -187,8 +191,9 @@
                         <!-- <th>Errors</th>
                         <th>Warnings</th> -->
                         <th>URL Count Scrap</th>
-                        <th>Existing URLs</th>
-                        <th>New URLs</th>
+                        <th>URLs</th>
+                        <!-- <th>Existing URLs</th>
+                        <th>New URLs</th> -->
                         <!-- <th>Made By</th>
                         <th>Type</th>
                         <th>Parent Scrapper</th>
@@ -297,8 +302,13 @@
                             <td width="3%">{{ !empty($data) ? $data->warnings : '' }}</td> -->
                             <td width="3%">{{ !empty($data) ? $data->total_new_product : '' }}</td>
                             <td width="2%">{{ !empty($data) ? $data->scraper_total_urls : '' }}</td>
-                            <td width="3%">{{ !empty($data) ? $data->scraper_existing_urls : '' }}</td>
-                            <td width="3%">{{ !empty($data) ? $data->scraper_new_urls : '' }}</td>
+                            <td width="3%">
+                                {{ !empty($data) ? 'Exist : '.$data->scraper_existing_urls : '' }}
+                                {{ !empty($data) ? 'New : '.$data->scraper_new_urls : '' }}
+                            </td>
+                            <!-- <td width="3%">{{ !empty($data) ? $data->scraper_new_urls : '' }}</td> -->
+                            <!-- <td width="3%">{{ !empty($data) ? $data->scraper_existing_urls : '' }}</td>
+                            <td width="3%">{{ !empty($data) ? $data->scraper_new_urls : '' }}</td> -->
                             <!-- <td width="10%">
                                 {{ ($supplier->scraperMadeBy) ? $supplier->scraperMadeBy->name : "N/A" }}
                             </td>
@@ -312,8 +322,8 @@
                                 {{ isset(\App\Helpers\StatusHelper::getStatus()[$supplier->next_step_in_product_flow]) ? \App\Helpers\StatusHelper::getStatus()[$supplier->next_step_in_product_flow] : "N/A" }}
                             </td> -->
                             <td width="6%">
-                                <div class="form-group" style="display: inline" >
-                                    <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->scrapers_status, ["class" => "form-control scrapers_status select2", "style" => "width:60%;"]); ?>
+                                <div class="form-group status" style="display: inline" >
+                                    <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->scrapers_status, ["class" => "form-control scrapers_status select2", "style" => "width:80px;"]); ?>
                                     <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="status" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
                                 </div>
                                 @php
@@ -321,7 +331,7 @@
                                 @endphp
                                 {{ ($hasTask) ? "Task-Available" : "No-Task" }}
                             </td>
-                            <td width="0%" class="" style="font-size: 12px">
+                            <td width="10%" class="" style="font-size: 12px">
                                 <span class="toggle-title-box has-small " data-small-title="<?php echo ($remark) ? substr($remark->remark, 0, 19) : '' ?>" data-full-title="<?php echo ($remark) ? $remark->remark : '' ?>">
                                     <?php
                                         if($remark) {
@@ -387,45 +397,48 @@
                                 </div>
                             </td>
                             <td width="14%">
-                                <button style="padding:3px;" type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}" title="Expand more data"><img width="2px;" src="/images/forward.png"/></button>
-                                <a style="padding:3px;" class="btn  d-inline btn-image" href="{{ get_server_last_log_file($supplier->scraper_name,$supplier->server_id) }}" id="link" target="-blank" title="View log"><img src="/images/view.png" /></a>
-                                <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="restartScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )" title="Restart script"><img width="2px;" src="/images/resend2.png"/></button>
-                                <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="getRunningStatus('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )" title="Check running status"><img width="2px;" src="/images/resend.png"/></button>
+                                 <div style="float:left;">       
+                                <button style="padding:1px;" type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}" title="Expand more data"><img width="2px;" src="/images/forward.png"/></button>
+                                <a style="padding:1px;" class="btn  d-inline btn-image" href="{{ get_server_last_log_file($supplier->scraper_name,$supplier->server_id) }}" id="link" target="-blank" title="View log"><img src="/images/view.png" /></a>
+                                <button style="padding:1px;" type="button" class="btn btn-image d-inline" onclick="restartScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )" title="Restart script"><img width="2px;" src="/images/resend2.png"/></button>
+                                <button style="padding:1px;" type="button" class="btn btn-image d-inline" onclick="getRunningStatus('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )" title="Check running status"><img width="2px;" src="/images/resend.png"/></button>
                                 <a href="<?php echo route("scraper.get.log.list"); ?>?name=<?php echo $supplier->scraper_name ?>&server_id=<?php echo $supplier->server_id ?>" target="__blank">
-                                    <button style="padding:3px;" type="button" class="btn btn-image d-inline" title="API call">
+                                    <button style="padding:1px;" type="button" class="btn btn-image d-inline" title="API call">
                                         <i class="fa fa-bars"></i>
                                     </button>
                                 </a>
-                                <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-screenshot" title="Get screenshot">
+                                <button style="padding: 1px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-screenshot" title="Get screenshot">
                                      <i class="fa fa-desktop"></i>
                                 </button>
-                                <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-tasks-remote" title="Task list">
+                                <button style="padding: 1px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-tasks-remote" title="Task list">
                                      <i class="fa fa-tasks"></i>
                                 </button>
-                                <button style="padding: 3px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-position-history" title="Histories">
+                                <button style="padding: 1px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-position-history" title="Histories">
                                      <i class="fa fa-address-card"></i>
                                 </button>
-                                <button style="padding-right:0px;" type="button" class="btn btn-image d-inline show-history" data-field="update-restart-time" data-id="{{ $supplier->scrapper_id }}" title="Remark history" ><i class="fa fa-clock-o"></i></button>
-                                <button style="padding-right:0px;" type="button" class="btn btn-image d-inline get-scraper-server-timing" data-name="{{ $supplier->scraper_name }}" title="Get scraper server timing"><i class="fa fa-info-circle"></i></button>
-                                <button style="padding-right:0px;" type="button" class="btn btn-image d-inline get-last-errors" data-id="{{ $supplier->scrapper_id }}" data-name="{{ $supplier->scraper_name }}" title="Last errors">
+                                <button style="padding:1px;" type="button" class="btn btn-image d-inline show-history" data-field="update-restart-time" data-id="{{ $supplier->scrapper_id }}" title="Remark history" ><i class="fa fa-clock-o"></i></button>
+                                <button style="padding:1px;" type="button" class="btn btn-image d-inline get-scraper-server-timing" data-name="{{ $supplier->scraper_name }}" title="Get scraper server timing"><i class="fa fa-info-circle"></i></button>
+                                <button style="padding:1px;" type="button" class="btn btn-image d-inline get-last-errors" data-id="{{ $supplier->scrapper_id }}" data-name="{{ $supplier->scraper_name }}" title="Last errors">
                                     <i class="fa fa-list-ol"></i>
                                 </button>
                                 @if($isAdmin)
-                                    <div class="flag-scraper-div" style="float: left"> 
+                                    <div class="flag-scraper-div" style="float:none;display:contents;"> 
                                         @if ($supplier->flag == 1)
-                                            <button type="button" class="btn btn-image flag-scraper" data-flag="0" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
+                                            <button type="button" style="padding:1px;" class="btn btn-image flag-scraper" data-flag="0" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
                                         @else
-                                            <button type="button" class="btn btn-image flag-scraper" data-flag="1" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
+                                            <button type="button" style="padding:1px;" class="btn btn-image flag-scraper" data-flag="1" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
                                         @endif
                                     </div>
-                                    <div class="flag-scraper-developer-div" style="float: left"> 
+                                    <div class="flag-scraper-developer-div" style="float:none;display:contents;"> 
                                         @if ($supplier->developer_flag == 1)
-                                            <button type="button" class="btn btn-image flag-scraper-developer" data-flag="0" data-id="{{ $supplier->id }}"><img src="/images/flagged-green.png" /></button>
+                                            <button type="button" style="padding:1px;" class="btn btn-image flag-scraper-developer" data-flag="0" data-id="{{ $supplier->id }}"><img src="/images/flagged-green.png" /></button>
                                         @else
-                                            <button type="button" class="btn btn-image flag-scraper-developer" data-flag="1" data-id="{{ $supplier->id }}"><img src="/images/flagged-yellow.png" /></button>
+                                            <button type="button" style="padding:1px;" class="btn btn-image flag-scraper-developer" data-flag="1" data-id="{{ $supplier->id }}"><img src="/images/flagged-yellow.png" /></button>
                                         @endif
                                     </div>
                                 @endif
+                                </div>
+                                
                             </td>
                             </tr>
                             <tr class="hidden_row_{{ $supplier->id  }} dis-none" data-eleid="{{ $supplier->id }}">
@@ -1681,9 +1694,9 @@
             }).done(function(response) {
                  $("#loading-image").hide();
                  if(response.data.flag == 1) {
-                    $this.closest(".flag-scraper-div").append('<button type="button" class="btn btn-image flag-scraper" data-flag="0" data-id="'+response.data.supplier_id+'"><img src="/images/flagged.png" /></button>');
+                    $this.closest(".flag-scraper-div").append('<button type="button" style="padding:1px;" class="btn btn-image flag-scraper" data-flag="0" data-id="'+response.data.supplier_id+'"><img src="/images/flagged.png" /></button>');
                  }else{
-                    $this.closest(".flag-scraper-div").append('<button type="button" class="btn btn-image flag-scraper" data-flag="1" data-id="'+response.data.supplier_id+'"><img src="/images/unflagged.png" /></button>');
+                    $this.closest(".flag-scraper-div").append('<button type="button" style="padding:1px;" class="btn btn-image flag-scraper" data-flag="1" data-id="'+response.data.supplier_id+'"><img src="/images/unflagged.png" /></button>');
                  }
                  $this.remove();
             }).fail(function() {
@@ -1711,9 +1724,9 @@
             }).done(function(response) {
                  $("#loading-image").hide();
                  if(response.data.developer_flag == 1) {
-                    $this.closest(".flag-scraper-developer-div").append('<button type="button" class="btn btn-image flag-scraper-developer" data-flag="0" data-id="'+response.data.supplier_id+'"><img src="/images/flagged-green.png" /></button>');
+                    $this.closest(".flag-scraper-developer-div").append('<button type="button" style="padding:1px;" class="btn btn-image flag-scraper-developer" data-flag="0" data-id="'+response.data.supplier_id+'"><img src="/images/flagged-green.png" /></button>');
                  }else{
-                    $this.closest(".flag-scraper-developer-div").append('<button type="button" class="btn btn-image flag-scraper-developer" data-flag="1" data-id="'+response.data.supplier_id+'"><img src="/images/flagged-yellow.png" /></button>');
+                    $this.closest(".flag-scraper-developer-div").append('<button type="button" style="padding:1px;" class="btn btn-image flag-scraper-developer" data-flag="1" data-id="'+response.data.supplier_id+'"><img src="/images/flagged-yellow.png" /></button>');
                  }
                  $this.remove();
             }).fail(function() {

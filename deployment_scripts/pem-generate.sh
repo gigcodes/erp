@@ -8,7 +8,7 @@ pubkey=`cat ~/erpgenerated_pem.pub`
 
 if [ "$server" == "Erp-Server" ]		### Check for Erp Server
 then
-	ssh -i ~/.ssh/id_rsa root@erp.theluxuryunlimited.com "sed -i \"s%.*erp@$server%$pubkey%g\" .ssh/authorized_keys"
+	ssh -i ~/.ssh/id_rsa root@erp.theluxuryunlimited.com -p2112 "sed -i \"s%.*erp@$server%$pubkey%g\" .ssh/authorized_keys"
 
 elif [ "$server" == "s01" ] || [ "$server" == "s02" ] || [ "$server" == "s03" ] || [ "$server" == "s04" ] || [ "$server" == "s05" ] || [ "$server" == "s06" ] || [ "$server" == "s07" ] || [ "$server" == "s08" ] || [ "$server" == "s09" ] || [ "$server" == "s10" ] || [ "$server" == "s11" ] || [ "$server" == "s12" ] || [ "$server" == "s13" ] || [ "$server" == "s14" ] || [ "$server" == "s15" ]
 then

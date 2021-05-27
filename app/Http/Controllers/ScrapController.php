@@ -11,6 +11,7 @@ use App\Image;
 use App\Imports\ProductsImport;
 use App\Loggers\LogScraper;
 use App\Product;
+use App\StoreWebsite;
 use App\ScrapedProducts;
 use App\ScrapeQueues;
 use App\Scraper;
@@ -95,7 +96,6 @@ class ScrapController extends Controller
 
                 $fileName = md5(time().microtime()) . '.png';
                 Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
-
                 $i           = new Image();
                 $i->filename = $fileName;
                 if( !empty($product_id) ){
@@ -104,7 +104,16 @@ class ScrapController extends Controller
                 $i->save();
 
                 $images[] = $fileName;
+
+                $StoreWebsite = StoreWebsite::where('id',18)->first();
+                if( $StoreWebsite ){
+                    $media = MediaUploader::fromSource($datum)->toDirectory('product-template-images')->upload();
+                    $StoreWebsite->attachMedia($media, ['website-image-attach']);
+                }
+
             } catch (\Exception $exception) {
+                \Log::error('Image save :: '.$exception->getMessage());
+                dd( $exception->getMessage() );
                 continue;
             }
 

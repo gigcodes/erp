@@ -4,9 +4,9 @@
             $count   = 0;
             
         @endphp
-        @foreach($store->storeView as $image)
-        
-                @foreach($image->scrapperImage->toArray() as $image)
+        @foreach($store->storeView as $imageM)
+                @foreach($imageM->scrapperImage->toArray() as $image)
+
                 <?php
                     if ( date( 'Y-m-d' ,strtotime($image['created_at'])) !== $oldDate ) { 
                         $count = 0;
@@ -15,7 +15,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <br>
-                                <h5 class="product-attach-date" style="margin: 5px 0px;">{{$image['created_at']}} || Number Of Images:{{count($store->scrapperImage)}}</h5> 
+                                <h5 class="product-attach-date" style="margin: 5px 0px;">{{$image['created_at']}} || Number Of Images:{{count($imageM->scrapperImage->toArray())}}</h5> 
 
                                 <hr style="margin: 5px 0px;">
                             </div>
