@@ -16,7 +16,7 @@ class DBQueryController extends Controller
         $tables = DB::select('show tables');
         $table_array = [];
         foreach($tables as $tab){
-            $table_array[] = $tab->Tables_in_sololuxury; 
+            $table_array[] = array_values((array) $tab)[0];
         }
         return view('admin-menu.database-menu.db-query.index', compact('table_array', 'user'));
 
