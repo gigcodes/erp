@@ -52,8 +52,8 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
         background: green;
         width: 10px;
         height: 10px;
-        border-radius: 50%;
-    }
+        border-radius: 50%;}
+        .message_textareas.cls_message_textareas{width: 85%;display: inline;float: left;}
     </style>
         <div class="row">
             <div class="col-lg-12 margin-tb">
