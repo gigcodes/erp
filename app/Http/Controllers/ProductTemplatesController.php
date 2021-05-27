@@ -12,6 +12,7 @@ use App\ProductTemplate;
 use App\Template;
 use App\Category;
 use App\Product;
+use App\StoreWebsite;
 
 class ProductTemplatesController extends Controller
 {
@@ -390,9 +391,7 @@ class ProductTemplatesController extends Controller
 
      public function create(Request $request)
     {
-
-        
-
+        // dd( $request->store_website_id );
         $template = new \App\ProductTemplate;
         $params = request()->all();
         $imagesArray=[];
@@ -410,13 +409,16 @@ class ProductTemplatesController extends Controller
 
         if ($template->save()) {
 
-            
+            $StoreWebsite = StoreWebsite::where('id',$request->store_website_id)->first();
 
             if (!empty($request->get('product_media_list')) && is_array($request->get('product_media_list'))) {
                 foreach ($request->get('product_media_list') as $mediaid) {
                     $media = Media::find($mediaid);
                     $template->attachMedia($media, ['template-image-attach']);
                     $template->save();
+
+                    $StoreWebsite->attachMedia($media, ['website-image-attach']);
+
                     $imagesArray[]=$media->getUrl();
                 }
             }
@@ -428,6 +430,8 @@ class ProductTemplatesController extends Controller
                     $template->attachMedia($media,['template-image-attach']);
                     $template->save();
                     $imagesArray[]=$media->getUrl();
+
+                    $StoreWebsite->attachMedia($media, ['website-image-attach']);
                 }
             }
 
