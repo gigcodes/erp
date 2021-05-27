@@ -167,10 +167,15 @@ class RepositoryController extends Controller
 
     private function updateDevTask($branchName){
         $devTaskId = null;
-        $usIt = explode($branchName, '-');
+        $usIt = explode('-', $branchName);
 
         if (count($usIt) > 1) {
             $devTaskId = $usIt[1];
+        }else{
+            $usIt = explode(' ',$branchName);            
+            if (count($usIt) > 1) {
+                $devTaskId = $usIt[1];
+            }
         }
 
         $devTask = DeveloperTask::find($devTaskId);
