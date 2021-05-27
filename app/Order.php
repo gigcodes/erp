@@ -282,6 +282,11 @@ class Order extends Model
         return $this->belongsTo(Email::class,'id', 'model_id');
     }
 
+    public function duty_tax()
+    {
+        return $this->hasOne(\App\WebsiteStore::class, 'website_id','store_id');
+    }
+
 
     // public function calculateTotal($order)
     // {
