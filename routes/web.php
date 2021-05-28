@@ -516,6 +516,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/send-document', 'ContentManagementController@sendDocument')->name("content-management.send-documents");
         Route::post('/save-reviews', 'ContentManagementController@saveReviews')->name("content-management.save-reviews");
         Route::post('/manage/milestone-task/submit', 'ContentManagementController@submitMilestones')->name("content-management.submit-milestones");
+        Route::post('/manage/attach/images', 'ContentManagementController@getAttachImages')->name("content-management.attach.images");
         Route::prefix('{id}')->group(function () {
             Route::get('list-documents', 'ContentManagementController@listDocuments')->name("content-management.list-documents");
             Route::prefix('remarks')->group(function () {
@@ -806,7 +807,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('user-search/', 'UserController@searchUser');
 
     Route::get('activity/', 'ActivityConroller@showActivity')->name('activity');
-    Route::post('activity/modal', 'ActivityConroller@recentActivities')->name('activity');
+    Route::post('activity/modal', 'ActivityConroller@recentActivities');
     Route::get('graph/', 'ActivityConroller@showGraph')->name('graph');
     Route::get('graph/user', 'ActivityConroller@showUserGraph')->name('graph_user');
 
@@ -2959,4 +2960,10 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
 
         Route::post('plan/basis/create', 'PlanController@newBasis')->name('plan.create.basis');
     });
+});
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('/admin-menu/db-query', 'DBQueryController@index')->name('admin.databse.menu.direct.dbquery');
+    Route::post('/admin-menu/db-query/get-columns', 'DBQueryController@columns')->name('admin.databse.menu.direct.dbquery.columns');
+    Route::post('/admin-menu/db-query/confirm', 'DBQueryController@confirm')->name('admin.databse.menu.direct.dbquery.confirm');
+    Route::post('/admin-menu/db-query/update', 'DBQueryController@update')->name('admin.databse.menu.direct.dbquery.update');
 });

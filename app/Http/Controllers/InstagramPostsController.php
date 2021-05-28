@@ -54,9 +54,8 @@ class InstagramPostsController extends Controller
     {
 
        
-
        $images = $request->get('images', false);
-
+       $mediaIds = $request->get('media_ids', false);
 
         $productArr = null;
         if ($images) {
@@ -69,6 +68,14 @@ class InstagramPostsController extends Controller
             if (!empty($productIdsArr)) {
                 $productArr = \App\Product::select('id', 'name', 'sku', 'brand')->whereIn('id', $productIdsArr)->get();
             }
+        }
+
+        $mediaIdsArr = null;
+        if( $mediaIds ){
+            $mediaIdsArr = \DB::table('mediables')
+                        ->whereIn('media_id', explode(',',$mediaIds))
+                        ->where('mediable_type', 'App\StoreWebsite')
+                        ->get();
         }
         //$accounts = \App\Account::where('platform','instagram')->whereNotNull('proxy')->where('status',1)->get();
         $accounts = \App\Account::where('platform','instagram')->where('status',1)->get();
@@ -120,24 +127,21 @@ class InstagramPostsController extends Controller
 
         $imagesHtml='';
         if(isset($productArr) && count($productArr)):
+            foreach($productArr as $product):
+                foreach($product->media as $media):
+                    $imagesHtml.='<div class="media-file">    <label class="imagecheck m-1">        <input name="media[]" type="checkbox" value="'.$media->id.'" data-original="'.$media->getUrl().'" class="imagecheck-input">        <figure class="imagecheck-figure">            <img src="'.$media->getUrl().'" alt="'.$product->name.'" class="imagecheck-image" style="cursor: default;">        </figure>    </label><p style="font-size: 11px;"></p></div>';
+                endforeach;
+            endforeach;
+        endif;
 
-                                                foreach($productArr as $product):
-
-                                                
-
-                                                foreach($product->media as $media):
-
-                                            $imagesHtml.='<div class="media-file">    <label class="imagecheck m-1">        <input name="media[]" type="checkbox" value="'.$media->id.'" data-original="'.$media->getUrl().'" class="imagecheck-input">        <figure class="imagecheck-figure">            <img src="'.$media->getUrl().'" alt="'.$product->name.'" class="imagecheck-image" style="cursor: default;">        </figure>    </label><p style="font-size: 11px;"></p></div>';
-
-                                               
-
-                                                endforeach;
-                                                 
-
-                                                endforeach;
-
-                                                endif;
-
+        if(isset($mediaIdsArr) && !empty($mediaIdsArr)):
+            foreach($mediaIdsArr as $image):
+                $media = Media::where('id',$image->media_id)->get();
+                if(!empty($media)):
+                    $imagesHtml.='<div class="media-file">    <label class="imagecheck m-1">        <input name="media[]" type="checkbox" value="'.$media[0]->getkey().'" data-original="'.$media[0]->getUrl().'" class="imagecheck-input">        <figure class="imagecheck-figure">            <img src="'.$media[0]->getUrl().'" alt="Images" class="imagecheck-image" style="cursor: default;">        </figure>    </label><p style="font-size: 11px;"></p></div>';
+                endif;
+            endforeach;
+        endif;
        
         return view('instagram.post.create' , compact('accounts','records','used_space','storage_limit', 'posts','imagesHtml'))->with('i', ($request->input('page', 1) - 1) * 5);;   
     }
