@@ -79,6 +79,7 @@ Route::post('get-customers', 'QuickSellController@getCustomers')->name('getCusto
 
 Route::get('product-template', 'ProductTemplatesController@apiIndex');
 Route::post('product-template', 'ProductTemplatesController@apiSave');
+Route::post('new-product-template', 'ProductTemplatesController@NewApiSave');
 
 
 Route::get('{client}/{numberFrom}/get-im','InstantMessagingController@getMessage');
