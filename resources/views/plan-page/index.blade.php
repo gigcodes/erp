@@ -43,6 +43,14 @@ td button.btn {padding: 0;}
             <div class="form-group col-md-2 mr-3s mb-3 no-pd">
                 <input name="date" type="date" class="form-control" value="{{ request('date') }}" placeholder="Search.." style="width:100%;">
             </div>
+            <div class="form-group col-md-2 mr-3s no-pd">
+              <select class="form-control" name="typefilter">
+                  <option value="">Select Type</option>
+                  @foreach($typeList as $value )
+                      <option value="{{$value->type}}">{{$value->type}}</option>
+                  @endforeach;
+              </select>
+            </div>
             <div class="form-group col-md-3 mr-3s no-pd">
                 <select class="form-control" name="priority">
                     <option value="">Select priority</option>
@@ -58,14 +66,6 @@ td button.btn {padding: 0;}
                     <option value="pending">pending</option>
                 </select>
             </div>
-            <div class="form-group col-md-2 mr-3s no-pd">
-              <select class="form-control" name="typefilter">
-                  <option value="">Select Type</option>
-                  @foreach($typeList as $value )
-                      <option value="{{$value->type}}">{{$value->type}}</option>
-                  @endforeach;
-              </select>
-            </div>
             <div class="col-md-* no-pd">
             <button type="submit" class="btn btn-image image-filter-btn"><img src="/images/filter.png"/></button>
             </div>
@@ -80,13 +80,13 @@ td button.btn {padding: 0;}
         <thead>
             <tr>
                 <th>#ID</th>
+                <th>Type</th>
                 <th>Subject</th>
                 <th>Sub subject</th>
                 <th>Description</th>
                 <th>Priority</th>
                 <th>Budget</th>
                 <th>Basis</th>
-                <th>Type</th>
                 <th>Implications</th>
                 <th>DeadLine</th>
                 <th>status</th>
@@ -98,6 +98,7 @@ td button.btn {padding: 0;}
             @foreach($planList as $key => $record)
             <tr>
                 <td>{{$record->id}}</td>
+                <td>{{$record->type}}</td>
                 <td>{{$record->subject}}</td>
                 <td>{{$record->sub_subject}}</td>
                 <td width="15%">
@@ -112,7 +113,6 @@ td button.btn {padding: 0;}
                 <td>{{$record->priority}}</td>
                 <td>{{$record->budget}}</td>
                 <td>{{$record->basis}}</td>
-                <td>{{$record->type}}</td>
                 <td>{{$record->implications}}</td>
                 <td class="r-date">{{$record->deadline}}</td>
                 <td>{{$record->status}}</td>
@@ -253,19 +253,30 @@ td button.btn {padding: 0;}
                   @csrf
                   <div class="row subject-field">
                       <div class="col-md-6">
+                        <div class="form-group">
+                          <label class="col-form-label">Type</label>
+                          <select class="form-control" name="type">
+                              <option value="">Select</option>
+                              @foreach($typeList as $value )
+                                  <option value="{{$value->type}}">{{$value->type}}</option>
+                              @endforeach;
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
                           <div class="form-group">
                             <label  class="col-form-label">Subject:</label>
                             <input type="text" name="subject" class="form-control">
                           </div>
                       </div>
-                      <div class="col-md-6">
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
                           <div class="form-group">
                             <label  class="col-form-label">Sub subject:</label>
                             <input type="text" name="sub_subject" class="form-control" >
                           </div>
                       </div>
-                  </div>
-                  <div class="row">
                       <div class="col-md-6">
                           <div class="form-group">
                             <label  class="col-form-label">Priority:</label>
@@ -278,7 +289,9 @@ td button.btn {padding: 0;}
                       </div>
                       <input type="hidden" id="edit_id" name="id">
                       <input type="hidden" id="parent_id" name="parent_id">
-                      <div class="col-md-6">
+                  </div>
+                  <div class="row subject-field">
+                    <div class="col-md-6">
                          <div class="form-group">
                             <label  class="col-form-label">Status:</label>
                             <select class="form-control" name="status" required>
@@ -287,22 +300,20 @@ td button.btn {padding: 0;}
                             </select>
                           </div>
                       </div>
-                  </div>
-                  <div class="row subject-field">
                       <div class="col-md-6">
                          <div class="form-group">
                             <label  class="col-form-label">Budget:</label>
                             <input type="number" name="budget" class="form-control">
                           </div>
                       </div>
-                      <div class="col-md-6">
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
                          <div class="form-group">
                             <label class="col-form-label">Deadline:</label>
                             <input type="date" name="deadline" class="form-control">
                           </div>
                       </div>
-                  </div>
-                  <div class="row">
                   <div class="col-md-6">
                          <div class="form-group">
                             <label class="col-form-label">Basis:</label>
@@ -314,38 +325,27 @@ td button.btn {padding: 0;}
                             </select>
                           </div>
                       </div>
-                      <div class="col-md-6">
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
                          <div class="form-group">
                             <label class="col-form-label">Implications</label>
                             <input type="text" name="implications" class="form-control">
                           </div>
                       </div>
-                  </div>
-                  <div class="row">
                       <div class="col-md-6">
                          <div class="form-group">
                             <label  class="col-form-label">Date:</label>
                             <input type="date" name="date" class="form-control" required>
                           </div>
                       </div>
-                      <div class="col-md-6">
-                         <div class="form-group">
-                            <label class="col-form-label">Description:</label>
-                            <textarea class="form-control" name="description"></textarea>
-                          </div>
-                      </div>
                   </div>
                   <div class="row">
                     <div class="col-md-6">
                       <div class="form-group">
-                        <label class="col-form-label">Type</label>
-                        <select class="form-control" name="type">
-                            <option value="">Select</option>
-                            @foreach($typeList as $value )
-                                <option value="{{$value->type}}">{{$value->type}}</option>
-                            @endforeach;
-                        </select>
-                      </div>
+                            <label class="col-form-label">Description:</label>
+                            <textarea class="form-control" name="description"></textarea>
+                          </div>
                     </div>
                   </div>
                   <div class="row remark-field hidden" >
