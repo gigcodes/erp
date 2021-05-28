@@ -115,6 +115,9 @@ table tr td{
         <div class="form-group mr-pd col-md-2">    
             <button type="button" data-toggle="modal" data-target="#missing-report-modal" class="btn btn-secondary"></i>Report</button>
         </div>
+        <div class="form-group mr-pd col-md-2">    
+            <button type="button" data-toggle="modal" data-target="#missing-report-scrap-modal" class="btn btn-secondary"></i>Scrapped Report</button>
+        </div>
 </div>
 <div id="inventory-data"> <!-- Purpose : Remove class="table-responsive" - DEVTASK-4138  -->
     <table class="table table-bordered infinite-scroll">
@@ -127,6 +130,7 @@ table tr td{
                 <th width="10%">Supplier count</th>
                 <th width="10%">Name</th>
                 <th width="12%">Category / Brand</th>
+                <th width="10%">Price</th>
                 <!-- <th width="15%">Brand</th> -->
                 <th width="10%">Supplier</th>
                 <th width="8%">Color</th>
@@ -259,6 +263,51 @@ table tr td{
                             <td>{{$value->missing_price}}</td>
                             <td>{{$value->missing_size}}</td>
                             <td>{{$value->missing_measurement}}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="missing-report-scrap-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" style="max-width: 1000px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Report</h4>
+                <div style="width: 90%; text-align: right;"> <a href="{{route('download-scrapped-report')}}" class="btn btn-secondary">Download Report</a></div>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered infinite-scroll">
+                    <thead>
+                        <tr>
+                            <th width="10%">Supplier</th>
+                            <th>Missing Category</th>
+                            <th>Missing Color</th>
+                            <th>Missing Composition</th>
+                            <th>Missing Name</th>
+                            <th>Missing Short Description</th>
+                            <th>Missing Price</th>
+                            <th>Missing Size</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($scrappedReportData as $value)
+                        <tr>
+                            <td>{{$value->supplier}}</td>
+                            <td>{{$value->missing_category}}</td>
+                            <td>{{$value->missing_color}}</td>
+                            <td>{{$value->missing_composition}}</td>
+                            <td>{{$value->missing_name}}</td>
+                            <td>{{$value->missing_short_description}}</td>
+                            <td>{{$value->missing_price}}</td>
+                            <td>{{$value->missing_size}}</td>
                         </tr>
                         @endforeach
                     </tbody>
