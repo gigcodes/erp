@@ -210,10 +210,6 @@ class scrapperPhyhon extends Controller
             return response()->json(["code" => 500, "message" => 'Invalid request',"error" => $validator->errors()]);
         }
 
-        if (base64_decode( $request->image,true) ) {
-            return response()->json(["code" => 500, "message" => 'Invalid request',"error" => 'Image not valied']);
-        }
-
         $StoreWebsite = \App\StoreWebsite::where('website',$request->store_website)->first();
         if( $this->saveBase64Image( $request->image_name,  $request->image ) ){
             $newImage = array(
@@ -247,6 +243,7 @@ class scrapperPhyhon extends Controller
             file_put_contents($filePath, $imageData);
             return true;
         } catch (\Throwable $th) {
+            dd( $th->getMessage() ) ;
             \Log::error('scrapper_images :: ' .$th->getMessage());
             return false;
         }
