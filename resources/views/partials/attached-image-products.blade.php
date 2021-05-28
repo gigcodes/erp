@@ -55,7 +55,7 @@
                         <input type="checkbox" class="custom-control-input select-pr-list-chk" checked="checked" id="defaultUnchecked_{{ $product->id.$kr.$customer_id}}" >
                         <label class="custom-control-label" for="defaultUnchecked_{{ $product->id.$kr.$customer_id}}"></label>
                     </div>
-                        <a href="{{ route('product-inventory.fetch.img.google',['name'=> $product->name, 'id' => $product->id]) }}" data-toggle="tooltip" title="Fetch image from google" class="btn btn-secondary btn-sm"><i class="fa fa-picture-o"></i></a>
+                        <a href="{{ route('product-inventory.fetch.img.google',['name'=> $product->name, 'id' => $product->id]) }}" data-toggle="tooltip" title="Fetch image from google" class="btn btn-sm"><i class="fa fa-picture-o"></i></a>
                         <a href="javascript:;" data-media="{{$im['id']}}" class="btn btn-sm btn-image {{ in_array($imageDetails->getKey(), $selected_products) ? 'btn-success' : '' }} attach-photo new-{{$customer_id}}" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images' || $model_type == 'landing-page') ? $product->id : $imageDetails->getKey() }}" data-product="{{$pr->suggested_product_list_id}}" data-attached="{{ in_array($imageDetails->getKey(), $selected_products) ? 1 : 0 }}"><img src="{{asset('images/attach.png')}}"></a>
                         <a href="javascript:;" class="btn btn-sm select_row" title="Select Single Row"><i class="fa fa-arrows-h" aria-hidden="true"></i></a>
                         <a href="javascript:;" class="btn btn-sm select_multiple_row" title="Select Multiple Row"><i class="fa fa-check" aria-hidden="true"></i></a>
