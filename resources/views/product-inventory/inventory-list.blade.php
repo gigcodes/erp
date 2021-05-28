@@ -15,6 +15,15 @@
 table.table.table-bordered.infinite-scroll th:nth-child(2),table.table.table-bordered.infinite-scroll td:nth-child(2){
     width: 50px !important;
 }
+table{
+    table-layout: fixed;
+}
+table tr th{
+    word-break: break-all;
+}
+table tr td{
+    word-break: break-all;
+}
 </style>
 @endsection
 
@@ -107,35 +116,38 @@ table.table.table-bordered.infinite-scroll th:nth-child(2),table.table.table-bor
             <button type="button" data-toggle="modal" data-target="#missing-report-modal" class="btn btn-secondary"></i>Report</button>
         </div>
 </div>
-<div class="table-responsive" id="inventory-data">
+<div id="inventory-data"> <!-- Purpose : Remove class="table-responsive" - DEVTASK-4138  -->
     <table class="table table-bordered infinite-scroll">
         <thead>
             <tr>
-                <th width="40%"><input type="checkbox" class="chk-select-call" name="select-all"></th>
-                <th>ID</th>
-                <th>Sku</th>
-                <th>Supplier count</th>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Brand</th>
-                <th>Supplier</th>
-                <th>Color</th>
-                <th>S.Color</th>
-                <th width="7%">Composition</th>
-                <th>Size system</th>
-                <th>Size</th>
-                <th>Size(IT)</th>
-                <th>Status</th>
-                <th>Sub Status</th>
-                <th width="15%">Created Date</th>
-                <th width="15%">Actions</th>
+                <!-- Purpose : Set width and merge Category/ Brand , color /S.color Column - DEVTASK-4138  -->
+                <th width="5%"><input type="checkbox" class="chk-select-call" name="select-all"></th>
+                <th width="5%">ID</th>
+                <th width="10%">Sku</th>
+                <th width="10%">Supplier count</th>
+                <th width="10%">Name</th>
+                <th width="12%">Category / Brand</th>
+                <!-- <th width="15%">Brand</th> -->
+                <th width="10%">Supplier</th>
+                <th width="8%">Color</th>
+                <!-- <th width="10%">S.Color</th> -->
+                <th width="10%">Composition</th>
+                <th width="10%">Size system</th>
+                <th width="10%">Size</th>
+                <th width="10%">Size(IT)</th>
+                <th width="10%">Status</th>
+                <th width="10%">Sub Status</th>
+                <th width="10%">Created Date</th>
+                <th width="10%">Actions</th>
             </tr>
         </thead>
         <tbody>
         @include("product-inventory.inventory-list-partials.grid")
         </tbody>
     </table>
+    
 </div>
+
 <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="display: none" />
 
 
