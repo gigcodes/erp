@@ -7,6 +7,7 @@ use App\StoreWebsiteAnalytic;
 use App\StoreWebsite;
 use App\Plan;
 use App\PlanBasisStatus;
+use App\PlanTypes;
 use Illuminate\Support\Facades\Validator;
 use Storage;
 use File;
@@ -23,6 +24,7 @@ class PlanController extends Controller
     {
         $query = Plan::whereNull('parent_id');
         $basisList = PlanBasisStatus::all();
+        $typeList = PlanTypes::all();
 
         if(request('status')){
             $query->where('status',request('status'));
@@ -30,6 +32,9 @@ class PlanController extends Controller
 
         if(request('priority')){
             $query->where('priority',request('priority'));
+        }
+        if(request('typefilter')){
+            $query->where('type',request('typefilter'));
         }
 
         if(request('date')){
@@ -44,12 +49,12 @@ class PlanController extends Controller
         }
 
         $planList = $query->orderBy('id','DESC')->paginate(10);
-        return view('plan-page.index', compact('planList','basisList'));
+        return view('plan-page.index', compact('planList','basisList','typeList'));
     }
 
     public function store(Request $request)
     {   
-        // dd( $request->all() );
+        //dd( $request->all() );
             $rules = [
                 'priority' => 'required',
                 'date' => 'required',
@@ -75,6 +80,7 @@ class PlanController extends Controller
                     'budget' => $request->budget,
                     'deadline' => $request->deadline,
                     'basis' => $request->basis,
+                    'type' => $request->type,
                     'implications' => $request->implications,
                 );
                 if( $request->parent_id ){
@@ -115,6 +121,29 @@ class PlanController extends Controller
         PlanBasisStatus::insert($data);
 
         return redirect()->back()->with('success','New status created successfully.');
+
+    }
+    public function newType(Request $request)
+    {
+        $rules = [
+            'name' => 'required',
+        ];
+
+        $validation = validator(
+           $request->all(),
+           $rules
+        );
+        if($validation->fails()) {
+            return redirect()->back()->withErrors($validation)->withInput();
+        }
+
+        $data = array(
+            'type' => $request->name,
+        );
+
+        PlanTypes::insert($data);
+
+        return redirect()->back()->with('success','New type created successfully.');
 
     }
 
