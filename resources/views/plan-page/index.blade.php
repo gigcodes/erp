@@ -16,9 +16,15 @@
 .add-sub-plan:focus-visible, .edit-sub-plan:focus-visible{ outline: 0; }
 .expand-2 > td:first-child { border-bottom: 0 !important; border-top: 0; }
 table#store_website-analytics-table tr td:last-child { width: 150px; }
-.r-date{width:120px;}
+.r-date{width:95px;}
 .no-border {border-bottom: 0 !important; border-top: 0 !important;}
-
+h1{font-size:30px;font-weight:600;padding: 20px 0;}
+h2{font-size:24px;font-weight:600;}
+h3 {font-size:20px;font-weight:600;}
+table{border: 1px;border-radius: 4px;}
+table th{font-weight: normal;font-size: 15px;color: #000;}
+table td{font-weight: normal;font-size: 14px;color: #757575;}
+td button.btn {padding: 0;}
 </style>
 <div class="row mb-5">
     <div class="col-lg-12 margin-tb">
@@ -27,16 +33,25 @@ table#store_website-analytics-table tr td:last-child { width: 150px; }
         <div class="pull-right">
             <button type="button" class="btn btn-secondary new-plan" data-toggle="modal" data-target="#myModal">New plan</button>
             <button type="button" class="btn btn-secondary new-plan" data-toggle="modal" data-target="#myBasis">New basis</button>
+            <button type="button" class="btn btn-secondary new-type" data-toggle="modal" data-target="#newtype">New Type</button>
         </div>
 
         <form action="{{ url()->current() }}" method="GET" id="searchForm" class="form-inline align-items-start">
-            <div class="form-group col-md-2 mr-3 mb-3 no-pd">
+            <div class="form-group col-md-2 mr-3s mb-3 no-pd">
                 <input name="term" type="text" class="form-control" value="{{ request('term') }}" placeholder="Search.." style="width:100%;">
             </div>
-            <div class="form-group col-md-2 mr-3 mb-3 no-pd">
+            <div class="form-group col-md-2 mr-3s mb-3 no-pd">
                 <input name="date" type="date" class="form-control" value="{{ request('date') }}" placeholder="Search.." style="width:100%;">
             </div>
-            <div class="form-group col-md-3 mr-3 no-pd">
+            <div class="form-group col-md-2 mr-3s no-pd">
+              <select class="form-control" name="typefilter">
+                  <option value="">Select Type</option>
+                  @foreach($typeList as $value )
+                      <option value="{{$value->type}}">{{$value->type}}</option>
+                  @endforeach;
+              </select>
+            </div>
+            <div class="form-group col-md-3 mr-3s no-pd">
                 <select class="form-control" name="priority">
                     <option value="">Select priority</option>
                     <option value="high">High</option>
@@ -44,15 +59,14 @@ table#store_website-analytics-table tr td:last-child { width: 150px; }
                     <option value="low">Low</option>
                 </select>
             </div>
-            <div class="form-group col-md-3 mr-3 no-pd">
+            <div class="form-group col-md-2 mr-3s no-pd">
                 <select class="form-control" name="status">
                     <option value="">Select status</option>
                     <option value="complete">complete</option>
                     <option value="pending">pending</option>
                 </select>
             </div>
-            <div class="col-md-1 no-pd">
-            &nbsp;
+            <div class="col-md-* no-pd">
             <button type="submit" class="btn btn-image image-filter-btn"><img src="/images/filter.png"/></button>
             </div>
         </form>
@@ -66,6 +80,7 @@ table#store_website-analytics-table tr td:last-child { width: 150px; }
         <thead>
             <tr>
                 <th>#ID</th>
+                <th>Type</th>
                 <th>Subject</th>
                 <th>Sub subject</th>
                 <th>Description</th>
@@ -76,13 +91,14 @@ table#store_website-analytics-table tr td:last-child { width: 150px; }
                 <th>DeadLine</th>
                 <th>status</th>
                 <th>Date</th>
-                <th width="280px">Action</th>
+                <th width="15%">Action</th>
             </tr>
         </thead>
         <tbody class="searchable">
             @foreach($planList as $key => $record)
             <tr>
                 <td>{{$record->id}}</td>
+                <td>{{$record->type}}</td>
                 <td>{{$record->subject}}</td>
                 <td>{{$record->sub_subject}}</td>
                 <td width="15%">
@@ -151,7 +167,7 @@ table#store_website-analytics-table tr td:last-child { width: 150px; }
             </tr>
             @endforeach
             <tr>
-                <td colspan="10">{{$planList->appends(request()->except("page"))->links()}}</td>
+                <td colspan="13">{{$planList->appends(request()->except("page"))->links()}}</td>
             </tr>
         </tbody>
     </table>
@@ -190,6 +206,38 @@ table#store_website-analytics-table tr td:last-child { width: 150px; }
   </div>
 </div>
 
+<div class="modal fade" id="newtype" tabindex="-1" role="dialog" aria-labelledby="newtype" aria-hidden="true">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="newtype">New Type</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+        <form method="post" id="typeadd" action="{{ route('plan.create.type') }}">
+          <div class="modal-body">
+            <div class="container-fluid">
+                  @csrf
+                  <div class="row subject-field">
+                      <div class="col-md-12">
+                          <div class="form-group">
+                            <label  class="col-form-label">Name:</label>
+                            <input type="text" name="name" class="form-control" placeholder="Enter name" required="">
+                          </div>
+                      </div>
+                  </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-secondary">Save</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModal" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
@@ -205,19 +253,30 @@ table#store_website-analytics-table tr td:last-child { width: 150px; }
                   @csrf
                   <div class="row subject-field">
                       <div class="col-md-6">
+                        <div class="form-group">
+                          <label class="col-form-label">Type</label>
+                          <select class="form-control" name="type">
+                              <option value="">Select</option>
+                              @foreach($typeList as $value )
+                                  <option value="{{$value->type}}">{{$value->type}}</option>
+                              @endforeach;
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
                           <div class="form-group">
                             <label  class="col-form-label">Subject:</label>
                             <input type="text" name="subject" class="form-control">
                           </div>
                       </div>
-                      <div class="col-md-6">
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
                           <div class="form-group">
                             <label  class="col-form-label">Sub subject:</label>
                             <input type="text" name="sub_subject" class="form-control" >
                           </div>
                       </div>
-                  </div>
-                  <div class="row">
                       <div class="col-md-6">
                           <div class="form-group">
                             <label  class="col-form-label">Priority:</label>
@@ -230,7 +289,9 @@ table#store_website-analytics-table tr td:last-child { width: 150px; }
                       </div>
                       <input type="hidden" id="edit_id" name="id">
                       <input type="hidden" id="parent_id" name="parent_id">
-                      <div class="col-md-6">
+                  </div>
+                  <div class="row subject-field">
+                    <div class="col-md-6">
                          <div class="form-group">
                             <label  class="col-form-label">Status:</label>
                             <select class="form-control" name="status" required>
@@ -239,22 +300,20 @@ table#store_website-analytics-table tr td:last-child { width: 150px; }
                             </select>
                           </div>
                       </div>
-                  </div>
-                  <div class="row subject-field">
                       <div class="col-md-6">
                          <div class="form-group">
                             <label  class="col-form-label">Budget:</label>
                             <input type="number" name="budget" class="form-control">
                           </div>
                       </div>
-                      <div class="col-md-6">
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
                          <div class="form-group">
                             <label class="col-form-label">Deadline:</label>
                             <input type="date" name="deadline" class="form-control">
                           </div>
                       </div>
-                  </div>
-                  <div class="row">
                   <div class="col-md-6">
                          <div class="form-group">
                             <label class="col-form-label">Basis:</label>
@@ -266,26 +325,28 @@ table#store_website-analytics-table tr td:last-child { width: 150px; }
                             </select>
                           </div>
                       </div>
-                      <div class="col-md-6">
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
                          <div class="form-group">
                             <label class="col-form-label">Implications</label>
                             <input type="text" name="implications" class="form-control">
                           </div>
                       </div>
-                  </div>
-                  <div class="row">
                       <div class="col-md-6">
                          <div class="form-group">
                             <label  class="col-form-label">Date:</label>
                             <input type="date" name="date" class="form-control" required>
                           </div>
                       </div>
-                      <div class="col-md-6">
-                         <div class="form-group">
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
                             <label class="col-form-label">Description:</label>
                             <textarea class="form-control" name="description"></textarea>
                           </div>
-                      </div>
+                    </div>
                   </div>
                   <div class="row remark-field hidden" >
                       <div class="col-md-12">
