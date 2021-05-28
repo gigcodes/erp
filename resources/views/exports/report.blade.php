@@ -7,6 +7,9 @@
             <th>Missing Composition</th>
             <th>Missing Name</th>
             <th>Missing Short Description</th>
+            <th>Missing Price</th>
+            <th>Missing Size</th>
+            <th>Missing Dimention</th>
         </tr>
     </thead>
     <tbody>
@@ -18,6 +21,9 @@
             <td>{{$value->missing_composition}}</td>
             <td>{{$value->missing_name}}</td>
             <td>{{$value->missing_short_description}}</td>
+            <td>{{$value->missing_price}}</td>
+            <td>{{$value->missing_size}}</td>
+            <td>{{$value->missing_measurement}}</td>
         </tr>
         @endforeach
     </tbody>

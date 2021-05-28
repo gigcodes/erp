@@ -1014,6 +1014,12 @@ class ProductInventoryController extends Controller
 			           OR p.name IS NULL THEN 1 ELSE 0 END) AS missing_name,
 			       sum(CASE WHEN p.short_description = ""
 			           OR p.short_description IS NULL THEN 1 ELSE 0 END) AS missing_short_description,
+			       sum(CASE WHEN p.price = ""
+			           OR p.price IS NULL THEN 1 ELSE 0 END) AS missing_price,
+			       sum(CASE WHEN p.size = ""
+			           OR p.size IS NULL AND p.measurement_size_type IS NULL THEN 1 ELSE 0 END) AS missing_size,
+			       sum(CASE WHEN p.measurement_size_type = ""
+			           OR p.measurement_size_type AND p.size = "" OR p.size IS NULL THEN 1 ELSE 0 END) AS missing_measurement,
 			       `p`.`supplier`
 				')
 				->where('p.supplier','<>','');
@@ -1074,14 +1080,20 @@ class ProductInventoryController extends Controller
 			           OR p.name IS NULL THEN 1 ELSE 0 END) AS missing_name,
 			       sum(CASE WHEN p.short_description = ""
 			           OR p.short_description IS NULL THEN 1 ELSE 0 END) AS missing_short_description,
+			       sum(CASE WHEN p.price = ""
+			           OR p.price IS NULL THEN 1 ELSE 0 END) AS missing_price,
+			       sum(CASE WHEN p.size = ""
+			           OR p.size IS NULL AND p.measurement_size_type IS NULL THEN 1 ELSE 0 END) AS missing_size,
+			       sum(CASE WHEN p.measurement_size_type = ""
+			           OR p.measurement_size_type AND p.size = "" OR p.size IS NULL THEN 1 ELSE 0 END) AS missing_measurement,
 			       `p`.`supplier`
 				')
 				->where('p.supplier','<>','');
 				$query = $query->groupBy('p.supplier')->havingRaw("missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ");
 
-		$reportData = $query->get();
+		$reportDatas = $query->get();
 
-    	return \Excel::download(new \App\Exports\ReportExport($reportData), 'export.xls');
+    	return \Excel::download(new \App\Exports\ReportExport($reportDatas), 'exports.xls');
     }
   
   public function inventoryHistory($id) {
