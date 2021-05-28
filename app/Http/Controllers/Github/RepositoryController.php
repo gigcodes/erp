@@ -180,13 +180,13 @@ class RepositoryController extends Controller
 
         $devTask = DeveloperTask::find($devTaskId);
         
-        \Log::info('updateDevTask call');
+        \Log::info('updateDevTask call '.$branchName);
 
         if ($devTask) {
-            \Log::info('updateDevTask find success');            
+            \Log::info('updateDevTask find success '.$branchName);            
             try {
 
-                \Log::info('updateDevTask :: PR merge msg send');
+                \Log::info('updateDevTask :: PR merge msg send .'.json_encode($devTask->user));
                 app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($devTask->user->phone, $devTask->user->phone, $branchName.':: PR has been merged', false);
             } catch (Exception $e) {
                 \Log::info('updateDevTask ::'. $e->getMessage());
@@ -224,7 +224,7 @@ class RepositoryController extends Controller
                 $this->updateBranchState($id, $source);
             }
 
-            \Log::info('updateDevTask calling...');
+            \Log::info('updateDevTask calling...'.$source);
             $this->updateDevTask($source);
 
             // Deploy branch
