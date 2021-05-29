@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Http\Input;
+use Illuminate\Support\Facades\Input;
 use App\ReviewBrandList;
+use Illuminate\Support\Facades\DB;
 
 class BrandReviewController extends Controller
 {
@@ -29,9 +30,27 @@ class BrandReviewController extends Controller
         return $data;
     }
     public function storeReview(Request $request){
-        foreach ($request as $key => $value) {
-            return $value;
+        $data = Input::all();
+        if($data){
+            foreach ($data as $key => $value) {
+                DB::table('brand_reviews')->insert([
+                    'website' => $value['website'],
+                    'brand' => $value['brand'],
+                    'review_url' => $value['review_url'],
+                    'username' => $value['username'],
+                    'title' => $value['title'],
+                    'body' => $value['body'],
+                    'stars' => $value['stars']
+                ]);
+            }
+            return response()->json([
+                "code" => 200,
+                "message" => 'Data have been updated successfully',
+            ]);
         }
-        
+        return response()->json([
+            "code" => 500,
+            "message" => 'Error Occured, please try again later.',
+        ]);
     }
 }
