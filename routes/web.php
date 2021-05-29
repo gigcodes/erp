@@ -2961,9 +2961,12 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
         Route::get('/edit', 'PlanController@edit')->name('plan.edit');
         Route::post('/{id}/update', 'PlanController@update')->name('plan.update');
         Route::get('/delete/{id}', 'PlanController@delete')->name('plan.delete');
+        Route::get('/{id}/plan-action', 'PlanController@planAction');
+        Route::post('/plan-action/store', 'PlanController@planActionStore');
 
         Route::post('plan/basis/create', 'PlanController@newBasis')->name('plan.create.basis');
         Route::post('plan/type/create', 'PlanController@newType')->name('plan.create.type');
+        Route::post('plan/category/create', 'PlanController@newCategory')->name('plan.create.category');
     });
 });
 Route::group(['middleware' => 'auth'], function () {
