@@ -66,11 +66,9 @@
 
     <tr class="expand-images-{{$store->id}} hidden">
         <td colspan="7" id="attach-image-list-{{$store->id}}">
-            @if ($store->scrapperImage)
-
-            @include('scrapper-phyhon.list-image-products')
-                
-            @endif
+            {{-- @if ($store->scrapperImage) --}}
+                @include('scrapper-phyhon.list-image-products')
+            {{-- @endif --}}
         </td>
     </tr>
 

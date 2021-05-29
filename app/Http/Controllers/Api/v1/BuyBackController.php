@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\v1;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use App\Email;
 use App\Customer;
 use App\Order;
 use App\OrderProduct;
@@ -62,6 +63,7 @@ class BuyBackController extends Controller
      */
     public function store(Request $request)
     {
+
         $validationsarr = [
             'order_id' => 'required',
             'website' => 'required',
@@ -128,19 +130,20 @@ class BuyBackController extends Controller
                     ];
                     $return_exchanges_data = [
                         'customer_id' => $getCustomerOrderData->customer_id,
+                        'website_id' => $storeWebsite->id,
                         'type' => $request->type,
                         'reason_for_refund' => $request->get('reason',''.ucwords($request->type).' of product from '.$storeWebsite->website),
                         'refund_amount' => $getCustomerOrderData->product_price,
                         'status' => 1,
                         'date_of_request' => date('Y-m-d H:i:s')
                     ];
-
                     $success = ReturnExchange::create($return_exchanges_data);
+                    
                     if (!$success) {
                         $message = $this->generate_erp_response("$request->type.failed",$storeWebsite->id, $default = 'Unable to create '.ucwords($request->type).' request!', request('lang_code'));
                         return response()->json(['status' => 'failed', 'message' => $message], 500);
                     }
-
+                    $return_exchange_products_data['return_exchange_id'] = $success->id;
                     $isSuccess = true;
                     ReturnExchangeProduct::create($return_exchange_products_data);
 
