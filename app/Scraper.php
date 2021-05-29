@@ -107,6 +107,11 @@ class Scraper extends Model
         return \App\DeveloperTask::where("scraper_id", $id)->first();
     }
 
+    public function developerTaskNew()
+    {
+        return $this->hasOne(DeveloperTask::class, 'scraper_id');
+    }
+
     public function latestMessage()
     {
         return self::join("developer_tasks as dt","dt.scraper_id","scrapers.id")
@@ -140,9 +145,7 @@ class Scraper extends Model
 
     public function childrenScraper()
     {
-
         return  $this->hasMany(Scraper::class, 'parent_id', 'id');
-
     }
 
 }

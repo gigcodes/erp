@@ -73,7 +73,19 @@
                 <input name="term" type="text" class="form-control" id="product-search" value="{{ request()->get('term','') }}" placeholder="Enter Supplier name">
             </div>
             <div class="form-group mb-3 col-md-2">
-                <?php echo Form::select("scraper_made_by", ['' => '-- Select Made By --'] + \App\User::all()->pluck("name", "id")->toArray(), request("scraper_made_by"), ["class" => "form-control select2"]) ?>
+                @php
+                     $_made_by = request("scraper_made_by");
+
+                     $selectedMadeBy = \App\User::find($_made_by);
+
+                     $madeByArray = ['' => ''];
+
+                     if($selectedMadeBy){
+                        $madeByArray[$selectedMadeBy->id] = $selectedMadeBy->name;
+                     }
+
+                @endphp
+                <?php echo Form::select("scraper_made_by", $madeByArray, request("scraper_made_by"), ["class" => "form-control globalSelect2", 'data-ajax' => route('select2.user'), 'data-placeholder'=> 'Made by']) ?>
             </div>
             <div class="form-group mb-3 col-md-2">
                 <?php echo Form::select("scraper_type", ['' => '-- Select Type --'] + \App\Helpers\DevelopmentHelper::scrapTypes(), request("scraper_type"), ["class" => "form-control select2"]) ?>
@@ -99,9 +111,9 @@
     </form>
     <div class="row">
         <div class="col col-md-12">
-            @foreach(\App\Scraper::STATUS as $k => $v)
+            @foreach($allStatus as $statusName => $v)
                 <div class="col-md-2">
-                    Status {{$v}} count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', $v)->where('supplier_status_id', 1)->count()}}
+                    Status {{ $statusName }} count = {{ $allStatusCounts[$statusName] ?? 0 }}
                 </div>
             @endforeach
         </div>    
@@ -212,7 +224,7 @@
                     @php $arMatchedScrapers = []; $i=0; @endphp
                     @foreach ($activeSuppliers as $supplier)
                         @if ( (stristr($supplier->scraper_name, '_excel') && (int) $excelOnly > -1 ) || (!stristr($supplier->scraper_name, '_excel') && (int) $excelOnly < 1 ) )
-                            @php $data = null; @endphp
+                            @php $data = null;  @endphp
                             @foreach($scrapeData as $tmpData)
                                 @if ( !empty($tmpData->website) && strtolower($tmpData->website) == strtolower($supplier->scraper_name) )
                                     @php $data = $tmpData; $arMatchedScrapers[] = $supplier->scraper_name @endphp
@@ -249,11 +261,13 @@
 
                                 $chatMessage = count($supplier->latestMessageNew) > 0 ? $supplier->latestMessageNew[0] : null;
 
+
                                 $lastError = $supplier->lastErrorFromScrapLogNew;
+                                
                             @endphp
-                            <td width="1%">{{ ++$i }}&nbsp; @if($supplier->getChildrenScraperCount($supplier->scraper_name) != 0) <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-link"><i class="fa fa-caret-down" style="font-size:24px"></i>  </button> @endif</td>
-                            <td width="6%"><a href="/supplier/{{$supplier->id}}">{{ ucwords(strtolower($supplier->supplier)) }}&nbsp; {{ \App\Helpers\ProductHelper::getScraperIcon($supplier->scraper_name) }}</a>
-                                @if(substr(strtolower($supplier->supplier), 0, 6)  == 'excel_')
+                            <td width="1%">{{ ++$i }}&nbsp; @if($supplier->children_scraper_count != 0) <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-link"><i class="fa fa-caret-down" style="font-size:24px"></i>  </button> @endif</td>
+                            <td width="6%"><a href="/supplier/{{$supplier->id}}">{{ ucwords(strtolower($supplier->mainSupplier ? $supplier->mainSupplier->supplier : '')) }}&nbsp; {{ \App\Helpers\ProductHelper::getScraperIcon($supplier->scraper_name) }}</a>
+                                @if(substr(strtolower($supplier->mainSupplier ? $supplier->mainSupplier->supplier : ''), 0, 6)  == 'excel_')
                                     &nbsp;<i class="fa fa-file-excel-o" aria-hidden="true"></i>
                                 @endif
                                 <?php if($hasError){ ?>
@@ -302,15 +316,15 @@
                             <td width="3%">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
                             <?php $totalCountedUrl += !empty($data) ? $data->total : 0; ?>
                             <td width="3%">{{ !empty($data) ? $data->total : '' }}</td>
-                            <!-- <td width="3%">{{ !empty($data) ? $data->errors : '' }}</td>
-                            <td width="3%">{{ !empty($data) ? $data->warnings : '' }}</td> -->
+                            {{-- <!-- <td width="3%">{{ !empty($data) ? $data->errors : '' }}</td>
+                            <td width="3%">{{ !empty($data) ? $data->warnings : '' }}</td> --> --}}
                             <td width="3%">{{ !empty($data) ? $data->total_new_product : '' }}</td>
                             <td width="2%">{{ !empty($data) ? $data->scraper_total_urls : '' }}</td>
                             <td width="3%">
                                 {{ !empty($data) ? 'Exist : '.$data->scraper_existing_urls : '' }}
                                 {{ !empty($data) ? 'New : '.$data->scraper_new_urls : '' }}
                             </td>
-                            <!-- <td width="3%">{{ !empty($data) ? $data->scraper_new_urls : '' }}</td> -->
+                            {{-- <!-- <td width="3%">{{ !empty($data) ? $data->scraper_new_urls : '' }}</td> -->
                             <!-- <td width="3%">{{ !empty($data) ? $data->scraper_existing_urls : '' }}</td>
                             <td width="3%">{{ !empty($data) ? $data->scraper_new_urls : '' }}</td> -->
                             <!-- <td width="10%">
@@ -324,14 +338,14 @@
                             </td>
                             <td width="10%">
                                 {{ isset(\App\Helpers\StatusHelper::getStatus()[$supplier->next_step_in_product_flow]) ? \App\Helpers\StatusHelper::getStatus()[$supplier->next_step_in_product_flow] : "N/A" }}
-                            </td> -->
+                            </td> --> --}}
                             <td width="6%">
                                 <div class="form-group status" style="display: inline" >
-                                    <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->scrapers_status, ["class" => "form-control scrapers_status select2", "style" => "width:80px;"]); ?>
+                                    <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->status, ["class" => "form-control scrapers_status select2", "style" => "width:80px;"]); ?>
                                     <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="status" data-id="{{$supplier->id}}"><i class="fa fa-info-circle"></i></button>
                                 </div>
                                 @php
-                                    $hasTask = $supplier->developerTask($supplier->id);
+                                    $hasTask = $supplier->developerTaskNew;
                                 @endphp
                                 {{ ($hasTask) ? "Task-Available" : "No-Task" }}
                             </td>
@@ -462,7 +476,19 @@
                                 <td colspan="2">
                                     <label>Made By:</label>
                                     <div class="form-group">
-                                        <?php echo Form::select("scraper_made_by", ["" => "N/A"] + $users, $supplier->scraper_made_by, ["class" => "form-control scraper_made_by select2", "style" => "width:100%;"]); ?>
+                                        @php
+                                            
+                                            $selectedMadeBy = $supplier->scraperMadeBy;
+
+                                            $madeByArray = ["" => "N/A"];
+
+                                            if($selectedMadeBy){
+                                                $madeByArray[$selectedMadeBy->id] = $selectedMadeBy->name;
+                                            }
+
+                                        @endphp
+                
+                                        <?php echo Form::select("scraper_made_by", $madeByArray, $supplier->scraper_made_by, ["class" => "form-control scraper_made_by globalSelect2", "style" => "width:100%;", 'data-ajax' => route('select2.user'), 'data-placeholder'=> 'Made by']); ?>
                                     </div>
                                 </td>
                                 <td colspan="2">
@@ -492,10 +518,10 @@
                                 </td>
                                
                             </tr>
-                            @if($supplier->getChildrenScraper($supplier->scraper_name))
-                                @if(count($supplier->getChildrenScraper($supplier->scraper_name)) != 0)
+                            @if($supplier->childrenScraper)
+                                @if($supplier->children_scraper_count != 0)
                                     <?php $childCount = 0; ?>
-                                    @foreach($supplier->getChildrenScraper($supplier->scraper_name) as $childSupplier)
+                                    @foreach($supplier->childrenScraper as $childSupplier)
                                     @php $data = null; @endphp
                                     @foreach($scrapeData as $tmpData)
                                         @if ( !empty($tmpData->website) && $tmpData->website == $childSupplier->scraper_name )
@@ -527,7 +553,8 @@
                                             continue;
                                         }
 
-                                        $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$supplier->scraper_name)->orderBy('created_at','desc')->first();
+                                        // $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$supplier->scraper_name)->orderBy('created_at','desc')->first();
+                                        $remark = $supplier->scrpRemark;
                                     @endphp
                                     <tr style="display: none;" class="{{ $supplier->scraper_name }}">
                                     <td width="1%">{{ ++$childCount }}</td>
@@ -617,7 +644,19 @@
                                         <td colspan="3">
                                             <label>Made By:</label>
                                             <div class="form-group">
-                                                <?php echo Form::select("scraper_made_by", ["" => "N/A"] + $users, $childSupplier->scraper_made_by, ["class" => "form-control scraper_made_by select2", "style" => "width:100%;"]); ?>
+                                                @php
+                                                    
+                                                $selectedMadeBy = $childSupplier->scraperMadeBy;
+    
+                                                $madeByArray = ["" => "N/A"];
+    
+                                                if($selectedMadeBy){
+                                                    $madeByArray[$selectedMadeBy->id] = $selectedMadeBy->name;
+                                                }
+    
+                                            @endphp
+                    
+                                            <?php echo Form::select("scraper_made_by",$madeByArray, $childSupplier->scraper_made_by, ["class" => "form-control scraper_made_by globalSelect2", "style" => "width:100%;", 'data-ajax' => route('select2.user'), 'data-placeholder'=> 'Made by']); ?>
                                             </div>
                                         </td>
                                         <td colspan="2">
@@ -808,7 +847,7 @@
                         <div class="form-group">
                             <strong>Made By:</strong>
                             <div class="form-group">
-                                <?php echo Form::select("scraper_made_by", ["" => "N/A"] + $users, '', ["class" => "form-control scraper_made_by select2", "style" => "width:100%;"]); ?>
+                                <?php echo Form::select("scraper_made_by", ["" => "N/A"], '', ["class" => "form-control scraper_made_by globalSelect2", "style" => "width:100%;", 'data-ajax' => route('select2.user'), 'data-placeholder' => 'Made by']); ?>
                             </div>
                         </div>
                         <div class="form-group">
