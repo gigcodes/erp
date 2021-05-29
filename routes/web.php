@@ -1343,6 +1343,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::put('account/{id}', 'ReviewController@accountUpdate')->name('account.update');
     Route::delete('account/{id}/destroy', 'ReviewController@accountDestroy')->name('account.destroy');
 
+    Route::resource('brand-review/get', 'BrandReviewController@getAllBrandReview');
     // Threads Routes
     Route::resource('thread', 'ThreadController');
     Route::post('thread/{id}/status', 'ThreadController@updateStatus')->name('thread.updateStatus');
@@ -1645,6 +1646,12 @@ Route::post('livechat/save-token', 'LiveChatController@saveToken')->name('livech
 Route::post('livechat/check-new-chat', 'LiveChatController@checkNewChat')->name('livechat.new.chat');
 
 Route::get('livechat/getLiveChats', 'LiveChatController@getLiveChats')->name('livechat.get.chats');
+
+
+
+Route::get('/brand-review', '\App\Http\Controllers\Api\v1\BrandReviewController@index');
+Route::post('/brand-review/store', '\App\Http\Controllers\Api\v1\BrandReviewController@store')->name('brandreview.store');
+
 
 
 Route::prefix('livechat')->group(function () {
