@@ -8,6 +8,7 @@ use App\StoreWebsite;
 use App\Plan;
 use App\PlanBasisStatus;
 use App\PlanTypes;
+use App\PlanCategories;
 use Illuminate\Support\Facades\Validator;
 use Storage;
 use File;
@@ -25,6 +26,7 @@ class PlanController extends Controller
         $query = Plan::whereNull('parent_id');
         $basisList = PlanBasisStatus::all();
         $typeList = PlanTypes::all();
+        $categoryList = PlanCategories::all();
 
         if(request('status')){
             $query->where('status',request('status'));
@@ -35,6 +37,9 @@ class PlanController extends Controller
         }
         if(request('typefilter')){
             $query->where('type',request('typefilter'));
+        }
+        if(request('categoryfilter')){
+            $query->where('type',request('categoryfilter'));
         }
 
         if(request('date')){
@@ -49,7 +54,7 @@ class PlanController extends Controller
         }
 
         $planList = $query->orderBy('id','DESC')->paginate(10);
-        return view('plan-page.index', compact('planList','basisList','typeList'));
+        return view('plan-page.index', compact('planList','basisList','typeList','categoryList'));
     }
 
     public function store(Request $request)
@@ -57,7 +62,7 @@ class PlanController extends Controller
         //dd( $request->all() );
             $rules = [
                 'priority' => 'required',
-                'date' => 'required',
+                //'date' => 'required',
                 'status' => 'required',
             ];
 
@@ -81,6 +86,7 @@ class PlanController extends Controller
                     'deadline' => $request->deadline,
                     'basis' => $request->basis,
                     'type' => $request->type,
+                    'category' => $request->category,
                     'implications' => $request->implications,
                 );
                 if( $request->parent_id ){
@@ -147,6 +153,30 @@ class PlanController extends Controller
 
     }
 
+    public function newCategory(Request $request)
+    {
+        $rules = [
+            'name' => 'required',
+        ];
+
+        $validation = validator(
+           $request->all(),
+           $rules
+        );
+        if($validation->fails()) {
+            return redirect()->back()->withErrors($validation)->withInput();
+        }
+
+        $data = array(
+            'category' => $request->name,
+        );
+
+        PlanCategories::insert($data);
+
+        return redirect()->back()->with('success','New category created successfully.');
+
+    }
+
     public function edit(Request $request)
     {
         $data = Plan::where('id' ,$request->id)->first();
@@ -174,6 +204,23 @@ class PlanController extends Controller
     {
         $reports = \App\ErpLog::where('model',\App\StoreWebsiteAnalytic::class)->orderBy("id","desc")->where("model_id",$id)->get();
         return view("store-website-analytics.reports",compact('reports'));
+    }
+    public function planAction(Request $request,$id){
+        $data = Plan::where('id' ,$id)->first();
+        return $data;
+        //return response()->json(["code" => 200,"message" => 'Your data saved sucessfully.']);
+    }
+    public function planActionStore(Request $request){
+        $data = Plan::where('id' ,$request->id)->first();
+        if($data){
+            $data->strength = $request->strength;
+            $data->weakness = $request->weakness;
+            $data->opportunity = $request->opportunity;
+            $data->threat = $request->threat;
+            $data->save();
+            return response()->json(["code" => 200,"message" => 'Your data saved sucessfully.']);
+        }
+        return response()->json(["code" => 500,"message" => 'Data not found!']);
     }
 
 }

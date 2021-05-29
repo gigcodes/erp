@@ -295,6 +295,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('productinventory/inventory-list', 'ProductInventoryController@inventoryList')->name('productinventory.inventory-list');
     Route::get('productinventory/new-inventory-list', 'ProductInventoryController@inventoryListNew')->name('productinventory.inventory-list-new');
     Route::get('download-report', 'ProductInventoryController@downloadReport')->name('download-report');
+    Route::get('download-scrapped-report', 'ProductInventoryController@downloadScrapReport')->name('download-scrapped-report');
     Route::post('productinventory/change-size-system', 'ProductInventoryController@changeSizeSystem')->name('productinventory.change-size-system');
     Route::post('productinventory/change-product-status', 'ProductInventoryController@updateStatus')->name('productinventory.update-status');
     Route::post('productinventory/store-erp-size', 'ProductInventoryController@changeErpSize')->name('productinventory.change-erp-size');
@@ -364,6 +365,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('brand/unmerge-brand', 'BrandController@unMergeBrand')->name('brand.unmerge-brand');
     Route::get('brand/{id}/create-remote-id', 'BrandController@createRemoteId');
     Route::get('brand/{id}/activities', 'BrandController@activites')->name('brand.activities');
+    Route::get('brand/fetch-new', 'BrandController@fetchNewBrands')->name('brand.fetchnew');
     Route::resource('brand', 'BrandController');
 
    Route::put('brand/priority/{id}', 'BrandController@priority');
@@ -1964,6 +1966,8 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
 
     Route::get('/{name}', 'ScrapController@showProducts')->name('show.logFile');
     Route::post('/scrap/assignTask', 'ScrapController@assignScrapProductTask')->name('scrap.assignTask');
+
+    Route::get('servers/statistics','ScrapController@getServerStatistics')->name('scrap.servers.statistics');
  
 });
 
@@ -2957,9 +2961,12 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
         Route::get('/edit', 'PlanController@edit')->name('plan.edit');
         Route::post('/{id}/update', 'PlanController@update')->name('plan.update');
         Route::get('/delete/{id}', 'PlanController@delete')->name('plan.delete');
+        Route::get('/{id}/plan-action', 'PlanController@planAction');
+        Route::post('/plan-action/store', 'PlanController@planActionStore');
 
         Route::post('plan/basis/create', 'PlanController@newBasis')->name('plan.create.basis');
         Route::post('plan/type/create', 'PlanController@newType')->name('plan.create.type');
+        Route::post('plan/category/create', 'PlanController@newCategory')->name('plan.create.category');
     });
 });
 Route::group(['middleware' => 'auth'], function () {
