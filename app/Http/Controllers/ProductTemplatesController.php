@@ -228,6 +228,7 @@ class ProductTemplatesController extends Controller
                 "fontStyle" => $record->font_style,
                 "fontSize" => $record->font_size,
                 "backgroundColor" => explode(",", $record->background_color),
+                "color" => $record->color,
                 "logo" => ($record->storeWebsite) ? $record->storeWebsite->title : ""
             ];
 
@@ -429,6 +430,7 @@ class ProductTemplatesController extends Controller
         if( $request->modifications_array ){
             $params['background_color']  = $request->modifications_array[0]['background'] ?? null;
             $params['text']  = $request->modifications_array[0]['text'] ?? null;
+            $params['color']  = $request->modifications_array[0]['color'] ?? null;
         }
 
         $template->fill($params);

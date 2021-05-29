@@ -643,6 +643,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
     Route::post('order/report/store', 'OrderReportController@store')->name('status.report.store');
+
+    Route::get('order-refund-status-message', 'OrderReportController@orderRefundStatusMessage');
+
     //emails
     Route::get('email/replyMail/{id}', 'EmailController@replyMail');
     Route::post('email/replyMail', 'EmailController@submitReply')->name('email.submit-reply');
@@ -740,6 +743,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('dailyplanner', 'DailyPlannerController');
 
     Route::resource('refund', 'RefundController');
+
+
 
     // Contacts
     Route::resource('contact', 'ContactController');
@@ -1343,6 +1348,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::put('account/{id}', 'ReviewController@accountUpdate')->name('account.update');
     Route::delete('account/{id}/destroy', 'ReviewController@accountDestroy')->name('account.destroy');
 
+    Route::resource('brand-review/get', 'BrandReviewController@getAllBrandReview');
     // Threads Routes
     Route::resource('thread', 'ThreadController');
     Route::post('thread/{id}/status', 'ThreadController@updateStatus')->name('thread.updateStatus');
@@ -1645,6 +1651,12 @@ Route::post('livechat/save-token', 'LiveChatController@saveToken')->name('livech
 Route::post('livechat/check-new-chat', 'LiveChatController@checkNewChat')->name('livechat.new.chat');
 
 Route::get('livechat/getLiveChats', 'LiveChatController@getLiveChats')->name('livechat.get.chats');
+
+
+
+Route::get('/brand-review', '\App\Http\Controllers\Api\v1\BrandReviewController@index');
+Route::post('/brand-review/store', '\App\Http\Controllers\Api\v1\BrandReviewController@store')->name('brandreview.store');
+
 
 
 Route::prefix('livechat')->group(function () {
@@ -2814,7 +2826,6 @@ Route::get('store-website-country-shipping/edit/{id}', 'StoreWebsiteCountryShipp
 Route::get('store-website-country-shipping/delete/{id}', 'StoreWebsiteCountryShippingController@delete')->name('store-website-country-shipping.delete');
 
 Route::get('/attached-images-grid/customer/', 'ProductController@attachedImageGrid');
-Route::post('/attached-images-grid/customer/create-template', 'ProductController@createTemplate')->name('attach.cus.create.tpl');
 Route::post('/attached-images-grid/add-products/{suggested_products_id}', 'ProductController@attachMoreProducts');//
 Route::post('/attached-images-grid/remove-products/{customer_id}', 'ProductController@removeProducts');//
 Route::post('/attached-images-grid/remove-single-product/{customer_id}', 'ProductController@removeSingleProduct');//
@@ -2961,9 +2972,12 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
         Route::get('/edit', 'PlanController@edit')->name('plan.edit');
         Route::post('/{id}/update', 'PlanController@update')->name('plan.update');
         Route::get('/delete/{id}', 'PlanController@delete')->name('plan.delete');
+        Route::get('/{id}/plan-action', 'PlanController@planAction');
+        Route::post('/plan-action/store', 'PlanController@planActionStore');
 
         Route::post('plan/basis/create', 'PlanController@newBasis')->name('plan.create.basis');
         Route::post('plan/type/create', 'PlanController@newType')->name('plan.create.type');
+        Route::post('plan/category/create', 'PlanController@newCategory')->name('plan.create.category');
     });
 });
 Route::group(['middleware' => 'auth'], function () {

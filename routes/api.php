@@ -231,3 +231,5 @@ Route::post('wishlist/remove','\App\Http\Controllers\Api\v1\ProductController@wi
 Route::post('magento/order-create','MagentoCustomerReferenceController@createOrder');
 
 Route::post('scraper-images-save','scrapperPhyhon@imageSave');
+Route::get('review/get','\App\Http\Controllers\Api\v1\BrandReviewController@getAllBrandReview');
+Route::post('review/scrap','\App\Http\Controllers\Api\v1\BrandReviewController@storeReview');
