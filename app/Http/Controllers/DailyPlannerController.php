@@ -254,6 +254,7 @@ class DailyPlannerController extends Controller
 
 			try {
 				$events = UserEvent::where( 'daily_activity_id', $request->id)->get();
+                $dailyActivities = DailyActivity::where('id', $request->id)->first();
 				$userWise           = [];
 				$vendorParticipants = [];
 
@@ -284,7 +285,7 @@ class DailyPlannerController extends Controller
 							$no             = 1;
 
 							foreach ($events as $event) {
-								$notification[] = $no . ") [" . $event->start . "] => " . $event->subject;
+								$notification[] = $no . ") [" . changeTimeZone( $dailyActivities->for_datetime, null ,$dailyActivities->timezone ) . "] => " . $event->subject;
 								$no++;
 
 								$history = [
@@ -317,7 +318,7 @@ class DailyPlannerController extends Controller
 							$notification[] = "Following Event Schedule on within the next 30 min";
 							$no             = 1;
 							foreach ($events as $event) {
-								$notification[] = $no . ") [" . $event->start . "] => " . $event->subject;
+								$notification[] = $no . ") [" . changeTimeZone( $dailyActivities->for_datetime, null ,$dailyActivities->timezone ) . "] => " . $event->subject;
 								$no++;
 								$history = [
 									'daily_activities_id' => $event->daily_activity_id,
@@ -438,7 +439,11 @@ class DailyPlannerController extends Controller
           if($type == "task") {
             $modal->planned_at = $plannedAt;
           }else{
+            
+            $time = date('H:i:s', strtotime($modal->for_datetime));
+
             $modal->for_date = $plannedAt;
+            $modal->for_datetime = $plannedAt . ' ' . $time;
           }  
           $modal->save();
           return response()->json(["code" => 200 , "data" => [], "message" => "Your task has been rescheduled"]);
