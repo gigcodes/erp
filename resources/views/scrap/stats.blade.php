@@ -243,9 +243,13 @@
                                     continue;
                                 }
 
-                                $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$supplier->scraper_name)->whereNull("scrap_field")->where('user_name','!=','')->orderBy('created_at','desc')->first();
-                                $chatMessage = $supplier->latestMessage();
-                                $lastError = $supplier->lastErrorFromScrapLog();
+                                $remark = /*\App\ScrapRemark::select('remark')->where('scraper_name',$supplier->scraper_name)->whereNull("scrap_field")->where('user_name','!=','')->orderBy('created_at','desc')->first();*/
+
+                                $remark = $supplier->scrpRemark;
+
+                                $chatMessage = count($supplier->latestMessageNew) > 0 ? $supplier->latestMessageNew[0] : null;
+
+                                $lastError = $supplier->lastErrorFromScrapLogNew;
                             @endphp
                             <td width="1%">{{ ++$i }}&nbsp; @if($supplier->getChildrenScraperCount($supplier->scraper_name) != 0) <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-link"><i class="fa fa-caret-down" style="font-size:24px"></i>  </button> @endif</td>
                             <td width="6%"><a href="/supplier/{{$supplier->id}}">{{ ucwords(strtolower($supplier->supplier)) }}&nbsp; {{ \App\Helpers\ProductHelper::getScraperIcon($supplier->scraper_name) }}</a>
@@ -262,13 +266,13 @@
                             <!-- <td width="10%">{{ !empty($data) ? $data->ip_address : '' }}</td> -->
                             <td width="5%">
                                 <div class="form-group">
-                                        <select style="width:100% !important;" name="server_id" class="form-control select2 scraper_field_change" data-id="{{$supplier->scrapper_id}}" data-field="server_id">
+                                        <select style="width:100% !important;" name="server_id" class="form-control select2 scraper_field_change" data-id="{{$supplier->id}}" data-field="server_id">
                                             <option value="">Select</option>
                                             @foreach($serverIds as $serverId)
                                             <option value="{{$serverId}}" {{$supplier->server_id == $serverId ? 'selected' : ''}}>{{$serverId}}</option>
                                             @endforeach
                                         </select><br>
-                                        <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="server_id" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
+                                        <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="server_id" data-id="{{$supplier->id}}"><i class="fa fa-info-circle"></i></button>
                                         @if(isset($getLatestOptimization[$supplier->server_id])) {{ $getLatestOptimization[$supplier->server_id] }} @endif
                                 </div>
                             </td>
@@ -280,13 +284,13 @@
 
                             <td width="5%" style="text-right">
                                 <div class="form-group">
-                                        <select style="width:100% !important;display:inline;" name="scraper_start_time" class="form-control scraper_field_change select2" data-id="{{$supplier->scrapper_id}}" data-field="scraper_start_time">
+                                        <select style="width:100% !important;display:inline;" name="scraper_start_time" class="form-control scraper_field_change select2" data-id="{{$supplier->id}}" data-field="scraper_start_time">
                                         <option value="">Select</option>
                                         @for($i=1; $i<=24;$i++)
                                         <option value="{{$i}}" {{$supplier->scraper_start_time == $i ? 'selected' : ''}}>{{$i}} h</option>
                                         @endfor
                                         </select><br>
-                                        <button style="padding-right:0px;width:10%;display:inline-block;" type="button" class="btn btn-xs show-history" title="Show History" data-field="scraper_start_time" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
+                                        <button style="padding-right:0px;width:10%;display:inline-block;" type="button" class="btn btn-xs show-history" title="Show History" data-field="scraper_start_time" data-id="{{$supplier->id}}"><i class="fa fa-info-circle"></i></button>
                                 </div>
                             </td>
                             <td width="5%" data-start-time="@if($supplier->last_started_at){{$supplier->last_started_at }}@endif" data-end-time="@if($supplier->last_completed_at){{$supplier->last_completed_at }}@endif" class="show-scraper-detail">
@@ -324,10 +328,10 @@
                             <td width="6%">
                                 <div class="form-group status" style="display: inline" >
                                     <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->scrapers_status, ["class" => "form-control scrapers_status select2", "style" => "width:80px;"]); ?>
-                                    <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="status" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
+                                    <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="status" data-id="{{$supplier->id}}"><i class="fa fa-info-circle"></i></button>
                                 </div>
                                 @php
-                                    $hasTask = $supplier->developerTask($supplier->scrapper_id);
+                                    $hasTask = $supplier->developerTask($supplier->id);
                                 @endphp
                                 {{ ($hasTask) ? "Task-Available" : "No-Task" }}
                             </td>
@@ -362,7 +366,7 @@
                                             $allMessage = explode("\n",$lastError->log_messages);
                                             $items = array_slice($allMessage, -5);
                                             $logString =  "SCRAP LOG :".implode("\n", $items);
-                                            $logbtn = '<button style="padding:3px;" type="button" class="btn btn-image scraper-log-details" data-scrapper-id="'.$supplier->scrapper_id.'"><img width="2px;" src="/images/remark.png"/></button>';
+                                            $logbtn = '<button style="padding:3px;" type="button" class="btn btn-image scraper-log-details" data-scrapper-id="'.$supplier->id.'"><img width="2px;" src="/images/remark.png"/></button>';
                                         }
                                      ?>
                                  <span class="toggle-title-box has-small" data-small-title="<?php echo ($logString) ? substr($logString, 0,10) : '' ?>" data-full-title="<?php echo ($logString) ? $logString : '' ?>">
@@ -407,18 +411,18 @@
                                         <i class="fa fa-bars"></i>
                                     </button>
                                 </a>
-                                <button style="padding: 1px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-screenshot" title="Get screenshot">
+                                <button style="padding: 1px" data-id="{{ $supplier->id }}" type="button" class="btn btn-image d-inline get-screenshot" title="Get screenshot">
                                      <i class="fa fa-desktop"></i>
                                 </button>
-                                <button style="padding: 1px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-tasks-remote" title="Task list">
+                                <button style="padding: 1px" data-id="{{ $supplier->id }}" type="button" class="btn btn-image d-inline get-tasks-remote" title="Task list">
                                      <i class="fa fa-tasks"></i>
                                 </button>
-                                <button style="padding: 1px" data-id="{{ $supplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-position-history" title="Histories">
+                                <button style="padding: 1px" data-id="{{ $supplier->id }}" type="button" class="btn btn-image d-inline get-position-history" title="Histories">
                                      <i class="fa fa-address-card"></i>
                                 </button>
-                                <button style="padding:1px;" type="button" class="btn btn-image d-inline show-history" data-field="update-restart-time" data-id="{{ $supplier->scrapper_id }}" title="Remark history" ><i class="fa fa-clock-o"></i></button>
+                                <button style="padding:1px;" type="button" class="btn btn-image d-inline show-history" data-field="update-restart-time" data-id="{{ $supplier->id }}" title="Remark history" ><i class="fa fa-clock-o"></i></button>
                                 <button style="padding:1px;" type="button" class="btn btn-image d-inline get-scraper-server-timing" data-name="{{ $supplier->scraper_name }}" title="Get scraper server timing"><i class="fa fa-info-circle"></i></button>
-                                <button style="padding:1px;" type="button" class="btn btn-image d-inline get-last-errors" data-id="{{ $supplier->scrapper_id }}" data-name="{{ $supplier->scraper_name }}" title="Last errors">
+                                <button style="padding:1px;" type="button" class="btn btn-image d-inline get-last-errors" data-id="{{ $supplier->id }}" data-name="{{ $supplier->scraper_name }}" title="Last errors">
                                     <i class="fa fa-list-ol"></i>
                                 </button>
                                 @if($isAdmin)
@@ -584,13 +588,13 @@
                                                 <i class="fa fa-bars"></i>
                                             </button>
                                         </a>
-                                        <button style="padding: 3px" data-id="{{ $childSupplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-screenshot">
+                                        <button style="padding: 3px" data-id="{{ $childSupplier->id }}" type="button" class="btn btn-image d-inline get-screenshot">
                                              <i class="fa fa-desktop"></i>
                                         </button>
-                                        <button style="padding: 3px" data-id="{{ $childSupplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-tasks-remote">
+                                        <button style="padding: 3px" data-id="{{ $childSupplier->id }}" type="button" class="btn btn-image d-inline get-tasks-remote">
                                              <i class="fa fa-tasks"></i>
                                         </button>
-                                        <button style="padding: 3px" data-id="{{ $childSupplier->scrapper_id }}" type="button" class="btn btn-image d-inline get-position-history">
+                                        <button style="padding: 3px" data-id="{{ $childSupplier->id }}" type="button" class="btn btn-image d-inline get-position-history">
                                              <i class="fa fa-address-card"></i>
                                         </button>
 
