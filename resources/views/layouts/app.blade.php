@@ -176,6 +176,7 @@ $metaData = '';
     <link href="https://unpkg.com/tabulator-tables@4.0.5/dist/css/tabulator.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.css">
+    <link rel="stylesheet" href="{{ url('css/global_custom.css') }}">
 
     @yield("styles")
 
@@ -2097,13 +2098,18 @@ $metaData = '';
                             </div>
                             <div class="card-body contacts_body">
                                 @php
-                                $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
+
+                                $chatIds = \App\CustomerLiveChat::with('customer')->orderBy('seen','asc')
+                                ->orderBy('status','desc')
+                                ->get();
+
                                 $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
+
                                 @endphp
                                 <ul class="contacts" id="customer-list-chat">
                                     @foreach ($chatIds as $chatId)
                                     @php
-                                    $customer = \App\Customer::where('id',$chatId->customer_id)->first();
+                                    $customer = $chatId->customer;
                                     $customerInital = substr($customer->name, 0, 1);
                                     @endphp
                                     <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
@@ -2280,6 +2286,7 @@ $metaData = '';
     <script type="text/javascript" src="{{asset('js/jquery.cookie.js')}}"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="{{url('js/custom_global_script.js')}}"></script>
     <script>
         $(document).ready(function() {
             //$.cookie('auto_refresh', '0', { path: '/{{ Request::path() }}' });

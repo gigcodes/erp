@@ -55,8 +55,8 @@ logs
 .git.zip
 _MACOSX
 composer.lock
-js
-css
+/js
+/css
 
 /public/*.zip
 /public/*.pdf
