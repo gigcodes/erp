@@ -2320,6 +2320,7 @@ $metaData = '';
                 format: 'YYYY-MM-DD'
             });
 
+
             $('#notification-time').datetimepicker({
                 format: 'HH:mm'
             });
