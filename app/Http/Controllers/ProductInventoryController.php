@@ -1585,22 +1585,22 @@ class ProductInventoryController extends Controller
 						}else{
 							$brand = trim($cat[0]);
 							$condition_from_retail = $cat[1] !== null ? str_replace('C+', '', $cat[1]) : $condition_from_retail;
-							if ($brand == "TOD'S") {
+							if($brand == "TOD'S") {
 								$brand = 'TODS';
 							}
-							if ($brand == 'VALENTINO') {
+							else if($brand == 'VALENTINO') {
 								$brand = 'VALENTINO GARAVANI';
 							}
-							if ($brand == 'SAINT LAURENT') {
+							else if($brand == 'SAINT LAURENT') {
 								$brand = 'YVES SAINT LAURENT';
 							}
-							if ($brand == 'MOSCHINO LOVE') {
+							else if($brand == 'MOSCHINO LOVE') {
 								$brand = 'MOSCHINO';
 							}
-							if ($brand == 'DIOR') {
+							else if($brand == 'DIOR') {
 								$brand = 'CHRISTIAN DIOR';
 							}
-							if ($brand == "CHLOE'") {
+							else if($brand == "CHLOE'") {
 								$brand = 'CHLOE';
 							}
 			
@@ -1617,10 +1617,8 @@ class ProductInventoryController extends Controller
 							$discount->brand_id = $brand->id;
 							$discount->gender = $gender;
 							$discount->category = $category;
-							$discount->generic_price = $generic_price;
-							// $discount->exceptions = null;
-							$discount->condition_from_retail = $condition_from_retail;
-							// $discount->condition_from_retail_exceptions = null;
+							$discount->generic_price = $generic_price; 
+							$discount->condition_from_retail = $condition_from_retail; 
 							$discount->save();	
 						}
 					}
