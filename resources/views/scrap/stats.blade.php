@@ -48,6 +48,10 @@
         .status .select2 .select2-selection{
             width:80px;
         }
+
+        #remark-list tr td{
+            word-break : break-all !important;
+        }
     </style>
 @endsection
 
