@@ -104,11 +104,13 @@
             <thead>
               <tr>
                 <th width="20%">Time</th>
-                <th width="40%">Planned</th>
-                <th width="10%">Actual Start Time</th>
-                <th width="10%">Actual Complete Time</th>
+                <th width="30%">Planned</th>
+                <th width="7%">Timezone</th>
+                <th width="10%">Time</th>
+                <th width="7%">Actual Start Time</th>
+                <th width="8%">Actual Complete Time</th>
                 <th width="10%">Remark</th>
-                <th width="40%">Action</th>
+                <th width="50%">Action</th>
               </tr>
             </thead>
 
@@ -139,6 +141,8 @@
                             
                           </div>
                         </td>
+                        <td class="p-2 ">{{ $task->timezone }} </td>
+                        <td class="p-2 ">{{ changeTimeZone( $task->for_datetime, null ,$task->timezone ) }}</td>
                         <td class="p-2 task-start-time">{{ $task->actual_start_date != '0000-00-00 00:00:00' ? \Carbon\Carbon::parse($task->actual_start_date)->format('d-m H:i') : '' }}</td>
                         <td class="p-2 task-time">{{ $task->is_completed ? \Carbon\Carbon::parse($task->is_completed)->format('d-m H:i') : '' }}</td>
                         <td class="expand-row table-hover-cell p-2">
@@ -194,6 +198,8 @@
                     <td class="p-2 task-complete"></td>
                     <td class="p-2"></td>
 					<td class="p-2"></td>
+                    <td class="p-2"></td>
+                    <td class="p-2"></td>
                   </tr>
                 @endif
                 <tr class="dis-none create-input-table">
@@ -279,6 +285,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script type="text/javascript">
+
+    
     $(document).ready(function() {
       $('#planned-datetime').datetimepicker({
         format: 'YYYY-MM-DD'
