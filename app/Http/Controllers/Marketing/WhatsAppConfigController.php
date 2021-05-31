@@ -389,7 +389,7 @@ class WhatsappConfigController extends Controller
 
         $barcode = json_decode($output);
             
-        if($barcode){
+        //if($barcode){
            
            if($barcode->barcode == 'No Screen Available'){
                 return Response::json(array('nobarcode' => true)); 
@@ -399,10 +399,10 @@ class WhatsappConfigController extends Controller
             $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('screen')->upload();
         
             return Response::json(array('success' => true,'media' => $media->getUrl())); 
-        }else{
+        // }else{
          
-             return Response::json(array('error' => true)); 
-        }
+        //      return Response::json(array('error' => true));
+        // }
     }
 
     public function deleteChromeData(Request $request)
