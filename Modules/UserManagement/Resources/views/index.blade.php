@@ -172,6 +172,36 @@
     </div>
 </div>
 
+<div id="status-history" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Status History</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12" id="permission-request">
+                    <table class="table fixed_header">
+                        <thead>
+                            <tr>
+                                <th>Index</th>
+                                <th>Actioned By</th>
+                                <th>Change Status To</th>
+                            </tr>
+                        </thead>
+                         <tbody class="show-list-records" >
+                         </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="user-task-activity" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <!-- Modal content-->
@@ -736,6 +766,149 @@ $(document).on('click', '.send-message', function () {
                     }).fail(function (errObj) {
                         $(thiss).attr('disabled', false);
 
+                        alert("Could not send message");
+                        console.log(errObj);
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+        });
+    $(document).on("click",".status-history",function(e) {
+        $.ajax({
+            url: '/user-management/'+$(this).data('id')+'/status-history',
+            type: 'POST',
+            data : { _token: "{{ csrf_token() }}"},
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                if(result.code == 200) {
+                    //console.log( result.data );
+                    var t = '';
+                    var count = 0;
+                    $.each(result.data,function(k,v) {
+                        t += `<tr><td>`+parseInt(count+1)+`</td>`;
+                        t += `<td>`+v.status+`</td>`;
+                        t += `<td>`+v.name+`</td>`;
+                        t += `</tr>`;
+                    });
+                    if( t == '' ){
+                        t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
+                    }
+                    $("#status-history").find(".show-list-records").html(t);
+                    $("#status-history").modal("show");
+                    //toastr["success"]('No record found');
+                    //show-list-records
+                    //
+                }else{
+                    toastr["error"]('No record found');
+                }
+            },
+            error: function (){
+                $("#loading-image").hide();
+            }
+        });
+    });
+    $(document).on('click', '.flag-task', function () {
+        var task_id = $(this).data('id');
+        var thiss = $(this);
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('task.flag') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                task_id: task_id
+            },
+            beforeSend: function () {
+                $(thiss).text('Flagging...');
+            }
+        }).done(function (response) {
+            if (response.is_flagged == 1) {
+                // var badge = $('<span class="badge badge-secondary">Flagged</span>');
+                //
+                // $(thiss).parent().append(badge);
+                $(thiss).html('<img src="/images/flagged.png" />');
+            } else {
+                $(thiss).html('<img src="/images/unflagged.png" />');
+                // $(thiss).parent().find('.badge').remove();
+            }
+
+            // $(thiss).remove();
+        }).fail(function (response) {
+            $(thiss).html('<img src="/images/unflagged.png" />');
+
+            alert('Could not flag task!');
+
+            console.log(response);
+        });
+    });
+    $(document).on('click', '.task-send-message-btn', function () {
+            var thiss = $(this);
+            var data = new FormData();
+            var task_id = $(this).data('id');
+            // var message = $(this).siblings('input').val();
+            var message = $('#getMsg'+task_id).val();
+            data.append("task_id", task_id);
+            data.append("message", message);
+            data.append("status", 1);
+
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        url: '/whatsapp/sendMessage/task',
+                        type: 'POST',
+                        "dataType": 'json',           // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function () {
+                            $(thiss).attr('disabled', true);
+                        }
+                    }).done(function (response) {
+                        $(thiss).siblings('input').val('');
+                        $('#getMsg'+task_id).val('');
+
+                        // if (cached_suggestions) {
+                        //     suggestions = JSON.parse(cached_suggestions);
+
+                        //     if (suggestions.length == 10) {
+                        //         suggestions.push(message);
+                        //         suggestions.splice(0, 1);
+                        //     } else {
+                        //         suggestions.push(message);
+                        //     }
+                        //     localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                        //     cached_suggestions = localStorage['message_suggestions'];
+
+                        //     console.log('EXISTING');
+                        //     console.log(suggestions);
+                        // } else {
+                        //     suggestions.push(message);
+                        //     localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                        //     cached_suggestions = localStorage['message_suggestions'];
+
+                        //     console.log('NOT');
+                        //     console.log(suggestions);
+                        // }
+
+                        // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+                        //   .done(function( data ) {
+                        //
+                        //   }).fail(function(response) {
+                        //     console.log(response);
+                        //     alert(response.responseJSON.message);
+                        //   });
+
+                        $(thiss).attr('disabled', false);
+                        toastr["success"]('Message sent successfully.');
+                    }).fail(function (errObj) {
+                        $(thiss).attr('disabled', false);
+                        toastr["error"]('An erro occured! please try again later.');
                         alert("Could not send message");
                         console.log(errObj);
                     });

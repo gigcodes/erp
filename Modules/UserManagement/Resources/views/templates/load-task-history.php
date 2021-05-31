@@ -37,9 +37,9 @@
 					  #DEVTASK-{{:prop.task_id}} => {{:prop.subject}}
 					  {{/if}}
                       {{if prop.has_flag == '1'}}
-                          <button type="button" class="btn btn-image pd-5" data-id="10241"><img src="/images/flagged.png" style="cursor: nwse-resize; width: 0px;"></button>
+                          <button type="button" class="btn btn-image flag-task pd-5" data-id="{{:prop.task_id}}"><img src="/images/flagged.png" style=""></button>
                       {{else}}
-                            <button type="button" class="btn btn-image pd-5" data-id="10241"><img src="/images/unflagged.png" style="cursor: nwse-resize; width: 0px;"></button>
+                            <button type="button" class="btn btn-image flag-task pd-5" data-id="{{:prop.task_id}}"><img src="/images/unflagged.png" style=""></button>
                       {{/if}}
 					  </td>
                     <td>
@@ -76,8 +76,8 @@
                         </div>
 					  </td>
 					  <td>
-					  	<input style="width: 105px;float: left;" type="text" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
-
+					  	<!-- input style="width: 105px;float: left;" type="text" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="" -->
+                        <input type="text" style="width: 100%;" class="form-control quick-message-field input-sm" id="getMsg{{:prop.task_id}}" name="message" placeholder="Message" value="">
                           <!-- <div class="d-flex" style="float:right;"> -->
                           <button style="padding:2px;" class="btn btn-sm btn-image task-send-message-btn" data-type="{{:prop.type}}" data-id="{{:prop.task_id}}"><img src="/images/filled-sent.png"/></button>
                           {{if prop.type == 'TASK'}}
@@ -129,68 +129,69 @@
         });
     }
 
-	$(document).on('click', '.task-send-message-btn', function () {
-		var cached_suggestions = localStorage['message_suggestions'];
-            var thiss = $(this);
-            var data = new FormData();
-            var task_id = $(this).data('id');
-            var type = $(this).data('type');
-            var message = $(this).closest("td").find(".quick-message-field").val();
-            var msgInput = $(this).closest("td").find(".quick-message-field");
-            data.append("task_id", task_id);
-            data.append("message", message);
-            data.append("status", 1);
-            if(type == 'DEVTASK') {
-                $.ajax({
-                            url: "/whatsapp/sendMessage/issue",
-                            type: 'POST',
-                            data: {
-                                "issue_id": task_id,
-                                "message": message,
-                                "status": 2
-                            },
-                            dataType: "json",
-                            success: function (response) {
-                                toastr["success"]("Message sent successfully!", "Message");
-                                msgInput.val('');
-                                msgInput.removeAttr('disabled');
+	// $(document).on('click', '.task-send-message-btn', function () {
+	// 	var cached_suggestions = localStorage['message_suggestions'];
+ //            var thiss = $(this);
+ //            var data = new FormData();
+ //            var task_id = $(this).data('id');
+ //            var type = $(this).data('type');
+ //            var message = $(this).closest("td").find(".quick-message-field").val();
+ //            var msgInput = $(this).closest("td").find(".quick-message-field");
+ //            data.append("task_id", task_id);
+ //            data.append("message", message);
+ //            data.append("status", 1);
+ //            if(type == 'DEVTASK') {
+ //                $.ajax({
+ //                            url: "/whatsapp/sendMessage/issue",
+ //                            type: 'POST',
+ //                            data: {
+ //                                "issue_id": task_id,
+ //                                "message": message,
+ //                                "status": 2
+ //                            },
+ //                            dataType: "json",
+ //                            success: function (response) {
+ //                                toastr["success"]("Message sent successfully!", "Message");
+ //                                msgInput.val('');
+ //                                msgInput.removeAttr('disabled');
                                 
-                            },
-                            beforeSend: function () {
-                                msgInput.attr('disabled', true);
-                            },
-                            error: function () {
-                                alert('There was an error sending the message...');
-                                msgInput.removeAttr('disabled', true);
-                            }
-                        });
-            }
-            else {
-                if (message.length > 0) {
-                            if (!$(thiss).is(':disabled')) {
-                                $.ajax({
-                                    url: '/whatsapp/sendMessage/task',
-                                    type: 'POST',
-                                    "dataType": 'json',           // what to expect back from the PHP script, if anything
-                                    "cache": false,
-                                    "contentType": false,
-                                    "processData": false,
-                                    "data": data,
-                                    beforeSend: function () {
-                                        msgInput.attr('disabled', true);
-                                    }
-                                }).done(function (response) {
-                                    msgInput.val('');
-                                    msgInput.attr('disabled', false);
-                                }).fail(function (errObj) {
-                                    msgInput.attr('disabled', false);
+ //                            },
+ //                            beforeSend: function () {
+ //                                msgInput.attr('disabled', true);
+ //                            },
+ //                            error: function () {
+ //                                alert('There was an error sending the message...');
+ //                                msgInput.removeAttr('disabled', true);
+ //                            }
+ //                        });
+ //            }
+ //            else {
+ //                if (message.length > 0) {
+ //                            if (!$(thiss).is(':disabled')) {
+ //                                $.ajax({
+ //                                    url: '/whatsapp/sendMessage/task',
+ //                                    type: 'POST',
+ //                                    "dataType": 'json',           // what to expect back from the PHP script, if anything
+ //                                    "cache": false,
+ //                                    "contentType": false,
+ //                                    "processData": false,
+ //                                    "data": data,
+ //                                    beforeSend: function () {
+ //                                        msgInput.attr('disabled', true);
+ //                                    }
+ //                                }).done(function (response) {
+ //                                    msgInput.val('');
+ //                                    msgInput.attr('disabled', false);
+ //                                }).fail(function (errObj) {
+ //                                    msgInput.attr('disabled', false);
 
-                                    alert("Could not send message");
-                                });
-                            }
-                        } else {
-                            alert('Please enter a message first');
-                        }
-            }
-        });
+ //                                    alert("Could not send message");
+ //                                });
+ //                            }
+ //                        } else {
+ //                            alert('Please enter a message first');
+ //                        }
+ //            }
+ //        });
+
 	</script>
