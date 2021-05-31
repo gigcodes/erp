@@ -36,8 +36,4 @@ class CreateDatabaseTableHistoricalRecords extends Migration
     {
         //
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 305e6e8a2e35422c75450af9d4cec839ef5fd3f3

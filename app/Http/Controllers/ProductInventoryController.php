@@ -1014,12 +1014,41 @@ class ProductInventoryController extends Controller
 			           OR p.name IS NULL THEN 1 ELSE 0 END) AS missing_name,
 			       sum(CASE WHEN p.short_description = ""
 			           OR p.short_description IS NULL THEN 1 ELSE 0 END) AS missing_short_description,
+			       sum(CASE WHEN p.price = ""
+			           OR p.price IS NULL THEN 1 ELSE 0 END) AS missing_price,
+			       sum(CASE WHEN p.size = ""
+			           OR p.size IS NULL AND p.measurement_size_type IS NULL THEN 1 ELSE 0 END) AS missing_size,
+			       sum(CASE WHEN p.measurement_size_type = ""
+			           OR p.measurement_size_type AND p.size = "" OR p.size IS NULL THEN 1 ELSE 0 END) AS missing_measurement,
 			       `p`.`supplier`
 				')
 				->where('p.supplier','<>','');
 				$query = $query->groupBy('p.supplier')->havingRaw("missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ");
 
 		$reportData = $query->get();
+
+		$scrapped_query = DB::table('scraped_products as p')
+				->selectRaw('
+				   sum(CASE WHEN p.category = ""
+			           OR p.category IS NULL THEN 1 ELSE 0 END) AS missing_category,
+			       sum(CASE WHEN p.color = ""
+			           OR p.color IS NULL THEN 1 ELSE 0 END) AS missing_color,
+			       sum(CASE WHEN p.composition = ""
+			           OR p.composition IS NULL THEN 1 ELSE 0 END) AS missing_composition,
+			       sum(CASE WHEN p.title = ""
+			           OR p.title IS NULL THEN 1 ELSE 0 END) AS missing_name,
+			       sum(CASE WHEN p.description = ""
+			           OR p.description IS NULL THEN 1 ELSE 0 END) AS missing_short_description,
+			       sum(CASE WHEN p.price = ""
+			           OR p.price IS NULL THEN 1 ELSE 0 END) AS missing_price,
+			       sum(CASE WHEN p.size = ""
+			           OR p.size IS NULL THEN 1 ELSE 0 END) AS missing_size,
+			       `p`.`supplier`
+				')
+				->where('p.supplier','<>','');
+				$scrapped_query = $scrapped_query->groupBy('p.supplier')->havingRaw("missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ");
+
+		$scrappedReportData = $scrapped_query->get();
 		//dd($inventory_data);
         $inventory_data_count = $inventory_data->total();
         $status_list = \App\Helpers\StatusHelper::getStatus();
@@ -1043,7 +1072,7 @@ class ProductInventoryController extends Controller
         $products_categories = Category::attr(['name' => 'product_categories[]','data-placeholder' => 'Select a Category','class' => 'form-control select-multiple2', 'multiple' => true])->selected(request('product_categories',[]))->renderAsDropdown();
         $products_sku        = \App\Product::getPruductsSku();
         if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more", compact('inventory_data'));
-        return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku','status_list','inventory_data_count','supplier_list','reportData'));
+        return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku','status_list','inventory_data_count','supplier_list','reportData','scrappedReportData'));
     }
 
     public function inventoryListNew( Request $request ){
@@ -1074,14 +1103,48 @@ class ProductInventoryController extends Controller
 			           OR p.name IS NULL THEN 1 ELSE 0 END) AS missing_name,
 			       sum(CASE WHEN p.short_description = ""
 			           OR p.short_description IS NULL THEN 1 ELSE 0 END) AS missing_short_description,
+			       sum(CASE WHEN p.price = ""
+			           OR p.price IS NULL THEN 1 ELSE 0 END) AS missing_price,
+			       sum(CASE WHEN p.size = ""
+			           OR p.size IS NULL AND p.measurement_size_type IS NULL THEN 1 ELSE 0 END) AS missing_size,
+			       sum(CASE WHEN p.measurement_size_type = ""
+			           OR p.measurement_size_type AND p.size = "" OR p.size IS NULL THEN 1 ELSE 0 END) AS missing_measurement,
 			       `p`.`supplier`
 				')
 				->where('p.supplier','<>','');
 				$query = $query->groupBy('p.supplier')->havingRaw("missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ");
 
-		$reportData = $query->get();
+		$reportDatas = $query->get();
 
-    	return \Excel::download(new \App\Exports\ReportExport($reportData), 'export.xls');
+    	return \Excel::download(new \App\Exports\ReportExport($reportDatas), 'exports.xls');
+    }
+
+    public function downloadScrapReport() {
+    	
+		$query = DB::table('scraped_products as p')
+				->selectRaw('
+				   sum(CASE WHEN p.category = ""
+			           OR p.category IS NULL THEN 1 ELSE 0 END) AS missing_category,
+			       sum(CASE WHEN p.color = ""
+			           OR p.color IS NULL THEN 1 ELSE 0 END) AS missing_color,
+			       sum(CASE WHEN p.composition = ""
+			           OR p.composition IS NULL THEN 1 ELSE 0 END) AS missing_composition,
+			       sum(CASE WHEN p.title = ""
+			           OR p.title IS NULL THEN 1 ELSE 0 END) AS missing_name,
+			       sum(CASE WHEN p.description = ""
+			           OR p.description IS NULL THEN 1 ELSE 0 END) AS missing_short_description,
+			       sum(CASE WHEN p.price = ""
+			           OR p.price IS NULL THEN 1 ELSE 0 END) AS missing_price,
+			       sum(CASE WHEN p.size = ""
+			           OR p.size IS NULL THEN 1 ELSE 0 END) AS missing_size,
+			       `p`.`supplier`
+				')
+				->where('p.supplier','<>','');
+				$query = $query->groupBy('p.supplier')->havingRaw("missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ");
+
+		$reportDatas = $query->get();
+
+    	return \Excel::download(new \App\Exports\ReportExport($reportDatas), 'exports.xls');
     }
   
   public function inventoryHistory($id) {
