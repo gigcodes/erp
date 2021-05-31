@@ -14,6 +14,7 @@ class CreatePlanSolutionsTable extends Migration
     public function up()
     {
         Schema::create('plan_solutions', function (Blueprint $table) {
+            
             $table->increments('id');
             $table->text('solution');
             $table->integer('plan_id');
