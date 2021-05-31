@@ -64,7 +64,7 @@ a {
 			        <td>{{:prop.yesterday_hrs}}</td>
 			        <td>{{:prop.no_time_estimate}}</td>
 			        <td>{{:prop.overdue_task}}</td>
-			        <td>{{:prop.online_now}}</td>
+			        <td> <span class="today-history" data-id="{{:prop.id}}"> {{:prop.online_now}} </span> </td>
 			        <td> {{:prop.previousDue}} {{:prop.currency}}</td>
 			        <td>{{:prop.nextDue}}</td>
 			        <td>
