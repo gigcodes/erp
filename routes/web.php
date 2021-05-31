@@ -1348,6 +1348,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::put('account/{id}', 'ReviewController@accountUpdate')->name('account.update');
     Route::delete('account/{id}/destroy', 'ReviewController@accountDestroy')->name('account.destroy');
 
+    Route::resource('brand-review/get', 'BrandReviewController@getAllBrandReview');
     // Threads Routes
     Route::resource('thread', 'ThreadController');
     Route::post('thread/{id}/status', 'ThreadController@updateStatus')->name('thread.updateStatus');
@@ -1650,6 +1651,12 @@ Route::post('livechat/save-token', 'LiveChatController@saveToken')->name('livech
 Route::post('livechat/check-new-chat', 'LiveChatController@checkNewChat')->name('livechat.new.chat');
 
 Route::get('livechat/getLiveChats', 'LiveChatController@getLiveChats')->name('livechat.get.chats');
+
+
+
+Route::get('/brand-review', '\App\Http\Controllers\Api\v1\BrandReviewController@index');
+Route::post('/brand-review/store', '\App\Http\Controllers\Api\v1\BrandReviewController@store')->name('brandreview.store');
+
 
 
 Route::prefix('livechat')->group(function () {
@@ -2978,4 +2985,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/admin-menu/db-query/get-columns', 'DBQueryController@columns')->name('admin.databse.menu.direct.dbquery.columns');
     Route::post('/admin-menu/db-query/confirm', 'DBQueryController@confirm')->name('admin.databse.menu.direct.dbquery.confirm');
     Route::post('/admin-menu/db-query/update', 'DBQueryController@update')->name('admin.databse.menu.direct.dbquery.update');
+});
+
+
+Route::prefix('select2')->middleware('auth')->group(function () {
+    Route::get('customers', 'Select2Controller@customers')->name('select2.customer');
+    Route::get('users', 'Select2Controller@users')->name('select2.user');
 });
