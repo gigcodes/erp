@@ -474,6 +474,7 @@ class HubstaffActivitiesController extends Controller
         }else{
             $user = User::where('id', Auth::user()->id)->first();
         }
+        
         return Excel::download(new HubstaffActivityReport($activityUsers->toArray()), $user->name.'-'.request('start_date').'-To-'.request('end_date').'.xlsx');
     }
 
