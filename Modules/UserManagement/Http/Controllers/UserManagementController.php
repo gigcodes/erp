@@ -53,9 +53,9 @@ class UserManagementController extends Controller
     public function todayTaskHistory(Request $request)
     {
         $history = HubstaffActivity::select('users.name','developer_tasks.subject','developer_tasks.id as devtaskId','hubstaff_activities.starts_at' ,\DB::raw("SUM(tracked) as day_tracked"))
-                  ->leftjoin('hubstaff_members','hubstaff_activities.user_id','hubstaff_members.hubstaff_user_id')
-                  ->leftjoin('users','hubstaff_members.user_id','users.id')
-                  ->leftjoin('developer_tasks','hubstaff_activities.task_id','developer_tasks.hubstaff_task_id')
+                  ->join('hubstaff_members','hubstaff_activities.user_id','hubstaff_members.hubstaff_user_id')
+                  ->join('users','hubstaff_members.user_id','users.id')
+                  ->join('developer_tasks','hubstaff_activities.task_id','developer_tasks.hubstaff_task_id')
                   ->whereDate('hubstaff_activities.starts_at',date('Y-m-d'))
                   ->groupBy('hubstaff_activities.starts_at','hubstaff_activities.user_id');
                   if( !empty( $request->id ) ){
@@ -63,13 +63,15 @@ class UserManagementController extends Controller
                   }
         $history =  $history->orderBy("hubstaff_activities.id","desc")->get();
         $filterList = [];
-        foreach ($history as $key => $value) {
-            $filterList = array(
-                'user_name' => $value->devtaskId,
-                'task'      => $value->subject,
-                'date'      => $value->starts_at,
-                'tracked'   => number_format($value->day_tracked / 60,2,".",","),
-            );
+        if ( !empty( $history ) ) {
+            foreach ($history as $key => $value) {
+                $filterList = array(
+                    'user_name' => $value->devtaskId,
+                    'task'      => $value->subject,
+                    'date'      => $value->starts_at,
+                    'tracked'   => number_format($value->day_tracked / 60,2,".",","),
+                );
+            }
         }
         return response()->json( ["code" => empty($filterList ) ? 500 : 200 , "data" => array($filterList)] );
 
