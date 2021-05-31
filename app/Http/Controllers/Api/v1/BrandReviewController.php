@@ -20,9 +20,14 @@ class BrandReviewController extends Controller
     }
 
     public function store(Request $request){
-        ReviewBrandList::insert([
-            'name' => $request->name
-        ]);
+        if($request->name){
+            ReviewBrandList::insert([
+                'name' => $request->name
+            ]);
+            return response()->json(['status' => '200']);
+        }
+        return response()->json(['status' => '500']);
+        
     }
     public function getAllBrandReview(){
         $data = ReviewBrandList::all();

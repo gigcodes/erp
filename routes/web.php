@@ -2986,3 +2986,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/admin-menu/db-query/confirm', 'DBQueryController@confirm')->name('admin.databse.menu.direct.dbquery.confirm');
     Route::post('/admin-menu/db-query/update', 'DBQueryController@update')->name('admin.databse.menu.direct.dbquery.update');
 });
+
+
+Route::prefix('select2')->middleware('auth')->group(function () {
+    Route::get('customers', 'Select2Controller@customers')->name('select2.customer');
+    Route::get('users', 'Select2Controller@users')->name('select2.user');
+});
