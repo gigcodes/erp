@@ -9,6 +9,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
+
 class FileExcelExport implements FromArray, WithHeadings, ShouldAutoSize
 {
     /***
@@ -27,15 +28,7 @@ class FileExcelExport implements FromArray, WithHeadings, ShouldAutoSize
       $this->path = $path;
     }
 
-    public function sheets(): array
-    {
-        // $sheets_data_array = [];
-
-        // foreach ($this->sheet as $key => $data) {
-        //         $report_data_array[] = $data;
-        // }
-        // return $sheets;
-    }
+    
 
     public function array(): array
     {
@@ -74,5 +67,6 @@ class FileExcelExport implements FromArray, WithHeadings, ShouldAutoSize
         return $heading;
 
     }
+    
 
 }
