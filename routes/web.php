@@ -103,6 +103,9 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
 
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
     Route::get('live-laravel-logs', 'LaravelLogController@liveLogs')->name('logging.live.logs');
+
+    Route::get('live-laravel-logs-single', 'LaravelLogController@liveLogsSingle')->name('logging.live.logs');
+
     Route::get('keyword-create', 'LaravelLogController@LogKeyword');
     Route::post('assign', 'LaravelLogController@assign')->name('logging.assign');
     Route::get('sku-logs', 'Logging\LogScraperController@logSKU')->name('logging.scrap.log');

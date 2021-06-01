@@ -142,9 +142,7 @@ class LaravelLogController extends Controller
                 }
 
             }
-            //if(isset($_GET['channel']) && $_GET['channel'] == "local"){
             $errors = array_reverse($errors);
-            //}
         } catch (\Exception $e) {
             $errors = [];
 
@@ -162,8 +160,8 @@ class LaravelLogController extends Controller
         $perPage = Setting::get('pagination');
 
         $final = $key = [];
-        if (isset($_GET['channel'])) {
-            session(['channel' => $_GET['channel']]);
+        if ($request->channel) {
+            session(['channel' => $request->channel]);
         }
         foreach ($errors as $key => $error) {
 
@@ -171,14 +169,14 @@ class LaravelLogController extends Controller
             $temp1 = explode(".", $str);
             $temp2 = explode(" ", $temp1[0]);
             $type  = $temp2[2];
-            if (isset($_GET['channel']) && $_GET['channel'] == $type) {
+            if ($request->channel && $request->channel == $type) {
                 // echo "<pre>";
                 // print_r($key);
                 array_push($final, $error);
 
             }
 
-            if (!isset($_GET['channel'])) {
+            if (!$request->channel) {
 
                 // echo "<pre>";
                 // print_r($key);
@@ -390,8 +388,8 @@ class LaravelLogController extends Controller
                             $errorTypeSeparated = implode('|', $errorTypeArr);
 
                             $defaultSearchTerm = 'ERROR';
-                            if (isset($_GET['type'])) {
-                                $defaultSearchTerm = $_GET['type'];
+                            if ($request->type) {
+                                $defaultSearchTerm = $request->type;
                             }
 
                             foreach ($match[0] as $value) {
