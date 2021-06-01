@@ -124,6 +124,7 @@
         </div>
       </div>
     </div>
+    
     <div id="view_error" class="modal fade" role="dialog" data-backdrop="static">
         <div class="modal-dialog">
             <!-- Modal content-->
