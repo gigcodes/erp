@@ -642,7 +642,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
     Route::post('order/report/store', 'OrderReportController@store')->name('status.report.store');
 
-    Route::get('order-refund-status-message', 'OrderReportController@orderRefundStatusMessage');
+    Route::get('order-refund-status-message', 'OrderReportController@orderRefundStatusMessage')->name('order.status.messages');
 
     //emails
     Route::get('email/replyMail/{id}', 'EmailController@replyMail');
