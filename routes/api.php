@@ -141,6 +141,10 @@ Route::post('magento/customer-reference','MagentoCustomerReferenceController@sto
 
 Route::post('node/restart-script','ScrapController@restartNode');
 
+Route::post('node/update-script','ScrapController@updateNode');
+
+Route::post('node/kill-script','ScrapController@killNode');
+
 Route::post('local/instagram-post','InstagramPostsController@saveFromLocal');
 
 Route::get('local/instagram-user-post','InstagramPostsController@getUserForLocal');

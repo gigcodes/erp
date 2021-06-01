@@ -443,6 +443,8 @@
                                 <button style="padding:1px;" type="button" class="btn btn-image d-inline get-last-errors" data-id="{{ $supplier->id }}" data-name="{{ $supplier->scraper_name }}" title="Last errors">
                                     <i class="fa fa-list-ol"></i>
                                 </button>
+                                <button style="padding:1px;" type="button" class="btn btn-image d-inline" title="update process" onclick="updateScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}', {{$supplier->id}} )"><i class="fa fa-send"></i></button>
+                                <button style="padding:1px;" type="button" class="btn btn-image d-inline" title="kill process" onclick="killScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}')"><i class="fa fa-close"></i></button> 
                                 @if($isAdmin)
                                     <div class="flag-scraper-div" style="float:none;display:contents;"> 
                                         @if ($supplier->flag == 1)
@@ -460,6 +462,7 @@
                                     </div>
                                 @endif
                                 </div>
+                                <p class="d-none duration_display"></p>
                                 
                             </td>
                             </tr>
@@ -1459,6 +1462,54 @@
                 .error(function() {
                     alert('Please check if server is running')
                 });
+            else
+                return false;    
+            
+        }
+
+        function updateScript(name,server_id, data_id) {
+            var data_id = data_id;
+            var x = confirm("Are you sure you want to update script?");
+            if (x)
+                  $.ajax({
+                    url: '/api/node/update-script',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {name: name ,server_id : server_id, "_token": "{{ csrf_token() }}"},
+                })
+                .done(function(response) {
+                    if(response.code == 200){
+                        alert('Script updated Successfully');
+                        if(response.duration !== null){
+                            $(`tr[data-id='${data_id}'] td:last-child .duration_display`).html(`${response.duration}`);
+                            $(`tr[data-id='${data_id}'] td:last-child .duration_display`).css('display', 'inherit');
+                            $(`tr[data-id='${data_id}'] td:last-child .duration_display`).removeClass('d-none'); 
+                        }
+                    }else{
+                        alert('Please check if server is running')
+                    }
+                }) ;
+            else
+                return false;    
+            
+        }
+
+        function killScript(name,server_id) {
+            var x = confirm("Are you sure you want to kill script?");
+            if (x)
+                  $.ajax({
+                    url: '/api/node/kill-script',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {name: name ,server_id : server_id, "_token": "{{ csrf_token() }}"},
+                })
+                .done(function(response) {
+                    if(response.code == 200){
+                        alert('Script killed Successfully')
+                    }else{
+                        alert('Please check if server is running')
+                    }
+                }) ;
             else
                 return false;    
             
