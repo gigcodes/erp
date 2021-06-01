@@ -727,6 +727,7 @@ $metaData = '';
                                                 <a class="dropdown-item" href="{{ route('order.products') }}">Order Product List</a>
                                                 <a class="dropdown-item" href="{{ route('return-exchange.list') }}">Return-Exchange</a>
                                                 <a class="dropdown-item" href="{{ route('return-exchange.status') }}">Return-Exchange Status</a>
+                                                <a class="dropdown-item" href="{{ route('order.status.messages') }}">Order Status Messages</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
