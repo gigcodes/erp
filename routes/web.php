@@ -1924,6 +1924,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('server-status-history', 'ScrapStatisticsController@serverStatusHistory');
     Route::get('get-server-scraper-timing', 'ScrapStatisticsController@getScraperServerTiming');
     Route::get('position-history', 'ScrapStatisticsController@positionHistory');
+    Route::post('position-history-download', 'ScrapStatisticsController@positionHistorydownload');//Purpose : Download  Position History Route - DEVTASK-4086
     Route::get('statistics/update-field', 'ScrapStatisticsController@updateField');
     Route::get('statistics/update-scrap-field', 'ScrapStatisticsController@updateScrapperField');
     Route::get('statistics/show-history', 'ScrapStatisticsController@showHistory');

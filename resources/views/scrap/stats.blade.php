@@ -1837,5 +1837,56 @@
             }
         });
 
+        //STRAT - Purpose : Download  Position History - DEVTASK-4086
+        $(document).on("click",".downloadPositionHistory",function(e) {
+            e.preventDefault();
+            var id = $(this).data("id");
+            $.ajax({
+                url: "/scrap/position-history-download",
+                type: 'POST',
+                "dataType": 'json',           // what to expect back from the PHP script, if anything
+                data: {
+                    id: id,
+                    "_token": "{{ csrf_token() }}"
+                },
+                beforeSend: function () {
+                   
+                }
+            }).done(function (response) {
+                
+                if(response.downloadUrl){
+                    var form = $("<form/>", 
+                            { action:"/chat-messages/downloadChatMessages",
+                                method:"POST",
+                                target:'_blank',
+                                id:"chatHiddenForm",
+                                }
+                        );
+                    form.append( 
+                        $("<input>", 
+                            { type:'hidden',  
+                            name:'filename', 
+                            value:response.downloadUrl }
+                        )
+                    );
+                    form.append( 
+                        $("<input>", 
+                            { type:'hidden',  
+                            name:'_token', 
+                            value:$('meta[name="csrf-token"]').attr('content') }
+                        )
+                    );
+                    $("body").append(form);
+                    $('#chatHiddenForm').submit();
+                }else{
+                    console.log('no message found !')
+                }
+               
+            }).fail(function (errObj) {
+                
+            });
+        });
+        //END - DEVTASK-4086
+
     </script>
 @endsection
