@@ -3,6 +3,9 @@
 namespace App\Exports;
 
 use App\Customer;
+use App\DeveloperTask;
+use App\User;
+use App\Task;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -46,13 +49,47 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
       $totalApproved = 0;
       $totalDiff = 0;
       $totalTrack = 0;
-      foreach ($this->user as $mkey => $user) {
-      	foreach($user['tasks'] as $key =>  $ut) {
+        // dd( $this->user );
+      foreach ($this->user as $key => $user) {
+      	// foreach($user['tasks'] as $key =>  $ut) {
 	      	
-	      	@list($taskid,$devtask,$taskName,$estimation,$status,$devTaskId) = explode("||",$ut);
+	      	// @list($taskid,$devtask,$taskName,$estimation,$status,$devTaskId) = explode("||",$ut);
+            if ($user['is_manual']) {
+                $task = DeveloperTask::where('id', $user['task_id'])->first();
+                if ($task) {
+                    $taskSubject = '#DEVTASK-' . $task->id . '-' . $task->subject;
+                } else {
+                    $task = Task::where('id', $ar->task_id)->first();
+                    if ($task) {
+                        // $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
+                        // $taskSubject = $ar->task_id . '||#TASK-' . $task->id . '-' . $task->task_subject."||#TASK-$task->id||$estMinutes||$task->status||$task->id";
+                        $taskSubject = '#TASK-' . $task->id . '-' . $task->task_subject;
+                    }
+                }
+            } else {
+                $task = DeveloperTask::where('hubstaff_task_id', $user['task_id'])->orWhere('lead_hubstaff_task_id', $user['task_id'])->first();
+                if ($task && empty( $task_id )) {
+                    // $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
+                    $taskSubject = '#DEVTASK-' . $task->id . '-' . $task->subject;
+                } else {
+                    $task = Task::where('hubstaff_task_id', $user['task_id'])->orWhere('lead_hubstaff_task_id', $user['task_id'])->first();
+                    if ($task && empty( $developer_task_id )) {
+                        // $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
+                        $taskSubject = '#TASK-' . $task->id . '-' . $task->task_subject;
+                    }
+                }
+            }
+            $devTask = $task;
+            // $devTask = DeveloperTask::where('hubstaff_task_id', $user['task_id'])->first();
 
-	      	$trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $taskid)->sum('tracked');
-	      	$time_history = \App\DeveloperTaskHistory::where('developer_task_id',$devTaskId)->where('attribute','estimation_minute')->where('is_approved',1)->first();
+            if( empty( $devTask ) ){
+                continue;
+            }
+            $userDev = User::find($user['user_id']);
+            // $task = \App\Hubstaff\HubstaffActivity::where('task_id', $user['task_id'])->first();
+            // dd( $devTask );
+	      	$trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $user['task_id'])->sum('tracked');
+	      	$time_history = \App\DeveloperTaskHistory::where('developer_task_id',$devTask->id)->where('attribute','estimation_minute')->where('is_approved',1)->first();
 
 	      	if($time_history) {
                 $est_time = $time_history->new_value;
@@ -61,35 +98,35 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
                 $est_time = 'N/A';
             }
 
-            if (is_numeric($estimation) && $trackedTime && $taskName){
-                $diff =  $estimation - number_format($trackedTime / 60,2,".",",");
+            if (is_numeric($devTask->estimate_minutes) && $trackedTime && $devTask->subject){
+                $diff =  $devTask->estimate_minutes - number_format($trackedTime / 60,2,".",",");
             }else{
                 $diff = 'N/A';
             }
 
-            if( $devtask ){
-    	        $new_customers[$key]['User'] = $user['userName'];
+            if( $devTask ){
+    	        $new_customers[$key]['User'] = $userDev->userName ?? null;
                 $new_customers[$key]['date'] = \Carbon\Carbon::parse($user['date'])->format('d-m');
-    	        $new_customers[$key]['TaskId'] = $devtask;
+    	        $new_customers[$key]['TaskId'] = $taskSubject;
     	        $new_customers[$key]['TimeAppr'] = $est_time;
     	        $new_customers[$key]['TimeDiff'] = $diff;
-    	        $new_customers[$key]['TimeTracked'] =  ( $trackedTime && $devtask ) ? number_format($trackedTime / 60,2,".",",") : 'N/A';
-    	        $new_customers[$key]['status'] = $status;
+    	        $new_customers[$key]['TimeTracked'] =  ( $trackedTime && $devTask->subject) ? number_format($trackedTime / 60,2,".",",") : 'N/A';
+    	        $new_customers[$key]['status'] = $devTask->status;
     	        
 
-    	        if (is_numeric($est_time) && $devtask) {
+    	        if (is_numeric($est_time) && $devTask->subject) {
     	        	$totalApproved += $est_time;
     	        }
 
-    	        if (is_numeric($diff) && $devtask) {
+    	        if (is_numeric($diff) && $devTask->subject) {
     	        	$totalDiff += $diff;
     	        }
-    	        if ($trackedTime && $devtask) {
+    	        if ($trackedTime && $devTask->subject) {
     	        	 $totalTrack += $trackedTime;
     	        }
             }
 
-      	}
+      	// }
       }
 
       array_push($new_customers, [null,null,null,null,null, null]);
