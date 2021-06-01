@@ -17,6 +17,9 @@ Auth::routes();
 
 
 Route::get('/test/test', 'OrderController@testEmail');
+Route::get('/memory', function () {
+    return view('memory');
+})->name('memory');
 
 Route::get('/test/pushProduct', 'TmpTaskController@testPushProduct');
 Route::get('/test/fixBrandPrice', 'TmpTaskController@fixBrandPrice');
