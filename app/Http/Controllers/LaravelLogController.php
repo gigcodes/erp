@@ -94,6 +94,7 @@ class LaravelLogController extends Controller
 
     public function liveLogsSingle(Request $request)
     {
+        
         $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
         //$filename = '/laravel-2020-09-10.log';
         $path         = storage_path('logs');
