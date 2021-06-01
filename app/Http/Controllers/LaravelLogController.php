@@ -388,8 +388,8 @@ class LaravelLogController extends Controller
                             $errorTypeSeparated = implode('|', $errorTypeArr);
 
                             $defaultSearchTerm = 'ERROR';
-                            if ($request->type) {
-                                $defaultSearchTerm = $request->type;
+                            if (isset($_GET['type'])) {
+                                $defaultSearchTerm = $_GET['type'];
                             }
 
                             foreach ($match[0] as $value) {
