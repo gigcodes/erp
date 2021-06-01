@@ -84,6 +84,7 @@ class SearchService
         $results = collect();
         $total = 0;
         $hasMore = false;
+        // dd($entityType, $terms, $entityTypesToSearch, 333);
 
         foreach ($entityTypesToSearch as $entityType) {
             if (!in_array($entityType, $entityTypes)) {
@@ -97,7 +98,71 @@ class SearchService
             $total += $entityTotal;
             $results = $results->merge($search);
         }
+        return [
+            'total' => $total,
+            'count' => count($results),
+            'has_more' => $hasMore,
+            'results' => $results->sortByDesc('score')->values()
+        ];
+    }
 
+
+    public function searchEntitiesGrid($searchString, $entityType = 'all', $options, $tags, $exact, $date_filter, $page = 1, $count = 20, $action = 'view')
+    {
+        $terms['search'] = $searchString ? explode(' ', $searchString) : [];
+        $entityType == [] ? $entityType = 'all' : '';
+        $terms['exact'] = [];
+        if($exact){
+            foreach(json_decode($exact) as $ex){
+                $terms['exact'][] = $ex->value;
+            }
+        }  
+        $terms['tags'] = [];
+        if($tags){
+            foreach(json_decode($tags) as $tag){
+                $terms['tags'][] = $tag->value;
+            }
+        }  
+        $terms['filters'] = [];
+        if($options){
+            foreach($options as $op){
+                $terms['filters'][$op] = '';
+            }
+        }
+        if($date_filter){
+            foreach($date_filter as $key => $op){
+                $terms['filters'][$key] = $op;
+            }
+        }
+        if($entityType && $entityType !== 'all') {
+            $terms['filters']['type'] = implode('|', $entityType);
+        }
+        $entityTypes = array_keys($this->entityProvider->all());
+        $entityTypesToSearch = $entityTypes; 
+
+        if ($entityType !== 'all') {
+            $entityTypesToSearch = $entityType;
+        } else if (isset($terms['filters']['type'])) {
+            $entityTypesToSearch = explode('|', $terms['filters']['type']);
+        }
+        $results = collect();
+        $total = 0;
+        $hasMore = false;
+        // dd($entityType, $terms, $entityTypesToSearch, 999);
+
+        foreach ($entityTypesToSearch as $entityType) {
+            if (!in_array($entityType, $entityTypes)) {
+                continue;
+            }
+            $search = $this->searchEntityTable($terms, $entityType, $page, $count, $action);
+            $entityTotal = $this->searchEntityTable($terms, $entityType, $page, $count, $action, true);
+            if ($entityTotal > $page * $count) {
+                $hasMore = true;
+            }
+            $total += $entityTotal;
+            $results = $results->merge($search);
+        }
+        
         return [
             'total' => $total,
             'count' => count($results),

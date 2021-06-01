@@ -295,7 +295,8 @@ class PurchaseProductController extends Controller
 
     public function getSuppliers(Request $request) {
         $term = $request->term;
-        $suppliers =  ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id');
+        $suppliers =  ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')
+        ->join('order_products','order_products.product_id','product_suppliers.product_id');
         if($request->term) {
             $suppliers =  $suppliers->where('suppliers.supplier' ,'like', '%'.$request->term.'%');
         }
@@ -305,11 +306,12 @@ class PurchaseProductController extends Controller
 
     public function getProducts($type, $supplier_id) {
         if($type == 'inquiry') {
-            $products = ProductSupplier::join('products','products.id','product_suppliers.product_id')
+            $products = ProductSupplier::
+            join('products','products.id','product_suppliers.product_id')
             ->join('order_products as op','op.product_id','products.id')
-            ->where('product_suppliers.supplier_id',$supplier_id)
+            // ->where('product_suppliers.supplier_id',$supplier_id)
             ->groupBy('product_id')
-            ->select('product_suppliers.price as product_price','products.*','products.id as product_id','product_suppliers.id as ps_id')
+            ->select('product_suppliers.price as product_price','products.*','products.id as product_id','product_suppliers.id as ps_id', 'product_suppliers.supplier_id as sup_id')
             ->get();
 
             return view('purchase-product.partials.products',compact('products','type','supplier_id'));
@@ -319,8 +321,10 @@ class PurchaseProductController extends Controller
             ->join('products','products.id','order_products.product_id')
             ->join('product_suppliers','product_suppliers.product_id','products.id')
             ->where('product_suppliers.supplier_id',$supplier_id)
+            ->orderBy('order_products.id', 'desc')
             /*->groupBy('supplier_discount_infos.id')*/
             ->select('product_suppliers.price as product_price','products.*','supplier_discount_infos.*','product_suppliers.id as ps_id')->get();
+           
             return view('purchase-product.partials.products',compact('products','type','supplier_id'));
         }
     }

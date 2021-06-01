@@ -169,7 +169,7 @@ class BrandController extends Controller
 
         return redirect()->route('brand.index')->with('success', 'Brand added successfully');
     }
-
+    /*
     public function update(Request $request, Brand $brand)
     {
 
@@ -225,7 +225,7 @@ class BrandController extends Controller
 
         return redirect()->route('brand.index')->with('success', 'Brand updated successfully');
     }
-
+    */
     public function destroy(Brand $brand)
     {
         $brand->scrapedProducts()->delete();
@@ -366,6 +366,7 @@ class BrandController extends Controller
 
         return response()->json(["code" => 500 , "data" => [], "message" => "Oops, something went wrong"]);
     }
+    /*
     public function updateReference(Request $request)
     {
         $reference = $request->get("reference");
@@ -380,7 +381,7 @@ class BrandController extends Controller
 
         return response()->json(["code" => 500 , "data" => [], "message" => "Oops, something went wrong"]);
     }
-
+    */
     public function createRemoteId(Request $request, $id)
     {
         $brand = \App\Brand::where("id",$id)->first();

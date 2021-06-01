@@ -17,6 +17,9 @@ Auth::routes();
 
 
 Route::get('/test/test', 'OrderController@testEmail');
+Route::get('/memory', function () {
+    return view('memory');
+})->name('memory');
 
 Route::get('/test/pushProduct', 'TmpTaskController@testPushProduct');
 Route::get('/test/fixBrandPrice', 'TmpTaskController@fixBrandPrice');
@@ -100,6 +103,9 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
 
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
     Route::get('live-laravel-logs', 'LaravelLogController@liveLogs')->name('logging.live.logs');
+
+    Route::get('live-laravel-logs-single', 'LaravelLogController@liveLogsSingle');
+
     Route::get('keyword-create', 'LaravelLogController@LogKeyword');
     Route::post('assign', 'LaravelLogController@assign')->name('logging.assign');
     Route::get('sku-logs', 'Logging\LogScraperController@logSKU')->name('logging.scrap.log');
@@ -646,7 +652,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
     Route::post('order/report/store', 'OrderReportController@store')->name('status.report.store');
 
-    Route::get('order-refund-status-message', 'OrderReportController@orderRefundStatusMessage');
+    Route::get('order-refund-status-message', 'OrderReportController@orderRefundStatusMessage')->name('order.status.messages');
 
     //emails
     Route::get('email/replyMail/{id}', 'EmailController@replyMail');
@@ -1926,6 +1932,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('server-status-history', 'ScrapStatisticsController@serverStatusHistory');
     Route::get('get-server-scraper-timing', 'ScrapStatisticsController@getScraperServerTiming');
     Route::get('position-history', 'ScrapStatisticsController@positionHistory');
+    Route::post('position-history-download', 'ScrapStatisticsController@positionHistorydownload');//Purpose : Download  Position History Route - DEVTASK-4086
     Route::get('statistics/update-field', 'ScrapStatisticsController@updateField');
     Route::get('statistics/update-scrap-field', 'ScrapStatisticsController@updateScrapperField');
     Route::get('statistics/show-history', 'ScrapStatisticsController@showHistory');
@@ -2976,6 +2983,8 @@ Route::group(['middleware' => 'auth', 'admin'], function () {
         Route::get('/delete/{id}', 'PlanController@delete')->name('plan.delete');
         Route::get('/{id}/plan-action', 'PlanController@planAction');
         Route::post('/plan-action/store', 'PlanController@planActionStore');
+        Route::post('/plan-action/solutions-store', 'PlanController@planSolutionsStore');
+        Route::get('/plan-action/solutions-get/{id}', 'PlanController@planSolutionsGet');
 
         Route::post('plan/basis/create', 'PlanController@newBasis')->name('plan.create.basis');
         Route::post('plan/type/create', 'PlanController@newType')->name('plan.create.type');

@@ -101,7 +101,12 @@ class HubstaffActivitiesController extends Controller
     }
 
     public function getActivityUsers(Request $request)
-    {
+    {   
+
+        if( request('submit') ==  'report_download'){
+           return $this->downloadExcelReport();
+
+        }
         $title      = "Hubstaff Activities";
         $start_date = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-1 days"));
         $end_date   = $request->end_date ? $request->end_date : date('Y-m-d', strtotime("-1 days"));
@@ -177,7 +182,6 @@ class HubstaffActivitiesController extends Controller
         hubstaff_activities.user_id,
         SUM(hubstaff_activities.tracked) as total_tracked,DATE(hubstaff_activities.starts_at) as date,hubstaff_members.user_id as system_user_id")
         )->groupBy('date', 'user_id')->orderBy('date', 'desc')->get();
-
         $activityUsers = collect([]);
 
         foreach ($activities as $activity) {
@@ -212,7 +216,7 @@ class HubstaffActivitiesController extends Controller
             }
 
             // send hubstaff activities
-            $ac            = DB::select(DB::raw("SELECT hubstaff_activities.* FROM hubstaff_activities where DATE(starts_at) = '" . $activity->date . "' and user_id = " . $activity->user_id));
+            $ac            = DB::select(DB::raw("SELECT hubstaff_activities.* FROM hubstaff_activities where DATE(starts_at) = '" . $activity->date . "' and hubstaff_activities.user_id = " . $activity->user_id));
             $totalApproved = 0;
             $totalPending = 0;
             $isAllSelected = 0;
@@ -459,21 +463,42 @@ class HubstaffActivitiesController extends Controller
             }
         }
 
-        //dd($activityUsers);
-        if( request('submit') ==  'report_download'){
-           return $this->downloadExcelReport( $activityUsers , $users);
-        }
+        
         $status = $request->status;
         return view("hubstaff.activities.activity-users", compact('title', 'status', 'activityUsers', 'start_date', 'end_date', 'users', 'user_id', 'task_id'));
     }
 
-    public function downloadExcelReport($activityUsers, $users)
+     public function downloadExcelReport(){
+
+        // dd(request()->all());
+        $query = HubstaffActivity::join('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=', request('start_date'))->whereDate('hubstaff_activities.starts_at', '<=', request('end_date'));
+        
+        // $query->join('developer_tasks','hubstaff_activities.task_id','developer_tasks.hubstaff_task_id');
+        
+        $query = $query->where('hubstaff_members.user_id', request('user_id'));
+        
+         $activities = $query->select(DB::raw("
+                hubstaff_activities.user_id,hubstaff_activities.task_id,hubstaff_activities.is_manual,
+                SUM(hubstaff_activities.tracked) as total_tracked,DATE(hubstaff_activities.starts_at) as date,hubstaff_members.user_id as system_user_id")
+        )->groupBy('task_id')->orderBy('date', 'desc')->get();
+
+        if(request('user_id')){
+            $user = User::where('id', request('user_id'))->first();
+        }else{
+            $user = User::where('id', Auth::user()->id)->first();
+        }
+        
+        return Excel::download(new HubstaffActivityReport($activities->toArray()), $user->name.'-'.request('start_date').'-To-'.request('end_date').'.xlsx');
+    }
+
+    public function downloadExcelReportOld($activityUsers, $users)
     {   
         if(request('user_id')){
             $user = User::where('id', request('user_id'))->first();
         }else{
             $user = User::where('id', Auth::user()->id)->first();
         }
+        
         return Excel::download(new HubstaffActivityReport($activityUsers->toArray()), $user->name.'-'.request('start_date').'-To-'.request('end_date').'.xlsx');
     }
 

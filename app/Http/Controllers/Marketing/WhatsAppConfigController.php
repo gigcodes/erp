@@ -372,9 +372,8 @@ class WhatsappConfigController extends Controller
         $whatsappConfig = WhatsappConfig::find($id);
         
         $ch = curl_init();
+        $url = env('WHATSAPP_BARCODE_IP').$whatsappConfig->username.'/get-screen';
 
-        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/get-screen';
-        
         // set url
         curl_setopt($ch, CURLOPT_URL, $url);
 
@@ -388,7 +387,7 @@ class WhatsappConfigController extends Controller
         curl_close($ch); 
 
         $barcode = json_decode($output);
-            
+        return Response::json(array('success' => true,'media' => true)); 
         //if($barcode){
            
            if($barcode->barcode == 'No Screen Available'){
@@ -449,7 +448,7 @@ class WhatsappConfigController extends Controller
         
         $ch = curl_init();
 
-        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/restart-script';
+        $url = env('WHATSAPP_BARCODE_IP').$whatsappConfig->username.'/restart-script';
         
         // set url
         curl_setopt($ch, CURLOPT_URL, $url);
