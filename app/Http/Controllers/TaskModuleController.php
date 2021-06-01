@@ -110,7 +110,7 @@ class TaskModuleController extends Controller {
 		$data['task']['completed'] = [];
 		$status_filter = '';
 		if($request->filter_status){
-			$status_filter = ' AND status = '.$request->filter_status;
+			$status_filter = ' AND status = '.$request->filter_status.' ';
 		}
 		if($type == 'pending') {
 			$paginate = 50;
@@ -129,7 +129,7 @@ class TaskModuleController extends Controller {
 			if($request->filter_by == 2) {
 				$isCompleteWhereClose = ' AND is_completed IS NOT NULL AND is_verified IS NULL ';
 			}
-
+			
 			$data['task']['pending'] = DB::select('
 			SELECT tasks.*
 
@@ -187,6 +187,7 @@ class TaskModuleController extends Controller {
     		$page = $request->get('page', 1);
 			$offSet = ($page * $paginate) - $paginate; 
 			$orderByClause .= ' last_communicated_at DESC';
+			
 			$data['task']['completed'] = DB::select('
                 SELECT *,
  				message_id,
@@ -248,6 +249,7 @@ class TaskModuleController extends Controller {
     		$page = $request->get('page', 1);
 			$offSet = ($page * $paginate) - $paginate; 
 			$orderByClause .= ' last_communicated_at DESC';
+			
 			$data['task']['statutory_not_completed'] = DB::select('
 	               SELECT *,
 				   message_id,
