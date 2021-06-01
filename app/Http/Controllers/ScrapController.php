@@ -2018,6 +2018,67 @@ class ScrapController extends Controller
         }
     }
 
+    public function updateNode(Request $request)
+    {
+        if ($request->name && $request->server_id) {
+            $scraper = Scraper::where('scraper_name', $request->name)->first();
+            if (!$scraper->parent_id) {
+                $name = $scraper->scraper_name;
+            } else {
+                $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
+            }
+
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-scraper?filename=' . $name . '.js'; 
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($curl);
+            curl_close($curl);
+
+
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
+
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($curl);
+            curl_close($curl);
+            $duration = json_decode($response);
+            $duration = isset($duration->Process[0]->duration) ? $duration->Process[0]->duration : null ;            
+            if ($response) {
+                return response()->json(["code" => 200, "message" => "Script Restarted", 'duration' => $duration]);
+            } else {
+                return response()->json(["code" => 500, "message" => "Check if Server is running"]);
+            }
+
+        }
+    }
+
+    public function killNode(Request $request)
+    {
+        if ($request->name && $request->server_id) {
+            $scraper = Scraper::where('scraper_name', $request->name)->first();
+            if (!$scraper->parent_id) {
+                $name = $scraper->scraper_name;
+            } else {
+                $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
+            }
+
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/kill-scraper?filename=' . $name . '.js'; 
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($curl);
+            curl_close($curl);
+            if ($response) {
+                return response()->json(["code" => 200, "message" => "Script Restarted"]);
+            } else {
+                return response()->json(["code" => 500, "message" => "Check if Server is running"]);
+            }
+
+        }
+    }
+
     public function saveChildScraper(Request $request)
     {
         $scraper = Scraper::where('scraper_name', $request->scraper_name)->whereNull('parent_id')->first();
