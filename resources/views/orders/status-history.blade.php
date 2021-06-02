@@ -142,7 +142,7 @@
     var message = $(this).siblings('input').val();
 
     data.append("customer_id", customerid);
-    data.append("purchase_id", $(this).data('orderid'));
+    data.append("order_id", $(this).data('orderid'));
     data.append("message", message);
     data.append("status", 1);
 
