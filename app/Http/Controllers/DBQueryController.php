@@ -45,7 +45,7 @@ class DBQueryController extends Controller
         $where_query_exist = 0;
         foreach($data as $key => $val){
             if(strpos($key, 'update_') !== false && in_array(str_replace('update_', '', $key), $request->columns)){
-                $sql_query .= str_replace('update_', '', $key) . ' = ' . $val . ', ';
+                $sql_query .= str_replace('update_', '', $key) . ' = "' . $val . '", ';
             } 
         }
         $sql_query .= ' WHERE ';
@@ -54,11 +54,11 @@ class DBQueryController extends Controller
             if(strpos($key, 'where_') !== false && $val !== null){
                 $key = str_replace('where_', '', $key);
                 $sql_query .= $where_query_exist ? ' AND ' : '';
-                $sql_query .= $key . ' ' . $request->criteriaColumnOperators["'".$key."'"] . ' ' . $val;
+                $sql_query .= $key . ' ' . $request->criteriaColumnOperators["'".$key."'"] . ' "' . $val . '"';
                 $where_query_exist = 1;
             }
         }
-        !$where_query_exist ? $sql_query .= '1 ;' : $sql_query .= ' ;'; 
+        !$where_query_exist ? $sql_query .= ' = 1 ;' : $sql_query .= ' ;'; 
         
         return response()->json([
             'status' => true,
