@@ -55,8 +55,8 @@ logs
 .git.zip
 _MACOSX
 composer.lock
-js
-css
+/js
+/css
 
 /public/*.zip
 /public/*.pdf
@@ -85,3 +85,6 @@ app/Library/_MACOSX/*
 /resources/assets/analytics_files/*
 /.phpintel
 public/scrappersImages/*
+storage/framework/laravel-excel/*
+storage/chatMessageFiles/*
+public/7WZr3fgqVfRS5ZskKfv3km2ByrVRGqyDW9F/*

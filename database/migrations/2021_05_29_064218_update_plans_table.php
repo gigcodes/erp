@@ -19,7 +19,6 @@ class UpdatePlansTable extends Migration
             $table->text('weakness')->nullable();
             $table->text('opportunity')->nullable();
             $table->text('threat')->nullable();
-            $table->text('strength')->nullable();
             $table->text('category')->nullable();
         });
     }

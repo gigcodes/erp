@@ -64,15 +64,32 @@ class ScrapStatisticsController extends Controller
 
 
         // Get active suppliers
-        $activeSuppliers = Scraper::join("suppliers as s", "s.id", "scrapers.supplier_id")
-            ->select('scrapers.id as scrapper_id', 'scrapers.*', "s.*", "scrapers.status as scrapers_status")
+        $activeSuppliers = Scraper::with([
+            'scrpRemark' => function($q){
+                $q->whereNull("scrap_field")->where('user_name','!=','')->orderBy('created_at','desc');
+            },
+            'latestMessageNew' => function($q){
+                $q->whereNotIn('chat_messages.status', ['7', '8', '9', '10'])
+                ->take(1)
+                ->orderBy("id","desc");
+            },
+            'lastErrorFromScrapLogNew',
+            'developerTaskNew',
+            'scraperMadeBy',
+            'childrenScraper.scraperMadeBy',
+            'mainSupplier'
+        ])
+        ->withCount('childrenScraper')
+        ->join("suppliers as s", "s.id", "scrapers.supplier_id")
+           // ->select('scrapers.id as scrapper_id', 'scrapers.*', "s.*", "scrapers.status as scrapers_status")
             ->where('supplier_status_id', 1)
             ->whereIn("scrapper", [1, 2])
             ->whereNull('parent_id');
 
         if (!empty($keyWord)) {
             $activeSuppliers->where(function ($q) use ($keyWord) {
-                $q->where("s.supplier", "like", "%{$keyWord}%")->orWhere("scrapers.scraper_name", "like", "%{$keyWord}%");
+                $q->where("s.supplier", "like", "%{$keyWord}%")
+                ->orWhere("scrapers.scraper_name", "like", "%{$keyWord}%");
             });
         }
 
@@ -89,6 +106,7 @@ class ScrapStatisticsController extends Controller
         }
 
         $activeSuppliers = $activeSuppliers->orderby('scrapers.flag', 'desc')->orderby('s.supplier', 'asc')->get();
+        //  dd($activeSuppliers[0]);
         // Get scrape data
         $yesterdayDate = date("Y-m-d", strtotime("-1 day"));
         $sql           = '
@@ -147,12 +165,24 @@ class ScrapStatisticsController extends Controller
             }
         }
 
+        /* Scrapper status count */
+
+        $allStatus = Scraper::STATUS;
+
+        $allStatusCounts = \App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")
+        ->selectRaw('COUNT(s.id) as total_count, scrapers.status')
+        ->whereIn('scrapers.status', $allStatus)
+        ->where('supplier_status_id', 1)
+        ->groupBy('scrapers.status')
+        ->get()
+        ->pluck('total_count', 'status');
+
         $lastRunAt = \DB::table("scraped_products")->groupBy("website")->select([\DB::raw("MAX(last_inventory_at) as last_run_at"), "website"])->pluck("last_run_at", "website")->toArray();
 
         $users       = \App\User::all()->pluck("name", "id")->toArray();
         $allScrapper = Scraper::whereNull('parent_id')->pluck('scraper_name', 'id')->toArray();
         // Return view
-        return view('scrap.stats', compact('activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper','getLatestOptimization'));
+        return view('scrap.stats', compact('allStatus','allStatusCounts','activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper','getLatestOptimization'));
     }
 
     /**
@@ -189,10 +219,28 @@ class ScrapStatisticsController extends Controller
         )")
         ->pluck('in_percentage','server_id')->toArray();
         
+         // Get active suppliers
+         $activeSuppliers = Scraper::with([
+            'scrpRemark' => function($q){
+                $q->whereNull("scrap_field")->where('user_name','!=','')->orderBy('created_at','desc');
+            },
+            'latestMessageNew' => function($q){
+                $q->whereNotIn('chat_messages.status', ['7', '8', '9', '10'])
+                ->take(1)
+                ->orderBy("id","desc");
+            },
+            'lastErrorFromScrapLogNew',
+            'developerTaskNew',
+            'scraperMadeBy',
+            'childrenScraper.scraperMadeBy',
+            'mainSupplier'
+        ])
+        ->withCount('childrenScraper')
+        ->join("suppliers as s", "s.id", "scrapers.supplier_id")
 
         // Get active suppliers
-        $activeSuppliers = Scraper::join("suppliers as s", "s.id", "scrapers.supplier_id")
-            ->select('scrapers.id as scrapper_id', 'scrapers.*', "s.*", "scrapers.status as scrapers_status")
+        // $activeSuppliers = Scraper::join("suppliers as s", "s.id", "scrapers.supplier_id")
+        //     ->select('scrapers.id as scrapper_id', 'scrapers.*', "s.*", "scrapers.status as scrapers_status")
             ->where('supplier_status_id', 1)
             ->whereIn("scrapper", [1, 2])
             ->whereNull('parent_id');
@@ -270,13 +318,23 @@ class ScrapStatisticsController extends Controller
             }
         }
 
+        $allStatus = Scraper::STATUS;
+
+        $allStatusCounts = \App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")
+        ->selectRaw('COUNT(s.id) as total_count, scrapers.status')
+        ->whereIn('scrapers.status', $allStatus)
+        ->where('supplier_status_id', 1)
+        ->groupBy('scrapers.status')
+        ->get()
+        ->pluck('total_count', 'status');
+
         $lastRunAt = \DB::table("scraped_products")->groupBy("website")->select([\DB::raw("MAX(last_inventory_at) as last_run_at"), "website"])->pluck("last_run_at", "website")->toArray();
 
         $users       = \App\User::all()->pluck("name", "id")->toArray();
         $allScrapper = Scraper::whereNull('parent_id')->pluck('scraper_name', 'id')->toArray();
         // Return view
         try {
-            return view('scrap.quick-stats', compact('activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper','getLatestOptimization'));
+            return view('scrap.quick-stats', compact('allStatusCounts','allStatus','activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper','getLatestOptimization'));
         } catch (Exception $e) {
             \Log::error('Quick-stats-page :: '.$e->getMessage());
         }
@@ -614,7 +672,12 @@ class ScrapStatisticsController extends Controller
 
     public function getLastRemark(Request $request)
     {
-        $lastRemark = \DB::select("select * from scrap_remarks as sr join ( select max(id) as id from scrap_remarks group by scraper_name) as max_s on sr.id =  max_s.id order by sr.scraper_name asc");
+        //START - Purpose : Coment query and write new query for display only manualy added message - DEVTASK-4086
+        //$lastRemark = \DB::select("select * from scrap_remarks as sr join ( select max(id) as id from scrap_remarks group by scraper_name) as max_s on sr.id =  max_s.id order by sr.scraper_name asc");
+
+        $lastRemark = \DB::select("select * from scrap_remarks as sr join ( select max(id) as id from scrap_remarks group by scraper_name) as max_s on sr.id =  max_s.id WHERE sr.user_name IS NOT NULL order by sr.scraper_name asc");
+
+       //END - DEVTASK-4086
 
         $download = $request->input('download');
         if (!empty($download)) {
@@ -723,6 +786,46 @@ class ScrapStatisticsController extends Controller
 
         return view("scrap.partials.position-history", compact('histories'));
     }
+
+    //STRAT - Purpose : Download  Position History - DEVTASK-4086
+    public function positionHistorydownload(Request $request)
+    {
+        $histories = \App\ScraperPositionHistory::where("scraper_id", $request->id)->latest()->get();
+
+        $chatFileData = '';
+        $chatFileData .= html_entity_decode("Scraper Position History",ENT_QUOTES, 'UTF-8');
+        $chatFileData .= "\n"."\n";
+
+        if(!$histories->isEmpty()){
+            foreach($histories as $k => $v) {
+                $chatFileData .= html_entity_decode("Scraper Name : ".$v->scraper_name,ENT_QUOTES, 'UTF-8');
+                $chatFileData .= "\n";
+                $chatFileData .= html_entity_decode("Comment : ".$v->comment,ENT_QUOTES, 'UTF-8');
+                $chatFileData .= "\n";
+                $chatFileData .= html_entity_decode("Created at : ".$v->created_at,ENT_QUOTES, 'UTF-8');
+                $chatFileData .= "\n"."\n";
+            }
+        }
+
+        $storagelocation = storage_path().'/chatMessageFiles';
+            if(!is_dir($storagelocation)){
+                mkdir($storagelocation,0777, true);
+            }
+            $filename= "Scraper_Position_History.txt";
+            $file = $storagelocation.'/'. $filename;
+            $txt = fopen($file, "w") or die("Unable to open file!");
+            fwrite($txt, $chatFileData);
+            fclose($txt);
+            if($chatFileData==''){
+                return response()->json([
+                    'downloadUrl' => ''
+                ]);
+            }
+            return response()->json([
+                'downloadUrl' => $file
+            ]);
+    }
+    //END - DEVTASK-4086
 
     public function taskList(Request $request)
     {
