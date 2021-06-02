@@ -35,7 +35,9 @@ class ScrapLogsController extends Controller
 		$date = $dateVal;
 
         $lines = [];
-
+        $log_status= '';
+		$status_lists = DB::table('scrapper_log_status')->get();
+		
         foreach ($files as $key => $val) {
 			
             $day_of_file = explode('-', $val->getFilename());
@@ -43,9 +45,9 @@ class ScrapLogsController extends Controller
 
             if( ( (end($day_of_file) == $date) || (end($day_of_file) == '0'.$date) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
 				
-				if (!in_array($val->getRelativepath(), $serverArray)) {
-					continue;
-				}
+				// if (!in_array($val->getRelativepath(), $serverArray)) {
+				// 	continue;
+				// }
 
 				$file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
 				$file = file($file_path_new);
@@ -66,7 +68,13 @@ class ScrapLogsController extends Controller
                 }
 
                 $lines[] = "=============== $file_name_ss log ended from here ===============";
-
+                if($log_msg != "") {
+	                foreach ($status_lists as $key => $value) {
+	                	if (stripos(strtolower($log_msg), $value->text) !== false){
+	                		$log_status = $value->status;
+	                	}
+	                }
+	            }
 				if($log_msg == "") {
 					$log_msg = "Log data not found.";	
 				}
@@ -75,6 +83,7 @@ class ScrapLogsController extends Controller
 						"filename" => $file_name_ss,
 	        			"foldername" => $val->getRelativepath(),
 	        			"log_msg"=>$log_msg,
+	        			"status"=>$log_status,
 	        			"scraper_id"=>$file_name_str
 	    			)
 	    		);
@@ -120,6 +129,7 @@ class ScrapLogsController extends Controller
 		{
 			$date = 32;
 		}
+
 		foreach ($files as $key => $val) {
 			$day_of_file = explode('-', $val->getFilename());
 			if(str_contains(end($day_of_file), sprintf("%02d", $date-1)) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
@@ -230,5 +240,13 @@ class ScrapLogsController extends Controller
 		}
     	return 'File not found!';
     }
+    public function store(Request $request){
+    	$data = array(
+            'text' => strtolower($request->errortext),
+            'status' => strtolower($request->errorstatus),
+        );
 
+        DB::table('scrapper_log_status')->insert($data);
+        return redirect()->back()->with('success','New status created successfully.');
+    }
 }
