@@ -163,6 +163,13 @@
                         </button>
                     </a>
                 </div>
+                <div class="col-md-2 mt-1">
+                    <a href="javascript:void(0)">
+                        <button type="button" class="btn btn-default btn-sm position-all">
+                            <span class="glyphicon glyphicon-th-list"></span> Download Scraper position
+                        </button>
+                    </a>
+                </div>
             </div>
          </div>   
    </div>
@@ -1939,5 +1946,52 @@
         });
         //END - DEVTASK-4086
 
+
+        $(document).on("click",".position-all",function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: "/scrap/position-all",
+                type: 'POST',
+                "dataType": 'json',           // what to expect back from the PHP script, if anything
+                data: {
+                    "_token": "{{ csrf_token() }}"
+                },
+                beforeSend: function () {
+                   
+                }
+            }).done(function (response) {
+                
+                if(response.downloadUrl){
+                    var form = $("<form/>", 
+                            { action:"/chat-messages/downloadChatMessages",
+                                method:"POST",
+                                target:'_blank',
+                                id:"chatHiddenForm",
+                                }
+                        );
+                    form.append( 
+                        $("<input>", 
+                            { type:'hidden',  
+                            name:'filename', 
+                            value:response.downloadUrl }
+                        )
+                    );
+                    form.append( 
+                        $("<input>", 
+                            { type:'hidden',  
+                            name:'_token', 
+                            value:$('meta[name="csrf-token"]').attr('content') }
+                        )
+                    );
+                    $("body").append(form);
+                    $('#chatHiddenForm').submit();
+                }else{
+                    console.log('no message found !')
+                }
+               
+            }).fail(function (errObj) {
+                
+            });
+        });
     </script>
 @endsection

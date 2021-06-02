@@ -2027,15 +2027,7 @@ class ScrapController extends Controller
             } else {
                 $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
-
-            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-scraper?filename=' . $name . '.js'; 
-            $curl = curl_init();
-            curl_setopt($curl, CURLOPT_URL, $url);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-            $response = curl_exec($curl);
-            curl_close($curl);
-
-
+ 
             $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
 
             $curl = curl_init();
@@ -2111,10 +2103,10 @@ class ScrapController extends Controller
         $requestData->setMethod('POST');
         $requestData->request->add([
             'priority'    => 1,
-            'issue'       => $request->message, // issue detail 
+            'issue'       => $request->message, // issue detail
             'status'      => "Planned",
             'module'      => "Scraper",
-            'subject'     => $request->subject, // enter issue name 
+            'subject'     => $request->subject, // enter issue name
             'assigned_to' => 6,
         ]);
         app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
