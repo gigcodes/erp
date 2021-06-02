@@ -541,4 +541,16 @@ class BrandController extends Controller
       }
       
     }
+    public function fetchNewBrands(Request $request){
+        $path = public_path('brands');
+        $files = File::allFiles($path);
+        foreach ($files as $key => $value) {
+            $brand_name = strtoupper(pathinfo(basename($value), PATHINFO_FILENAME));
+            $brand_found = Brand::where('name',$brand_name)->get();
+            if(!$brand_found->isEmpty()){
+                Brand::where('id', $brand_found[0]->id)->update(['brand_image' => env('APP_URL').'/brands/'.basename($value)]);
+            }
+        }
+        return response()->json(['message' => 'Brand images updated'], 200);
+    }
 }

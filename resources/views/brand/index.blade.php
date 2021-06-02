@@ -5,6 +5,7 @@
 .btn {
     padding: 6px 6px;
 }
+.small-image{max-width: 100%;max-height: 100px;}
 </style>
 @endsection
 
@@ -29,6 +30,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         <div class="pull-right">
             <a class="btn btn-secondary" data-toggle="collapse" href="#inProgressFilterCount" href="javascript:;">Number of brands per site</a>
             <a class="btn btn-secondary" href="{{ route('brand.create') }}">+</a>
+            <button class="btn btn-secondary new-fetch" href="#">Fetch</button>
         </div>
     </div>
 </div>
@@ -82,6 +84,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             <tr>
                 <th>ID</th>
                 <th>Name</th>
+                <th>Image</th>
                 <th width="300px">Similar Brands</th>
                 <th width="160px">Merge Brands</th>
                 <th>Magento ID</th>
@@ -93,12 +96,17 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 @endforeach
                 <th width="150px">Selling on</th>
                 <th>Priority</th>
-                <th width="150px">Action</th>
+                <th width="17%">Action</th>
             </tr>
             @foreach ($brands as $key => $brand)
             <tr>
                 <td>{{ $brand->id }}</td>
                 <td>{{ $brand->name }}</td>
+                <td>
+                    @if($brand->brand_image)
+                        <img src="{{ $brand->brand_image }}" class="small-image">
+                    @endif
+                </td>
                 <td>
                     @php
                         $similar_brands = explode(',', $brand->references);
@@ -405,22 +413,38 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
     });
 
     $(document).on('change', '.priority', function () {
-            var $this = $(this);
-            var brand_id = $this.data("id");
-            var priority = $this.val();
-            $.ajax({
-                type: "PUT",
-                url: "/brand/priority/"+brand_id,
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    supplier_id : brand_id,
-                    priority: priority
-                }
-            }).done(function (response) {
-                 toastr['success'](response.message, 'success');
-            }).fail(function (response) {
-               toastr['error'](response.message, 'error');
-            });
+        var $this = $(this);
+        var brand_id = $this.data("id");
+        var priority = $this.val();
+        $.ajax({
+            type: "PUT",
+            url: "/brand/priority/"+brand_id,
+            data: {
+                _token: "{{ csrf_token() }}",
+                supplier_id : brand_id,
+                priority: priority
+            }
+        }).done(function (response) {
+             toastr['success'](response.message, 'success');
+        }).fail(function (response) {
+           toastr['error'](response.message, 'error');
         });
+    });
+    $(document).on('click', '.new-fetch', function (event) {
+        event.preventDefault();
+        $(this).attr('disable',true);
+        $.ajax({
+            type: "GET",
+            url: "{{ action('BrandController@fetchNewBrands')}}",
+            data: {
+                _token: "{{ csrf_token() }}",
+            }
+        }).done(function (response) {
+             toastr['success'](response.message, 'success');
+             $(this).attr('disable',false);
+        }).fail(function (response) {
+           toastr['error'](response.message, 'error');
+        });
+    })
 </script>
 @endsection
