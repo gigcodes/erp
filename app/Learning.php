@@ -69,7 +69,15 @@ class Learning extends Model {
 		'lead_hubstaff_task_id',
 		'due_date',
 		'site_developement_id',
-		'priority_no'
+		'priority_no',
+		'learning_user',
+		'learning_vendor',
+		'learning_subject',
+		'learning_module',
+		'learning_submodule',
+		'learning_assignment',
+		'learning_duedate',
+		'learning_status',
 	];
 
 	const TASK_TYPES = [

@@ -571,7 +571,7 @@ class LearningModuleController extends Controller {
 		$selected_user = $request->input( 'selected_user' );
 		$users         = Helpers::getUserArray( User::all() );
 		$task_categories = LearningModule::where('parent_id', 0)->get();
-		$learning_module_dropdown = nestable(LearningModule::where('is_approved', 1)->where('parent_id', 0)->get()->toArray())->attr(['name' => 'category','class' => 'form-control input-sm parent-module'])
+		$learning_module_dropdown = nestable(LearningModule::where('is_approved', 1)->where('parent_id', 0)->get()->toArray())->attr(['name' => 'learning_module','class' => 'form-control input-sm parent-module'])
 		->selected($request->category)
 		->renderAsDropdown();
 
@@ -1979,121 +1979,122 @@ class LearningModuleController extends Controller {
 
 	public function createLearningFromSortcut(Request $request)
 	{
+		
 		$created = 0;
 		$message = '';
 		$assignedUserId = 0;
 		$data = $request->except( '_token' );
-		//print_r($data); die;
-		$this->validate($request, [
-			'task_subject'	=> 'required',
-			'task_detail'	=> 'required',
-			'category'	=> 'required',
-			'submodule'	=> 'required',
-			'task_asssigned_to' => 'required_without:assign_to_contacts',
-			'cost'=>'sometimes|integer'
+		// //print_r($data); die;
+		// $this->validate($request, [
+		// 	'task_subject'	=> 'required',
+		// 	'task_detail'	=> 'required',
+		// 	'category'	=> 'required',
+		// 	'submodule'	=> 'required',
+		// 	'task_asssigned_to' => 'required_without:assign_to_contacts',
+		// 	'cost'=>'sometimes|integer'
+		// ]);
+		// $data['assign_from'] = Auth::id();
+		
+		// $taskType = $request->get("task_type");
+
+
+		// $data = [];
+
+		// $data["learning_user"] 			= $request->learning_user;
+		// $data["learning_vendor"] 		= $request->learning_vendor;
+		// $data["learning_subject"] 		= $request->learning_subject;
+		// $data["learning_module"] 		= $request->learning_module;
+		// $data["learning_submodule"] 	= $request->learning_submodule;
+		// $data["learning_assignment"] 	= $request->learning_assignment;
+		// $data["learning_duedate"] 		= $request->learning_duedate;
+		// $data["learning_status"] 		= $request->learning_status;
+		
+		// $task = Learning::create($data);
+
+		Learning::create([
+			'learning_user'			=> $request->learning_user,
+			'learning_vendor'		=> $request->learning_vendor,
+			'learning_subject'		=> $request->learning_subject,
+			'learning_module'		=> $request->learning_module,
+			'learning_submodule'	=> $request->learning_submodule,
+			'learning_assignment'	=> $request->learning_assignment,
+			'learning_duedate'		=> $request->learning_duedate,
+			'learning_status'		=> $request->learning_status,
 		]);
-		$data['assign_from'] = Auth::id();
-		
-		$taskType = $request->get("task_type");
 
-
-		$data = [];
-
-		if(is_array($request->task_asssigned_to)) {
-			$data["assigned_to"] = $request->task_asssigned_to[0];
-		}
-		else {
-			$data["assigned_to"] = $request->task_asssigned_to;
-		}
-		
-		$data["subject"] 		= $request->get("task_subject");
-		$data["task"] 			= $request->get("task_detail");
-		$data["task_type_id"]	= 1;
-		$data["site_developement_id"]	= $request->get("site_id");
-		$data["cost"]	= $request->get("cost",0);
-		$data["status"]	= 'In Progress';
-		$data["created_by"]	= Auth::id();
-		$data["category"]	= $request->get("category");
-		$data["general_category_id"]	= $request->get("submodule");
-		//echo $data["site_developement_id"]; die;
-		
-		if($taskType == 5 || $taskType == 6) {
-			$data["task_type_id"]	= 3;
-		}
-		$task = Learning::create($data);
 		$created = 1;
-		$message = '#DEVTASK-' . $task->id . ' => ' . $task->subject;
-		$assignedUserId = $task->assigned_to;
-		$requestData = new Request();
-        $requestData->setMethod('POST');
-        $requestData->request->add(['issue_id' => $task->id, 'message' => $request->get("task_detail"), 'status' => 1]);
-		app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+		// $message = '#DEVTASK-' . $task->id . ' => ' . $task->subject;
+		// $assignedUserId = $task->assigned_to;
+		// $requestData = new Request();
+        // $requestData->setMethod('POST');
+        // $requestData->request->add(['issue_id' => $task->id, 'message' => $request->get("task_detail"), 'status' => 1]);
+		// app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
 
 
-		if($created) {
-			$hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
-			$assignedUser = HubstaffMember::where('user_id', $assignedUserId)->first();
+		// if($created) {
+		// 	$hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+		// 	$assignedUser = HubstaffMember::where('user_id', $assignedUserId)->first();
 	  
-			  $hubstaffUserId = null;
-			  $hubstaffTaskId = null;
-			  if ($assignedUser) {
-				  $hubstaffUserId = $assignedUser->hubstaff_user_id;
-			  }
-			  $taskSummery = substr($message, 0, 200);
-			  if($hubstaffUserId) {
-				$hubstaffTaskId = $this->createHubstaffTask(
-					$taskSummery,
-					$hubstaffUserId,
-					$hubstaff_project_id
-				);
-			  }
+		// 	  $hubstaffUserId = null;
+		// 	  $hubstaffTaskId = null;
+		// 	  if ($assignedUser) {
+		// 		  $hubstaffUserId = $assignedUser->hubstaff_user_id;
+		// 	  }
+		// 	  $taskSummery = substr($message, 0, 200);
+		// 	  if($hubstaffUserId) {
+		// 		$hubstaffTaskId = $this->createHubstaffTask(
+		// 			$taskSummery,
+		// 			$hubstaffUserId,
+		// 			$hubstaff_project_id
+		// 		);
+		// 	  }
 			 
 	  
-			  if($hubstaffTaskId) {
-				  $task->hubstaff_task_id = $hubstaffTaskId;
-				  $task->save();
-			  }
-			  if ($hubstaffTaskId) {
+		// 	  if($hubstaffTaskId) {
+		// 		  $task->hubstaff_task_id = $hubstaffTaskId;
+		// 		  $task->save();
+		// 	  }
+		// 	  if ($hubstaffTaskId) {
 
 			  	 
 
-				  $hubtask = new HubstaffTask();
-				  $hubtask->hubstaff_task_id = $hubstaffTaskId;
-				  $hubtask->project_id = $hubstaff_project_id;
-				  $hubtask->hubstaff_project_id = $hubstaff_project_id;
-				  $hubtask->summary = $message;
-				  $hubtask->save();
-			  }
-		  }
+		// 		  $hubtask = new HubstaffTask();
+		// 		  $hubtask->hubstaff_task_id = $hubstaffTaskId;
+		// 		  $hubtask->project_id = $hubstaff_project_id;
+		// 		  $hubtask->hubstaff_project_id = $hubstaff_project_id;
+		// 		  $hubtask->summary = $message;
+		// 		  $hubtask->save();
+		// 	  }
+		//   }
 
-		if ($request->ajax() && $request->from == 'task-page') {
-			$hasRender = request("has_render", false);
+		// if ($request->ajax() && $request->from == 'task-page') {
+		// 	$hasRender = request("has_render", false);
 
-			$task_statuses=TaskStatus::all();
+		// 	$task_statuses=TaskStatus::all();
 			
-			if(!empty($hasRender)) {
+		// 	if(!empty($hasRender)) {
 				
-				$users      = Helpers::getUserArray( User::all() );
-				$priority  	= \App\ErpPriority::where('model_type', '=', Learning::class)->pluck('model_id')->toArray();
+		// 		$users      = Helpers::getUserArray( User::all() );
+		// 		$priority  	= \App\ErpPriority::where('model_type', '=', Learning::class)->pluck('model_id')->toArray();
 
-				if($task->is_statutory == 1) {
-					$mode = "learning-module.partials.statutory-row";
-				}
-				// else if($task->is_statutory == 3) {
-				// 	$mode = "learning-module.partials.discussion-pending-raw";
-				// }
-				else {
-					$mode = "learning-module.partials.pending-row";
-				}
-				//return $users;
-				$view = (string)view($mode,compact('task','priority','users','task_statuses'));
-				return response()->json(["code" => 200, "statutory" => $task->is_statutory , "raw" => $view]);	
+		// 		if($task->is_statutory == 1) {
+		// 			$mode = "learning-module.partials.statutory-row";
+		// 		}
+		// 		// else if($task->is_statutory == 3) {
+		// 		// 	$mode = "learning-module.partials.discussion-pending-raw";
+		// 		// }
+		// 		else {
+		// 			$mode = "learning-module.partials.pending-row";
+		// 		}
+		// 		//return $users;
+		// 		$view = (string)view($mode,compact('task','priority','users','task_statuses'));
+		// 		return response()->json(["code" => 200, "statutory" => $task->is_statutory , "raw" => $view]);	
 
-			}
-			return response('success');
-		}
+		// 	}
+		// 	return response('success');
+		// }
 
-		return response()->json(["code" => 200, "data" => [], "message" => "Your quick task has been created!"]);
+		return response()->json(["code" => 200, "data" => [], "message" => "Your Lerning Task created!"]);
 
 	}
 

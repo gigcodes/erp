@@ -232,24 +232,86 @@
         <div class="col-xs-12">
             <form action="{{ action('LearningModuleController@createLearningFromSortcut') }}" method="POST" id="taskCreateForm">
                 @csrf
-                <input type="hidden" name="has_render" value="1">
-                <input type="hidden" name="from" value="task-page">
+              
                 <div class="row">
+                    <div class="col-xs-12 col-md-2 pd-2">
+                        <div class="form-group cls_learning_user">
+                                <!-- <strong>User :</strong> -->
+                                <select class="globalSelect2 form-control"  data-ajax="{{ route('select2.uservendor') }}" data-live-search="true" data-size="15" name="learning_user" data-placeholder="Choose a User" id="learning_user" required>
+                                <option></option>
+                                {{-- @foreach ($quick_users_array as $index => $user)
+                                <option data-tokens="{{ $index }} {{ $user }}" value="{{ $index }}">{{ $user }}</option>
+                                @endforeach --}}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-md-2 pd-2">
+                        <div class="form-group cls_learning_provider">
+                                <!-- <strong>Provider :</strong> -->
+                                <select class="globalSelect2 form-control"  data-ajax="{{ route('select2.uservendor') }}" data-live-search="true" data-size="15" name="learning_vendor" data-placeholder="Choose a Provider" id="learning_vendor" required>
+                                <option></option>
+                                {{-- @foreach ($quick_users_array as $index => $user)
+                                <option data-tokens="{{ $index }} {{ $user }}" value="{{ $index }}">{{ $user }}</option>
+                                @endforeach --}}
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="col-xs-12 col-md-1 pd-2">
-                        <div class="form-group cls_task_subject">
-                        
-                            <input type="text" class="form-control input-sm" name="task_subject" placeholder="Subject" id="task_subject" value="{{ old('task_subject') }}" required/>
+                        <div class="form-group cls_learning_subject">
+                            <!-- <strong>Subject :</strong> -->
+                            <input type="text" class="form-control input-sm" name="learning_subject" placeholder="Subject" id="learning_subject" value="{{ old('task_subject') }}" required/>
                             @if ($errors->has('task_subject'))
                                 <div class="alert alert-danger">{{$errors->first('task_subject')}}</div>
                             @endif
                         </div>
                     </div>
+
+                    <!--   
                     <div class="col-xs-12 col-md-2 pd-2">
                         <div class="form-group">
                             <textarea rows="1" class="form-control input-sm cls_task_detailstextarea" name="task_detail" placeholder="Details" id="task_details" required>{{ old('task_detail') }}</textarea>
                             @if ($errors->has('task_detail'))
                                 <div class="alert alert-danger">{{$errors->first('task_detail')}}</div>
                             @endif
+                        </div>
+                    </div> -->
+
+                    
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-inline">
+                            <div class="cls_categoryfilter_box">
+                                <div class="cls_categoryfilter_first">
+                                    <div class="">
+                                        <!-- <strong>Module :</strong> -->
+                                        {{-- <strong>Category:</strong> --}}
+                                        {!! $learning_module_dropdown !!}
+                                    </div>
+                                </div>
+                                <div class="cls_categoryfilter_second">
+                                    <button type="button" class="btn btn-image" data-toggle="modal" data-target="#createTaskCategorytModal"><img src="{{asset('images/add.png')}}"/></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-inline">
+                            <div class="cls_submodule_box">
+                                <div class="cls_submodule_first">
+                                    <div class="submodule">
+                                        <!-- <strong>Sub Module :</strong> -->
+                                        <select name="learning_submodule" class="form-control input-sm submodule">
+                                            <option value="">Select Submodule</option>
+                                            @foreach($learning_submodule_dropdown as $options)
+                                                <option value="{{ $options->id }}">{{ $options->title }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -258,14 +320,17 @@
                             <div class="cls_multi_contact">
                                 <div class="cls_multi_contact_first">
                                     <div class="">
-                                        <select id="multi_contacts" style="width: 100%;" class="form-control input-sm js-example-basic-multiple" name="assign_to_contacts[]" multiple>
+
+                                        <!-- <strong>Assignment :</strong> -->
+                                        <select id="learning_assignment" style="width: 100%;" class="form-control input-sm js-example-basic-multiple" name="learning_assignment">
+                                                <option>Select Assignment</option>
                                             @foreach (Auth::user()->contacts as $contact)
                                                 <option value="{{ $contact['id'] }}">{{ $contact['name'] }} - {{ $contact['phone'] }} ({{ $contact['category'] }})</option>
                                             @endforeach
                                         </select>
 
-                                        @if ($errors->has('assign_to_contacts'))
-                                            <div class="alert alert-danger">{{$errors->first('assign_to_contacts')}}</div>
+                                        @if ($errors->has('learning_assignment'))
+                                            <div class="alert alert-danger">{{$errors->first('learning_assignment')}}</div>
                                         @endif
                                     </div>
                                 </div>
@@ -278,39 +343,53 @@
                             
                         </div>
                     </div>
+
+                    <div class="col-xs-12 col-md-2 pd-2" id="calendar-task" style="">
+                        <div class="form-group">
+                        <!-- <strong>Due Date :</strong> -->
+                            <div class='input-group date' id='learning-due-datetime'>
+                                
+                                <input type='text' class="form-control input-sm" name="learning_duedate" id="learning_duedate" value="{{ date('Y-m-d H:i') }}"/>
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                            @if ($errors->has('completion_date'))
+                                <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
+                            @endif
+                        </div>
+                    </div>
+                                    
                     <div class="col-xs-12 col-md-1 pd-2">
                         <div class="form-inline">
                             <div class="cls_categoryfilter_box">
                                 <div class="cls_categoryfilter_first">
+                                <!-- <strong>Status :</strong> -->
                                     <div class="">
-                                        {{-- <strong>Category:</strong> --}}
-                                        {!! $learning_module_dropdown !!}
+                                    <select name="learning_status" class=" form-control"  required>
+                                            <option>Select Status</option>
+                                            @foreach ($task_statuses as $index => $user)
+                                                <option value="{{ $user['id'] }}">{{ $user['name'] }}</option>
+                                            @endforeach 
+                                    </select>
                                     </div>
                                 </div>
                                 <div class="cls_categoryfilter_second">
-                                    <button type="button" class="btn btn-image" data-toggle="modal" data-target="#createTaskCategorytModal"><img src="{{asset('images/add.png')}}"/></button>
+                                
+                                    <button type="button" class="btn btn-image" data-toggle="modal" data-target="#taskStatusModal"><img src="{{asset('images/add.png')}}"/></button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-xs-12 col-md-1 pd-2">
-                        <div class="form-inline">
-                            <div class="cls_submodule_box">
-                                <div class="cls_submodule_first">
-                                    <div class="submodule">
-                                        {{-- <strong>Category:</strong> --}}
-                                        <select name="submodule" class="form-control input-sm submodule">
-                                            <option value="">Select Submodule</option>
-                                            @foreach($learning_submodule_dropdown as $options)
-                                                <option value="{{ $options->id }}">{{ $options->title }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
+
+                    <div class="col-xs-12 col-md-1 pd-2 ">
+                        <div class="form-group mt-200">
+                            
+                            <button type="submit" class="btn btn-secondary cls_comm_btn" id="taskCreateButton">Create</button>
                         </div>
-                    </div>
-                    <div class="col-xs-12 col-md-1 pd-2">
+                   </div>
+                    
+                    <!-- <div class="col-xs-12 col-md-1 pd-2">
                         <div class="form-group">
                             <input type="number" class="form-control" id="no_of_milestone" name="no_of_milestone" value="{{ old('no_of_milestone') }}" placeholder="No of milestone" />
 
@@ -318,12 +397,12 @@
                             <div class="alert alert-danger">{{$errors->first('no_of_milestone')}}</div>
                             @endif
                         </div>
-                    </div>
-                    <div class="col-xs-12 col-md-1 pd-2">
+                    </div> -->
+                    <!-- <div class="col-xs-12 col-md-1 pd-2">
                         
-                    </div>
+                    </div> -->
                     @if(auth()->user()->isAdmin())
-                    <div class="col-xs-12 col-md-2 pd-2">
+                    <!-- <div class="col-xs-12 col-md-2 pd-2">
                         <div class="form-group">
                             <select id="multi_users" class="form-control input-sm" name="task_asssigned_to[]" multiple>
                                 @foreach ($data['users'] as $user)
@@ -334,12 +413,12 @@
                                 <div class="alert alert-danger">{{$errors->first('task_asssigned_to')}}</div>
                             @endif
                         </div>
-                    </div>
+                    </div> -->
                     @endif
-                   <div class="col-xs-12 col-md-2 pd-2">
-                   </div>
+                   <!-- <div class="col-xs-12 col-md-2 pd-2">
+                   </div> -->
                 </div>
-                <div class="row">
+                <!-- <div class="row">
                     <div class="col-xs-12 col-md-4" id="recurring-task" style="display: none;">
                         <div class="row">
                             <div class="col-xs-12 col-md-6">
@@ -407,10 +486,10 @@
                     </div>      
                   
                     
-                    <!-- <div class="col-xs-12 text-center">
+                    <div class="col-xs-12 text-center">
                         <button type="submit" class="btn btn-xs btn-secondary" id="taskCreateButton">Create</button>
-                    </div> -->
-                </div>
+                    </div>
+                </div> -->
             </form>
         </div>
     </div>
@@ -1204,12 +1283,12 @@
                 selectOnTab: true
             });
 
-            $('#multi_users').select2({
-                placeholder: 'Select a User',
-            });
+            // $('#multi_users').select2({
+            //     placeholder: 'Select a User',
+            // });
 
-            $('#multi_contacts').select2({
-                placeholder: 'Select a Provider',
+            $('#learning_assignment').select2({
+                placeholder: 'Select a Assignment',
             });
 
             // $('ul.pagination').hide();
@@ -2390,47 +2469,69 @@
         });
 
         $('#taskCreateButton').on('click', function (e) {
+            
             e.preventDefault();
             var form  = $(this).closest('form');
-            var users = $('#multi_users').val();
-            var contacts = $('#multi_contacts').val();
-            var category = form.find('select[name="category"]').val();
 
-            console.log(users, contacts, category);
+            
+            var users = $('#learning_user').val();
+            var vendors = $('#learning_vendor').val();
+            var subject = $('#learning_subject').val();
+            var module1 = form.find('select[name="learning_module"]').val();
+            var submodule = form.find('select[name="learning_submodule"]').val();
+            var assignment = form.find('select[id="learning_assignment"]').val();
+            var due_date = $('#learning_duedate').val();
+            var status = form.find('select[name="learning_status"]').val();
 
-            if ($('#taskCreateForm')[0].checkValidity()) {
-                if (users.length == 0 && contacts.length == 0) {
-                    alert('Please select atleast one user or contact');
-                } else {
-                    if (category == '1') {
-                        alert('Category is required!');
-                    } else {
-                        $.ajax({
-                            type: "POST",
-                            beforeSend:function(){
-                                $("#loading-image").show();
-                            },
-                            url: form.attr("action"),
-                            data: form.serialize(),
-                            dataType : "json"
-                        }).done(function (response) {
-                            $("#loading-image").hide();
-                            if(response.code == 200) {
-                                if(response.statutory == 1) {
-                                    $(".statutory-row-render-view").prepend(response.raw);
-                                }else{
-                                    $(".pending-row-render-view").prepend(response.raw);
+            //console.log(users.length, vendors.length, subject.length, module1.length, submodule.length, assignment.length, due_date.length, status);
+
+            if(users.length == 0)
+                alert('Please Select User');
+            else if(vendors.length == 0)
+                alert('Please Select Vendor');
+            else if(subject.length == 0)
+                alert('Please Enter Subject');
+            else if(submodule.length == 0)
+                alert('Please Select Sub Module');
+            else if(assignment == 'Select Assignment')
+                alert('Please Select Assignment');
+            else if(due_date.length == 0)
+                alert('Please Select Due Date');
+            else if(status == 'Select Status')
+                alert('Please Select Status');
+            else{
+
+                // if ($('#taskCreateForm')[0].checkValidity()) {
+                //     if (users.length == 0 && contacts.length == 0) {
+                //         alert('Please select atleast one user or contact');
+                //     } else {
+                        // if (category == '1') {
+                        //     alert('Category is required!');
+                        // } else {
+                            $.ajax({
+                                type: "POST",
+                                beforeSend:function(){
+                                    $("#loading-image").show();
+                                },
+                                url: form.attr("action"),
+                                data: form.serialize(),
+                                dataType : "json"
+                            }).done(function (response) {
+                                $("#loading-image").hide();
+                                if(response.code == 200) {
+                                    toastr["success"](response.message);
                                 }
-                            }
-                            //window.location.reload();
-                        }).fail(function (response) {
-                            console.log(response);
-                        });
-                        //$('#taskCreateForm').submit();
-                    }
-                }
-            } else {
-                $('#taskCreateForm')[0].reportValidity();
+                                //window.location.reload();
+                            }).fail(function (response) {
+                                console.log(response);
+                            });
+                            //$('#taskCreateForm').submit();
+                        // }
+                    // }
+                // } else {
+                //     $('#taskCreateForm')[0].reportValidity();
+                // }
+
             }
         });
 
