@@ -933,6 +933,43 @@ class ScrapStatisticsController extends Controller
         return redirect()->back();
     }
 
+    public function positionAll()
+    {
+        $histories = \App\ScraperPositionHistory::whereDate('created_at', now()->subDays(7)->format('Y-m-d'))->latest()->get();
+        $chatFileData = '';
+        $chatFileData .= html_entity_decode("Scraper Position History",ENT_QUOTES, 'UTF-8');
+        $chatFileData .= "\n"."\n";
+
+        if(!$histories->isEmpty()){
+            foreach($histories as $k => $v) {
+                $chatFileData .= html_entity_decode("Scraper Name : ".$v->scraper_name,ENT_QUOTES, 'UTF-8');
+                $chatFileData .= "\n";
+                $chatFileData .= html_entity_decode("Comment : ".$v->comment,ENT_QUOTES, 'UTF-8');
+                $chatFileData .= "\n";
+                $chatFileData .= html_entity_decode("Created at : ".$v->created_at,ENT_QUOTES, 'UTF-8');
+                $chatFileData .= "\n"."\n";
+            }
+        }
+
+        $storagelocation = storage_path().'/chatMessageFiles';
+            if(!is_dir($storagelocation)){
+                mkdir($storagelocation,0777, true);
+            }
+            $filename= "Scraper_Position_History.txt";
+            $file = $storagelocation.'/'. $filename;
+            $txt = fopen($file, "w") or die("Unable to open file!");
+            fwrite($txt, $chatFileData);
+            fclose($txt);
+            if($chatFileData==''){
+                return response()->json([
+                    'downloadUrl' => ''
+                ]);
+            }
+            return response()->json([
+                'downloadUrl' => $file
+            ]);
+    }
+
     public function serverStatusHistory(Request $request)
     {
         $statusHistory = \App\ScraperServerStatusHistory::whereDate("created_at", $request->date)->latest()->get();
