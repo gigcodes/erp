@@ -104,13 +104,13 @@
             <thead>
               <tr>
                 <th width="20%">Time</th>
-                <th width="30%">Planned</th>
-                <th width="7%">Timezone</th>
+                <th width="29%">Planned</th>
+                <th width="5%">Timezone</th>
                 <th width="10%">Time</th>
                 <th width="7%">Actual Start Time</th>
                 <th width="8%">Actual Complete Time</th>
                 <th width="10%">Remark</th>
-                <th width="50%">Action</th>
+                <th width="49%">Action</th>
               </tr>
             </thead>
 
@@ -184,6 +184,11 @@
 							@endif
 							<button type="button" class="btn btn-image task-resend p-0 m-0" data-id="{{ $task->id }}" title="Resend"> <i class="fa fa-send"></i> </button>
 							<button type="button" class="btn btn-image task-history p-0 m-0" data-id="{{ $task->id }}" title="History"> <i class="fa fa-history"></i> </button>
+                            @php
+                                $edit = App\UserEvent\UserEvent::where('daily_activity_id', $task->id)->with('attendees')->first();
+                                $vendor = App\UserEvent\UserEventParticipant::where('user_event_id',$edit->id)->pluck('object_id')->toArray();
+                            @endphp
+                            <button type="button" class="btn btn-image payment-model-op p-0 m-0" data-note="{{ $task->activity }}" data-vendor="{{ json_encode($vendor) }}" data-date="{{ $task->for_date }}" data-id="{{ $task->id }}" title="Payment"> <i class="fa fa-money"></i> </button>
 							@if( !empty( $task->id ) )
 								<a href="{{ route('calendar.event.edit',$task->id) }}" class="btn btn-image p-0 m-0"  title="Edit" > <i class="fa fa-edit"></i> </a>
 							@endif
@@ -286,6 +291,35 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script type="text/javascript">
 
+    $(document).on('click', '.payment-model-op', function(e) {
+      e.preventDefault();
+      var thiss = $(this);
+      console.log( thiss.data() );
+      var type = 'GET';
+        $.ajax({
+          url: '/voucher/manual-payment',
+          type: type,
+          data : { date : thiss.data('date'), note : thiss.data('note'), vendor : thiss.data('vendor') },
+          beforeSend: function() {
+            $("#loading-image").show();
+          }
+        }).done( function(response) {
+          $("#loading-image").hide();
+          $('#create-manual-payment').modal('show');
+          $('#create-manual-payment-content').html(response);
+
+          $('#date_of_payment').datetimepicker({
+            format: 'YYYY-MM-DD'
+          });
+          $('.select-multiple').select2({width: '100%'});
+
+          $(".currency-select2").select2({width: '100%',tags:true});
+          $(".payment-method-select2").select2({width: '100%',tags:true});
+
+        }).fail(function(errObj) {
+          $("#loading-image").hide();
+        });
+    });
     
     $(document).ready(function() {
       $('#planned-datetime').datetimepicker({
