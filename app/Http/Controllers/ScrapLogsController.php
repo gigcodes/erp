@@ -45,9 +45,9 @@ class ScrapLogsController extends Controller
 
             if( ( (end($day_of_file) == $date) || (end($day_of_file) == '0'.$date) ) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
 				
-				// if (!in_array($val->getRelativepath(), $serverArray)) {
-				// 	continue;
-				// }
+				if (!in_array($val->getRelativepath(), $serverArray)) {
+					continue;
+				}
 
 				$file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
 				$file = file($file_path_new);
