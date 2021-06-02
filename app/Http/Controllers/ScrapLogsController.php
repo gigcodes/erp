@@ -241,6 +241,7 @@ class ScrapLogsController extends Controller
     	return 'File not found!';
     }
     public function store(Request $request){
+    	
     	$data = array(
             'text' => strtolower($request->errortext),
             'status' => strtolower($request->errorstatus),

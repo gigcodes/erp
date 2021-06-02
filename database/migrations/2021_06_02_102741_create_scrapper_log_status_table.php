@@ -14,6 +14,7 @@ class CreateScrapperLogStatusTable extends Migration
     public function up()
     {
         Schema::create('scrapper_log_status', function (Blueprint $table) {
+            
             $table->increments('id');
             $table->text('text');
             $table->text('status');

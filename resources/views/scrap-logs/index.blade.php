@@ -57,6 +57,7 @@
 			        <th width="10%">FolderName</th>
 			        <th width="30%">FileName</th>
 			        <th width="30%">Log Message</th>
+			        
 			        <th width="">Status</th>
 			        <th width="">Remarks</th>
 			    </tr>
