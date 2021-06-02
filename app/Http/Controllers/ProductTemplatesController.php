@@ -228,7 +228,8 @@ class ProductTemplatesController extends Controller
                 "fontStyle" => $record->font_style,
                 "fontSize" => $record->font_size,
                 "backgroundColor" => explode(",", $record->background_color),
-                "logo" => ($record->storeWebsite) ? $record->storeWebsite->icon : ""
+                "color" => $record->color,
+                "logo" => ($record->storeWebsite) ? $record->storeWebsite->title : ""
             ];
 
             if ($record->hasMedia('template-image-attach')) {
@@ -304,6 +305,32 @@ class ProductTemplatesController extends Controller
             }
         }
 
+        return response()->json(["code" => 0, "message" => "An unknown error has occured"]);
+
+    }
+
+    public function NewApiSave(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+           'text'       =>  'required',
+           'backgroundColor' => 'nullable',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(["code" => 500, "message" => 'Invalid request',"error" => $validator->errors()]);
+        }
+
+        $new = array(
+            'text' => request('text'),
+            'background_color' => request('backgroundColor'),
+        );
+
+        $template = ProductTemplate::insertGetId($new);
+        $template = \App\ProductTemplate::where("id", $template)->first();
+        if( $template ){
+            return response()->json($template);
+        }
+        
         return response()->json(["code" => 0, "message" => "An unknown error has occured"]);
 
     }
@@ -403,6 +430,7 @@ class ProductTemplatesController extends Controller
         if( $request->modifications_array ){
             $params['background_color']  = $request->modifications_array[0]['background'] ?? null;
             $params['text']  = $request->modifications_array[0]['text'] ?? null;
+            $params['color']  = $request->modifications_array[0]['color'] ?? null;
         }
 
         $template->fill($params);

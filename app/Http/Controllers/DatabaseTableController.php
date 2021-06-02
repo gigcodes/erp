@@ -12,57 +12,33 @@ class DatabaseTableController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request, $id)
     {
-        $databaseHis = DatabaseTableHistoricalRecord::latest();
-
-        $customRange = $request->get("customrange");
-
-        if(!empty($customRange)) {
-            $range = explode(" - ",$customRange);
-            if(!empty($range[0])) {
-               $startDate = $range[0];
-            }
-            if(!empty($range[1])) {
-               $endDate = $range[1];
-            }
+        
+        if($id){
+            $databaseHis = DatabaseTableHistoricalRecord::where('database_id',$id)
+                ->crossJoin('database_historical_records', 'database_table_historical_records.database_id', '=', 'database_historical_records.id')
+                ->select('database_table_historical_records.*', 'database_historical_records.database_name as database');
+        }else{
+            $databaseHis = DatabaseTableHistoricalRecord::latest()
+            ->crossJoin('database_historical_records', 'database_table_historical_records.database_id', '=', 'database_historical_records.id')
+                ->select('database_table_historical_records.*', 'database_historical_records.database_name as database');    
         }
-
-        if(!empty($startDate)) {
-            $databaseHis = $databaseHis->whereDate("created_at",">=",$startDate);
+        
+        if($request->table_name){
+            $databaseHis = $databaseHis->where('database_table_historical_records.database_name','like','%'.$request->table_name.'%');
         }
-
-        if(!empty($endDate)) {
-            $databaseHis = $databaseHis->whereDate("created_at","<=",$endDate);
-        }
-
+        $databaseHis = $databaseHis->orderBy('database_table_historical_records.size', 'desc');
         $databaseHis = $databaseHis->paginate(20);
 
         $page = $databaseHis->currentPage();
+        //return $databaseHis;
 
         if ($request->ajax()) {
-            $tml = (string) view("databasetable.partial.list", compact('databaseHis', 'page'));
+            $tml = (string) view("database.partial.list-table", compact('databaseHis', 'page'));
             return response()->json(["code" => 200, "tpl" => $tml, "page" => $page]);
         }
 
-        return view('databasetable.index', compact('databaseHis','page'));
-    }
-
-    public function states(Request $request)
-    {
-
-        return view('databasetable.states');
-
-    }
-
-    public function processList()
-    {
-        return response()->json(["code" => 200 , "records" => \DB::select("show processlist")]);
-    }
-
-    public function processKill(Request $request)
-    {
-        $id = $request->get("id");
-        return response()->json(["code" => 200 , "records" => \DB::statement("KILL $id")]);
+        return view('database.tables', compact('databaseHis','page'));
     }
 }

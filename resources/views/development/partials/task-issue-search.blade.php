@@ -99,6 +99,15 @@
         <div class="col-md-2 pd-sm">
             <input placeholder="E. Date" type="text" class="form-control estimate-date_picker" id="estimate_date_picker" name="estimate_date" >
         </div>
+
+        <div class="col-md-2 pd-sm">
+            <select class="form-control" name="is_estimated" id="is_estimated">
+                <option {{$request->get('is_estimated')=='' ? 'selected' : ''}} value="">All</option>
+                <option {{$request->get('is_estimated')=='null' ? 'selected' : ''}} value="null">Not Estimated Yet</option>
+                <option {{$request->get('is_estimated')=='not_approved' ? 'selected' : ''}} value="not_approved">Not Approved By Admin</option>
+            </select>
+        </div>
+
         <div class="col-md-1 pd-sm">
             {{--
             @if ( isset($_REQUEST['show_resolved']) && $_REQUEST['show_resolved'] == 1 )

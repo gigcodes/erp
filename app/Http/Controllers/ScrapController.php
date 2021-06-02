@@ -2018,6 +2018,59 @@ class ScrapController extends Controller
         }
     }
 
+    public function updateNode(Request $request)
+    {
+        if ($request->name && $request->server_id) {
+            $scraper = Scraper::where('scraper_name', $request->name)->first();
+            if (!$scraper->parent_id) {
+                $name = $scraper->scraper_name;
+            } else {
+                $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
+            }
+ 
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
+
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($curl);
+            curl_close($curl);
+            $duration = json_decode($response);
+            $duration = isset($duration->Process[0]->duration) ? $duration->Process[0]->duration : null ;            
+            if ($response) {
+                return response()->json(["code" => 200, "message" => "Script Restarted", 'duration' => $duration]);
+            } else {
+                return response()->json(["code" => 500, "message" => "Check if Server is running"]);
+            }
+
+        }
+    }
+
+    public function killNode(Request $request)
+    {
+        if ($request->name && $request->server_id) {
+            $scraper = Scraper::where('scraper_name', $request->name)->first();
+            if (!$scraper->parent_id) {
+                $name = $scraper->scraper_name;
+            } else {
+                $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
+            }
+
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/kill-scraper?filename=' . $name . '.js'; 
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($curl);
+            curl_close($curl);
+            if ($response) {
+                return response()->json(["code" => 200, "message" => "Script Restarted"]);
+            } else {
+                return response()->json(["code" => 500, "message" => "Check if Server is running"]);
+            }
+
+        }
+    }
+
     public function saveChildScraper(Request $request)
     {
         $scraper = Scraper::where('scraper_name', $request->scraper_name)->whereNull('parent_id')->first();
@@ -2050,10 +2103,10 @@ class ScrapController extends Controller
         $requestData->setMethod('POST');
         $requestData->request->add([
             'priority'    => 1,
-            'issue'       => $request->message, // issue detail 
+            'issue'       => $request->message, // issue detail
             'status'      => "Planned",
             'module'      => "Scraper",
-            'subject'     => $request->subject, // enter issue name 
+            'subject'     => $request->subject, // enter issue name
             'assigned_to' => 6,
         ]);
         app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
@@ -2287,6 +2340,47 @@ class ScrapController extends Controller
         ]);
 
         return response()->json(["code" => 200, "data" => [], "message" => "History saved successfully"]);
+    }
+
+
+    public function getServerStatistics(Request $request)
+    {
+        $servers = Scraper::whereNotNull('server_id')->groupBy('server_id')->pluck('server_id', 'id')->toArray();
+        $scrapers = Scraper::whereNotNull('server_id');
+
+        if($request->has('q') && !empty($request->get('q')))
+        {
+            $scrapers->where('scraper_name','LIKE','%'.$request->get('q').'%');
+        }
+        $scrapers = $scrapers->select('id','server_id','scraper_name','scraper_start_time')->get();
+        $data = array();
+        foreach ($scrapers as $scraper) {
+            if($scraper->scraper_start_time >= 0  && $scraper->scraper_start_time <= 3){
+                $data[$scraper->server_id][3][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 3  && $scraper->scraper_start_time <= 6){
+                $data[$scraper->server_id][6][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 6  && $scraper->scraper_start_time <= 9){
+                $data[$scraper->server_id][9][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 9  && $scraper->scraper_start_time <= 12){
+                $data[$scraper->server_id][12][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 12  && $scraper->scraper_start_time <= 15){
+                $data[$scraper->server_id][15][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 15  && $scraper->scraper_start_time <= 18){
+                $data[$scraper->server_id][18][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 18  && $scraper->scraper_start_time <= 21){
+                $data[$scraper->server_id][21][] = $scraper->scraper_name;
+            }
+            elseif($scraper->scraper_start_time > 21  && $scraper->scraper_start_time <= 24){
+                $data[$scraper->server_id][24][] = $scraper->scraper_name;
+            }
+        }
+        return view()->make('scrap.server-statistics',compact('servers', 'data'));
     }
 
 

@@ -3896,7 +3896,7 @@ class WhatsAppController extends FindByNumberController
                             throw new \Exception($e->getMessage(), 1);
                             
                         }
-                        $message->message = $result.' ( '.$message->message.' )';
+                        $message->message = $result;
                     }
                 }
                 if ($context == 'customer') {
