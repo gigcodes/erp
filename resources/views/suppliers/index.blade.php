@@ -179,6 +179,8 @@
 
     @include('purchase.partials.modal-email')
     @include('suppliers.partials.modal-emailToAll')
+    @include('suppliers.partials.history-model')
+
     <div class="row">
     <div class="mt-3 col-md-12">
       <table class="table table-bordered table-responsive table-striped">
@@ -332,6 +334,7 @@
 					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></a>
 					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></a>
 					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load Auto PDF"><img src="/images/icon-pdf.svg" alt=""></a>
+					<a type="button" class="btn btn-xs btn-image show-translate-history"  data-id="{{$supplier->id}}"  title="Show history"><img src="/images/history.svg" alt=""></a>
 				</td>
 					<!--td>
 						<input class="supplier-update-status" type="checkbox" data-id="{{ $supplier->id }}" <?php echo ($supplier->supplier_status_id == 1) ? "checked" : "" ?> data-toggle="toggle" data-onstyle="secondary" data-width="10">
@@ -621,6 +624,42 @@
              includeSelectAllOption: true
            });
         });
+
+    $(document).on("click",".show-translate-history",function(e) {
+        e.preventDefault();
+        var supplier = $(this).data('id');
+        $.ajax({
+            url: '/supplier/trasnlate/history',
+            type: 'POST',
+            data : { _token: "{{ csrf_token() }}", supplier: supplier},
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                if(result.code == 200) {
+                    var t = '';
+                    $.each(result.data,function(k,v) {
+                        t += `<tr><td>`+v.id+`</td>`;
+                        t += `<td>`+v.original_msg+`</td>`;
+                        t += `<td>`+v.translate_msg+`</td>`;
+                        t += `<td>`+v.error_log+`</td>`;
+                        t += `<td>`+v.created_at+`</td></tr>`;
+                    });
+                    if( t == '' ){
+                        t = '<tr><td colspan="5" class="text-center">No data found</td></tr>';
+                    }
+                }
+                $("#category-history-modal").find(".show-list-records").html(t);
+                $("#category-history-modal").modal("show");
+            },
+            error: function (){
+                $("#loading-image").hide();
+            }
+        });
+    });
+
     $(document).on('click', '.set-reminder', function() {
         let supplierId = $(this).data('id');
         let frequency = $(this).data('frequency');

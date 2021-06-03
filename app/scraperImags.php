@@ -10,6 +10,7 @@ class scraperImags extends Model
     protected $fillable = [
         'website_id', 
         'img_name', 
+        'store_website',
         'img_url', 
     ];
 

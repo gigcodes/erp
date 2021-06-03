@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Helpers\OrderHelper;
 use App\OrderStatus;
 use App\OrderReport;
 use App\Order;
+use App\Refund;
 use Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\Paginator;
 
 class OrderReportController extends Controller
 {
@@ -99,6 +103,51 @@ class OrderReportController extends Controller
   		return redirect()->back()->with('message', 'Order status was created successfully');
   	}
 
+    public function orderRefundStatusMessage(Request $request){
+      $page = $request->page;
+      $paginate = 10;
+      //return 'asdfsfg';
+      $orders = DB::table('orders')
+      ->join('customers','orders.customer_id','customers.id')
+      ->select('orders.id', 'customer_id','orders.created_at as date', DB::raw("'order' as type"),'customers.phone', 'customers.name','order_status_id','estimated_delivery_date');
+
+      $order_n_refunds = DB::table('return_exchanges')
+      ->join('customers','return_exchanges.customer_id','customers.id')
+      ->select('return_exchanges.id', 'customer_id','return_exchanges.created_at as date', DB::raw("'refund' as type"),'customers.phone','customers.name',DB::raw("'' as order_status_id"),DB::raw("return_exchanges.est_completion_date as estimated_delivery_date"))
+      ->union($orders)
+      ->orderBy('date',"DESC")
+      ->get();
+
+      $orderStatusList = OrderStatus::all();
+      // $slice = array_slice($refunds->toArray(), $paginate * ($page - 1), $paginate);
+      // $order_n_refunds = Paginator::make($slice, count($refunds), $paginate);
+      $order_status_list = OrderHelper::getStatus();
+      return view("orders.status-history", compact('order_n_refunds','order_status_list','orderStatusList'));
+    }
+
+    public function lastCommunicated($type = "any")
+    {
+        $q = $this->chatMessage()->whereNotIn("status", ['7', '8', '9', '10']);
+
+        if (in_array($type, ['unread', 'unapproved','chatbot_unapproved'])) {
+            if($type == 'unread')  {
+              $type = 0;
+            }else if($type == 'chatbot_unapproved')  {
+              $type = 11;
+            }else{
+              $type = 1;
+            }
+            $q = $q->where('chat_messages.status', $type);
+        }else if ($type == "last_communicated") {
+            $q = $q->where('chat_messages.message','!=', '')->where(function($q){
+              $q->where("group_id","<",0)->orWhere("group_id","")->orWhereNull("group_id");
+            });
+        }else if ($type == "last_received") {
+            $q = $q->where('chat_messages.number','=', $this->phone)->where('chat_messages.message','!=', '');
+        } 
+
+        return $q->orderBy("created_at", "DESC")->first();
+    }
     /**
      * Display the specified resource.
      *

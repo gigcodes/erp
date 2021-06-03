@@ -378,8 +378,7 @@ class CouponController extends Controller
     }
 
     public function addRules(Request $request)
-    {
-
+    {   
         $store_website = StoreWebsite::where('id', $request->store_website_id)->first();
         $store_lables  = [];
         if(!empty($request->store_labels)) {

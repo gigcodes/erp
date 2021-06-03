@@ -131,9 +131,10 @@
         <div class="col-lg-12 margin-tb">
 	        <div class="productGrid " id="productGrid">
         		<div class="infinite-scroll-products" style="padding-bottom: 60px">
-	               <div class="infinite-scroll-products-inner">
-                       @include("product-inventory.partials.grid")
-                   </div>
+
+                    <div class="infinite-scroll-products-inner">
+                        @include("product-inventory.partials.grid")
+                    </div>
             	   <div class="row">
             	   		{!! $products->appends(Request::except('page'))->links() !!}
             	   </div>
@@ -425,6 +426,33 @@
                     $('#product_id').val(product_id);
                     $('#color_id').val(color_id);
                     $("#no_of_product_will_affect_color").html(0);
+                }
+            });
+        });
+
+        $(document).on('click', '.add_purchase_product', function () {    
+            product_id = $(this).attr('data-id');
+           
+            $.ajax({
+                url: '/products/add/def_cust/'+product_id,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                },
+                beforeSend: function () {
+                  $("#loading-image").show();
+                },
+                success: function(result){
+                    $("#loading-image").hide();
+                    if(result.code == 200)
+                    {
+                        toastr['success'](result.message, 'success');
+                    }
+                },
+                error: function (){
+                    // toastr['error']('Oops, Something went wrong', 'error');
+                    $("#loading-image").hide();
                 }
             });
         });

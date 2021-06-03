@@ -64,6 +64,16 @@ class Category extends Model
     }
 
 
+    public static function website_name( $name )
+    {
+        $name = '"' . $name . '"';
+        $products = \App\ScrapedProducts::where("properties", "like", '%' . $name . '%')->select('website')->distinct()->get()->pluck('website')->toArray();
+        $web_name = implode(", ",$products);
+
+        return $web_name ? $web_name : '-';
+    }
+
+
     public static function hasProducts( $id )
     {
 

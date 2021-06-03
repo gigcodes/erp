@@ -167,15 +167,33 @@ class RepositoryController extends Controller
 
     private function updateDevTask($branchName){
         $devTaskId = null;
-        $usIt = explode($branchName, '-');
+        $usIt = explode('-', $branchName);
 
         if (count($usIt) > 1) {
             $devTaskId = $usIt[1];
+        }else{
+            $usIt = explode(' ',$branchName);            
+            if (count($usIt) > 1) {
+                $devTaskId = $usIt[1];
+            }
         }
 
         $devTask = DeveloperTask::find($devTaskId);
+        
+        \Log::info('updateDevTask call '.$branchName);
 
         if ($devTask) {
+            \Log::info('updateDevTask find success '.$branchName);            
+            try {
+
+                \Log::info('updateDevTask :: PR merge msg send .'.json_encode($devTask->user));
+                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($devTask->user->phone, $devTask->user->phone, $branchName.':: PR has been merged', false);
+            } catch (Exception $e) {
+                \Log::info('updateDevTask ::'. $e->getMessage());
+                \Log::error('updateDevTask ::'. $e->getMessage());
+
+            }
+
             $devTask->status = 'In Review';
             $devTask->save();
         }
@@ -206,6 +224,7 @@ class RepositoryController extends Controller
                 $this->updateBranchState($id, $source);
             }
 
+            \Log::info('updateDevTask calling...'.$source);
             $this->updateDevTask($source);
 
             // Deploy branch
@@ -245,6 +264,8 @@ class RepositoryController extends Controller
                 ]
             );
         }
+
+
         return redirect(url('/github/pullRequests'))->with([
             'message' => 'Branch merged successfully',
             'alert-type' => 'success'

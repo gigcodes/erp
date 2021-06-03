@@ -208,7 +208,7 @@ class SitejabberQAController extends Controller
         $accountsRemaining = Account::whereDoesntHave('reviews')->where('platform', 'sitejabber')->count();
         $remainingReviews = Review::whereHas('account')->whereNotIn('status', ['posted', 'posted_one'])->count();
         $sjs = SitejabberQA::where('type', 'question')->get();
-//        $setting = ActivitiesRoutines::where('action', 'sitejabber_review')->first();
+        $setting = ActivitiesRoutines::where('action', 'sitejabber_review')->first();
         $quickReplies = QuickReply::all();
 //        if (!$setting) {
 //            $setting = new ActivitiesRoutines();
@@ -216,7 +216,7 @@ class SitejabberQAController extends Controller
 //            $setting->times_a_day = 5;
 //            $setting->save();
 //        }
-//        $setting2 = ActivitiesRoutines::where('action', 'sitejabber_account_creation')->first();
+        $setting2 = ActivitiesRoutines::where('action', 'sitejabber_account_creation')->first();
 //        if (!$setting2) {
 //            $setting2 = new ActivitiesRoutines();
 //            $setting2->action = 'sitejabber_account_creation';
@@ -224,7 +224,7 @@ class SitejabberQAController extends Controller
 //            $setting2->save();
 //        }
 //
-//        $setting3 = ActivitiesRoutines::where('action', 'sitejabber_qa_post')->first();
+        $setting3 = ActivitiesRoutines::where('action', 'sitejabber_qa_post')->first();
 //        if (!$setting3) {
 //            $setting3 = new ActivitiesRoutines();
 //            $setting3->action = 'sitejabber_qa_post';
@@ -232,7 +232,8 @@ class SitejabberQAController extends Controller
 //            $setting3->save();
 //        }
 
-        return view('sitejabber.accounts', compact('reviewsPostedToday', 'accounts', 'sjs', 'setting', 'setting2', 'setting3', 'accountsRemaining', 'totalAccounts', 'remainingReviews', 'brandReviews', 'negativeReviews', 'quickReplies', 'request'));
+        //return view('sitejabber.accounts', compact('reviewsPostedToday', 'accounts', 'sjs', 'setting', 'setting2', 'setting3', 'accountsRemaining', 'totalAccounts', 'remainingReviews', 'brandReviews', 'negativeReviews', 'quickReplies', 'request'));
+        return view('sitejabber.accounts', compact('reviewsPostedToday', 'accounts', 'sjs', 'setting', 'setting2', 'setting3', 'accountsRemaining', 'remainingReviews', 'brandReviews', 'negativeReviews', 'quickReplies', 'request'));
     }
 
     /**

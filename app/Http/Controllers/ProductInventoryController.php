@@ -23,6 +23,11 @@ use Illuminate\Support\Facades\Validator;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use \App\Jobs\UpdateFromSizeManager;
 use DB;
+use Illuminate\Support\Facades\Input;
+use App\Imports\DiscountFileImport;
+use App\SupplierBrandDiscount;
+use PhpOffice\PhpSpreadsheet\Reader\Xls;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 
 class ProductInventoryController extends Controller
 {
@@ -1014,12 +1019,41 @@ class ProductInventoryController extends Controller
 			           OR p.name IS NULL THEN 1 ELSE 0 END) AS missing_name,
 			       sum(CASE WHEN p.short_description = ""
 			           OR p.short_description IS NULL THEN 1 ELSE 0 END) AS missing_short_description,
+			       sum(CASE WHEN p.price = ""
+			           OR p.price IS NULL THEN 1 ELSE 0 END) AS missing_price,
+			       sum(CASE WHEN p.size = ""
+			           OR p.size IS NULL AND p.measurement_size_type IS NULL THEN 1 ELSE 0 END) AS missing_size,
+			       sum(CASE WHEN p.measurement_size_type = ""
+			           OR p.measurement_size_type AND p.size = "" OR p.size IS NULL THEN 1 ELSE 0 END) AS missing_measurement,
 			       `p`.`supplier`
 				')
 				->where('p.supplier','<>','');
 				$query = $query->groupBy('p.supplier')->havingRaw("missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ");
 
 		$reportData = $query->get();
+
+		$scrapped_query = DB::table('scraped_products as p')
+				->selectRaw('
+				   sum(CASE WHEN p.category = ""
+			           OR p.category IS NULL THEN 1 ELSE 0 END) AS missing_category,
+			       sum(CASE WHEN p.color = ""
+			           OR p.color IS NULL THEN 1 ELSE 0 END) AS missing_color,
+			       sum(CASE WHEN p.composition = ""
+			           OR p.composition IS NULL THEN 1 ELSE 0 END) AS missing_composition,
+			       sum(CASE WHEN p.title = ""
+			           OR p.title IS NULL THEN 1 ELSE 0 END) AS missing_name,
+			       sum(CASE WHEN p.description = ""
+			           OR p.description IS NULL THEN 1 ELSE 0 END) AS missing_short_description,
+			       sum(CASE WHEN p.price = ""
+			           OR p.price IS NULL THEN 1 ELSE 0 END) AS missing_price,
+			       sum(CASE WHEN p.size = ""
+			           OR p.size IS NULL THEN 1 ELSE 0 END) AS missing_size,
+			       `p`.`supplier`
+				')
+				->where('p.supplier','<>','');
+				$scrapped_query = $scrapped_query->groupBy('p.supplier')->havingRaw("missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ");
+
+		$scrappedReportData = $scrapped_query->get();
 		//dd($inventory_data);
         $inventory_data_count = $inventory_data->total();
         $status_list = \App\Helpers\StatusHelper::getStatus();
@@ -1043,7 +1077,7 @@ class ProductInventoryController extends Controller
         $products_categories = Category::attr(['name' => 'product_categories[]','data-placeholder' => 'Select a Category','class' => 'form-control select-multiple2', 'multiple' => true])->selected(request('product_categories',[]))->renderAsDropdown();
         $products_sku        = \App\Product::getPruductsSku();
         if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more", compact('inventory_data'));
-        return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku','status_list','inventory_data_count','supplier_list','reportData'));
+        return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku','status_list','inventory_data_count','supplier_list','reportData','scrappedReportData'));
     }
 
     public function inventoryListNew( Request $request ){
@@ -1074,14 +1108,48 @@ class ProductInventoryController extends Controller
 			           OR p.name IS NULL THEN 1 ELSE 0 END) AS missing_name,
 			       sum(CASE WHEN p.short_description = ""
 			           OR p.short_description IS NULL THEN 1 ELSE 0 END) AS missing_short_description,
+			       sum(CASE WHEN p.price = ""
+			           OR p.price IS NULL THEN 1 ELSE 0 END) AS missing_price,
+			       sum(CASE WHEN p.size = ""
+			           OR p.size IS NULL AND p.measurement_size_type IS NULL THEN 1 ELSE 0 END) AS missing_size,
+			       sum(CASE WHEN p.measurement_size_type = ""
+			           OR p.measurement_size_type AND p.size = "" OR p.size IS NULL THEN 1 ELSE 0 END) AS missing_measurement,
 			       `p`.`supplier`
 				')
 				->where('p.supplier','<>','');
 				$query = $query->groupBy('p.supplier')->havingRaw("missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ");
 
-		$reportData = $query->get();
+		$reportDatas = $query->get();
 
-    	return \Excel::download(new \App\Exports\ReportExport($reportData), 'export.xls');
+    	return \Excel::download(new \App\Exports\ReportExport($reportDatas), 'exports.xls');
+    }
+
+    public function downloadScrapReport() {
+    	
+		$query = DB::table('scraped_products as p')
+				->selectRaw('
+				   sum(CASE WHEN p.category = ""
+			           OR p.category IS NULL THEN 1 ELSE 0 END) AS missing_category,
+			       sum(CASE WHEN p.color = ""
+			           OR p.color IS NULL THEN 1 ELSE 0 END) AS missing_color,
+			       sum(CASE WHEN p.composition = ""
+			           OR p.composition IS NULL THEN 1 ELSE 0 END) AS missing_composition,
+			       sum(CASE WHEN p.title = ""
+			           OR p.title IS NULL THEN 1 ELSE 0 END) AS missing_name,
+			       sum(CASE WHEN p.description = ""
+			           OR p.description IS NULL THEN 1 ELSE 0 END) AS missing_short_description,
+			       sum(CASE WHEN p.price = ""
+			           OR p.price IS NULL THEN 1 ELSE 0 END) AS missing_price,
+			       sum(CASE WHEN p.size = ""
+			           OR p.size IS NULL THEN 1 ELSE 0 END) AS missing_size,
+			       `p`.`supplier`
+				')
+				->where('p.supplier','<>','');
+				$query = $query->groupBy('p.supplier')->havingRaw("missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ");
+
+		$reportDatas = $query->get();
+
+    	return \Excel::download(new \App\Exports\ReportExport($reportDatas), 'exports.xls');
     }
   
   public function inventoryHistory($id) {
@@ -1357,7 +1425,7 @@ class ProductInventoryController extends Controller
 			->orderBy("total","desc")
 			->get();
 
-		return view("product-inventory.brand-history",compact('inventory'));
+			return view("product-inventory.brand-history",compact('inventory'));
 	}
 
 	public function mergeScrapBrand(Request $request)
@@ -1377,6 +1445,195 @@ class ProductInventoryController extends Controller
 		}
 
 		return redirect()->back()->with('message', 'Product(s) updated successfully');
+
+	}
+
+
+	public function supplierDiscountFiles (Request $request) 
+	{
+		$suppliers = \App\Supplier::all();
+		$rows = \App\SupplierBrandDiscount::with('supplier', 'brand')->paginate(30);
+
+		return view('product-inventory.discount-files',compact('suppliers','rows'));
+	}
+
+	public function exportExcel(Request $request){
+
+		$this->validate($request, [
+            'excel' => 'required|file',
+        ]);
+
+        $file = $request->file('excel');
+
+        if ($file->getClientOriginalExtension() == 'xlsx') {
+            $reader = new Xlsx();
+        } else {
+            if ($file->getClientOriginalExtension() == 'xls') {
+                $reader = new Xls();
+            }
+        }
+
+        try{
+			$spreadsheet = $reader->load($file->getPathname()); 
+
+			$rows = $spreadsheet->getActiveSheet()->toArray();
+
+			if($rows[1][0] == 'Brand'){
+				foreach($rows as $key => $row){
+					if($key == 0 || $key == 1) continue;
+					$brand = trim($row[0]);
+
+					if ($brand == "TOD'S") {
+						$brand = 'TODS';
+					}
+					if ($brand == 'VALENTINO') {
+						$brand = 'VALENTINO GARAVANI';
+					}
+					if ($brand == 'SAINT LAURENT') {
+						$brand = 'YVES SAINT LAURENT';
+					}
+					if ($brand == 'MOSCHINO LOVE') {
+						$brand = 'MOSCHINO';
+					}
+					if ($brand == 'DIOR') {
+						$brand = 'CHRISTIAN DIOR';
+					}
+					if ($brand == "CHLOE'") {
+						$brand = 'CHLOE';
+					}
+
+					$brand = Brand::where('name', $brand)->first();
+					if(!$brand) {
+						continue;
+					}
+
+					$discount = new SupplierBrandDiscount();
+					$exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $row[1])->where('category', $row[2])->whereNull('generic_price')->where('condition_from_retail', $row[4])->where('condition_from_retail_exceptions', $row[5])->first();
+					if($exist_row) continue;
+					$discount->supplier_id = $request->supplier;
+					$discount->brand_id = $brand->id;
+					$discount->gender = $row[1];
+					$discount->category = $row[2];
+					// $discount->generic_price = $row['generic_price'];
+					$discount->exceptions = $row[3];
+					$discount->condition_from_retail = $row[4];
+					$discount->condition_from_retail_exceptions = $row[5];
+					$discount->save();	
+				}  
+			return redirect()->back()->with('success', 'Excel Imported Successfully!');
+
+			}
+			
+			if($rows[0][1] == 'SS21'){
+				$array1 = $array2 = []; $first_time1 = 1;
+				foreach($rows as $key => $row){
+					if($row[1] == 'SS21' || $row[1] == 'ST' || $key == 2 ) continue;
+
+					$array1[] = [$row[1], $row[2]];
+					$array2[] = [$row[4], $row[5]];
+					
+				}
+				$categories = [];
+				$cat = [];
+				foreach($array1 as $key => $row){
+					if($row[0] == null && $row[1] == null){
+						if($cat[0][0] == null && $cat[0][1] == null){
+							unset($cat[0]);
+						}
+						$categories[] = $cat;
+						$cat = [];
+					}	
+					$cat[] = $row;		
+				}
+				if($cat[0][0] == null && $cat[0][1] == null){
+					unset($cat[0]);
+				}
+				$categories[] = $cat; 
+				$cat = [];
+				foreach($array2 as $key => $row){
+					if($row[0] == null && $row[1] == null){
+						if($cat[0][0] == null && $cat[0][1] == null){
+							unset($cat[0]);
+						}
+						$categories[] = $cat;
+						$cat = [];
+					}	
+					$cat[] = $row;		
+				}
+				if($cat[0][0] == null && $cat[0][1] == null){
+					unset($cat[0]);
+				}
+				$categories[] = $cat; 
+				$total = 1; 
+				foreach($categories as $key_ => $cats){
+					if(isset($cats[0])){
+						array_unshift($cats, []);
+					}
+					foreach($cats as $key => $cat){
+						if($key == 1) {
+							$category = trim($cat[0]);
+							$gender = strpos($category, 'WOMAN') !== false ? 'WOMAN' : 'MAN';
+							$category = str_replace(' + ACC', '', $category);
+							continue;
+						}else if($key == 2) {
+							$gen_price = $cat[0];
+							$generic_price = trim(str_replace('GENERIC PRICE: COST +', '', $gen_price));
+							$generic_price = trim(str_replace('GENERIC PRICE: COST+', '', $generic_price));
+							continue;
+						}else if($key == 3 || $key == 0){
+							continue;
+						}else{
+							$brand = trim($cat[0]);
+							$condition_from_retail = $cat[1] !== null ? str_replace('C+', '', $cat[1]) : $condition_from_retail;
+							if($brand == "TOD'S") {
+								$brand = 'TODS';
+							}
+							else if($brand == 'VALENTINO') {
+								$brand = 'VALENTINO GARAVANI';
+							}
+							else if($brand == 'SAINT LAURENT') {
+								$brand = 'YVES SAINT LAURENT';
+							}
+							else if($brand == 'MOSCHINO LOVE') {
+								$brand = 'MOSCHINO';
+							}
+							else if($brand == 'DIOR') {
+								$brand = 'CHRISTIAN DIOR';
+							}
+							else if($brand == "CHLOE'") {
+								$brand = 'CHLOE';
+							}
+			
+							$brand = Brand::where('name', $brand)->first();
+			
+							if(!$brand) {
+								continue;
+							}
+			
+							$discount = new SupplierBrandDiscount();
+							$exist_row = SupplierBrandDiscount::where('brand_id', $brand->id)->where('supplier_id', $request->supplier)->where('gender', $gender)->where('category', $category)->where('generic_price', $generic_price)->first();
+							if($exist_row) continue;
+							$discount->supplier_id = $request->supplier;
+							$discount->brand_id = $brand->id;
+							$discount->gender = $gender;
+							$discount->category = $category;
+							$discount->generic_price = $generic_price; 
+							$discount->condition_from_retail = $condition_from_retail; 
+							$discount->save();	
+						}
+					}
+				}
+			return redirect()->back()->with('success', 'Excel Imported Successfully!');
+
+			}
+
+		}catch(\Exception $e){
+
+			return redirect()->back()->with('error', 'Something went wrong, please check your file!');
+
+		}
+
+		return redirect()->back()->with('error', 'Something went wrong, please check your file!');
 
 	}
 
