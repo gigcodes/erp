@@ -336,6 +336,7 @@ class ScrapController extends Controller
                 $scrapedProduct->price_eur = (float) $request->get('price');
             }
             $scrapedProduct->discounted_price  = $request->get('discounted_price');
+            $scrapedProduct->discounted_percentage = (float) $request->get('discounted_percentage',0.00);
             $scrapedProduct->original_sku      = trim($request->get('sku'));
             $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
             $scrapedProduct->validated         = empty($errorLog["error"]) ? 1 : 0;
@@ -378,6 +379,7 @@ class ScrapController extends Controller
             $scrapedProduct->properties       = $propertiesExt;
             $scrapedProduct->currency         = ProductHelper::getCurrency($request->get('currency'));
             $scrapedProduct->price            = (float) $request->get('price');
+            $scrapedProduct->discounted_percentage = (float) $request->get('discounted_percentage',0.00);
             if ($request->get('currency') == 'EUR') {
                 $scrapedProduct->price_eur = (float) $request->get('price');
             }
