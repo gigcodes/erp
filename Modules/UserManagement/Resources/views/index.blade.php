@@ -122,7 +122,9 @@
                         </form>
                     </div>
                     @if( auth()->user()->isAdmin() )
-                        <button class="btn btn-secondary btn-xs pull-right mt-0 permission-request">Permission request ( {{$permissionRequest}} )</button>
+                        <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 permission-request">Permission request ( {{$permissionRequest}} )</button>
+                        <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 erp-request">ERP IPs</button>
+                        <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 system-request" data-target="#system-request" data-modal="toggle">System IPs</button>
                     @endif
                 </div>
             </div>
@@ -163,6 +165,62 @@
                          <tbody class="show-list-records" >
                          </tbody>
                     </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="erp-request" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">User Login IPs</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12" id="permission-request">
+                    <table class="table fixed_header">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>User Email</th>
+                                <th>IP</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                         <tbody class="show-list-records" >
+                         </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="system-request" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">System IPs</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12" id="permission-request">
+                    
+                    @php
+                        $shell_list = shell_exec("bash webaccess-firewall.sh -f list");
+                        echo "<pre>$shell_list</pre>";
+                    @endphp
                 </div>
             </div>
             <div class="modal-footer">
@@ -367,6 +425,48 @@
                 }
                 $("#permission-request").find(".show-list-records").html(t);
                 $("#permission-request").modal("show");
+            },
+            error: function (){
+                $("#loading-image").hide();
+            }
+        });
+    });
+
+    $(document).on("click",".erp-request",function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/users/loginips',
+            type: 'GET',
+            data : { _token: "{{ csrf_token() }}"},
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                if(result.code == 200) {
+                    var t = '';
+                    $.each(result.data,function(k,v) {
+                        button = status='';
+                        if(v.is_active){
+                            status = 'Active';
+                            button = '<button type="button" class="btn btn-warning ml-3 statusChange" data-status="Inactive" data-id="'+v.id+'">Inactive</button>';
+                        }else{
+                            status = 'Inactive';
+                            button = '<button type="button" class="btn btn-success ml-3 statusChange" data-status="Active" data-id="'+v.id+'">Active</button>';
+                        }
+                        t += `<tr><td>`+v.created_at+`</td>`;
+                        t += `<td>`+v.email+`</td>`;
+                        t += `<td>`+v.ip+`</td>`;
+                        t += `<td>`+status+`</td>`;
+                        t += `<td>`+button+`</td>`;
+                    });
+                    if( t == '' ){
+                        t = '<tr><td colspan="5" class="text-center">No data found</td></tr>';
+                    }
+                }
+                $("#erp-request").find(".show-list-records").html(t);
+                $("#erp-request").modal("show");
             },
             error: function (){
                 $("#loading-image").hide();

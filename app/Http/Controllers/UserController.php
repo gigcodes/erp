@@ -669,7 +669,8 @@ class UserController extends Controller
 		$user_ips = UserLoginIp::join('users', 'user_login_ips.user_id', '=', 'users.id')
 						->select('user_login_ips.*', 'users.email')
 						->get();
-		return view('users.ips', compact('user_ips'));
+		return response()->json( ["code" => 200 , "data" => $user_ips] );
+		//return view('users.ips', compact('user_ips'));
 	}
 	public function statusChange(Request $request)
 	{
