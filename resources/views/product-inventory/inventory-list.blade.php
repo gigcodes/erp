@@ -300,7 +300,7 @@ table tr td{
                     <tbody>
                         @foreach($scrappedReportData as $value)
                         <tr>
-                            <td>{{$value->supplier}}</td>
+                            <td>{{$value->website}}</td>
                             <td>{{$value->missing_category}}</td>
                             <td>{{$value->missing_color}}</td>
                             <td>{{$value->missing_composition}}</td>

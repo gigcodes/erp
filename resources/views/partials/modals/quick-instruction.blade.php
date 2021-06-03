@@ -14,14 +14,15 @@
         <div class="modal-body">
           <div class="form-group">
             @php
-              $quick_users_array = \App\Helpers::getUserArray(\App\User::all());
+              // $quick_users_array = \App\Helpers::getUserArray(\App\User::all());
             @endphp
 
             <strong>Assign to:</strong>
-            <select class="selectpicker form-control" data-live-search="true" data-size="15" name="assigned_to" title="Choose a User" id="quick_instruction_assiged_to" required>
-              @foreach ($quick_users_array as $index => $user)
+            <select class="globalSelect2 form-control"  data-ajax="{{ route('select2.user') }}" data-live-search="true" data-size="15" name="assigned_to" data-placeholder="Choose a User" id="quick_instruction_assiged_to" required>
+              <option></option>
+              {{-- @foreach ($quick_users_array as $index => $user)
                <option data-tokens="{{ $index }} {{ $user }}" value="{{ $index }}">{{ $user }}</option>
-             @endforeach
+             @endforeach --}}
            </select>
 
             @if ($errors->has('assigned_to'))
@@ -31,14 +32,15 @@
 
           <div class="form-group">
             @php
-              $quick_customers_array = \App\Customer::select(['id', 'name', 'email'])->get();
+              // $quick_customers_array = \App\Customer::select(['id', 'name', 'email'])->get();
             @endphp
 
             <strong>Customer:</strong>
-            <select class="selectpicker form-control" data-live-search="true" data-size="15" name="customer_id" title="Choose a Customer" id="quick_instruction_customer_id" required>
-              @foreach ($quick_customers_array as $index => $customer)
+            <select class="globalSelect2 form-control" data-ajax="{{ route('select2.customer') }}"  data-live-search="true" data-size="15" name="customer_id" data-placeholder="Choose a Customer" id="quick_instruction_customer_id" required>
+              <option></option>
+              {{-- @foreach ($quick_customers_array as $index => $customer)
                <option data-tokens="{{ $customer->id }} {{ $customer->name }} {{ $customer->email }}" value="{{ $customer->id }}">{{ $customer->name }} - {{ $customer->email }}</option>
-             @endforeach
+             @endforeach --}}
            </select>
 
             @if ($errors->has('assigned_to'))

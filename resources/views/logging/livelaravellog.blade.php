@@ -84,7 +84,7 @@
                 <th width="10%">Filename</th>
                 <th width="10%">Channel</th>
                 <th width="50%">Log</th>
-                <th width="10%">Action</th>
+                <th width="13%">Action</th>
             </tr>
             </thead>
             <tbody id="content_data">
@@ -121,6 +121,34 @@
 				  <button type="submit" class="btn btn-secondary">Assign</button>
 				</div>
 			</form>
+        </div>
+      </div>
+    </div>
+    
+    <div id="view_error" class="modal fade" role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form action="{{ url('logging/assign') }}" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h4 class="modal-title">Assign Task</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-striped">
+                        <tr>
+                            <th>Index</th>
+                            <th>Time</th>
+                        </tr>
+                        <tbody class="content">
+                            
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default close-setting" data-dismiss="modal">Close</button>
+                </div>
+            </form>
         </div>
       </div>
     </div>
@@ -502,6 +530,35 @@
                 toastr['error'](data.message, 'Error ocuured!');
                 $("#loading-image").hide();
             });
-         })
+        });
+        $(document).on('click','.view_error',function(event){
+            event.preventDefault();
+            console.log($(this).parent('td').siblings('td.expand-row.table-hover-cell').find('.td-full-container').text());
+            $.ajax({
+                url: '{{ action("LaravelLogController@liveLogsSingle") }}',
+                dataType: "json",
+                data: {
+                    msg : $(this).parent('td').siblings('td.expand-row.table-hover-cell').find('.td-full-container').text(),
+                },
+                beforeSend: function () {
+                    //$("#loading-image").show();
+                },
+            }).done(function (data) {
+                var $html = '';
+                $.each(data, function(i, item) {
+                    $html += '<tr>';
+                    $html += '<td>'+parseInt(i+1)+'</td>';
+                    $html += '<td>'+item+'</td>';
+                    $html += '</tr>';
+                });
+                $('#view_error table tbody.content').html($html);
+                $('#view_error').modal('show');
+                console.log($html);
+                //window.location.reload();
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                //toastr['error'](data.message, 'Error ocuured!');
+                //$("#loading-image").hide();
+            });
+        });
     </script>
 @endsection

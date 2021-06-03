@@ -25,6 +25,7 @@ table{border: 1px;border-radius: 4px;}
 table th{font-weight: normal;font-size: 15px;color: #000;}
 table td{font-weight: normal;font-size: 14px;color: #757575;}
 td button.btn {padding: 0;}
+div#plan-action textarea {height: 200px;}
 </style>
 <div class="row mb-5">
     <div class="col-lg-12 margin-tb">
@@ -101,10 +102,11 @@ td button.btn {padding: 0;}
                 <th>Budget</th>
                 <th>Basis</th>
                 <th>Implications</th>
+                <th width="15%">Solutions</th>
                 <th>DeadLine</th>
                 <th>status</th>
                 <th>Date</th>
-                <th width="15%">Action</th>
+                <th width="15%" style="width: 20%;">Action</th>
             </tr>
         </thead>
         <tbody class="searchable">
@@ -128,6 +130,7 @@ td button.btn {padding: 0;}
                 <td>{{$record->budget}}</td>
                 <td>{{$record->basis}}</td>
                 <td>{{$record->implications}}</td>
+                <td><input type="text" class="form-control solutions" name="solutions" data-id="{{$record->id}}"><button type="button" class="btn btn-image show-solutions" data-id="{{$record->id}}"><i class="fa fa-info-circle"></i></button></td>
                 <td class="r-date">{{$record->deadline}}</td>
                 <td>{{$record->status}}</td>
                 <td class="r-date">{{$record->date}}</td>
@@ -256,7 +259,7 @@ td button.btn {padding: 0;}
 </div>
 
 <div class="modal fade" id="plan-action" tabindex="-1" role="dialog" aria-labelledby="plan-action" aria-hidden="true">
-  <div class="modal-dialog modal-md" role="document">
+  <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="plan-action">Plan Action</h5>
@@ -269,39 +272,90 @@ td button.btn {padding: 0;}
           <div class="modal-body">
             <div class="container-fluid">
                   @csrf
+                  <table class="table table-bordered">
+                    <tr>
+                      <td>
+                        <label  class="col-form-label">Strength</label>
+                        <textarea name="strength" class="form-control"></textarea>
+                      </td>
+                      <td>
+                        <label  class="col-form-label">Weakness</label>
+                        <textarea name="weakness" class="form-control"></textarea>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <label  class="col-form-label">Opportunity</label>
+                        <textarea name="opportunity" class="form-control"></textarea>
+                      </td>
+                      <td>
+                        <label  class="col-form-label">Threat</label>
+                        <textarea name="threat" class="form-control"></textarea>
+                      </td>
+                    </tr>
+                  </table>
                   <div class="row subject-field">
-                      <div class="col-md-6">
+                      <!-- <div class="col-md-6">
                           <div class="form-group">
                             <label  class="col-form-label">Strength</label>
                             <textarea name="strength"></textarea>
                           </div>
-                      </div>
-                      <div class="col-md-6">
+                      </div> -->
+                      <!-- <div class="col-md-6">
                           <div class="form-group">
                             <label  class="col-form-label">Weakness</label>
                             <textarea name="weakness"></textarea>
                           </div>
-                      </div>
+                      </div> -->
                   </div>
                   <div class="row subject-field">
-                      <div class="col-md-6">
+                      <!-- <div class="col-md-6">
                           <div class="form-group">
                             <label  class="col-form-label">Opportunity</label>
                             <textarea name="opportunity"></textarea>
                           </div>
-                      </div>
-                      <div class="col-md-6">
+                      </div> -->
+                      <!-- <div class="col-md-6">
                           <div class="form-group">
                             <label  class="col-form-label">Threat</label>
                             <textarea name="threat"></textarea>
                           </div>
-                      </div>
+                      </div> -->
                   </div>
             </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             <button type="submit" class="btn btn-secondary">Save</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="plan-solutions" tabindex="-1" role="dialog" aria-labelledby="plan-solutions" aria-hidden="true">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="plan-action">Plan Solutions</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+        <form method="post" id="planactionadd" action="#">
+          <input type="hidden" name="id" value="">
+          <div class="modal-body">
+            <div class="container-fluid">
+              <table class="table table-bordered">
+                <tr>
+                  <th>Plans</th>
+                </tr>
+                <tbody class="show-plans-here"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           </div>
       </form>
     </div>
@@ -357,23 +411,23 @@ td button.btn {padding: 0;}
                       <div class="col-md-6">
                         <div class="form-group">
                           <label class="col-form-label">Type</label>
-                          <select class="form-control" name="type">
-                              <option value="">Select</option>
+                          <input type="text" class="form-control" name="type" list="type" />
+                            <datalist id="type">
                               @foreach($typeList as $value )
-                                  <option value="{{$value->type}}">{{$value->type}}</option>
-                              @endforeach;
-                          </select>
+                                    <option value="{{$value->type}}">{{$value->type}}</option>
+                                @endforeach;
+                            </datalist>
                         </div>
                       </div>
                       <div class="col-md-6">
                         <div class="form-group">
                           <label class="col-form-label">Category</label>
-                          <select class="form-control" name="category">
-                              <option value="">Select</option>
-                              @foreach($categoryList as $value )
+                          <input type="text" class="form-control" name="category" list="category" />
+                          <datalist id="category">
+                            @foreach($categoryList as $value )
                                   <option value="{{$value->category}}">{{$value->category}}</option>
                               @endforeach;
-                          </select>
+                          </datalist>
                         </div>
                       </div>
                     </div>
@@ -432,12 +486,12 @@ td button.btn {padding: 0;}
                   <div class="col-md-6">
                          <div class="form-group">
                             <label class="col-form-label">Basis:</label>
-                            <select class="form-control" name="basis">
-                                <option value="">Select</option>
-                                @foreach($basisList as $value )
+                            <input type="text" class="form-control" name="basis" list="basis" />
+                            <datalist id="basis">
+                              @foreach($basisList as $value )
                                     <option value="{{$value->status}}">{{$value->status}}</option>
                                 @endforeach;
-                            </select>
+                            </datalist>
                           </div>
                       </div>
                       <div class="col-md-6">
@@ -461,8 +515,6 @@ td button.btn {padding: 0;}
                           </div>
                     </div>
                   </div>
-                  <!-- <div class="row">
-                  </div> -->
                   <div class="row remark-field hidden" >
                       <div class="col-md-12">
                          <div class="form-group">
@@ -618,6 +670,55 @@ $(document).on("click",".plan-action",function(ele) {
   }).fail(function (jqXHR, ajaxOptions, thrownError) {
       alert('No response from server');
   });
+});
+$(document).on("click",".show-solutions",function(ele) {
+  var id = $(this).data('id');
+  $.ajax({
+      url: "/plan/plan-action/solutions-get/"+id,
+      beforeSend: function () {
+          $("#loading-image").show();
+      }
+  }).done(function (data) {
+    console.log(data);
+      $("#loading-image").hide();
+      //show-plans-here
+      var $html='';
+      $.each(data, function(i, item) {
+          $html+="<tr>";
+          $html+="<td>"+item.solution+"</td>";
+          $html+="</tr>";
+      });
+      $('.show-plans-here').html($html)
+      $("#plan-solutions").modal("show");
+  }).fail(function (jqXHR, ajaxOptions, thrownError) {
+      alert('No response from server');
+  });
+});
+$(document).on("keyup",".solutions",function(event) {
+  if (event.keyCode === 13) {
+    event.preventDefault();
+      if($(this).val().length > 0){
+        $.ajax({
+            type: 'POST',
+            url: "/plan/plan-action/solutions-store",
+            data: { 
+              _token: "{{ csrf_token() }}",
+              solution: $(this).val(),
+              id: $(this).data('id')
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function (data) {
+          console.log(data.strength);
+            $("#plan-action").modal("hide");
+            toastr["success"]('Data save successfully.');
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            $("#plan-action").modal("hide");
+            toastr["error"]('An error occured!');
+        });
+      }
+  }
 });
 $(document).on("submit","#planactionadd",function(event) {
   event.preventDefault();

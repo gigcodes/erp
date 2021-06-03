@@ -12,6 +12,7 @@ use App\PlanCategories;
 use Illuminate\Support\Facades\Validator;
 use Storage;
 use File;
+use Illuminate\Support\Facades\DB;
 
 class PlanController extends Controller
 {
@@ -25,6 +26,7 @@ class PlanController extends Controller
     {
         $query = Plan::whereNull('parent_id');
         $basisList = PlanBasisStatus::all();
+
         $typeList = PlanTypes::all();
         $categoryList = PlanCategories::all();
 
@@ -70,6 +72,34 @@ class PlanController extends Controller
                $request->all(),
                $rules
             );
+            $type = PlanTypes::find($request->type);
+            if(!$type){
+                $data = array(
+                    'type' => $request->type,
+                );
+
+                PlanTypes::insert($data);
+            }
+
+            $category = PlanCategories::find($request->category);
+            if(!$category){
+                $data = array(
+                    'category' => $request->category,
+                );
+
+                PlanCategories::insert($data);
+            }
+
+            $basis = PlanBasisStatus::find($request->basis);
+            if(!$basis){
+                $data = array(
+                    'status' => $request->basis,
+                );
+
+                PlanBasisStatus::insert($data);
+            }
+            $typeList = PlanTypes::all();
+            $categoryList = PlanCategories::all();
             //If validation fail send back the Input with errors
             if($validation->fails()) {
                 //withInput keep the users info
@@ -213,14 +243,32 @@ class PlanController extends Controller
     public function planActionStore(Request $request){
         $data = Plan::where('id' ,$request->id)->first();
         if($data){
-            $data->strength = $request->strength;
-            $data->weakness = $request->weakness;
-            $data->opportunity = $request->opportunity;
-            $data->threat = $request->threat;
+            $data->strength = $request->strength."\n";
+            $data->weakness = $request->weakness."\n";
+            $data->opportunity = $request->opportunity."\n";
+            $data->threat = $request->threat."\n";
             $data->save();
             return response()->json(["code" => 200,"message" => 'Your data saved sucessfully.']);
         }
         return response()->json(["code" => 500,"message" => 'Data not found!']);
     }
 
+    public function planSolutionsStore(Request $request){
+        if($request->solution && $request->id){
+            $data = array(
+                'solution' => $request->solution,
+                'plan_id' => $request->id,
+            );
+            DB::table('plan_solutions')->insert($data);
+            return response()->json(["code" => 200,"message" => 'Your data saved sucessfully.']);
+        }
+        return response()->json(["code" => 500,"message" => 'Data not found!']);
+    }
+    public function planSolutionsGet(Request $request,$id){
+        if($id){
+            $data = DB::table('plan_solutions')->where('plan_id',$id)->get();
+            return $data;
+        }
+        return response()->json(["code" => 500,"message" => 'Data not found!']);
+    }
 }
