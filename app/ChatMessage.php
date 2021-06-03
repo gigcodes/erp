@@ -296,6 +296,13 @@ class ChatMessage extends Model
         return ($limit) ? json_decode($limit->val,true) : [];
     }
 
+    public static function getQueueTime()
+    {
+        $limit  = \App\Setting::where("name","is_queue_sending_time")->first();
+        
+        return ($limit) ? json_decode($limit->val,true) : [];
+    }
+
     public static function getStartTime()
     {
         $limit  = \App\Setting::where("name","is_queue_send_start_time")->first();
