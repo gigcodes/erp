@@ -24,7 +24,7 @@
 <div class="form-group">
   <strong>Date :</strong>
   <div class='input-group date' id='date_of_payment'>
-    <input type='text' class="form-control" name="date" value="{{ date('Y-m-d') }}" />
+    <input type='text' class="form-control" name="date" value="{{ request('date') ?? date('Y-m-d') }}" />
 
     <span class="input-group-addon">
       <span class="glyphicon glyphicon-calendar"></span>
@@ -69,7 +69,7 @@
 
         <div class="form-group">
         <strong>Note:</strong>
-        <textarea name="note" rows="4" cols="50" class="form-control">{{ old('note') }}</textarea>
+        <textarea name="note" rows="4" cols="50" class="form-control">{{ request('note',old('note'))  }}</textarea>
 
         @if ($errors->has('note'))
             <div class="alert alert-danger">{{$errors->first('note')}}</div>

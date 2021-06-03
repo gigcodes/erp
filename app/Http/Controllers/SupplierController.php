@@ -348,7 +348,9 @@ class SupplierController extends Controller
 		}
         $scrapper_name = preg_replace("/\s+/", "", $request->supplier);
         $supplier = Supplier::where('supplier',$scrapper_name)->get();
-        if(empty($supplier)){
+        
+        // if(empty($supplier)){
+        if($supplier->isEmpty()){   
           $supplier = Supplier::create($data);
           if ($supplier->id > 0) {
               $scraper = \App\Scraper::create([
@@ -1768,6 +1770,13 @@ class SupplierController extends Controller
         SupplierSize::create($request->all());
 
         return redirect()->route('supplier.index')->withSuccess('You have successfully saved a supplier size!');
+    }
+
+    public function MessageTranslateHistory( Request $request ){
+
+        $history = \App\SupplierTranslateHistory::orderBy("id","desc")->where('supplier_id',$request->supplier)->get();
+        return response()->json( ["code" => 200 , "data" => $history] );
+        
     }
 
     public function sendMessage(Request $request)

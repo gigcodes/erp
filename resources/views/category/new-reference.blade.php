@@ -43,6 +43,13 @@
             <a target="__blank" href="{{ route('category.delete.unused') }}">
                 <button type="button" class="btn btn-secondary delete-not-used">Delete not used</button>
             </a>
+
+            {{-- START - Purpose : Display Chcekbox regarding need_to_skip_status - #DEVTASK-4143 --}}
+            @if($need_to_skip_status == true)
+                <input type="checkbox" id="show_skipeed" name="show_skipeed"> <label>Show Skipped</label>
+            @endif
+            {{-- END - #DEVTASK-4143 --}}
+        
             <a href="{{ route('category.fix-autosuggested',request()->all()) }}" class="fix-autosuggested">
                 <button type="button" class="btn btn-secondary">Fix Auto Suggested</button>
             </a>
@@ -58,6 +65,7 @@
             <tr>
                 <th width="10%"><input type="checkbox" class="check-all-btn">&nbsp;SN</th>
                 <th width="30%">Category</th>
+                <th width="30%">Website</th>
                 <th width="10%">Count</th>
                 <th width="40%">Erp Category</th>
                <!--  <th width="20%">Action</th> -->
@@ -81,6 +89,10 @@
                             <span class="call-used-product" data-id="{{ $unKnownCategory }}"  data-type="name">{{ $unKnownCategory }}</span> <!-- <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $unKnownCategory }}" ><img src="/images/add.png"></button> -->
                         </td>
                         
+                        <td>
+                            {{ \App\Category::website_name($unKnownCategory) }}
+                        </td>
+
                         <td>
                             {{ \App\Category::ScrapedProducts($unKnownCategory) }}
                         </td>
@@ -248,6 +260,12 @@
 
             $(document).on("click",".fix-autosuggested",function(e) {
                 var $this = $(this);
+                
+                var show_skipeed_btn_value = $('#show_skipeed').prop('checked')// Purpose : Check Skip Button value - #DEVTASK-4143
+               
+                if(show_skipeed_btn_value == undefined)
+                    show_skipeed_btn_value = true;
+                    
                 e.preventDefault();
                 $.ajax({
                     type: 'GET',
@@ -255,6 +273,12 @@
                     beforeSend: function () {
                         $("#loading-image").show();
                     },
+                    //START - Send Skip button value - #DEVTASK-4143
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        show_skipeed_btn_value : show_skipeed_btn_value,
+                    },
+                    //END - #DEVTASK-4143
                     dataType: "json"
                 }).done(function (response) {
                     $("#loading-image").hide();

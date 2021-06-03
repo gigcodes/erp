@@ -13,7 +13,13 @@
     <p>{{ $message }}</p>
 </div>
 @endif
-
+<div class="row">
+  <div class="col-md-12 mb-3" style="">
+      <div class="pull-right">
+        <a href="#" class="btn btn-xs btn-secondary magento-order-status">Magento Order Status Mapping</a>
+      </div>
+  </div>
+</div>
 <div class="table-responsive">
   <table class="table table-bordered">
     <thead>
@@ -83,7 +89,6 @@
     </div>
   </div>
 </div>
-
 <div id="update-status-message-tpl" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
       <!-- Modal content-->
@@ -119,10 +124,54 @@
       </div>
     </div>
 </div>
+<div id="order-status-map" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Magento Order Status Mapping</h4>
+        </div>
+        <div class="modal-body">
+          <div class="table-responsive">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th style="width: 20%;">Status</th>
+                  <th style="width: 20%;">Magento Status</th>
+                  <th>Message Text Template</th>
+                </tr>
+              </thead>
+
+              <tbody>
+               @foreach($orderStatusList as $orderStatus)
+               <tr>
+                <td>{{ $orderStatus->id }}</td>
+                <td>{{ $orderStatus->status }}</td>
+                <td><input type="text" value="{{ $orderStatus->magento_status }}" class="form-control" onfocusout="updateStatus({{ $orderStatus->id }})" id="status{{ $orderStatus->id }}"></td>
+                <td>
+                  <textarea class="form-control message-text-tpl" name="message_text_tpl">{{ !empty($orderStatus->message_text_tpl) ? $orderStatus->message_text_tpl : \App\Order::ORDER_STATUS_TEMPLATE }}</textarea>
+                  <button type="button" class="btn btn-image edit-vendor" onclick="updateStatus({{ $orderStatus->id }})"><i class="fa fa-arrow-circle-right fa-lg"></i></button>
+                </td>
+              </tr>
+              @endforeach
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 @endsection
 
 @section('scripts')
 <script type="text/javascript">
+  $(document).on('click','.magento-order-status',function(event){ 
+    event.preventDefault();
+    $('#order-status-map').modal('show');
+  });
   $(document).on('click', '.send-message', function () {
     var thiss = $(this);
     var data = new FormData();
@@ -130,7 +179,7 @@
     var message = $(this).siblings('input').val();
 
     data.append("customer_id", customerid);
-    data.append("purchase_id", $(this).data('orderid'));
+    data.append("order_id", $(this).data('orderid'));
     data.append("message", message);
     data.append("status", 1);
 

@@ -40,4 +40,9 @@ class WebsiteStore extends Model
     {
         return $this->hasMany(\App\scraperImags::class, 'website_id', 'code');
     }
+
+    public function website_code()
+    {
+        return $this->hasOne(\App\Website::class, 'platform_id','platform_id');
+    }
 }

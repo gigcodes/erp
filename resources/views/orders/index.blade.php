@@ -153,6 +153,7 @@
 <div class="row">
         <div class="col-md-12" style="padding:0px;">
             <div class="pull-right">
+              <a href="#" class="btn btn-xs btn-secondary magento-order-status">Magento Order Status Mapping</a>
               <a href="#" class="btn btn-xs btn-secondary delete-orders">
                             Archive
               </a>
@@ -184,14 +185,21 @@
             {{-- <th style="width: 8%">Message Status</th> --}}
             {{-- <th style="width: 20%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th> --}}
             <th>Waybill</th>
+            <th>Price</th>
+            <th>Shipping</th>
+            <th>Duty</th>
             <th width="10%">Action</th>
          </tr>
         </thead>
 
         <tbody style="color:font-size: small;">
 			@foreach ($orders_array as $key => $order)
+      
              @php
                $extraProducts = [];
+               $orderProductPrice = 0;
+               $productQty = 0;
+               
                if(!$order->order_product->isEmpty())  {
                   foreach($order->order_product as $orderProduct) {
                     $extraProducts[] = [
@@ -200,10 +208,14 @@
                       "product_price" => $orderProduct->product_price,
                       "name" => ($orderProduct->product) ? $orderProduct->product->name : ""
                     ];
+
+                    $orderProductPrice = $orderProduct->product_price;
+
                   }
                }
              @endphp
 
+             
             <tr style="background:#f1f1f1;" class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
               <td><span class="td-mini-container">
                   <input type="checkbox" class="selectedOrder" name="selectedOrder" value="{{$order->id}}">
@@ -277,7 +289,11 @@
                           </span>	                 
                         @endif	                 
                       @endif	             
-                    @endforeach	            
+                    @endforeach	   
+
+                    @php
+                      $productQty = count($order->order_product);     
+                    @endphp    
                   </div>	    
                   @if (($count - 1) > 1)	           
                     <span class="ml-1">	         
@@ -330,6 +346,9 @@
                   -
                 @endif
               </td>
+              <td>{{$orderProductPrice * $productQty}}</td>
+              <td>{{$duty_shipping[$order->id]['shipping']}}</td>
+              <td>{{$duty_shipping[$order->id]['duty']}}</td>
               <td>
                 <div class="d-flex">
                   <a class="btn btn-image pd-5 btn-ht" href="{{route('purchase.grid')}}?order_id={{$order->id}}">
@@ -397,6 +416,12 @@
                   <i class="fa fa-file-pdf-o" aria-hidden="true"></i>      
                 </a>
                 @endif
+
+                @if($order->invoice_id)
+                <a title="Download Invoice" class="btn btn-image" href="{{ route('order.download.invoice',$order->invoice_id) }}">
+                  <i class="fa fa-download"></i>
+               </a>
+                @endif
                 </div>
               </td>
             </tr>
@@ -418,6 +443,47 @@
                     <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
                 </div>
                 <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="order-status-map" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Magento Order Status Mapping</h4>
+                </div>
+                <div class="modal-body">
+                  <div class="table-responsive">
+                    <table class="table table-bordered">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th style="width: 20%;">Status</th>
+                          <th style="width: 20%;">Magento Status</th>
+                          <th>Message Text Template</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                       @foreach($orderStatusList as $orderStatus)
+                          <tr>
+                            <td>{{ $orderStatus->id }}</td>
+                            <td>{{ $orderStatus->status }}</td>
+                            <td><input type="text" value="{{ $orderStatus->magento_status }}" class="form-control" onfocusout="updateStatus({{ $orderStatus->id }})" id="status{{ $orderStatus->id }}"></td>
+                            <td>
+                              <textarea class="form-control message-text-tpl" name="message_text_tpl">{{ !empty($orderStatus->message_text_tpl) ? $orderStatus->message_text_tpl : \App\Order::ORDER_STATUS_TEMPLATE }}</textarea>
+                              <button type="button" class="btn btn-image edit-vendor" onclick="updateStatus({{ $orderStatus->id }})"><i class="fa fa-arrow-circle-right fa-lg"></i></button>
+                            </td>
+                          </tr>
+                        @endforeach
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -572,7 +638,10 @@
   <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <script type="text/javascript">
-
+    $(document).on('click','.magento-order-status',function(event){ 
+      event.preventDefault();
+      $('#order-status-map').modal('show');
+    });
     $(document).on("click",".toggle-title-box",function(ele) {
         var $this = $(this);
         if($this.hasClass("has-small")){

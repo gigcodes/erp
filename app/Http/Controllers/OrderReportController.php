@@ -118,10 +118,11 @@ class OrderReportController extends Controller
       ->orderBy('date',"DESC")
       ->get();
 
+      $orderStatusList = OrderStatus::all();
       // $slice = array_slice($refunds->toArray(), $paginate * ($page - 1), $paginate);
       // $order_n_refunds = Paginator::make($slice, count($refunds), $paginate);
       $order_status_list = OrderHelper::getStatus();
-      return view("orders.status-history", compact('order_n_refunds','order_status_list'));
+      return view("orders.status-history", compact('order_n_refunds','order_status_list','orderStatusList'));
     }
 
     public function lastCommunicated($type = "any")

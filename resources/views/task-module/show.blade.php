@@ -215,6 +215,16 @@
                             </select>
                         </div>
                     </div>
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-group">
+                            <select name="filter_status" id="filter_status" class="form-control input-sm">
+                                <option value="">Status Filter</option>
+                                @foreach($task_statuses as $task_statuse)
+                                    <option @if(request('filter_status') == $task_statuse->id) selected @endif value="{{$task_statuse->id}}">{{$task_statuse->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
                     <button type="button" class="btn btn-image btn-call-data"><img src="{{asset('images/filter.png')}}"/></button>
                         <button type="button" style="height: 30px;" class="btn btn-secondary cls_comm_btn priority_model_btn">Priority</button>
                 </div>    
@@ -779,7 +789,7 @@
                                             @if(auth()->user()->isAdmin())
                                             <label for="">Lead:</label>
                                                 <div class="d-flex">
-                                                    <input type="text" style="width: <?php echo $text_box;?>%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
+                                                    <input type="text" style="width: <?php echo $text_box;?>%;" class="form-control quick-message-field input-sm" id="getMsg{{$task->id}}" name="message" placeholder="Message" value="">
                                                     <button class="btn btn-sm btn-image send-message-lead" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}"/></button>
                                                   
                                                 </div>
@@ -1721,6 +1731,7 @@
                         }
                     }).done(function (response) {
                         $(thiss).siblings('input').val('');
+                        $('#getMsg'+task_id).val('');
 
                         if (cached_suggestions) {
                             suggestions = JSON.parse(cached_suggestions);
