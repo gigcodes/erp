@@ -123,9 +123,10 @@
                     </div>
                     @if( auth()->user()->isAdmin() )
                         <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 permission-request">Permission request ( {{$permissionRequest}} )</button>
+                    @endif
                         <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 erp-request">ERP IPs</button>
                         <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 system-request" data-target="#system-request" data-modal="toggle">System IPs</button>
-                    @endif
+                    
                 </div>
             </div>
         </div>  
