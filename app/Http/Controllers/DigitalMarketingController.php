@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\DigitalMarketingPlatformFile;
 use App\DigitalMarketingSolutionFile;
+use App\Email;
 
 class DigitalMarketingController extends Controller
 {
@@ -451,6 +452,12 @@ class DigitalMarketingController extends Controller
 
         return response()->json(["code" => 200, "data" => []]);
     }
-
+    public function getEmails(Request $request){
+        if($request->id){
+            $emails = Email::where('digital_platfirm',$request->id)->get();
+            return $emails;
+        }
+        return response()->json(["code" => 500, "data" => '']);   
+    }
 
 }
