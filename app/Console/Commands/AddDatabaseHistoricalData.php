@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use App\DatabaseHistoricalRecord;
 use App\DatabaseTableHistoricalRecord;
+use App\ChatMessage;
 
 class AddDatabaseHistoricalData extends Command
 {
@@ -83,6 +84,29 @@ class AddDatabaseHistoricalData extends Command
                     $db_table = \DB::select('SELECT TABLE_NAME as "db_table_name", Round(Sum(data_length + index_length) / 1024, 1) as "db_size" FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = "BASE TABLE" AND TABLE_SCHEMA="'.$d->db_name.'" GROUP  BY TABLE_NAME'
                     );
                     foreach($db_table as $d_table) {
+                        $databaseTableHistoricalRecord = DatabaseTableHistoricalRecord::where("database_name",$d_table->db_table_name)->where("database_id", $database_recent_entry->id)->orderBy('created_at','ASC')->first();
+                        if($databaseTableHistoricalRecord){
+                            $v1 = $databaseTableHistoricalRecord->size;
+                            $v2 = $d_table->db_size;
+                            $differance = (($v1 - $v2)/(($v1+$v2)/2))*100;
+                            if($differance > 10){
+                                $user_id = 6;
+                                $message = $d->db_name.".".$d_table->db_table_name." Database table increased size more than 10%.";
+                                $params = [];
+                                $params['message'] = $message;
+                                $params['erp_user'] = $user_id;
+                                $params['user_id'] = $user_id;
+                                $params['approved'] = 1;
+                                $params['status'] = 2;
+                                $params['message_application_id'] = 10001;
+                                $chat_message = ChatMessage::create($params);
+
+                                $requestData = new Request();
+                                $requestData->setMethod('POST');
+                                $requestData->request->add(['user_id' => $user_id, 'message' => $message, 'status' => 1]);
+                                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'overdue');
+                            }
+                        }
                         DatabaseTableHistoricalRecord::create([
                             "database_name" => $d_table->db_table_name,
                             "size" => $d_table->db_size,
