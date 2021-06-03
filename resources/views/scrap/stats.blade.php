@@ -854,8 +854,8 @@
                         <div class="form-group">
                             <label>Select Scraper</label>
                             <select name="scraper_name" class="form-control select2" required>
-                                @forelse ($allScrapper as $item)
-                                    <option value="{{ $item }}">{{ $item }}</option>
+                                @forelse ($allScrapper as $k => $item)
+                                    <option value="{{ $item }}#{{$k}}">{{ $item }}</option>
                                 @empty
                                 @endforelse
                             </select>
