@@ -2481,9 +2481,13 @@ Route::get('scrap-logs/fetch/{name}/{date}', 'ScrapLogsController@filter');
 Route::get('fetchlog', 'ScrapLogsController@fetchlog');
 Route::get('filtertosavelogdb', 'ScrapLogsController@filtertosavelogdb');
 Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
+
+Route::post('scrap-logs/status/store', 'ScrapLogsController@store');
+
 Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
 Route::put('supplier/priority/{id}', 'SupplierController@priority');
 Route::get('temp-task/product-creator', 'TmpTaskController@importProduct');
+
 
 });
 
