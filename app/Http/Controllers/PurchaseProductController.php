@@ -20,7 +20,11 @@ use App\Exports\EnqueryExport;
 use Storage;
 use App\Mails\Manual\PurchaseExport;
 use Mail;
+use App\Email;
 use App\InventoryStatus;
+use App\ChatMessage;
+use App\Product;
+
 class PurchaseProductController extends Controller
 {
     /**
@@ -332,6 +336,9 @@ class PurchaseProductController extends Controller
     public function sendProducts($type,$supplier_id,Request $request)
     {
         if($type == 'inquiry') {
+
+            // ChatMessage::sendWithChatApi('919825282', null, $message);
+
             $supplier = Supplier::find($supplier_id);            
             $path = "inquiry_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_enquiry_exports.xlsx";
             $subject = 'Product enquiry';
@@ -349,7 +356,7 @@ class PurchaseProductController extends Controller
                 'subject'          => $subject,
                 'message'          => $message,
                 'template'         => 'purchase-simple',
-                'additional_data'  => json_encode(['attachment' => $path]),
+                'additional_data'  => json_encode(['attachment' => [$path]]),
                 'status'           => 'pre-send',
                 'is_draft'         => 0,
             ]);
@@ -377,7 +384,7 @@ class PurchaseProductController extends Controller
                 'subject'          => $subject,
                 'message'          => $message,
                 'template'         => 'purchase-simple',
-                'additional_data'  => json_encode(['attachment' => $path]),
+                'additional_data'  => json_encode(['attachment' => [$path]]),
                 'status'           => 'pre-send',
                 'is_draft'         => 0,
             ]);
@@ -410,7 +417,42 @@ class PurchaseProductController extends Controller
         }
         return response()->json(['message' => 'Status not changed' ,'code' => 500]);
     }
+    
+    public function insert_suppliers_product(Request $request){
+       
+        $product_data = Product::find($request->product_id);
+        $suppliers = $request->supplier_id;
 
+        $isexist = ProductSupplier::where('product_id',$product_data->id)->whereIn('supplier_id',$suppliers)->exists();
+
+        if($isexist == true)
+        {
+            return response()->json(['message' => 'This Supplier Alreday Added For this Product.' ,'code' => 400]);
+        }
+
+        foreach($suppliers as $key => $val)
+        {
+            $add_product_supplier             = ProductSupplier::create([
+                'product_id' => $product_data->id,
+                'supplier_id' => $val,
+                'sku' => $product_data->sku,
+                'title' => $product_data->name,
+                'description' => $product_data->short_description,
+                'supplier_link' => $product_data->supplier_link,
+                'price'         => $product_data->price,
+                'stock'         => $product_data->stock,
+                'price'         => $product_data->price,
+                'price_special' => $product_data->price_eur_special,
+                'price_discounted' => $product_data->price_eur_discounted,
+                'size'          => $product_data->size,
+                'color'         => $product_data->color,
+                'composition'   => $product_data->composition
+            ]);
+        }
+
+        return response()->json(['message' => 'Supplier Added successfully' ,'code' => 200]);
+    }
+    
     /**
      * Store a newly created resource in storage.
      *
