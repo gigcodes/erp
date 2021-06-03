@@ -563,6 +563,9 @@ class Kernel extends ConsoleKernel
         //Cron for activity
         $schedule->command("productActivityStore")->dailyAt("0:00");
         $schedule->command("errorAlertMessage")->daily();
+
+        $schedule->command("UpdateScraperDuration")->everyFifteenMinutes();
+
     }
 
     /**
