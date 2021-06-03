@@ -14,6 +14,7 @@ class CreateReviewBrandsListTable extends Migration
     public function up()
     {
         Schema::create('review_brands_list', function (Blueprint $table) {
+            
             $table->increments('id');
             $table->text('name');
             $table->text('description');
