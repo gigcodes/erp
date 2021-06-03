@@ -169,7 +169,7 @@ class BrandController extends Controller
 
         return redirect()->route('brand.index')->with('success', 'Brand added successfully');
     }
-
+    /*
     public function update(Request $request, Brand $brand)
     {
 
@@ -225,7 +225,7 @@ class BrandController extends Controller
 
         return redirect()->route('brand.index')->with('success', 'Brand updated successfully');
     }
-
+    */
     public function destroy(Brand $brand)
     {
         $brand->scrapedProducts()->delete();
@@ -283,7 +283,7 @@ class BrandController extends Controller
         $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
 
         $sku = $product->sku . $product->color;
-//		$result = $proxy->catalogProductUpdate($sessionId, $sku , array('visibility' => 4));
+//      $result = $proxy->catalogProductUpdate($sessionId, $sku , array('visibility' => 4));
         $data = [
             'price' => $product->price_eur_special,
             'special_price' => $product->price_eur_discounted
@@ -366,6 +366,7 @@ class BrandController extends Controller
 
         return response()->json(["code" => 500 , "data" => [], "message" => "Oops, something went wrong"]);
     }
+    /*
     public function updateReference(Request $request)
     {
         $reference = $request->get("reference");
@@ -380,7 +381,7 @@ class BrandController extends Controller
 
         return response()->json(["code" => 500 , "data" => [], "message" => "Oops, something went wrong"]);
     }
-
+    */
     public function createRemoteId(Request $request, $id)
     {
         $brand = \App\Brand::where("id",$id)->first();
@@ -541,16 +542,25 @@ class BrandController extends Controller
       }
       
     }
+
     public function fetchNewBrands(Request $request){
         $path = public_path('brands');
         $files = File::allFiles($path);
-        foreach ($files as $key => $value) {
-            $brand_name = strtoupper(pathinfo(basename($value), PATHINFO_FILENAME));
-            $brand_found = Brand::where('name',$brand_name)->get();
-            if(!$brand_found->isEmpty()){
-                Brand::where('id', $brand_found[0]->id)->update(['brand_image' => env('APP_URL').'/brands/'.basename($value)]);
+        if ($request->hasfile('files')) {
+            foreach ($request->file('files') as $files) {
+                $image_name = $files->getClientOriginalName();
+                $brand_name = strtoupper(pathinfo($image_name, PATHINFO_FILENAME));
+                $brand_found = Brand::where('name',$brand_name)->get();
+                if(!$brand_found->isEmpty()){
+                    $media = MediaUploader::fromSource($files)
+                    ->toDirectory('brands')
+                    ->upload();
+                    Brand::where('id', $brand_found[0]->id)->update(['brand_image' => env('APP_URL').'/brands/'.$image_name]);
+                }
             }
+            return response()->json(["code" => 200, "success" => "Brand images updated"]);
+        }else{
+            return response()->json(["code" => 500, "error" => "Oops, Please fillup required fields"]);
         }
-        return response()->json(['message' => 'Brand images updated'], 200);
     }
 }
