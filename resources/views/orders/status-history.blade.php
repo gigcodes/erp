@@ -34,14 +34,16 @@
           <td>{{ $order_n_refund->name }}</td>
           <td>
             <div class="form-groups">
-              <select data-placeholder="Order Status" name="order_status" class="form-control select2" >
-                <optgroup label="Order Status">
-                  <option value="">Select Order Status</option>
-                  @foreach ($order_status_list as $id => $status)
-                  <option value="{{ $id }}" {{ (isset($order_n_refund->order_status_id) && $order_n_refund->order_status_id == $id) ? 'selected' : '' }}>{{ $status }}</option>
-                  @endforeach
-                </optgroup>
-              </select>
+              @if($order_n_refund->type == 'order')
+                <select data-placeholder="Order Status" name="order_status" class="form-control select2 order-status-select" data-id="{{ $order_n_refund->id }}">
+                  <optgroup label="Order Status">
+                    <option value="">Select Order Status</option>
+                    @foreach ($order_status_list as $id => $status)
+                    <option value="{{ $id }}" {{ (isset($order_n_refund->order_status_id) && $order_n_refund->order_status_id == $id) ? 'selected' : '' }}>{{ $status }}</option>
+                    @endforeach
+                  </optgroup>
+                </select>
+              @endif
             </div>
           </td>
           <td><input type="text" rows="1" style="width: 87%;display: inline-block;vertical-align: inherit;" class="form-control quick-message-field" name="message" placeholder="Message">
@@ -80,6 +82,42 @@
       </div>
     </div>
   </div>
+</div>
+
+<div id="update-status-message-tpl" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <!-- Modal content-->
+      <div class="modal-content ">
+        <div class="modal-header">
+            <h4 class="modal-title">Change Status</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <form action="" id="update-status-message-tpl-frm" method="POST">
+            @csrf
+            <input type="hidden" name="order_id" id="order-id-status-tpl" value="">
+            <input type="hidden" name="order_status_id" id="order-status-id-status-tpl" value="">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="col-md-2">
+                            <strong>Message:</strong>
+                        </div>
+                        <div class="col-md-8">
+                        <div class="form-group">
+                          <textarea cols="45" class="form-control" id="order-template-status-tpl" name="message"></textarea>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary update-status-with-message">With Message</button>
+                <button type="button" class="btn btn-secondary update-status-without-message">Without Message</button>
+            </div>
+        </form>
+      </div>
+    </div>
 </div>
 @endsection
 
@@ -123,5 +161,74 @@
         alert('Please enter a message first');
       }
     });
+  $(document).on("change",".order-status-select",function() {
+        console.log($(this).data("id"));
+        var id = $(this).data("id");
+        var status = $(this).val();
+
+        $.ajax({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: "order/"+id+"/change-status-template",
+          type: "post",
+          data : {
+            order_id: id, 
+            order_status_id : status
+          },
+          beforeSend: function() {
+            $("loading-image").show();
+          }
+        }).done( function(response) {
+          $("loading-image").hide();
+          if(response.code == 200) {
+            $("#order-id-status-tpl").val(id);
+            $("#order-status-id-status-tpl").val(status);
+            $("#order-template-status-tpl").val(response.template);
+            $("#update-status-message-tpl").modal("show");
+          }
+          
+        }).fail(function(errObj) {
+            alert("Could not change status");
+        });
+    });
+  $(document).on("click",".update-status-with-message",function(e) {
+          e.preventDefault();
+          $.ajax({
+            url: "/order/change-status",
+            type: "GET",
+            async : false,
+            data : {
+              id : $("#order-id-status-tpl").val(),
+              status : $("#order-status-id-status-tpl").val(),
+              sendmessage:'1',
+              message:$("#order-template-status-tpl").val(),
+            }
+          }).done( function(response) {
+              $("#update-status-message-tpl").modal("hide");
+          }).fail(function(errObj) {
+            alert("Could not change status");
+          });
+      });
+
+      $(document).on("click",".update-status-without-message",function(e) {
+          e.preventDefault();
+          $.ajax({
+            url: "/order/change-status",
+            type: "GET",
+            async : false,
+            data : {
+              id : $("#order-id-status-tpl").val(),
+              status : $("#order-status-id-status-tpl").val(),
+              sendmessage:'0',
+              message:$("#order-template-status-tpl").html(),
+            }
+          }).done( function(response) {
+            $("#update-status-message-tpl").modal("hide");
+          }).fail(function(errObj) {
+            alert("Could not change status");
+          });
+      });
+
   </script>
 @endsection
