@@ -104,6 +104,10 @@ class Order extends Model
         return $this->belongsToMany(Product::class, OrderProduct::class, 'user_id', 'role_id');
     }
 
+    public function latest_product(){
+        return $this->hasOne(OrderProduct::class, 'order_id', 'id')->latest();
+    }
+
     public function customer()
     {
         return $this->belongsTo('App\Customer');
