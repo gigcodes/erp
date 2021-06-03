@@ -1203,6 +1203,7 @@ class Product extends Model
             'status_id',
             'sub_status_id',
             'products.created_at',
+            'products.discounted_percentage',
             //'inventory_status_histories.date as history_date',
             \DB::raw('count(distinct psu.id) as total_product')
         );
@@ -1244,6 +1245,18 @@ class Product extends Model
             $query = $query->whereDate('products.created_at',$filter_data['date']);
         }
 
+        if(isset($filter_data['date'])) {
+            $query = $query->whereDate('products.created_at',$filter_data['date']);
+        }
+
+        if(isset($filter_data['discounted_percentage_min'])) {
+            $query = $query->where('products.discounted_percentage', '>=',$filter_data['discounted_percentage_min']);
+        }
+
+        if(isset($filter_data['discounted_percentage_max'])) {
+            $query = $query->where('products.discounted_percentage', '<=',$filter_data['discounted_percentage_max']);
+        }
+        
         if(isset($filter_data['no_category']) && $filter_data['no_category'] == "on") {
             $query = $query->where('products.category',"<=",0);
         }
