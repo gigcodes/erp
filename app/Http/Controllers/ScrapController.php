@@ -2073,7 +2073,20 @@ class ScrapController extends Controller
 
     public function saveChildScraper(Request $request)
     {
-        $scraper = Scraper::where('scraper_name', $request->scraper_name)->whereNull('parent_id')->first();
+        $scrperEx = explode("#",$request->scraper_name);
+        
+        $scraper = Scraper::whereNull('parent_id');
+        
+        if(!empty($scrperEx[0])) {
+            $scraper = $scraper->where('scraper_name', $scrperEx[0]); 
+        }
+
+        if(!empty($scrperEx[1])) {
+            $scraper = $scraper->where('id', $scrperEx[1]); 
+        } 
+
+        $scraper = $scraper->first();
+
         //dd($scraper);
         if ($scraper) {
             $parentId                 = $scraper->id;
