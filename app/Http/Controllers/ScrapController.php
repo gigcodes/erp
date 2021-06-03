@@ -336,6 +336,7 @@ class ScrapController extends Controller
                 $scrapedProduct->price_eur = (float) $request->get('price');
             }
             $scrapedProduct->discounted_price  = $request->get('discounted_price');
+            $scrapedProduct->discounted_percentage = (float) $request->get('discounted_percentage',0.00);
             $scrapedProduct->original_sku      = trim($request->get('sku'));
             $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
             $scrapedProduct->validated         = empty($errorLog["error"]) ? 1 : 0;
@@ -378,6 +379,7 @@ class ScrapController extends Controller
             $scrapedProduct->properties       = $propertiesExt;
             $scrapedProduct->currency         = ProductHelper::getCurrency($request->get('currency'));
             $scrapedProduct->price            = (float) $request->get('price');
+            $scrapedProduct->discounted_percentage = (float) $request->get('discounted_percentage',0.00);
             if ($request->get('currency') == 'EUR') {
                 $scrapedProduct->price_eur = (float) $request->get('price');
             }
@@ -2073,7 +2075,20 @@ class ScrapController extends Controller
 
     public function saveChildScraper(Request $request)
     {
-        $scraper = Scraper::where('scraper_name', $request->scraper_name)->whereNull('parent_id')->first();
+        $scrperEx = explode("#",$request->scraper_name);
+        
+        $scraper = Scraper::whereNull('parent_id');
+        
+        if(!empty($scrperEx[0])) {
+            $scraper = $scraper->where('scraper_name', $scrperEx[0]); 
+        }
+
+        if(!empty($scrperEx[1])) {
+            $scraper = $scraper->where('id', $scrperEx[1]); 
+        } 
+
+        $scraper = $scraper->first();
+
         //dd($scraper);
         if ($scraper) {
             $parentId                 = $scraper->id;
