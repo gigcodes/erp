@@ -2010,7 +2010,7 @@ class ScrapController extends Controller
                 if (count($matches) == 2 || count($matches) == 1 || count($matches) == 0) {
                     return response()->json(["code" => 200, "message" => "Script Is Not Running"]);
                 } else {
-                    return response()->json(["code" => 200, "message" => "Script Is Running"]);
+                    return response()->json(["code" => 200, "message" => "Script Is Running \n" . json_decode($response)->Process[0]->duration]);
                 }
 
             } else {
