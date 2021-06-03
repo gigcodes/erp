@@ -94,6 +94,10 @@ table tr td{
                 </span>
             </div>
         </div>
+        <div class="form-group mr-3 mb-3">
+            <input type="text" name="discounted_percentage_min" class="form-control" placeholder="discounted min. %" value="{{ request('discounted_percentage_min','') }}">
+            <input type="text" name="discounted_percentage_max" class="form-control" placeholder="discounted max. %" value="{{ request('discounted_percentage_max','') }}">
+        </div>
         <div class="form-group mr-pd col-md-1">
             <button type="submit" class="btn btn-secondary"><i class="fa fa-filter"></i>Filter</button>
         </div>
@@ -131,6 +135,7 @@ table tr td{
                 <th width="10%">Name</th>
                 <th width="12%">Category / Brand</th>
                 <th width="10%">Price</th>
+                <th width="10%">Discount %</th>
                 <!-- <th width="15%">Brand</th> -->
                 <th width="10%">Supplier</th>
                 <th width="8%">Color</th>
