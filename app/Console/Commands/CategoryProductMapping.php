@@ -42,7 +42,7 @@ class CategoryProductMapping extends Command
     {
         //
         $all_category = ScrappedCategoryMapping::get()->pluck('name','id')->toArray();
-        $pro_arr = [];
+        
 
         foreach ($all_category as $k => $v){
                 $products = \App\ScrapedProducts::where("properties", "like", '%' . $v . '%')->select('website','id')->distinct()->get()->pluck('website','id')->toArray();
@@ -53,16 +53,26 @@ class CategoryProductMapping extends Command
                     $web_name = $vv;
                     if($web_name)
                     {
-                        $pro_arr[] = [
-                            'category_mapping_id' => $k,
-                            'product_id' => $kk
-                        ];
+                        // $pro_arr[] = [
+                        //     'category_mapping_id' => $k,
+                        //     'product_id' => $kk
+                        // ];
+
+                        $exist = ScrappedProductCategoryMapping::where('category_mapping_id',$k)->where('product_id',$kk)->exists();
+
+                        if(!$exist)
+                        {
+                            ScrappedProductCategoryMapping::insert([
+                                'category_mapping_id' => $k,
+                                'product_id' => $kk,
+                            ]);
+                        }
                     }
                 }
                 
         }
 
-        ScrappedProductCategoryMapping::insert($pro_arr);
+        
 
 
     }
