@@ -13,7 +13,7 @@ class CreateTblAutoCompleteMessages extends Migration
      */
     public function up()
     {
-        Schema::table('auto_complete_messages',function(Blueprint $table) {
+        Schema::create('auto_complete_messages',function(Blueprint $table) {
             $table->bigIncrements('id');
             $table->text('message');
             $table->timestamps();
