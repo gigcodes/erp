@@ -596,11 +596,11 @@ class CategoryController extends Controller
 
         // $TotalProductCount = array_sum(array_column($mainArr,'cat_product_count'));
 
-        $categoryAll   = Category::where('id', '!=', $unKnownCategory->ide)->where('magento_id', '!=', '0')->get();
+        $categoryAll   = Category::with('childs')->where('id', '!=', $unKnownCategory->ide)->where('magento_id', '!=', '0')->get();
         $categoryArray = [];
         foreach ($categoryAll as $category) {
             $categoryArray[] = array('id' => $category->id, 'value' => $category->title);
-            $childs          = Category::where('parent_id', $category->id)->get();
+            $childs          = $category->childs;  //Category::where('parent_id', $category->id)->get();
             foreach ($childs as $child) {
                 $categoryArray[] = array('id' => $child->id, 'value' => $category->title . ' > ' . $child->title);
                 $grandChilds     = Category::where('parent_id', $child->id)->get();
@@ -625,6 +625,7 @@ class CategoryController extends Controller
         // END - #DEVTASK-4143
 
         return view('category.new-reference', ['unKnownCategories' => $unKnownCategories, 'categoryAll' => $categoryArray, 'unKnownCategoryId' => $unKnownCategory->id , 'need_to_skip_status' => $need_to_skip_status, 'scrapped_category_mapping' => $scrapped_category_mapping]);
+
     }
 
     /**
