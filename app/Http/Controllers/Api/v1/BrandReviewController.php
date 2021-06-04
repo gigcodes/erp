@@ -23,7 +23,8 @@ class BrandReviewController extends Controller
     public function store(Request $request){
         if($request->name){
             ReviewBrandList::insert([
-                'name' => $request->name
+                'name' => $request->name,
+                'url' => $request->url
             ]);
             return response()->json(['status' => '200']);
         }
@@ -31,7 +32,7 @@ class BrandReviewController extends Controller
         
     }
     public function getAllBrandReview(){
-        $data = ReviewBrandList::all();
+        $data = ReviewBrandList::select('name','url')->get();
         return $data;
     }
     public function storeReview(Request $request){
