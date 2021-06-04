@@ -68,6 +68,7 @@ class ScrappedProductCategoryMappingObserver
 
     protected function create($scrapedproducts)
     {
+        /*
         $all_category = ScrappedCategoryMapping::get()->pluck('name','id')->toArray();
 
         if($scrapedproducts->properties != null)
@@ -91,6 +92,7 @@ class ScrappedProductCategoryMappingObserver
                 ScrappedProductCategoryMapping::insert($pro_arr);
             }
         }
+        */
         
     }
 }
