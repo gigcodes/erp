@@ -228,6 +228,7 @@
                         <th>Logs</th>
                         */ ?>
                         <th>Full scrap</th>
+                        <th>Scraper Duration</th> 
                         <th>Functions</th>
                     </tr>
                     </thead>
@@ -425,6 +426,21 @@
                                     <?php echo Form::select("full_scrape",[0 => "No", 1 => "Yes"], $supplier->full_scrape, ["class" => "form-control full_scrape select2", "style" => "width:100%;"]); ?>
                                 </div>
                             </td>
+                            <td width="5%">
+                                @php
+                                    if(count($supplier->scraperDuration)){
+                                        echo $supplier->scraperDuration[0]->duration;
+                                        if(isset($supplier->scraperDuration[1])){
+                                            echo '<br>' . $supplier->scraperDuration[1]->duration;
+                                            if(isset($supplier->scraperDuration[2])){
+                                                echo '<br>' . $supplier->scraperDuration[2]->duration;
+                                            }
+                                        }
+                                    }else{
+                                        echo '-';
+                                    } 
+                                @endphp    
+                            </td>
                             <td width="14%">
                                  <div style="float:left;">       
                                 <button style="padding:1px;" type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}" title="Expand more data"><img width="2px;" src="/images/forward.png"/></button>
@@ -450,7 +466,7 @@
                                 <button style="padding:1px;" type="button" class="btn btn-image d-inline get-last-errors" data-id="{{ $supplier->id }}" data-name="{{ $supplier->scraper_name }}" title="Last errors">
                                     <i class="fa fa-list-ol"></i>
                                 </button>
-                                <button style="padding:1px;" type="button" class="btn btn-image d-inline" title="update process" onclick="updateScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}', {{$supplier->id}} )"><i class="fa fa-send"></i></button>
+                                <!-- <button style="padding:1px;" type="button" class="btn btn-image d-inline" title="update process" onclick="updateScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}', {{$supplier->id}} )"><i class="fa fa-send"></i></button> -->
                                 <button style="padding:1px;" type="button" class="btn btn-image d-inline" title="kill process" onclick="killScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}')"><i class="fa fa-close"></i></button> 
                                 @if($isAdmin)
                                     <div class="flag-scraper-div" style="float:none;display:contents;"> 
@@ -838,8 +854,8 @@
                         <div class="form-group">
                             <label>Select Scraper</label>
                             <select name="scraper_name" class="form-control select2" required>
-                                @forelse ($allScrapper as $item)
-                                    <option value="{{ $item }}">{{ $item }}</option>
+                                @forelse ($allScrapper as $k => $item)
+                                    <option value="{{ $item }}#{{$k}}">{{ $item }}</option>
                                 @empty
                                 @endforelse
                             </select>

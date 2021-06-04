@@ -22,6 +22,7 @@
               <p class="card-text">Size : {{ $product->size }}</p>
               @if($isAdmin)
                 <p class="card-text">Price : {{ $product->price }}</p>
+                <p class="card-text">Discounted % : {{ $product->discounted_percentage }}%</p>
               @endif
               <p class="card-text">Price INR : {{ $product->price_inr }}</p>  
               <p class="card-text">Status : {{ (new \App\Stage)->getNameById( $product->stage ) }}</p>

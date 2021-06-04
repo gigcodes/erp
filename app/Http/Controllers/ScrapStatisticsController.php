@@ -65,6 +65,9 @@ class ScrapStatisticsController extends Controller
 
         // Get active suppliers
         $activeSuppliers = Scraper::with([
+            'scraperDuration' => function($q){
+                $q->orderBy('id', 'desc');
+            },
             'scrpRemark' => function($q){
                 $q->whereNull("scrap_field")->where('user_name','!=','')->orderBy('created_at','desc');
             },

@@ -25,6 +25,7 @@ table{border: 1px;border-radius: 4px;}
 table th{font-weight: normal;font-size: 15px;color: #000;}
 table td{font-weight: normal;font-size: 14px;color: #757575;}
 td button.btn {padding: 0;}
+div#plan-action textarea {height: 200px;}
 </style>
 <div class="row mb-5">
     <div class="col-lg-12 margin-tb">
@@ -105,7 +106,7 @@ td button.btn {padding: 0;}
                 <th>DeadLine</th>
                 <th>status</th>
                 <th>Date</th>
-                <th width="15%">Action</th>
+                <th width="15%" style="width: 20%;">Action</th>
             </tr>
         </thead>
         <tbody class="searchable">
@@ -258,7 +259,7 @@ td button.btn {padding: 0;}
 </div>
 
 <div class="modal fade" id="plan-action" tabindex="-1" role="dialog" aria-labelledby="plan-action" aria-hidden="true">
-  <div class="modal-dialog modal-md" role="document">
+  <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="plan-action">Plan Action</h5>
@@ -271,33 +272,55 @@ td button.btn {padding: 0;}
           <div class="modal-body">
             <div class="container-fluid">
                   @csrf
+                  <table class="table table-bordered">
+                    <tr>
+                      <td>
+                        <label  class="col-form-label">Strength</label>
+                        <textarea name="strength" class="form-control"></textarea>
+                      </td>
+                      <td>
+                        <label  class="col-form-label">Weakness</label>
+                        <textarea name="weakness" class="form-control"></textarea>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <label  class="col-form-label">Opportunity</label>
+                        <textarea name="opportunity" class="form-control"></textarea>
+                      </td>
+                      <td>
+                        <label  class="col-form-label">Threat</label>
+                        <textarea name="threat" class="form-control"></textarea>
+                      </td>
+                    </tr>
+                  </table>
                   <div class="row subject-field">
-                      <div class="col-md-6">
+                      <!-- <div class="col-md-6">
                           <div class="form-group">
                             <label  class="col-form-label">Strength</label>
                             <textarea name="strength"></textarea>
                           </div>
-                      </div>
-                      <div class="col-md-6">
+                      </div> -->
+                      <!-- <div class="col-md-6">
                           <div class="form-group">
                             <label  class="col-form-label">Weakness</label>
                             <textarea name="weakness"></textarea>
                           </div>
-                      </div>
+                      </div> -->
                   </div>
                   <div class="row subject-field">
-                      <div class="col-md-6">
+                      <!-- <div class="col-md-6">
                           <div class="form-group">
                             <label  class="col-form-label">Opportunity</label>
                             <textarea name="opportunity"></textarea>
                           </div>
-                      </div>
-                      <div class="col-md-6">
+                      </div> -->
+                      <!-- <div class="col-md-6">
                           <div class="form-group">
                             <label  class="col-form-label">Threat</label>
                             <textarea name="threat"></textarea>
                           </div>
-                      </div>
+                      </div> -->
                   </div>
             </div>
           </div>
@@ -394,12 +417,6 @@ td button.btn {padding: 0;}
                                     <option value="{{$value->type}}">{{$value->type}}</option>
                                 @endforeach;
                             </datalist>
-                          <!-- <select class="form-control" name="type">
-                              <option value="">Select</option>
-                              @foreach($typeList as $value )
-                                  <option value="{{$value->type}}">{{$value->type}}</option>
-                              @endforeach;
-                          </select> -->
                         </div>
                       </div>
                       <div class="col-md-6">
@@ -411,12 +428,6 @@ td button.btn {padding: 0;}
                                   <option value="{{$value->category}}">{{$value->category}}</option>
                               @endforeach;
                           </datalist>
-                          <!-- <select class="form-control" name="category">
-                              <option value="">Select</option>
-                              @foreach($categoryList as $value )
-                                  <option value="{{$value->category}}">{{$value->category}}</option>
-                              @endforeach;
-                          </select> -->
                         </div>
                       </div>
                     </div>
@@ -481,12 +492,6 @@ td button.btn {padding: 0;}
                                     <option value="{{$value->status}}">{{$value->status}}</option>
                                 @endforeach;
                             </datalist>
-                            <!-- <select class="form-control" name="basis">
-                                <option value="">Select</option>
-                                @foreach($basisList as $value )
-                                    <option value="{{$value->status}}">{{$value->status}}</option>
-                                @endforeach;
-                            </select> -->
                           </div>
                       </div>
                       <div class="col-md-6">
@@ -510,8 +515,6 @@ td button.btn {padding: 0;}
                           </div>
                     </div>
                   </div>
-                  <!-- <div class="row">
-                  </div> -->
                   <div class="row remark-field hidden" >
                       <div class="col-md-12">
                          <div class="form-group">

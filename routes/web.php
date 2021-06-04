@@ -201,6 +201,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('users/logins', 'UserController@login')->name('users.login.index');
     Route::post('users/status-change', 'UserController@statusChange');
     Route::get('users/loginips', 'UserController@loginIps')->name('users.login.ips');
+    Route::get('users/add-system-ip', 'UserController@addSystemIp');
+    Route::get('users/delete-system-ip', 'UserController@deleteSystemIp');
     Route::get('permissions/grandaccess/users', 'PermissionController@users')->name('permissions.users');
     Route::get('userlogs', 'UserLogController@index')->name('userlogs.index');
     Route::get('userlogs/{$id}', 'UserLogController@index');
@@ -666,6 +668,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('email/{id}/excel-import', 'EmailController@excelImporter');
     Route::post('email/{id}/get-file-status', 'EmailController@getFileStatus');
     Route::resource('email', 'EmailController');
+    Route::post('email/platform-update', 'EmailController@platformUpdate');
 
     Route::post('email/category', 'EmailController@category');
     Route::post('email/status', 'EmailController@status');
@@ -1039,6 +1042,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('purchase-product/supplier-details/{order_id}', 'PurchaseProductController@getSupplierDetails');
     Route::get('purchase-product/customer-details/{type}/{order_id}', 'PurchaseProductController@getCustomerDetails');
     Route::resource('purchase-product', 'PurchaseProductController');
+
+    Route::post('purchase-product/insert_suppliers_product', 'PurchaseProductController@insert_suppliers_product')->name('purchase-product.insert_suppliers_product');
 
     // Cash Vouchers
     Route::get('/voucher/payment/request', 'VoucherController@paymentRequest')->name("voucher.payment.request");
@@ -2481,9 +2486,13 @@ Route::get('scrap-logs/fetch/{name}/{date}', 'ScrapLogsController@filter');
 Route::get('fetchlog', 'ScrapLogsController@fetchlog');
 Route::get('filtertosavelogdb', 'ScrapLogsController@filtertosavelogdb');
 Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
+
+Route::post('scrap-logs/status/store', 'ScrapLogsController@store');
+
 Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
 Route::put('supplier/priority/{id}', 'SupplierController@priority');
 Route::get('temp-task/product-creator', 'TmpTaskController@importProduct');
+
 
 });
 
@@ -2659,6 +2668,7 @@ Route::prefix( 'google-campaigns')->middleware('auth')->group(function () {
 
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {
     Route::get('/', 'DigitalMarketingController@index')->name('digital-marketing.index');
+    Route::post('/get-emails', 'DigitalMarketingController@getEmails');
     Route::get('/records', 'DigitalMarketingController@records')->name('digital-marketing.records');
     Route::post('/save', 'DigitalMarketingController@save')->name('digital-marketing.save');
     Route::post('/saveImages', 'DigitalMarketingController@saveImages')->name('digital-marketing.saveimages');
@@ -2836,6 +2846,7 @@ Route::get('store-website-country-shipping/edit/{id}', 'StoreWebsiteCountryShipp
 Route::get('store-website-country-shipping/delete/{id}', 'StoreWebsiteCountryShippingController@delete')->name('store-website-country-shipping.delete');
 
 Route::get('/attached-images-grid/customer/', 'ProductController@attachedImageGrid');
+Route::post('/attached-images-grid/customer/create-template', 'ProductController@createTemplate')->name('attach.cus.create.tpl');
 Route::post('/attached-images-grid/add-products/{suggested_products_id}', 'ProductController@attachMoreProducts');//
 Route::post('/attached-images-grid/remove-products/{customer_id}', 'ProductController@removeProducts');//
 Route::post('/attached-images-grid/remove-single-product/{customer_id}', 'ProductController@removeSingleProduct');//
