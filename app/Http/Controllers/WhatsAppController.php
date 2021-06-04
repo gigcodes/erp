@@ -48,6 +48,7 @@ use App\PushNotification;
 use App\NotificationQueue;
 use App\Purchase;
 use App\Customer;
+use App\AutoCompleteMessage;
 use App\MessageQueue;
 use App\Jobs\SendImagesWithWhatsapp;
 use Carbon\Carbon;
@@ -1964,6 +1965,21 @@ class WhatsAppController extends FindByNumberController
         $data['number'] = $request->get('number');
         // $params['status'] = 1;
 
+
+        if($request->add_autocomplete == "true"){
+
+        $exist = AutoCompleteMessage::where( 'message' , $request->message)->exists();
+
+        if(!$exist){
+
+            AutoCompleteMessage::create([
+                'message' => $request->message,
+            ]);
+        }
+
+        }
+
+
         if ($context == 'customer') {
             $data['customer_id'] = $request->customer_id;
             $module_id = $request->customer_id;
@@ -2087,6 +2103,7 @@ class WhatsAppController extends FindByNumberController
                 return response()->json(['message' => $chat_message]);
 
             } else {
+                
                 if ($context == 'priority') {
                     $params = [];
                     $params['message'] = $request->get('message', '');
@@ -2154,7 +2171,6 @@ class WhatsAppController extends FindByNumberController
                     }
                     return response()->json(['message' => null]);
                 } elseif ($context == 'issue') {
-
                     $sendTo = $request->get('sendTo', "to_developer");
                     $params['issue_id'] = $request->get('issue_id');
                     $issue = DeveloperTask::find($request->get('issue_id'));
@@ -5619,5 +5635,11 @@ class WhatsAppController extends FindByNumberController
             }
             return false;
         }
+    }
+
+    public function autoCompleteMessages(){
+        
+        $data = AutoCompleteMessage::pluck('message')->toArray();
+        return response()->json(['data' => $data]);
     }
 }

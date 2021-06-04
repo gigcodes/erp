@@ -87,6 +87,8 @@ use App\Console\Commands\CreateErpLeadFromCancellationOrder;
 use App\Console\Commands\SendQueuePendingChatMessages;
 use App\Console\Commands\SendQueuePendingChatMessagesGroup;
 use App\Console\Commands\SyncCustomersFromMagento;
+use App\Console\Commands\StoreChatMessagesToAutoCompleteMessages;
+
 use App\NotificationQueue;
 use App\Benchmark;
 use App\Task;
@@ -264,7 +266,8 @@ class Kernel extends ConsoleKernel
         InstagramHandler::class,
         SendDailyReports::class,
         SendDailyPlannerNotification::class,
-        InsertPleskEmail::class
+        InsertPleskEmail::class,
+        StoreChatMessagesToAutoCompleteMessages::class,
     ];
 
     /**

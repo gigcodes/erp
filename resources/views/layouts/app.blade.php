@@ -2290,6 +2290,7 @@ $metaData = '';
     <script type="text/javascript" src="{{asset('js/jquery.cookie.js')}}"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="{{url('js/jquery-ui.js')}}"></script>
     <script type="text/javascript" src="{{url('js/custom_global_script.js')}}"></script>
     <script>
         $(document).ready(function() {

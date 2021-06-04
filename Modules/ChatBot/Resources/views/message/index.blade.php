@@ -269,6 +269,7 @@
         });
 
         $(document).on('click', '.send-message1', function () {
+            console.log('*****************************');
             var thiss = $(this);
             var data = new FormData();
             var type = "customer";
@@ -283,9 +284,11 @@
             console.log("Field is as per this",[type,typeId,field,tr]);
             var customer_id = typeId;
             var message = thiss.closest(".cls_textarea_subbox").find("textarea").val();
+            var add_autocomplete  = thiss.closest(".cls_textarea_subbox").find("[name=add_to_autocomplete]").is(':checked') ;
             data.append(field, typeId);
             data.append("message", message);
             data.append("status", 1);
+            data.append("add_autocomplete", add_autocomplete);
 
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {

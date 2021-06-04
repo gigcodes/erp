@@ -43,9 +43,11 @@
         <td class="message-input">
             <div class="row cls_textarea_subbox">
                 <div class="col-md-9 cls_remove_rightpadding">
-                    <textarea rows="1" class="form-control quick-message-field cls_quick_message" data-customer-id="{{ $pam->customer_id }}" name="message" placeholder="Message"></textarea>
+                    <textarea rows="1" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-customer-id="{{ $pam->customer_id }}" name="message" placeholder="Message"></textarea>
                 </div>
+                
                 <div class="col-md-1 cls_remove_allpadding">
+                    <input class="" name="add_to_autocomplete" class="add_to_autocomplete" type="checkbox" value="true">
                     <button class="btn btn-sm btn-image send-message1" data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
                     @if($pam->vendor_id > 0 )
                         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="vendor" data-id="{{$pam->vendor_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
