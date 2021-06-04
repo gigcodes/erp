@@ -55,6 +55,11 @@
                     <th>Description</th>
                     <th>Color</th>
                     <th>Size</th>
+                    <th>Category</th>
+                    <th>Composition</th>
+                    <th>Price</th>
+                    <th>Size System</th>
+                    <th>Discount</th>
                     <th>Dimensions</th>
                 </tr>
                 @foreach($products as $product)
@@ -79,6 +84,21 @@
                         </td>
                         <td>
                             {{isset($product->size) ? $product->size : "-"}}
+                        </td>
+                        <td>
+                            {{isset($product->product->category) ? $product->product->categories->title : "-"}}
+                        </td>
+                        <td>
+                            {{isset($product->composition) ? $product->composition : "-"}}
+                        </td>
+                        <td>
+                            {{isset($product->price) ? $product->price : "-"}}
+                        </td>
+                        <td>
+                            {{isset($product->size_system) ? $product->size_system : "-"}}
+                        </td>
+                        <td>
+                            {{isset($product->price_discounted) ? $product->price_discounted : "-"}}
                         </td>
                         <td>
                             {{isset($product->product) ? $product->product->lmeasurement.",".$product->product->hmeasurement.",".$product->product->dmeasurement : "-"}}
