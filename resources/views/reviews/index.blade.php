@@ -15,6 +15,7 @@
           </div>
           @endif
       </div>
+      {{$filter_platform}}
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Reviews</h2>
             <div class="pull-left">
@@ -60,29 +61,32 @@
     </div>
 
     @include('partials.flash_messages')
-
+    @php 
+      $active_tab = request('tab');
+    @endphp
+    
     <div id="exTab2" class="container mt-3">
       <ul class="nav nav-tabs">
-        <li class="active">
-          <a href="#accounts_tab" data-toggle="tab">Accounts</a>
+        <li class="@if($active_tab == '' || $active_tab == 'accounts_tab') active @endif">
+          <a href="#accounts_tab" class="tab-filter" data-toggle="tab">Accounts</a>
         </li>
-        <li>
-          <a href="#reviews_tab" data-toggle="tab">Reviews</a>
+        <li class="@if($active_tab == 'reviews_tab') active @endif">
+          <a href="#reviews_tab" class="tab-filter" data-toggle="tab">Reviews</a>
         </li>
-        <li>
-          <a href="#posted_tab" data-toggle="tab">Posted Reviews</a>
+        <li class="@if($active_tab == 'posted_tab') active @endif">
+          <a href="#posted_tab" class="tab-filter" data-toggle="tab">Posted Reviews</a>
         </li>
-        <li>
-          <a href="#complaints_tab" data-toggle="tab">Instagram Threads</a>
+        <li class="@if($active_tab == 'complaints_tab') active @endif">
+          <a href="#complaints_tab" class="tab-filter" data-toggle="tab">Instagram Threads</a>
         </li>
-        <li>
-          <a href="#instagram_dm" data-toggle="tab">Instagram DM</a>
+        <li class="@if($active_tab == 'instagram_dm') active @endif">
+          <a href="#instagram_dm" class="tab-filter" data-toggle="tab">Instagram DM</a>
         </li>
       </u>
     </div>
 
     <div class="tab-content">
-      <div class="tab-pane active mt-3" id="accounts_tab">
+      <div class="tab-pane @if($active_tab == '' || $active_tab == 'accounts_tab') active @endif mt-3" id="accounts_tab">
         <div class="table-responsive mt-3">
           <table class="table table-bordered">
             <thead>
@@ -131,7 +135,7 @@
         {!! $accounts->appends(Request::except('page'))->links() !!}
       </div>
 
-      <div class="tab-pane mt-3" id="reviews_tab">
+      <div class="tab-pane @if($active_tab == 'reviews_tab') active @endif mt-3" id="reviews_tab">
         <button class="btn btn-secondary add_brands" data-toggle="modal" data-target="#myModal">Add Brands</button>
         <button class="btn btn-secondary" data-toggle="modal" data-target="#brandList">Brand List</button>
         <div class="table-responsive mt-3">
@@ -159,7 +163,7 @@
                   <td>{{ $schedule->username }}</td>
                   <td>{{ $schedule->title }}</td>
                   <td>
-                    <div class="show_hide_description">Show Body Comment</div>
+                    <div class="show_hide_description" style="cursor: pointer;">Show Body Comment</div>
                     <div class="description_content" style="display:none">
                       {{ $schedule->body }}
                     </div></td>
@@ -177,7 +181,7 @@
         {!! $review_schedules->appends(Request::except('review-page'))->links() !!}
       </div>
 
-      <div class="tab-pane mt-3" id="posted_tab">
+      <div class="tab-pane @if($active_tab == 'posted_tab') active @endif mt-3" id="posted_tab">
         <div class="table-responsive mt-3">
           <table class="table table-bordered">
             <thead>
@@ -249,7 +253,7 @@
         {!! $posted_reviews->appends(Request::except('posted-page'))->links() !!}
       </div>
 
-      <div class="tab-pane mt-3" id="complaints_tab">
+      <div class="tab-pane @if($active_tab == 'complaints_tab') active @endif mt-3" id="complaints_tab">
         <div class="table-responsive mt-3">
           <table class="table table-bordered">
             <thead>
@@ -431,7 +435,7 @@
         {!! $complaints->appends(Request::except('complaints-page'))->links() !!}
       </div>
 
-      <div class="tab-pane mt-3" id="instagram_dm">
+      <div class="tab-pane @if($active_tab == 'instagram_dm') active @endif mt-3" id="instagram_dm">
         <div class="table-responsive mt-3">
           <table class="table table-bordered">
             <thead>
@@ -540,6 +544,12 @@
                             <input type="text" name="name" class="form-control" placeholder="Enter name" required="">
                           </div>
                       </div>
+                      <div class="col-md-12">
+                          <div class="form-group">
+                            <label  class="col-form-label">URL:</label>
+                            <input type="text" name="url" class="form-control" placeholder="Enter url" required="">
+                          </div>
+                      </div>
                   </div>
             </div>
           </div>
@@ -568,12 +578,14 @@
                 <thead>
                   <tr>
                     <th>Brand Name</th>
+                    <th>Brand URL</th>
                   </tr>
                 </thead>
                 <tbody>
                   @foreach($brand_list as $brand)
                   <tr>
                     <td>{{ $brand->name }}</td>
+                    <td>{{ $brand->url }}</td>
                   </tr>
                   @endforeach
                 </tbody>
@@ -1034,14 +1046,26 @@
         data: {
           _token: "{{ csrf_token() }}",
           name: $("input[name='name']").val(),
+          url: $("input[name='url']").val(),
         }
       }).done(function() {
-        toastr["success"]('Data save successfully.');
         $('.saveBrand').attr('disable',false);
+        $('#myModal').modal('hide');
+        toastr["success"]('Data save successfully.');
       }).fail(function(response) {
         toastr["error"]('An error occured!');
         $('.saveBrand').attr('disable',false);
       });
     });
+    $(document).on('click','.tab-filter', function(event){
+      var tab = $(this).attr('href');
+      // const url = new URL(window.location.href);
+      // url.searchParams.set('tab', 'tab');
+
+      const urlParams = new URLSearchParams(window.location.search);
+      urlParams.set('tab', tab.replace("#", ""));
+      window.location.search = urlParams;
+
+    })
   </script>
 @endsection
