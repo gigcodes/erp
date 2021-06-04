@@ -219,7 +219,7 @@
                 <div class="col-md-12" id="permission-request">
                     
                     @php
-                        $shell_list = shell_exec("bash webaccess-firewall.sh -f list");
+                        $shell_list = shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f list");
                         $final_array = [];
                         if($shell_list != ''){
                             $lines=explode(PHP_EOL,$shell_list);

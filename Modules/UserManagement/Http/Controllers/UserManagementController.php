@@ -1442,7 +1442,7 @@ class UserManagementController extends Controller
         return response()->json(['code' => 200 , 'data' => $data]);
     }
     public function systemIps(Requests $request){
-        $shell_list = shell_exec("bash webaccess-firewall.sh -f list");
+        $shell_list = shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f list");
         return response()->json( ["code" => 200 , "data" => $shell_list] );
     }
 }

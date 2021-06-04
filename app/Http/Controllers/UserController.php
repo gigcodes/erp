@@ -675,7 +675,7 @@ class UserController extends Controller
 
 	public function addSystemIp(Request $request){
 		if($request->ip){
-			shell_exec("bash webaccess-firewall.sh -f add -i ".$request->ip);
+			shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f add -i ".$request->ip);
 			return response()->json( ["code" => 200 , "data" => "Success"] );
 		}
 		return response()->json( ["code" => 500 , "data" => "Error occured!"] );
@@ -683,7 +683,7 @@ class UserController extends Controller
 
 	public function deleteSystemIp(Request $request){
 		if($request->index){
-			shell_exec("bash webaccess-firewall.sh -f delete -n ".$request->index);
+			shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f delete -n ".$request->index);
 			return response()->json( ["code" => 200 , "data" => "Success"] );
 		}
 		return response()->json( ["code" => 500 , "data" => "Error occured!"] );
