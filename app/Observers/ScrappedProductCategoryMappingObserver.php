@@ -78,20 +78,18 @@ class ScrappedProductCategoryMappingObserver
 
             foreach ($all_category as $key => $val)
             {
-                if(strpos($scrapedproducts->properties, $val) !== false && !in_array($key, $all_categ)){
-                    $pro_arr[] = ['category_mapping_id' => $key,
-                    'product_id' => $scrapedproducts->id
-                ];
-                } 
+                if(is_string($val)) {
+                    if(strpos($scrapedproducts->properties, $val) !== false && !in_array($key, $all_categ)){
+                        $pro_arr[] = ['category_mapping_id' => $key,
+                            'product_id' => $scrapedproducts->id
+                        ];
+                    } 
+                }
             }
 
-            
-            ScrappedProductCategoryMapping::insert($pro_arr);
-            
-
-            
-
-            
+            if(!empty($pro_arr)) {
+                ScrappedProductCategoryMapping::insert($pro_arr);
+            }
         }
         
     }
