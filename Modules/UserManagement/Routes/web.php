@@ -51,4 +51,5 @@ Route::prefix('user-management')->middleware('auth')->group(function() {
     Route::post('{id}/assign-database-table', 'UserManagementController@assignDatabaseTable')->name("user-management.assign-database-table");
     Route::post('{id}/delete-database-access', 'UserManagementController@deleteDatabaseAccess')->name("user-management.delete-database-access");
     Route::post('{id}/choose-database', 'UserManagementController@chooseDatabase')->name("user-management.choose-database");
+    Route::post('/update-status', 'UserManagementController@updateStatus');
 });

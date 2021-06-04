@@ -11,7 +11,7 @@
 
            <div class="task_hours_section" style="text-align:center;">
                     <p style="margin:0px;text-align:right"><strong>Total Priority Task Hours:</strong>  <span>{{:userTiming.total_priority_hours}} Hours</span></p>
-                    <p style="margin:0px;text-align:right"><strong>Today Available Hours:</strong>  <span>{{:userTiming.total_available_time}} Hours</span></p>
+                    <p style="margin:0px;text-align:right"><strong>Today Available Hours:</strong>  <span>{{:userTiming.total_available_time}} Hours</span> <a title="Add Avaibility" class="btn btn-image load-time-modal" data-id="{{:user.id}}"><i class="fa fa-clock-o" aria-hidden="true"></i></a></p>
                     <p style="margin:0px;"><strong>Pending Task Estimated Hours:</strong> <span>{{:userTiming.total_pending_hours}} Hours</span></><br>
                     <p style="margin:0px;"><strong>Total Available Hours:</strong>  <span>{{:userTiming.total_avaibility_hour}} Hours</span></p>
             </div>
@@ -43,10 +43,11 @@
                       {{/if}}
 					  </td>
                     <td>
-                        <select class="form-control" data-status="{{:prop.status_falg}}"  onchange="resolveIssue(this,{{:prop.task_id}})">
+                        <select class="form-control data-status" data-type="{{:prop.type}}" data-status="{{:prop.status_falg}}" 
+                        onchange="resolveIssue(this,{{:prop.task_id}})">
                             <option value="">Select status</option>
                             <?php foreach ($statusList as $key => $value) { ?>
-                                <option value="<?php echo $value->name; ?>" ><?php echo $value->name; ?></option>
+                                <option value="<?php echo $value->name; ?>" data-id="<?php echo $value->id; ?>" ><?php echo $value->name; ?></option>
                             <?php } ?>
                         </select>
                         {{:prop.status_falg}}
@@ -86,7 +87,6 @@
 					  <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="{{:prop.task_id}}" title="Load messages"><img src="/images/chat.png" alt="" style="cursor: nwse-resize;"></button>
 					  {{/if}}
                     <!-- </div> -->
-					  	
 					  </td>
 				  </tr>
 				  {{/props}}
@@ -115,10 +115,13 @@
         let self = this;
 
         $.ajax({
-            url: "<?php echo action('DevelopmentController@resolveIssue');?>",
+        	type: 'POST',
+            url: "/user-management/update-status",
             data: {
+            	_token: "<?php echo csrf_token(); ?>",
                 issue_id: id,
-                is_resolved: status
+                is_resolved: status,
+                type: $(obj).data('type')
             },
             success: function () {
                 toastr["success"]("Status updated!", "Message")
@@ -128,7 +131,7 @@
             }
         });
     }
-
+    
 	// $(document).on('click', '.task-send-message-btn', function () {
 	// 	var cached_suggestions = localStorage['message_suggestions'];
  //            var thiss = $(this);

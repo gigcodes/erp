@@ -13,15 +13,12 @@
     #payment-table_filter {
         text-align: right;
     }
-
     .activity-container {
         margin-top: 3px;
     }
-
     .elastic {
         transition: height 0.5s;
     }
-
     .activity-table-wrapper {
         position: absolute;
         width: calc(100% - 50px);
@@ -917,6 +914,22 @@ $(document).on('click', '.send-message', function () {
                 alert('Please enter a message first');
             }
         });
+    //
+    $(document).on('click','.load-task-modal',function(){
+        setTimeout(function(){
+            $('.task-modal-userid').attr('data-id',$(this).data('id'));
+            $.each($('.data-status'),function(i,item){
+                var value = $(this).data('status');
+                $.each($(this).children('option'),function(is,items){
+                    if($(this).attr('value') == value || $(this).data('id') == value){
+                       $(this).attr('selected','selected');
+                    }
+                })
+                //console.log($(this).data('status'));
+            });
+        },3000);
+
+    });
 </script>
 
 @endsection
