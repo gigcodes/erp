@@ -15,11 +15,32 @@ class UpdatePlansTable4894567 extends Migration
     {
         //
         Schema::table('plans', function (Blueprint $table) {
-            $table->text('strength')->nullable();
-            $table->text('weakness')->nullable();
-            $table->text('opportunity')->nullable();
-            $table->text('threat')->nullable();
-            $table->text('category')->nullable();
+            if (!Schema::hasColumn('plans', 'strength')) //check the column
+            {
+                $table->text('strength')->nullable();
+            }
+
+            if (!Schema::hasColumn('plans', 'weakness')) //check the column
+            {
+                $table->text('weakness')->nullable();
+            }
+
+
+            if (!Schema::hasColumn('plans', 'opportunity')) //check the column
+            { 
+                $table->text('opportunity')->nullable();
+            }
+
+
+            if (!Schema::hasColumn('plans', 'threat')) //check the column
+            {
+                $table->text('threat')->nullable();
+            }
+
+            if (!Schema::hasColumn('plans', 'category')) //check the column
+            {
+                $table->text('category')->nullable();
+            }
         });
     }
 
