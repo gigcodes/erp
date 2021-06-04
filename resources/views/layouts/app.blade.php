@@ -176,7 +176,6 @@ $metaData = '';
     <link href="https://unpkg.com/tabulator-tables@4.0.5/dist/css/tabulator.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.css">
-    <link rel="stylesheet" href="{{ url('css/global_custom.css') }}">
 
     @yield("styles")
 
@@ -531,9 +530,6 @@ $metaData = '';
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('supplier/category/permission') }}">Supplier Category <br> Permission</a></a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('supplier.discount.files') }}">Supplier Discount Files</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1444,7 +1440,7 @@ $metaData = '';
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.product-attribute.index') }}">Product Attribute</a>
                                     </li>
-									<li class="nav-item">
+                                    <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('scrapper.phyhon.index') }}">Site Scrapper Phyhon</a>
                                     </li>
                                     <li class="nav-item">
@@ -1868,22 +1864,6 @@ $metaData = '';
                                 </li>
                             </ul>
                         </li>
-                        
-                        <!------    System Menu     !-------->
-                        <li class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin Menu <span class="caret"></span></a>
-                            <ul class="dropdown-menu multi-level">
-                                {{-- Sub Menu Admin Menu --}} 
-                                <li class="nav-item dropdown dropdown-submenu">
-                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Database Menu<span class="caret"></span></a>
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('admin.databse.menu.direct.dbquery')}}">Direct DB Query</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
 
                     </ul>
 
@@ -1997,6 +1977,9 @@ $metaData = '';
             <nav id="quick-sidebar">
                 <ul class="list-unstyled components">
                     <li>
+                        <a class="notification-buttonS quick-icon" href="/"><span><i class="fa fa-home fa-2x"></i></span></a>
+                    </li>
+                    <li>
                         <a class="notification-button quick-icon" href="#"><span><i class="fa fa-bell fa-2x"></i></span></a>
                     </li>
                     <li>
@@ -2101,18 +2084,13 @@ $metaData = '';
                             </div>
                             <div class="card-body contacts_body">
                                 @php
-
-                                $chatIds = \App\CustomerLiveChat::with('customer')->orderBy('seen','asc')
-                                ->orderBy('status','desc')
-                                ->get();
-
+                                $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
                                 $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
-
                                 @endphp
                                 <ul class="contacts" id="customer-list-chat">
                                     @foreach ($chatIds as $chatId)
                                     @php
-                                    $customer = $chatId->customer;
+                                    $customer = \App\Customer::where('id',$chatId->customer_id)->first();
                                     $customerInital = substr($customer->name, 0, 1);
                                     @endphp
                                     <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
@@ -2289,7 +2267,6 @@ $metaData = '';
     <script type="text/javascript" src="{{asset('js/jquery.cookie.js')}}"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-    <script type="text/javascript" src="{{url('js/custom_global_script.js')}}"></script>
     <script>
         $(document).ready(function() {
             //$.cookie('auto_refresh', '0', { path: '/{{ Request::path() }}' });
@@ -2322,7 +2299,6 @@ $metaData = '';
             $('#notification-date').datetimepicker({
                 format: 'YYYY-MM-DD'
             });
-
 
             $('#notification-time').datetimepicker({
                 format: 'HH:mm'
