@@ -34,9 +34,27 @@
     </thead>
     <tbody>
     <?php if (!empty($pendingApprovalMsg)) {?>
-    <?php foreach ($pendingApprovalMsg as $pam) {?>
+    <?php foreach ($pendingApprovalMsg as $pam) { ?>
     <tr>
-        <td data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id}}" data-vendor-id="{{$pam->vendor_id}}">{{  ($pam->vendor_id > 0 ) ? "#".$pam->vendor_id." ".$pam->vendors_name : "#".$pam->customer_id." ".$pam->customer_name }}</td>
+
+        @php
+
+            $context = 'customer';
+            $issueID = null;
+            if($pam->chatBotReplychat){
+            
+                $reply = json_decode($pam->chatBotReplychat->reply);
+                
+                if(isset($reply->context)){
+                    $context = $reply->context;
+                    $issueID = $reply->issue_id;
+                }
+
+            }
+
+        @endphp
+
+        <td data-context="{{ $context }}" data-url={{ route('whatsapp.send', ['context' => $context]) }} {{ $pam->taskUser ? 'data-chat-message-reply-id='.$pam->chat_bot_id : '' }}  data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id ?? ( $pam->taskUser ? $issueID : '')}}" data-vendor-id="{{$pam->vendor_id}}">{{  ($pam->vendor_id > 0 ) ? "#".$pam->vendor_id." ".$pam->vendors_name : ( $pam->taskUser ? '#'.$pam->taskUser->id .' ' . $pam->taskUser->name : "#".$pam->customer_id." ".$pam->customer_name  )  }}</td>
         <td>{{ $pam->website_title }}</td>
         <td class="user-input">{{ $pam->question }}</td>
         <td class="boat-replied">{{ $pam->answer }}</td>
@@ -50,7 +68,7 @@
                     @if($pam->vendor_id > 0 )
                         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="vendor" data-id="{{$pam->vendor_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                     @else
-                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="customer" data-id="{{$pam->customer_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="customer" data-id="{{$pam->customer_id }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                     @endif
                 </div>
             </div>

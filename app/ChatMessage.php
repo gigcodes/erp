@@ -322,6 +322,11 @@ class ChatMessage extends Model
         return $this->hasOne("\App\ChatBotReply","chat_id", "id");
     }
 
+    public function chatBotReplychat()
+    {
+        return $this->hasOne(ChatbotReply::class,"replied_chat_id", "id");
+    }
+
     public function suggestion()
     {
         return $this->hasOne("App\SuggestedProduct","chat_message_id","id");

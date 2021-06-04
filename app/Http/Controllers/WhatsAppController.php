@@ -2071,9 +2071,19 @@ class WhatsAppController extends FindByNumberController
 
                 $module_id = $request->task_id;
 
-                // if ($data['erp_user'] != Auth::id()) {
-                //   $data['status'] = 0;
-                // }
+                /** Sent To ChatbotMessage */
+                
+                \App\ChatbotReply::create([
+                    'question'=> '#' . $task->id . ' => '. $request->message,
+                    'reply' => json_encode([
+                        'context' => 'task',
+                        'issue_id' => $task->id,
+                        'from' => $request->user()->id
+                    ]),
+                    'replied_chat_id' => $chat_message->id,
+                    'reply_from' => 'database'
+                ]);
+                
             }elseif($context == 'ticket'){
                 $data['ticket_id'] = $request->ticket_id;
                 $module_id = $request->ticket_id;
@@ -2331,6 +2341,7 @@ class WhatsAppController extends FindByNumberController
                             }
                         }
                     }
+
                     ChatMessagesQuickData::updateOrCreate([
                         'model' => \App\DeveloperTask::class,
                         'model_id' => $params['issue_id']
@@ -2339,6 +2350,38 @@ class WhatsAppController extends FindByNumberController
                         'last_communicated_message_at' => Carbon::now(),
                         'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
                     ]);
+
+                    if ($sendTo == "to_master") {
+                        
+                        /* Send to chatbot/messages */
+                        
+                        \App\ChatbotReply::create([
+                            'question'=> '#DEVTASK-' . $issue->id . ' => '. $request->message,
+                            'reply' => json_encode([
+                                'context' => 'issue',
+                                'issue_id' => $issue->id,
+                                'from' => $request->user()->id
+                            ]),
+                            'replied_chat_id' => $chat_message->id,
+                            'reply_from' => 'database'
+                        ]);
+                    }
+
+                    if($request->chat_reply_message_id){
+
+                        $messageReply = \App\ChatbotReply::find($request->chat_reply_message_id);
+
+                        if($messageReply){
+
+                            $prefix = ($issue->task_type_id == 1) ? "#DEVTASK-" : "#ISSUE-";
+
+                            $messageReply->chat_id = $chat_message->id;
+                            
+                            $messageReply->save();
+
+                        }
+
+                    }
 
                     return response()->json(['message' => $chat_message]);
 
@@ -2884,7 +2927,9 @@ class WhatsAppController extends FindByNumberController
                 'last_communicated_message_at' => Carbon::now(),
                 'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
             ]);
+
         }
+
         if ($context == 'task') {
             ChatMessagesQuickData::updateOrCreate([
                 'model' => \App\Task::class,
@@ -2894,6 +2939,20 @@ class WhatsAppController extends FindByNumberController
                 'last_communicated_message_at' => Carbon::now(),
                 'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
             ]);
+
+            if($request->chat_reply_message_id){
+
+                $messageReply = \App\ChatbotReply::find($request->chat_reply_message_id);
+
+                if($messageReply){
+                    
+                    $messageReply->chat_id = $chat_message->id;
+                    
+                    $messageReply->save();
+
+                }
+
+            }
         }
 
         if ($context == 'task_lead') {
