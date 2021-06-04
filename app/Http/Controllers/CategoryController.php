@@ -6,6 +6,8 @@ use App\BrandCategoryPriceRange;
 use App\Category;
 use App\CategorySegment;
 use App\ScrapedProducts;
+use App\ScrappedCategoryMapping;
+use App\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
@@ -583,15 +585,22 @@ class CategoryController extends Controller
         $unKnownCategories = $this->paginate($unKnownCategories,50);
         $unKnownCategories->setPath($request->url());
 
+
+        // $scrapped_category_mapping = ScrappedCategoryMapping::withCount('cat_count')->with(['scmSPCM'])->limit(5)->get();
+
+        $scrapped_category_mapping = ScrappedCategoryMapping::withCount('cat_count')->with(['scmSPCM']);
+        $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination'));
+
+
         //check if the items is not empty
 
         // $TotalProductCount = array_sum(array_column($mainArr,'cat_product_count'));
 
-        $categoryAll   = Category::where('id', '!=', $unKnownCategory->ide)->where('magento_id', '!=', '0')->get();
+        $categoryAll   = Category::with('childs')->where('id', '!=', $unKnownCategory->ide)->where('magento_id', '!=', '0')->get();
         $categoryArray = [];
         foreach ($categoryAll as $category) {
             $categoryArray[] = array('id' => $category->id, 'value' => $category->title);
-            $childs          = Category::where('parent_id', $category->id)->get();
+            $childs          = $category->childs;  //Category::where('parent_id', $category->id)->get();
             foreach ($childs as $child) {
                 $categoryArray[] = array('id' => $child->id, 'value' => $category->title . ' > ' . $child->title);
                 $grandChilds     = Category::where('parent_id', $child->id)->get();
@@ -615,7 +624,8 @@ class CategoryController extends Controller
             $need_to_skip_status = 0;    
         // END - #DEVTASK-4143
 
-        return view('category.new-reference', ['unKnownCategories' => $unKnownCategories, 'categoryAll' => $categoryArray, 'unKnownCategoryId' => $unKnownCategory->id , 'need_to_skip_status' => $need_to_skip_status]);
+        return view('category.new-reference', ['unKnownCategories' => $unKnownCategories, 'categoryAll' => $categoryArray, 'unKnownCategoryId' => $unKnownCategory->id , 'need_to_skip_status' => $need_to_skip_status, 'scrapped_category_mapping' => $scrapped_category_mapping]);
+
     }
 
     /**

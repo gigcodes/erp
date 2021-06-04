@@ -48,6 +48,10 @@
         .status .select2 .select2-selection{
             width:80px;
         }
+
+        #remark-list tr td{
+            word-break : break-all !important;
+        }
     </style>
 @endsection
 
@@ -159,6 +163,13 @@
                         </button>
                     </a>
                 </div>
+                <div class="col-md-2 mt-1">
+                    <a href="javascript:void(0)">
+                        <button type="button" class="btn btn-default btn-sm position-all">
+                            <span class="glyphicon glyphicon-th-list"></span> Download Scraper position
+                        </button>
+                    </a>
+                </div>
             </div>
          </div>   
    </div>
@@ -217,6 +228,7 @@
                         <th>Logs</th>
                         */ ?>
                         <th>Full scrap</th>
+                        <th>Scraper Duration</th> 
                         <th>Functions</th>
                     </tr>
                     </thead>
@@ -414,6 +426,21 @@
                                     <?php echo Form::select("full_scrape",[0 => "No", 1 => "Yes"], $supplier->full_scrape, ["class" => "form-control full_scrape select2", "style" => "width:100%;"]); ?>
                                 </div>
                             </td>
+                            <td width="5%">
+                                @php
+                                    if(count($supplier->scraperDuration)){
+                                        echo $supplier->scraperDuration[0]->duration;
+                                        if(isset($supplier->scraperDuration[1])){
+                                            echo '<br>' . $supplier->scraperDuration[1]->duration;
+                                            if(isset($supplier->scraperDuration[2])){
+                                                echo '<br>' . $supplier->scraperDuration[2]->duration;
+                                            }
+                                        }
+                                    }else{
+                                        echo '-';
+                                    } 
+                                @endphp    
+                            </td>
                             <td width="14%">
                                  <div style="float:left;">       
                                 <button style="padding:1px;" type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}" title="Expand more data"><img width="2px;" src="/images/forward.png"/></button>
@@ -439,6 +466,8 @@
                                 <button style="padding:1px;" type="button" class="btn btn-image d-inline get-last-errors" data-id="{{ $supplier->id }}" data-name="{{ $supplier->scraper_name }}" title="Last errors">
                                     <i class="fa fa-list-ol"></i>
                                 </button>
+                                <!-- <button style="padding:1px;" type="button" class="btn btn-image d-inline" title="update process" onclick="updateScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}', {{$supplier->id}} )"><i class="fa fa-send"></i></button> -->
+                                <button style="padding:1px;" type="button" class="btn btn-image d-inline" title="kill process" onclick="killScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}')"><i class="fa fa-close"></i></button> 
                                 @if($isAdmin)
                                     <div class="flag-scraper-div" style="float:none;display:contents;"> 
                                         @if ($supplier->flag == 1)
@@ -456,6 +485,7 @@
                                     </div>
                                 @endif
                                 </div>
+                                <p class="d-none duration_display"></p>
                                 
                             </td>
                             </tr>
@@ -824,8 +854,8 @@
                         <div class="form-group">
                             <label>Select Scraper</label>
                             <select name="scraper_name" class="form-control select2" required>
-                                @forelse ($allScrapper as $item)
-                                    <option value="{{ $item }}">{{ $item }}</option>
+                                @forelse ($allScrapper as $k => $item)
+                                    <option value="{{ $item }}#{{$k}}">{{ $item }}</option>
                                 @empty
                                 @endforelse
                             </select>
@@ -1460,6 +1490,54 @@
             
         }
 
+        function updateScript(name,server_id, data_id) {
+            var data_id = data_id;
+            var x = confirm("Are you sure you want to update script?");
+            if (x)
+                  $.ajax({
+                    url: '/api/node/update-script',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {name: name ,server_id : server_id, "_token": "{{ csrf_token() }}"},
+                })
+                .done(function(response) {
+                    if(response.code == 200){
+                        alert('Script updated Successfully');
+                        if(response.duration !== null){
+                            $(`tr[data-id='${data_id}'] td:last-child .duration_display`).html(`${response.duration}`);
+                            $(`tr[data-id='${data_id}'] td:last-child .duration_display`).css('display', 'inherit');
+                            $(`tr[data-id='${data_id}'] td:last-child .duration_display`).removeClass('d-none'); 
+                        }
+                    }else{
+                        alert('Please check if server is running')
+                    }
+                }) ;
+            else
+                return false;    
+            
+        }
+
+        function killScript(name,server_id) {
+            var x = confirm("Are you sure you want to kill script?");
+            if (x)
+                  $.ajax({
+                    url: '/api/node/kill-script',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {name: name ,server_id : server_id, "_token": "{{ csrf_token() }}"},
+                })
+                .done(function(response) {
+                    if(response.code == 200){
+                        alert('Script killed Successfully')
+                    }else{
+                        alert('Please check if server is running')
+                    }
+                }) ;
+            else
+                return false;    
+            
+        }
+
 
         function getRunningStatus(name,server_id) {
             var x = confirm("Are you sure you want to restart script?");
@@ -1833,5 +1911,103 @@
             }
         });
 
+        //STRAT - Purpose : Download  Position History - DEVTASK-4086
+        $(document).on("click",".downloadPositionHistory",function(e) {
+            e.preventDefault();
+            var id = $(this).data("id");
+            $.ajax({
+                url: "/scrap/position-history-download",
+                type: 'POST',
+                "dataType": 'json',           // what to expect back from the PHP script, if anything
+                data: {
+                    id: id,
+                    "_token": "{{ csrf_token() }}"
+                },
+                beforeSend: function () {
+                   
+                }
+            }).done(function (response) {
+                
+                if(response.downloadUrl){
+                    var form = $("<form/>", 
+                            { action:"/chat-messages/downloadChatMessages",
+                                method:"POST",
+                                target:'_blank',
+                                id:"chatHiddenForm",
+                                }
+                        );
+                    form.append( 
+                        $("<input>", 
+                            { type:'hidden',  
+                            name:'filename', 
+                            value:response.downloadUrl }
+                        )
+                    );
+                    form.append( 
+                        $("<input>", 
+                            { type:'hidden',  
+                            name:'_token', 
+                            value:$('meta[name="csrf-token"]').attr('content') }
+                        )
+                    );
+                    $("body").append(form);
+                    $('#chatHiddenForm').submit();
+                }else{
+                    console.log('no message found !')
+                }
+               
+            }).fail(function (errObj) {
+                
+            });
+        });
+        //END - DEVTASK-4086
+
+
+        $(document).on("click",".position-all",function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: "/scrap/position-all",
+                type: 'POST',
+                "dataType": 'json',           // what to expect back from the PHP script, if anything
+                data: {
+                    "_token": "{{ csrf_token() }}"
+                },
+                beforeSend: function () {
+                   
+                }
+            }).done(function (response) {
+                
+                if(response.downloadUrl){
+                    var form = $("<form/>", 
+                            { action:"/chat-messages/downloadChatMessages",
+                                method:"POST",
+                                target:'_blank',
+                                id:"chatHiddenForm",
+                                }
+                        );
+                    form.append( 
+                        $("<input>", 
+                            { type:'hidden',  
+                            name:'filename', 
+                            value:response.downloadUrl }
+                        )
+                    );
+                    form.append( 
+                        $("<input>", 
+                            { type:'hidden',  
+                            name:'_token', 
+                            value:$('meta[name="csrf-token"]').attr('content') }
+                        )
+                    );
+                    $("body").append(form);
+                    $('#chatHiddenForm').submit();
+                }else{
+                    console.log('no message found !')
+                }
+               
+            }).fail(function (errObj) {
+                
+            });
+        });
     </script>
 @endsection

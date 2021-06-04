@@ -65,6 +65,9 @@ class ScrapStatisticsController extends Controller
 
         // Get active suppliers
         $activeSuppliers = Scraper::with([
+            'scraperDuration' => function($q){
+                $q->orderBy('id', 'desc');
+            },
             'scrpRemark' => function($q){
                 $q->whereNull("scrap_field")->where('user_name','!=','')->orderBy('created_at','desc');
             },
@@ -672,7 +675,12 @@ class ScrapStatisticsController extends Controller
 
     public function getLastRemark(Request $request)
     {
-        $lastRemark = \DB::select("select * from scrap_remarks as sr join ( select max(id) as id from scrap_remarks group by scraper_name) as max_s on sr.id =  max_s.id order by sr.scraper_name asc");
+        //START - Purpose : Coment query and write new query for display only manualy added message - DEVTASK-4086
+        //$lastRemark = \DB::select("select * from scrap_remarks as sr join ( select max(id) as id from scrap_remarks group by scraper_name) as max_s on sr.id =  max_s.id order by sr.scraper_name asc");
+
+        $lastRemark = \DB::select("select * from scrap_remarks as sr join ( select max(id) as id from scrap_remarks group by scraper_name) as max_s on sr.id =  max_s.id WHERE sr.user_name IS NOT NULL order by sr.scraper_name asc");
+
+       //END - DEVTASK-4086
 
         $download = $request->input('download');
         if (!empty($download)) {
@@ -782,6 +790,46 @@ class ScrapStatisticsController extends Controller
         return view("scrap.partials.position-history", compact('histories'));
     }
 
+    //STRAT - Purpose : Download  Position History - DEVTASK-4086
+    public function positionHistorydownload(Request $request)
+    {
+        $histories = \App\ScraperPositionHistory::where("scraper_id", $request->id)->latest()->get();
+
+        $chatFileData = '';
+        $chatFileData .= html_entity_decode("Scraper Position History",ENT_QUOTES, 'UTF-8');
+        $chatFileData .= "\n"."\n";
+
+        if(!$histories->isEmpty()){
+            foreach($histories as $k => $v) {
+                $chatFileData .= html_entity_decode("Scraper Name : ".$v->scraper_name,ENT_QUOTES, 'UTF-8');
+                $chatFileData .= "\n";
+                $chatFileData .= html_entity_decode("Comment : ".$v->comment,ENT_QUOTES, 'UTF-8');
+                $chatFileData .= "\n";
+                $chatFileData .= html_entity_decode("Created at : ".$v->created_at,ENT_QUOTES, 'UTF-8');
+                $chatFileData .= "\n"."\n";
+            }
+        }
+
+        $storagelocation = storage_path().'/chatMessageFiles';
+            if(!is_dir($storagelocation)){
+                mkdir($storagelocation,0777, true);
+            }
+            $filename= "Scraper_Position_History.txt";
+            $file = $storagelocation.'/'. $filename;
+            $txt = fopen($file, "w") or die("Unable to open file!");
+            fwrite($txt, $chatFileData);
+            fclose($txt);
+            if($chatFileData==''){
+                return response()->json([
+                    'downloadUrl' => ''
+                ]);
+            }
+            return response()->json([
+                'downloadUrl' => $file
+            ]);
+    }
+    //END - DEVTASK-4086
+
     public function taskList(Request $request)
     {
         $id             = $request->id;
@@ -886,6 +934,43 @@ class ScrapStatisticsController extends Controller
         }
 
         return redirect()->back();
+    }
+
+    public function positionAll()
+    {
+        $histories = \App\ScraperPositionHistory::whereDate('created_at', now()->subDays(7)->format('Y-m-d'))->latest()->get();
+        $chatFileData = '';
+        $chatFileData .= html_entity_decode("Scraper Position History",ENT_QUOTES, 'UTF-8');
+        $chatFileData .= "\n"."\n";
+
+        if(!$histories->isEmpty()){
+            foreach($histories as $k => $v) {
+                $chatFileData .= html_entity_decode("Scraper Name : ".$v->scraper_name,ENT_QUOTES, 'UTF-8');
+                $chatFileData .= "\n";
+                $chatFileData .= html_entity_decode("Comment : ".$v->comment,ENT_QUOTES, 'UTF-8');
+                $chatFileData .= "\n";
+                $chatFileData .= html_entity_decode("Created at : ".$v->created_at,ENT_QUOTES, 'UTF-8');
+                $chatFileData .= "\n"."\n";
+            }
+        }
+
+        $storagelocation = storage_path().'/chatMessageFiles';
+            if(!is_dir($storagelocation)){
+                mkdir($storagelocation,0777, true);
+            }
+            $filename= "Scraper_Position_History.txt";
+            $file = $storagelocation.'/'. $filename;
+            $txt = fopen($file, "w") or die("Unable to open file!");
+            fwrite($txt, $chatFileData);
+            fclose($txt);
+            if($chatFileData==''){
+                return response()->json([
+                    'downloadUrl' => ''
+                ]);
+            }
+            return response()->json([
+                'downloadUrl' => $file
+            ]);
     }
 
     public function serverStatusHistory(Request $request)

@@ -72,11 +72,13 @@
             </tr>
             <?php $count = 1; ?>
             {{-- @dd($unKnownCategories->items()); --}}
-            @foreach($unKnownCategories as $unKnownCategory)
-                @if($unKnownCategory != '')
+            @foreach($scrapped_category_mapping as $key => $unKnownCategory)
+
+                
+                @if($unKnownCategory->name != '')
                     <?php 
                         //getting name 
-                        $nameArray  = explode('/',$unKnownCategory);
+                        $nameArray  = explode('/',$unKnownCategory->name);
                         $name = end($nameArray);
 
                     ?>
@@ -86,19 +88,21 @@
                         </td>
                         
                         <td>
-                            <span class="call-used-product" data-id="{{ $unKnownCategory }}"  data-type="name">{{ $unKnownCategory }}</span> <!-- <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $unKnownCategory }}" ><img src="/images/add.png"></button> -->
+                            <span class="call-used-product" data-id="{{ $unKnownCategory->name }}"  data-type="name">{{ $unKnownCategory->name }}</span> <!-- <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $unKnownCategory }}" ><img src="/images/add.png"></button> -->
                         </td>
                         
                         <td>
-                            {{ \App\Category::website_name($unKnownCategory) }}
+                            @foreach($unKnownCategory->scmSPCM as $cat)
+                                {{$cat->website}}
+                            @endforeach 
+                        </td>
+                           
+                        <td>
+                            {{$unKnownCategory->cat_count_count}}
                         </td>
 
                         <td>
-                            {{ \App\Category::ScrapedProducts($unKnownCategory) }}
-                        </td>
-
-                        <td>
-                            <select class="select2 form-control change-list-category" data-name="{{ $name }}" data-whole="{{ $unKnownCategory }}">
+                            <select class="select2 form-control change-list-category" data-name="{{ $name }}" data-whole="{{ $unKnownCategory->name }}">
                                 @foreach($categoryAll as $cat)
                                     <option value="{{ $cat['id'] }}">{{ $cat['value'] }}</option>
                                 @endforeach
@@ -109,7 +113,7 @@
                 @endif
             @endforeach
         </table>
-        {{ $unKnownCategories->appends(request()->except('page')) }}
+        {!! $scrapped_category_mapping->render() !!}
     </div>
 </div>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 

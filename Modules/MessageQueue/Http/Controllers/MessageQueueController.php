@@ -21,6 +21,7 @@ class MessageQueueController extends Controller
         ]);
 
         $sendingLimit  = ChatMessage::getQueueLimit();
+        $sendingTime  = ChatMessage::getQueueTime();
         $sendStartTime = ChatMessage::getStartTime();
         $sendEndTime   = ChatMessage::getEndTime();
 
@@ -44,7 +45,7 @@ class MessageQueueController extends Controller
             ->groupBy("c.whatsapp_number")
             ->select(\DB::raw("count(*) as total_message"), "c.whatsapp_number")->get();
 
-        return view('messagequeue::index', compact('groupList', 'sendingLimit', 'sendStartTime', 'sendEndTime', 'waitingMessages', 'countQueue'));
+        return view('messagequeue::index', compact('groupList', 'sendingLimit', 'sendStartTime', 'sendEndTime', 'waitingMessages', 'countQueue','sendingTime'));
     }
 
     /**
@@ -233,6 +234,20 @@ class MessageQueueController extends Controller
                 ["val" => $endTime]
             );
         }
+
+        return response()->json(["code" => 200, "message" => "Done!"]);
+
+    }
+
+    public function updateTime(Request $request)
+    {
+        $limit     = $request->get("message_sending_time", []);
+        
+
+        \App\Setting::updateOrCreate(
+            ["name" => "is_queue_sending_time"],
+            ["val" => json_encode($limit), "type" => "str"]
+        );
 
         return response()->json(["code" => 200, "message" => "Done!"]);
 
