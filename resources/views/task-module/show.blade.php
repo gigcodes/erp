@@ -109,7 +109,7 @@
             padding: 4px 8px;
         }
         .btn.btn-image.btn-call-data {
-            margin-top: -9px;
+            margin-top: -15px;
         }
         .dis-none {
         display: none;
@@ -225,8 +225,11 @@
                             </select>
                         </div>
                     </div>
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <input type="checkbox" name="flag_filter"> Flagged
+                    </div>
                     <button type="button" class="btn btn-image btn-call-data"><img src="{{asset('images/filter.png')}}"/></button>
-                        <button type="button" style="height: 30px;" class="btn btn-secondary cls_comm_btn priority_model_btn">Priority</button>
+                    <button type="button" style="height: 30px;" class="btn btn-secondary cls_comm_btn priority_model_btn">Priority</button>
                 </div>    
                 
             </form>
