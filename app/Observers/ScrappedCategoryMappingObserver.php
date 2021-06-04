@@ -28,6 +28,7 @@ class ScrappedCategoryMappingObserver
     public function updated(Category $category)
     {
         //
+        $this->create($category);
     }
 
     /**

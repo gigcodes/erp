@@ -79,7 +79,7 @@ class ScrappedProductCategoryMappingObserver
             foreach ($all_category as $key => $val)
             {
                 if(strpos($scrapedproducts->properties, $val) !== false && !in_array($key, $all_categ)){
-                    $pro_arr[] = ['category_id' => $key,
+                    $pro_arr[] = ['category_mapping_id' => $key,
                     'product_id' => $scrapedproducts->id
                 ];
                 } 

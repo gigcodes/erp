@@ -15,8 +15,8 @@ class CreateScrappedProductCategoryMappingsTable extends Migration
     {
         Schema::create('scrapped_product_category_mappings', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('product_id')->nullable();
-            $table->integer('category_mapping_id')->nullable();
+            $table->integer('product_id')->nullable()->index();
+            $table->integer('category_mapping_id')->nullable()->index();
             $table->timestamps();
         });
     }
