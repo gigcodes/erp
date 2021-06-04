@@ -40,8 +40,8 @@ class FileExcelExport implements FromArray, WithHeadings, ShouldAutoSize
                 
                 if($key != 1)
                 {
-                    
-                    $arr[$this->report_data[1][$kk]]=$vv;
+                    if($this->report_data[1][$kk] != 'undefined')
+                        $arr[$this->report_data[1][$kk]]=$vv;
                    
                 }
                
