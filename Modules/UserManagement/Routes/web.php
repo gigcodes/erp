@@ -47,6 +47,7 @@ Route::prefix('user-management')->middleware('auth')->group(function() {
     Route::get('/records', 'UserManagementController@records')->name("user-management.records");
     Route::get('/user-details/{id}', 'UserManagementController@GetUserDetails')->name("user-management.user-details");
     Route::get('task-hours/{id}', 'UserManagementController@getPendingandAvalHour')->name("user-management.task-hours");
+    Route::get('/system-ips', 'UserManagementController@systemIps');
     Route::get('{id}/get-database', 'UserManagementController@getDatabase')->name("user-management.get-database");
     Route::post('{id}/create-database', 'UserManagementController@createDatabaseUser')->name("user-management.create-database");
     Route::post('{id}/assign-database-table', 'UserManagementController@assignDatabaseTable')->name("user-management.assign-database-table");
