@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 use App\DatabaseHistoricalRecord;
 use App\DatabaseTableHistoricalRecord;
 use App\ChatMessage;
+use Illuminate\Support\Facades\DB;
 
 class AddDatabaseHistoricalData extends Command
 {
@@ -104,7 +105,7 @@ class AddDatabaseHistoricalData extends Command
                                 $requestData = new Request();
                                 $requestData->setMethod('POST');
                                 $requestData->request->add(['user_id' => $user_id, 'message' => $message, 'status' => 1]);
-                                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'overdue');
+                                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'user');
                             }
                         }
                         DatabaseTableHistoricalRecord::create([
