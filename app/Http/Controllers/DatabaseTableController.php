@@ -14,6 +14,7 @@ class DatabaseTableController extends Controller
      */
     public function index(Request $request, $id)
     {
+        
         if($id){
             $databaseHis = DatabaseTableHistoricalRecord::where('database_id',$id)
                 ->crossJoin('database_historical_records', 'database_table_historical_records.database_id', '=', 'database_historical_records.id')

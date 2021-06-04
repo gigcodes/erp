@@ -178,7 +178,7 @@ $(document).on('click', '.product-list-btn', function(e) {
     var product_ids = [];
     $(document).on('click', '.btn-send', function(e) {
       e.preventDefault();
-      product_ids = [];
+      // product_ids = [];
       let type = $(this).data('type');
       let supplier_id = $(this).data('id');
 

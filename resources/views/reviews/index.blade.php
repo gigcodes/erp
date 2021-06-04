@@ -15,6 +15,7 @@
           </div>
           @endif
       </div>
+      {{$filter_platform}}
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Reviews</h2>
             <div class="pull-left">
@@ -60,29 +61,32 @@
     </div>
 
     @include('partials.flash_messages')
-
+    @php 
+      $active_tab = request('tab');
+    @endphp
+    
     <div id="exTab2" class="container mt-3">
       <ul class="nav nav-tabs">
-        <li class="active">
-          <a href="#accounts_tab" data-toggle="tab">Accounts</a>
+        <li class="@if($active_tab == '' || $active_tab == 'accounts_tab') active @endif">
+          <a href="#accounts_tab" class="tab-filter" data-toggle="tab">Accounts</a>
         </li>
-        <li>
-          <a href="#reviews_tab" data-toggle="tab">Reviews</a>
+        <li class="@if($active_tab == 'reviews_tab') active @endif">
+          <a href="#reviews_tab" class="tab-filter" data-toggle="tab">Reviews</a>
         </li>
-        <li>
-          <a href="#posted_tab" data-toggle="tab">Posted Reviews</a>
+        <li class="@if($active_tab == 'posted_tab') active @endif">
+          <a href="#posted_tab" class="tab-filter" data-toggle="tab">Posted Reviews</a>
         </li>
-        <li>
-          <a href="#complaints_tab" data-toggle="tab">Instagram Threads</a>
+        <li class="@if($active_tab == 'complaints_tab') active @endif">
+          <a href="#complaints_tab" class="tab-filter" data-toggle="tab">Instagram Threads</a>
         </li>
-        <li>
-          <a href="#instagram_dm" data-toggle="tab">Instagram DM</a>
+        <li class="@if($active_tab == 'instagram_dm') active @endif">
+          <a href="#instagram_dm" class="tab-filter" data-toggle="tab">Instagram DM</a>
         </li>
       </u>
     </div>
 
     <div class="tab-content">
-      <div class="tab-pane active mt-3" id="accounts_tab">
+      <div class="tab-pane @if($active_tab == '' || $active_tab == 'accounts_tab') active @endif mt-3" id="accounts_tab">
         <div class="table-responsive mt-3">
           <table class="table table-bordered">
             <thead>
@@ -131,87 +135,43 @@
         {!! $accounts->appends(Request::except('page'))->links() !!}
       </div>
 
-      <div class="tab-pane mt-3" id="reviews_tab">
+      <div class="tab-pane @if($active_tab == 'reviews_tab') active @endif mt-3" id="reviews_tab">
+        <button class="btn btn-secondary add_brands" data-toggle="modal" data-target="#myModal">Add Brands</button>
+        <button class="btn btn-secondary" data-toggle="modal" data-target="#brandList">Brand List</button>
         <div class="table-responsive mt-3">
           <table class="table table-bordered">
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Platform</th>
-                <th>Serial Number</th>
-                <th>Reviews for Approval</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <!-- <th>Index</th> -->
+                <th>Website</th>
+                <th>Brand</th>
+                <th>Review_url</th>
+                <th>Username</th>
+                <th>Title</th>
+                <th>Body</th>
+                <th>Stars</th>
+                <!-- <th>Actions</th> -->
               </tr>
             </thead>
-
             <tbody>
               @foreach ($review_schedules as $schedule)
                 <tr>
-                  <td></td>
-{{--                  <td>{{ \Carbon\Carbon::parse($schedule->review_schedule->date)->format('d-m') }}</td>--}}
-                  <td>{{ ucwords($schedule->platform) }}</td>
-                  <td>{{ $schedule->serial_number }}</td>
-                  <td class="{{ $schedule->is_approved == 1 ? 'text-success' : ($schedule->is_approved == 2 ? 'text-danger' : '') }}">
-                    @php
-                      preg_match_all('/(#\w*)/', $schedule->review, $match);
-
-                      $new_review = $schedule->review;
-                      foreach ($match[0] as $hashtag) {
-                        $exploded_review = explode($hashtag, $new_review);
-                        $new_hashtag = "<a target='_new' href='https://www.instagram.com/explore/tags/" . str_replace('#', '', $hashtag) . "'>" . $hashtag . "</a> ";
-                        $new_review = implode($new_hashtag, $exploded_review);
-                      }
-                    @endphp
-
-                    <span class="review-container">
-                      {!! $new_review !!}
-                    </span>
-
-                    <textarea name="review" class="form-control review-edit-textarea hidden" rows="8" cols="80">{{ $schedule->review }}</textarea>
-
-                    @if ($schedule->is_approved == 0)
-                       -
-                      <a href="#" class="btn-link review-approve-button" data-status="1" data-id="{{ $schedule->id }}">Approve</a>
-                      <a href="#" class="btn-link review-approve-button" data-status="2" data-id="{{ $schedule->id }}">Reject</a>
-                    @endif
-
-                    <a href="#" class="btn-link quick-edit-review-button" data-id="{{ $schedule->id }}">Edit</a>
-                  </td>
+                  <!-- <td></td> -->
+                  <td>{{ $schedule->website }}</td>
+                  <td>{{ $schedule->brand }}</td>
+                  <td>{{ $schedule->review_url }}</td>
+                  <td>{{ $schedule->username }}</td>
+                  <td>{{ $schedule->title }}</td>
                   <td>
-                    <div class="form-group">
-                      <select class="form-control update-schedule-status" name="status" data-id="{{ $schedule->id }}" data-review="{{ $schedule }}" data-account="{{ $schedule->account }}" data-customer="{{ $schedule->customer }}" required>
-                        <option value="prepare" {{ 'prepare' == $schedule->status ? 'selected' : '' }}>Prepare</option>
-                        <option value="prepared" {{ 'prepared' == $schedule->status ? 'selected' : '' }}>Prepared</option>
-                        <option value="posted" {{ 'posted' == $schedule->status ? 'selected' : '' }}>Posted</option>
-                        <option value="pending" {{ 'pending' == $schedule->status ? 'selected' : '' }}>Pending</option>
-                      </select>
-
-                      <span class="text-success change_status_message" style="display: none;">Successfully changed schedule status</span>
-                    </div>
-
-                    @if (count($schedule->status_changes) > 0)
-                      <button type="button" class="btn btn-xs btn-secondary change-history-toggle">?</button>
-
-                      <div class="change-history-container hidden">
-                        <ul>
-                          @foreach ($schedule->status_changes as $status_history)
-                            <li>
-                              {{ array_key_exists($status_history->user_id, $users_array) ? $users_array[$status_history->user_id] : 'Unknown User' }} - <strong>from</strong>: {{ $status_history->from_status }} <strong>to</strong> - {{ $status_history->to_status }} <strong>on</strong> {{ \Carbon\Carbon::parse($status_history->created_at)->format('H:i d-m') }}
-                            </li>
-                          @endforeach
-                        </ul>
-                      </div>
-                    @endif
-                  </td>
-                  <td>
+                    <div class="show_hide_description" style="cursor: pointer;">Show Body Comment</div>
+                    <div class="description_content" style="display:none">
+                      {{ $schedule->body }}
+                    </div></td>
+                  <td>{{ $schedule->stars }}</td>
+                  <!-- <td>
                     {{-- <button type="button" class="btn btn-image edit-schedule" data-toggle="modal" data-target="#scheduleEditModal" data-schedule="{{ $schedule }}" data-reviews="{{ $schedule }}"><img src="/images/edit.png" /></button> --}}
-                    <button type="button" class="btn btn-image edit-review" data-toggle="modal" data-target="#reviewEditModal" data-review="{{ $schedule }}"><img src="/images/edit.png" /></button>
-
-                    {!! Form::open(['method' => 'DELETE','route' => ['review.schedule.destroy', $schedule->id],'style'=>'display:inline']) !!}
-                      <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-                    {!! Form::close() !!}
-                  </td>
+                    <button type="button" class="btn btn-image edit-review" data-toggle="modal" data-target="#reviewEditModal" data-review="{{ $schedule->id }}"><img src="/images/edit.png" /></button>
+                  </td> -->
                 </tr>
               @endforeach
             </tbody>
@@ -221,7 +181,7 @@
         {!! $review_schedules->appends(Request::except('review-page'))->links() !!}
       </div>
 
-      <div class="tab-pane mt-3" id="posted_tab">
+      <div class="tab-pane @if($active_tab == 'posted_tab') active @endif mt-3" id="posted_tab">
         <div class="table-responsive mt-3">
           <table class="table table-bordered">
             <thead>
@@ -293,7 +253,7 @@
         {!! $posted_reviews->appends(Request::except('posted-page'))->links() !!}
       </div>
 
-      <div class="tab-pane mt-3" id="complaints_tab">
+      <div class="tab-pane @if($active_tab == 'complaints_tab') active @endif mt-3" id="complaints_tab">
         <div class="table-responsive mt-3">
           <table class="table table-bordered">
             <thead>
@@ -475,7 +435,7 @@
         {!! $complaints->appends(Request::except('complaints-page'))->links() !!}
       </div>
 
-      <div class="tab-pane mt-3" id="instagram_dm">
+      <div class="tab-pane @if($active_tab == 'instagram_dm') active @endif mt-3" id="instagram_dm">
         <div class="table-responsive mt-3">
           <table class="table table-bordered">
             <thead>
@@ -564,7 +524,81 @@
 
       </div>
     </div>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myBasis" aria-hidden="true">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="myBasis">New Brand</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+        <form method="post" id="brandAdd" action="#">
+          <div class="modal-body">
+            <div class="container-fluid">
+                  @csrf
+                  <div class="row subject-field">
+                      <div class="col-md-12">
+                          <div class="form-group">
+                            <label  class="col-form-label">Name:</label>
+                            <input type="text" name="name" class="form-control" placeholder="Enter name" required="">
+                          </div>
+                      </div>
+                      <div class="col-md-12">
+                          <div class="form-group">
+                            <label  class="col-form-label">URL:</label>
+                            <input type="text" name="url" class="form-control" placeholder="Enter url" required="">
+                          </div>
+                      </div>
+                  </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary saveBrand">Save</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
 
+<div class="modal fade" id="brandList" tabindex="-1" role="dialog" aria-labelledby="brandList" aria-hidden="true">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="brandList">Brand List</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+        <div class="modal-body">
+          <div class="container-fluid">
+            <div class="table-responsive mt-3">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Brand Name</th>
+                    <th>Brand URL</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach($brand_list as $brand)
+                  <tr>
+                    <td>{{ $brand->name }}</td>
+                    <td>{{ $brand->url }}</td>
+                  </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+  </div>
+</div>
     @include('reviews.partials.account-modals')
     @include('reviews.partials.review-schedule-modals')
     @include('reviews.partials.review-modals')
@@ -985,7 +1019,6 @@
             $(thiss).siblings('.review-container').removeClass('hidden');
           }).fail(function(response) {
             console.log(response);
-
             alert('Could not update review');
           });
         }
@@ -995,5 +1028,44 @@
     $(document).on('click', '.change-history-toggle', function() {
       $(this).siblings('.change-history-container').toggleClass('hidden');
     });
+    $(document).on('click','.show_hide_description',function(event){
+      event.preventDefault();
+      if($(this).siblings('.description_content').css('display') == 'none'){
+        $(this).text('Hide Body Comment');
+      }else{
+        $(this).text('Show Body Comment');
+      }
+      $(this).siblings('.description_content').toggle();
+    });
+    $(document).on('click','.saveBrand',function(event){
+      event.preventDefault();
+      $(this).attr('disable',true);
+      $.ajax({
+        type: 'POST',
+        url: "{{ route('brandreview.store') }}",
+        data: {
+          _token: "{{ csrf_token() }}",
+          name: $("input[name='name']").val(),
+          url: $("input[name='url']").val(),
+        }
+      }).done(function() {
+        $('.saveBrand').attr('disable',false);
+        $('#myModal').modal('hide');
+        toastr["success"]('Data save successfully.');
+      }).fail(function(response) {
+        toastr["error"]('An error occured!');
+        $('.saveBrand').attr('disable',false);
+      });
+    });
+    $(document).on('click','.tab-filter', function(event){
+      var tab = $(this).attr('href');
+      // const url = new URL(window.location.href);
+      // url.searchParams.set('tab', 'tab');
+
+      const urlParams = new URLSearchParams(window.location.search);
+      urlParams.set('tab', tab.replace("#", ""));
+      window.location.search = urlParams;
+
+    })
   </script>
 @endsection

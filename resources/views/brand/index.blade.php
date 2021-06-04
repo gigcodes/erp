@@ -29,6 +29,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         <div class="pull-right">
             <a class="btn btn-secondary" data-toggle="collapse" href="#inProgressFilterCount" href="javascript:;">Number of brands per site</a>
             <a class="btn btn-secondary" href="{{ route('brand.create') }}">+</a>
+            <a class="btn btn-secondary fetch-new" href="#">Fetch New Brands</a>
         </div>
     </div>
 </div>
@@ -422,5 +423,19 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                toastr['error'](response.message, 'error');
             });
         });
+    $(document).on('click','.fetch-new', function(event){
+        event.preventDefault();
+        $.ajax({
+            type: "GET",
+            url: "/brand/fetch-new/",
+            data: {
+                _token: "{{ csrf_token() }}",
+            }
+        }).done(function (response) {
+             toastr['success'](response.message, 'success');
+        }).fail(function (response) {
+           toastr['error'](response.message, 'error');
+        });
+    });
 </script>
 @endsection
