@@ -55,6 +55,7 @@
                     <th>Description</th>
                     <th>Color</th>
                     <th>Size</th>
+                    <th>Category</th>
                     <th>Composition</th>
                     <th>Price</th>
                     <th>Size System</th>
@@ -83,6 +84,9 @@
                         </td>
                         <td>
                             {{isset($product->size) ? $product->size : "-"}}
+                        </td>
+                        <td>
+                            {{isset($product->product->category) ? $product->product->categories->title : "-"}}
                         </td>
                         <td>
                             {{isset($product->composition) ? $product->composition : "-"}}
