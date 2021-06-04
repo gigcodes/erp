@@ -2092,20 +2092,15 @@ class ScrapController extends Controller
         //dd($scraper);
         if ($scraper) {
             $parentId                 = $scraper->id;
-            $checkIfChildScraperExist = Scraper::where('parent_id', $parentId)->where('scraper_name', $request->name)->first();
-            if (!$checkIfChildScraperExist) {
-                $scraperChild                  = new Scraper;
-                $scraperChild->scraper_name    = $request->name;
-                $scraperChild->supplier_id     = $scraper->supplier_id;
-                $scraperChild->parent_id       = $parentId;
-                $scraperChild->run_gap         = $request->run_gap;
-                $scraperChild->start_time      = $request->start_time;
-                $scraperChild->scraper_made_by = $request->scraper_made_by;
-                $scraperChild->server_id       = $request->server_id;
-                $scraperChild->save();
-            } else {
-                return redirect()->back()->with('message', 'Scraper Already Exist');
-            }
+            $scraperChild                  = new Scraper;
+            $scraperChild->scraper_name    = $request->name;
+            $scraperChild->supplier_id     = $scraper->supplier_id;
+            $scraperChild->parent_id       = $parentId;
+            $scraperChild->run_gap         = $request->run_gap;
+            $scraperChild->start_time      = $request->start_time;
+            $scraperChild->scraper_made_by = $request->scraper_made_by;
+            $scraperChild->server_id       = $request->server_id;
+            $scraperChild->save();
             return redirect()->back()->with('message', 'Child Scraper Saved');
         }
         return redirect()->back()->with('message', 'Scraper Not Found');
