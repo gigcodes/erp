@@ -123,9 +123,9 @@
                     </div>
                     @if( auth()->user()->isAdmin() )
                         <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 permission-request">Permission request ( {{$permissionRequest}} )</button>
-                    @endif
                         <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 erp-request">ERP IPs</button>
-                        <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 system-request" data-target="#system-request" data-modal="toggle">System IPs</button>
+                        <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 system-request" data-toggle="modal" data-target="#system-request">System IPs</button>
+                    @endif
                     
                 </div>
             </div>
@@ -185,7 +185,7 @@
             </div>
             <div class="modal-body">
                 <div class="col-md-12" id="permission-request">
-                    <table class="table fixed_header">
+                    <table class="table table-bordered">
                         <thead>
                             <tr>
                                 <th>Date</th>
@@ -220,8 +220,33 @@
                     
                     @php
                         $shell_list = shell_exec("bash webaccess-firewall.sh -f list");
-                        echo "<pre>$shell_list</pre>";
+                        $final_array = [];
+                        if($shell_list != ''){
+                            $lines=explode(PHP_EOL,$shell_list);
+                            $final_array = [];
+                            foreach($lines as $line){
+                                $values = [];
+                                $values=explode(' ',$line);
+                                array_push($final_array,$values);
+                            }
+                        }
                     @endphp
+                    <input type="text" name="add-ip" class="form-control col-md-3" placeholder="Add IP here...">
+                    <button class="btn-success btn addIp ml-3 mb-5">Add</button>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Index</th>
+                            <th>IP</th>
+                            <th>Action</th>
+                        </tr>
+                        @foreach($final_array as $values)
+                            <tr>
+                                <td>{{ $values[0]}}</td>
+                                <td>{{ $values[1]}}</td>
+                                <td><button class="btn-warning btn deleteIp" data-index="{{ $values[0]}}">Delete</button></td>
+                            </tr>
+                        @endforeach
+                    </table>
                 </div>
             </div>
             <div class="modal-footer">
@@ -471,6 +496,51 @@
             },
             error: function (){
                 $("#loading-image").hide();
+            }
+        });
+    });
+
+    $(document).on("click",".addIp",function(e) {
+        e.preventDefault();
+        if($('input[name="add-ip"]').val() != ''){
+            $.ajax({
+                url: '/users/add-system-ip',
+                type: 'GET',
+                data : { _token: "{{ csrf_token() }}",ip: $('input[name="add-ip"]').val()},
+                dataType: 'json',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function(result){
+                    $("#loading-image").hide();
+                    toastr["success"]("IP added successfully");
+                },
+                error: function (){
+                    $("#loading-image").hide();
+                    toastr["Error"]("An error occured!");
+                }
+            });
+        }else{
+            alert('please enter IP');
+        }
+    });
+    $(document).on("click",".deleteIp",function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/users/delete-system-ip',
+            type: 'GET',
+            data : { _token: "{{ csrf_token() }}",index: $(this).data('index')},
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                toastr["success"]("IP added successfully");
+            },
+            error: function (){
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
             }
         });
     });
