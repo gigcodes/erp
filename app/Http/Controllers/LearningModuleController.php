@@ -2500,5 +2500,51 @@ class LearningModuleController extends Controller {
 
    }
 
-   
+   public function learningModuleUpdate(Request $request){
+		$id = $request->id;
+		$learning = Learning::find($id);
+		if($request->user_id){
+			$learning->learning_user = $request->user_id;
+			$learning->save();
+			return response()->json(["message" => "User Updated Successfully"]);
+		}
+
+		if($request->provider_id){
+			$learning->learning_vendor = $request->provider_id;
+			$learning->save();
+			return response()->json(["message" => "provider Updated Successfully"]);
+		}
+
+		if($request->subject){
+			$learning->learning_subject = $request->subject;
+			$learning->save();
+			return response()->json(["message" => "Subject Updated Successfully"]);
+		}
+
+		if($request->module_id){
+			$learning->learning_module = $request->module_id;
+			$learning->learning_submodule = null;
+			$learning->save();
+			$submodule = LearningModule::where('parent_id',$learning->learning_module)->get();
+			return response()->json(["message" => "Module Updated Successfully","learning_id" => $learning->id,"submodule" => $submodule]);
+		}
+
+		if($request->submodule_id){
+			$learning->learning_submodule = $request->submodule_id;
+			$learning->save();
+			return response()->json(["message" => "Submodule Updated Successfully"]);
+		}
+
+		if($request->assignment){
+			$learning->learning_assignment = $request->assignment;
+			$learning->save();
+			return response()->json(["message" => "Assignment Updated Successfully"]);
+		}
+
+		if($request->status_id){
+			$learning->learning_status = $request->status_id;
+			$learning->save();
+			return response()->json(["message" => "Status Updated Successfully"]);
+		}
+   }
 }

@@ -731,6 +731,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('learning_category', 'LearningCategoryController');
     Route::post('learning_category/submodule', 'LearningCategoryController@getSubModule');
     Route::post('learning/create-learning-from-shortcut', 'LearningModuleController@createLearningFromSortcut');
+    Route::post('learning-module/update', 'LearningModuleController@learningModuleUpdate')->name('learning-module.update');
 
     Route::get('/', 'MasterControlController@index')->name('home');
     Route::get('/master-dev-task', 'MasterDevTaskController@index')->name('master.dev.task');

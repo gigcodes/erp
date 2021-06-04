@@ -315,7 +315,7 @@
                         </div>
                     </div>
 
-                    <div class="col-xs-12 col-md-1 pd-2">
+                    {{-- <div class="col-xs-12 col-md-1 pd-2">
                         <div class="form-inline">
                             <div class="cls_multi_contact">
                                 <div class="cls_multi_contact_first">
@@ -341,6 +341,15 @@
                             
 
                             
+                        </div>
+                    </div> --}}
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-group cls_learning_assignment">
+                            <!-- <strong>Subject :</strong> -->
+                            <input type="text" class="form-control input-sm" name="learning_assignment" maxlength="15" placeholder="Assignment" id="learning_assignment" value="{{ old('learning_assignment') }}" required/>
+                            @if ($errors->has('learning_assignment'))
+                                <div class="alert alert-danger">{{$errors->first('learning_assignment')}}</div>
+                            @endif
                         </div>
                     </div>
 
@@ -544,20 +553,25 @@
                         <table class="table table-sm table-bordered">
                             <thead>
                             <tr>
-                                <th width="5%">ID</th>
-                                <th width="8%">Date</th>
-                                <th width="4%">User</th>
-                                <th width="4%">Provider</th>
-                                <th width="10%">Subject</th>
+                                <th width="2%">ID</th>
+                                <th width="4%">Date</th>
+                                <th width="10%">User</th>
+                                <th width="10%">Provider</th>
+                                <th width="14%">Subject</th>
                                 <th width="6%" class="category">Module</th>
                                 <th width="6%" class="category">Sub Module</th>
-                                <th width="4%">Assignment</th>
+                                <th width="14%">Assignment</th>
                                 <th width="9%">Due date</th>
                                 <th width="10%">Status</th>
                                 <th width="33%">Communication</th>
                             </tr>
                             </thead>
                             <tbody class="pending-row-render-view infinite-scroll-pending-inner">
+                                @foreach (App\Learning::all() as $learning)
+                                    
+                                    @include('learning-module.learning-list')
+                                    
+                                @endforeach
                             @if(count($data['task']['pending']) >0)
                             @foreach($data['task']['pending'] as $task)
                             @php $task->due_date='';
@@ -1075,6 +1089,117 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
+    <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $(document).on('change','.updateUser',function(){
+            
+            var id = $(this).parents('.learning_and_activity').attr('data-id');
+            var user_id = $(this).val();
+            $.ajax({
+                type:"POST",
+                url:"{{ route('learning-module.update') }}",
+                data:{'id':id,'user_id':user_id},
+                success:function( response ){
+                    toastr.success(response.message);
+                }
+            })
+        });
+
+        $(document).on('change','.updateProvider',function(){
+            
+            var id = $(this).parents('.learning_and_activity').attr('data-id');
+            var provider_id = $(this).val();
+            $.ajax({
+                type:"POST",
+                url:"{{ route('learning-module.update') }}",
+                data:{'id':id,'provider_id':provider_id},
+                success:function( response ){
+                    toastr.success(response.message);
+                }
+            })
+        });
+
+        $(document).on('click','.updateSubject',function(){
+            
+            var id = $(this).parents('.learning_and_activity').attr('data-id');
+            var subject = $(this).parents('td').find("input").val();
+            $.ajax({
+                type:"POST",
+                url:"{{ route('learning-module.update') }}",
+                data:{'id':id,'subject':subject},
+                success:function( response ){
+                    toastr.success(response.message);
+                }
+            })
+        });
+
+        $(document).on('change','.updateModule',function(){
+            
+            var id = $(this).parents('.learning_and_activity').attr('data-id');
+            var module_id = $(this).val();
+            $.ajax({
+                type:"POST",
+                url:"{{ route('learning-module.update') }}",
+                data:{'id':id,'module_id':module_id},
+                success:function( response ){
+                        $('.learning_and_activity[data-id="'+ response.learning_id +'"]').find('.updateSubmodule option.submodule').remove()
+                    for (i = 0; i < response.submodule.length; i++) {
+                        let elem = response.submodule[i];
+                        var html = '<option value="'+elem.id+'" class="submodule">'+elem.title+'</option>';
+                        var submodule_id = $(elem).data('id');
+                        $('.learning_and_activity[data-id="'+ response.learning_id +'"]').find('.updateSubmodule').append(html)
+                    }
+                    toastr.success(response.message);
+                }
+            })
+        });
+
+        $(document).on('change','.updateSubmodule',function(){
+            
+            var id = $(this).parents('.learning_and_activity').attr('data-id');
+            var submodule_id = $(this).val();
+            $.ajax({
+                type:"POST",
+                url:"{{ route('learning-module.update') }}",
+                data:{'id':id,'submodule_id':submodule_id},
+                success:function( response ){
+                    toastr.success(response.message);
+                }
+            })
+        });
+
+        $(document).on('click','.updateAssignment',function(){
+            
+            var id = $(this).parents('.learning_and_activity').attr('data-id');
+            var assignment = $(this).parents('td').find("input").val();
+            $.ajax({
+                type:"POST",
+                url:"{{ route('learning-module.update') }}",
+                data:{'id':id,'assignment':assignment},
+                success:function( response ){
+                    toastr.success(response.message);
+                }
+            })
+        });
+
+        $(document).on('change','.updateStatus',function(){
+            
+            var id = $(this).parents('.learning_and_activity').attr('data-id');
+            var status_id = $(this).val();
+            $.ajax({
+                type:"POST",
+                url:"{{ route('learning-module.update') }}",
+                data:{'id':id,'status_id':status_id},
+                success:function( response ){
+                    toastr.success(response.message);
+                }
+            })
+        });
+    </script>
     <script>
         var taskSuggestions = {!! json_encode($search_suggestions, true) !!};
         var searchSuggestions = {!! json_encode($search_term_suggestions, true) !!};
@@ -2520,6 +2645,7 @@
                                 $("#loading-image").hide();
                                 if(response.code == 200) {
                                     toastr["success"](response.message);
+                                    window.location.reload();
                                 }
                                 //window.location.reload();
                             }).fail(function (response) {
