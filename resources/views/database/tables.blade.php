@@ -10,6 +10,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
 @endsection
 
+
 <div class="row">
 	<div class="col-lg-12 margin-tb">
 	    <h2 class="page-heading">Size | Tables</h2>

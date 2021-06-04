@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+use Illuminate\Support\Facades\DB;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -39,5 +40,19 @@ class Website extends Model
     public function storeWebsite()
     {
         return $this->hasOne(\App\StoreWebsite::class, 'id', 'store_website_id');
+    }
+
+    public function duty_of_country()
+    {
+        return $this->hasOne(\App\SimplyDutyCountry::class, 'country_code', 'code');
+    }
+
+    public function shipping_of_country($code)
+    {
+        $shipping_country = DB::table( 'store_websites_country_shipping' )
+        ->where( 'country_code', $code )
+        ->first();
+
+        return $shipping_country;
     }
 }

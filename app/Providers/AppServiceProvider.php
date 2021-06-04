@@ -31,6 +31,11 @@ class AppServiceProvider extends ServiceProvider
             return \Auth::check();
         });
 
+        if (in_array(app('request')->ip(),config('debugip.ips') )) {
+            config(['app.debug' => true]);
+            config(['debugbar.enabled' => true]);
+        }
+
     }
 
     /**

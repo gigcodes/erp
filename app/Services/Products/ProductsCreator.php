@@ -207,6 +207,7 @@ class ProductsCreator
             $product->price_inr_special = $formattedPrices[ 'price_inr_special' ];
             $product->price_inr_discounted = $formattedPrices[ 'price_inr_discounted' ];
             $product->is_scraped = $isExcel == 1 ? $product->is_scraped : 1;
+            $product->discounted_percentage = $image->discounted_percentage;
             // check if the product category is not set
             if($product->category <= 1) {
                 $product->status_id = \App\Helpers\StatusHelper::$unknownCategory;
@@ -416,6 +417,7 @@ class ProductsCreator
         $product->price_inr = $formattedPrices[ 'price_inr' ];
         $product->price_inr_special = $formattedPrices[ 'price_inr_special' ];
         $product->price_inr_discounted = $formattedPrices[ 'price_inr_discounted' ];
+        $product->discounted_percentage = $image->discounted_percentage;
 
         try {
             $product->save();

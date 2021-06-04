@@ -125,6 +125,7 @@
                         <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 permission-request">Permission request ( {{$permissionRequest}} )</button>
                         <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 erp-request">ERP IPs</button>
                         <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 system-request" data-toggle="modal" data-target="#system-request">System IPs</button>
+                        <button class="btn btn-secondary btn-xs pull-right today-history"> All user task </button>
                     @endif
                     
                 </div>
@@ -347,6 +348,40 @@
             </div>
         </div>
 </div>
+
+<div id="today-history" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title">Today task history</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="time_history_div">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Task id</th>
+                                    <th>Description</th>
+                                    <th>From time</th>
+                                    <th>Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody class="show-list-records">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @include('common.commonEmailModal')
 @include("usermanagement::templates.list-template")
 @include("usermanagement::templates.create-solution-template")
@@ -384,6 +419,43 @@
      // $(document).on("click",".permission-request",function() {
      //    $('#permission-request').modal();
      // });
+     $(document).on("click",".today-history",function(e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        
+        $.ajax({
+            url: '/user-management/today-task-history',
+            type: 'POST',
+            data : { _token: "{{ csrf_token() }}", id:id },
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                if(result.code == 200) {
+                    console.log( result.data );
+                    var t = '';
+                    $.each(result.data,function(k,v) {
+                        t += `<tr><td>`+v.user_name+`</td>`;
+                        t += `<td>`+v.task+`</td>`;
+                        t += `<td>`+v.date+`</td>`;
+                        t += `<td>`+v.tracked+`</td></tr>`;
+                    });
+                    if( t == '' ){
+                        t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
+                    }
+                    $("#today-history").find(".show-list-records").html(t);
+                    $("#today-history").modal("show");
+                }else{
+                    toastr["error"]('No record found');
+                }
+            },
+            error: function (){
+                $("#loading-image").hide();
+            }
+        });
+    });
 
      $(document).on("click",".task-activity",function(e) {
         e.preventDefault();

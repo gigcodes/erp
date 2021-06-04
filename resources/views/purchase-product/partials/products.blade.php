@@ -6,7 +6,9 @@
         <tr>
             <th width="2%"></th>
             <th width="8%">#</th>
+            <th width="20%">View</th>
             <th width="20%">Name</th>
+            @if($type == 'inquiry')<th width="20%">Is Owned?</th>@endif
             <th width="20%">SKU</th>
             <th width="10%">Price</th>
             <th width="10%">Discount</th>
@@ -21,7 +23,18 @@
             <tr class="supplier-{{$supplier_id}}">
               <td><input type="checkbox" class="select-pr-list-chk" data-id="{{$product->id}}"></td>
               <td>{{ ++$key }}</td>
+              <td>
+              @php
+                $product = \App\Product::find($product->id);
+              @endphp
+              @if ($product->hasMedia(config('constants.media_tags')))
+                <span class="td-mini-container">
+                    <a data-fancybox="gallery" href="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}">View</a>
+                </span>
+              @endif
+              </td>
               <td>{{ $product->name }}</td>
+              @if($type == 'inquiry')<td>{{ $product->sup_id == $supplier_id ? 'Yes' : 'No'}}</td>@endif
               <td>{{$product->sku}}</td>
               <td>{{$product->product_price}}</td>
               <td>{{$product->discount}}</td>

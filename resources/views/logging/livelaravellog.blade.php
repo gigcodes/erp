@@ -62,6 +62,21 @@
 			</form>
 		</div>
 	</div>
+    <div class="conatainer">
+        <div class="row mt-3">
+            <form action="{{ action('LaravelLogController@LogKeyword') }}" class="form-horizontal logKeyword" role="form" method="post">
+                <div class="col-md-6">
+                    <input type="text" name="title" value="" class="form-control" placeholder="Keyword" required>
+                </div>
+                <div class="col-md-3">
+                    <button type='submit' class="btn btn-default">Add Keyword</button>
+                </div>
+                <div class="col-md-3">
+                    <button type='button' class="btn btn-default show-keywords">Show Keyword</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <div class="mt-3 col-md-12">
         <table class="table table-bordered table-striped" id="log-table">
             <thead>
@@ -69,7 +84,7 @@
                 <th width="10%">Filename</th>
                 <th width="10%">Channel</th>
                 <th width="50%">Log</th>
-                <th width="10%">Action</th>
+                <th width="13%">Action</th>
             </tr>
             </thead>
             <tbody id="content_data">
@@ -108,6 +123,65 @@
 			</form>
         </div>
       </div>
+    </div>
+    
+    <div id="view_error" class="modal fade" role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form action="{{ url('logging/assign') }}" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h4 class="modal-title">Assign Task</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-striped">
+                        <tr>
+                            <th>Index</th>
+                            <th>Time</th>
+                        </tr>
+                        <tbody class="content">
+                            
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default close-setting" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="show_keywords" class="modal fade" role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Keywords</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <td>Index</td>
+                                <td>Keyword</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($logKeywords as $logKeyword)
+                                <tr>
+                                    <td>{{ $logKeyword->id }}</td>
+                                    <td>{{ $logKeyword->text }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default close-setting" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 @endsection
@@ -428,8 +502,63 @@
 
             }).fail(function (jqXHR, ajaxOptions, thrownError) {
                 alert('No response from server');
-            });  
+            });
 
          }
+        $(document).on('click','.show-keywords',function(event){
+            event.preventDefault();
+            $('#show_keywords').modal('show');
+        });
+
+        $(document).on('submit','.logKeyword',function(event){
+            event.preventDefault();
+            
+            $.ajax({
+                url: $(this).attr('action'),
+                dataType: "json",
+                data: {
+                    title : $(this).find('input[name="title"]').val(),
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+            }).done(function (data) {
+                toastr['success'](data.message, 'Keyword Added Successfully.');
+                $("#loading-image").hide();
+                window.location.reload();
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                toastr['error'](data.message, 'Error ocuured!');
+                $("#loading-image").hide();
+            });
+        });
+        $(document).on('click','.view_error',function(event){
+            event.preventDefault();
+            console.log($(this).parent('td').siblings('td.expand-row.table-hover-cell').find('.td-full-container').text());
+            $.ajax({
+                url: '{{ action("LaravelLogController@liveLogsSingle") }}',
+                dataType: "json",
+                data: {
+                    msg : $(this).parent('td').siblings('td.expand-row.table-hover-cell').find('.td-full-container').text(),
+                },
+                beforeSend: function () {
+                    //$("#loading-image").show();
+                },
+            }).done(function (data) {
+                var $html = '';
+                $.each(data, function(i, item) {
+                    $html += '<tr>';
+                    $html += '<td>'+parseInt(i+1)+'</td>';
+                    $html += '<td>'+item+'</td>';
+                    $html += '</tr>';
+                });
+                $('#view_error table tbody.content').html($html);
+                $('#view_error').modal('show');
+                console.log($html);
+                //window.location.reload();
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                //toastr['error'](data.message, 'Error ocuured!');
+                //$("#loading-image").hide();
+            });
+        });
     </script>
 @endsection
