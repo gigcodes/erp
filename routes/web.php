@@ -737,6 +737,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
+
+    Route::resource('learning', 'LearningModuleController');
+    Route::resource('learning_category', 'LearningCategoryController');
+    Route::post('learning_category/submodule', 'LearningCategoryController@getSubModule');
+    Route::post('learning/create-learning-from-shortcut', 'LearningModuleController@createLearningFromSortcut');
+    Route::post('learning-module/update', 'LearningModuleController@learningModuleUpdate')->name('learning-module.update');
+
     Route::get('/', 'MasterControlController@index')->name('home');
     Route::get('/master-dev-task', 'MasterDevTaskController@index')->name('master.dev.task');
 
@@ -3019,4 +3026,5 @@ Route::group(['middleware' => 'auth'], function () {
 Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('customers', 'Select2Controller@customers')->name('select2.customer');
     Route::get('users', 'Select2Controller@users')->name('select2.user');
+    Route::get('users_vendors', 'Select2Controller@users_vendors')->name('select2.uservendor');
 });
