@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use App\Brand;
 use App\Observers\BrandObserver;
+use App\Category;
+use App\Observers\ScrappedCategoryMappingObserver;
+use App\ScrapedProducts;
+use App\Observers\ScrappedProductCategoryMappingObserver;
+
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -86,7 +91,9 @@ class EventServiceProvider extends ServiceProvider
 
         Brand::observe(BrandObserver::class);
 
+        Category::observe(ScrappedCategoryMappingObserver::class);
 
+        ScrapedProducts::observe(ScrappedProductCategoryMappingObserver::class);
         //
     }
 }
