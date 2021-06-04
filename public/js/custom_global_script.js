@@ -100,3 +100,16 @@ function initialize_select2(initial_skip = false) {
     }
 
 initialize_select2();
+
+$(document).find( ".addToAutoComplete" ).autocomplete({
+    source: function (request, response) {
+        jQuery.post("/list/autoCompleteMessages", {
+            "_token": $('meta[name="csrf-token"]').attr('content'),
+        }, function (data) {
+            // assuming data is a JavaScript array such as
+            // ["one@abc.de", "onf@abc.de","ong@abc.de"]
+            // and not a string
+            response(data.data);
+        });
+    },
+  });

@@ -1715,6 +1715,11 @@ Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
 Route::get('message/resend', 'WhatsAppController@resendMessage2');
 Route::get('message/delete', 'WhatsAppController@delete');
 
+Route::post('list/autoCompleteMessages', 'WhatsAppController@autoCompleteMessages');
+
+
+
+
 //});
 
 
