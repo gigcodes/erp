@@ -21,7 +21,7 @@ class MessageController extends Controller
         $search = request("search");
         $status = request("status");
 
-        $pendingApprovalMsg = ChatMessage::leftjoin("customers as c", "c.id", "chat_messages.customer_id")
+        $pendingApprovalMsg = ChatMessage::with('taskUser', 'chatBotReplychat')->leftjoin("customers as c", "c.id", "chat_messages.customer_id")
             ->leftJoin("vendors as v", "v.id", "chat_messages.vendor_id")
             ->leftJoin("store_websites as sw","sw.id","c.store_website_id")
             ->Join("chatbot_replies as cr", "cr.replied_chat_id", "chat_messages.id")
@@ -41,7 +41,7 @@ class MessageController extends Controller
 
         $pendingApprovalMsg = $pendingApprovalMsg->where(function($q) {
             $q->where("chat_messages.message","!=", "");
-        })->select(["chat_messages.*", "cm1.id as chat_id", "cr.question","cm1.message as answer", "c.name as customer_name","v.name as vendors_name","cr.reply_from","cm1.approved","sw.title as website_title"])
+        })->select(['cr.id as chat_bot_id', "chat_messages.*","cm1.id as chat_id", "cr.question","cm1.message as answer", "c.name as customer_name","v.name as vendors_name","cr.reply_from","cm1.approved","sw.title as website_title"])
         ->orderBy("chat_messages.id","desc")
         ->paginate(20);
             

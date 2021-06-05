@@ -16,6 +16,9 @@
             <th>Invoice Number</th>
             <th>Customer Name</th>
             <th>Invoice Value</th>
+             <!-- <th>Price</th> -->
+             <th>Shipping</th>
+            <th>Duty</th>
             <th>Currency</th>
             <th>Website</th>
             <th>Action</th>
@@ -31,21 +34,35 @@
             </td>
             <td>
                @php
-               $final_price=0;
-               foreach ($invoice->orders as $ord):
-               foreach ($ord->order_product as $item):
-               $final_price +=$item->product_price;
-               endforeach;
-               endforeach;
+                  $final_price=0;
+                  $orderProductPrice = 0;
+                  $productQty = 0;
+
+                  foreach ($invoice->orders as $ord):
+                     if(!$ord->order_product->isEmpty())  {
+                        foreach ($ord->order_product as $item):
+                           $final_price +=$item->product_price;
+                           $orderProductPrice = $item->product_price;
+                        endforeach;
+
+                        $productQty = count($ord->order_product);   
+                     }  
+                  endforeach;
+
                @endphp
                {{ $final_price}}
             </td>
+             <!-- <td>{{$orderProductPrice * $productQty}}</td> -->
+             <td>{{$duty_shipping[$invoice->id]['shipping']}}</td>
+              <td>{{$duty_shipping[$invoice->id]['duty']}}</td>
             <td>
                 {{ $invoice->orders[0]->currency ?? '--' }}
             </td>
             <td>
                 {{ $invoice->orders[0]->customer->storeWebsite->website ?? '--' }}
             </td>
+              
+           
             <td>
                <a class="btn btn-image send-invoice-btn" data-id="{{ $invoice->id }}">
                <img title="Resend Invoice" src="/images/purchase.png" />

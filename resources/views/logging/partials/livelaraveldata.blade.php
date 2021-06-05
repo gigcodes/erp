@@ -20,6 +20,9 @@
 				{{ $log }}
 				</span>
 			</td>
-			<td><button type="button" class="btn btn-default assign_task" data-toggle="modal" data-target="#assign_task_model">Assign Task</button></td>
+			<td>
+				<button type="button" class="btn btn-default assign_task" data-toggle="modal" data-target="#assign_task_model">Assign Task</button>
+				<button type="button" class="btn btn-image view_error" data-toggle="modal"> <img src="/images/view.png"> </button>
+			</td>
 		</tr>
 @endforeach

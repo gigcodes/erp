@@ -23,6 +23,7 @@ class Document extends Model
         'user_id',
         'name',
         'filename',
+        'file_contents',
         'category_id',
         'version',
         'status',

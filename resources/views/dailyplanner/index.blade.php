@@ -104,11 +104,13 @@
             <thead>
               <tr>
                 <th width="20%">Time</th>
-                <th width="40%">Planned</th>
-                <th width="10%">Actual Start Time</th>
-                <th width="10%">Actual Complete Time</th>
+                <th width="29%">Planned</th>
+                <th width="5%">Timezone</th>
+                <th width="10%">Time</th>
+                <th width="7%">Actual Start Time</th>
+                <th width="8%">Actual Complete Time</th>
                 <th width="10%">Remark</th>
-                <th width="40%">Action</th>
+                <th width="49%">Action</th>
               </tr>
             </thead>
 
@@ -139,6 +141,8 @@
                             
                           </div>
                         </td>
+                        <td class="p-2 ">{{ $task->timezone }} </td>
+                        <td class="p-2 ">{{ changeTimeZone( $task->for_datetime, null ,$task->timezone ) }}</td>
                         <td class="p-2 task-start-time">{{ $task->actual_start_date != '0000-00-00 00:00:00' ? \Carbon\Carbon::parse($task->actual_start_date)->format('d-m H:i') : '' }}</td>
                         <td class="p-2 task-time">{{ $task->is_completed ? \Carbon\Carbon::parse($task->is_completed)->format('d-m H:i') : '' }}</td>
                         <td class="expand-row table-hover-cell p-2">
@@ -180,6 +184,11 @@
 							@endif
 							<button type="button" class="btn btn-image task-resend p-0 m-0" data-id="{{ $task->id }}" title="Resend"> <i class="fa fa-send"></i> </button>
 							<button type="button" class="btn btn-image task-history p-0 m-0" data-id="{{ $task->id }}" title="History"> <i class="fa fa-history"></i> </button>
+                            @php
+                                $edit = App\UserEvent\UserEvent::where('daily_activity_id', $task->id)->with('attendees')->first();
+                                $vendor = App\UserEvent\UserEventParticipant::where('user_event_id',$edit->id)->pluck('object_id')->toArray();
+                            @endphp
+                            <button type="button" class="btn btn-image payment-model-op p-0 m-0" data-note="{{ $task->activity }}" data-vendor="{{ json_encode($vendor) }}" data-date="{{ $task->for_date }}" data-id="{{ $task->id }}" title="Payment"> <i class="fa fa-money"></i> </button>
 							@if( !empty( $task->id ) )
 								<a href="{{ route('calendar.event.edit',$task->id) }}" class="btn btn-image p-0 m-0"  title="Edit" > <i class="fa fa-edit"></i> </a>
 							@endif
@@ -194,6 +203,8 @@
                     <td class="p-2 task-complete"></td>
                     <td class="p-2"></td>
 					<td class="p-2"></td>
+                    <td class="p-2"></td>
+                    <td class="p-2"></td>
                   </tr>
                 @endif
                 <tr class="dis-none create-input-table">
@@ -279,6 +290,37 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script type="text/javascript">
+
+    $(document).on('click', '.payment-model-op', function(e) {
+      e.preventDefault();
+      var thiss = $(this);
+      console.log( thiss.data() );
+      var type = 'GET';
+        $.ajax({
+          url: '/voucher/manual-payment',
+          type: type,
+          data : { date : thiss.data('date'), note : thiss.data('note'), vendor : thiss.data('vendor') },
+          beforeSend: function() {
+            $("#loading-image").show();
+          }
+        }).done( function(response) {
+          $("#loading-image").hide();
+          $('#create-manual-payment').modal('show');
+          $('#create-manual-payment-content').html(response);
+
+          $('#date_of_payment').datetimepicker({
+            format: 'YYYY-MM-DD'
+          });
+          $('.select-multiple').select2({width: '100%'});
+
+          $(".currency-select2").select2({width: '100%',tags:true});
+          $(".payment-method-select2").select2({width: '100%',tags:true});
+
+        }).fail(function(errObj) {
+          $("#loading-image").hide();
+        });
+    });
+    
     $(document).ready(function() {
       $('#planned-datetime').datetimepicker({
         format: 'YYYY-MM-DD'

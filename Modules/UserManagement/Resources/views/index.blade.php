@@ -122,8 +122,12 @@
                         </form>
                     </div>
                     @if( auth()->user()->isAdmin() )
-                        <button class="btn btn-secondary btn-xs pull-right mt-0 permission-request">Permission request ( {{$permissionRequest}} )</button>
+                        <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 permission-request">Permission request ( {{$permissionRequest}} )</button>
+                        <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 erp-request">ERP IPs</button>
+                        <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 system-request" data-toggle="modal" data-target="#system-request">System IPs</button>
+                        <button class="btn btn-secondary btn-xs pull-right today-history"> All user task </button>
                     @endif
+                    
                 </div>
             </div>
         </div>  
@@ -162,6 +166,87 @@
                         </thead>
                          <tbody class="show-list-records" >
                          </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="erp-request" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">User Login IPs</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12" id="permission-request">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>User Email</th>
+                                <th>IP</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                         <tbody class="show-list-records" >
+                         </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="system-request" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">System IPs</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12" id="permission-request">
+                    
+                    @php
+                        $shell_list = shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f list");
+                        $final_array = [];
+                        if($shell_list != ''){
+                            $lines=explode(PHP_EOL,$shell_list);
+                            $final_array = [];
+                            foreach($lines as $line){
+                                $values = [];
+                                $values=explode(' ',$line);
+                                array_push($final_array,$values);
+                            }
+                        }
+                    @endphp
+                    <input type="text" name="add-ip" class="form-control col-md-3" placeholder="Add IP here...">
+                    <button class="btn-success btn addIp ml-3 mb-5">Add</button>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Index</th>
+                            <th>IP</th>
+                            <th>Action</th>
+                        </tr>
+                        @foreach($final_array as $values)
+                            <tr>
+                                <td>{{ isset($values[0]) ? $values[0] : "" }}</td>
+                                <td>{{ isset($values[1]) ? $values[1] : "" }}</td>
+                                <td><button class="btn-warning btn deleteIp" data-index="{{ $values[0]}}">Delete</button></td>
+                            </tr>
+                        @endforeach
                     </table>
                 </div>
             </div>
@@ -263,6 +348,40 @@
             </div>
         </div>
 </div>
+
+<div id="today-history" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title">Today task history</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="time_history_div">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Task id</th>
+                                    <th>Description</th>
+                                    <th>From time</th>
+                                    <th>Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody class="show-list-records">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @include('common.commonEmailModal')
 @include("usermanagement::templates.list-template")
 @include("usermanagement::templates.create-solution-template")
@@ -300,6 +419,43 @@
      // $(document).on("click",".permission-request",function() {
      //    $('#permission-request').modal();
      // });
+     $(document).on("click",".today-history",function(e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        
+        $.ajax({
+            url: '/user-management/today-task-history',
+            type: 'POST',
+            data : { _token: "{{ csrf_token() }}", id:id },
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                if(result.code == 200) {
+                    console.log( result.data );
+                    var t = '';
+                    $.each(result.data,function(k,v) {
+                        t += `<tr><td>`+v.user_name+`</td>`;
+                        t += `<td>`+v.task+`</td>`;
+                        t += `<td>`+v.date+`</td>`;
+                        t += `<td>`+v.tracked+`</td></tr>`;
+                    });
+                    if( t == '' ){
+                        t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
+                    }
+                    $("#today-history").find(".show-list-records").html(t);
+                    $("#today-history").modal("show");
+                }else{
+                    toastr["error"]('No record found');
+                }
+            },
+            error: function (){
+                $("#loading-image").hide();
+            }
+        });
+    });
 
      $(document).on("click",".task-activity",function(e) {
         e.preventDefault();
@@ -370,6 +526,93 @@
             },
             error: function (){
                 $("#loading-image").hide();
+            }
+        });
+    });
+
+    $(document).on("click",".erp-request",function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/users/loginips',
+            type: 'GET',
+            data : { _token: "{{ csrf_token() }}"},
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                if(result.code == 200) {
+                    var t = '';
+                    $.each(result.data,function(k,v) {
+                        button = status='';
+                        if(v.is_active){
+                            status = 'Active';
+                            button = '<button type="button" class="btn btn-warning ml-3 statusChange" data-status="Inactive" data-id="'+v.id+'">Inactive</button>';
+                        }else{
+                            status = 'Inactive';
+                            button = '<button type="button" class="btn btn-success ml-3 statusChange" data-status="Active" data-id="'+v.id+'">Active</button>';
+                        }
+                        t += `<tr><td>`+v.created_at+`</td>`;
+                        t += `<td>`+v.email+`</td>`;
+                        t += `<td>`+v.ip+`</td>`;
+                        t += `<td>`+status+`</td>`;
+                        t += `<td>`+button+`</td>`;
+                    });
+                    if( t == '' ){
+                        t = '<tr><td colspan="5" class="text-center">No data found</td></tr>';
+                    }
+                }
+                $("#erp-request").find(".show-list-records").html(t);
+                $("#erp-request").modal("show");
+            },
+            error: function (){
+                $("#loading-image").hide();
+            }
+        });
+    });
+
+    $(document).on("click",".addIp",function(e) {
+        e.preventDefault();
+        if($('input[name="add-ip"]').val() != ''){
+            $.ajax({
+                url: '/users/add-system-ip',
+                type: 'GET',
+                data : { _token: "{{ csrf_token() }}",ip: $('input[name="add-ip"]').val()},
+                dataType: 'json',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function(result){
+                    $("#loading-image").hide();
+                    toastr["success"]("IP added successfully");
+                },
+                error: function (){
+                    $("#loading-image").hide();
+                    toastr["Error"]("An error occured!");
+                }
+            });
+        }else{
+            alert('please enter IP');
+        }
+    });
+    $(document).on("click",".deleteIp",function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/users/delete-system-ip',
+            type: 'GET',
+            data : { _token: "{{ csrf_token() }}",index: $(this).data('index')},
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                toastr["success"]("IP added successfully");
+            },
+            error: function (){
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
             }
         });
     });
