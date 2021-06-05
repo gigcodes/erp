@@ -11,7 +11,7 @@
 
            <div class="task_hours_section" style="text-align:center;">
                     <p style="margin:0px;text-align:right"><strong>Total Priority Task Hours:</strong>  <span>{{:userTiming.total_priority_hours}} Hours</span></p>
-                    <p style="margin:0px;text-align:right"><strong>Today Available Hours:</strong>  <span>{{:userTiming.total_available_time}} Hours</span> <a title="Add Avaibility" class="btn btn-image load-time-modal" data-id="{{:user.id}}"><i class="fa fa-clock-o" aria-hidden="true"></i></a></p>
+                    <p style="margin:0px;text-align:right"><strong>Today Available Hours:</strong>  <span>{{:userTiming.total_available_time}} Hours</span> <a title="Add Avaibility" class="btn btn-image load-time-modals" data-id="{{:user.id}}"><i class="fa fa-clock-o fa-2x" aria-hidden="true"></i></a></p>
                     <p style="margin:0px;"><strong>Pending Task Estimated Hours:</strong> <span>{{:userTiming.total_pending_hours}} Hours</span></><br>
                     <p style="margin:0px;"><strong>Total Available Hours:</strong>  <span>{{:userTiming.total_avaibility_hour}} Hours</span></p>
             </div>
@@ -197,4 +197,9 @@
  //            }
  //        });
 
+$(document).on('click','.load-time-modals',function(e){
+	e.preventDefault();
+	var id= $(this).data('id');
+	$('.load-time-modal[data-id="'+id+'"]').trigger('click');
+})
 	</script>
