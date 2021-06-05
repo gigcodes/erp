@@ -309,8 +309,9 @@
                 data.append("chat_reply_message_id", chatMessageReplyId)
             }
 
-var add_autocomplete  = thiss.closest(".cls_textarea_subbox").find("[name=add_to_autocomplete]").is(':checked') ;
-data.append("add_autocomplete", add_autocomplete);
+            var add_autocomplete  = thiss.closest(".cls_textarea_subbox").find("[name=add_to_autocomplete]").is(':checked') ;
+            data.append("add_autocomplete", add_autocomplete);
+
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({

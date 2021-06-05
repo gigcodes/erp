@@ -176,7 +176,7 @@ $metaData = '';
     <link href="https://unpkg.com/tabulator-tables@4.0.5/dist/css/tabulator.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.css">
-
+    <link rel="stylesheet" href="{{ url('css/global_custom.css') }}">
     @yield("styles")
 
     <script>
@@ -1865,7 +1865,21 @@ $metaData = '';
                                 </li>
                             </ul>
                         </li>
-
+                         <!------    System Menu     !-------->
+                         <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin Menu <span class="caret"></span></a>
+                            <ul class="dropdown-menu multi-level">
+                                {{-- Sub Menu Admin Menu --}} 
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Database Menu<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('admin.databse.menu.direct.dbquery')}}">Direct DB Query</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
                     </ul>
 
                 </div>
@@ -2085,15 +2099,18 @@ $metaData = '';
                             </div>
                             <div class="card-body contacts_body">
                                 @php
+                                $chatIds = \App\CustomerLiveChat::with('customer')->orderBy('seen','asc')
+                                ->orderBy('status','desc')
+                                ->get();
                                 $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
                                 $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                 @endphp
                                 <ul class="contacts" id="customer-list-chat">
                                     @foreach ($chatIds as $chatId)
-                                    @php
-                                    $customer = \App\Customer::where('id',$chatId->customer_id)->first();
-                                    $customerInital = substr($customer->name, 0, 1);
-                                    @endphp
+                                        @php
+                                        $customer = $chatId->customer;
+                                        $customerInital = substr($customer->name, 0, 1);
+                                        @endphp
                                     <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
                                         <div class="d-flex bd-highlight">
                                             <div class="img_cont">
