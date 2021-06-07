@@ -202,4 +202,11 @@ class Supplier extends Model
         return $list;
     }
 
+    // START - Purpose : Product Inquiry Data -DEVTASK-4048
+    public function inquiryproductdata()
+	{
+		return $this->hasMany('App\SupplierOrderInquiryData', 'supplier_id', 'id');
+	}
+    // END -DEVTASK-4048
+
 }
