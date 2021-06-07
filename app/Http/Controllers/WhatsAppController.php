@@ -2089,16 +2089,23 @@ class WhatsAppController extends FindByNumberController
 
                 /** Sent To ChatbotMessage */
                 
-                \App\ChatbotReply::create([
-                    'question'=> '#' . $task->id . ' => '. $request->message,
-                    'reply' => json_encode([
-                        'context' => 'task',
-                        'issue_id' => $task->id,
-                        'from' => $request->user()->id
-                    ]),
-                    'replied_chat_id' => $chat_message->id,
-                    'reply_from' => 'database'
-                ]);
+                $loggedUser = $request->user();
+
+                $roles = $loggedUser->roles->pluck('name')->toArray();
+
+                if(!in_array('Admin', $roles)){
+                    
+                    \App\ChatbotReply::create([
+                        'question'=> '#' . $task->id . ' => '. $request->message,
+                        'reply' => json_encode([
+                            'context' => 'task',
+                            'issue_id' => $task->id,
+                            'from' => $loggedUser->id
+                        ]),
+                        'replied_chat_id' => $chat_message->id,
+                        'reply_from' => 'database'
+                    ]);
+                }
                 
             }elseif($context == 'ticket'){
                 $data['ticket_id'] = $request->ticket_id;
