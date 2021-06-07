@@ -680,7 +680,7 @@ class UserController extends Controller
 
 	public function addSystemIp(Request $request){
 		if($request->ip){
-			shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f add -i ".$request->ip);
+			shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f add -i ".$request->ip." -c ".$request->get("comment",""));
 			return response()->json( ["code" => 200 , "data" => "Success"] );
 		}
 		return response()->json( ["code" => 500 , "data" => "Error occured!"] );

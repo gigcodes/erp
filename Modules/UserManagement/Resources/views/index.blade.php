@@ -260,11 +260,13 @@
                         }
                     @endphp
                     <input type="text" name="add-ip" class="form-control col-md-3" placeholder="Add IP here...">
+                    <input type="text" name="ip_comment" class="form-control col-md-3" style="margin-left: 10px" placeholder="Add comment...">
                     <button class="btn-success btn addIp ml-3 mb-5">Add</button>
                     <table class="table table-bordered">
                         <tr>
                             <th>Index</th>
                             <th>IP</th>
+                            <th>Comment</th>
                             <th>Action</th>
                         </tr>
                         @if(!empty($final_array))
@@ -272,6 +274,7 @@
                                 <tr>
                                     <td>{{ isset($values[0]) ? $values[0] : "" }}</td>
                                     <td>{{ isset($values[1]) ? $values[1] : "" }}</td>
+                                    <td>{{ isset($values[2]) ? $values[2] : "" }}</td>
                                     <td><button class="btn-warning btn deleteIp" data-index="{{ $values[0]}}">Delete</button></td>
                                 </tr>
                             @endforeach
@@ -606,7 +609,7 @@
             $.ajax({
                 url: '/users/add-system-ip',
                 type: 'GET',
-                data : { _token: "{{ csrf_token() }}",ip: $('input[name="add-ip"]').val()},
+                data : { _token: "{{ csrf_token() }}",ip: $('input[name="add-ip"]').val(),comment: $('input[name="ip_comment"]').val()},
                 dataType: 'json',
                 beforeSend: function () {
                     $("#loading-image").show();
