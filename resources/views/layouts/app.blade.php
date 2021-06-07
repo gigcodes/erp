@@ -2102,7 +2102,6 @@ $metaData = '';
                                 $chatIds = \App\CustomerLiveChat::with('customer')->orderBy('seen','asc')
                                 ->orderBy('status','desc')
                                 ->get();
-                                $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
                                 $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                 @endphp
                                 <ul class="contacts" id="customer-list-chat">

@@ -258,7 +258,7 @@ class SupplierController extends Controller
         /* echo "<pre>";
         print_r($allSupplierPriceRanges);
         exit; */
-        $reply_categories = ReplyCategory::all();
+        $reply_categories = ReplyCategory::with('supplier')->get();
         $sizeSystem       = \App\SystemSize::pluck('name', 'id')->toArray();
         
 
