@@ -267,13 +267,15 @@
                             <th>IP</th>
                             <th>Action</th>
                         </tr>
-                        @foreach($final_array as $values)
-                            <tr>
-                                <td>{{ isset($values[0]) ? $values[0] : "" }}</td>
-                                <td>{{ isset($values[1]) ? $values[1] : "" }}</td>
-                                <td><button class="btn-warning btn deleteIp" data-index="{{ $values[0]}}">Delete</button></td>
-                            </tr>
-                        @endforeach
+                        @if(!empty($final_array))
+                            @foreach(array_reverse($final_array) as $values)
+                                <tr>
+                                    <td>{{ isset($values[0]) ? $values[0] : "" }}</td>
+                                    <td>{{ isset($values[1]) ? $values[1] : "" }}</td>
+                                    <td><button class="btn-warning btn deleteIp" data-index="{{ $values[0]}}">Delete</button></td>
+                                </tr>
+                            @endforeach
+                        @endif
                     </table>
                 </div>
             </div>
