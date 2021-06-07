@@ -48,5 +48,30 @@
             @endforeach
         </select>
     </td>
-    <td><div style="display: flex"><input type="text" class="form-control send-message-textbox"> <img src="/images/filled-sent.png" style="cursor: pointer; object-fit: contain; height: auto; width: 16px; margin-left: 4px;"></div></td>
+    <td class="communication-td">
+        <!-- class="expand-row" -->
+      
+       
+        <input type="text" class="form-control send-message-textbox" data-id="{{$learning->id}}" id="send_message_{{$learning->id}}" name="send_message_{{$learning->id}}" style="margin-bottom:5px;width:40%;display:inline;"/>
+       
+        <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message"  data-id="{{$learning->id}}" ><img src="/images/filled-sent.png"/></button>
+        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $learning->id }}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
+        {{-- <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? '' : '' }} justify-content-between expand-row-msg" style="word-break: break-all;" data-id="{{$learning->id}}">
+        <span class="td-mini-container-{{$learning->id}}" style="margin:0px;">
+                        {{  \Illuminate\Support\Str::limit($issue->message, 25, $end='...') }}
+        </span> --}}
+    </span>
+    <div class="expand-row-msg" data-id="{{$learning->id}}">
+        <span class="td-full-container-{{$learning->id}} hidden">
+            {{-- {{ $issue->message }} --}}
+            <br>
+            <div class="td-full-container">
+                <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $learning->id }})">Send Attachment</button>
+                <button class="btn btn-secondary btn-xs" onclick="sendUploadImage({{$learning->id}})">Send Images</button>
+                <input id="file-input{{ $learning->id }}" type="file" name="files" style="display: none;" multiple/>
+            </div> 
+        </span>
+    </div>
+        </td>
+    {{-- <td><div style="display: flex"><input type="text" class="form-control send-message-textbox"> <img src="/images/filled-sent.png" style="cursor: pointer; object-fit: contain; height: auto; width: 16px; margin-left: 4px;"></div></td> --}}
 </tr>
