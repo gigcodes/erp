@@ -100,6 +100,11 @@
                     <input type="text" name="price_max" class="form-control" placeholder="max. price" value="{{ isset($_GET['price_max']) ? $_GET['price_max'] : '' }}">
                 </div>
                 <div class="form-group mr-3 mb-3">
+                  <strong class="mr-3">Discounted Percentage</strong>
+                    <input type="text" name="discounted_percentage_min" class="form-control" placeholder="min. price" value="{{ isset($_GET['discounted_percentage_min']) ? $_GET['discounted_percentage_min'] : '' }}">
+                    <input type="text" name="discounted_percentage_max" class="form-control" placeholder="max. price" value="{{ isset($_GET['discounted_percentage_max']) ? $_GET['discounted_percentage_max'] : '' }}">
+                </div>
+                <div class="form-group mr-3 mb-3">
                   <div class='input-group date' id='filter-date'>
                       <input type='text' class="form-control" name="date" value="{{ request('date','') }}" placeholder="Date" />
                       <span class="input-group-addon">

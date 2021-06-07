@@ -41,7 +41,7 @@ class UserManagementController extends Controller
     {
         $title = "User management";
         $permissionRequest = PermissionRequest::count();
-        $statusList = \DB::table("task_statuses")->select("name")->get()->toArray();
+        $statusList = \DB::table("task_statuses")->select("name","id")->get()->toArray();
         return view('usermanagement::index', compact('title','permissionRequest','statusList'));
     }
 
@@ -924,10 +924,10 @@ class UserManagementController extends Controller
 
 
     public function userTasks($id) {
-        $user = User::find($id);
+        $user = User::find($id)->toArray();
             $taskList = DB::select('
             select * from (
-                (SELECT tasks.id as task_id,tasks.task_subject as subject, tasks.task_details as details, tasks.approximate as approximate_time, tasks.due_date,tasks.deleted_at,tasks.assign_to as assign_to,tasks.is_statutory as status_falg,chat_messages.message as last_message, chat_messages.created_at as orderBytime, tasks.is_verified as cond, "TASK" as type,tasks.created_at as created_at,tasks.priority_no,tasks.is_flagged as has_flag  FROM tasks
+                (SELECT tasks.id as task_id,tasks.task_subject as subject, tasks.task_details as details, tasks.approximate as approximate_time, tasks.due_date,tasks.deleted_at,tasks.assign_to as assign_to,tasks.status as status_falg,chat_messages.message as last_message, chat_messages.created_at as orderBytime, tasks.is_verified as cond, "TASK" as type,tasks.created_at as created_at,tasks.priority_no,tasks.is_flagged as has_flag  FROM tasks
                           LEFT JOIN
                            (SELECT MAX(id) AS max_id,
                                    task_id,
@@ -936,6 +936,7 @@ class UserManagementController extends Controller
                             FROM chat_messages
                             WHERE task_id > 0
                             GROUP BY task_id) m_max ON m_max.task_id = tasks.id
+                        LEFT JOIN task_statuses ON task_statuses.id = tasks.status
                          LEFT JOIN chat_messages ON chat_messages.id = m_max.max_id
                           WHERE tasks.deleted_at IS NULL and tasks.is_statutory != 1 and tasks.is_verified is null and tasks.assign_to = '.$id.') 
                 
@@ -945,7 +946,7 @@ class UserManagementController extends Controller
                     select developer_tasks.id as task_id, developer_tasks.subject as subject, developer_tasks.task as details, developer_tasks.estimate_minutes as approximate_time, developer_tasks.due_date as due_date,developer_tasks.deleted_at, developer_tasks.assigned_to as assign_to,developer_tasks.status as status_falg, chat_messages.message as last_message, chat_messages.created_at as orderBytime,"d" as cond, "DEVTASK" as type,developer_tasks.created_at as created_at,developer_tasks.priority_no,"0" as has_flag from developer_tasks left join (SELECT MAX(id) as  max_id, issue_id, message,created_at  FROM  chat_messages where issue_id > 0  GROUP BY issue_id ) m_max on  m_max.issue_id = developer_tasks.id left join chat_messages on chat_messages.id = m_max.max_id where developer_tasks.status != "Done" and developer_tasks.deleted_at is null and developer_tasks.assigned_to = '.$id.'
                     
                     ) 
-                ) as c order by orderBytime desc limit 10
+                ) as c order by priority_no desc
             ');
 
 
@@ -969,18 +970,24 @@ class UserManagementController extends Controller
         }
         $u['total_pending_hours'] = intdiv($pending_tasks, 60).':'. ($pending_tasks % 60);
 
-        $priority_tasks_time = Task::where('assign_to',$id)->where('is_verified',NULL)->where('is_flagged',1)->select(DB::raw("SUM(approximate) as approximate_time"))->first();
+        //$priority_tasks_time = Task::where('assign_to',$id)->where('is_verified',NULL)->where('is_flagged',1)->select(DB::raw("SUM(approximate) as approximate_time"))->first();
+        $p_tasks_time = Task::where('assign_to',$id)->where('is_verified',NULL)->where('is_flagged',1)->select(DB::raw("SUM(approximate) as approximate_time"));
+        $p_devtasks_time = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->where('priority','!=',0)->select(DB::raw("SUM(estimate_minutes) as approximate_time"));
+        $priority_tasks_time = ($p_devtasks_time)->union($p_tasks_time)->get();
+        // SELECT 
         /** get availablity hours */
         $user_avaibility = UserAvaibility::where('user_id',$id)->selectRaw('minute')->orderBy('id','desc')->first();
         $available_minute = !empty($user_avaibility) ? $user_avaibility->minute : 0;
 
-        $totalPriority = !empty($priority_tasks_time) ? $priority_tasks_time->approximate_time : 0;
+        $totalPriority = !empty($priority_tasks_time) ? $priority_tasks_time[0]->approximate_time : 0;
         $hours = 0;
+
         if($available_minute != 0) {
             $available_minute = $available_minute - $totalPriority;
             $hours = floor($available_minute / 60); // Get the number of whole hours
             $available_minute = $available_minute % 60; 
         }
+
         $u['total_priority_hours'] = intdiv($totalPriority, 60).':'. ($totalPriority % 60);
         $u['total_available_time'] = sprintf ("%d:%02d", $hours, $available_minute); 
         $today = date('Y-m-d');
@@ -1007,7 +1014,7 @@ class UserManagementController extends Controller
         $today_avaibility_hour = $this->getTimeFormat($today_avaibility_hour);
         $u['today_avaibility_hour'] = $today_avaibility_hour;
 
-        $statusList = \DB::table("task_statuses")->select("name")->get()->toArray();
+        $statusList = \DB::table("task_statuses")->select("name","id")->get()->toArray();
 
             return response()->json([
                 "code"       => 200,
@@ -1466,5 +1473,27 @@ class UserManagementController extends Controller
         ];
 
         return response()->json(['code' => 200 , 'data' => $data]);
+    }
+
+    public function updateStatus(Request $request){
+        if($request->type == "TASK"){
+            //issue_id
+            $status = \DB::table("task_statuses")->where('name',$request->is_resolved)->select("id")->get();
+            if($status){
+                Task::where('id', $request->issue_id)
+                    ->update(['status' => $status[0]->id]);
+                return response()->json(['code' => 200 , 'data' => 'Success']);
+            }
+        }
+        if($request->type == "DEVTASK"){
+            DeveloperTask::where('id', $request->issue_id)
+              ->update(['status' => $request->is_resolved]);
+            return response()->json(['code' => 200 , 'data' => 'Success']);
+        }
+        return response()->json(['code' => 500 , 'data' => 'Error']);
+    }
+    public function systemIps(Requests $request){
+        $shell_list = shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f list");
+        return response()->json( ["code" => 200 , "data" => $shell_list] );
     }
 }
