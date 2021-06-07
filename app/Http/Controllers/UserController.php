@@ -669,8 +669,12 @@ class UserController extends Controller
 		$user_ips = UserLoginIp::join('users', 'user_login_ips.user_id', '=', 'users.id')
 						->select('user_login_ips.*', 'users.email')
 						->get();
-		return response()->json( ["code" => 200 , "data" => $user_ips] );
-		//return view('users.ips', compact('user_ips'));
+		if ($request->ajax()) {
+			return response()->json( ["code" => 200 , "data" => $user_ips] );
+		}else{
+			return view('users.ips', compact('user_ips'));
+		} 	
+		
 	}
 
 	public function addSystemIp(Request $request){
