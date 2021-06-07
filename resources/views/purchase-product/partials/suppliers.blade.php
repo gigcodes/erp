@@ -88,6 +88,7 @@ color:black!important;
         <tr>
             <th width="10%">Sl no</th>
             <th width="75%">Name</th>
+            <th width="75%">Product Inquiry Count</th> <!-- Purpose : Product Inquiry Count -DEVTASK-4048 -->
             <th width="15%">Action</th>
          </tr>
         </thead>
@@ -97,6 +98,7 @@ color:black!important;
             <tr class="">
               <td>{{ ++$key }}</td>
               <td>{{ $supplier->supplier }}</td>
+              <td>{{$supplier->inquiryproductdata_count}}</td><!-- Purpose : Product Inquiry Count -DEVTASK-4048 -->
               <td>
               <a href="#"  data-type="order" data-id="{{$supplier->id}}" class="btn btn-xs btn-secondary product-list-btn" style="color:white !important;">
                 Order
@@ -110,7 +112,7 @@ color:black!important;
               </td>
             </tr>
             <tr class="expand-row-{{$supplier->id}} hidden">
-                <td colspan="3" id="product-list-data-{{$supplier->id}}">
+                <td colspan="4" id="product-list-data-{{$supplier->id}}">
                 
                 </td>
             </tr>
