@@ -3027,4 +3027,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('customers', 'Select2Controller@customers')->name('select2.customer');
     Route::get('users', 'Select2Controller@users')->name('select2.user');
     Route::get('users_vendors', 'Select2Controller@users_vendors')->name('select2.uservendor');
+    Route::get('suppliers', 'Select2Controller@suppliers')->name('select2.suppliers');
+    Route::get('updatedby-users', 'Select2Controller@updatedbyUsers')->name('select2.updatedby_users');
+    Route::get('scraped-brand', 'Select2Controller@scrapedBrand')->name('select2.scraped-brand');
 });
