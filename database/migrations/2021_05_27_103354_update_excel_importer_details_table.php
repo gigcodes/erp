@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTblAutoCompleteMessages extends Migration
+class UpdateExcelImporterDetailsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,10 @@ class CreateTblAutoCompleteMessages extends Migration
      */
     public function up()
     {
-        Schema::create('auto_complete_messages',function(Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->text('message');
-            $table->timestamps();
-
+        //
+        Schema::table('excel_importer_details', function (Blueprint $table) {
+            $table->text('image')->nullable();
+            $table->text('image_tools')->nullable();
         });
     }
 

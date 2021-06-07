@@ -242,8 +242,8 @@
                         </tr>
                         @foreach($final_array as $values)
                             <tr>
-                                <td>{{ $values[0]}}</td>
-                                <td>{{ $values[1]}}</td>
+                                <td>{{ isset($values[0]) ? $values[0] : "" }}</td>
+                                <td>{{ isset($values[1]) ? $values[1] : "" }}</td>
                                 <td><button class="btn-warning btn deleteIp" data-index="{{ $values[0]}}">Delete</button></td>
                             </tr>
                         @endforeach
