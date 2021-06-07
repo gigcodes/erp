@@ -241,7 +241,7 @@ class ChatMessage extends Model
 
     public function taskUser()
     {
-        return $this->hasOne("\App\User","id","sent_to_user_id");
+        return $this->hasOne("\App\User","id","user_id");
     }
 
     public function user()
