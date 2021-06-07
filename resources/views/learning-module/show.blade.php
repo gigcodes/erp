@@ -2613,7 +2613,7 @@
             if(users.length == 0)
                 alert('Please Select User');
             else if(vendors.length == 0)
-                alert('Please Select Vendor');
+                alert('Please Select Provider');
             else if(subject.length == 0)
                 alert('Please Enter Subject');
             else if(submodule.length == 0)
