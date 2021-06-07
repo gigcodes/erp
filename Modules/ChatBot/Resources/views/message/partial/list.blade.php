@@ -69,6 +69,13 @@
                     <button class="btn btn-sm btn-image send-message1" data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
                     @if($pam->vendor_id > 0 )
                         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="vendor" data-id="{{$pam->vendor_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    @elseif($context === 'task' || $context === 'issue')
+
+                        @php
+                            $context__  = $context === 'issue' ? 'developer_task' : $context;
+                        @endphp
+
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="{{ $context__ }}" data-id="{{ $issueID }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                     @else
                         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="customer" data-id="{{$pam->customer_id }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                     @endif

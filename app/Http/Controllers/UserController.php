@@ -668,14 +668,19 @@ class UserController extends Controller
 	{
 		$user_ips = UserLoginIp::join('users', 'user_login_ips.user_id', '=', 'users.id')
 						->select('user_login_ips.*', 'users.email')
+						->latest()
 						->get();
-		return response()->json( ["code" => 200 , "data" => $user_ips] );
-		//return view('users.ips', compact('user_ips'));
+		if ($request->ajax()) {
+			return response()->json( ["code" => 200 , "data" => $user_ips] );
+		}else{
+			return view('users.ips', compact('user_ips'));
+		} 	
+		
 	}
 
 	public function addSystemIp(Request $request){
 		if($request->ip){
-			shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f add -i ".$request->ip);
+			shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f add -i ".$request->ip." -c ".$request->get("comment",""));
 			return response()->json( ["code" => 200 , "data" => "Success"] );
 		}
 		return response()->json( ["code" => 500 , "data" => "Error occured!"] );

@@ -24,6 +24,7 @@ use App\Email;
 use App\InventoryStatus;
 use App\ChatMessage;
 use App\Product;
+use App\SupplierOrderInquiryData;
 
 class PurchaseProductController extends Controller
 {
@@ -298,13 +299,29 @@ class PurchaseProductController extends Controller
     }
 
     public function getSuppliers(Request $request) {
+        // START - Purpose : Comment Code - DEVTASK-4048
+        // $term = $request->term;
+        // $suppliers =  ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')
+        // ->join('order_products','order_products.product_id','product_suppliers.product_id');
+        // if($request->term) {
+        //     $suppliers =  $suppliers->where('suppliers.supplier' ,'like', '%'.$request->term.'%');
+        // }
+        // $suppliers = $suppliers->groupBy('product_suppliers.supplier_id')->select('suppliers.*')->get();
+        // return view('purchase-product.partials.suppliers',compact('suppliers','term'));
+        // END - DEVTASK-4048
+
+        // START - Purpose : Code with Product Inquiry Count - DEVTASK-4048
         $term = $request->term;
-        $suppliers =  ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')
+        $suppliers =  Supplier::withcount('inquiryproductdata')->join('product_suppliers','suppliers.id','product_suppliers.supplier_id')
         ->join('order_products','order_products.product_id','product_suppliers.product_id');
+        
         if($request->term) {
             $suppliers =  $suppliers->where('suppliers.supplier' ,'like', '%'.$request->term.'%');
         }
-        $suppliers = $suppliers->groupBy('product_suppliers.supplier_id')->select('suppliers.*')->get();
+        $suppliers = $suppliers->groupBy('product_suppliers.supplier_id')->orderBy('inquiryproductdata_count','desc')
+        ->get();
+        // END - DEVTASK-4048
+
         return view('purchase-product.partials.suppliers',compact('suppliers','term'));
     }
 
@@ -344,6 +361,7 @@ class PurchaseProductController extends Controller
             $subject = 'Product enquiry';
             $message = 'Please check below products';
             $product_ids = json_decode($request->product_ids, true);
+
             Excel::store(new EnqueryExport($product_ids,$path), $path, 'files');
             
             $emailClass = (new PurchaseExport($path, $subject, $message))->build();
@@ -363,6 +381,46 @@ class PurchaseProductController extends Controller
 
             \App\Jobs\SendEmail::dispatch($email);
 
+            // START - Purpose : Add Record for Inquiry - DEVTASK-4048
+
+            $products_data = Product::whereIn('id',$product_ids)->get()->toArray();
+            $product_names = array_column($products_data, 'name');
+            $products_str = implode(", ",$product_names);
+            $message = 'Please check Product enquiry : '.$products_str;
+
+            $number = ($supplier->phone ? $supplier->phone : '971569119192' );
+
+            $send_whatsapp = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($number,$supplier->whatsapp_number, $message);
+
+
+            $getInquiryData = SupplierOrderInquiryData::where('type',$type)->get()->toArray();
+
+            $pro_data_arr = array();
+            foreach($getInquiryData as $key => $value){
+                $pro_data_arr[$value['type']][$value['product_id']] = $value;
+            }   
+
+
+            $product_id = array_column($getInquiryData, 'product_id');
+
+            $pro_arr = [];
+            foreach ($product_ids as $key => $val)
+            {
+                if (!in_array($val, $product_id))
+                {
+                    $pro_arr[] = [
+                        'supplier_id' => $supplier_id,
+                        'product_id' => $val,
+                        'type' => $type,
+                        'count_number' => '1'
+                    ];
+
+                }
+            }
+
+            SupplierOrderInquiryData::insert($pro_arr);
+            // END - DEVTASK-4048
+            
             return response()->json(['message' => 'Successfull','code' => 200]);
         }
 
@@ -390,6 +448,44 @@ class PurchaseProductController extends Controller
             ]);
 
             \App\Jobs\SendEmail::dispatch($email);
+
+            // START - Purpose : Add Record for Inquiry - DEVTASK-4048
+            $products_data = Product::whereIn('id',$product_ids)->get()->toArray();
+            $product_names = array_column($products_data, 'name');
+            $products_str = implode(", ",$product_names);
+            $message = 'Please check Product Order : '.$products_str;
+
+            $number = ($supplier->phone ? $supplier->phone : '971569119192' );
+
+            $send_whatsapp = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($number,$supplier->whatsapp_number, $message);
+
+            $getInquiryData = SupplierOrderInquiryData::where('type',$type)->get()->toArray();
+
+            $pro_data_arr = array();
+            foreach($getInquiryData as $key => $value){
+                $pro_data_arr[$value['type']][$value['product_id']] = $value;
+            }   
+
+
+            $product_id = array_column($getInquiryData, 'product_id');
+
+            $pro_arr = [];
+            foreach ($product_ids as $key => $val)
+            {
+                if (!in_array($val, $product_id))
+                {
+                    $pro_arr[] = [
+                        'supplier_id' => $supplier_id,
+                        'product_id' => $val,
+                        'type' => $type,
+                        'count_number' => '1'
+                    ];
+
+                }
+            }
+
+            SupplierOrderInquiryData::insert($pro_arr);
+            // END - DEVTASK-4048
     
             return response()->json(['message' => 'Successfull','code' => 200]);
         }
@@ -424,6 +520,7 @@ class PurchaseProductController extends Controller
         $suppliers = $request->supplier_id;
 
         $isexist = ProductSupplier::where('product_id',$product_data->id)->whereIn('supplier_id',$suppliers)->exists();
+
 
         if($isexist == true)
         {
