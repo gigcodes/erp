@@ -34,7 +34,8 @@
 						</a> | 
 						<label for="upload_file{{>prop.id}}" data-id="{{>prop.id}}" class="fa fa-upload"></label>
 						<input type="file" multiple data-id="{{>prop.id}}" class="upload_file hide" name="upload_file{{>prop.id}}" id="upload_file{{>prop.id}}">
-						<a href="javascript:;" class="get_Files" data-id="{{>prop.id}}">Show Files</a>
+						<a href="javascript:;" class="get_Files" data-id="{{>prop.id}}"></a> | 
+						<button class="btn btn-sm btn-image show-emails" data-id="{{:prop.id}}"><i class="fa fa-envelope" aria-hidden="true"></i></button>
 			        </td>
 			      </tr>
 			    {{/props}}  

@@ -336,6 +336,7 @@ class ScrapController extends Controller
                 $scrapedProduct->price_eur = (float) $request->get('price');
             }
             $scrapedProduct->discounted_price  = $request->get('discounted_price');
+            $scrapedProduct->discounted_percentage = (float) $request->get('discounted_percentage',0.00);
             $scrapedProduct->original_sku      = trim($request->get('sku'));
             $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
             $scrapedProduct->validated         = empty($errorLog["error"]) ? 1 : 0;
@@ -378,6 +379,7 @@ class ScrapController extends Controller
             $scrapedProduct->properties       = $propertiesExt;
             $scrapedProduct->currency         = ProductHelper::getCurrency($request->get('currency'));
             $scrapedProduct->price            = (float) $request->get('price');
+            $scrapedProduct->discounted_percentage = (float) $request->get('discounted_percentage',0.00);
             if ($request->get('currency') == 'EUR') {
                 $scrapedProduct->price_eur = (float) $request->get('price');
             }
@@ -2008,7 +2010,7 @@ class ScrapController extends Controller
                 if (count($matches) == 2 || count($matches) == 1 || count($matches) == 0) {
                     return response()->json(["code" => 200, "message" => "Script Is Not Running"]);
                 } else {
-                    return response()->json(["code" => 200, "message" => "Script Is Running"]);
+                    return response()->json(["code" => 200, "message" => "Script Is Running \n" . json_decode($response)->Process[0]->duration]);
                 }
 
             } else {
@@ -2090,20 +2092,15 @@ class ScrapController extends Controller
         //dd($scraper);
         if ($scraper) {
             $parentId                 = $scraper->id;
-            $checkIfChildScraperExist = Scraper::where('parent_id', $parentId)->where('scraper_name', $request->name)->first();
-            if (!$checkIfChildScraperExist) {
-                $scraperChild                  = new Scraper;
-                $scraperChild->scraper_name    = $request->name;
-                $scraperChild->supplier_id     = $scraper->supplier_id;
-                $scraperChild->parent_id       = $parentId;
-                $scraperChild->run_gap         = $request->run_gap;
-                $scraperChild->start_time      = $request->start_time;
-                $scraperChild->scraper_made_by = $request->scraper_made_by;
-                $scraperChild->server_id       = $request->server_id;
-                $scraperChild->save();
-            } else {
-                return redirect()->back()->with('message', 'Scraper Already Exist');
-            }
+            $scraperChild                  = new Scraper;
+            $scraperChild->scraper_name    = $request->name;
+            $scraperChild->supplier_id     = $scraper->supplier_id;
+            $scraperChild->parent_id       = $parentId;
+            $scraperChild->run_gap         = $request->run_gap;
+            $scraperChild->start_time      = $request->start_time;
+            $scraperChild->scraper_made_by = $request->scraper_made_by;
+            $scraperChild->server_id       = $request->server_id;
+            $scraperChild->save();
             return redirect()->back()->with('message', 'Child Scraper Saved');
         }
         return redirect()->back()->with('message', 'Scraper Not Found');

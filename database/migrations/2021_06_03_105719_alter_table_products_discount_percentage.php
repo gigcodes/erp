@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class UpdatePlansTable extends Migration
+class AlterTableProductsDiscountPercentage extends Migration
 {
     /**
      * Run the migrations.
@@ -14,12 +14,8 @@ class UpdatePlansTable extends Migration
     public function up()
     {
         //
-        Schema::table('plans', function (Blueprint $table) {
-            $table->text('strength')->nullable();
-            $table->text('weakness')->nullable();
-            $table->text('opportunity')->nullable();
-            $table->text('threat')->nullable();
-            $table->text('category')->nullable();
+        Schema::table('products',function(Blueprint $table) {
+            $table->decimal('discounted_percentage', 8, 2)->default(0.00)->after('price_eur_discounted');
         });
     }
 
@@ -31,5 +27,8 @@ class UpdatePlansTable extends Migration
     public function down()
     {
         //
+        Schema::table('products',function(Blueprint $table) {
+            $table->dropField('discounted_percentage');
+        });
     }
 }

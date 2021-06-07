@@ -1048,10 +1048,11 @@ class ProductInventoryController extends Controller
 			           OR p.price IS NULL THEN 1 ELSE 0 END) AS missing_price,
 			       sum(CASE WHEN p.size = ""
 			           OR p.size IS NULL THEN 1 ELSE 0 END) AS missing_size,
-			       `p`.`supplier`
+			       `p`.`supplier`,
+			       `p`.`website`
 				')
-				->where('p.supplier','<>','');
-				$scrapped_query = $scrapped_query->groupBy('p.supplier')->havingRaw("missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ");
+				->where('p.website','<>','');
+				$scrapped_query = $scrapped_query->groupBy('p.website')->havingRaw("missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ");
 
 		$scrappedReportData = $scrapped_query->get();
 		//dd($inventory_data);

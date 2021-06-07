@@ -201,6 +201,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('users/logins', 'UserController@login')->name('users.login.index');
     Route::post('users/status-change', 'UserController@statusChange');
     Route::get('users/loginips', 'UserController@loginIps')->name('users.login.ips');
+    Route::get('users/add-system-ip', 'UserController@addSystemIp');
+    Route::get('users/delete-system-ip', 'UserController@deleteSystemIp');
     Route::get('permissions/grandaccess/users', 'PermissionController@users')->name('permissions.users');
     Route::get('userlogs', 'UserLogController@index')->name('userlogs.index');
     Route::get('userlogs/{$id}', 'UserLogController@index');
@@ -666,6 +668,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('email/{id}/excel-import', 'EmailController@excelImporter');
     Route::post('email/{id}/get-file-status', 'EmailController@getFileStatus');
     Route::resource('email', 'EmailController');
+    Route::post('email/platform-update', 'EmailController@platformUpdate');
 
     Route::post('email/category', 'EmailController@category');
     Route::post('email/status', 'EmailController@status');
@@ -734,6 +737,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
+
+    Route::resource('learning', 'LearningModuleController');
+    Route::resource('learning_category', 'LearningCategoryController');
+    Route::post('learning_category/submodule', 'LearningCategoryController@getSubModule');
+    Route::post('learning/create-learning-from-shortcut', 'LearningModuleController@createLearningFromSortcut');
+    Route::post('learning-module/update', 'LearningModuleController@learningModuleUpdate')->name('learning-module.update');
+
     Route::get('/', 'MasterControlController@index')->name('home');
     Route::get('/master-dev-task', 'MasterDevTaskController@index')->name('master.dev.task');
 
@@ -1712,6 +1722,11 @@ Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
 Route::get('message/resend', 'WhatsAppController@resendMessage2');
 Route::get('message/delete', 'WhatsAppController@delete');
 
+Route::post('list/autoCompleteMessages', 'WhatsAppController@autoCompleteMessages');
+
+
+
+
 //});
 
 
@@ -2665,6 +2680,7 @@ Route::prefix( 'google-campaigns')->middleware('auth')->group(function () {
 
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {
     Route::get('/', 'DigitalMarketingController@index')->name('digital-marketing.index');
+    Route::post('/get-emails', 'DigitalMarketingController@getEmails');
     Route::get('/records', 'DigitalMarketingController@records')->name('digital-marketing.records');
     Route::post('/save', 'DigitalMarketingController@save')->name('digital-marketing.save');
     Route::post('/saveImages', 'DigitalMarketingController@saveImages')->name('digital-marketing.saveimages');
@@ -2842,6 +2858,7 @@ Route::get('store-website-country-shipping/edit/{id}', 'StoreWebsiteCountryShipp
 Route::get('store-website-country-shipping/delete/{id}', 'StoreWebsiteCountryShippingController@delete')->name('store-website-country-shipping.delete');
 
 Route::get('/attached-images-grid/customer/', 'ProductController@attachedImageGrid');
+Route::post('/attached-images-grid/customer/create-template', 'ProductController@createTemplate')->name('attach.cus.create.tpl');
 Route::post('/attached-images-grid/add-products/{suggested_products_id}', 'ProductController@attachMoreProducts');//
 Route::post('/attached-images-grid/remove-products/{customer_id}', 'ProductController@removeProducts');//
 Route::post('/attached-images-grid/remove-single-product/{customer_id}', 'ProductController@removeSingleProduct');//
@@ -3009,4 +3026,5 @@ Route::group(['middleware' => 'auth'], function () {
 Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('customers', 'Select2Controller@customers')->name('select2.customer');
     Route::get('users', 'Select2Controller@users')->name('select2.user');
+    Route::get('users_vendors', 'Select2Controller@users_vendors')->name('select2.uservendor');
 });

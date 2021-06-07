@@ -149,7 +149,7 @@
 			                        @if($number != "0")
 				                        <div class="form-group">
 										    <label for="message_sending_limit">Limit for {{ $number }}:</label>
-										    {{ Form::text("message_sending_limit[{$number}]",isset($sendingLimit[$number]) ? $sendingLimit[$number] : 0,["class" => "form-control message_sending_limit"] ) }}
+										    {{ Form::text("message_sending_limit[{$number}]",isset($sendingLimit[$number]) ? $sendingLimit[$number] : 0,["class" => "form-control message_sending_limit col-md"] ) }}
 									  	</div>
 			                        @endif
 			                    @endforeach		
@@ -173,7 +173,7 @@
 							  	</div>		
 					  		</div>
 					  	</div>	
-					</form>	
+					</form>
 		    	</div>
 		    </div>
 		    <div class="col">
@@ -222,6 +222,28 @@
 					  </div>	
 					</form>	
 		    	</div>
+
+				<form class="form-inline message-queue-time-handler" method="post">
+					<?php echo csrf_field(); ?>
+				  	<div class="row">
+				  		<div class="col">
+				  			@foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+		                        @if($number != "0")
+			                        <div class="form-group">
+									    <label for="message-sending-time">Minute per {{ $number }}:</label>
+									    {{ Form::text("message_sending_time[{$number}]",isset($sendingTime[$number]) ? $sendingTime[$number] : 0,["class" => "form-control message_sending_time col-md"] ) }}
+								  	</div>
+		                        @endif
+		                    @endforeach
+		                    <div class="form-group">
+						  		<label for="button">&nbsp;</label>
+						  		<button type="button" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-send-time">
+						  			<img src="/images/filled-sent.png" style="cursor: default;">
+						  		</button>
+						  	</div>		
+				  		</div>
+				  	</div>
+				</form>	
 		    </div>
 	    </div>	
 		<div class="col-md-12 margin-tb infinite-scroll" id="page-view-result">

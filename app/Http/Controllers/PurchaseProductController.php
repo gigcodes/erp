@@ -355,7 +355,7 @@ class PurchaseProductController extends Controller
         if($type == 'inquiry') {
 
             // ChatMessage::sendWithChatApi('919825282', null, $message);
-            
+
             $supplier = Supplier::find($supplier_id);            
             $path = "inquiry_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_enquiry_exports.xlsx";
             $subject = 'Product enquiry';
@@ -520,6 +520,7 @@ class PurchaseProductController extends Controller
         $suppliers = $request->supplier_id;
 
         $isexist = ProductSupplier::where('product_id',$product_data->id)->whereIn('supplier_id',$suppliers)->exists();
+
 
         if($isexist == true)
         {

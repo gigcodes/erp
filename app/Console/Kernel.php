@@ -87,6 +87,8 @@ use App\Console\Commands\CreateErpLeadFromCancellationOrder;
 use App\Console\Commands\SendQueuePendingChatMessages;
 use App\Console\Commands\SendQueuePendingChatMessagesGroup;
 use App\Console\Commands\SyncCustomersFromMagento;
+use App\Console\Commands\StoreChatMessagesToAutoCompleteMessages;
+
 use App\NotificationQueue;
 use App\Benchmark;
 use App\Task;
@@ -264,7 +266,8 @@ class Kernel extends ConsoleKernel
         InstagramHandler::class,
         SendDailyReports::class,
         SendDailyPlannerNotification::class,
-        InsertPleskEmail::class
+        InsertPleskEmail::class,
+        StoreChatMessagesToAutoCompleteMessages::class,
     ];
 
     /**
@@ -448,10 +451,17 @@ class Kernel extends ConsoleKernel
         // send only cron run time
         $queueStartTime = \App\ChatMessage::getStartTime();
         $queueEndTime  = \App\ChatMessage::getEndTime();
+        $queueTime  = \App\ChatMessage::getQueueTime();
         // check if time both is not empty then run the cron
         if(!empty($queueStartTime) && !empty($queueEndTime)) {
-            $schedule->command('send:queue-pending-chat-messages')->cron('*/15 * * * *')->between($queueStartTime, $queueEndTime);
-            $schedule->command('send:queue-pending-chat-group-messages')->everyMinute();
+            if(!empty($queueTime)) {
+                foreach($queueTime as $no => $time) {
+                    if($time > 0) {
+                        $schedule->command('send:queue-pending-chat-messages '.$no)->cron('*/'.$time.' * * * *')->between($queueStartTime, $queueEndTime);
+                        $schedule->command('send:queue-pending-chat-group-messages '.$no)->cron('*/'.$time.' * * * *')->between($queueStartTime, $queueEndTime);        
+                    } 
+                }
+            }
         }
 
 

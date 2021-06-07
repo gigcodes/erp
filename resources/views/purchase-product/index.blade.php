@@ -229,7 +229,9 @@
                     @php
                     $order_product = \App\OrderProduct::find($order->order_product_id);
                     @endphp
+
                     
+
                 </td>
               <td class="expand-row table-hover-cell">
                 <div class="d-flex">

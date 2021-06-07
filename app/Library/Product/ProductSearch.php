@@ -107,6 +107,14 @@ class ProductSearch
                         $products = $products->where('price_inr_special', '<=', $value);
                         break;
 
+                    case 'discounted_percentage_min':
+                        $products = $products->where('discounted_percentage', '>=', $value);
+                        break;
+
+                    case 'discounted_percentage_max':
+                        $products = $products->where('discounted_percentage', '<=', $value);
+                        break;    
+
                     case 'supplier':
                         $products = $products->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN (" . implode(',', $value) . "))");
                         break;
