@@ -372,9 +372,8 @@ class WhatsappConfigController extends Controller
         $whatsappConfig = WhatsappConfig::find($id);
         
         $ch = curl_init();
+        $url = env('WHATSAPP_BARCODE_IP').$whatsappConfig->username.'/get-screen';
 
-        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/get-screen';
-        
         // set url
         curl_setopt($ch, CURLOPT_URL, $url);
 
@@ -388,8 +387,8 @@ class WhatsappConfigController extends Controller
         curl_close($ch); 
 
         $barcode = json_decode($output);
-            
-        if($barcode){
+        return Response::json(array('success' => true,'media' => true)); 
+        //if($barcode){
            
            if($barcode->barcode == 'No Screen Available'){
                 return Response::json(array('nobarcode' => true)); 
@@ -399,10 +398,10 @@ class WhatsappConfigController extends Controller
             $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('screen')->upload();
         
             return Response::json(array('success' => true,'media' => $media->getUrl())); 
-        }else{
+        // }else{
          
-             return Response::json(array('error' => true)); 
-        }
+        //      return Response::json(array('error' => true));
+        // }
     }
 
     public function deleteChromeData(Request $request)
@@ -449,7 +448,7 @@ class WhatsappConfigController extends Controller
         
         $ch = curl_init();
 
-        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/restart-script';
+        $url = env('WHATSAPP_BARCODE_IP').$whatsappConfig->username.'/restart-script';
         
         // set url
         curl_setopt($ch, CURLOPT_URL, $url);

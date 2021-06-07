@@ -20,7 +20,11 @@ use App\Exports\EnqueryExport;
 use Storage;
 use App\Mails\Manual\PurchaseExport;
 use Mail;
+use App\Email;
 use App\InventoryStatus;
+use App\ChatMessage;
+use App\Product;
+
 class PurchaseProductController extends Controller
 {
     /**
@@ -295,7 +299,8 @@ class PurchaseProductController extends Controller
 
     public function getSuppliers(Request $request) {
         $term = $request->term;
-        $suppliers =  ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id');
+        $suppliers =  ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')
+        ->join('order_products','order_products.product_id','product_suppliers.product_id');
         if($request->term) {
             $suppliers =  $suppliers->where('suppliers.supplier' ,'like', '%'.$request->term.'%');
         }
@@ -305,11 +310,12 @@ class PurchaseProductController extends Controller
 
     public function getProducts($type, $supplier_id) {
         if($type == 'inquiry') {
-            $products = ProductSupplier::join('products','products.id','product_suppliers.product_id')
+            $products = ProductSupplier::
+            join('products','products.id','product_suppliers.product_id')
             ->join('order_products as op','op.product_id','products.id')
-            ->where('product_suppliers.supplier_id',$supplier_id)
+            // ->where('product_suppliers.supplier_id',$supplier_id)
             ->groupBy('product_id')
-            ->select('product_suppliers.price as product_price','products.*','products.id as product_id','product_suppliers.id as ps_id')
+            ->select('product_suppliers.price as product_price','products.*','products.id as product_id','product_suppliers.id as ps_id', 'product_suppliers.supplier_id as sup_id')
             ->get();
 
             return view('purchase-product.partials.products',compact('products','type','supplier_id'));
@@ -319,8 +325,10 @@ class PurchaseProductController extends Controller
             ->join('products','products.id','order_products.product_id')
             ->join('product_suppliers','product_suppliers.product_id','products.id')
             ->where('product_suppliers.supplier_id',$supplier_id)
+            ->orderBy('order_products.id', 'desc')
             /*->groupBy('supplier_discount_infos.id')*/
             ->select('product_suppliers.price as product_price','products.*','supplier_discount_infos.*','product_suppliers.id as ps_id')->get();
+           
             return view('purchase-product.partials.products',compact('products','type','supplier_id'));
         }
     }
@@ -328,6 +336,9 @@ class PurchaseProductController extends Controller
     public function sendProducts($type,$supplier_id,Request $request)
     {
         if($type == 'inquiry') {
+
+            // ChatMessage::sendWithChatApi('919825282', null, $message);
+
             $supplier = Supplier::find($supplier_id);            
             $path = "inquiry_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_enquiry_exports.xlsx";
             $subject = 'Product enquiry';
@@ -345,7 +356,7 @@ class PurchaseProductController extends Controller
                 'subject'          => $subject,
                 'message'          => $message,
                 'template'         => 'purchase-simple',
-                'additional_data'  => json_encode(['attachment' => $path]),
+                'additional_data'  => json_encode(['attachment' => [$path]]),
                 'status'           => 'pre-send',
                 'is_draft'         => 0,
             ]);
@@ -373,7 +384,7 @@ class PurchaseProductController extends Controller
                 'subject'          => $subject,
                 'message'          => $message,
                 'template'         => 'purchase-simple',
-                'additional_data'  => json_encode(['attachment' => $path]),
+                'additional_data'  => json_encode(['attachment' => [$path]]),
                 'status'           => 'pre-send',
                 'is_draft'         => 0,
             ]);
@@ -406,7 +417,42 @@ class PurchaseProductController extends Controller
         }
         return response()->json(['message' => 'Status not changed' ,'code' => 500]);
     }
+    
+    public function insert_suppliers_product(Request $request){
+       
+        $product_data = Product::find($request->product_id);
+        $suppliers = $request->supplier_id;
 
+        $isexist = ProductSupplier::where('product_id',$product_data->id)->whereIn('supplier_id',$suppliers)->exists();
+
+        if($isexist == true)
+        {
+            return response()->json(['message' => 'This Supplier Alreday Added For this Product.' ,'code' => 400]);
+        }
+
+        foreach($suppliers as $key => $val)
+        {
+            $add_product_supplier             = ProductSupplier::create([
+                'product_id' => $product_data->id,
+                'supplier_id' => $val,
+                'sku' => $product_data->sku,
+                'title' => $product_data->name,
+                'description' => $product_data->short_description,
+                'supplier_link' => $product_data->supplier_link,
+                'price'         => $product_data->price,
+                'stock'         => $product_data->stock,
+                'price'         => $product_data->price,
+                'price_special' => $product_data->price_eur_special,
+                'price_discounted' => $product_data->price_eur_discounted,
+                'size'          => $product_data->size,
+                'color'         => $product_data->color,
+                'composition'   => $product_data->composition
+            ]);
+        }
+
+        return response()->json(['message' => 'Supplier Added successfully' ,'code' => 200]);
+    }
+    
     /**
      * Store a newly created resource in storage.
      *

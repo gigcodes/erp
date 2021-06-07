@@ -16,6 +16,8 @@
 
           </td>
           <td> {{ isset($data['category_name']) ?   $data['category_name'] : "-" }}  / {{ isset($data['brand_name']) ?   $data['brand_name'] : "-" }}</td>
+          <td>{{ isset($data['suppliers_info']) ?  $data['suppliers_info'][0]->price : ''}}</td>
+          <td>{{ $data['discounted_percentage'] }}%</td>
           <!-- <td>{{ $data['brand_name'] }}</td> --><!--  Purpose : merge Category/ Brand  Column - DEVTASK-4138 -->
           <td>{{ $data['supplier'] }}</td>
           <td>{{ $data['color'] }}

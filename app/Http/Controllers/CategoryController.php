@@ -6,6 +6,8 @@ use App\BrandCategoryPriceRange;
 use App\Category;
 use App\CategorySegment;
 use App\ScrapedProducts;
+use App\ScrappedCategoryMapping;
+use App\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
@@ -566,6 +568,7 @@ class CategoryController extends Controller
 
         $input             = preg_quote($request->get('search'), '~');
         $unKnownCategories = preg_grep('~' . $input . '~', $unKnownCategories);
+        
 
         // $mainArr = [];
         // foreach ($unKnownCategories as $cat) {
@@ -582,15 +585,22 @@ class CategoryController extends Controller
         $unKnownCategories = $this->paginate($unKnownCategories,50);
         $unKnownCategories->setPath($request->url());
 
+
+        // $scrapped_category_mapping = ScrappedCategoryMapping::withCount('cat_count')->with(['scmSPCM'])->limit(5)->get();
+
+        $scrapped_category_mapping = ScrappedCategoryMapping::withCount('cat_count')->with(['scmSPCM']);
+        $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination'));
+
+
         //check if the items is not empty
 
         // $TotalProductCount = array_sum(array_column($mainArr,'cat_product_count'));
 
-        $categoryAll   = Category::where('id', '!=', $unKnownCategory->ide)->where('magento_id', '!=', '0')->get();
+        $categoryAll   = Category::with('childs')->where('id', '!=', $unKnownCategory->ide)->where('magento_id', '!=', '0')->get();
         $categoryArray = [];
         foreach ($categoryAll as $category) {
             $categoryArray[] = array('id' => $category->id, 'value' => $category->title);
-            $childs          = Category::where('parent_id', $category->id)->get();
+            $childs          = $category->childs;  //Category::where('parent_id', $category->id)->get();
             foreach ($childs as $child) {
                 $categoryArray[] = array('id' => $child->id, 'value' => $category->title . ' > ' . $child->title);
                 $grandChilds     = Category::where('parent_id', $child->id)->get();
@@ -602,7 +612,20 @@ class CategoryController extends Controller
             }
         }
 
-        return view('category.new-reference', ['unKnownCategories' => $unKnownCategories, 'categoryAll' => $categoryArray, 'unKnownCategoryId' => $unKnownCategory->id]);
+        // START - Purpose : Check need_to_skip Status - #DEVTASK-4143
+
+        // $need_to_skip_rec = \App\UserUpdatedAttributeHistory::where("user_id", \Auth::user()->id)->where('need_to_skip',1)->first(); 
+
+        $need_to_skip_rec = \App\TemporaryCategoryUpdation::where("user_id", \Auth::user()->id)->where('need_to_skip',1)->first(); 
+
+        if($need_to_skip_rec)
+            $need_to_skip_status = 1;
+        else
+            $need_to_skip_status = 0;    
+        // END - #DEVTASK-4143
+
+        return view('category.new-reference', ['unKnownCategories' => $unKnownCategories, 'categoryAll' => $categoryArray, 'unKnownCategoryId' => $unKnownCategory->id , 'need_to_skip_status' => $need_to_skip_status, 'scrapped_category_mapping' => $scrapped_category_mapping]);
+
     }
 
     /**
@@ -635,7 +658,23 @@ class CategoryController extends Controller
 
     public function fixAutoSuggested(Request $request)
     {
+        //START - Purpose : Check Show skip checknox value and get data - #DEVTASK-4143
+        $show_skipeed_btn_value = $request->show_skipeed_btn_value;
+
+        if($show_skipeed_btn_value == 'false')
+        {
+            $need_ro_skip_true_record = \App\UserUpdatedAttributeHistory::where("user_id", \Auth::user()->id)->where('need_to_skip',1)->get()->toArray(); 
+            
+            $category_ids = array_column($need_ro_skip_true_record, 'attribute_id');
+
+            $category_name = \App\TemporaryCategoryUpdation::where("user_id", \Auth::user()->id)->where('need_to_skip',1)->get()->toArray(); 
+
+            $category_name_ar = array_column($category_name, 'category_name');
+        }
+        //END - #DEVTASK-4143
+
         $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
+        
         $unKnownCategories = explode(',', $unKnownCategory->references);
         $unKnownCategories = array_unique($unKnownCategories);
 
@@ -649,15 +688,43 @@ class CategoryController extends Controller
         $unKnownCategories = $this->paginate($unKnownCategories,50);
         $unKnownCategories->setPath($request->url());
 
+       
+
 
         $links = [];
         if (!$unKnownCategories->isEmpty()) {
             foreach ($unKnownCategories as $i => $unkc) {
                 $filter = \App\Category::updateCategoryAuto($unkc);
-                $links[] = [
-                    "from" => $unkc,
-                    "to"   => ($filter) ? $filter->id : null,
-                ];
+
+                //START - Purpose : Added if Condition for Alreday exist or not - #DEVTASK-4143
+                if($show_skipeed_btn_value == 'false')
+                {
+                    // if($filter)
+                    // {
+                    //     if(!in_array($filter->id, $category_ids))
+                    //     {
+                    //         $links[] = [
+                    //             "from" => $unkc,
+                    //             "to"   => ($filter) ? $filter->id : null,
+                    //         ];
+                    //     }
+                    // }else{
+                        
+                        if(!in_array($unkc, $category_name_ar))
+                        {
+                            $links[] = [
+                                "from" => $unkc,
+                                "to"   => ($filter) ? $filter->id : null,
+                            ];
+                        }
+                    // }
+                }//END - #DEVTASK-4143
+                else{
+                    $links[] = [
+                        "from" => $unkc,
+                        "to"   => ($filter) ? $filter->id : null,
+                    ];
+                }
             }
         }
 
@@ -705,6 +772,7 @@ class CategoryController extends Controller
         $items = $request->updated_category;
         if(!empty($items)) {
             foreach($items as $k => $item) {
+                
                 if($item != 1) {
                     $filter = Category::find($item);
                     if ($filter) {
@@ -745,14 +813,34 @@ class CategoryController extends Controller
                                     'attribute_name' => 'category',
                                     'attribute_id'   => $filter->id,
                                     'user_id'        => \Auth::user()->id,
+                                    'need_to_skip'   => 1, // Purpose : Added need_to_skip for Notify to user - #DEVTASK-4143
                                 ]);
 
                                 $filter->references = implode(",", array_unique($existingRef));
                                 $filter->save();
+
+                                //START - Add CategoryEntry in TemporaryCategoryUpdation Table - #DEVTASK-4143
+                                $category_status_updation = \App\TemporaryCategoryUpdation::create([
+                                    'category_name'      => $k,
+                                    'attribute_id'      => $filter->id,
+                                    'need_to_skip' => 1,
+                                    'user_id'        => \Auth::user()->id,
+                                ]);
+                                //END - #DEVTASK-4143
                             }
                         }
                     }
                 }
+                //START - Add CategoryEntry in TemporaryCategoryUpdation Table - #DEVTASK-4143
+                else{
+                    $category_status_updation =  \App\TemporaryCategoryUpdation::create([
+                        'category_name'      => $k,
+                        'attribute_id'      => 0,
+                        'need_to_skip' => 1,
+                        'user_id'        => \Auth::user()->id,
+                    ]);
+                }
+                //END - #DEVTASK-4143
             }
         }
 

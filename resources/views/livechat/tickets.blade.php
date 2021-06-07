@@ -94,7 +94,7 @@
 
     
     <div class="table-responsive mt-3">
-      <table style="word-break: break-all; font-size:14px;" class="table table-bordered" id="list-table" cellspacing=0 >
+      <table style="font-size:13.8px;" class="table table-bordered" id="list-table" cellspacing=0 >
         <thead>
           <tr>
             <th>Sr. No.</th>

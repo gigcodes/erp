@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use \App\ChatMessage;
 use \App\Product;
-use GuzzleHttp\Client as GuzzleClient;
 
 class MessageHelper
 {

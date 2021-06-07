@@ -23,7 +23,7 @@
 							<input type="hidden" name="edit_id" value="{{ $edit->id ?? null }}">
 							<div class="form-group">
 								<label for="notification-time">Time</label>
-								<input id="edit-notification-time" name="time" value="{{ $edit->time ?? null }}" class="form-control" type="text">
+								<input id="edit-notification-time" name="time" value="{{ date('H:i', strtotime($edit->start)) }}" class="form-control" type="text">
 							</div>    
 							<div class="row">
 								{{-- <div class="form-group col-6">
