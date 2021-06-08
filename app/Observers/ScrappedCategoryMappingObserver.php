@@ -74,13 +74,14 @@ class ScrappedCategoryMappingObserver
 
         foreach ($unKnownCategories as $key => $val)
         {
-            // $exist  = ScrappedCategoryMapping::where('name',$val)->exists();
-            // if($exist == false){
             if (!in_array($val, $exist_data))
             {
-                ScrappedCategoryMapping::create([
+                // ScrappedCategoryMapping::create([
+                //     "name" => $val,
+                // ]);
+                ScrappedCategoryMapping::updateOrCreate([
                     "name" => $val,
-                ]);
+                ],["name" => $val,]);
             }
         }
     }

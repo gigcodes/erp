@@ -564,7 +564,7 @@ class CategoryController extends Controller
         $unKnownCategories = array_unique($unKnownCategories);
 
         $unKnownCategory->references = implode(",", $unKnownCategories);
-        $unKnownCategory->save();
+        // $unKnownCategory->save();
 
         $input             = preg_quote($request->get('search'), '~');
         $unKnownCategories = preg_grep('~' . $input . '~', $unKnownCategories);
