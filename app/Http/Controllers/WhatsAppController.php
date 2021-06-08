@@ -2107,6 +2107,32 @@ class WhatsAppController extends FindByNumberController
                     ]);
                 }
                 
+            }elseif($context == 'learning'){
+                $learning = \App\Learning::find($request->issue_id);
+                if($data['user_id'] == $learning->learning_user){
+                    $userId = $data['user_id'];
+                }else{
+                    $userId = $learning->learning_user;
+                }
+                $params['message'] = $request->get('message');
+                $params[ 'erp_user' ] = $userId;
+                $params[ 'sent_to_user_id' ] = $userId;
+                $params['issue_id'] = $request->issue_id;
+                $params['user_id'] = $data['user_id'];
+                $params['approved'] = 1;
+                $params['status'] = 2;
+                $number = User::find($userId);
+                    if (!$number) {
+                        return response()->json(['message' => null]);
+                    }
+                    $whatsapp = $number->whatsapp_number;
+                    $number = $number->phone;
+                
+                $chat_message = ChatMessage::create($params);
+                $this->sendWithThirdApi($number, $whatsapp, '',$chat_message->id);
+
+                return response()->json(['message' => $chat_message]);
+
             }elseif($context == 'ticket'){
                 $data['ticket_id'] = $request->ticket_id;
                 $module_id = $request->ticket_id;
@@ -2116,7 +2142,7 @@ class WhatsAppController extends FindByNumberController
                 $params['approved'] = 1;
                 $params['status'] = 2; 
                 $chat_message = ChatMessage::create($params); 
-                $this->sendWithThirdApi($ticket->phone_no, null, $params['message'],null, $chat_message->id); 
+                $this->sendWithThirdApi($ticket->phone_no, null, $params['message'],null, $chat_message->id);
                 return response()->json(['message' => $chat_message]);
 
             } else {

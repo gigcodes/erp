@@ -2613,7 +2613,7 @@
             if(users.length == 0)
                 alert('Please Select User');
             else if(vendors.length == 0)
-                alert('Please Select Vendor');
+                alert('Please Select Provider');
             else if(subject.length == 0)
                 alert('Please Enter Subject');
             else if(submodule.length == 0)
@@ -3325,6 +3325,45 @@ $(document).on("click",".btn-save-documents",function(e){
                 }
             });
 
+        });
+        
+        $(document).on('click', '.send-message-open', function (event) {
+            var textBox = $(this).closest(".communication-td").find(".send-message-textbox");
+            // var sendToStr  = $(this).closest(".communication-td").next().find(".send-message-number").val();
+            let issueId = textBox.attr('data-id');
+            let message = textBox.val();
+            if (message == '') {
+                return;
+            }
+
+            let self = textBox;
+
+            $.ajax({
+                url: "{{action('WhatsAppController@sendMessage', 'learning')}}",
+                type: 'POST',
+                data: {
+                    "issue_id": issueId,
+                    "message": message,
+                    // "sendTo" : sendToStr,
+                    "_token": "{{csrf_token()}}",
+                   "status": 2,
+                   "learning": "learning",
+                },
+                dataType: "json",
+                success: function (response) {
+                    toastr["success"]("Message sent successfully!", "Message");
+                    $('#message_list_' + issueId).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                    $(self).removeAttr('disabled');
+                    $(self).val('');
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending the message...');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
         });
 
     </script>
