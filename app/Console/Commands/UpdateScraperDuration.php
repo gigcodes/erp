@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Supplier;
 use App\Scraper;
 use App\ScraperDuration;
+use Illuminate\Support\Facades\Log;
 
 class UpdateScraperDuration extends Command
 {
@@ -75,6 +76,8 @@ class UpdateScraperDuration extends Command
                     $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
                 }
         
+                /* This curl need to replace with guzzleHttp but for now i am keeping this. */
+
                 $url = 'http://' . $scraper->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js'; 
                 $curl = curl_init();
                 curl_setopt($curl, CURLOPT_URL, $url);
@@ -82,6 +85,12 @@ class UpdateScraperDuration extends Command
                 $response = curl_exec($curl);
                 curl_close($curl);
                 $duration = json_decode($response);
+
+                if(empty($duration->Process[0])){
+                    Log::debug("Scrapper Duration Log: => " . $response);
+                    continue;
+                }
+
                 $pid = $duration->Process[0]->pid;      
                 $duration = isset($duration->Process[0]->duration) ? $duration->Process[0]->duration : null ;      
 

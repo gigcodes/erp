@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Brand;
 use App\Customer;
+use App\Supplier;
 use App\User;
 use App\Vendor;
 use Illuminate\Http\Request;
@@ -39,7 +41,86 @@ class Select2Controller extends Controller
         return response()->json($result);
 
     }
+    public function suppliers(Request $request){
 
+        $suppliers = Supplier::select('id', 'supplier')->paginate(30);
+
+        // if (!empty($request->q)) {
+
+        //     // $suppliers->where(function($q) use($request){
+        //     //     $q->where('supplier', 'LIKE', '%'. $request->q .'%')
+        //     //     ->orWhere('email', 'LIKE', '%'. $request->q .'%');
+        //     // });
+
+        // }
+        $result['total_count'] = $suppliers->total();
+        $result['incomplete_results'] = $suppliers->nextPageUrl() !== null;
+
+        foreach ($suppliers as $supplier) {
+
+            $result['items'][] = [
+                'id' => $supplier->id,
+                'text' => $supplier->supplier
+            ];
+        }
+        return response()->json($result);
+
+    }
+
+
+    public function scrapedBrand(Request $request){
+
+        $scrapedBrandsRaw = Supplier::whereNotNull('scraped_brands_raw')->paginate(30);
+        // return $scrapedBrandsRaw;
+        // dd($scrapedBrandsRaw);
+        $rawBrands        = array();
+        foreach ($scrapedBrandsRaw as $key => $value) {
+            array_push($rawBrands, array_unique(array_filter(array_column(json_decode($value->scraped_brands_raw, true), 'name'))));
+            array_push($rawBrands, array_unique(array_filter(explode(",", $value->scraped_brands))));
+        }
+        $scrapedBrands = array_unique(array_reduce($rawBrands, 'array_merge', []));
+        // dd($scrapedBrands);
+// return $scrapedBrands;  
+        // $result['total_count'] = count($scrapedBrands);
+        // $result['total_count'] = $scrapedBrands->total();
+        // $result['incomplete_results'] = $scrapedBrands->nextPageUrl() !== null;
+        $result['total_count'] = count($scrapedBrands);
+        $result['incomplete_results'] = $scrapedBrandsRaw->nextPageUrl() !== null;
+
+
+        foreach ($scrapedBrands as $key=> $supplier) {
+
+            $result['items'][] = [
+                'id' => $supplier,
+                'text' => $supplier
+            ];
+        }
+
+        return response()->json($result);
+
+    }
+    public function updatedbyUsers(Request $request){
+
+        $suppliers = User::select('id', 'name');
+
+      
+        $suppliers = $suppliers->paginate(30);
+
+        $result['total_count'] = $suppliers->total();
+        $result['incomplete_results'] = $suppliers->nextPageUrl() !== null;
+
+        foreach ($suppliers as $supplier) {
+
+            $result['items'][] = [
+                'id' => $supplier->id,
+                'text' => $supplier->name
+            ];
+        }
+
+        return response()->json($result);
+
+    }
+    
     public function users(Request $request){
 
         $users = User::select('id', 'name', 'email');
