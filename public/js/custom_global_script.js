@@ -106,17 +106,13 @@ $(document).find( ".addToAutoComplete" ).autocomplete({
 
         jQuery.post("/list/autoCompleteMessages", {
             "_token": $('meta[name="csrf-token"]').attr('content'),
+            "keyword": request.term,
         }, function (data) {
             // assuming data is a JavaScript array such as
             // ["one@abc.de", "onf@abc.de","ong@abc.de"]
             // and not a string
 
-            var matcher = new RegExp( "^" + $.ui.autocomplete.escapeRegex( request.term ), "i" );
-            response( $.grep( data.data, function( item ){
-                return matcher.test( item );
-            }) );
-
-            // response();
+            response(data.data);
         });
     },
   });

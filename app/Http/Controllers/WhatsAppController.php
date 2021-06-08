@@ -5703,9 +5703,9 @@ class WhatsAppController extends FindByNumberController
         }
     }
 
-    public function autoCompleteMessages(){
+    public function autoCompleteMessages(Request $request){
         
-        $data = AutoCompleteMessage::pluck('message')->toArray();
+        $data = AutoCompleteMessage::where('message', 'like', ''. $request->keyword . '%')->pluck('message')->toArray();
         return response()->json(['data' => $data]);
     }
 }
