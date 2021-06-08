@@ -459,6 +459,7 @@ class ScrapStatisticsController extends Controller
         $name       = $request->input('id');
         $created_at = date('Y-m-d H:i:s');
         $update_at  = date('Y-m-d H:i:s');
+        $last_rec   = "";//Purpose : Last Record - DEVTASK-4219
 
         if (!empty($remark)) {
             $remark_entry = ScrapRemark::create([
@@ -483,9 +484,11 @@ class ScrapStatisticsController extends Controller
                     }
                 }
             }
+
+            $last_rec = ScrapRemark::latest()->first(); //Purpose : Last Record - DEVTASK-4219
         }
 
-        return response()->json(['remark' => $remark], 200);
+        return response()->json(['remark' => $remark , 'last_record' => $last_rec], 200); //Purpose : Send Last Record - DEVTASK-4219
     }
 
     public function updateField(Request $request)

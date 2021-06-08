@@ -21,6 +21,7 @@
                 <th scope="col">Created At</th>
                 <th scope="col">Posted By</th>
                 <th scope="col">Remark</th>
+                <th scope="col">Communication</th> <!-- Purpose : Add Column- DEVTASK-4219 -->
               </tr>
             </thead>
             <tbody class="show-list-records">
