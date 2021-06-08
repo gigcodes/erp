@@ -41,39 +41,40 @@ class CategoryProductMapping extends Command
     public function handle()
     {
         //
-        $all_category = ScrappedCategoryMapping::get()->pluck('name','id')->toArray();
-        
+        $all_category = ScrappedCategoryMapping::where('is_mapped', 0)->get()->pluck('name', 'id')->toArray();
 
-        foreach ($all_category as $k => $v){
-                $products = \App\ScrapedProducts::where("properties", "like", '%' . $v . '%')->select('website','id')->distinct()->get()->pluck('website','id')->toArray();
+        dump('Total Category: ' . count($all_category));
 
-                foreach($products as $kk => $vv)
-                {
-                    // $web_name = implode(", ",$vv);
-                    $web_name = $vv;
-                    if($web_name)
-                    {
-                        // $pro_arr[] = [
-                        //     'category_mapping_id' => $k,
-                        //     'product_id' => $kk
-                        // ];
+        foreach ($all_category as $k => $v) {
 
-                        $exist = ScrappedProductCategoryMapping::where('category_mapping_id',$k)->where('product_id',$kk)->exists();
+            $products = \App\ScrapedProducts::where("properties", "like", '%' . $v . '%')
+                ->select('website', 'id')
+                ->distinct()
+                ->get()
+                ->pluck('website', 'id')
+                ->toArray();
 
-                        if(!$exist)
-                        {
-                            ScrappedProductCategoryMapping::insert([
-                                'category_mapping_id' => $k,
-                                'product_id' => $kk,
-                            ]);
-                        }
+            foreach ($products as $kk => $vv) {
+
+                $web_name = $vv;
+                if ($web_name) {
+
+                    $exist = ScrappedProductCategoryMapping::where('category_mapping_id', $k)
+                        ->where('product_id', $kk)
+                        ->exists();
+
+                    if (!$exist) {
+                        ScrappedProductCategoryMapping::insert([
+                            'category_mapping_id' => $k,
+                            'product_id' => $kk,
+                        ]);
                     }
                 }
-                
+            }
+            
+            ScrappedCategoryMapping::where('id', $k)->update(['is_mapped' => 1]);
+            dump('Category processed: => ' . $v);
+
         }
-
-        
-
-
     }
 }
