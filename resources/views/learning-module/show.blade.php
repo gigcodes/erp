@@ -1127,6 +1127,12 @@
             
             var id = $(this).parents('.learning_and_activity').attr('data-id');
             var subject = $(this).parents('td').find("input").val();
+
+            if(subject == '')
+            {
+                toastr.error("Subject Field is required");
+                return false;
+            }
             $.ajax({
                 type:"POST",
                 url:"{{ route('learning-module.update') }}",
@@ -1176,6 +1182,13 @@
             
             var id = $(this).parents('.learning_and_activity').attr('data-id');
             var assignment = $(this).parents('td').find("input").val();
+
+            if(assignment == '')
+            {
+                toastr.error("Assignment Field is required");
+                return false;
+            }
+
             $.ajax({
                 type:"POST",
                 url:"{{ route('learning-module.update') }}",
