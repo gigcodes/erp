@@ -1113,6 +1113,17 @@
             });
         });
 
+        //START - Purpose : Hide modal - DEVTASK-4219
+        $("#makeRemarkModal").on('hide.bs.modal', function(){
+            
+           var remark_modal = $("#latestRemark").attr('class');
+           if(remark_modal == 'modal fade in')
+           {
+               $(".modal-open .modal").css({"overflow-x": "auto","overflow-y": "auto"});
+           }
+        });
+        //END - DEVTASK-4219
+
         $(document).on('click', '.make-remark', function (e) {
             e.preventDefault();
 
@@ -1204,6 +1215,11 @@
             
             var id = $(this).data("name");
             var remark = $(this).siblings('.remark_text').val();
+
+            if(remark == ''){
+                toastr['error']('Remark field is required');
+                return false;
+            }
             $.ajax({
                 type: 'POST',
                 headers: {

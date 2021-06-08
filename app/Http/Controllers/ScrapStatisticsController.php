@@ -472,8 +472,17 @@ class ScrapStatisticsController extends Controller
             $includeAssignTo = request()->get("inlcude_made_by", false);
 
             if ($needToSend == 1) {
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('31629987287', '971502609192', "SCRAPER-REMARK#" . $name . "\n" . $remark);
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('919004780634', '971502609192', "SCRAPER-REMARK#" . $name . "\n" . $remark);
+                //Purpose : Comment Code - DEVTASK-4219
+                // app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('31629987287', '971502609192', "SCRAPER-REMARK#" . $name . "\n" . $remark);
+                // app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('919004780634', '971502609192', "SCRAPER-REMARK#" . $name . "\n" . $remark);
+
+                //START - Purpose : Send message Posted by user - DEVTASK-4219
+                if(Auth::user()->phone != '' && Auth::user()->whatsapp_number != '')
+                {
+                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi(Auth::user()->phone, Auth::user()->whatsapp_number, "SCRAPER-REMARK#" . $name . "\n" . $remark);
+                }
+                //END - DEVTASK-4219
+
                 if ($includeAssignTo == 1) {
                     $scraper = \App\Scraper::where("scraper_name", $name)->first();
                     if ($scraper) {
