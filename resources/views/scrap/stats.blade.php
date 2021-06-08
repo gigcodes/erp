@@ -52,6 +52,10 @@
         #remark-list tr td{
             word-break : break-all !important;
         }
+
+        table tr td{
+            word-wrap: break-word;
+        }
     </style>
 @endsection
 
@@ -1092,6 +1096,7 @@
                             html += '<td>';
                             html += '<textarea rows="1" cols="25" class="form-control remark_text" name="remark" placeholder="Remark"></textarea>';
                             html += '<button class="btn btn-sm btn-image latestremarks_sendbtn" data-name="'+value.scraper_name+'"><img src="/images/filled-sent.png"></button>';
+                            html += '<button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="'+value.scraper_name+'"><img width="2px;" src="/images/remark.png"/></button>';
                             html += '</td>';
                         }
 
@@ -1107,6 +1112,17 @@
                 }
             });
         });
+
+        //START - Purpose : Hide modal - DEVTASK-4219
+        $("#makeRemarkModal").on('hide.bs.modal', function(){
+            
+           var remark_modal = $("#latestRemark").attr('class');
+           if(remark_modal == 'modal fade in')
+           {
+               $(".modal-open .modal").css({"overflow-x": "auto","overflow-y": "auto"});
+           }
+        });
+        //END - DEVTASK-4219
 
         $(document).on('click', '.make-remark', function (e) {
             e.preventDefault();
@@ -1199,6 +1215,11 @@
             
             var id = $(this).data("name");
             var remark = $(this).siblings('.remark_text').val();
+
+            if(remark == ''){
+                toastr['error']('Remark field is required');
+                return false;
+            }
             $.ajax({
                 type: 'POST',
                 headers: {
