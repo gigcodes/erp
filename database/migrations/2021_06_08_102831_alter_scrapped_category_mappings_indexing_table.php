@@ -15,7 +15,7 @@ class AlterScrappedCategoryMappingsIndexingTable extends Migration
     public function up()
     {
         //
-        ScrappedCategoryMapping::query()->truncate();
+        ScrappedCategoryMapping::truncate();
 
         Schema::table('scrapped_category_mappings',function(Blueprint $table) {
             $table->index('name');
