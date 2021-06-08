@@ -1082,7 +1082,22 @@
                 var no = 1;
                 if(response.code == 200) {
                     $.each(response.data, function (index, value) {
-                        html += '<tr><td>' + value.scraper_name + '</td><td>' + moment(value.created_at).format('DD-M H:mm') + '</td><td>' + value.user_name + '</td><td>' + value.remark + '</td></tr>';
+                        //Purpose : Add Index - DEVTASK-4219
+                        var i = index + 1;
+                        html += '<tr><td>' + i + '</td><td>' + value.scraper_name + '</td><td class="remark_created_at">' + moment(value.created_at).format('DD-M H:mm') + '</td><td class="remark_posted_by" >' + value.user_name + '</td><td class="remark_text">' + value.remark + '</td>';
+
+                        //START - Purpose : Send Remark - DEVTASK-4219
+                        if(value.user_name != '')
+                        {
+                            html += '<td>';
+                            html += '<textarea rows="1" cols="25" class="form-control remark_text" name="remark" placeholder="Remark"></textarea>';
+                            html += '<button class="btn btn-sm btn-image latestremarks_sendbtn" data-name="'+value.scraper_name+'"><img src="/images/filled-sent.png"></button>';
+                            html += '</td>';
+                        }
+
+                        html += '</tr>';
+                        //END - DEVTASK-4219
+
                         no++;
                     });
                     $("#latestRemark").find('.show-list-records').html(html);
@@ -1178,6 +1193,41 @@
             });
 
         });
+
+        //START - Purpose : Send Remark - DEVTASK-4219
+        $(document).on('click', '.latestremarks_sendbtn', function (e) {
+            
+            var id = $(this).data("name");
+            var remark = $(this).siblings('.remark_text').val();
+            $.ajax({
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: '{{ route('scrap.addRemark') }}',
+                data: {
+                    id: id,
+                    remark: remark,
+                    need_to_send:  1 ,
+                    inlcude_made_by: 1
+                },
+            }).done(response => {
+                $(this).siblings('.remark_text').val('');
+                toastr['success']('Remark Added Successfully', 'success');
+                if(response.last_record != '')
+                {
+                    var data =  response.last_record;
+                    // console.log(data);
+
+                    $(this).closest('tr').children('.remark_created_at').html(moment(data.created_at).format('DD-M H:mm'));
+                    $(this).closest('tr').children('.remark_posted_by').html(data.user_name);
+                    $(this).closest('tr').children('.remark_text').html(data.remark);
+                }
+            }).fail(function (response) {
+                alert('Could not fetch remarks');
+            });
+        });
+        //END - DEVTASK-4219
 
         /*$(".sort-priority-scrapper").sortable({
             items: $(".sort-priority-scrapper").find(".history-item-scrap"),
