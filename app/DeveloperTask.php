@@ -169,12 +169,12 @@ class DeveloperTask extends Model
     }
 
     public function scopeNotEstimated($query){
-        return $query->whereNull('estimation_minute')
+        return $query->whereNull('estimate_minutes')
                       ->where('estimate_date','0000-00-00');
     }
 
     public function scopeEstimated($query){
-        return $query->whereNotNull('estimation_minute');
+        return $query->whereNotNull('estimate_minutes');
     }
 
     public function scopeAdminNotApproved( $query ){
