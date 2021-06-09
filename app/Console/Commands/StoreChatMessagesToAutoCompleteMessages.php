@@ -40,20 +40,22 @@ class StoreChatMessagesToAutoCompleteMessages extends Command
      */
     public function handle()
     {
-       
-$chat_messages = ChatMessage::whereDate('created_at', '>',Carbon::now()->subDays(7))
-->get();
 
-foreach($chat_messages as $message){
-    $exist = AutoCompleteMessage::where( 'message' , $message->message)->exists();
+        $chat_messages = ChatMessage::whereDate('created_at', '>', Carbon::now()->subDays(7))
+            ->get();
 
-    if(!$exist && $message->message !== null){
+        foreach ($chat_messages as $message) {
+            $exist = AutoCompleteMessage::where('message', $message->message)->exists();
 
-        AutoCompleteMessage::create([
-            'message' => $message->message,
-        ]);
-    }
-}
+            if (!$exist && $message->message !== null) {
+                if (strlen($message->message) <= 160) {
+
+                    AutoCompleteMessage::create([
+                        'message' => $message->message,
+                    ]);
+                }
+            }
+        }
 
 
     }
