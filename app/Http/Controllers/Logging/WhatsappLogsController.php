@@ -34,15 +34,16 @@ class WhatsappLogsController extends Controller
         
         // echo '====== Getting logs from file:' . $file . ' ======' . PHP_EOL;
         $content = Storage::disk('logs')->get($file);
-
         $contents = explode('}', $content);
-        foreach($contents as $c){
+        unset($contents[count($contents) - 1]);
+        // dd($contents);
+        foreach($contents as $key => $c){
             // $x = explode('')
             $x = substr($c, 0, 15);
-            dump([$x, $c]);
+            // dump($x);
 
         }
-        dd();
+      
   }
   
 }
