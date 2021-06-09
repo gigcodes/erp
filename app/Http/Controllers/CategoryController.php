@@ -588,7 +588,7 @@ class CategoryController extends Controller
 
         // $scrapped_category_mapping = ScrappedCategoryMapping::withCount('cat_count')->with(['scmSPCM'])->limit(5)->get();
 
-        $scrapped_category_mapping = ScrappedCategoryMapping::withCount('cat_count')->with(['scmSPCM']);
+        $scrapped_category_mapping = ScrappedCategoryMapping::withCount('scmSPCM')->with(['scmSPCM']);
         $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination'));
 
 
@@ -596,14 +596,14 @@ class CategoryController extends Controller
 
         // $TotalProductCount = array_sum(array_column($mainArr,'cat_product_count'));
 
-        $categoryAll   = Category::with('childs')->where('id', '!=', $unKnownCategory->ide)->where('magento_id', '!=', '0')->get();
+        $categoryAll   = Category::with('childs.childLevelSencond')->where('id', '!=', $unKnownCategory->ide)->where('magento_id', '!=', '0')->get();
         $categoryArray = [];
         foreach ($categoryAll as $category) {
             $categoryArray[] = array('id' => $category->id, 'value' => $category->title);
             $childs          = $category->childs;  //Category::where('parent_id', $category->id)->get();
             foreach ($childs as $child) {
                 $categoryArray[] = array('id' => $child->id, 'value' => $category->title . ' > ' . $child->title);
-                $grandChilds     = Category::where('parent_id', $child->id)->get();
+                $grandChilds     = $child->childLevelSencond;
                 if ($grandChilds != null) {
                     foreach ($grandChilds as $grandChild) {
                         $categoryArray[] = array('id' => $grandChild->id, 'value' => $category->title . ' > ' . $child->title . ' > ' . $grandChild->title);
