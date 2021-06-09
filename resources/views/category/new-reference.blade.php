@@ -13,7 +13,7 @@
 </style>
 <div class="row">
     <div class="col-md-12">
-        <h2 class="page-heading">New Category Reference ({{ $unKnownCategories->total() }})</h2>
+        <h2 class="page-heading">New Category Reference ({{ $scrapped_category_mapping->total() }})</h2>
     </div>
     @if ($message = Session::get('success'))
          <div class="col-md-12">
