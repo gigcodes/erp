@@ -442,19 +442,12 @@ class CategoryController extends Controller
 
         $loggedUser = $request->user();
 
-        // $old         = $request->old_cat_id;
-        // $from        = $request->cat_name;
-        // $to          = $request->new_cat_id;
-        // $change      = $request->with_product;
-        // $wholeString = $request->wholeString;
-
         if (!isset($request->wholeString)) {
             $request->merge(['wholeString' => $request->cat_name]);
         }
 
         $scrappedCategory = ScrappedCategoryMapping::find($request->old_cat_id);
         $selectedCategory = Category::find($request->new_cat_id);
-
 
         if ($request->with_product == 'yes') {
             \App\Jobs\UpdateProductCategoryFromErp::dispatch([
@@ -464,96 +457,71 @@ class CategoryController extends Controller
             ])->onQueue("supplier_products");
         }
 
-        $new = Category::where("id", $to)->first();
-
-        $existingRef   = explode(",", $new->references);
-        $existingRef[] = $from;
-
         \App\UserUpdatedAttributeHistory::create([
-            'old_value'      => $new->references,
-            'new_value'      => implode(",", array_unique($existingRef)),
+            'old_value'      => $scrappedCategory->id,
+            'new_value'      => $selectedCategory->id,
             'attribute_name' => 'category',
-            'attribute_id'   => $new->id,
+            'attribute_id'   => $selectedCategory->id,
             'user_id'        => \Auth::user()->id,
         ]);
 
-        // $new->references = implode(",", $existingRef);
-        // $new->save();
-            
-       // }
+        $scrappedCategory->update([
+            'category_id' => $selectedCategory->id,
+            'is_skip' => 1
+        ]);
 
         return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
     }
 
     public function updateMultipleCategoryReference(Request $request)
     {
-        $old  = $request->old_cat_id;
-        $from = $request->from;
-        $to   = $request->to;
+       
+        $loggedUser = $request->user();
 
-        //$change = $request->with_product;
-        /*$wholeString = $request->wholeString;
-        if(!isset($wholeString)){
-        $wholeString = $from;
-        }*/
+        $selectedCategory = Category::find($request->to);
 
-        if (!empty($from) && is_array($from)) {
-            foreach ($from as $f) {
-                $original = $f;
-                $f        = explode('/', $f);
-                $f        = end($f);
+        foreach ($request->from as $f) {
 
-                \App\Jobs\UpdateProductCategoryFromErp::dispatch([
-                    "from"    => $f,
-                    "to"      => $to,
-                    "user_id" => \Auth::user()->id,
-                ])->onQueue("supplier_products");
+            $scrappedCategory = json_decode($f);
 
-                $c = Category::where("id", $old)->first();
+            \App\Jobs\UpdateProductCategoryFromErp::dispatch([
+                "from"    => $scrappedCategory->name,
+                "to"      => $selectedCategory->id,
+                "user_id" => $loggedUser->id,
+            ])->onQueue("supplier_products");
 
-                if ($c) {
-                    $allrefernce = explode(",", $c->references);
-                    $newRef      = [];
-                    if (!empty($allrefernce)) {
-                        foreach ($allrefernce as $ar) {
-                            if ($ar != $original) {
-                                $newRef[] = $ar;
-                            }
-                        }
-                    }
+            \App\UserUpdatedAttributeHistory::create([
+                'old_value'      => $scrappedCategory->id,
+                'new_value'      => $selectedCategory->id,
+                'attribute_name' => 'category',
+                'attribute_id'   => $selectedCategory->id,
+                'user_id'        => $loggedUser->id,
+            ]);
 
-                    $c->references = implode(",", array_unique($newRef));
-                    $c->save();
-
-                    $new = Category::where("id", $to)->first();
-                    if ($new) {
-                        $existingRef   = explode(",", $new->references);
-                        $existingRef[] = $f;
-
-                        $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
-                            'old_value'      => $new->references,
-                            'new_value'      => implode(",", array_unique($existingRef)),
-                            'attribute_name' => 'category',
-                            'attribute_id'   => $new->id,
-                            'user_id'        => \Auth::user()->id,
-                        ]);
-
-                        $new->references = implode(",", array_unique($existingRef));
-                        $new->save();
-                    }
-                }
-
-            }
+            ScrappedCategoryMapping::where('id', $scrappedCategory->id)->update([
+                'category_id' => $selectedCategory->id,
+                'is_skip' => 1
+            ]);
+        
         }
 
-        return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
+        return response()->json([
+            "code" => 200, 
+            "message" => "Your request has been pushed successfully"
+        ]);
     }
 
     public function newCategoryReferenceIndex(Request $request)
     {
-         $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
+        $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
 
-        $scrapped_category_mapping = ScrappedCategoryMapping::paginate(Setting::get('pagination'));
+        $scrapped_category_mapping = ScrappedCategoryMapping::whereNull('category_id');
+
+        if($request->search){
+            $scrapped_category_mapping->where('name', 'LIKE', '%'.$request->search.'%');
+        }
+
+        $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination'));
 
         $mappingCategory = $scrapped_category_mapping->toArray();
 
@@ -630,7 +598,8 @@ class CategoryController extends Controller
     public function fixAutoSuggested(Request $request)
     {
         
-        $scrapped_category_mapping = ScrappedCategoryMapping::select('id', 'name')->whereNull('category_id');
+        $scrapped_category_mapping = ScrappedCategoryMapping::select('id', 'name')
+        ->whereNull('category_id');
 
         if($request->show_skipeed_btn_value == 'false'){
             $scrapped_category_mapping->where('is_skip',0);
@@ -662,35 +631,61 @@ class CategoryController extends Controller
     public function fixAutoSuggestedString(Request $request)
     {
 
-        dd('3425');
+        // $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
+        // $unKnownCategories = explode(',', $unKnownCategory->references);
+        // $unKnownCategories = array_unique($unKnownCategories);
 
-        $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
-        $unKnownCategories = explode(',', $unKnownCategory->references);
-        $unKnownCategories = array_unique($unKnownCategories);
+        // $input             = preg_quote($request->get('search'), '~');
+        // $unKnownCategories = preg_grep('~' . $input . '~', $unKnownCategories);
 
-        $input             = preg_quote($request->get('search'), '~');
-        $unKnownCategories = preg_grep('~' . $input . '~', $unKnownCategories);
-
-        //$unKnownCategories[] = "woman/small gg marmont shoulder bag";
-        //$unKnownCategories[] = "women/clothing/tops/tops/alexander mcqueen flounced top";
-        //$unKnownCategories[] = "men/bags/business and travel bags/prada document holder in saffiano";
+        // //$unKnownCategories[] = "woman/small gg marmont shoulder bag";
+        // //$unKnownCategories[] = "women/clothing/tops/tops/alexander mcqueen flounced top";
+        // //$unKnownCategories[] = "men/bags/business and travel bags/prada document holder in saffiano";
         
-        $unKnownCategories = $this->paginate($unKnownCategories,50);
-        $unKnownCategories->setPath($request->url());
+        // $unKnownCategories = $this->paginate($unKnownCategories,50);
+        // $unKnownCategories->setPath($request->url());
 
+
+        // $links = [];
+        // if (!$unKnownCategories->isEmpty()) {
+        //     foreach ($unKnownCategories as $i => $unkc) {
+        //         $filter = \App\Category::updateCategoryAutoSpace($unkc);
+        //         $links[] = [
+        //             "from" => $unkc,
+        //             "to"   => ($filter) ? $filter->id : null,
+        //         ];
+        //     }
+        // }
+
+        // $view = (string) view("category.partials.preview-categories", compact('links'));
+
+        $scrapped_category_mapping = ScrappedCategoryMapping::select('id', 'name')
+        ->whereNull('category_id');
+
+        if($request->show_skipeed_btn_value == 'false'){
+            $scrapped_category_mapping->where('is_skip',0);
+        }
+
+        $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination'));
 
         $links = [];
-        if (!$unKnownCategories->isEmpty()) {
-            foreach ($unKnownCategories as $i => $unkc) {
-                $filter = \App\Category::updateCategoryAutoSpace($unkc);
+
+        if (!$scrapped_category_mapping->isEmpty()) {
+
+            foreach ($scrapped_category_mapping as $k => $category) {
+
+                $filter = \App\Category::updateCategoryAuto($category->name);
+
                 $links[] = [
-                    "from" => $unkc,
+                    "from_id" => $category->id,
+                    "from" => $category->name,
                     "to"   => ($filter) ? $filter->id : null,
                 ];
             }
         }
 
         $view = (string) view("category.partials.preview-categories", compact('links'));
+
         return response()->json(["code" => 200, "html" => $view]);
 
     }
@@ -720,11 +715,11 @@ class CategoryController extends Controller
                     ])->onQueue("supplier_products");
                     
                     \App\UserUpdatedAttributeHistory::create([
-                        'old_value'      => $unKnownCategory->id,
+                        'old_value'      => $scrappedCategory->id,
                         'new_value'      => $selectedCategory->id,
                         'attribute_name' => 'category',
                         'attribute_id'   => $selectedCategory->id,
-                        'user_id'        => \Auth::user()->id,
+                        'user_id'        => $loeggedUser->id,
                     ]);
 
                     $scrappedCategory->update([
