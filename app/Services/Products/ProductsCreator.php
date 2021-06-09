@@ -20,6 +20,7 @@ use App\SupplierCategoryCount;
 use App\Setting;
 use App\Compositions;
 use App\DescriptionChange;
+use App\ScrappedCategoryMapping;
 
 class ProductsCreator
 {
@@ -680,20 +681,27 @@ class ProductsCreator
                 
                 if(!$category){
                     $categoryReference = implode('/',$properties_array[ 'category' ]);
-                    $unknownCategory = Category::where('title','LIKE','%Unknown Category%')->first();
-                    //checking if it already exist in reference table
-                    $results = explode(',', $unknownCategory->references);
-                    $exist = 0;
-                    foreach ($results as $result) {
-                        if(strtolower($result) == strtolower($categoryReference)){
-                            $exist = 1;
-                            break;
-                        }
-                    }
-                    if($exist == 0){
-                        $unknownCategory->references = $unknownCategory->references . ',' . $categoryReference;
-                        $unknownCategory->save();    
-                    }
+
+                    ScrappedCategoryMapping::updateOrCreate([
+                        'name' =>$categoryReference
+                    ],[
+                        'name' => $categoryReference
+                        ]);
+
+                    // $unknownCategory = Category::where('title','LIKE','%Unknown Category%')->first();
+                    // //checking if it already exist in reference table
+                    // $results = explode(',', $unknownCategory->references);
+                    // $exist = 0;
+                    // foreach ($results as $result) {
+                    //     if(strtolower($result) == strtolower($categoryReference)){
+                    //         $exist = 1;
+                    //         break;
+                    //     }
+                    // }
+                    // if($exist == 0){
+                    //     $unknownCategory->references = $unknownCategory->references . ',' . $categoryReference;
+                    //     $unknownCategory->save();    
+                    // }
                     
                 }
             
