@@ -112,7 +112,7 @@
                         </td>
 
                         <td>
-                            <select class="select2 form-control change-list-category" data-name="{{ $name }}" data-whole="{{ $unKnownCategory->name }}">
+                            <select class="select2 form-control change-list-category" data-old-id={{ $unKnownCategory->id  }} data-name="{{ $name }}" data-whole="{{ $unKnownCategory->name }}">
                                 @foreach($categoryAll as $cat)
                                     <option value="{{ $cat['id'] }}">{{ $cat['value'] }}</option>
                                 @endforeach
@@ -168,7 +168,7 @@
 
             $(document).on("change",".change-list-category",function() {
                 var $this = $(this);
-                var oldCatid = {{ $unKnownCategoryId }};
+               // var oldCatid = {{ $unKnownCategoryId }};
 
                 $.ajax({
                     type: 'POST',
@@ -180,7 +180,7 @@
                         _token: "{{ csrf_token() }}",
                         'cat_name' : $this.data("name"),
                         'new_cat_id' : $this.val(),
-                        'old_cat_id' : oldCatid,
+                        'old_cat_id' : $this.data("old-id"),
                         'wholeString': $this.data("whole"),
                     },
                     dataType: "json"
@@ -202,7 +202,7 @@
 
             $(document).on("click",".btn-change-composition",function() {
                 var $this = $(this);
-                 var oldCatid = {{ $unKnownCategoryId }};
+                // var oldCatid = {{ $unKnownCategoryId }};
                 $.ajax({
                     type: 'POST',
                     url: '/category/references/update-category',
@@ -211,7 +211,7 @@
                     },
                     data: {
                         _token: "{{ csrf_token() }}",
-                        'old_cat_id' : oldCatid,
+                        'old_cat_id' :  $this.data("from-id"),
                         'new_cat_id' : $this.data("to"),
                         'cat_name' : $this.data("from"),
                         'with_product':$this.data('with-product'),

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterCategoryTableFroErpCategory extends Migration
+class AlterUserUpdatedAttributeTable546657 extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AlterCategoryTableFroErpCategory extends Migration
      */
     public function up()
     {
-        Schema::table('scrapped_category_mappings',function(Blueprint $table) {
-            $table->unsignedInteger('category_id')->nullable()->index();
+        Schema::table("user_updated_attribute_histories",function(Blueprint $table) {
+            $table->dropColumn("need_to_skip");
         });
     }
 

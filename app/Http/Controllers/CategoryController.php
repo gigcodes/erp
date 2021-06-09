@@ -430,7 +430,7 @@ class CategoryController extends Controller
             // check the type and then
             $total = \App\ScrapedProducts::matchedCategory($from)->count();
 
-            $view = (string) view("category.partials.affected-products", compact('total', 'from', 'to', 'wholeString'));
+            $view = (string) view("category.partials.affected-products", compact('total','old', 'from', 'to', 'wholeString'));
 
             return response()->json(["code" => 200, "html" => $view]);
 
@@ -439,58 +439,48 @@ class CategoryController extends Controller
 
     public function updateCategoryReference(Request $request)
     {
-        $old         = $request->old_cat_id;
-        $from        = $request->cat_name;
-        $to          = $request->new_cat_id;
-        $change      = $request->with_product;
-        $wholeString = $request->wholeString;
-        if (!isset($wholeString)) {
-            $wholeString = $from;
+
+        $loggedUser = $request->user();
+
+        // $old         = $request->old_cat_id;
+        // $from        = $request->cat_name;
+        // $to          = $request->new_cat_id;
+        // $change      = $request->with_product;
+        // $wholeString = $request->wholeString;
+
+        if (!isset($request->wholeString)) {
+            $request->merge(['wholeString' => $request->cat_name]);
         }
 
-        if (isset($change)) {
-            if ($change == 'yes') {
-                \App\Jobs\UpdateProductCategoryFromErp::dispatch([
-                    "from"    => $from,
-                    "to"      => $to,
-                    "user_id" => \Auth::user()->id,
-                ])->onQueue("supplier_products");
-            }
+        $scrappedCategory = ScrappedCategoryMapping::find($request->old_cat_id);
+        $selectedCategory = Category::find($request->new_cat_id);
+
+
+        if ($request->with_product == 'yes') {
+            \App\Jobs\UpdateProductCategoryFromErp::dispatch([
+                "from"    => $scrappedCategory->cat_name,
+                "to"      => $selectedCategory->id,
+                "user_id" =>  $loggedUser->id,
+            ])->onQueue("supplier_products");
         }
 
-        $c = Category::where("id", $old)->first();
+        $new = Category::where("id", $to)->first();
 
-        if ($c) {
-            $allrefernce = explode(",", $c->references);
-            $newRef      = [];
-            if (!empty($allrefernce)) {
-                foreach ($allrefernce as $ar) {
-                    if ($ar != $wholeString) {
-                        $newRef[] = $ar;
-                    }
-                }
-            }
-            $c->references = implode(",", $newRef);
-            $c->save();
+        $existingRef   = explode(",", $new->references);
+        $existingRef[] = $from;
 
-            // new category reference store
-            $new = Category::where("id", $to)->first();
-            if ($new) {
-                $existingRef   = explode(",", $new->references);
-                $existingRef[] = $from;
+        \App\UserUpdatedAttributeHistory::create([
+            'old_value'      => $new->references,
+            'new_value'      => implode(",", array_unique($existingRef)),
+            'attribute_name' => 'category',
+            'attribute_id'   => $new->id,
+            'user_id'        => \Auth::user()->id,
+        ]);
 
-                $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
-                    'old_value'      => $new->references,
-                    'new_value'      => implode(",", array_unique($existingRef)),
-                    'attribute_name' => 'category',
-                    'attribute_id'   => $new->id,
-                    'user_id'        => \Auth::user()->id,
-                ]);
-
-                $new->references = implode(",", $existingRef);
-                $new->save();
-            }
-        }
+        // $new->references = implode(",", $existingRef);
+        // $new->save();
+            
+       // }
 
         return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
     }
@@ -562,32 +552,6 @@ class CategoryController extends Controller
     public function newCategoryReferenceIndex(Request $request)
     {
          $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
-        // $unKnownCategories = explode(',', $unKnownCategory->references);
-        // $unKnownCategories = array_unique($unKnownCategories);
-
-        // $unKnownCategory->references = implode(",", $unKnownCategories);
-        // // $unKnownCategory->save();
-
-        // $input             = preg_quote($request->get('search'), '~');
-        // $unKnownCategories = preg_grep('~' . $input . '~', $unKnownCategories);
-        
-
-        // $mainArr = [];
-        // foreach ($unKnownCategories as $cat) {
-
-        //     $q = '"'.$cat.'"';
-        //     $count = ScrapedProducts::where("properties","like",'%'.$q.'%')->count();
-
-        //     $subArr = [];
-        //     $subArr['categoryName'] = $cat;
-        //     $subArr['cat_product_count'] = $count;
-        //     $mainArr[] = $subArr;
-        // }
-
-       // $unKnownCategories = $this->paginate($unKnownCategories,50);
-       // $unKnownCategories->setPath($request->url());
-
-        // $scrapped_category_mapping = ScrappedCategoryMapping::withCount('cat_count')->with(['scmSPCM'])->limit(5)->get();
 
         $scrapped_category_mapping = ScrappedCategoryMapping::paginate(Setting::get('pagination'));
 
@@ -611,18 +575,6 @@ class CategoryController extends Controller
         }
 
 
-
-        
-      //  $products = ScrapedProducts::select('website')->whereIn('id', $mappedProductIds )->get();
-
-        //    dd($products);
-
-         //dd($scrapped_category_mapping);
-
-        //check if the items is not empty
-
-        // $TotalProductCount = array_sum(array_column($mainArr,'cat_product_count'));
-
         $categoryAll   = Category::with('childs.childLevelSencond')
         ->where('title', 'NOT LIKE', '%Unknown Category%')
         ->where('magento_id', '!=', '0')
@@ -631,7 +583,7 @@ class CategoryController extends Controller
         $categoryArray = [];
         foreach ($categoryAll as $category) {
             $categoryArray[] = array('id' => $category->id, 'value' => $category->title);
-            $childs          = $category->childs;  //Category::where('parent_id', $category->id)->get();
+            $childs          = $category->childs;
             foreach ($childs as $child) {
                 $categoryArray[] = array('id' => $child->id, 'value' => $category->title . ' > ' . $child->title);
                 $grandChilds     = $child->childLevelSencond;
@@ -643,19 +595,6 @@ class CategoryController extends Controller
             }
         }
 
-        // // START - Purpose : Check need_to_skip Status - #DEVTASK-4143
-
-        // // $need_to_skip_rec = \App\UserUpdatedAttributeHistory::where("user_id", \Auth::user()->id)->where('need_to_skip',1)->first(); 
-
-        // $need_to_skip_rec = \App\TemporaryCategoryUpdation::where("user_id", \Auth::user()->id)->where('need_to_skip',1)->first(); 
-
-        // if($need_to_skip_rec)
-        //     $need_to_skip_status = 1;
-        // else
-        //     $need_to_skip_status = 0;    
-        // // END - #DEVTASK-4143
-
-        // 'unKnownCategories' => $unKnownCategories, 'unKnownCategoryId' => $unKnownCategory->id 
         return view('category.new-reference', ['categoryAll' => $categoryArray, 'need_to_skip_status' =>  true, 'unKnownCategoryId' => $unKnownCategory->id ,'scrapped_category_mapping' => $scrapped_category_mapping]);
 
     }
@@ -690,81 +629,28 @@ class CategoryController extends Controller
 
     public function fixAutoSuggested(Request $request)
     {
-        //START - Purpose : Check Show skip checknox value and get data - #DEVTASK-4143
-        $show_skipeed_btn_value = $request->show_skipeed_btn_value;
-
-        if($show_skipeed_btn_value == 'false')
-        {
-            $need_ro_skip_true_record = \App\UserUpdatedAttributeHistory::where("user_id", \Auth::user()->id)->where('need_to_skip',1)->get()->toArray(); 
-            
-            $category_ids = array_column($need_ro_skip_true_record, 'attribute_id');
-
-            $category_name = \App\TemporaryCategoryUpdation::where("user_id", \Auth::user()->id)->where('need_to_skip',1)->get()->toArray(); 
-
-            $category_name_ar = array_column($category_name, 'category_name');
-        }
-        //END - #DEVTASK-4143
-
-        $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
         
-        $unKnownCategories = explode(',', $unKnownCategory->references);
-        $unKnownCategories = array_unique($unKnownCategories);
+        $scrapped_category_mapping = ScrappedCategoryMapping::select('id', 'name')->whereNull('category_id');
 
-        $input             = preg_quote($request->get('search'), '~');
-        $unKnownCategories = preg_grep('~' . $input . '~', $unKnownCategories);
-
-        //$unKnownCategories[] = "women/clothing/trousers/trousers/alexander mcqueen prince of wales trousers";
-        //$unKnownCategories[] = "women/clothing/tops/tops/alexander mcqueen flounced top";
-        //$unKnownCategories[] = "men/bags/business and travel bags/prada document holder in saffiano";
-        
-        $unKnownCategories = $this->paginate($unKnownCategories,50);
-        $unKnownCategories->setPath($request->url());
-
-        if($show_skipeed_btn_value == 'false')
-        {
-            $scrapped_category_mapping = ScrappedCategoryMapping::where('is_skip',0)->paginate(Setting::get('pagination'));
-        }else{
-            $scrapped_category_mapping = ScrappedCategoryMapping::paginate(Setting::get('pagination'));
+        if($request->show_skipeed_btn_value == 'false'){
+            $scrapped_category_mapping->where('is_skip',0);
         }
 
+        $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination'));
 
         $links = [];
+
         if (!$scrapped_category_mapping->isEmpty()) {
-            foreach ($scrapped_category_mapping as $k => $val) {
 
-                $unkc = $val->name;
+            foreach ($scrapped_category_mapping as $k => $category) {
 
-                $filter = \App\Category::updateCategoryAuto($unkc);
+                $filter = \App\Category::updateCategoryAuto($category->name);
 
-                //START - Purpose : Added if Condition for Alreday exist or not - #DEVTASK-4143
-                // if($show_skipeed_btn_value == 'false')
-                // {
-                //     // if($filter)
-                //     // {
-                //     //     if(!in_array($filter->id, $category_ids))
-                //     //     {
-                //     //         $links[] = [
-                //     //             "from" => $unkc,
-                //     //             "to"   => ($filter) ? $filter->id : null,
-                //     //         ];
-                //     //     }
-                //     // }else{
-                        
-                //         if(!in_array($unkc, $category_name_ar))
-                //         {
-                //             $links[] = [
-                //                 "from" => $unkc,
-                //                 "to"   => ($filter) ? $filter->id : null,
-                //             ];
-                //         }
-                //     // }
-                // }//END - #DEVTASK-4143
-                // else{
-                    $links[] = [
-                        "from" => $unkc,
-                        "to"   => ($filter) ? $filter->id : null,
-                    ];
-                // }
+                $links[] = [
+                    "from_id" => $category->id,
+                    "from" => $category->name,
+                    "to"   => ($filter) ? $filter->id : null,
+                ];
             }
         }
 
@@ -775,6 +661,9 @@ class CategoryController extends Controller
 
     public function fixAutoSuggestedString(Request $request)
     {
+
+        dd('3425');
+
         $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
         $unKnownCategories = explode(',', $unKnownCategory->references);
         $unKnownCategories = array_unique($unKnownCategories);
@@ -808,87 +697,47 @@ class CategoryController extends Controller
 
     public function saveCategoryReference(Request $request)
     {
+
+        $loeggedUser = $request->user();
+
         $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
+
         $items = $request->updated_category;
         if(!empty($items)) {
-            $cat_name = array();
-            foreach($items as $k => $item) {
+            //$cat_name = array();
 
-                $cat_name[] = $k;
-                
-                if($item != 1) {
+            foreach($items as $scrappedCategoryId => $selectedCategoryId) {
+
+                if($selectedCategoryId != 1) {
+
+                    $scrappedCategory = ScrappedCategoryMapping::find($scrappedCategoryId);
+                    $selectedCategory = Category::find($selectedCategoryId);
+
+                    \App\Jobs\UpdateProductCategoryFromErp::dispatch([
+                        "from"    => $scrappedCategory->name,
+                        "to"      => $selectedCategory->id,
+                        "user_id" => $loeggedUser->id,
+                    ])->onQueue("supplier_products");
                     
-                     $filter = Category::find($item);
-                     
-                    if ($filter) {
-                        $old         = $unKnownCategory->id;
-                        $from        = $k;
-                        $to          = $item;
-                        $change      = 'yes';
-                        $wholeString = $k;
-                        if ($change == 'yes') {
-                            \App\Jobs\UpdateProductCategoryFromErp::dispatch([
-                                "from"    => $from,
-                                "to"      => $to,
-                                "user_id" => \Auth::user()->id,
-                            ])->onQueue("supplier_products");
-                        }
-                        $c = $unKnownCategory;
-                        if ($c) {
-                            $allrefernce = explode(",", $c->references);
-                            $newRef      = [];
-                            if (!empty($allrefernce)) {
-                                foreach ($allrefernce as $ar) {
-                                    if ($ar != $wholeString) {
-                                        $newRef[] = $ar;
-                                    }
-                                }
-                            }
-                            $c->references = implode(",", $newRef);
-                            $c->save();
-                            // new category reference store
-                            if ($filter) {
-
-                                $existingRef   = explode(",", $filter->references);
-                                $existingRef[] = $from;
-
-                                $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
-                                    'old_value'      => $filter->references,
-                                    'new_value'      => implode(",", array_unique($existingRef)),
-                                    'attribute_name' => 'category',
-                                    'attribute_id'   => $filter->id,
-                                    'user_id'        => \Auth::user()->id,
-                                    'need_to_skip'   => 1, // Purpose : Added need_to_skip for Notify to user - #DEVTASK-4143
-                                ]);
-
-                                $filter->references = implode(",", array_unique($existingRef));
-                                $filter->save();
-
-                                //START - Add CategoryEntry in TemporaryCategoryUpdation Table - #DEVTASK-4143
-                                $category_status_updation = \App\TemporaryCategoryUpdation::create([
-                                    'category_name'      => $k,
-                                    'attribute_id'      => $filter->id,
-                                    'need_to_skip' => 1,
-                                    'user_id'        => \Auth::user()->id,
-                                ]);
-                                //END - #DEVTASK-4143
-                            }
-                        }
-                    }
-                }
-                //START - Add CategoryEntry in TemporaryCategoryUpdation Table - #DEVTASK-4143
-                else{
-                    $category_status_updation =  \App\TemporaryCategoryUpdation::create([
-                        'category_name'      => $k,
-                        'attribute_id'      => 0,
-                        'need_to_skip' => 1,
+                    \App\UserUpdatedAttributeHistory::create([
+                        'old_value'      => $unKnownCategory->id,
+                        'new_value'      => $selectedCategory->id,
+                        'attribute_name' => 'category',
+                        'attribute_id'   => $selectedCategory->id,
                         'user_id'        => \Auth::user()->id,
                     ]);
+
+                    $scrappedCategory->update([
+                        'category_id' => $selectedCategory->id,
+                        'is_skip' => 1
+                    ]);
+
+                }else{
+                    ScrappedCategoryMapping::where('id', $scrappedCategoryId)->update(["is_skip" => 1]);
                 }
-                //END - #DEVTASK-4143
+
             }
 
-            ScrappedCategoryMapping::whereIn("name", $cat_name)->update(["is_skip" => 1]);
         }
 
         return response()->json(["code" => 200, "message" => "Category updated successfully"]);
