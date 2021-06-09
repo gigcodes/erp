@@ -991,6 +991,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Communication</h4>
+                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;"> <!-- Purpose - Add search message - DEVTAK-4020 -->
                     <input type="hidden" id="chat_obj_type" name="chat_obj_type">
                     <input type="hidden" id="chat_obj_id" name="chat_obj_id">
                     <button type="submit" class="btn btn-default downloadChatMessages">Download</button>
@@ -3346,6 +3347,7 @@ $(document).on("click",".btn-save-documents",function(e){
             let issueId = textBox.attr('data-id');
             let message = textBox.val();
             if (message == '') {
+                toastr["error"]("Please Enter Message");
                 return;
             }
 

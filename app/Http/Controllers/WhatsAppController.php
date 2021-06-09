@@ -2115,9 +2115,10 @@ class WhatsAppController extends FindByNumberController
                     $userId = $learning->learning_user;
                 }
                 $params['message'] = $request->get('message');
-                $params[ 'erp_user' ] = $userId;
-                $params[ 'sent_to_user_id' ] = $userId;
-                $params['issue_id'] = $request->issue_id;
+                $params['erp_user'] = $userId;
+                $params['sent_to_user_id'] = $userId;
+                // $params['issue_id'] = $request->issue_id;
+                $params['learning_id'] = $request->issue_id;//Purpose - Add learning_id - DEVTASK-4020
                 $params['user_id'] = $data['user_id'];
                 $params['approved'] = 1;
                 $params['status'] = 2;
