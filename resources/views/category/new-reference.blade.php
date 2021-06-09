@@ -74,6 +74,13 @@
             {{-- @dd($unKnownCategories->items()); --}}
             @foreach($scrapped_category_mapping as $key => $unKnownCategory)
 
+                @php
+                    // $websites_ = $unKnownCategory->scmSPCM->toArray();
+
+                    
+
+                    // $websites_ = array_unique($websites_);
+                @endphp
                 
                 @if($unKnownCategory->name != '')
                     <?php 
@@ -92,13 +99,16 @@
                         </td>
                         
                         <td>
-                            @foreach($unKnownCategory->scmSPCM as $cat)
+
+                            {{-- {{ implode(', ', $websites_) }} --}}
+
+                            {{-- @foreach($unKnownCategory->scmSPCM as $cat)
                                 {{$cat->website}}
-                            @endforeach 
+                            @endforeach  --}}
                         </td>
                            
                         <td>
-                            {{$unKnownCategory->cat_count_count}}
+                            {{-- {{$unKnownCategory->cat_count_count}} --}}
                         </td>
 
                         <td>

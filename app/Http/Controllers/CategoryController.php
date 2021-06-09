@@ -7,11 +7,13 @@ use App\Category;
 use App\CategorySegment;
 use App\ScrapedProducts;
 use App\ScrappedCategoryMapping;
+use App\ScrappedProductCategoryMapping;
 use App\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class CategoryController extends Controller
 {
@@ -585,12 +587,26 @@ class CategoryController extends Controller
         $unKnownCategories = $this->paginate($unKnownCategories,50);
         $unKnownCategories->setPath($request->url());
 
-
         // $scrapped_category_mapping = ScrappedCategoryMapping::withCount('cat_count')->with(['scmSPCM'])->limit(5)->get();
 
-        $scrapped_category_mapping = ScrappedCategoryMapping::withCount('scmSPCM')->with(['scmSPCM']);
-        $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination'));
+        $scrapped_category_mapping = ScrappedCategoryMapping::paginate(Setting::get('pagination'));
 
+        $mappingCategory = $scrapped_category_mapping->toArray();
+
+        $mappedProduct = DB::table('scrapped_product_category_mappings')
+        ->select('category_mapping_id','product_id')
+        ->whereIn('category_mapping_id', array_column($mappingCategory['data'], 'id') )
+        ->get()
+        ->toArray();
+
+        $mappedProductIds = array_unique(array_column($mappedProduct, 'product_id'));
+
+        
+
+
+           // dump($mappedProduct);
+
+         //dd($scrapped_category_mapping);
 
         //check if the items is not empty
 
