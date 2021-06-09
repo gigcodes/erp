@@ -561,15 +561,15 @@ class CategoryController extends Controller
 
     public function newCategoryReferenceIndex(Request $request)
     {
-        $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
-        $unKnownCategories = explode(',', $unKnownCategory->references);
-        $unKnownCategories = array_unique($unKnownCategories);
+        // $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
+        // $unKnownCategories = explode(',', $unKnownCategory->references);
+        // $unKnownCategories = array_unique($unKnownCategories);
 
-        $unKnownCategory->references = implode(",", $unKnownCategories);
-        // $unKnownCategory->save();
+        // $unKnownCategory->references = implode(",", $unKnownCategories);
+        // // $unKnownCategory->save();
 
-        $input             = preg_quote($request->get('search'), '~');
-        $unKnownCategories = preg_grep('~' . $input . '~', $unKnownCategories);
+        // $input             = preg_quote($request->get('search'), '~');
+        // $unKnownCategories = preg_grep('~' . $input . '~', $unKnownCategories);
         
 
         // $mainArr = [];
@@ -584,8 +584,8 @@ class CategoryController extends Controller
         //     $mainArr[] = $subArr;
         // }
 
-        $unKnownCategories = $this->paginate($unKnownCategories,50);
-        $unKnownCategories->setPath($request->url());
+       // $unKnownCategories = $this->paginate($unKnownCategories,50);
+       // $unKnownCategories->setPath($request->url());
 
         // $scrapped_category_mapping = ScrappedCategoryMapping::withCount('cat_count')->with(['scmSPCM'])->limit(5)->get();
 
@@ -594,17 +594,28 @@ class CategoryController extends Controller
         $mappingCategory = $scrapped_category_mapping->toArray();
 
         $mappedProduct = DB::table('scrapped_product_category_mappings')
-        ->select('category_mapping_id','product_id')
+        ->select('category_mapping_id','scrapped_product_category_mappings.product_id', 'scraped_products.website')
+        ->leftJoin('scraped_products', 'scraped_products.id', '=', 'scrapped_product_category_mappings.product_id')
         ->whereIn('category_mapping_id', array_column($mappingCategory['data'], 'id') )
         ->get()
         ->toArray();
 
-        $mappedProductIds = array_unique(array_column($mappedProduct, 'product_id'));
+        $mappedData = [];
+
+        foreach($mappedProduct as $productM){
+            $mappedData[$productM->category_mapping_id][] = $productM->website;
+        }
+
+        foreach($mappingCategory as $index => $category){
+
+        }
+
+
 
         
+      //  $products = ScrapedProducts::select('website')->whereIn('id', $mappedProductIds )->get();
 
-
-           // dump($mappedProduct);
+        //    dd($products);
 
          //dd($scrapped_category_mapping);
 
@@ -612,14 +623,14 @@ class CategoryController extends Controller
 
         // $TotalProductCount = array_sum(array_column($mainArr,'cat_product_count'));
 
-        $categoryAll   = Category::with('childs.childLevelSencond')->where('id', '!=', $unKnownCategory->ide)->where('magento_id', '!=', '0')->get();
+        $categoryAll   = Category::with('childs')->where('title', 'NOT LIKE', '%Unknown Category%')->where('magento_id', '!=', '0')->get();
         $categoryArray = [];
         foreach ($categoryAll as $category) {
             $categoryArray[] = array('id' => $category->id, 'value' => $category->title);
             $childs          = $category->childs;  //Category::where('parent_id', $category->id)->get();
             foreach ($childs as $child) {
                 $categoryArray[] = array('id' => $child->id, 'value' => $category->title . ' > ' . $child->title);
-                $grandChilds     = $child->childLevelSencond;
+                $grandChilds     = Category::where('parent_id', $child->id)->get();
                 if ($grandChilds != null) {
                     foreach ($grandChilds as $grandChild) {
                         $categoryArray[] = array('id' => $grandChild->id, 'value' => $category->title . ' > ' . $child->title . ' > ' . $grandChild->title);
@@ -704,43 +715,51 @@ class CategoryController extends Controller
         $unKnownCategories = $this->paginate($unKnownCategories,50);
         $unKnownCategories->setPath($request->url());
 
-       
+        if($show_skipeed_btn_value == 'false')
+        {
+            $scrapped_category_mapping = ScrappedCategoryMapping::where('is_skip',0)->paginate(Setting::get('pagination'));
+        }else{
+            $scrapped_category_mapping = ScrappedCategoryMapping::paginate(Setting::get('pagination'));
+        }
 
 
         $links = [];
-        if (!$unKnownCategories->isEmpty()) {
-            foreach ($unKnownCategories as $i => $unkc) {
+        if (!$scrapped_category_mapping->isEmpty()) {
+            foreach ($scrapped_category_mapping as $k => $val) {
+
+                $unkc = $val->name;
+
                 $filter = \App\Category::updateCategoryAuto($unkc);
 
                 //START - Purpose : Added if Condition for Alreday exist or not - #DEVTASK-4143
-                if($show_skipeed_btn_value == 'false')
-                {
-                    // if($filter)
-                    // {
-                    //     if(!in_array($filter->id, $category_ids))
-                    //     {
-                    //         $links[] = [
-                    //             "from" => $unkc,
-                    //             "to"   => ($filter) ? $filter->id : null,
-                    //         ];
-                    //     }
-                    // }else{
+                // if($show_skipeed_btn_value == 'false')
+                // {
+                //     // if($filter)
+                //     // {
+                //     //     if(!in_array($filter->id, $category_ids))
+                //     //     {
+                //     //         $links[] = [
+                //     //             "from" => $unkc,
+                //     //             "to"   => ($filter) ? $filter->id : null,
+                //     //         ];
+                //     //     }
+                //     // }else{
                         
-                        if(!in_array($unkc, $category_name_ar))
-                        {
-                            $links[] = [
-                                "from" => $unkc,
-                                "to"   => ($filter) ? $filter->id : null,
-                            ];
-                        }
-                    // }
-                }//END - #DEVTASK-4143
-                else{
+                //         if(!in_array($unkc, $category_name_ar))
+                //         {
+                //             $links[] = [
+                //                 "from" => $unkc,
+                //                 "to"   => ($filter) ? $filter->id : null,
+                //             ];
+                //         }
+                //     // }
+                // }//END - #DEVTASK-4143
+                // else{
                     $links[] = [
                         "from" => $unkc,
                         "to"   => ($filter) ? $filter->id : null,
                     ];
-                }
+                // }
             }
         }
 
@@ -787,10 +806,14 @@ class CategoryController extends Controller
         $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
         $items = $request->updated_category;
         if(!empty($items)) {
+            $cat_name = array();
             foreach($items as $k => $item) {
+
+                $cat_name[] = $k;
                 
                 if($item != 1) {
-                    $filter = Category::find($item);
+                     $filter = Category::find($item);
+                     
                     if ($filter) {
                         $old         = $unKnownCategory->id;
                         $from        = $k;
@@ -858,6 +881,8 @@ class CategoryController extends Controller
                 }
                 //END - #DEVTASK-4143
             }
+
+            ScrappedCategoryMapping::whereIn("name", $cat_name)->update(["is_skip" => 1]);
         }
 
         return response()->json(["code" => 200, "message" => "Category updated successfully"]);
