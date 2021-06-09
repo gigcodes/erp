@@ -3031,3 +3031,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('updatedby-users', 'Select2Controller@updatedbyUsers')->name('select2.updatedby_users');
     Route::get('scraped-brand', 'Select2Controller@scrapedBrand')->name('select2.scraped-brand');
 });
+
+Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');
+
+
