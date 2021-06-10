@@ -447,7 +447,8 @@
                                     } 
                                 @endphp    
                             </td>
-                            <td> {{count($supplier->mainSupplier->inventory)}} </td>
+                            <td> {{$supplier->inventory }} </td>
+                            <td>{{$supplier->last_date !== null ? date('d-M-y H:i',strtotime($supplier->last_date)) : '-' }}</td>
                             <td>{{date('d-M-y H:i',strtotime($supplier->mainSupplier->lastProduct->created_at))}}</td>
                             <td width="14%">
                                  <div style="float:left;">       
