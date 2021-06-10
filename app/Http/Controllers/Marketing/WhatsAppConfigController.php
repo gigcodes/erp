@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Services\Whatsapp\ChatApi\ChatApi;
 use Illuminate\Http\Request;
 use App\Setting;
+use Illuminate\Support\Str;
 use Validator;
 use Crypt;
 use Response;
@@ -358,7 +359,7 @@ class WhatsappConfigController extends Controller
            } 
            $content = base64_decode($barcode);
 
-            $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('barcode')->upload();
+            $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('barcode-'.Str::random(4))->upload();
         
             return Response::json(array('success' => true,'media' => $media->getUrl())); 
         }else{
