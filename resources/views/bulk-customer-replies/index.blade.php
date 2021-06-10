@@ -61,8 +61,8 @@
 
         <select name="dnd_enabled">
             <option value="all" {{ app('request')->dnd_enabled === 'all' ? 'selected' : '' }} >DND: ALL</option>
-            <option value="1" {{ app('request')->dnd_enabled === null || app('request')->dnd_enabled === '1' ? 'selected' : '' }} >DND: Enabled</option>
-            <option value="0" {{ app('request')->dnd_enabled === '0' ? 'selected' : '' }} >DND: Disabled</option>
+            
+            <option value="0" {{ app('request')->dnd_enabled === null || app('request')->dnd_enabled === '0' ? 'selected' : '' }} >DND: Disabled</option>
         </select>
          
         <input name="keyword_filter" type="hidden" value="{{ app('request')->keyword_filter }}">
@@ -103,7 +103,7 @@
                                 <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}" class="customer_message"></td>
                                 <td>{{ $key+1 }}</td>
                                 <td>{{ $customer->name }}<br>
-                                    <span data-customer_id="{{$customer->id}}" class="add_to_dnd">
+                                    <span data-customer_id="{{$customer->id}}" class="add_to_dnd" style="cursor:pointer;font-size:12px">
                                         Add to DND
                                     </span>
                                 </td>
@@ -167,7 +167,7 @@
 
             const urlSearchParams = new URLSearchParams(window.location.search);
             const params = Object.fromEntries(urlSearchParams.entries());
-
+            $this = $(this);
             $.ajax({
                 url: "/category-messages/bulk-messages/addToDND",
                 type: 'POST',
@@ -178,7 +178,7 @@
                 },
                 dataType: "json",
                 success: function (response) {
-                  
+                    $this.html('Added');
                 },
                 error: function () {
                     

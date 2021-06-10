@@ -36,11 +36,53 @@ class BulkCustomerRepliesController extends Controller
         if ($request->get('keyword_filter')) {
             $keyword = $request->get('keyword_filter');
 
-            $searchedKeyword = BulkCustomerRepliesKeyword::with(['customers' => function($q) use($keyword){
+            $searchedKeyword = BulkCustomerRepliesKeyword::with(['customers' => function($q)use($request){
+                $q->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id  GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id')
+                ->groupBy('customers.id')
+                ->orderBy('max_id','desc');
+
+                // if($request->dnd_enabled === 'all'){
+
+                // }else if($request->dnd_enabled == 1){
+                //     $q->where('do_not_disturb', 1);
+                // }else{
+                //     $q->where('do_not_disturb', 0);
+                // }
+
+                 if($request->dnd_enabled !== 'all'){
+                    $q->doesntHave('dnd');
+                }
+
+            }])
+            //$customers = $searchedKeyword->customers()->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id  GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id')->groupBy('customers.id')->orderBy('max_id','desc')->get()
+            ->where('value', $keyword)
+            ->first();
+
+            // $searchedKeyword = BulkCustomerRepliesKeyword::with(['customers' => function($q) use($request){
              
-                $q->doesntHave('dnd');
+            //     $searchedKeyword = BulkCustomerRepliesKeyword::with(['customers' => function($q)use($request){
+            //     $q->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id  GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id')
+            //     ->groupBy('customers.id')
+            //     ->orderBy('max_id','desc');
+
+            //     if($request->dnd_enabled === 'all'){
+
+            //     }else if($request->dnd_enabled == 1){
+            //         $q->where('do_not_disturb', 1);
+            //     }else{
+            //         $q->where('do_not_disturb', 0);
+            //     }
+
+            // }])
+            // //$customers = $searchedKeyword->customers()->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id  GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id')->groupBy('customers.id')->orderBy('max_id','desc')->get()
+            // ->where('value', $keyword)
+            // ->first();
+
+            //     // if($request->dnd_enabled !== 'all'){
+            //     //     $q->doesntHave('dnd');
+            //     // }
             
-            }])->where('value', $keyword)->first();
+            // }])->where('value', $keyword)->first();
 
         }
         $groups           = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
