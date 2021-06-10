@@ -102,7 +102,11 @@
                             <tr>
                                 <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}" class="customer_message"></td>
                                 <td>{{ $key+1 }}</td>
-                                <td>{{ $customer->name }}</td>
+                                <td>{{ $customer->name }}<br>
+                                    <span data-customer_id="{{$customer->id}}" class="add_to_dnd">
+                                        Add to DND
+                                    </span>
+                                </td>
                                 <td>@include('bulk-customer-replies.partials.shortcuts')</td>
                                 <td>@include('bulk-customer-replies.partials.next_actions')</td>
                                 <td class="communication-td">@include('bulk-customer-replies.partials.communication')</td>
@@ -158,6 +162,31 @@
         autosize(document.getElementById("message"));
     </script>
     <script type="text/javascript">
+
+        $(document).on('click', '.add_to_dnd', function(){
+
+            const urlSearchParams = new URLSearchParams(window.location.search);
+            const params = Object.fromEntries(urlSearchParams.entries());
+
+            $.ajax({
+                url: "/category-messages/bulk-messages/addToDND",
+                type: 'POST',
+                data: {
+                    "customer_id": $(this).data('customer_id'),
+                    "filter": params,
+                    "_token": "{{csrf_token()}}",
+                },
+                dataType: "json",
+                success: function (response) {
+                  
+                },
+                error: function () {
+                    
+                }
+            });
+
+        });
+
         $(document).on('click', '.add_next_action', function (event) {
             event.preventDefault();
             $.ajax({
