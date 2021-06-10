@@ -138,7 +138,7 @@ class ScrapStatisticsController extends Controller
 
         foreach ($activeSuppliers as $activeSupplier) {
 
-            if ($data[$activeSupplier->supplier_id]) {
+            if (isset($data[$activeSupplier->supplier_id])) {
                 $activeSupplier->inventory = $data[$activeSupplier->supplier_id]['inventory'];
                 $activeSupplier->last_date = $data[$activeSupplier->supplier_id]['last_date'];;
             } else {
