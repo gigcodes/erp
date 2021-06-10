@@ -61,8 +61,8 @@
 
         <select name="dnd_enabled">
             <option value="all" {{ app('request')->dnd_enabled === 'all' ? 'selected' : '' }} >DND: ALL</option>
-            <option value="1" {{ app('request')->dnd_enabled === null || app('request')->dnd_enabled === '1' ? 'selected' : '' }} >DND: Enabled</option>
-            <option value="0" {{ app('request')->dnd_enabled === '0' ? 'selected' : '' }} >DND: Disabled</option>
+            
+            <option value="0" {{ app('request')->dnd_enabled === null || app('request')->dnd_enabled === '0' ? 'selected' : '' }} >DND: Disabled</option>
         </select>
          
         <input name="keyword_filter" type="hidden" value="{{ app('request')->keyword_filter }}">
@@ -102,7 +102,11 @@
                             <tr>
                                 <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}" class="customer_message"></td>
                                 <td>{{ $key+1 }}</td>
-                                <td>{{ $customer->name }}</td>
+                                <td>{{ $customer->name }}<br>
+                                    <span data-customer_id="{{$customer->id}}" class="add_to_dnd" style="cursor:pointer;font-size:12px">
+                                        Add to DND
+                                    </span>
+                                </td>
                                 <td>@include('bulk-customer-replies.partials.shortcuts')</td>
                                 <td>@include('bulk-customer-replies.partials.next_actions')</td>
                                 <td class="communication-td">@include('bulk-customer-replies.partials.communication')</td>
@@ -158,6 +162,31 @@
         autosize(document.getElementById("message"));
     </script>
     <script type="text/javascript">
+
+        $(document).on('click', '.add_to_dnd', function(){
+
+            const urlSearchParams = new URLSearchParams(window.location.search);
+            const params = Object.fromEntries(urlSearchParams.entries());
+            $this = $(this);
+            $.ajax({
+                url: "/category-messages/bulk-messages/addToDND",
+                type: 'POST',
+                data: {
+                    "customer_id": $(this).data('customer_id'),
+                    "filter": params,
+                    "_token": "{{csrf_token()}}",
+                },
+                dataType: "json",
+                success: function (response) {
+                    $this.html('Added');
+                },
+                error: function () {
+                    
+                }
+            });
+
+        });
+
         $(document).on('click', '.add_next_action', function (event) {
             event.preventDefault();
             $.ajax({
