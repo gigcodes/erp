@@ -12,17 +12,17 @@ use Illuminate\Http\Request;
 class Select2Controller extends Controller
 {
 
-    public function customers(Request $request){
+    public function customers(Request $request)
+    {
 
         $customers = Customer::select('id', 'name', 'email');
 
         if (!empty($request->q)) {
 
-            $customers->where(function($q) use($request){
-                $q->where('name', 'LIKE', '%'. $request->q .'%')
-                ->orWhere('email', 'LIKE', '%'. $request->q .'%');
+            $customers->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%' . $request->q . '%')
+                    ->orWhere('email', 'LIKE', '%' . $request->q . '%');
             });
-
         }
 
         $customers = $customers->paginate(30);
@@ -39,20 +39,20 @@ class Select2Controller extends Controller
         }
 
         return response()->json($result);
-
     }
-    public function suppliers(Request $request){
+    public function suppliers(Request $request)
+    {
 
-        $suppliers = Supplier::select('id', 'supplier')->paginate(30);
+        $suppliers = Supplier::select('id', 'supplier');
 
-        // if (!empty($request->q)) {
+        if (!empty($request->q)) {
 
-        //     // $suppliers->where(function($q) use($request){
-        //     //     $q->where('supplier', 'LIKE', '%'. $request->q .'%')
-        //     //     ->orWhere('email', 'LIKE', '%'. $request->q .'%');
-        //     // });
-
-        // }
+            $suppliers->where(function ($q) use ($request) {
+                $q->where('supplier', 'LIKE', '%' . $request->q . '%')
+                    ->orWhere('email', 'LIKE', '%' . $request->q . '%');
+            });
+        }
+        $suppliers = $suppliers->paginate(30);
         $result['total_count'] = $suppliers->total();
         $result['incomplete_results'] = $suppliers->nextPageUrl() !== null;
 
@@ -64,46 +64,51 @@ class Select2Controller extends Controller
             ];
         }
         return response()->json($result);
-
     }
 
 
-    public function scrapedBrand(Request $request){
+    public function scrapedBrand(Request $request)
+    {
 
-        $scrapedBrandsRaw = Supplier::whereNotNull('scraped_brands_raw')->paginate(30);
-        // return $scrapedBrandsRaw;
-        // dd($scrapedBrandsRaw);
-        $rawBrands        = array();
+        $scrapedBrandsRaw = Supplier::selectRaw('scraped_brands_raw')->whereNotNull('scraped_brands_raw')->get();
+        $rawBrands = [];
+
         foreach ($scrapedBrandsRaw as $key => $value) {
             array_push($rawBrands, array_unique(array_filter(array_column(json_decode($value->scraped_brands_raw, true), 'name'))));
-            array_push($rawBrands, array_unique(array_filter(explode(",", $value->scraped_brands))));
-        }
-        $scrapedBrands = array_unique(array_reduce($rawBrands, 'array_merge', []));
-        // dd($scrapedBrands);
-// return $scrapedBrands;  
-        // $result['total_count'] = count($scrapedBrands);
-        // $result['total_count'] = $scrapedBrands->total();
-        // $result['incomplete_results'] = $scrapedBrands->nextPageUrl() !== null;
-        $result['total_count'] = count($scrapedBrands);
-        $result['incomplete_results'] = $scrapedBrandsRaw->nextPageUrl() !== null;
-
-
-        foreach ($scrapedBrands as $key=> $supplier) {
-
-            $result['items'][] = [
-                'id' => $supplier,
-                'text' => $supplier
-            ];
         }
 
+        $finalBrands = [];
+
+        foreach ($rawBrands as $key => $brand) {
+
+            $finalBrands +=  $brand;
+        }
+        $finalBrands = array_unique($finalBrands);
+        if (!empty($request->q)) {
+            $finalBrands = array_filter($finalBrands, function ($ele) use ($request) {
+                return strpos(strtolower($ele), strtolower($request->q));
+            });
+        }
+        foreach ($finalBrands as $key => $supplier) {
+            if (strip_tags($supplier)) {
+
+                $result['items'][] = [
+                    'id' => strip_tags($supplier),
+                    'text' => strip_tags($supplier)
+                ];
+            }
+            $result['total_count'] = count($finalBrands);
+        }
         return response()->json($result);
-
     }
-    public function updatedbyUsers(Request $request){
+
+
+    public function updatedbyUsers(Request $request)
+    {
 
         $suppliers = User::select('id', 'name');
 
-      
+
         $suppliers = $suppliers->paginate(30);
 
         $result['total_count'] = $suppliers->total();
@@ -118,20 +123,19 @@ class Select2Controller extends Controller
         }
 
         return response()->json($result);
-
     }
-    
-    public function users(Request $request){
+
+    public function users(Request $request)
+    {
 
         $users = User::select('id', 'name', 'email');
 
         if (!empty($request->q)) {
 
-            $users->where(function($q) use($request){
-                $q->where('name', 'LIKE', '%'. $request->q .'%')
-                ->orWhere('email', 'LIKE', '%'. $request->q .'%');
+            $users->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%' . $request->q . '%')
+                    ->orWhere('email', 'LIKE', '%' . $request->q . '%');
             });
-
         }
 
         $users = $users->paginate(30);
@@ -143,8 +147,8 @@ class Select2Controller extends Controller
 
             $text = $user->name;
 
-            if($request->format === 'name-email'){
-                $text = $user->name .' - ' . $user->email;
+            if ($request->format === 'name-email') {
+                $text = $user->name . ' - ' . $user->email;
             }
 
             $result['items'][] = [
@@ -154,19 +158,18 @@ class Select2Controller extends Controller
         }
 
         return response()->json($result);
-
     }
 
-    public function users_vendors(Request $request){
+    public function users_vendors(Request $request)
+    {
         $users = User::select('id', 'name', 'email');
 
         if (!empty($request->q)) {
 
-            $users->where(function($q) use($request){
-                $q->where('name', 'LIKE', '%'. $request->q .'%')
-                ->orWhere('email', 'LIKE', '%'. $request->q .'%');
+            $users->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%' . $request->q . '%')
+                    ->orWhere('email', 'LIKE', '%' . $request->q . '%');
             });
-
         }
 
         $users = $users->paginate(30);
@@ -178,8 +181,8 @@ class Select2Controller extends Controller
 
             $text = $user->name;
 
-            if($request->format === 'name-email'){
-                $text = $user->name .' - ' . $user->email;
+            if ($request->format === 'name-email') {
+                $text = $user->name . ' - ' . $user->email;
             }
 
             $result['items'][] = [
@@ -191,11 +194,10 @@ class Select2Controller extends Controller
         $vendors = Vendor::select('id', 'name', 'email');
         if (!empty($request->q)) {
 
-            $vendors->where(function($q) use($request){
-                $q->where('name', 'LIKE', '%'. $request->q .'%')
-                ->orWhere('email', 'LIKE', '%'. $request->q .'%');
+            $vendors->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%' . $request->q . '%')
+                    ->orWhere('email', 'LIKE', '%' . $request->q . '%');
             });
-
         }
         $vendors = $vendors->paginate(30);
 
@@ -206,8 +208,8 @@ class Select2Controller extends Controller
 
             $text = $user->name;
 
-            if($request->format === 'name-email'){
-                $text = $user->name .' - ' . $user->email;
+            if ($request->format === 'name-email') {
+                $text = $user->name . ' - ' . $user->email;
             }
 
             $result_vendors['items'][] = [
@@ -216,9 +218,35 @@ class Select2Controller extends Controller
             ];
         }
 
-        array_push($result,$result_vendors);
+        array_push($result, $result_vendors);
 
         return response()->json($result);
     }
-   
+
+    public function allBrand(Request $request)
+    {
+        $brands = Brand::select('id', 'name');
+
+        if (!empty($request->q)) {
+
+            $brands->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%' . $request->q . '%');
+            });
+        }
+
+        $brands = $brands->paginate(30);
+
+        $result['total_count'] = $brands->total();
+        $result['incomplete_results'] = $brands->nextPageUrl() !== null;
+
+        foreach ($brands as $brand) {
+
+            $result['items'][] = [
+                'id' => $brand->id,
+                'text' => $brand->name
+            ];
+        }
+
+        return response()->json($result);
+    }
 }

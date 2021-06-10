@@ -8,7 +8,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <!-- id="customerSendScrap" -->
-            <form action="" id="customerSendScrap"  method="GET" enctype="multipart/form-data">
+            <form action="" id="customerSendScrap" method="GET" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="customer_id" value="">
                 <input type="hidden" name="submit_type" value="">
@@ -20,20 +20,19 @@
                     </div>
                     <div class="form-group">
                         <strong>Brand</strong>
-                        <select class="form-control select-multiple" name="brand[]" multiple>
+                        <select class="form-control globalSelect2" data-ajax="{{ route('select2.brands') }}"
+                            name="brand[]" multiple>
                             <option value="">Select a Brand</option>
-                            @foreach ($brands as $brand)
-                            <option value="{{ $brand['id'] }}">{{ $brand['name'] }}</option>
-                            @endforeach
                         </select>
                     </div>
                     <div class="form-group">
                         <strong>Supplier</strong>
-                        <select class="form-control select-multiple" name="supplier[]" multiple>
+                        <select class="form-control globalSelect2" data-ajax="{{ route('select2.suppliers') }}"
+                            name="supplier[]" multiple>
                             <option value="">Select a Supplier</option>
-                            @foreach (\App\Supplier::all() as $supplier)
+                            {{-- @foreach (\App\Supplier::all() as $supplier)
                             <option value="{{ $supplier->id }}">{{ $supplier->supplier }}</option>
-                            @endforeach
+                            @endforeach --}}
                         </select>
                     </div>
                     <div class="form-group">
@@ -44,20 +43,23 @@
                         <strong>Keyword</strong>
                         <input type="text" name="term" class="form-control">
                     </div>
-                    <div class="form-group mr-3">
-                        <strong class="mr-3">Price</strong>
-                        <?php 
-                            $min = 0;
-                            $max = 400000;
-                        ?>
-                        <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="400000" data-slider-step="1000" data-slider-value="[{{$min}},{{$max}}]"/>
+                    <div class="row">
+                        <div class="col-6 form-group">
+                            <strong>Min price</strong>
+                            <input type="text" min="0" max="400000" name="price_min" class="form-control">
+                        </div>
+                        <div class="col-6 form-group">
+                            <strong>Max prices</strong>
+                            <input type="text" min="0" name="price_max" max="400000" class="form-control">
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     <!-- <button type="submit" class="btn btn-secondary" id="sendScrapedButton">Send</button> -->
-                    <button  id="attachImages2" class="btn btn-secondary send-to-approval-btn">Send To Image Approval</button>
-                    <button  id="attachImages1" class="btn btn-secondary old-send-btn">Send</button>
+                    <button id="attachImages2" class="btn btn-secondary send-to-approval-btn">Send To Image
+                        Approval</button>
+                    <button id="attachImages1" class="btn btn-secondary old-send-btn">Send</button>
                 </div>
             </form>
         </div>

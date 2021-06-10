@@ -22,8 +22,8 @@
                             <td>{{ $link['from'] }}</td>
                             <td>
                                 <?php 
-                                  echo "<select class='form-control select2' name='updated_category[".$link["from"]."]'>";
-                                  $categories = \App\Category::attr(["name" => "updated_category[".$link["from"]."]", "class" => "form-control select2"])->renderAsArray();
+                                  echo "<select class='form-control select2' name='updated_category[".$link["from_id"]."]'>";
+                                  $categories = \App\Category::attr(["name" => "updated_category[".$link["from_id"]."]", "class" => "form-control select2"])->renderAsArray();
                                   if(!empty($categories)) {
                                     foreach($categories as $cat) {
                                        $selected = ($cat['id'] == $link["to"]) ? "selected='selected'" : "";
