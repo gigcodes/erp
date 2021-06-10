@@ -468,6 +468,78 @@ class ProductTemplatesController extends Controller
             }else{
                 $template->template_status = 'python';
                 $template->save();
+
+                //call here the api
+                if($template->category) {
+                    $category = $template->category;
+                    // Get other information related to category
+                    $cat = $category->title;
+                }
+
+                $parent = '';
+                $child = '';
+
+                try {
+                    if ($cat != 'Select Category') {
+                        if ($category->isParent($category->id)) {
+                            $parent = $cat;
+                            $child = $cat;
+                        } else {
+                            $parent = $category->parent()->first()->title;
+                            $child = $cat;
+                        }
+                    }
+                } catch (\ErrorException $e) {
+                    //
+                }
+                $productCategory = $parent.' '.$child;
+
+                $data = [];
+                //check if template exist
+                $templateProductCount = $template->template->no_of_images;
+                
+                // if($record->getMedia('template-image')->count() <= $templateProductCount && $templateProductCount > 0){
+                //     $data = ['message' => 'Template Product Doesnt have Proper Images'];
+                //     return response()->json($data);
+                // }
+
+                $template->is_processed = 2;
+                $template->save();
+                
+                if ($template) {
+                    try {
+                        $data = [
+                            "id" => $template->id,
+                            "templateNumber" => $template->template_no,
+                            "productTitle" => $template->product_title,
+                            "productBrand" => ($template->brand) ? $template->brand->name : "",
+                            "productCategory" => $productCategory,
+                            "productPrice" => $template->price,
+                            "productDiscountedPrice" => $template->discounted_price,
+                            "productCurrency" => $template->currency,
+                            "text" => $template->text,
+                            "fontStyle" => $template->font_style,
+                            "fontSize" => $template->font_size,
+                            "backgroundColor" => explode(",", $template->background_color),
+                            "color" => $template->color,
+                            "logo" => ($template->storeWebsite) ? $template->storeWebsite->title : ""
+                        ];
+
+                        if ($template->hasMedia('template-image-attach')) {
+                            $images = [];
+                            foreach ($template->getMedia('template-image-attach') as $i => $media) {
+                                $images[] = $media->getUrl();
+                            }
+                            $data[ "image" ] = $images;
+                        }
+                        \Log::info(json_encode($data,true));
+                        $response = \App\Helpers\GuzzleHelper::post(env("PYTHON_PRODUCT_TEMPLATES")."/api/product-template", $data,[]);
+                    }catch(\Exception $e) {
+                        \Log::info("Product Templates controller : 541 ".$e->getMessage());
+                    }
+                    
+                }
+
             }
         }
 
