@@ -333,7 +333,9 @@ class WhatsappConfigController extends Controller
         
         $ch = curl_init();
 
-        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/get-barcode';
+//        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/get-barcode';
+        $url = 'http://136.244.118.102:81/get-barcode';
+
         
         // set url
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -347,14 +349,14 @@ class WhatsappConfigController extends Controller
         // close curl resource to free up system resources
         curl_close($ch); 
 
-        $barcode = json_decode($output);
-            
+        $barcode = $output;
+
         if($barcode){
            
-           if($barcode->barcode == 'No Barcode Available'){
+           if($barcode == 'No Barcode Available'){
                 return Response::json(array('nobarcode' => true)); 
            } 
-           $content = base64_decode($barcode->barcode);
+           $content = base64_decode($barcode);
 
             $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('barcode')->upload();
         
@@ -384,10 +386,10 @@ class WhatsappConfigController extends Controller
         $output = curl_exec($ch);
 
         // close curl resource to free up system resources
-        curl_close($ch); 
+        curl_close($ch);
 
         $barcode = json_decode($output);
-        return Response::json(array('success' => true,'media' => true)); 
+        return Response::json(array('success' => true,'media' => true));
         //if($barcode){
            
            if($barcode->barcode == 'No Screen Available'){
@@ -396,7 +398,7 @@ class WhatsappConfigController extends Controller
            $content = base64_decode($barcode->barcode);
 
             $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('screen')->upload();
-        
+
             return Response::json(array('success' => true,'media' => $media->getUrl())); 
         // }else{
          

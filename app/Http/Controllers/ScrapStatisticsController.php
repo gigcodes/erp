@@ -80,7 +80,8 @@ class ScrapStatisticsController extends Controller
             'developerTaskNew',
             'scraperMadeBy',
             'childrenScraper.scraperMadeBy',
-            'mainSupplier'
+            'mainSupplier',
+            'mainSupplier.lastProduct', 'mainSupplier.inventory'
         ])
         ->withCount('childrenScraper')
         ->join("suppliers as s", "s.id", "scrapers.supplier_id")
