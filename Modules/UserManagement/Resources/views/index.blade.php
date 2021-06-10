@@ -465,9 +465,9 @@
             success: function(result){
                 $("#loading-image").hide();
                 if(result.code == 200) {
-                    console.log( result.data );
+                    console.log( result.data[0] );
                     var t = '';
-                    $.each(result.data,function(k,v) {
+                    $.each(result.data[0],function(k,v) {
                         t += `<tr><td>`+v.user_name+`</td>`;
                         t += `<td>`+v.task+`</td>`;
                         t += `<td>`+v.date+`</td>`;
