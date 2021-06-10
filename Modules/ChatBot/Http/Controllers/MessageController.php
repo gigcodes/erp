@@ -44,7 +44,7 @@ class MessageController extends Controller
         $pendingApprovalMsg = $pendingApprovalMsg->where(function($q) {
             $q->where("chat_messages.message","!=", "");
         })->select(['cr.id as chat_bot_id', "chat_messages.*","cm1.id as chat_id", "cr.question","cm1.message as answer", "c.name as customer_name","v.name as vendors_name","cr.reply_from","cm1.approved","sw.title as website_title"])
-        ->orderBy("chatbot_replies.id","desc")
+        ->orderBy('cr.id','DESC')
         ->paginate(20);
             
         $allCategory = ChatbotCategory::all();
