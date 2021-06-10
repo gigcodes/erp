@@ -1938,6 +1938,9 @@ class WhatsAppController extends FindByNumberController
      */
     public function sendMessage(Request $request, $context, $ajaxNeeded = false)
     {
+
+        $loggedUser = $request->user();
+
         $this->validate($request, [
             'customer_id' => 'sometimes|nullable|numeric',
             'supplier_id' => 'sometimes|nullable|numeric',
@@ -2089,8 +2092,6 @@ class WhatsAppController extends FindByNumberController
 
                 /** Sent To ChatbotMessage */
                 
-                $loggedUser = $request->user();
-
                 $roles = $loggedUser->roles->pluck('name')->toArray();
 
                 if(!in_array('Admin', $roles)){
@@ -2374,7 +2375,9 @@ class WhatsAppController extends FindByNumberController
                         'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
                     ]);
 
-                    if ($sendTo == "to_master") {
+                    $roles = $loggedUser->roles->pluck('name')->toArray();
+
+                    if(!in_array('Admin', $roles)){
                         
                         /* Send to chatbot/messages */
                         
