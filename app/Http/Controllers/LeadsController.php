@@ -19,6 +19,8 @@ use App\Reply;
 use App\Customer;
 use App\StatusChange;
 use App\CallRecording;
+use App\ErpLeads;
+use App\ErpLeadStatus;
 use App\CommunicationHistory;
 use App\ReplyCategory;
 use Illuminate\Http\Request;
@@ -1372,5 +1374,103 @@ class LeadsController extends Controller
             'sourceData' => $source,
             'erpLeadStatus' => $erpLeadStatus
         ]);
+    }
+
+    public function erpLeadsStatusCreate(Request $request){
+        $status = new ErpLeadStatus;
+        $status->name = $request->add_status;
+        $status->save();
+        return redirect()->back()->with('success','Status Added Successsfully');
+    }
+    public function erpLeadsStatusUpdate(Request $request){
+        $statusModal = ErpLeadStatus::where("id", $request->status_id)->first()->name;
+        
+        $template = "Greetings from Solo Luxury Ref: order number $request->id we have updated your order with status : $statusModal.";
+        $erp_leads = ErpLeads::find($request->id);
+
+            $history = new \App\ErpLeadStatusHistory;
+            $history->lead_id = $request->id;
+            $history->old_status = $erp_leads->lead_status_id;
+            $history->new_status = $request->status_id;
+            $history->user_id = Auth::id();
+            $history->save();
+        
+        $erp_leads->lead_status_id = $request->status_id;
+        $erp_leads->save();
+
+        // $user = Auth::user();
+        // $watsapp_number = $user->whatsapp_number;
+        // $params['message'] = "Status Updated Successsfully";
+
+        // if($watsapp_number !== null){
+        //     app('App\Http\Controllers\WhatsAppController')
+        //                         ->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false);
+        // }
+
+        return response()->json(['code' => 200,'message' => "Status Updated Successsfully", 'template' => $template]);
+    }
+
+    public function erpLeadStatusChange(Request $request)
+    {
+        $id     = $request->get("id");
+        $status = $request->get("status");
+
+        if (!empty($id) && !empty($status)) {
+            $order   = \App\ErpLeads::find($id);
+            $statuss = ErpLeadStatus::find($status);
+
+            if ($order->customer->email) {
+                if (isset($request->sendmessage) && $request->sendmessage == '1') {
+                    //Sending Mail on changing of order status
+                    try {
+                            $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+
+                            $email             = \App\Email::create([
+                                'model_id'         => $order->id,
+                                'model_type'       => ErpLeads::class,
+                                'from'             => $emailClass->fromMailer,
+                                'to'               => $order->customer->email,
+                                'subject'          => $emailClass->subject,
+                                'message'          => $emailClass->render(),
+                                'template'         => 'erp-lead-status-update',
+                                'additional_data'  => $order->id,
+                                'status'           => 'pre-send',
+                                'is_draft'         => 0,
+                            ]);
+
+                            \App\Jobs\SendEmail::dispatch($email);
+
+                    } catch (\Exception $e) {
+                        \Log::info("Sending mail issue at the ordercontroller #2215 ->" . $e->getMessage());
+                    }
+
+                } else {
+                    $emailClass = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+
+                    $email             = \App\Email::create([
+                        'model_id'         => $order->id,
+                        'model_type'       => ErpLeads::class,
+                        'from'             => $emailClass->fromMailer,
+                        'to'               => $order->customer->email,
+                        'subject'          => $emailClass->subject,
+                        'message'          => $emailClass->render(),
+                        'template'         => 'erp-lead-status-update',
+                        'additional_data'  => $order->id,
+                        'status'           => 'pre-send',
+                        'is_draft'         => 0,
+                    ]);
+
+                    \App\Jobs\SendEmail::dispatch($email);
+
+                }
+
+                // }catch(\Exception $e) {
+                //   \Log::info("Sending mail issue at the ordercontroller #2215 ->".$e->getMessage());
+                // }
+            }
+           
+        }
+        return response()->json('Sucess', 200);
+
     }
 }

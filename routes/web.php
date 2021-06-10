@@ -471,6 +471,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('erp-leads/{id}/changestatus', 'LeadsController@updateErpStatus');
     Route::get('erp-leads/edit', 'LeadsController@erpLeadsEdit')->name('leads.erpLeads.edit');
     Route::get('erp-leads/create', 'LeadsController@erpLeadsCreate')->name('leads.erpLeads.create');
+    Route::get('erp-leads/status/create', 'LeadsController@erpLeadsStatusCreate')->name('erpLeads.status.create');
+    Route::post('erp-leads/status/update', 'LeadsController@erpLeadsStatusUpdate')->name('erpLeads.status.update');
+    Route::get('erp-leads/status/change', 'LeadsController@erpLeadStatusChange')->name('erpLeads.status.change');
     Route::post('erp-leads/store', 'LeadsController@erpLeadsStore')->name('leads.erpLeads.store');
     Route::get('erp-leads/delete', 'LeadsController@erpLeadDelete')->name('leads.erpLeads.delete');
     Route::get('erp-leads/customer-search', 'LeadsController@customerSearch')->name('leads.erpLeads.customerSearch');
