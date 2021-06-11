@@ -97,7 +97,8 @@
                 @foreach($array as $row)
                 <tr>
                     <td>{{ $row['date'] }}</td>
-                    <td>{{ $row['type'] == 1 ? 'Yes' : 'No'}}</td>
+                    <!-- <td>{{ $row['type'] == 1 ? 'Yes' : 'No'}}</td> -->
+                    <td>{{ $row['type']}}</td>
                     @if($row['type'] == 1)
                         <td>
                         Receiver No. : {{ $row['number']}} <br>
@@ -115,7 +116,7 @@
                         </td>
                     @endif    
                     <td>
-                        <button class="btn btn-success sentMessage text-center" {{$row['type'] == 1 ? 'disabled' : ""}}>Resend</button>
+                        <button class="btn btn-success sentMessage text-center" {{$row['type'] == 1 || $row['resend_details'] == '' ? 'disabled' : ""}} data-details={{$row['resend_details'] ?? ''}} >Resend</button>
                     </td>
                 </tr>
                 @endforeach    
@@ -182,80 +183,19 @@
                 alert('No response from server');
             });
         });
-
-         $('#brand,#category,#supplier,#custom').on('change', function () {
-            $.ajax({
-                url: '/logging/sku-logs-errors',
-                dataType: "json",
-                data: {
-                    sku: $('#sku').val(),
-                    brand: $('#brand').val(),
-                    category: $('#category').val(),
-                    supplier : $('#supplier').val(),
-                    custom : $('#custom').val(),
-                },
-                beforeSend: function () {
-                    $("#loading-image").show();
-                },
-            }).done(function (data) {
-                $("#loading-image").hide();
-                 $("#nulti").show();
-                console.log(data);
-                $("#count").text(data.totalFailed);
-                $("#log-table tbody").empty().html(data.tbody);
-                if (data.links.length > 10) {
-                    $('ul.pagination').replaceWith(data.links);
-                } else {
-                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-                }
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                $("#loading-image").hide();
-                alert('No response from server');
-            });
-        });
+ 
     
 
 
-    });
-    function refreshPage(){
-        blank = '';
-        $.ajax({
-                url: '/logging/sku-logs-errors',
-                dataType: "json",
-                data: {
-                    blank : blank
-                },
-                beforeSend: function () {
-                    $("#loading-image").show();
-                },
-            }).done(function (data) {
-                $("#loading-image").hide();
-                $("#nulti").show();
-                console.log(data);
-                $("#count").text(data.totalFailed);
-                $("#log-table tbody").empty().html(data.tbody);
-                if (data.links.length > 10) {
-                    $('ul.pagination').replaceWith(data.links);
-                } else {
-                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-                }
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                $("#loading-image").hide();
-                alert('No response from server');
-            });
-    }
+    }); 
+ 
 
-    function addTask(supplier , category , sku , brand) {
-        $('#taskModal').modal('show');
-        $('#task_subject').val('Supplier :'+supplier +' Category '+category+' Brand : '+brand);
-        $('#references').val(supplier+''+category+''+brand);
-    }
-
-    $(".checkbox").change(function() {
+    $(".sentMessage").click(function() {
+        console.log($(this).attr('data-details'));
     if(this.checked) {
         validate = 1;
         $.ajax({
-                url: '/logging/sku-logs-errors',
+                url: '/whatsapp-log-resend',
                 dataType: "json",
                 data: {
                     sku: $('#sku').val(),
@@ -283,97 +223,9 @@
                 alert('No response from server');
             });
         
-    }else{
-        validate = 2;
-        $.ajax({
-                url: '/logging/sku-logs-errors',
-                dataType: "json",
-                data: {
-                    sku: $('#sku').val(),
-                    brand: $('#brand').val(),
-                    category: $('#category').val(),
-                    supplier : $('#supplier').val(),
-                    validate : validate,
-                },
-                beforeSend: function () {
-                    $("#loading-image").show();
-                },
-            }).done(function (data) {
-                $("#loading-image").hide();
-                $("#nulti").show();
-                console.log(data);
-                $("#count").text(data.totalFailed);
-                $("#log-table tbody").empty().html(data.tbody);
-                if (data.links.length > 10) {
-                    $('ul.pagination').replaceWith(data.links);
-                } else {
-                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-                }
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                $("#loading-image").hide();
-                alert('No response from server');
-            });
-        
-    }
-    });
-
-    function sendMulti(){
-        brand =  $('#brand').val();
-        category = $('#category').val();
-        supplier = $('#supplier').val();
-        if(brand == ''){
-            alert('Please Select Brand');
-        }
-        if(category == ''){
-            alert('Please Select Category');
-        }
-        if(supplier == ''){
-            alert('Please Select Supplier');
-        }
-        if(brand != '' && category != '' && supplier != ''){
-            $('#taskModal').modal('show');
-            $('#task_subject').val(supplier +' '+category+' multi');
-            $('#references').val(supplier+''+category+''+brand);
-        }
-        
-    }
-
-    function changeOrder(){
-        order = $('#order_count').val();
-         $.ajax({
-                url: '/logging/sku-logs-errors',
-                dataType: "json",
-                data: {
-                    sku: $('#sku').val(),
-                    brand: $('#brand').val(),
-                    category: $('#category').val(),
-                    supplier : $('#supplier').val(),
-                    order : order,
-                },
-                beforeSend: function () {
-                    $("#loading-image").show();
-                },
-            }).done(function (data) {
-                $("#loading-image").hide();
-                $("#nulti").show();
-                if(order == 1){
-                    $('#order_count').val('0');
-                }else{
-                   $('#order_count').val(1); 
-                }
-                $("#count").text(data.totalFailed);
-                $("#log-table tbody").empty().html(data.tbody);
-                if (data.links.length > 10) {
-                    $('ul.pagination').replaceWith(data.links);
-                } else {
-                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-                }
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                $("#loading-image").hide();
-                alert('No response from server');
-            });
-    }
-
+    } 
+    }); 
+ 
    
 
     </script>

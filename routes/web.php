@@ -3036,5 +3036,6 @@ Route::prefix('select2')->middleware('auth')->group(function () {
 });
 
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');
+Route::post('whatsapp-log-resend', 'Logging\WhatsappLogsController@resend')->name('whatsapp.log.resend');
 
  

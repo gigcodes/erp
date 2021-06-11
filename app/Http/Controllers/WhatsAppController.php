@@ -4993,7 +4993,8 @@ class WhatsAppController extends FindByNumberController
             $instanceId = $config[$whatsapp_number]['instance_id'];
             $token = $config[$whatsapp_number]['token'];
         } else {
-            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Whatsapp config not found for number " . $whatsapp_number . " while sending to number " . $number);
+            $resend_details = ['sendWithThirdApi', $number, $whatsapp_number, $message, $file, $chat_message_id, $enqueue, $customer_id];
+            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Whatsapp config not found for number " . $whatsapp_number . " while sending to number " . $number . '|resend_details:' . json_encode($resend_details));
             $instanceId = $config[0]['instance_id'];
             $token = $config[0]['token'];
         }
