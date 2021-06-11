@@ -99,13 +99,20 @@
                             </td>
                         </tr>
                         @foreach($searchedKeyword->customers as $key=>$customer)
+<!--                            --><?php //dump($customer->dnd); ?>
                             <tr>
                                 <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}" class="customer_message"></td>
                                 <td>{{ $key+1 }}</td>
                                 <td>{{ $customer->name }}<br>
+                                    @if(count($customer->dnd) == 0)
                                     <span data-customer_id="{{$customer->id}}" class="add_to_dnd" style="cursor:pointer;font-size:12px">
                                         Add to DND
                                     </span>
+                                    @else
+                                    <span data-customer_id="{{$customer->id}}" class="remove_from_dnd" style="cursor:pointer;font-size:12px">
+                                        Remove from DND
+                                    </span>
+                                    @endif
                                 </td>
                                 <td>@include('bulk-customer-replies.partials.shortcuts')</td>
                                 <td>@include('bulk-customer-replies.partials.next_actions')</td>
@@ -178,10 +185,36 @@
                 },
                 dataType: "json",
                 success: function (response) {
-                    $this.html('Added');
+                    $this.html('Remove from DND');
+                    $this.removeClass('add_to_dnd').addClass('remove_from_dnd')
                 },
                 error: function () {
                     
+                }
+            });
+
+        });
+
+        $(document).on('click', '.remove_from_dnd', function(){
+
+            const urlSearchParams = new URLSearchParams(window.location.search);
+            const params = Object.fromEntries(urlSearchParams.entries());
+            $this = $(this);
+            $.ajax({
+                url: "/category-messages/bulk-messages/removeFromDND",
+                type: 'POST',
+                data: {
+                    "customer_id": $(this).data('customer_id'),
+                    "filter": params,
+                    "_token": "{{csrf_token()}}",
+                },
+                dataType: "json",
+                success: function (response) {
+                    $this.html('Add to DND');
+                    $this.removeClass('remove_from_dnd').addClass('add_to_dnd')
+                },
+                error: function () {
+
                 }
             });
 
