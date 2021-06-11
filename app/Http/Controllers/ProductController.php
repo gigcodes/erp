@@ -4965,7 +4965,7 @@ class ProductController extends Controller
                 $suggestion->brdNames = Brand::whereIn('id',$brandIds)->get();
             }
             else {
-                $suggestion->brdNames = []; 
+                $suggestion->brdNames = [];
             }
 
             $catIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->where('suggested_products_id',$suggestion->id)->groupBy('products.category')->pluck('products.category');
@@ -4973,7 +4973,7 @@ class ProductController extends Controller
                 $suggestion->catNames = Category::whereIn('id',$catIds)->get();
             }
             else {
-                $suggestion->catNames = []; 
+                $suggestion->catNames = [];
             }
         }
 
