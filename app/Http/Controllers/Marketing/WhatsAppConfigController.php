@@ -398,13 +398,7 @@ class WhatsappConfigController extends Controller
                 $content = base64_decode($barcode->barcode);
             }
 
-
-
-            
-
-            
-
-            $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('screen')->upload();
+            $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('screen'.uniqid(true))->upload();
 
             return Response::json(array('success' => true, 'media' => $media->getUrl()));
 
