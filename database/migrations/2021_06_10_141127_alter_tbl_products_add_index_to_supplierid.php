@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateNewAutoMessages extends Migration
+class AlterTblProductsAddIndexToSupplierid extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,7 @@ class CreateNewAutoMessages extends Migration
      */
     public function up()
     {
-        DB::table('auto_complete_messages')->truncate();
-
-        DB::statement('ALTER TABLE `auto_complete_messages` ADD FULLTEXT `full_text_index` (`message`);');
-
+        DB::statement('ALTER TABLE `products` ADD INDEX(`supplier_id`)');
     }
 
     /**

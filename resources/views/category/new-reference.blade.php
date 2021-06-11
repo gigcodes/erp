@@ -13,7 +13,7 @@
 </style>
 <div class="row">
     <div class="col-md-12">
-        <h2 class="page-heading">New Category Reference ({{ $unKnownCategories->total() }})</h2>
+        <h2 class="page-heading">New Category Reference ({{ $scrapped_category_mapping->total() }})</h2>
     </div>
     @if ($message = Session::get('success'))
          <div class="col-md-12">
@@ -54,11 +54,11 @@
                 <button type="button" class="btn btn-secondary">Fix Auto Suggested</button>
             </a>
         </div>
-        <div class="form-group col-md-4">
+        {{-- <div class="form-group col-md-4">
             <a href="{{ route('category.fix-autosuggested-via-str',request()->all()) }}" class="fix-autosuggested">
                 <button type="button" class="btn btn-secondary">Fix Auto Suggested(2)</button>
             </a>
-        </div>
+        </div> --}}
     </div>
     <div class="col-md-12 mt-5">
         <table class="table table-bordered">
@@ -74,6 +74,13 @@
             {{-- @dd($unKnownCategories->items()); --}}
             @foreach($scrapped_category_mapping as $key => $unKnownCategory)
 
+                @php
+                    // $websites_ = $unKnownCategory->scmSPCM->toArray();
+
+                    
+
+                    // $websites_ = array_unique($websites_);
+                @endphp
                 
                 @if($unKnownCategory->name != '')
                     <?php 
@@ -92,17 +99,20 @@
                         </td>
                         
                         <td>
-                            @foreach($unKnownCategory->scmSPCM as $cat)
+
+                            {{-- {{ implode(', ', $websites_) }} --}}
+
+                            {{-- @foreach($unKnownCategory->scmSPCM as $cat)
                                 {{$cat->website}}
-                            @endforeach 
+                            @endforeach  --}}
                         </td>
                            
                         <td>
-                            {{$unKnownCategory->cat_count_count}}
+                            {{-- {{$unKnownCategory->cat_count_count}} --}}
                         </td>
 
                         <td>
-                            <select class="select2 form-control change-list-category" data-name="{{ $name }}" data-whole="{{ $unKnownCategory->name }}">
+                            <select class="select2 form-control change-list-category" data-old-id={{ $unKnownCategory->id  }} data-name="{{ $name }}" data-whole="{{ $unKnownCategory->name }}">
                                 @foreach($categoryAll as $cat)
                                     <option value="{{ $cat['id'] }}">{{ $cat['value'] }}</option>
                                 @endforeach
@@ -158,7 +168,7 @@
 
             $(document).on("change",".change-list-category",function() {
                 var $this = $(this);
-                var oldCatid = {{ $unKnownCategoryId }};
+               // var oldCatid = {{ $unKnownCategoryId }};
 
                 $.ajax({
                     type: 'POST',
@@ -170,7 +180,7 @@
                         _token: "{{ csrf_token() }}",
                         'cat_name' : $this.data("name"),
                         'new_cat_id' : $this.val(),
-                        'old_cat_id' : oldCatid,
+                        'old_cat_id' : $this.data("old-id"),
                         'wholeString': $this.data("whole"),
                     },
                     dataType: "json"
@@ -192,7 +202,7 @@
 
             $(document).on("click",".btn-change-composition",function() {
                 var $this = $(this);
-                 var oldCatid = {{ $unKnownCategoryId }};
+                // var oldCatid = {{ $unKnownCategoryId }};
                 $.ajax({
                     type: 'POST',
                     url: '/category/references/update-category',
@@ -201,7 +211,7 @@
                     },
                     data: {
                         _token: "{{ csrf_token() }}",
-                        'old_cat_id' : oldCatid,
+                        'old_cat_id' :  $this.data("from-id"),
                         'new_cat_id' : $this.data("to"),
                         'cat_name' : $this.data("from"),
                         'with_product':$this.data('with-product'),

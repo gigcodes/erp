@@ -52,20 +52,27 @@ class UserManagementController extends Controller
 
     public function todayTaskHistory(Request $request)
     {
-        $history = HubstaffActivity::select('users.name','developer_tasks.subject','developer_tasks.id as devtaskId','hubstaff_activities.starts_at' ,\DB::raw("SUM(tracked) as day_tracked"))
-                  ->join('hubstaff_members','hubstaff_activities.user_id','hubstaff_members.hubstaff_user_id')
-                  ->join('users','hubstaff_members.user_id','users.id')
-                  ->join('developer_tasks','hubstaff_activities.task_id','developer_tasks.hubstaff_task_id')
-                  ->whereDate('hubstaff_activities.starts_at',date('Y-m-d'))
-                  ->groupBy('hubstaff_activities.starts_at','hubstaff_activities.user_id');
-                  if( !empty( $request->id ) ){
-                    $history->where('users.id',$request->id);
-                  }
-        $history =  $history->orderBy("hubstaff_activities.id","desc")->get();
+        $date = "'%".date('Y-m-d')."%'";  
+        // $history = HubstaffActivity::select('users.name','developer_tasks.subject','developer_tasks.id as devtaskId','hubstaff_activities.starts_at' ,\DB::raw("SUM(tracked) as day_tracked"))
+        //           ->join('hubstaff_members','hubstaff_activities.user_id','hubstaff_members.hubstaff_user_id')
+        //           ->join('users','hubstaff_members.user_id','users.id')
+        //           ->join('developer_tasks','hubstaff_activities.task_id','developer_tasks.hubstaff_task_id')
+        //           ->whereDate('hubstaff_activities.starts_at',date('Y-m-d'))
+        //           ->groupBy('hubstaff_activities.starts_at','hubstaff_activities.user_id');
+        //           if( !empty( $request->id ) ){
+        //             $history->where('users.id',$request->id);
+        //           }
+        // $history =  $history->orderBy("hubstaff_activities.id","desc")->get();
+        $history = DB::select("SELECT users.name, developer_tasks.subject, developer_tasks.id as devtaskId, hubstaff_activities.starts_at, SUM(tracked) as day_tracked FROM `hubstaff_activities` 
+                  INNER JOIN hubstaff_members ON hubstaff_members.hubstaff_user_id=hubstaff_activities.user_id 
+                  INNER JOIN users ON hubstaff_members.user_id=users.id
+                  INNER JOIN developer_tasks ON hubstaff_activities.task_id=developer_tasks.hubstaff_task_id 
+                  WHERE `starts_at` LIKE " . $date . "
+                  group by hubstaff_activities.user_id, hubstaff_activities.starts_at");
         $filterList = [];
         if ( !empty( $history ) ) {
             foreach ($history as $key => $value) {
-                $filterList = array(
+                $filterList[] = array(
                     'user_name' => $value->devtaskId,
                     'task'      => $value->subject,
                     'date'      => $value->starts_at,

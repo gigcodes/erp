@@ -16,7 +16,7 @@ class ScrappedCategoryMappingObserver
     public function created(Category $category)
     {
         //
-        $this->create($category);
+       // $this->create($category);
     }
 
     /**
@@ -28,7 +28,7 @@ class ScrappedCategoryMappingObserver
     public function updated(Category $category)
     {
         //
-        $this->create($category);
+       // $this->create($category);
     }
 
     /**
@@ -81,7 +81,9 @@ class ScrappedCategoryMappingObserver
                 // ]);
                 ScrappedCategoryMapping::updateOrCreate([
                     "name" => $val,
-                ],["name" => $val,]);
+                ],[
+                    "name" => $val
+                ]);
             }
         }
     }
