@@ -248,4 +248,12 @@ class BulkCustomerRepliesController extends Controller
         return response()->json(true);
 
     }
+
+    public function removeFromDND(Request $request){
+
+        $dnd = CustomerBulkMessageDND::where('customer_id', $request->customer_id)->where('filter', $request->filter['keyword_filter'])->delete();
+
+        return response()->json(true);
+
+    }
 }
