@@ -368,8 +368,7 @@ class DevelopmentController extends Controller
 
         $title = 'Task List';
 
-        $issues = DeveloperTask::with('timeSpent');
-
+        $issues = DeveloperTask::with('timeSpent','developerTaskHistory','assignedUser','masterUser','timeSpent','leadtimeSpent','testertimeSpent');
         if($type == 'issue') {
             $issues = $issues->where('developer_tasks.task_type_id', '3');
         }
