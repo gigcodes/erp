@@ -5,6 +5,7 @@
 .btn {
     padding: 6px 6px;
 }
+.small-image{max-width: 100%;max-height: 100px;}
 </style>
 @endsection
 
@@ -83,6 +84,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             <tr>
                 <th>ID</th>
                 <th>Name</th>
+                <th>Image</th>
                 <th width="300px">Similar Brands</th>
                 <th width="160px">Merge Brands</th>
                 <th>Magento ID</th>
@@ -94,12 +96,17 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 @endforeach
                 <th width="150px">Selling on</th>
                 <th>Priority</th>
-                <th width="150px">Action</th>
+                <th width="17%">Action</th>
             </tr>
             @foreach ($brands as $key => $brand)
             <tr>
                 <td>{{ $brand->id }}</td>
                 <td>{{ $brand->name }}</td>
+                <td>
+                    @if($brand->brand_image)
+                        <img src="{{ $brand->brand_image }}" class="small-image">
+                    @endif
+                </td>
                 <td>
                     @php
                         $similar_brands = explode(',', $brand->references);
@@ -186,21 +193,58 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 </div>
 
 <div id="ActivitiesModal" class="modal fade" role="dialog">
-  	<div class="modal-dialog">
-	    <!-- Modal content-->
-	    <div class="modal-content">
-	        <div class="modal-header">
-	        	<h4 class="modal-title">Brand Activities</h4>
-	          	<button type="button" class="close" data-dismiss="modal">&times;</button>
-	        </div>
-	        <div class="modal-body"></div>
-    	</div>
-	</div>
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Brand Activities</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body"></div>
+        </div>
+    </div>
+</div>
+<div id="upload-barnds-modal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+          <h4 class="modal-title">Upload Brand Logos</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <form id="upload-barnd-logos">
+          <div class="modal-body">
+              @csrf
+              <div class="row">
+                <div class="col-md-10 col-md-offset-1">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Logos</label>
+                                <input type="file" name="files[]" id="filecount" multiple="multiple">
+                            </div>
+                        </div>  
+                    </div>  
+                </div>  
+              </div>  
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-default">Save</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+       </form>
+    </div>
+  </div>
 </div>
 @endsection
 @section('scripts')
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
+<script src="/js/jquery-ui.js"></script>
+<script src="/js/jquery.jscroll.min.js"></script>
+<script src="/js/bootstrap-multiselect.min.js"></script>
+<script src="/js/bootstrap-filestyle.min.js"></script>
 <script type="text/javascript">
     function store_amount(brand_id, category_segment_id) {
         var amount = $(this.event.target).val();
@@ -224,8 +268,8 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 url: jQuery(_this).data('href'),
                 method: 'GET',
                 success: function(response) {
-	                jQuery("#ActivitiesModal .modal-body").html(response);
-	                jQuery("#ActivitiesModal").modal("show");
+                    jQuery("#ActivitiesModal .modal-body").html(response);
+                    jQuery("#ActivitiesModal").modal("show");
                 },
                 error: function(response){
                     toastr['error'](response.responseJSON.message, 'error');
@@ -406,23 +450,58 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
     });
 
     $(document).on('change', '.priority', function () {
-            var $this = $(this);
-            var brand_id = $this.data("id");
-            var priority = $this.val();
-            $.ajax({
-                type: "PUT",
-                url: "/brand/priority/"+brand_id,
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    supplier_id : brand_id,
-                    priority: priority
-                }
-            }).done(function (response) {
-                 toastr['success'](response.message, 'success');
-            }).fail(function (response) {
-               toastr['error'](response.message, 'error');
-            });
+        var $this = $(this);
+        var brand_id = $this.data("id");
+        var priority = $this.val();
+        $.ajax({
+            type: "PUT",
+            url: "/brand/priority/"+brand_id,
+            data: {
+                _token: "{{ csrf_token() }}",
+                supplier_id : brand_id,
+                priority: priority
+            }
+        }).done(function (response) {
+             toastr['success'](response.message, 'success');
+        }).fail(function (response) {
+           toastr['error'](response.message, 'error');
         });
+    });
+    $(document).on("submit","#upload-barnd-logos",function(e) {
+        e.preventDefault();
+        var form = $(this);
+        var postData = new FormData(form[0]);
+        $.ajax({
+            method : "POST",
+            url: "/brand/fetch-new/",
+            data: postData,
+            processData: false,
+            contentType: false,
+            dataType: "json",
+            success: function (response) {
+                if(response.code == 200) {
+                    toastr["success"]("Logos updated!", "Message")
+                    $("#upload-barnd-logos").modal("hide");
+                }else{
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+    // $(document).on('click','.fetch-new', function(event){
+    //     event.preventDefault();
+    //     $.ajax({
+    //         type: "GET",
+    //         url: "/brand/fetch-new/",
+    //         data: {
+    //             _token: "{{ csrf_token() }}",
+    //         }
+    //     }).done(function (response) {
+    //          toastr['success'](response.message, 'success');
+    //     }).fail(function (response) {
+    //        toastr['error'](response.message, 'error');
+    //     });
+    // });
     $(document).on('click','.fetch-new', function(event){
         event.preventDefault();
         $.ajax({
