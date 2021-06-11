@@ -394,6 +394,7 @@
                         <table class="table">
                             <thead>
                                 <tr>
+                                    <th>User</th>
                                     <th>Task id</th>
                                     <th>Description</th>
                                     <th>From time</th>
@@ -469,6 +470,7 @@
                     var t = '';
                     $.each(result.data[0],function(k,v) {
                         t += `<tr><td>`+v.user_name+`</td>`;
+                        t += `<td>`+v.devtaskId+`</td>`;
                         t += `<td>`+v.task+`</td>`;
                         t += `<td>`+v.date+`</td>`;
                         t += `<td>`+v.tracked+`</td></tr>`;
