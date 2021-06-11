@@ -123,6 +123,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
 Route::get('log-scraper', 'Logging\LogScraperController@index')->middleware('auth')->name('log-scraper.index');
 
 Route::prefix('category-messages')->middleware('auth')->group(function () {
+    Route::post('bulk-messages/addToDND', 'BulkCustomerRepliesController@addToDND');
     Route::post('bulk-messages/keyword', 'BulkCustomerRepliesController@storeKeyword');
     Route::post('bulk-messages/keyword/update-whatsappno', 'BulkCustomerRepliesController@updateWhatsappNo')->name('bulk-messages.whatsapp-no');
     Route::post('bulk-messages/send-message', 'BulkCustomerRepliesController@sendMessagesByKeyword');
@@ -3030,8 +3031,9 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('suppliers', 'Select2Controller@suppliers')->name('select2.suppliers');
     Route::get('updatedby-users', 'Select2Controller@updatedbyUsers')->name('select2.updatedby_users');
     Route::get('scraped-brand', 'Select2Controller@scrapedBrand')->name('select2.scraped-brand');
+    Route::get('brands', 'Select2Controller@allBrand')->name('select2.brands');
 });
 
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');
 
-
+ 
