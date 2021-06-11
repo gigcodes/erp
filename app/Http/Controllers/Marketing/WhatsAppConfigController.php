@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers\Marketing;
 
+use App\Customer;
+use App\Http\Controllers\Controller;
 use App\ImQueue;
 use App\Marketing\WhatsappConfig;
-use App\Http\Controllers\Controller;
-use App\Services\Whatsapp\ChatApi\ChatApi;
-use Illuminate\Http\Request;
-use App\Setting;
-use Illuminate\Support\Str;
-use Validator;
-use Crypt;
-use Response;
-use App\Customer;
 use App\Notification;
+use App\Services\Whatsapp\ChatApi\ChatApi;
+use App\Setting;
 use App\StoreWebsite;
+use Crypt;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Response;
 
 class WhatsappConfigController extends Controller
 {
@@ -30,10 +29,10 @@ class WhatsappConfigController extends Controller
         if ($request->number || $request->username || $request->provider || $request->customer_support || $request->customer_support == 0 || $request->term || $request->date) {
 
             $query = WhatsappConfig::query();
-			
-			//Added store data to put dropdown in form  to add store website id to whatsapp config table
-			$storeData = StoreWebsite::all()->toArray();
-			
+
+            //Added store data to put dropdown in form  to add store website id to whatsapp config table
+            $storeData = StoreWebsite::all()->toArray();
+
             //global search term
             if (request('term') != null) {
                 $query->where('number', 'LIKE', "%{$request->term}%")
@@ -42,11 +41,9 @@ class WhatsappConfigController extends Controller
                     ->orWhere('provider', 'LIKE', "%{$request->term}%");
             }
 
-
             if (request('date') != null) {
                 $query->whereDate('created_at', request('website'));
             }
-
 
             //if number is not null
             if (request('number') != null) {
@@ -73,22 +70,19 @@ class WhatsappConfigController extends Controller
         } else {
             $whatsAppConfigs = WhatsappConfig::latest()->paginate(Setting::get('pagination'));
         }
-		
-		//Fetch Store Details
-		
-		
-		
+
+        //Fetch Store Details
+
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('marketing.whatsapp-configs.partials.data', compact('whatsAppConfigs','storeData'))->render(),
-                'links' => (string)$whatsAppConfigs->render()
+                'tbody' => view('marketing.whatsapp-configs.partials.data', compact('whatsAppConfigs', 'storeData'))->render(),
+                'links' => (string) $whatsAppConfigs->render(),
             ], 200);
         }
 
-
         return view('marketing.whatsapp-configs.index', [
             'whatsAppConfigs' => $whatsAppConfigs,
-            'storeData' => $storeData,
+            'storeData'       => $storeData,
         ]);
 
     }
@@ -113,23 +107,23 @@ class WhatsappConfigController extends Controller
     {
         //dd($request);
         $this->validate($request, [
-            'number' => 'required|max:13|unique:whatsapp_configs,number',
-            'provider' => 'required',
+            'number'           => 'required|max:13|unique:whatsapp_configs,number',
+            'provider'         => 'required',
             'customer_support' => 'required',
-            'username' => 'required|min:3|max:255',
-            'password' => 'required|min:6|max:255',
-            'frequency' => 'required',
-            'send_start' => 'required',
-            'send_end' => 'required',
+            'username'         => 'required|min:3|max:255',
+            'password'         => 'required|min:6|max:255',
+            'frequency'        => 'required',
+            'send_start'       => 'required',
+            'send_end'         => 'required',
         ]);
-		$requestData = $request->all();
-		$defaultFor = implode(",",isset($requestData['default_for']) ? $requestData['default_for'] : []);
-		
-		$data = $request->except('_token','default_for');
-        $data['password'] = Crypt::encrypt($request->password);
+        $requestData = $request->all();
+        $defaultFor  = implode(",", isset($requestData['default_for']) ? $requestData['default_for'] : []);
+
+        $data                        = $request->except('_token', 'default_for');
+        $data['password']            = Crypt::encrypt($request->password);
         $data['is_customer_support'] = $request->customer_support;
-		$data['default_for'] = $defaultFor;
-		WhatsappConfig::create($data);
+        $data['default_for']         = $defaultFor;
+        WhatsappConfig::create($data);
 
         return redirect()->back()->withSuccess('You have successfully stored Whats App Config');
     }
@@ -155,27 +149,26 @@ class WhatsappConfigController extends Controller
     {
 
         $this->validate($request, [
-            'number' => 'required|max:13',
-            'provider' => 'required',
+            'number'           => 'required|max:13',
+            'provider'         => 'required',
             'customer_support' => 'required',
-            'username' => 'required|min:3|max:255',
-            'password' => 'required|min:6|max:255',
-            'frequency' => 'required',
-            'send_start' => 'required',
-            'send_end' => 'required',
+            'username'         => 'required|min:3|max:255',
+            'password'         => 'required|min:6|max:255',
+            'frequency'        => 'required',
+            'send_start'       => 'required',
+            'send_end'         => 'required',
         ]);
         $config = WhatsappConfig::findorfail($request->id);
-		
-		$requestData = $request->all();
-		
-		$defaultFor = implode(",",$requestData['default_for']);
-		
-		
-        $data = $request->except('_token', 'id', 'default_for');
-        $data['password'] = Crypt::encrypt($request->password);
+
+        $requestData = $request->all();
+
+        $defaultFor = implode(",", $requestData['default_for']);
+
+        $data                        = $request->except('_token', 'id', 'default_for');
+        $data['password']            = Crypt::encrypt($request->password);
         $data['is_customer_support'] = $request->customer_support;
-        $data['default_for'] = $defaultFor;
-		
+        $data['default_for']         = $defaultFor;
+
         $config->update($data);
 
         return redirect()->back()->withSuccess('You have successfully changed Whats App Config');
@@ -205,7 +198,7 @@ class WhatsappConfigController extends Controller
         $config->delete();
         return Response::json(array(
             'success' => true,
-            'message' => 'WhatsApp Config Deleted'
+            'message' => 'WhatsApp Config Deleted',
         ));
     }
 
@@ -217,10 +210,10 @@ class WhatsappConfigController extends Controller
      */
     public function history($id, Request $request)
     {
-        $term = $request->term;
-        $date = $request->date;
-        $config = WhatsappConfig::find($id);
-        $number = $config->number;
+        $term     = $request->term;
+        $date     = $request->date;
+        $config   = WhatsappConfig::find($id);
+        $number   = $config->number;
         $provider = $config->provider;
 
         if ($config->provider === 'py-whatsapp') {
@@ -253,10 +246,10 @@ class WhatsappConfigController extends Controller
     public function queue($id, Request $request)
     {
 
-        $term = $request->term;
-        $date = $request->date;
-        $config = WhatsappConfig::find($id);
-        $number = $config->number;
+        $term     = $request->term;
+        $date     = $request->date;
+        $config   = WhatsappConfig::find($id);
+        $number   = $config->number;
         $provider = $config->provider;
         if ($config->provider === 'py-whatsapp') {
 
@@ -289,7 +282,7 @@ class WhatsappConfigController extends Controller
     public function clearMessagesQueue($id)
     {
         $config = WhatsappConfig::find($id);
-        $data = ChatApi::deleteQueues($config->number);
+        $data   = ChatApi::deleteQueues($config->number);
 
         return redirect('/marketing/whatsapp-config');
     }
@@ -307,7 +300,7 @@ class WhatsappConfigController extends Controller
         $config->delete();
         return Response::json(array(
             'success' => true,
-            'message' => 'WhatsApp Config Deleted'
+            'message' => 'WhatsApp Config Deleted',
         ));
 
     }
@@ -322,22 +315,22 @@ class WhatsappConfigController extends Controller
         $config = ImQueue::where('number_from', $request->id)->delete();
         return Response::json(array(
             'success' => true,
-            'message' => 'WhatsApp Configs Deleted'
+            'message' => 'WhatsApp Configs Deleted',
         ));
     }
 
-    public function getBarcode(Request $request){
+    public function getBarcode(Request $request)
+    {
 
         $id = $request->id;
 
         $whatsappConfig = WhatsappConfig::find($id);
-        
+
         $ch = curl_init();
 
 //        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/get-barcode';
         $url = 'http://136.244.118.102:81/get-barcode';
 
-        
         // set url
         curl_setopt($ch, CURLOPT_URL, $url);
 
@@ -348,34 +341,92 @@ class WhatsappConfigController extends Controller
         $output = curl_exec($ch);
 
         // close curl resource to free up system resources
-        curl_close($ch); 
+        curl_close($ch);
 
         $barcode = $output;
 
-        if($barcode){
-           
-           if($barcode == 'No Barcode Available'){
-                return Response::json(array('nobarcode' => true)); 
-           } 
-           $content = base64_decode($barcode);
+        if ($barcode) {
 
-            $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('barcode-'.Str::random(4))->upload();
-        
-            return Response::json(array('success' => true,'media' => $media->getUrl())); 
-        }else{
-         
-             return Response::json(array('error' => true)); 
+            if ($barcode == 'No Barcode Available') {
+                return Response::json(array('nobarcode' => true));
+            }
+            $content = base64_decode($barcode);
+
+            $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('barcode-' . Str::random(4))->upload();
+
+            return Response::json(array('success' => true, 'media' => $media->getUrl()));
+        } else {
+
+            return Response::json(array('error' => true));
         }
     }
 
-    public function getScreen(Request $request){
+    public function getScreen(Request $request)
+    {
 
         $id = $request->id;
 
         $whatsappConfig = WhatsappConfig::find($id);
-        
+
+        if ($whatsappConfig) {
+
+            $ch = curl_init();
+
+            if ($whatsappConfig->number = "971508309192") {
+                $url = "http://136.244.118.102:81/get-barcode";
+            } else {
+                $url = env('WHATSAPP_BARCODE_IP') . $whatsappConfig->username . '/get-screen';
+            }
+
+            // set url
+            curl_setopt($ch, CURLOPT_URL, $url);
+            //return the transfer as a string
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            // $output contains the output string
+            $output = curl_exec($ch);
+
+            // close curl resource to free up system resources
+            curl_close($ch);
+
+            if ($whatsappConfig->number = "971508309192") {
+                $content = base64_decode($output);
+            }else{
+                $barcode = json_decode($output);
+                if ($barcode->barcode == 'No Screen Available') {
+                    return Response::json(array('nobarcode' => true));
+                }
+                $content = base64_decode($barcode->barcode);
+            }
+
+
+
+            
+
+            
+
+            $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('screen')->upload();
+
+            return Response::json(array('success' => true, 'media' => $media->getUrl()));
+
+        }
+
+        //if($barcode){
+
+        // }else{
+
+        //      return Response::json(array('error' => true));
+        // }
+    }
+
+    public function deleteChromeData(Request $request)
+    {
+        $id = $request->id;
+
+        $whatsappConfig = WhatsappConfig::find($id);
+
         $ch = curl_init();
-        $url = env('WHATSAPP_BARCODE_IP').$whatsappConfig->username.'/get-screen';
+
+        $url = env('WHATSAPP_BARCODE_IP') . ':' . $whatsappConfig->username . '/delete-chrome-data';
 
         // set url
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -390,56 +441,16 @@ class WhatsappConfigController extends Controller
         curl_close($ch);
 
         $barcode = json_decode($output);
-        return Response::json(array('success' => true,'media' => true));
-        //if($barcode){
-           
-           if($barcode->barcode == 'No Screen Available'){
-                return Response::json(array('nobarcode' => true)); 
-           } 
-           $content = base64_decode($barcode->barcode);
 
-            $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('screen')->upload();
+        if ($barcode) {
 
-            return Response::json(array('success' => true,'media' => $media->getUrl())); 
-        // }else{
-         
-        //      return Response::json(array('error' => true));
-        // }
-    }
+            if ($barcode->barcode == 'Directory Deleted') {
+                return Response::json(array('nobarcode' => true));
+            }
+            return Response::json(array('success' => true, 'media' => 'Directory Can not be Deleted'));
+        } else {
 
-    public function deleteChromeData(Request $request)
-    {
-        $id = $request->id;
-
-        $whatsappConfig = WhatsappConfig::find($id);
-        
-        $ch = curl_init();
-
-        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/delete-chrome-data';
-        
-        // set url
-        curl_setopt($ch, CURLOPT_URL, $url);
-
-        //return the transfer as a string
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-
-        // $output contains the output string
-        $output = curl_exec($ch);
-
-        // close curl resource to free up system resources
-        curl_close($ch); 
-
-        $barcode = json_decode($output);
-            
-        if($barcode){
-           
-           if($barcode->barcode == 'Directory Deleted'){
-                return Response::json(array('nobarcode' => true)); 
-           } 
-            return Response::json(array('success' => true,'media' => 'Directory Can not be Deleted')); 
-        }else{
-         
-             return Response::json(array('error' => true)); 
+            return Response::json(array('error' => true));
         }
     }
 
@@ -448,11 +459,11 @@ class WhatsappConfigController extends Controller
         $id = $request->id;
 
         $whatsappConfig = WhatsappConfig::find($id);
-        
+
         $ch = curl_init();
 
-        $url = env('WHATSAPP_BARCODE_IP').$whatsappConfig->username.'/restart-script';
-        
+        $url = env('WHATSAPP_BARCODE_IP') . $whatsappConfig->username . '/restart-script';
+
         // set url
         curl_setopt($ch, CURLOPT_URL, $url);
 
@@ -463,82 +474,74 @@ class WhatsappConfigController extends Controller
         $output = curl_exec($ch);
 
         // close curl resource to free up system resources
-        curl_close($ch); 
+        curl_close($ch);
 
         $response = json_decode($output);
-            
-        if($response){
-           
-           if($response->barcode == 'Process Killed'){
-                return Response::json(array('nobarcode' => true)); 
-           } 
-            return Response::json(array('success' => true,'media' => 'No Process Found')); 
-        }else{
-         
-             return Response::json(array('error' => true)); 
+
+        if ($response) {
+
+            if ($response->barcode == 'Process Killed') {
+                return Response::json(array('nobarcode' => true));
+            }
+            return Response::json(array('success' => true, 'media' => 'No Process Found'));
+        } else {
+
+            return Response::json(array('error' => true));
         }
     }
 
-
     public function blockedNumber()
     {
-        $whatsappNumbers = WhatsappConfig::where('status',2)->get();
-
+        $whatsappNumbers = WhatsappConfig::where('status', 2)->get();
 
         foreach ($whatsappNumbers as $whatsappNumber) {
-            
-            $queues = ImQueue::where('number_from',$whatsappNumber->number)->whereNotNull('sent_at')->orderBy('sent_at','desc')->get();
-            
+
+            $queues = ImQueue::where('number_from', $whatsappNumber->number)->whereNotNull('sent_at')->orderBy('sent_at', 'desc')->get();
+
             //Making DND for last 30 numbers
             $maxCount = 30;
-            $count = 0;
+            $count    = 0;
             //Making 30 customer numbers to DND
             foreach ($queues as $queue) {
-                $customer = Customer::where('phone',$queue->number_to)->first();
-                if($count == $maxCount){
+                $customer = Customer::where('phone', $queue->number_to)->first();
+                if ($count == $maxCount) {
                     break;
                 }
-                if(!empty($customer)){
+                if (!empty($customer)) {
                     $customer->do_not_disturb = 1;
-                    $customer->phone = '-'.$customer->phone;
+                    $customer->phone          = '-' . $customer->phone;
                     $customer->update();
                     $count++;
                 }
             }
-            
-
 
         }
 
-        return Response::json(array('success' => true,'message' => 'Last 30 Customer disabled')); 
+        return Response::json(array('success' => true, 'message' => 'Last 30 Customer disabled'));
     }
-    
-
 
     public function checkInstanceAuthentication()
     {
         //get all providers
-        $allWhatsappInstances = WhatsappConfig::select()->where(['provider'=>"Chat-API"])->get();
+        $allWhatsappInstances = WhatsappConfig::select()->where(['provider' => "Chat-API"])->get();
         try
         {
-            foreach($allWhatsappInstances as $instanceDetails)
-            {
+            foreach ($allWhatsappInstances as $instanceDetails) {
                 $instanceId = $instanceDetails->instance_id;
-                $token = $instanceDetails->token;
-                $sentTo = 6;
-                if($instanceId)
-                {
+                $token      = $instanceDetails->token;
+                $sentTo     = 6;
+                if ($instanceId) {
                     $curl = curl_init();
 
                     curl_setopt_array($curl, array(
-                        CURLOPT_URL => "https://api.chat-api.com/instance$instanceId/status?token=$token",
+                        CURLOPT_URL            => "https://api.chat-api.com/instance$instanceId/status?token=$token",
                         CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_ENCODING => "",
-                        CURLOPT_MAXREDIRS => 10,
-                        CURLOPT_TIMEOUT => 300,
-                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                        CURLOPT_CUSTOMREQUEST => "GET",
-                        CURLOPT_HTTPHEADER => array(
+                        CURLOPT_ENCODING       => "",
+                        CURLOPT_MAXREDIRS      => 10,
+                        CURLOPT_TIMEOUT        => 300,
+                        CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST  => "GET",
+                        CURLOPT_HTTPHEADER     => array(
                             "content-type: application/json",
                             // "token: $wa_token"
                         ),
@@ -547,25 +550,24 @@ class WhatsappConfigController extends Controller
                     $response = curl_exec($curl);
                     if (curl_errno($curl)) {
                         $error_msg = curl_error($curl);
-                    } else{
+                    } else {
                         $resInArr = json_decode($response, true);
-                        if(isset($resInArr) && isset($resInArr['accountStatus']) && $resInArr['accountStatus']!='authenticated')
-                        {
-                            Notification::create( [
+                        if (isset($resInArr) && isset($resInArr['accountStatus']) && $resInArr['accountStatus'] != 'authenticated') {
+                            Notification::create([
                                 'role'       => 'Whatsapp Config Proivders Authentication',
-                                'message'    => "Current Status : ".$resInArr['accountStatus'],
+                                'message'    => "Current Status : " . $resInArr['accountStatus'],
                                 'product_id' => '',
                                 'user_id'    => $instanceDetails->id,
-                                'sale_id'     => '',
+                                'sale_id'    => '',
                                 'task_id'    => '',
                                 'sent_to'    => $sentTo,
                             ]);
                         }
-                    } 
-                    curl_close($curl);                  
+                    }
+                    curl_close($curl);
                 }
             }
-        }catch(Exception $e){
+        } catch (Exception $e) {
             $e->getMessage();
         }
     }
