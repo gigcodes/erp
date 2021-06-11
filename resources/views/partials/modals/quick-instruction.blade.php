@@ -18,7 +18,7 @@
             @endphp
 
             <strong>Assign to:</strong>
-            <select class="globalSelect2 form-control"  data-ajax="{{ route('select2.user') }}" data-live-search="true" data-size="15" name="assigned_to" data-placeholder="Choose a User" id="quick_instruction_assiged_to" required>
+            <select class="form-control globalSelect2"  data-ajax="{{ route('select2.user') }}" data-live-search="true" data-size="15" name="assigned_to" data-placeholder="Choose a User" id="quick_instruction_assiged_to" required>
               <option></option>
               {{-- @foreach ($quick_users_array as $index => $user)
                <option data-tokens="{{ $index }} {{ $user }}" value="{{ $index }}">{{ $user }}</option>

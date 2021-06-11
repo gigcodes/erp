@@ -447,8 +447,8 @@
                                     } 
                                 @endphp    
                             </td>
-                            <td> {{count($supplier->mainSupplier->inventory)}} </td>
-                            <td>{{date('d-M-y H:i',strtotime($supplier->mainSupplier->lastProduct->created_at))}}</td>
+                            <td> {{$supplier->inventory }} </td>
+                            <td>{{$supplier->last_date !== null ? date('d-M-y H:i',strtotime($supplier->last_date)) : '-' }}</td>
                             <td width="14%">
                                  <div style="float:left;">       
                                 <button style="padding:1px;" type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}" title="Expand more data"><img width="2px;" src="/images/forward.png"/></button>

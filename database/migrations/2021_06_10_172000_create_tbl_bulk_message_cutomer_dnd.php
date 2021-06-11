@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateNewAutoMessages extends Migration
+class CreateTblBulkMessageCutomerDnd extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,15 @@ class CreateNewAutoMessages extends Migration
      */
     public function up()
     {
-        DB::table('auto_complete_messages')->truncate();
-
-        DB::statement('ALTER TABLE `auto_complete_messages` ADD FULLTEXT `full_text_index` (`message`);');
-
+        
+        Schema::create('customer_bulk_messages_dnd', function (Blueprint $table) {
+            $table->unsignedBigInteger('customer_id');
+            $table->string('filter', 251);
+            $table->timestamps();
+            $table->primary(['customer_id', 'filter']);
+            
+        });
+        
     }
 
     /**
