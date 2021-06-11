@@ -2846,6 +2846,7 @@ Route::middleware('auth')->group(function()
 Route::get('/quick-replies', 'QuickReplyController@quickReplies')->name('quick-replies');
 Route::get('/get-store-wise-replies/{category_id}/{store_website_id?}', 'QuickReplyController@getStoreWiseReplies')->name('store-wise-replies');
 Route::post('/save-store-wise-reply', 'QuickReplyController@saveStoreWiseReply')->name('save-store-wise-reply');
+Route::post('/attached-images-grid/customer/create-template', 'ProductController@createTemplate')->name('attach.cus.create.tpl');
 
 /**
  * Store Analytics Module
