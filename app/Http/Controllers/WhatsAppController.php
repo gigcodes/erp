@@ -5017,6 +5017,10 @@ class WhatsAppController extends FindByNumberController
         }
 
         $encodedNumber = '+' . $number;
+        if($whatsapp_number == "971508309192") { 
+            $encodedNumber = $number;
+        }
+        
         $encodedText = $message;
 
         $array = [
