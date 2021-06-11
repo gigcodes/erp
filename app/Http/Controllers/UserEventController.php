@@ -212,6 +212,7 @@ class UserEventController extends Controller
         $dailyActivities->time_slot = date("h:00a",strtotime($userEvent->start)) . " - " .date("h:00a",strtotime($userEvent->end));
         $dailyActivities->activity  = $userEvent->subject;
         $dailyActivities->for_date  = $date;
+        $dailyActivities->for_datetime  = $date . ' ' . $time;
         $dailyActivities->save();
         
         if( request('edit_next_recurring') == '1' ){
@@ -340,6 +341,7 @@ class UserEventController extends Controller
 
 
         $start = $date . ' ' . $time;
+        $for_datetime = $start;
         $end = strtotime($start . ' + 1 hour');
         $start = strtotime($start);
 
@@ -365,10 +367,12 @@ class UserEventController extends Controller
         $dailyActivities->activity  = $userEvent->subject;
         $dailyActivities->user_id   = $userId;
         $dailyActivities->for_date  = $date;
+        $dailyActivities->for_datetime    = $for_datetime;
         $dailyActivities->repeat_type     = $request->repeat;
         $dailyActivities->repeat_on       = $request->repeat_on;
         $dailyActivities->repeat_end      = $request->ends_on;
         $dailyActivities->repeat_end_date = $request->repeat_end_date;
+        $dailyActivities->timezone        = $request->timezone;
         
         if($dailyActivities->save()) {
             $dailyActivities->parent_row = $dailyActivities->id;
@@ -403,7 +407,7 @@ class UserEventController extends Controller
         }
         $history = [
             'daily_activities_id' => $dailyActivities->id,
-            'title'               => 'Event creat',
+            'title'               => 'Event create',
             'description'         => "Event created by ".Auth::user()->name,
         ];
         DailyActivitiesHistories::insert( $history );

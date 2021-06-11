@@ -2,20 +2,34 @@
         @php
             $oldDate = null;
             $count   = 0;
-            
+            $images = null;
+            // dd( $list->store_website_id );
+            $webStore = \App\WebsiteStore::where('website_id',$list->id)->first();
+            if( $webStore ){
+                $website_store_views = \App\WebsiteStoreView::where('website_store_id',$webStore->id)->first();
+                if( $website_store_views ){
+                    $images = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$website_store_views->code)->get()->toArray();
+                }
+            }
+
+            // dump($list);
+            // dump($webStore);
+            // dump($website_store_views);
+            // dd($images);
+
         @endphp
-        @foreach($store->storeView as $image)
-        
-                @foreach($image->scrapperImage->toArray() as $image)
+        @foreach($images as $image)
+                {{-- @foreach($imageM->scrapperImage->toArray() as $image) --}}
+
                 <?php
                     if ( date( 'Y-m-d' ,strtotime($image['created_at'])) !== $oldDate ) { 
-                        $count = 0;
+                        $count = 0; 
                         $oldDate = date( 'Y-m-d' ,strtotime($image['created_at']));
                     ?>
                         <div class="row">
                             <div class="col-md-12">
                                 <br>
-                                <h5 class="product-attach-date" style="margin: 5px 0px;">{{$image['created_at']}} || Number Of Images:{{count($store->scrapperImage)}}</h5> 
+                                <h5 class="product-attach-date" style="margin: 5px 0px;">{{$image['created_at']}} || Number Of Images:{{count($images)}}</h5> 
 
                                 <hr style="margin: 5px 0px;">
                             </div>
@@ -47,13 +61,13 @@
                             </div>
                         </div>
                     @php
-                    if( $count == 0 ){
+                    if( $count == 0 || $count == 6){
                         echo '</div>';
                     }
                     @endphp
                 @endif
             @php $count++;  @endphp
-        @endforeach
+        {{-- @endforeach --}}
         @endforeach
         <br>
 </div>

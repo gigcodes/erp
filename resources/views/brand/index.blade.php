@@ -30,7 +30,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         <div class="pull-right">
             <a class="btn btn-secondary" data-toggle="collapse" href="#inProgressFilterCount" href="javascript:;">Number of brands per site</a>
             <a class="btn btn-secondary" href="{{ route('brand.create') }}">+</a>
-            <button type="button" class="btn btn-secondary fetch-news" data-toggle="modal" data-target="#upload-barnds-modal">Fetch New Brands</button>
+            <a class="btn btn-secondary fetch-new" href="#">Fetch New Brands</a>
         </div>
     </div>
 </div>
@@ -450,44 +450,44 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
     });
 
     $(document).on('change', '.priority', function () {
-            var $this = $(this);
-            var brand_id = $this.data("id");
-            var priority = $this.val();
-            $.ajax({
-                type: "PUT",
-                url: "/brand/priority/"+brand_id,
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    supplier_id : brand_id,
-                    priority: priority
-                }
-            }).done(function (response) {
-                 toastr['success'](response.message, 'success');
-            }).fail(function (response) {
-               toastr['error'](response.message, 'error');
-            });
+        var $this = $(this);
+        var brand_id = $this.data("id");
+        var priority = $this.val();
+        $.ajax({
+            type: "PUT",
+            url: "/brand/priority/"+brand_id,
+            data: {
+                _token: "{{ csrf_token() }}",
+                supplier_id : brand_id,
+                priority: priority
+            }
+        }).done(function (response) {
+             toastr['success'](response.message, 'success');
+        }).fail(function (response) {
+           toastr['error'](response.message, 'error');
         });
+    });
     $(document).on("submit","#upload-barnd-logos",function(e) {
-            e.preventDefault();
-            var form = $(this);
-            var postData = new FormData(form[0]);
-            $.ajax({
-                method : "POST",
-                url: "/brand/fetch-new/",
-                data: postData,
-                processData: false,
-                contentType: false,
-                dataType: "json",
-                success: function (response) {
-                    if(response.code == 200) {
-                        toastr["success"]("Logos updated!", "Message")
-                        $("#upload-barnd-logos").modal("hide");
-                    }else{
-                        toastr["error"](response.error, "Message");
-                    }
+        e.preventDefault();
+        var form = $(this);
+        var postData = new FormData(form[0]);
+        $.ajax({
+            method : "POST",
+            url: "/brand/fetch-new/",
+            data: postData,
+            processData: false,
+            contentType: false,
+            dataType: "json",
+            success: function (response) {
+                if(response.code == 200) {
+                    toastr["success"]("Logos updated!", "Message")
+                    $("#upload-barnd-logos").modal("hide");
+                }else{
+                    toastr["error"](response.error, "Message");
                 }
-            });
+            }
         });
+    });
     // $(document).on('click','.fetch-new', function(event){
     //     event.preventDefault();
     //     $.ajax({
@@ -502,5 +502,19 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
     //        toastr['error'](response.message, 'error');
     //     });
     // });
+    $(document).on('click','.fetch-new', function(event){
+        event.preventDefault();
+        $.ajax({
+            type: "GET",
+            url: "/brand/fetch-new/",
+            data: {
+                _token: "{{ csrf_token() }}",
+            }
+        }).done(function (response) {
+             toastr['success'](response.message, 'success');
+        }).fail(function (response) {
+           toastr['error'](response.message, 'error');
+        });
+    });
 </script>
 @endsection

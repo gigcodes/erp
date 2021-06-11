@@ -68,14 +68,13 @@ class DirectMessageController extends Controller
     public function incomingPendingRead(Request $request)
     {
     	$accounts = Account::where('platform','instagram')->whereNotNull('proxy')->get();
-
         $messege = [] ;
     	foreach ($accounts as $account) {
             
     		try {
                 	$instagram = new Instagram();
                     //$instagram->setProxy($account->proxy);
-				   $instagram->login($account->last_name, $account->password);
+				   $instagram->login($account->email, $account->password);
 				   $this->instagram = $instagram;
                 } catch (\Exception $e) {
                    \Log::error($account->last_name.' :: '.$e->getMessage());
@@ -229,7 +228,7 @@ class DirectMessageController extends Controller
                 $isSeen = 1;
             }
             
-
+            $type = 0;
     		if ($chat['item_type'] == 'text') {
     			$type = 1;
                 $text = $chat['text'];

@@ -123,6 +123,8 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
 Route::get('log-scraper', 'Logging\LogScraperController@index')->middleware('auth')->name('log-scraper.index');
 
 Route::prefix('category-messages')->middleware('auth')->group(function () {
+    Route::post('bulk-messages/addToDND', 'BulkCustomerRepliesController@addToDND');
+    Route::post('bulk-messages/removeFromDND', 'BulkCustomerRepliesController@removeFromDND');
     Route::post('bulk-messages/keyword', 'BulkCustomerRepliesController@storeKeyword');
     Route::post('bulk-messages/keyword/update-whatsappno', 'BulkCustomerRepliesController@updateWhatsappNo')->name('bulk-messages.whatsapp-no');
     Route::post('bulk-messages/send-message', 'BulkCustomerRepliesController@sendMessagesByKeyword');
@@ -201,6 +203,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('users/logins', 'UserController@login')->name('users.login.index');
     Route::post('users/status-change', 'UserController@statusChange');
     Route::get('users/loginips', 'UserController@loginIps')->name('users.login.ips');
+    Route::get('users/add-system-ip', 'UserController@addSystemIp');
+    Route::get('users/delete-system-ip', 'UserController@deleteSystemIp');
     Route::get('permissions/grandaccess/users', 'PermissionController@users')->name('permissions.users');
     Route::get('userlogs', 'UserLogController@index')->name('userlogs.index');
     Route::get('userlogs/{$id}', 'UserLogController@index');
@@ -373,7 +377,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('brand/unmerge-brand', 'BrandController@unMergeBrand')->name('brand.unmerge-brand');
     Route::get('brand/{id}/create-remote-id', 'BrandController@createRemoteId');
     Route::get('brand/{id}/activities', 'BrandController@activites')->name('brand.activities');
-    Route::post('brand/fetch-new', 'BrandController@fetchNewBrands');
+    Route::get('brand/fetch-new', 'BrandController@fetchNewBrands')->name('brand.fetchnew');
     Route::resource('brand', 'BrandController');
 
    Route::put('brand/priority/{id}', 'BrandController@priority');
@@ -666,6 +670,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('email/{id}/excel-import', 'EmailController@excelImporter');
     Route::post('email/{id}/get-file-status', 'EmailController@getFileStatus');
     Route::resource('email', 'EmailController');
+    Route::post('email/platform-update', 'EmailController@platformUpdate');
 
     Route::post('email/category', 'EmailController@category');
     Route::post('email/status', 'EmailController@status');
@@ -734,6 +739,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
+
+    Route::resource('learning', 'LearningModuleController');
+    Route::resource('learning_category', 'LearningCategoryController');
+    Route::post('learning_category/submodule', 'LearningCategoryController@getSubModule');
+    Route::post('learning/create-learning-from-shortcut', 'LearningModuleController@createLearningFromSortcut');
+    Route::post('learning-module/update', 'LearningModuleController@learningModuleUpdate')->name('learning-module.update');
+
     Route::get('/', 'MasterControlController@index')->name('home');
     Route::get('/master-dev-task', 'MasterDevTaskController@index')->name('master.dev.task');
 
@@ -1712,6 +1724,11 @@ Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
 Route::get('message/resend', 'WhatsAppController@resendMessage2');
 Route::get('message/delete', 'WhatsAppController@delete');
 
+Route::post('list/autoCompleteMessages', 'WhatsAppController@autoCompleteMessages');
+
+
+
+
 //});
 
 
@@ -2665,6 +2682,7 @@ Route::prefix( 'google-campaigns')->middleware('auth')->group(function () {
 
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {
     Route::get('/', 'DigitalMarketingController@index')->name('digital-marketing.index');
+    Route::post('/get-emails', 'DigitalMarketingController@getEmails');
     Route::get('/records', 'DigitalMarketingController@records')->name('digital-marketing.records');
     Route::post('/save', 'DigitalMarketingController@save')->name('digital-marketing.save');
     Route::post('/saveImages', 'DigitalMarketingController@saveImages')->name('digital-marketing.saveimages');
@@ -3009,4 +3027,11 @@ Route::group(['middleware' => 'auth'], function () {
 Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('customers', 'Select2Controller@customers')->name('select2.customer');
     Route::get('users', 'Select2Controller@users')->name('select2.user');
+    Route::get('users_vendors', 'Select2Controller@users_vendors')->name('select2.uservendor');
+    Route::get('suppliers', 'Select2Controller@suppliers')->name('select2.suppliers');
+    Route::get('updatedby-users', 'Select2Controller@updatedbyUsers')->name('select2.updatedby_users');
+    Route::get('scraped-brand', 'Select2Controller@scrapedBrand')->name('select2.scraped-brand');
+    Route::get('brands', 'Select2Controller@allBrand')->name('select2.brands');
 });
+
+Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');

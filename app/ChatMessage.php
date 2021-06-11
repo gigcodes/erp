@@ -241,7 +241,7 @@ class ChatMessage extends Model
 
     public function taskUser()
     {
-        return $this->hasOne("\App\User","id","sent_to_user_id");
+        return $this->hasOne("\App\User","id","user_id");
     }
 
     public function user()
@@ -296,6 +296,13 @@ class ChatMessage extends Model
         return ($limit) ? json_decode($limit->val,true) : [];
     }
 
+    public static function getQueueTime()
+    {
+        $limit  = \App\Setting::where("name","is_queue_sending_time")->first();
+        
+        return ($limit) ? json_decode($limit->val,true) : [];
+    }
+
     public static function getStartTime()
     {
         $limit  = \App\Setting::where("name","is_queue_send_start_time")->first();
@@ -320,6 +327,11 @@ class ChatMessage extends Model
     public function chatBotReply()
     {
         return $this->hasOne("\App\ChatBotReply","chat_id", "id");
+    }
+
+    public function chatBotReplychat()
+    {
+        return $this->hasOne(ChatbotReply::class,"replied_chat_id", "id");
     }
 
     public function suggestion()

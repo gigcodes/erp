@@ -26,7 +26,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/', 'BookshelfController@index');
         Route::group(['prefix' => 'shelves'], function () {
             Route::get('/', 'BookshelfController@index');
-            Route::post('/', 'BookshelfController@store');
+            // Route::post('/', 'BookshelfController@store');
             Route::get('/{slug}/edit', 'BookshelfController@edit');
             Route::get('/{slug}/delete', 'BookshelfController@showDelete');
             Route::get('/{slug}', 'BookshelfController@show');
@@ -38,6 +38,8 @@ Route::group(['middleware' => 'auth'], function () {
 
             Route::get('/{shelfSlug}/create-book', 'BookController@create');
             Route::post('/{shelfSlug}/create-book', 'BookController@store');
+
+            Route::get('/show/{sortByView}/{sortByDate}', 'BookshelfController@showShelf'); 
         });
 
         Route::get('/create-book', 'BookController@create');
@@ -58,6 +60,8 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/{bookSlug}/export/html', 'BookController@exportHtml');
             Route::get('/{bookSlug}/export/pdf', 'BookController@exportPdf');
             Route::get('/{bookSlug}/export/plaintext', 'BookController@exportPlainText');
+
+            Route::get('/show/{sortByView}/{sortByDate}', 'BookController@showBook'); 
 
             // Pages
             Route::get('/{bookSlug}/create-page', 'PageController@create');
@@ -174,7 +178,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/custom-head-content', 'HomeController@customHeadContent');
 
     // Search
-//    Route::get('/search', 'SearchController@search');
+//    Route::get('/search', 'SearchController@search');                                                                                                                             
+   Route::get('/searchGrid', 'SearchController@searchGrid')->name('searchGrid');
 //    Route::get('/search/book/{bookId}', 'SearchController@searchBook');
 //    Route::get('/search/chapter/{bookId}', 'SearchController@searchChapter');
 //    Route::get('/search/entity/siblings', 'SearchController@searchSiblings');

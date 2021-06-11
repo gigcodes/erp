@@ -43,6 +43,11 @@ class Category extends Model
         return $this->hasMany( __CLASS__, 'parent_id', 'id' );
     }
 
+    public function childLevelSencond()
+    {
+        return $this->hasMany( __CLASS__, 'parent_id', 'id' );
+    }
+
     public function parent()
     {
         return $this->hasOne( 'App\Category', 'id', 'parent_id' );
@@ -61,6 +66,16 @@ class Category extends Model
             ->count();
 
         return $child_count ? true : false;
+    }
+
+
+    public static function website_name( $name )
+    {
+        $name = '"' . $name . '"';
+        $products = \App\ScrapedProducts::where("properties", "like", '%' . $name . '%')->select('website')->distinct()->get()->pluck('website')->toArray();
+        $web_name = implode(", ",$products);
+
+        return $web_name ? $web_name : '-';
     }
 
 
