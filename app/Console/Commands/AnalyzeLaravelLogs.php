@@ -76,7 +76,7 @@ class AnalyzeLaravelLogs extends Command
             $content = Storage::disk('logs')->get($file);
 
             $matches = [];
-            preg_match_all('/\[(4[0-9]{}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})\].*?' . $escaped . '(\S*?):\d*?\)\n.*?(#0.*?)main/s', $content, $matches);
+            preg_match_all('/\[([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})\].*?' . $escaped . '(\S*?):\d*?\)\n.*?(#0.*?)main/s', $content, $matches);
 
             $timestamps = $matches[1];
             $filenames = $matches[2];
