@@ -311,7 +311,6 @@ class ScrapController extends Controller
         // Get this product from scraped products
         $scrapedProduct = ScrapedProducts::where('sku', $sku)->where('website', $request->get('website'))->first();
         $images         = $request->get('images') ?? [];
-
         if ($scrapedProduct) {
             // Add scrape statistics
             // $scrapStatistics = new ScrapStatistics();
