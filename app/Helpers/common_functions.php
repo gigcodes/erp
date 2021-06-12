@@ -298,5 +298,16 @@ function storeERPLog($erpData)
     }
 
 }
+function getStr($srt)
+{
+
+
+    preg_match("/\[(.*)\]/", $srt , $matches);
+    if($matches && $matches[0] !== ''){
+        return true;
+    };
+    return false;
+
+}
 
 

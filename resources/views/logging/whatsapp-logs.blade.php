@@ -120,9 +120,14 @@
                         </td>
                     @endif
                     <td>
-                        <button class="btn btn-success sentMessage text-center" {{$row['type'] == 1 ? 'disabled' : ""}}>
-                            Resend
-                        </button>
+
+                        @if((isset($row['error_message1']) && getStr($row['error_message1'])) || (isset($row['error_message2']) && getStr($row['error_message2'])))
+
+                            <button class="btn btn-success sentMessage text-center" {{$row['type'] == 1 ? 'disabled' : ""}}>
+                                Resend
+                            </button>
+
+                        @endif
                     </td>
                 </tr>
             @endforeach
