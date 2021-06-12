@@ -538,8 +538,9 @@ class CategoryController extends Controller
             $mappedData[$productM->category_mapping_id][] = $productM->website;
         }
 
-        foreach($mappingCategory as $index => $category){
-
+        foreach($scrapped_category_mapping as $index => $category){
+            $scrapped_category_mapping[$index]->total_products = isset($mappedData[$category->id]) ? count($mappedData[$category->id]) : 0;
+            $scrapped_category_mapping[$index]->all_websites = isset($mappedData[$category->id]) ? implode('<br>',array_unique($mappedData[$category->id])) : '-';
         }
 
 
