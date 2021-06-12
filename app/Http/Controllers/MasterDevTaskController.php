@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Library\Github\GithubClient;
+use App\MemoryUsage;
 use Illuminate\Http\Request;
 use ProjectDirectory;
 
@@ -137,8 +138,15 @@ class MasterDevTaskController extends Controller
 		//DB Image size management#3118
 		$projectDirectorySql = "select * FROM `project_file_managers` where size > notification_at";
 
-		$projectDirectoryData = \DB::select($projectDirectorySql);	 
+        $memory_use = MemoryUsage::
+                whereDate('created_at', now()->format('Y-m-d'))
+                ->orderBy('used','desc')
+                ->first();
+
+
+        $projectDirectoryData = \DB::select($projectDirectorySql);
 		return view("master-dev-task.index",compact(
-            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports','projectDirectoryData','last3HrsJobs','last24HrsJobs','topFiveTables'));
+            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports','projectDirectoryData','last3HrsJobs','last24HrsJobs','topFiveTables','memory_use'));
     }
+
 }
