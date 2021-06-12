@@ -21,16 +21,13 @@ class MessageController extends Controller
         $search = request("search");
         $status = request("status");
 
+
         $pendingApprovalMsg = ChatMessage::with('taskUser', 'chatBotReplychat', 'chatBotReplychatlatest')
             ->leftjoin("customers as c", "c.id", "chat_messages.customer_id")
             ->leftJoin("vendors as v", "v.id", "chat_messages.vendor_id")
             ->leftJoin("store_websites as sw", "sw.id", "c.store_website_id")
 
             ->Join("chatbot_replies as cr", "cr.replied_chat_id", "chat_messages.id")
-//            ->join(\DB::raw('(select max(chatbot_replies.id) max_id, id from chatbot_replies where chatbot_replies.replied_chat_id = chat_messages.id group by chat_messages.customer_id) as latest'), function ($join) {
-//                $join->on("chatbot_replies as cr", "cr.replied_chat_id", "","chat_messages.id")
-//                    ->groupBy('chat_messages.customer_id', 'chat_messages.user_id');
-//            })
 
                     ->leftJoin("chat_messages as cm1", "cm1.id", "cr.chat_id")
                     ->groupBy('chat_messages.customer_id', 'chat_messages.user_id');
@@ -51,8 +48,6 @@ class MessageController extends Controller
             $q->where("chat_messages.message", "!=", "");
         })->select(['cr.id as chat_bot_id', "chat_messages.*", "cm1.id as chat_id", "cr.question",
             "cm1.message as answer",
-            \DB::raw('(SELECT MAX(id) as  max_id  FROM `chatbot_replies`) m_max,
-            (SELECT question FROM chatbot_replies WHERE chatbot_replies.id=m_max) AS latest_question'),
             "c.name as customer_name", "v.name as vendors_name", "cr.reply_from", "cm1.approved", "sw.title as website_title"])
             ->orderBy('cr.id', 'DESC')
             ->paginate(20);
@@ -71,7 +66,7 @@ class MessageController extends Controller
         }
 
         
-dd($pendingApprovalMsg);
+//dd($pendingApprovalMsg);
         return view("chatbot::message.index", compact('pendingApprovalMsg', 'page', 'allCategoryList'));
     }
 
