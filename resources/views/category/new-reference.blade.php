@@ -99,16 +99,11 @@
                         </td>
                         
                         <td>
-
-                            {{-- {{ implode(', ', $websites_) }} --}}
-
-                            {{-- @foreach($unKnownCategory->scmSPCM as $cat)
-                                {{$cat->website}}
-                            @endforeach  --}}
+                            {!! $unKnownCategory->all_websites !!}
                         </td>
                            
                         <td>
-                            {{-- {{$unKnownCategory->cat_count_count}} --}}
+                            {{$unKnownCategory->total_products}}
                         </td>
 
                         <td>
