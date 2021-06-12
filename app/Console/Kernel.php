@@ -494,6 +494,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('google-analytics:run')->everyFifteenMinutes();
         $schedule->command('newsletter:send')->daily();
         $schedule->command('delete:store-website-category')->daily();
+        $schedule->command('memory_usage')->everyMinute();
+
         //$schedule->command('github:load_branch_state')->hourly();
         // $schedule->command('checkScrapersLog')->dailyAt('8:00');
         // $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');
