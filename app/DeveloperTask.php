@@ -184,4 +184,10 @@ class DeveloperTask extends Model
                       ->where('model',\App\DeveloperTask::class)
                       ->where('is_approved','0');
     }
+
+    public function developerTaskHistory()
+    {
+       return  $this->hasOne(DeveloperTaskHistory::class,'developer_task_id','id');
+    }
+
 }
