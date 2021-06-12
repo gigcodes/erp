@@ -11,6 +11,8 @@ class WhatsappLogsController extends Controller
   
   public function getWhatsappLog()
   {
+    // app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi(971502609192, 7487848215, 'test data');
+    // dd('end');
 
     $path =  base_path() . '/';
 
@@ -35,6 +37,9 @@ class WhatsappLogsController extends Controller
         $rows = preg_split('/\r\n|\r|\n/', $content);
         // dump(count($rows));
         foreach($rows as $key => $row){
+          $resend_details = explode('|', $row)[1] ?? '';
+          $row = explode('|', $row)[0];
+
           $total_log++ ;
           $origin = $row;
           $date = substr($row, 1, 19);
@@ -62,7 +67,8 @@ class WhatsappLogsController extends Controller
                 }
               }
               $arr1['type'] = 1;
-              $array[] = $arr1;
+            $arr1['resend_details'] = '';
+            $array[] = $arr1;
             // dump([$origin, $array]);
           }else if($c == 4){
             $arr2['date'] = $date;
@@ -74,6 +80,7 @@ class WhatsappLogsController extends Controller
             $arr2['sent'] = explode(':', $last_row[0])[1];
             $arr2['error_message2'] = explode(':', $last_row[1])[1] . ', ' . explode(':', $last_row[2])[0]; 
             $arr2['type'] = 2;
+            $arr2['resend_details'] = $resend_details ? $resend_details : '';
             $array[] = $arr2;
             // dump([$origin, $array]);
           }else if($c == 3){
@@ -86,14 +93,24 @@ class WhatsappLogsController extends Controller
             $arr3['error_message2'] = str_replace('\\', '', $arr3['error_message2']);
             $arr3['error_message2'] = str_replace('"', '', $arr3['error_message2']);
             $arr3['type'] = 3;
+            $arr3['resend_details'] = $resend_details ? $resend_details : '';
             $array[] = $arr3;
             // dump([$origin, $arr3]);
           }else if($c == 1){
-            $arr4['date'] = $date;
-            $arr4['error_message1'] = substr($row, 1, 61);
+            // dump($origin, $row);
+            $arr4['date'] = $date; 
+            $arr4['error_message1'] = trim(substr($row, 1, ));
             $arr4['type'] = 4;
+            $resend_details = json_decode(str_replace('resend_details:', '', $resend_details));
+            for($i=0; $i< count( (array) $resend_details); $i++){
+              // $resend_details[$i] == null ? $resend_details[$i] = '' : '';
+            }
+            if($resend_details){
+              // dd($resend_details);
+            }
+            $arr4['resend_details'] = $resend_details ? json_encode($resend_details) : '';
             $array[] = $arr4;
-            // dump($origin, $arr4);
+            // dump($origin, $arr4, strlen($row));
           }
 
 
@@ -110,5 +127,4 @@ class WhatsappLogsController extends Controller
         return view('logging.whatsapp-logs', compact('array'));
   
 }
-    
 }

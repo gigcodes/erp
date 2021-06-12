@@ -4585,12 +4585,19 @@ class WhatsAppController extends FindByNumberController
 
     public function sendWithWhatsApp($number, $sendNumber, $text, $validation = true, $chat_message_id = null)
     {
+        $logDetail = [
+            'number' => $number,
+            'whatsapp_number' => $sendNumber,
+            'message' => $text,
+            'validation' => $validation,
+            'chat_message_id' => $chat_message_id,
+        ];
         if ($validation == true) {
             if (Auth::id() != 3) {
                 if (strlen($number) != 12 || !preg_match('/^[91]{2}/', $number)) {
                     // DON'T THROW EXCEPTION
                     // throw new \Exception("Invalid number format. Must be 12 digits and start with 91");
-                    \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Invalid number format. Must be 12 digits and start with 91: " . $number);
+                    \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Invalid number format. Must be 12 digits and start with 91: " . $number. ' ['. json_encode($logDetail). '] ');
                     return false;
                 }
             }
@@ -4684,18 +4691,18 @@ class WhatsAppController extends FindByNumberController
         if ($err) {
             // DON'T THROW EXCEPTION
             // throw new \Exception("cURL Error #:" . $err);
-            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err);
+            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err. ' ['. json_encode($logDetail). '] ');
             return false;
         } else {
             $result = json_decode($response);
             if (!$result->success) {
                 // DON'T THROW EXCEPTION
                 //throw new \Exception("whatsapp request error: " . $result->description);
-                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") WhatsApp request error for number " . $number . ": " . $result->description);
+                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") WhatsApp request error for number " . $number . ": " . $result->description. ' ['. json_encode($logDetail). '] ');
                 return false;
             } else {
                 // Log successful send
-                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Message was sent to number " . $number . ":" . $response);
+                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Message was sent to number " . $number . ":" . $response. ' ['. json_encode($logDetail). '] ');
             }
         }
     }
@@ -4818,6 +4825,16 @@ class WhatsAppController extends FindByNumberController
 
     public function sendWithNewApi($number, $whatsapp_number = null, $message = null, $file = null, $chat_message_id = null, $enqueue = 'opportunistic')
     {
+
+        $logDetail = [
+            'number' => $number,
+            'whatsapp_number' => $whatsapp_number,
+            'message' => $message,
+            'file' => $file,
+            'chat_message_id' => $chat_message_id,
+            'enqueue' => $enqueue,
+        ];
+
         $configs = \Config::get("wassenger.api_keys");
         $encodedNumber = "+" . $number;
         $encodedText = $message;
@@ -4875,7 +4892,7 @@ class WhatsAppController extends FindByNumberController
             if ($err) {
                 // DON'T THROW EXCEPTION
                 //throw new \Exception( "cURL Error #:" . $err );
-                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err);
+                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err. ' ['. json_encode($logDetail). '] ');
                 return false;
             } else {
                 $result = json_decode($response, true);
@@ -4887,7 +4904,7 @@ class WhatsAppController extends FindByNumberController
                         } else {
                             // DON'T THROW EXCEPTION
                             // throw new \Exception( "Something was wrong with image: " . $result[ 'message' ] );
-                            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the image for number " . $number . ":" . $result['message']);
+                            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the image for number " . $number . ":" . $result['message']. ' ['. json_encode($logDetail). '] ');
                             return false;
                         }
                     } else {
@@ -4941,7 +4958,7 @@ class WhatsAppController extends FindByNumberController
         if ($err) {
             // DON'T THROW EXCEPTION
             // throw new \Exception( "cURL Error #:" . $err );
-            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err);
+            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err. ' ['. json_encode($logDetail). '] ');
             return false;
         } else {
             $result = json_decode($response, true);
@@ -4949,11 +4966,11 @@ class WhatsAppController extends FindByNumberController
             if ($http_code != 201) {
                 // DON'T THROW EXCEPTION
                 // throw new \Exception( "Something was wrong with message: " . $response );
-                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message for number " . $number . ":" . $response);
+                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message for number " . $number . ":" . $response. ' ['. json_encode($logDetail). '] ');
                 return false;
             } else {
                 // Log successful send
-                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Message was sent to number " . $number . ":" . $response);
+                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Message was sent to number " . $number . ":" . $response . ' ['. json_encode($logDetail). '] ');
             }
         }
 
@@ -4962,6 +4979,16 @@ class WhatsAppController extends FindByNumberController
 
     public function sendWithThirdApi($number, $whatsapp_number = null, $message = null, $file = null, $chat_message_id = null, $enqueue = 'opportunistic', $customer_id = null)
     {
+        $logDetail = [
+            'number' => $number,
+            'whatsapp_number' => $whatsapp_number,
+            'message' => $message,
+            'file' => $file,
+            'chat_message_id' => $chat_message_id,
+            'enqueue' => $enqueue,
+            'customer_id' => $customer_id,
+            ];
+
         // Get configs
         $config = \Config::get("apiwha.instances");
 
@@ -4993,7 +5020,7 @@ class WhatsAppController extends FindByNumberController
             $instanceId = $config[$whatsapp_number]['instance_id'];
             $token = $config[$whatsapp_number]['token'];
         } else {
-            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Whatsapp config not found for number " . $whatsapp_number . " while sending to number " . $number);
+            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Whatsapp config not found for number " . $whatsapp_number . " while sending to number " . $number. ' ['. json_encode($logDetail). '] ');
             $instanceId = $config[0]['instance_id'];
             $token = $config[0]['token'];
         }
@@ -5073,7 +5100,7 @@ class WhatsAppController extends FindByNumberController
         if ($err) {
             // DON'T THROW EXCEPTION
             //throw new \Exception("cURL Error #:" . $err);
-            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err);
+            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err. ' ['. json_encode($logDetail). '] ');
             if($chatMessage) {
                 $chatMessage->error_status = \App\ChatMessage::ERROR_STATUS_ERROR;
                 $chatMessage->error_info = json_encode(["number" => $number, "error" => $err]);
@@ -5082,7 +5109,7 @@ class WhatsAppController extends FindByNumberController
             return false;
         } else {
             // Log curl response
-            \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: " . $message . "\nFile:" . $file . "\n");
+            \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: " . $message . "\nFile:" . $file . "\n" . ' ['. json_encode($logDetail). '] ');
 
             // Json decode response into result
             $result = json_decode($response, true);
@@ -5091,7 +5118,7 @@ class WhatsAppController extends FindByNumberController
             if (!is_array($result) || array_key_exists('sent', $result) && !$result['sent']) {
                 // DON'T THROW EXCEPTION
                 //throw new \Exception("Something was wrong with message: " . $response);
-                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message for number " . $number . ": " . $response);
+                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message for number " . $number . ": " . $response. ' ['. json_encode($logDetail). '] ');
                 if($chatMessage) {
                     $chatMessage->error_status = \App\ChatMessage::ERROR_STATUS_ERROR;
                     $chatMessage->error_info = json_encode(["number" => $number, "error" => $response]);
@@ -5104,7 +5131,7 @@ class WhatsAppController extends FindByNumberController
                     $chatMessage->error_status = \App\ChatMessage::ERROR_STATUS_SUCCESS;
                     $chatMessage->save();
                 }   
-                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Message was sent to number " . $number . ":" . $response);
+                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Message was sent to number " . $number . ":" . $response. ' ['. json_encode($logDetail). '] ');
             }
         }
 
@@ -5716,9 +5743,11 @@ class WhatsAppController extends FindByNumberController
         }
     }
 
-    public function autoCompleteMessages(){
-        
-        $data = AutoCompleteMessage::pluck('message')->toArray();
+    public function autoCompleteMessages(Request $request){
+
+        $data = AutoCompleteMessage::where('message', 'like', ''. $request->keyword . '%')->pluck('message')->toArray();
         return response()->json(['data' => $data]);
     }
+
+
 }
