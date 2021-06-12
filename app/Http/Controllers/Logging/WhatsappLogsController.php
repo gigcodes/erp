@@ -110,5 +110,20 @@ class WhatsappLogsController extends Controller
         return view('logging.whatsapp-logs', compact('array'));
   
 }
-    
+    public function resendWhatsapp(Request $request){
+
+//        $data = json_decode($request->data);
+
+
+
+        return response()->json(json_encode([
+            'number' => '$number',
+            'whatsapp_number' => '$sendNumber',
+            'message' => '$text',
+            'validation' => '$validation',
+            'chat_message_id' => '$chat_message_id',
+        ]));
+
+
+    }
 }
