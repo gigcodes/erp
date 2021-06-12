@@ -21,8 +21,8 @@
             <tr>
                 <td>
                     <a href="{{ route('products.show', $product->id) }}">
-                        <img style="width: 80px;height: 80px;"  src="{{ $product->getMedia(config('constants.media_tags'))->first()
-                            ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
+                        <img style="width: 80px;height: 80px;"  src="{{ $product->getMedia(config('constants.attach_image_tag'))->first()
+                            ? $product->getMedia(config('constants.attach_image_tag'))->first()->getUrl()
                             : ''
                           }}" class="img-responsive grid-image" alt=""/>
                     </a>
@@ -51,7 +51,7 @@
                     <button type="button" data-product-id="{{ $product->id }}" class="btn btn-image crt-product-dispatch"
                             title="Create Dispatch"><img src="/images/resend.png"></button>
                     <?php
-                    $getMedia = $product->getMedia(config('constants.media_tags'));
+                    $getMedia = $product->getMedia(config('constants.attach_image_tag'));
                     $image = [];
                     foreach ($getMedia as $value) {
                         $image[] = $value->id;

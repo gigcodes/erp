@@ -1938,9 +1938,6 @@ class WhatsAppController extends FindByNumberController
      */
     public function sendMessage(Request $request, $context, $ajaxNeeded = false)
     {
-
-        $loggedUser = $request->user();
-
         $this->validate($request, [
             'customer_id' => 'sometimes|nullable|numeric',
             'supplier_id' => 'sometimes|nullable|numeric',
@@ -2092,6 +2089,8 @@ class WhatsAppController extends FindByNumberController
 
                 /** Sent To ChatbotMessage */
                 
+                $loggedUser = $request->user();
+
                 $roles = $loggedUser->roles->pluck('name')->toArray();
 
                 if(!in_array('Admin', $roles)){
@@ -2375,9 +2374,7 @@ class WhatsAppController extends FindByNumberController
                         'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
                     ]);
 
-                    $roles = $loggedUser->roles->pluck('name')->toArray();
-
-                    if(!in_array('Admin', $roles)){
+                    if ($sendTo == "to_master") {
                         
                         /* Send to chatbot/messages */
                         
@@ -5017,6 +5014,10 @@ class WhatsAppController extends FindByNumberController
         }
 
         $encodedNumber = '+' . $number;
+        if($whatsapp_number == "971508309192") { 
+            $encodedNumber = $number;
+        }
+        
         $encodedText = $message;
 
         $array = [
@@ -5035,11 +5036,20 @@ class WhatsAppController extends FindByNumberController
             $array['caption'] = $encodedText;
         }
 
+        // here is we call python 
+        if($whatsapp_number == "971508309192") {
+            $domain = "http://136.244.118.102:82/".$link;
+        }else{
+            $domain = "https://api.chat-api.com/instance$instanceId/$link?token=$token";
+        }
+
+        \Log::info("Whatsapp send message => ".json_encode([$domain,$array]));
+
 
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.chat-api.com/instance$instanceId/$link?token=$token",
+            CURLOPT_URL => $domain,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -5706,9 +5716,9 @@ class WhatsAppController extends FindByNumberController
         }
     }
 
-    public function autoCompleteMessages(Request $request){
+    public function autoCompleteMessages(){
         
-        $data = AutoCompleteMessage::where('message', 'like', ''. $request->keyword . '%')->pluck('message')->toArray();
+        $data = AutoCompleteMessage::pluck('message')->toArray();
         return response()->json(['data' => $data]);
     }
 }

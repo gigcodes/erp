@@ -64,17 +64,8 @@
                 <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
             </div>
             <!-- <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}">Save</button> -->
-            @php
-                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimation_minute')->where('is_approved',1)->first();
-                    if($time_history) {
-                        $est_time = $time_history->new_value;
-                    }
-                    else {
-                        $est_time = 0;
-                    }
-                @endphp
-                @if($est_time)
-                    <span>Approved : {{$est_time}}</span>
+                @if($issue->developerTaskHistory)
+                    <span>Approved : {{$issue->developerTaskHistory ? $issue->developerTaskHistory->new_value:0  }}</span>
                     @else 
                     <p style="color:#337ab7"><strong>Unapproved</strong> </p>
                 @endif
@@ -106,20 +97,9 @@
                 <input style="min-width: 30px;" placeholder="E.Date" value="{{ $issue->estimate_date }}" type="text" class="form-control estimate-date estimate-date-update" name="estimate_date_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_date_{{$issue->id}}">
            
                 <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-date-history" title="Show Date History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
-                @php
-                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimate_date')->where('is_approved',1)->first();
-                    if($time_history) {
-                        $est_date = $time_history->new_value;
-                    }
-                    else {
-                        $est_date = '--';
-                    }
-                @endphp
-                @if($est_date) 
-                    <span>Approved : {{$est_date}}</span>
-                @else 
-                    <p style="color:#337ab7"><strong>Unapproved</strong> </p>
-                @endif
+         
+                  <span>Approved : {{$issue->developerTaskHistory ? $issue->developerTaskHistory->new_value :'--'  }}</span>
+
             </div>
         </div>
     </td>
