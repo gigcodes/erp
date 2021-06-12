@@ -123,6 +123,8 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
 Route::get('log-scraper', 'Logging\LogScraperController@index')->middleware('auth')->name('log-scraper.index');
 
 Route::prefix('category-messages')->middleware('auth')->group(function () {
+    Route::post('bulk-messages/addToDND', 'BulkCustomerRepliesController@addToDND');
+    Route::post('bulk-messages/removeFromDND', 'BulkCustomerRepliesController@removeFromDND');
     Route::post('bulk-messages/keyword', 'BulkCustomerRepliesController@storeKeyword');
     Route::post('bulk-messages/keyword/update-whatsappno', 'BulkCustomerRepliesController@updateWhatsappNo')->name('bulk-messages.whatsapp-no');
     Route::post('bulk-messages/send-message', 'BulkCustomerRepliesController@sendMessagesByKeyword');
@@ -471,6 +473,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('erp-leads/{id}/changestatus', 'LeadsController@updateErpStatus');
     Route::get('erp-leads/edit', 'LeadsController@erpLeadsEdit')->name('leads.erpLeads.edit');
     Route::get('erp-leads/create', 'LeadsController@erpLeadsCreate')->name('leads.erpLeads.create');
+    Route::get('erp-leads/status/create', 'LeadsController@erpLeadsStatusCreate')->name('erpLeads.status.create');
+    Route::post('erp-leads/status/update', 'LeadsController@erpLeadsStatusUpdate')->name('erpLeads.status.update');
+    Route::get('erp-leads/status/change', 'LeadsController@erpLeadStatusChange')->name('erpLeads.status.change');
     Route::post('erp-leads/store', 'LeadsController@erpLeadsStore')->name('leads.erpLeads.store');
     Route::get('erp-leads/delete', 'LeadsController@erpLeadDelete')->name('leads.erpLeads.delete');
     Route::get('erp-leads/customer-search', 'LeadsController@customerSearch')->name('leads.erpLeads.customerSearch');
@@ -2841,6 +2846,7 @@ Route::middleware('auth')->group(function()
 Route::get('/quick-replies', 'QuickReplyController@quickReplies')->name('quick-replies');
 Route::get('/get-store-wise-replies/{category_id}/{store_website_id?}', 'QuickReplyController@getStoreWiseReplies')->name('store-wise-replies');
 Route::post('/save-store-wise-reply', 'QuickReplyController@saveStoreWiseReply')->name('save-store-wise-reply');
+Route::post('/attached-images-grid/customer/create-template', 'ProductController@createTemplate')->name('attach.cus.create.tpl');
 
 /**
  * Store Analytics Module
@@ -2858,7 +2864,6 @@ Route::get('store-website-country-shipping/edit/{id}', 'StoreWebsiteCountryShipp
 Route::get('store-website-country-shipping/delete/{id}', 'StoreWebsiteCountryShippingController@delete')->name('store-website-country-shipping.delete');
 
 Route::get('/attached-images-grid/customer/', 'ProductController@attachedImageGrid');
-Route::post('/attached-images-grid/customer/create-template', 'ProductController@createTemplate')->name('attach.cus.create.tpl');
 Route::post('/attached-images-grid/add-products/{suggested_products_id}', 'ProductController@attachMoreProducts');//
 Route::post('/attached-images-grid/remove-products/{customer_id}', 'ProductController@removeProducts');//
 Route::post('/attached-images-grid/remove-single-product/{customer_id}', 'ProductController@removeSingleProduct');//
@@ -3030,4 +3035,7 @@ Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('suppliers', 'Select2Controller@suppliers')->name('select2.suppliers');
     Route::get('updatedby-users', 'Select2Controller@updatedbyUsers')->name('select2.updatedby_users');
     Route::get('scraped-brand', 'Select2Controller@scrapedBrand')->name('select2.scraped-brand');
+    Route::get('brands', 'Select2Controller@allBrand')->name('select2.brands');
 });
+
+Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');

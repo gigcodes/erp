@@ -90,7 +90,7 @@ class Select2Controller extends Controller
             });
         }
         foreach ($finalBrands as $key => $supplier) {
-            if(strip_tags($supplier)){
+            if (strip_tags($supplier)) {
 
                 $result['items'][] = [
                     'id' => strip_tags($supplier),
@@ -219,6 +219,33 @@ class Select2Controller extends Controller
         }
 
         array_push($result, $result_vendors);
+
+        return response()->json($result);
+    }
+
+    public function allBrand(Request $request)
+    {
+        $brands = Brand::select('id', 'name');
+
+        if (!empty($request->q)) {
+
+            $brands->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%' . $request->q . '%');
+            });
+        }
+
+        $brands = $brands->paginate(30);
+
+        $result['total_count'] = $brands->total();
+        $result['incomplete_results'] = $brands->nextPageUrl() !== null;
+
+        foreach ($brands as $brand) {
+
+            $result['items'][] = [
+                'id' => $brand->id,
+                'text' => $brand->name
+            ];
+        }
 
         return response()->json($result);
     }

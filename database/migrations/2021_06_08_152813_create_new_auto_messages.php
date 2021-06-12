@@ -15,7 +15,6 @@ class CreateNewAutoMessages extends Migration
     {
         DB::table('auto_complete_messages')->truncate();
 
-        DB::statement('ALTER TABLE `auto_complete_messages` ADD UNIQUE `unique_index` (`message`);');
         DB::statement('ALTER TABLE `auto_complete_messages` ADD FULLTEXT `full_text_index` (`message`);');
 
     }

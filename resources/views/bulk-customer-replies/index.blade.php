@@ -51,23 +51,40 @@
         </div>
     </div>
     <div class="col-md-12">
-        <a class="btn btn-secondary change-whatsapp" href="javascript:;">Change Whatsapp</a>
+        
+
+        <form class="form-inline">
+            <div class="form-group mb-2">
+                <a class="btn btn-secondary change-whatsapp" href="javascript:;">Change Whatsapp</a>
+            </div>
+            <div class="form-group mb-2">
+
+        <select name="dnd_enabled">
+            <option value="all" {{ app('request')->dnd_enabled === 'all' ? 'selected' : '' }} >DND: ALL</option>
+            
+            <option value="0" {{ app('request')->dnd_enabled === null || app('request')->dnd_enabled === '0' ? 'selected' : '' }} >DND: Disabled</option>
+        </select>
+         
+        <input name="keyword_filter" type="hidden" value="{{ app('request')->keyword_filter }}">
+            </div>
+            <div class="form-group mb-2">
+            <button type="submit" class="btn btn-image"><img src="/images/filter.png" style="cursor: nwse-resize;"></button>
+            </div>
+        </form>
         @if($searchedKeyword)
             @if($searchedKeyword->customers)
-                @php
-                    $customers = $searchedKeyword->customers()->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id  GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id')->groupBy('customers.id')->orderBy('max_id','desc')->get()
-                @endphp
+                
                 <form action="{{ action('BulkCustomerRepliesController@sendMessagesByKeyword') }}" method="post">
                     @csrf
                     <table class="table table-striped table-bordered">
                         <tr>
-                            <th>Pick?</th>
-                            <th>S.N</th>
-                            <th>Customer ({{count($customers)}})</th>
-                            <th>Recent Messages</th>
-                            <th>Shortcuts</th>
-                            <th>Next Action</th>
-                            <th>Communication</th>
+                            <th style="width:3%">Pick?</th>
+                            <th style="width:3%">S.N</th>
+                            <th style="width:10%">Customer ({{count($searchedKeyword->customers)}})</th>
+                            {{-- <th>Recent Messages</th> --}}
+                            <th style="width:27%">Shortcuts</th>
+                            <th style="width:27%">Next Action</th>
+                            <th style="width:27%" >Communication</th>
                         </tr>
                         <tr>
                             <td colspan="7">
@@ -81,13 +98,21 @@
                                 </div>
                             </td>
                         </tr>
-                        @foreach($customers as $key=>$customer)
+                        @foreach($searchedKeyword->customers as $key=>$customer)
+<!--                            --><?php //dump($customer->dnd); ?>
                             <tr>
                                 <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}" class="customer_message"></td>
                                 <td>{{ $key+1 }}</td>
-                                <td>{{ $customer->name }}</td>
-                                <td>
-                                    <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-limit="10" data-id="{{$customer->id}}" data-is_admin="1" data-is_hod_crm="" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
+                                <td>{{ $customer->name }}<br>
+                                    @if(count($customer->dnd) == 0)
+                                    <span data-customer_id="{{$customer->id}}" class="add_to_dnd" style="cursor:pointer;font-size:12px">
+                                        Add to DND
+                                    </span>
+                                    @else
+                                    <span data-customer_id="{{$customer->id}}" class="remove_from_dnd" style="cursor:pointer;font-size:12px">
+                                        Remove from DND
+                                    </span>
+                                    @endif
                                 </td>
                                 <td>@include('bulk-customer-replies.partials.shortcuts')</td>
                                 <td>@include('bulk-customer-replies.partials.next_actions')</td>
@@ -144,6 +169,57 @@
         autosize(document.getElementById("message"));
     </script>
     <script type="text/javascript">
+
+        $(document).on('click', '.add_to_dnd', function(){
+
+            const urlSearchParams = new URLSearchParams(window.location.search);
+            const params = Object.fromEntries(urlSearchParams.entries());
+            $this = $(this);
+            $.ajax({
+                url: "/category-messages/bulk-messages/addToDND",
+                type: 'POST',
+                data: {
+                    "customer_id": $(this).data('customer_id'),
+                    "filter": params,
+                    "_token": "{{csrf_token()}}",
+                },
+                dataType: "json",
+                success: function (response) {
+                    $this.html('Remove from DND');
+                    $this.removeClass('add_to_dnd').addClass('remove_from_dnd')
+                },
+                error: function () {
+                    
+                }
+            });
+
+        });
+
+        $(document).on('click', '.remove_from_dnd', function(){
+
+            const urlSearchParams = new URLSearchParams(window.location.search);
+            const params = Object.fromEntries(urlSearchParams.entries());
+            $this = $(this);
+            $.ajax({
+                url: "/category-messages/bulk-messages/removeFromDND",
+                type: 'POST',
+                data: {
+                    "customer_id": $(this).data('customer_id'),
+                    "filter": params,
+                    "_token": "{{csrf_token()}}",
+                },
+                dataType: "json",
+                success: function (response) {
+                    $this.html('Add to DND');
+                    $this.removeClass('remove_from_dnd').addClass('add_to_dnd')
+                },
+                error: function () {
+
+                }
+            });
+
+        });
+
         $(document).on('click', '.add_next_action', function (event) {
             event.preventDefault();
             $.ajax({
@@ -283,7 +359,7 @@
                     //$('#message_list_' + issueId).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
                     $(self).removeAttr('disabled');
                     $(self).val('');
-                    location.reload();
+                   // location.reload();
                 },
                 beforeSend: function () {
                     $(self).attr('disabled', true);

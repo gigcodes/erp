@@ -394,6 +394,7 @@
                         <table class="table">
                             <thead>
                                 <tr>
+                                    <th>User</th>
                                     <th>Task id</th>
                                     <th>Description</th>
                                     <th>From time</th>
@@ -465,10 +466,11 @@
             success: function(result){
                 $("#loading-image").hide();
                 if(result.code == 200) {
-                    console.log( result.data );
+                    console.log( result.data[0] );
                     var t = '';
-                    $.each(result.data,function(k,v) {
+                    $.each(result.data[0],function(k,v) {
                         t += `<tr><td>`+v.user_name+`</td>`;
+                        t += `<td>`+v.devtaskId+`</td>`;
                         t += `<td>`+v.task+`</td>`;
                         t += `<td>`+v.date+`</td>`;
                         t += `<td>`+v.tracked+`</td></tr>`;
