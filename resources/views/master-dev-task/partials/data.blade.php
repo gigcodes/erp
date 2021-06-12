@@ -145,6 +145,31 @@
 					</table>
 				</td>
 			</tr>
+            <tr>
+                <td>Memory Usage</td>
+                <td>
+
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>Total</th>
+                            <th>Used</th>
+                            <th>Free</th>
+                            <th>Buff & Cache</th>
+                            <th>Available</th>
+                        </tr>
+                        <tr>
+
+                            <td>{{$memory_use->total}}</td>
+                            <td>{{$memory_use->used}}</td>
+                            <td>{{$memory_use->free}}</td>
+                            <td>{{$memory_use->buff_cache}}</td>
+                            <td>{{$memory_use->available}}</td>
+
+                        </tr>
+                    </table>
+
+                </td>
+            </tr>
        </tbody>
     </table>
 </div>
