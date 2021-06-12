@@ -17,6 +17,25 @@
             </td>
           </tr>
           <tr>
+            <td>Database Table</td>
+            <td colspan="6">
+              <table style="width: 100%;">
+                  <tr>
+                    <th>Table</th>
+                    <th>Size</th>
+                  </tr>
+                  @if(!empty($topFiveTables))
+                    @foreach($topFiveTables as $tft)
+                      <tr>
+                          <td>{{ $tft->database_name }}</td>
+                          <td>{{ number_format($tft->size/1024,2,'.','') }}</td>
+                      </tr>
+                    @endforeach
+                  @endif
+              </table>
+            </td>
+          </tr>
+          <tr>
             <td>Development</td>
             <td colspan="6">
               <table style="width: 100%;">

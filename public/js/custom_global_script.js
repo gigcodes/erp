@@ -116,3 +116,26 @@ $(document).find( ".addToAutoComplete" ).autocomplete({
         });
     },
   });
+
+
+$(document).on('change', '.quickCategory.select-child', function(e){
+    
+    if ($(this).val() != "") {
+
+        var replies = JSON.parse($(this).val());
+        
+        $(this).parents(".row").find('.quickComment').html($('<option>', {
+            value: '',
+            text: 'Quick Reply'
+        }));
+        replies.forEach((reply) => {
+            $(this).parents(".row").find('.quickComment').append($('<option>', {
+                value: reply.reply,
+                text: reply.reply,
+                'data-id': reply.id
+            }));
+        });
+    }
+});
+
+ 

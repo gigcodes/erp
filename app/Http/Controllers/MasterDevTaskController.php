@@ -44,6 +44,7 @@ class MasterDevTaskController extends Controller
                 ->first();
         }
 
+        $topFiveTables = \App\DatabaseTableHistoricalRecord::whereDate('created_at',date("Y-m-d"))->groupBy('database_name')->orderBy('size','desc')->limit(5)->get();
         // find the open branches
         //$github     = new GithubClient;
         //$repository = $github->getRepository();
@@ -145,7 +146,7 @@ class MasterDevTaskController extends Controller
 
         $projectDirectoryData = \DB::select($projectDirectorySql);
 		return view("master-dev-task.index",compact(
-            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports','projectDirectoryData','last3HrsJobs','last24HrsJobs','memory_use'));
+            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports','projectDirectoryData','last3HrsJobs','last24HrsJobs','topFiveTables','memory_use'));
     }
 
 }

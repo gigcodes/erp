@@ -2231,19 +2231,19 @@ class ProductController extends Controller
         // start add fixing for the price range since the one request from price is in range
         // price  = 0 , 100
 
-        $priceRange = $request->get("price", null);
+        // $priceRange = $request->get("price", null);
 
-        if ($priceRange && !empty($priceRange)) {
-            @list($minPrice, $maxPrice) = explode(",", $priceRange);
-            // adding min price
-            if (isset($minPrice)) {
-                $request->request->add(['price_min' => $minPrice]);
-            }
-            // addin max price
-            if (isset($maxPrice)) {
-                $request->request->add(['price_max' => $maxPrice]);
-            }
-        }
+        // if ($priceRange && !empty($priceRange)) {
+        //     @list($minPrice, $maxPrice) = explode(",", $priceRange);
+        //     // adding min price
+        //     if (isset($minPrice)) {
+        //         $request->request->add(['price_min' => $minPrice]);
+        //     }
+        //     // addin max price
+        //     if (isset($maxPrice)) {
+        //         $request->request->add(['price_max' => $maxPrice]);
+        //     }
+        // }
 
         $products = (new Product())->newQuery()->latest();
         $products->where("has_mediables", 1);
@@ -4965,7 +4965,7 @@ class ProductController extends Controller
                 $suggestion->brdNames = Brand::whereIn('id',$brandIds)->get();
             }
             else {
-                $suggestion->brdNames = []; 
+                $suggestion->brdNames = [];
             }
 
             $catIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->where('suggested_products_id',$suggestion->id)->groupBy('products.category')->pluck('products.category');
@@ -4973,7 +4973,7 @@ class ProductController extends Controller
                 $suggestion->catNames = Category::whereIn('id',$catIds)->get();
             }
             else {
-                $suggestion->catNames = []; 
+                $suggestion->catNames = [];
             }
         }
 
