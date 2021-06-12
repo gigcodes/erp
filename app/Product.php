@@ -1290,7 +1290,7 @@ class Product extends Model
             $query = $query->havingRaw('count(products.id) = '.$filter_data['supplier_count']);
         }
 
-        return $query->groupBy("products.id")->with('suppliers_info')->orderBy('products.created_at','DESC')->paginate(Setting::get('pagination'),$columns);
+        return $query->groupBy("products.id")->with('suppliers_info', 'productstatushistory')->orderBy('products.created_at','DESC')->paginate(Setting::get('pagination'),$columns);
     }
     
     public static function getPruductsNames()
