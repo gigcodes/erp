@@ -34,7 +34,7 @@
                     </div>
                   </div>
 
-                  <div class="col">submit
+                  <div class="col">
                     <div class="form-group ml-3">
                       <div class='input-group date' id='filter_posted_date'>
                         <input type='text' class="form-control" name="posted_date" value="{{ $filter_posted_date }}" />
@@ -56,6 +56,7 @@
               <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#accountCreateModal">Create Account</a>
               <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#scheduleReviewModal">Schedule Review</a>
               <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#complaintCreateModal">Create Thread</a>
+              <button type="button" class="btn btn-secondary ml-3 restart-button-script" data-toggle="modal">Restart Script</a>
             </div>
         </div>
     </div>
@@ -1067,5 +1068,23 @@
       window.location.search = urlParams;
 
     })
+
+    $(document).on("click",".restart-button-script",function(e) {
+       e.preventDefault();
+       $.ajax({
+          type: 'GET',
+          url: "/review/restart-script",
+          dataType:"json"
+        }).done(function(response) {
+          if(response.code == 200) {
+            toastr["success"](response.message);
+          }else{
+            toastr["error"](response.message);
+          }
+        }).fail(function(response) {
+          toastr["error"]('An error occured!');
+        });
+    });
+
   </script>
 @endsection
