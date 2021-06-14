@@ -215,29 +215,40 @@ class InfluencersController extends Controller
     {   
         try {
         
-       $name = $request->name;
+       /*$name = $request->name;
        $extraVars = \App\Helpers::getInstagramVars($name);
-       $name = str_replace(" ","",$name).$extraVars;
+       $name = str_replace(" ","",$name).$extraVars;*/
 
-       $cURLConnection = curl_init();
+        $cURLConnection = curl_init();
 
-        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/start-script?'.$name;
-        
-       // $url = str_replace('\u2029','',$url);
+        $url = env('INFLUENCER_PY_SCRIPT_URL').':'.env('INFLUENCER_PY_SCRIPT_PORT').'/influencer-keyword-start';
 
-
-        //echo $url;
-        //die();
-
-        curl_setopt($cURLConnection, CURLOPT_URL, $url);
-        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+        $params = [
+            "name" => str_replace(" ","",$request->name)
+        ];
+        // echo $url;
+        // die();
+        curl_setopt_array($cURLConnection, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 300,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => json_encode($params),
+            CURLOPT_HTTPHEADER => array(
+                "content-type: application/json",
+            ),
+        ));
 
         $phoneList = curl_exec($cURLConnection);
+
         curl_close($cURLConnection);
 
-        $jsonArrayResponse = json_decode($phoneList);
+        //$jsonArrayResponse = json_decode($phoneList);
 
-        $b64 = $jsonArrayResponse->status;
+        $b64 = (string)$phoneList;
 
         $history = array(
             'influencers_name' => $name,
@@ -251,7 +262,7 @@ class InfluencersController extends Controller
             $history = array(
                 'influencers_name' => $request->name,
                 'title'            => 'starting script',
-                'description'      => $th->getMessage().env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT'),
+                'description'      => $th->getMessage().env('INFLUENCER_PY_SCRIPT_URL').':'.env('INFLUENCER_PY_SCRIPT_PORT'),
             );
             InfluencersHistory::insert( $history );
         }
@@ -358,18 +369,37 @@ class InfluencersController extends Controller
             $name = str_replace(" ","",$name).$extraVars;
 
             $cURLConnection = curl_init();
-            $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/stop-script?'.$name;
+
+            $url = env('INFLUENCER_PY_SCRIPT_URL').':'.env('INFLUENCER_PY_SCRIPT_PORT').'/influencer-keyword-stop';
+
+            $params = [
+                "name" => str_replace(" ","",$request->name)
+            ];
             // echo $url;
             // die();
-            curl_setopt($cURLConnection, CURLOPT_URL, $url);
-            curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt_array($cURLConnection, array(
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 300,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => json_encode($params),
+                CURLOPT_HTTPHEADER => array(
+                    "content-type: application/json",
+                ),
+            ));
+
 
             $phoneList = curl_exec($cURLConnection);
+
             curl_close($cURLConnection);
 
-            $jsonArrayResponse = json_decode($phoneList);
+            //$jsonArrayResponse = json_decode($phoneList);
 
-            $b64 = $jsonArrayResponse->status;
+            //$b64 = $jsonArrayResponse->status;
+            $b64 = (string)$phoneList;
 
             $history = array(
                 'influencers_name' => $name,
@@ -383,7 +413,7 @@ class InfluencersController extends Controller
             $history = array(
                 'influencers_name' => $request->name,
                 'title'            => 'Stop script',
-                'description'      => $th->getMessage().env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT'),
+                'description'      => $th->getMessage().env('INFLUENCER_PY_SCRIPT_URL').':'.env('INFLUENCER_PY_SCRIPT_PORT'),
             );
             InfluencersHistory::insert( $history );
         }
