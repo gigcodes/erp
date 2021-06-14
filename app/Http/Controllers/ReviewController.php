@@ -556,7 +556,7 @@ class ReviewController extends Controller
 
     public function restartScript()
     {
-        $url = 'http://s01.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
+        $url = 'http://s05.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
         
         $curl = curl_init();
         
