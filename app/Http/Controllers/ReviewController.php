@@ -554,4 +554,24 @@ class ReviewController extends Controller
         return redirect()->back()->with('message', "Message sent to @$username by @".$account->last_name);
     }
 
+    public function restartScript()
+    {
+        $url = 'http://s05.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
+        
+        $curl = curl_init();
+        
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        
+        $response = curl_exec($curl);
+        
+        curl_close($curl);
+        
+        if ($response) {
+            return response()->json(["code" => 200, "message" => "Script Restarted"]);
+        } else {
+            return response()->json(["code" => 500, "message" => "Check if Server is running"]);
+        }
+    }
+
 }
