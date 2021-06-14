@@ -247,6 +247,38 @@
 			baseUrl : "<?php echo url("/"); ?>"
 		});
 	</script>
+	<script>
+		$(document).on('click','.chat_short_message',function(){
+			$(this).hide();
+			$(this).siblings('.chat_long_message').show();
+		})
+
+		$(document).on('click','.chat_long_message',function(){
+			$(this).hide();
+			$(this).siblings('.chat_short_message').show();
+		})
+		$(document).on('click','.delete-lead-chat-messages',function(){
+			var chat_id_array = $(this).data('chat_ids');
+			if(!confirm("Are you sure you want to delete record?")) {
+                return false;
+            }else {
+				$.ajax({
+					url: "{{route('lead-queue.delete.record')}}",
+					data:{'chat_id':chat_id_array},
+					method: "get",
+					success:function(response)
+					{
+						if(response.code == 200){
+							toastr['success']('Message deleted successfully', 'success');
+							location.reload();
+						}else{
+							toastr['error']('Oops.something went wrong', 'error');
+						}
+					}
+				})
+			}
+		})
+	</script>
 @endsection
 
 

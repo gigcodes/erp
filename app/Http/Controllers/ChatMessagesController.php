@@ -20,6 +20,7 @@ use App\ChatMessage;
 use App\PaymentReceipt;
 use Carbon\Carbon;
 use App\Order;
+use App\Learning;
 class ChatMessagesController extends Controller
 {
     /**
@@ -29,7 +30,6 @@ class ChatMessagesController extends Controller
      */
     public function loadMoreMessages(Request $request)
     {   
-        
         // Set variables
         $limit = $request->get("limit", 3);
         $loadAttached = $request->get("load_attached", 0);
@@ -76,6 +76,11 @@ class ChatMessagesController extends Controller
             case 'payment-receipts':
                 $object = PaymentReceipt::find($request->object_id);
             break;
+            //START - Purpose - Add learning - DEVTASK-4020
+            case 'learning':
+                $object = Learning::find($request->object_id);
+            break;
+            //END - DEVTASK-4020
             default:
                 $object = Customer::find($request->object);
         }
@@ -113,7 +118,7 @@ class ChatMessagesController extends Controller
         }
 
         if($request->keyword != null) {
-            $chatMessages = $chatMessages->whereDate('message',"like", "%".$request->keyword."%"); 
+            $chatMessages = $chatMessages->where('message',"like", "%".$request->keyword."%"); //Purpose - solve issue for search message , Replace form whereDate to where - DEVTASK-4020
         }
 
 
@@ -168,6 +173,7 @@ class ChatMessagesController extends Controller
         }
 
         $chatMessages = $chatMessages->get();
+        
         // Set empty array with messages
         $messages = [];
         $chatFileData = '';
