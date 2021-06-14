@@ -396,7 +396,7 @@ class ProductInventoryController extends Controller
             return;
         }
 
-		return view( 'instock.index', $data );
+        return view( 'instock.index', $data );
 	}
 
 	public function inDelivered(Request $request)
