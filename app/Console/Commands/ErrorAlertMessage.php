@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\File;
 use App\ChatMessage;
+use Illuminate\Http\Request;
 
 class errorAlertMessage extends Command
 {
@@ -55,7 +56,7 @@ class errorAlertMessage extends Command
             
             foreach ($match[0] as $value) {
                 foreach ($logKeywords as $key => $logKeyword) {
-                    if (strpos(strtolower($value), strtolower($logKeyword->text)) !== false && preg_match("/" . $defaultSearchTerm . "/", $value)) {
+                    if (strpos(strtolower($value), strtolower($logKeyword->text)) !== false) {
                         $context = 'site_development';
                         $user_id = 6;
                         $message = "You have error which matched the keyword  '".$logKeyword->text."'";
@@ -72,13 +73,13 @@ class errorAlertMessage extends Command
                         $requestData = new Request();
                         $requestData->setMethod('POST');
                         $requestData->request->add(['user_id' => $user_id, 'message' => $message, 'status' => 1]);
-                        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'overdue');
+                        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'user');
                     }
                 }
             }
             $this->output->write('Cron Done', true);
         } catch (\Exception $e) {
-            $this->output->write("Error is caught here!", true);
+            $this->output->write("Error is caught here! => ".$e->getMessage() , true);
         }
     }
 }
