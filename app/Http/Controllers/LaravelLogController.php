@@ -10,6 +10,8 @@ use File;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Session;
+use App\ChatMessage;
+use Illuminate\Support\Carbon;
 
 class LaravelLogController extends Controller
 {
@@ -306,7 +308,10 @@ class LaravelLogController extends Controller
             }
         }
         $logKeywords = LogKeyword::all();
-        return view('logging.livelaravellog', ['logs' => $logs, 'filename' => str_replace('/', '', $filename), 'errSelection' => $allErrorTypes, 'users' => $users, 'filter_channel' => $filter_channel, 'logKeywords' => $logKeywords]);
+        $ChatMessages = ChatMessage::where('message_application_id',10001)->orderBy('created_at','DESC')->whereDate('created_at', '>', Carbon::now()->subDays(30))->get();
+
+
+        return view('logging.livelaravellog', ['logs' => $logs, 'filename' => str_replace('/', '', $filename), 'errSelection' => $allErrorTypes, 'users' => $users, 'filter_channel' => $filter_channel, 'logKeywords' => $logKeywords,'ChatMessages'=>$ChatMessages]);
 
     }
 
