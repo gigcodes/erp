@@ -536,6 +536,8 @@ class DevelopmentController extends Controller
             $issues = $issues->orderBy('chat_messages.id', "desc");
         }
 
+        $issues =  $issues->groupBy("developer_tasks.id");
+
         $issues =  $issues->with('communications');
         //DB::enableQueryLog();
         // return $issues = $issues->limit(20)->get();
