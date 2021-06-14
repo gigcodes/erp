@@ -56,7 +56,10 @@
 
         <td data-context="{{ $context }}" data-url={{ route('whatsapp.send', ['context' => $context]) }} {{ $pam->taskUser ? 'data-chat-message-reply-id='.$pam->chat_bot_id : '' }}  data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id ?? ( $pam->taskUser ? $issueID : '')}}" data-vendor-id="{{$pam->vendor_id}}">{{  ($pam->vendor_id > 0 ) ? "#".$pam->vendor_id." ".$pam->vendors_name : ( $pam->taskUser ? '#'.$pam->taskUser->id .' ' . $pam->taskUser->name : "#".$pam->customer_id." ".$pam->customer_name  )  }}</td>
         <td>{{ $pam->website_title }}</td>
-        <td class="user-input">{{ $pam->question }}</td>
+       
+        <!-- Purpose : Add question - DEVTASK-4203 -->
+         <!-- <td class="user-input">{{ $pam->question }}</td> -->
+        <td class="user-input">{{ !empty($pam->chatmsg->message) ? $pam->chatmsg->message : $pam->question }}</td>
         <td class="boat-replied">{{ $pam->answer }}</td>
         <td class="message-input">
             <div class="row cls_textarea_subbox">
