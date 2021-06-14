@@ -143,10 +143,11 @@ class BulkCustomerRepliesController extends Controller
     }
 
     public function sendMessagesByKeyword(Request $request) {
-        $this->validate($request, [
-            'message' => 'required',
-            'customers' => 'required'
-        ]);
+        $customer_id_array = $request->get('customers');
+        // $this->validate($request, [
+        //     'message' => 'required',
+        //     'customers' => 'required'
+        // ]);
 
         foreach ($request->get('customers') as $customer) {
             $myRequest = new Request();
@@ -161,8 +162,8 @@ class BulkCustomerRepliesController extends Controller
 
             DB::table('bulk_customer_replies_keyword_customer')->where('customer_id', $customer)->delete();
         }
-
-        return redirect()->back()->with('message', 'Messages sent successfully!');
+            return response()->json(['message' => 'Messages sent successfully!','c_id' => $customer_id_array]);
+        // return redirect()->back()->with('message', 'Messages sent successfully!');
 
     }
 
