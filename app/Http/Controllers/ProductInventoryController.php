@@ -25,6 +25,7 @@ use \App\Jobs\UpdateFromSizeManager;
 use DB;
 use Illuminate\Support\Facades\Input;
 use App\Imports\DiscountFileImport;
+use App\Supplier;
 use App\SupplierBrandDiscount;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
@@ -1058,7 +1059,7 @@ class ProductInventoryController extends Controller
 		//dd($inventory_data);
         $inventory_data_count = $inventory_data->total();
         $status_list = \App\Helpers\StatusHelper::getStatus();
-        $supplier_list = \App\Supplier::pluck('supplier','id')->toArray();
+        // $supplier_list = \App\Supplier::pluck('supplier','id')->toArray();
 
         foreach ($inventory_data as $product) {
             $product['medias'] =  \App\Mediables::getMediasFromProductId($product['id']);
@@ -1089,7 +1090,25 @@ class ProductInventoryController extends Controller
             $brandsArray[$brand->id] = $brand->name;
         }
 
-//        dd($brandsArray, $brandsArray);
+		$selected_brand = null;
+		if($request->brand_names){
+		$selected_brand = Brand::select('id','name')->whereIn('id',$request->brand_names)->get();
+		}
+	
+		$selected_supplier = null;
+		if($request->supplier){
+		$selected_supplier = Supplier::select('id','supplier')->whereIn('id',$request->supplier)->get();
+		}
+
+		
+		$selected_categories = null;
+		if($request->product_categories){
+		$selected_categories = Category::select('id','title')->whereIn('id',$request->product_categories)->get();
+		}
+
+
+
+		//        dd($brandsArray, $brandsArray);
 
 //        $brands_names        = \App\Brand::getAll();
 //        $products_names      = \App\Product::getPruductsNames();
@@ -1101,14 +1120,11 @@ class ProductInventoryController extends Controller
 
         asort($products_names);
         asort($products_sku);
-        asort($brands_names);
-
-//dd($brands_names);
         //$products_categories = \App\Product::getPruductsCategories();
         $products_categories = Category::attr(['name' => 'product_categories[]','data-placeholder' => 'Select a Category','class' => 'form-control select-multiple2', 'multiple' => true])->selected(request('product_categories',[]))->renderAsDropdown();
 
         if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more", compact('inventory_data'));
-        return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku','status_list','inventory_data_count','supplier_list','reportData','scrappedReportData'));
+        return view('product-inventory.inventory-list',compact('inventory_data','products_names','products_categories','products_sku','status_list','inventory_data_count','reportData','scrappedReportData','selected_brand','selected_supplier','selected_categories'));
     }
 
     public function inventoryListNew( Request $request ){
