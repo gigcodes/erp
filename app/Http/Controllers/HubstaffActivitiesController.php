@@ -473,12 +473,12 @@ class HubstaffActivitiesController extends Controller
         // dd(request()->all());
         $query = HubstaffActivity::join('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=', request('start_date'))->whereDate('hubstaff_activities.starts_at', '<=', request('end_date'));
         
-        // $query->join('developer_tasks','hubstaff_activities.task_id','developer_tasks.hubstaff_task_id');
+        $query->leftJoin('developer_tasks','hubstaff_activities.task_id','developer_tasks.hubstaff_task_id');
         
         $query = $query->where('hubstaff_members.user_id', request('user_id'));
         
          $activities = $query->select(DB::raw("
-                hubstaff_activities.user_id,hubstaff_activities.task_id,hubstaff_activities.is_manual,
+         SUM(developer_tasks.estimate_minutes) as estimated_time, hubstaff_activities.user_id,hubstaff_activities.task_id,hubstaff_activities.is_manual,
                 SUM(hubstaff_activities.tracked) as total_tracked,DATE(hubstaff_activities.starts_at) as date,hubstaff_members.user_id as system_user_id")
         )->groupBy('task_id')->orderBy('date', 'desc')->get();
 
@@ -487,7 +487,7 @@ class HubstaffActivitiesController extends Controller
         }else{
             $user = User::where('id', Auth::user()->id)->first();
         }
-        
+
         return Excel::download(new HubstaffActivityReport($activities->toArray()), $user->name.'-'.request('start_date').'-To-'.request('end_date').'.xlsx');
     }
 
