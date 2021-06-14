@@ -396,7 +396,7 @@ class ProductInventoryController extends Controller
             return;
         }
 
-		return view( 'instock.index', $data );
+        return view( 'instock.index', $data );
 	}
 
 	public function inDelivered(Request $request)
@@ -1062,8 +1062,10 @@ class ProductInventoryController extends Controller
 
         foreach ($inventory_data as $product) {
             $product['medias'] =  \App\Mediables::getMediasFromProductId($product['id']);
-			$product_history   =  \App\ProductStatusHistory::getStatusHistoryFromProductId($product['id']);
-			foreach ($product_history as $each) {
+//			$product_history   =  \App\ProductStatusHistory::getStatusHistoryFromProductId($product['id']);
+            $product_history   =  $product->productstatushistory;
+
+            foreach ($product_history as $each) {
                 $each['old_status'] = isset($status_list[$each['old_status']]) ? $status_list[$each['old_status']]  : 0;
                 $each['new_status'] = isset($status_list[$each['new_status']]) ? $status_list[$each['new_status']] : 0;
             }
@@ -1072,11 +1074,39 @@ class ProductInventoryController extends Controller
         }
 
         //for filter
-        $brands_names        = \App\Brand::getAll();
-        $products_names      = \App\Product::getPruductsNames();
+
+        $sku = [];
+        $pname = [];
+        $brandsArray = [];
+        $arr = DB::table('products')->select('name', 'sku')->get();
+        foreach ($arr as $a){
+            $sku[$a->sku]= $a->sku;
+            $pname[$a->name]= $a->name;
+        }
+
+        $brands = DB::table('brands')->select('id', 'name')->get();
+        foreach ( $brands as $brand ) {
+            $brandsArray[$brand->id] = $brand->name;
+        }
+
+//        dd($brandsArray, $brandsArray);
+
+//        $brands_names        = \App\Brand::getAll();
+//        $products_names      = \App\Product::getPruductsNames();
+//        $products_sku        = \App\Product::getPruductsSku();
+
+        $brands_names        = $brandsArray;
+        $products_names      = $pname;
+        $products_sku        = $sku;
+
+        asort($products_names);
+        asort($products_sku);
+        asort($brands_names);
+
+//dd($brands_names);
         //$products_categories = \App\Product::getPruductsCategories();
         $products_categories = Category::attr(['name' => 'product_categories[]','data-placeholder' => 'Select a Category','class' => 'form-control select-multiple2', 'multiple' => true])->selected(request('product_categories',[]))->renderAsDropdown();
-        $products_sku        = \App\Product::getPruductsSku();
+
         if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more", compact('inventory_data'));
         return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku','status_list','inventory_data_count','supplier_list','reportData','scrappedReportData'));
     }

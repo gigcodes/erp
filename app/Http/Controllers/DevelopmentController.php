@@ -368,7 +368,7 @@ class DevelopmentController extends Controller
 
         $title = 'Task List';
 
-        $issues = DeveloperTask::with('timeSpent','developerTaskHistory','assignedUser','masterUser','timeSpent','leadtimeSpent','testertimeSpent','messages');
+        $issues = DeveloperTask::with('timeSpent','developerTaskHistory','assignedUser','masterUser','timeSpent','leadtimeSpent','testertimeSpent','messages.taskUser','messages.user','tester');
         if($type == 'issue') {
             $issues = $issues->where('developer_tasks.task_type_id', '3');
         }
@@ -440,6 +440,33 @@ class DevelopmentController extends Controller
         
         $issues = $issues->select("developer_tasks.*","chat_messages.message","chat_messages.user_id AS message_user_id", "chat_messages.is_reminder AS message_is_reminder", "chat_messages.status as message_status","chat_messages.sent_to_user_id");
         
+
+        // for devloper time 
+        // $issues->selectRaw('IF(developer_tasks.assigned_to IS NOT NULL, sum(mot.time) , 0) as assigned_to_time');
+        // $issues->leftJoin('meeting_and_other_times as mot', function($q){
+        //     $q->on('mot.model_id', '=', 'developer_tasks.id');
+        //     $q->on('mot.user_id', '=', 'developer_tasks.assigned_to');
+        //     // $q->where('mot.model','=','App\DeveloperTask');
+        // });
+
+        // // for lead time
+        // $issues->selectRaw('IF(developer_tasks.master_user_id IS NOT NULL,  sum(mott.time), 0) as master_time');
+        // $issues->leftJoin('meeting_and_other_times as mott', function($q){
+        //     $q->on('mott.model_id', '=', 'developer_tasks.id');
+        //     $q->on('mott.user_id', '=', 'developer_tasks.master_user_id');
+        //     // $q->where('mott.model','=','App\DeveloperTask');
+
+        // });
+
+        // // // for tester time
+        // $issues->selectRaw('IF(developer_tasks.tester_id IS NOT NULL, sum(mottt.time), 0) as tester_time');
+        // $issues->leftJoin('meeting_and_other_times as mottt', function($q){
+        //     $q->on('mottt.model_id', '=', 'developer_tasks.id');
+        //     $q->on('mottt.user_id', '=', 'developer_tasks.tester_id');
+        //     // $q->where('mottt.model','=','App\DeveloperTask');
+
+        // });
+
         // Set variables with modules and users
         $modules = DeveloperModule::all();
         $users = Helpers::getUserArray(User::all());
@@ -508,6 +535,8 @@ class DevelopmentController extends Controller
         } else {
             $issues = $issues->orderBy('chat_messages.id', "desc");
         }
+
+        $issues =  $issues->groupBy("developer_tasks.id");
 
         $issues =  $issues->with('communications');
         //DB::enableQueryLog();

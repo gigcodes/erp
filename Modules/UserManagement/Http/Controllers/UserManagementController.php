@@ -1269,6 +1269,17 @@ class UserManagementController extends Controller
         $user = User::find($id);
         if($user) {
             $user->update(['approve_login' => date('Y-m-d')]);
+
+            $params = [];
+            $params['user_id'] = $user->id;
+            $params['message'] = "Your activity has been approved for today's date ".date("Y-m-d");
+            // send chat message
+            $chat_message = \App\ChatMessage::create($params);
+            // send
+            app('App\Http\Controllers\WhatsAppController')
+                ->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
+
+
             return response()->json(['message' => 'Successfully approved','code' => 200]);
         }
         return response()->json(['message' => 'User not found','code' => 404]);

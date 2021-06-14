@@ -251,8 +251,8 @@
                         @foreach($issue->messages as $message)
                             <p>
                                 <strong>
-                                    <?php echo !empty($message->sendTaskUsername()) ? "To : ".$message->sendTaskUsername() : ""; ?>
-                                    <?php echo !empty($message->sendername()) ? "From : ".$message->sendername() : ""; ?>
+                                    <?php echo !empty($message->taskUser) ? "To : ".$message->taskUser->name : ""; ?>
+                                    <?php echo !empty($message->user) ? "From : ".$message->user->name : ""; ?>
                                     At {{ date('d-M-Y H:i:s', strtotime($message->created_at)) }}
                                 </strong>
                             </p>

@@ -49,7 +49,7 @@
                             <input type="text" min="0" max="400000" name="price_min" class="form-control">
                         </div>
                         <div class="col-6 form-group">
-                            <strong>Max prices</strong>
+                            <strong>Max price</strong>
                             <input type="text" min="0" name="price_max" max="400000" class="form-control">
                         </div>
                     </div>

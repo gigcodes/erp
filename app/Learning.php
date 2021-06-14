@@ -140,10 +140,10 @@ class Learning extends Model {
 	public function whatsappAll($needBroadCast = false)
     {
     	if($needBroadCast) {
-            return $this->hasMany('App\ChatMessage', 'task_id')->whereIn('status', ['7', '8', '9', '10'])->latest();    
+            return $this->hasMany('App\ChatMessage', 'learning_id')->whereIn('status', ['7', '8', '9', '10'])->latest(); //Purpose - Replace from task_id to learning_id - DEVTASK-4020
         }
 
-        return $this->hasMany('App\ChatMessage', 'task_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+        return $this->hasMany('App\ChatMessage', 'learning_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest(); //Purpose - Replace from task_id to learning_id - DEVTASK-4020
 	}
 	
 	public function allMessages()
