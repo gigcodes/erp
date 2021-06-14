@@ -74,7 +74,7 @@
         @if($searchedKeyword)
             @if($searchedKeyword->customers)
                 
-                <form action="{{ action('BulkCustomerRepliesController@sendMessagesByKeyword') }}" method="post">
+                <form id="send-messages-by-Keyword" action="{{ action('BulkCustomerRepliesController@sendMessagesByKeyword') }}" method="post">
                     @csrf
                     <table class="table table-striped table-bordered">
                         <tr>
@@ -100,7 +100,7 @@
                         </tr>
                         @foreach($searchedKeyword->customers as $key=>$customer)
 <!--                            --><?php //dump($customer->dnd); ?>
-                            <tr>
+                            <tr data-customer_id="{{ $customer->id }}" class="customer-id-remove-class">
                                 <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}" class="customer_message"></td>
                                 <td>{{ $key+1 }}</td>
                                 <td>{{ $customer->name }}<br>
@@ -499,6 +499,35 @@
             $("p.message:containsi('"+searchedText+"')").css("background-color", "yellow");
         }
     });
+
+    $("#send-messages-by-Keyword").submit(function(e) {
+
+        e.preventDefault();
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $.ajax({
+            type: "POST",
+            url: $(this).attr('action'),
+            data: new FormData($(this)[0]),
+            contentType: false,
+            processData: false,
+            success: function(response)
+            {
+                toastr.success(response.message);
+                cu_id = response.c_id;
+                for (i = 0; i < cu_id.length; i++) {
+                    $('.customer-id-remove-class[data-customer_id="' + cu_id[i] + '"]').hide();
+                }
+            }
+        });
+
+    });
+
 
     </script>
 @endsection

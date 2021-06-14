@@ -3177,6 +3177,7 @@ class WhatsAppController extends FindByNumberController
                             foreach($medias as $iimg => $media) {
                                 $mediable = \App\Mediables::where('media_id',$media->id)->where('mediable_type','App\Product')->first();
                                 try{
+                                    $data['media_url'] = $media->getUrl();
                                     if($iimg != 0) {
                                         $chat_message = ChatMessage::create($data);
                                     }
