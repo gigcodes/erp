@@ -251,7 +251,7 @@ class InfluencersController extends Controller
         $b64 = (string)$phoneList;
 
         $history = array(
-            'influencers_name' => $name,
+            'influencers_name' => $request->name,
             'title'            => 'starting script',
             'description'      => $b64,
         );
@@ -365,8 +365,8 @@ class InfluencersController extends Controller
     {   
         try{
             $name = $request->name;
-            $extraVars = \App\Helpers::getInstagramVars($name);
-            $name = str_replace(" ","",$name).$extraVars;
+            /*$extraVars = \App\Helpers::getInstagramVars($name);
+            $name = str_replace(" ","",$name).$extraVars;*/
 
             $cURLConnection = curl_init();
 
