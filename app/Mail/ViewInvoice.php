@@ -18,6 +18,7 @@ class ViewInvoice extends Mailable
     public $invoice;
     public $billing;
     public $shipping;
+    public $duty_tax;
 
     /**
      * Create a new message instance.
@@ -36,6 +37,34 @@ class ViewInvoice extends Mailable
 
         if (!empty($params["orders"])) {
             $this->orderItems = $this->viewOrderProductBlock($this->orders);
+        }
+
+        if (!empty($params["orders"])) {
+            $order_pro =  $this->orders[0]->order_product;
+            // $product_price = $order_pro[0]->product_price;
+
+            $website_code_data = $this->viewDutyTax($this->orders);
+
+            $duty_shipping = 0;
+            if($website_code_data != null)
+            {
+                $product_qty = count($order_pro);
+
+                $code = $website_code_data->website_code->code;
+
+                $duty_countries = $website_code_data->website_code->duty_of_country;
+                $shipping_countries = $website_code_data->website_code->shipping_of_country($code);
+                
+                $duty_amount = ($duty_countries->default_duty * $product_qty);
+                $shipping_amount = ($shipping_countries->price * $product_qty);
+
+                if($duty_amount+$shipping_amount != '' && $duty_amount+$shipping_amount != 'undefined' &&  $duty_amount+$shipping_amount != null)
+                    $duty_shipping = $duty_amount+$shipping_amount;
+            }
+
+            $this->duty_tax = $duty_shipping;
+            
+            
         }
 
         $this->customer = $this->orders !== null ? $this->getCustomerDetails($this->orders[0]) : null;
@@ -61,7 +90,6 @@ class ViewInvoice extends Mailable
     //TODO download function - added by jammer
     public function download()
     {
-
         $html = view('maileclipse::templates.orderInvoice', [
             'orderItems'   => $this->orderItems,
             'customer'     => $this->customer,
@@ -72,6 +100,7 @@ class ViewInvoice extends Mailable
             'billing'      => $this->billing,
             'shipping'     => $this->shipping,
             'invoice'      => $this->invoice,
+            'duty_tax'     => $this->duty_tax,
         ]);
         $pdf = new Dompdf();
         $pdf->loadHtml($html);
@@ -130,5 +159,10 @@ class ViewInvoice extends Mailable
     public function getShippingDetails($order)
     {
         return $order->shippingAddress();
+    }
+
+    public function viewDutyTax($order)
+    {
+        return $order[0]->duty_tax;
     }
 }

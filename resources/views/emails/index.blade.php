@@ -472,6 +472,47 @@
 	</div>
 </div>
 
+<div id="labelingModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Assign Platform</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <form action="{{ action('EmailController@platformUpdate') }}" method="POST" class="form-group labeling-form">
+        @csrf
+        <input type="hidden" name="id" value="">
+        <div class="modal-body">
+          <div class="form-group">
+            <div class="col-md-12">
+              <label for="Status" class="form-control">Platform</label>
+            </div>
+            <div class="col-md-12 mb-5">
+              <select name="platform" class="form-control select2">
+                <option value="">Select Platforms</option>
+                @foreach($digita_platfirms as $digita_platfirm)
+                  <option value="{{ $digita_platfirm->id }}"> {{ $digita_platfirm->platform }} --> {{ $digita_platfirm->sub_platform }}</option>
+                @endforeach
+              </select>
+            </div>
+          </div>
+          <!-- <div class="form-group">
+            <label for="Status">Sub Platform</label>
+            <select name="sub-platform" class="form-control">
+              
+            </select>
+          </div> -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-secondary" >Submit</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <div id="excelImporter" class="modal fade" role="dialog">
   <div class="modal-dialog">
     <!-- Modal content-->
@@ -543,10 +584,10 @@
         });
 
         $(document).ready(function() {
-        $('#email-datetime').datetimepicker({
-            format: 'YYYY-MM-DD'
-        });
-
+          $('#email-datetime').datetimepicker({
+              format: 'YYYY-MM-DD'
+          });
+          $("select[name='platform']").select2();
         });
 
 
@@ -1020,7 +1061,10 @@
     function opnModal(message){
       $(document).find('#more-content').html(message);
     }
-
+    $(document).on('click','.make-label',function(event){
+      event.preventDefault();
+      $('.labeling-form input[name="id"]').val($(this).data('id'));
+    })
     </script>
 
 

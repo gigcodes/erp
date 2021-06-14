@@ -41,6 +41,10 @@ class EnqueryExport implements FromArray, WithHeadings, ShouldAutoSize
         $arr = [];
             $arr['name'] = $product->name;
             $arr['sku'] = $product->sku;
+            $arr['short_description'] = $product->short_description;
+            $arr['price'] = $product->price;
+            $arr['composition'] = $product->composition;
+            $arr['product_link'] = $product->product_link;
             $products_array[] = $arr;
 }
 
@@ -52,6 +56,10 @@ class EnqueryExport implements FromArray, WithHeadings, ShouldAutoSize
       return [
         'Name',
         'SKU Code',
+        'Description',
+        'Price',
+        'Composition',
+        'Product Link'
       ];
     }
 

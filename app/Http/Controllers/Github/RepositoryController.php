@@ -167,24 +167,37 @@ class RepositoryController extends Controller
 
     private function updateDevTask($branchName){
         $devTaskId = null;
-        $usIt = explode($branchName, '-');
+        $usIt = explode('-', $branchName);
 
         if (count($usIt) > 1) {
             $devTaskId = $usIt[1];
+        }else{
+            $usIt = explode(' ',$branchName);            
+            if (count($usIt) > 1) {
+                $devTaskId = $usIt[1];
+            }
         }
 
         $devTask = DeveloperTask::find($devTaskId);
         
-        \Log::info('updateDevTask call');
+        \Log::info('updateDevTask call '.$branchName);
 
         if ($devTask) {
-            
+            \Log::info('updateDevTask find success '.$branchName);            
             try {
-                \Log::info('PR merge msg send');
-                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($devTask->user->phone, $devTask->user->phone, $branchName.':: PR has been merged', false);
+
+                \Log::info('updateDevTask :: PR merge msg send .'.json_encode($devTask->user));
+
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $requestData->request->add(['issue_id' => $devTaskId, 'message' => $branchName.':: PR has been merged', 'status' => 1]);
+                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+
+                //app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($devTask->user->phone, $devTask->user->whatsapp_number, $branchName.':: PR has been merged', false);
             } catch (Exception $e) {
-                \Log::info('PR merge msg ::'. $e->getMessage());
-                \Log::error('PR merge msg ::'. $e->getMessage());
+                \Log::info('updateDevTask ::'. $e->getMessage());
+                \Log::error('updateDevTask ::'. $e->getMessage());
+
             }
 
             $devTask->status = 'In Review';
@@ -217,6 +230,7 @@ class RepositoryController extends Controller
                 $this->updateBranchState($id, $source);
             }
 
+            \Log::info('updateDevTask calling...'.$source);
             $this->updateDevTask($source);
 
             // Deploy branch

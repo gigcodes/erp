@@ -41,8 +41,19 @@
   width:100%;
   padding: 0;
 }
-.table.table-bordered.order-table a{
-color:black!important;
+.table.table-bordered.order-table tr th a{
+  color:#000!important;
+}
+.table.table-bordered.order-table tr td a{
+  /* color:black!important; */
+  color:#757575!important;
+}
+.table.table-bordered.order-table tr td{
+  font-size:14px;
+  color:#757575;
+}
+.fa-user-plus{
+  cursor:pointer;
 }
 </style>
 @endsection
@@ -155,7 +166,7 @@ color:black!important;
       <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;">
         <thead>
         <tr>
-            <th width="5%">select</th>
+            <th width="2%">select</th>
             <th width="5%"><a href="">ID</a></th>
             <th width="6%"><a href="">Customer</a></th>
             <th width="10%"><a href="">Supplier</a></th>
@@ -163,7 +174,7 @@ color:black!important;
             <th width="10%">Buying Price</th>
             <th width="10%"><a href="">Selling price</a></th>
             <th width="8%"><a href="">Order Date</a></th>
-           <th style="width: 5%"><a href="">Del Date</a></th>
+           <th width="8%"><a href="">Del Date</a></th>
             <th style="width: 8%"><a href="">Inv Status</a></th>
             <th width="10%">Action</th>
          </tr>
@@ -203,7 +214,8 @@ color:black!important;
                   </span>
                 @endif
               </td>
-                <td class="view-supplier-details" data-id="{{$order->order_product_id}}">
+                <td>
+                    <p class="view-supplier-details" data-id="{{$order->order_product_id}}" >
                     @if(!$supplier->isEmpty())
                         @foreach($supplier as $s) 
                           @if(!empty($s->supplier_link))
@@ -213,6 +225,13 @@ color:black!important;
                           @endif
                         @endforeach
                     @endif
+                    </p>
+                    @php
+                    $order_product = \App\OrderProduct::find($order->order_product_id);
+                    @endphp
+
+                    
+
                 </td>
               <td class="expand-row table-hover-cell">
                 <div class="d-flex">
@@ -221,9 +240,11 @@ color:black!important;
                   $order_product = \App\OrderProduct::find($order->order_product_id);
                   @endphp
                       @if ($order_product && $order_product->product)
+                      {{$order_product->product->name}}
                         @if ($order_product->product->hasMedia(config('constants.media_tags')))
                           <span class="td-mini-container">
-                              <a data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}">View</a>
+                              <br/>
+                              <a style="color:#000!important;" data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}">View</a>
                           </span>
                         @endif
                       @endif
@@ -231,6 +252,9 @@ color:black!important;
                 </div>
               </td>
               <td class="expand-row table-hover-cell">
+              @if ($order_product && $order_product->product)
+                {{$order_product->product->price}}
+              @endif
               </td>
               <td class="expand-row table-hover-cell">
               {{$order->product_price}}
@@ -246,7 +270,9 @@ color:black!important;
               </select>
 
               </td>
-              <td>{{ $order->balance_amount }}</td>
+              <td>{{-- $order->balance_amount --}}
+              <i title="Add Supplier for this product" class="fa fa-user-plus add_supplier" aria-hidden="true" data-product_id="{{$order_product->product->id}}" data-product_name="{{$order_product->product->name}}"></i>
+              </td>
 
             </tr>
           @endforeach
@@ -285,6 +311,40 @@ color:black!important;
                 </form>
       </div>
     </div>
+</div>
+
+
+
+<!-- Add Supplier for Product -->
+<div class="modal fade" id="add_supplier_for_product" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="supplier_name"></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="" id="add_supplier_for_product_form" method="POST">
+      @csrf
+          <div class="modal-body">
+              <input type="hidden" name="product_id" id="product_id" value="" />
+              <label>Select Supplier</label>
+              <select class="form-control select-multiple2" style="width:100%" name="filter_supplier_pro" data-placeholder="Search Supplier By Name.." multiple>
+                @foreach($product_suppliers_list as $supplier)
+                  <option value="{{ $supplier->id }}">{{ $supplier->supplier }}</option>
+                @endforeach
+                
+              </select>
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary insert_supplier_pro">Add</button>
+          </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 
@@ -884,5 +944,60 @@ $(document).on('click', '.view-details', function(e) {
           $(".select-multiple").multiselect();
           $(".select-multiple2").select2();
       });
+
+
+      $(document).on('click', '.add_supplier', function(e) {
+        e.preventDefault();
+        var product_id = $(this).data('product_id');
+        var product_name = $(this).data('product_name');
+
+        $('#add_supplier_for_product_form #product_id').val(product_id);
+        $('#supplier_name').html('<h4>Add Supplier for '+product_name+' Product</h4>');
+        $('#add_supplier_for_product').modal('show');
+      });
+
+      $(document).on('click', '.insert_supplier_pro', function(e) {
+        e.preventDefault();
+        var product_id =  $('#add_supplier_for_product_form #product_id').val();
+        var supplier_id = $("select[name='filter_supplier_pro']").val();
+       
+        if(supplier_id.length < 1)
+        {
+            toastr['error']('Please Select Suppliers');
+            return;
+        }
+
+        var type = 'POST';
+          $.ajax({
+            url: "{{route('purchase-product.insert_suppliers_product')}}",
+            data: {
+              product_id:product_id,
+              supplier_id:supplier_id,
+              _token: "{{ csrf_token() }}",
+            },
+            type: type,
+            dataType: 'json',
+            beforeSend: function() {
+              $("#loading-image").show();
+            }
+          }).done( function(response) {
+              $("#loading-image").hide();
+              
+              if(response.code == 200)
+              {
+                $('#add_supplier_for_product').modal('hide');
+                toastr["success"](response.message, "Message");
+              }
+              else if(response.code == 400)
+              {
+                toastr["error"](response.message, "Message");
+              }
+              
+            
+          }).fail(function(errObj) {
+              $("#loading-image").hide();
+          });
+      });
+
   </script>
 @endsection

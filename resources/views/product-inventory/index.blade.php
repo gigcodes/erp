@@ -100,6 +100,11 @@
                     <input type="text" name="price_max" class="form-control" placeholder="max. price" value="{{ isset($_GET['price_max']) ? $_GET['price_max'] : '' }}">
                 </div>
                 <div class="form-group mr-3 mb-3">
+                  <strong class="mr-3">Discounted Percentage</strong>
+                    <input type="text" name="discounted_percentage_min" class="form-control" placeholder="min. price" value="{{ isset($_GET['discounted_percentage_min']) ? $_GET['discounted_percentage_min'] : '' }}">
+                    <input type="text" name="discounted_percentage_max" class="form-control" placeholder="max. price" value="{{ isset($_GET['discounted_percentage_max']) ? $_GET['discounted_percentage_max'] : '' }}">
+                </div>
+                <div class="form-group mr-3 mb-3">
                   <div class='input-group date' id='filter-date'>
                       <input type='text' class="form-control" name="date" value="{{ request('date','') }}" placeholder="Date" />
                       <span class="input-group-addon">
@@ -131,9 +136,10 @@
         <div class="col-lg-12 margin-tb">
 	        <div class="productGrid " id="productGrid">
         		<div class="infinite-scroll-products" style="padding-bottom: 60px">
-	               <div class="infinite-scroll-products-inner">
-                       @include("product-inventory.partials.grid")
-                   </div>
+
+                    <div class="infinite-scroll-products-inner">
+                        @include("product-inventory.partials.grid")
+                    </div>
             	   <div class="row">
             	   		{!! $products->appends(Request::except('page'))->links() !!}
             	   </div>
@@ -425,6 +431,33 @@
                     $('#product_id').val(product_id);
                     $('#color_id').val(color_id);
                     $("#no_of_product_will_affect_color").html(0);
+                }
+            });
+        });
+
+        $(document).on('click', '.add_purchase_product', function () {    
+            product_id = $(this).attr('data-id');
+           
+            $.ajax({
+                url: '/products/add/def_cust/'+product_id,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                },
+                beforeSend: function () {
+                  $("#loading-image").show();
+                },
+                success: function(result){
+                    $("#loading-image").hide();
+                    if(result.code == 200)
+                    {
+                        toastr['success'](result.message, 'success');
+                    }
+                },
+                error: function (){
+                    // toastr['error']('Oops, Something went wrong', 'error');
+                    $("#loading-image").hide();
                 }
             });
         });

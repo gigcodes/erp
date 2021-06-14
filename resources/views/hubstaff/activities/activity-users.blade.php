@@ -22,8 +22,8 @@
     <div class="col-lg-12 margin-tb">
         <div class="row">
             <div class="col-md-12 margin-tb">
-                <div class="row">
-                    <form class="form-check-inline" action="{{route('hubstaff-acitivties.activities')}}" method="get">
+                <form class="form-check-inline" action="{{route('hubstaff-acitivties.activities')}}" method="get">
+                    <div class="row">
                         <div class="form-group col-md-1">
                             <?php echo Form::select("user_id",["" => "-- Select User --"]+$users,$user_id,["class" => "form-control select2"]); ?>
                         </div>
@@ -70,13 +70,16 @@
                         </div>
                         <div class="form-group col-md-2">
                             <label for="button">&nbsp;</label>
-                            <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
+                            <button type="submit" name="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
                                 <img src="/images/search.png" style="cursor: default;">
                             </button>
+                            <br>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <button type="submit" name="submit" value="report_download" title="Download report" class="btn btn-sm btn-secondary"><i class="fa fa-file-excel-o"></i>Download report</button>
                         </div>  
-                    </form> 
-                </div>    
-                
+                    </div>    
+                </form> 
             </div>
         
             <div class="col-md-12 margin-tb">
@@ -161,7 +164,7 @@
                                                     <td width="15%">
                                                         @if ( $taskName )
                                                             @if (is_numeric($estimation) && $trackedTime && $taskName)
-                                                                {{ $estimation - number_format($trackedTime / 60,2,".",",") }}
+                                                                {{ $estimation . '-' . number_format($trackedTime / 60,2,".",",") }}
                                                             @else
                                                                 N/A
                                                             @endif

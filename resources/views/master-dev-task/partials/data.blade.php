@@ -17,6 +17,25 @@
             </td>
           </tr>
           <tr>
+            <td>Database Table</td>
+            <td colspan="6">
+              <table style="width: 100%;">
+                  <tr>
+                    <th>Table</th>
+                    <th>Size</th>
+                  </tr>
+                  @if(!empty($topFiveTables))
+                    @foreach($topFiveTables as $tft)
+                      <tr>
+                          <td>{{ $tft->database_name }}</td>
+                          <td>{{ number_format($tft->size/1024,2,'.','') }}</td>
+                      </tr>
+                    @endforeach
+                  @endif
+              </table>
+            </td>
+          </tr>
+          <tr>
             <td>Development</td>
             <td colspan="6">
               <table style="width: 100%;">
@@ -145,6 +164,31 @@
 					</table>
 				</td>
 			</tr>
+            <tr>
+                <td>Memory Usage</td>
+                <td>
+
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>Total</th>
+                            <th>Used</th>
+                            <th>Free</th>
+                            <th>Buff & Cache</th>
+                            <th>Available</th>
+                        </tr>
+                        <tr>
+
+                            <td>{{$memory_use->total}}</td>
+                            <td>{{$memory_use->used}}</td>
+                            <td>{{$memory_use->free}}</td>
+                            <td>{{$memory_use->buff_cache}}</td>
+                            <td>{{$memory_use->available}}</td>
+
+                        </tr>
+                    </table>
+
+                </td>
+            </tr>
        </tbody>
     </table>
 </div>

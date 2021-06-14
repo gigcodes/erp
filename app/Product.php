@@ -1190,8 +1190,8 @@ class Product extends Model
             'products.name as product_name',
             'b.name as brand_name',
             'c.title as category_name',
-            'category',
-            'supplier',
+            'products.category',
+            'products.supplier',
             'products.sku',
             'products.size',
             'products.color',
@@ -1203,14 +1203,19 @@ class Product extends Model
             'status_id',
             'sub_status_id',
             'products.created_at',
+
             //'inventory_status_histories.date as history_date',
-            \DB::raw('count(distinct psu.id) as total_product')
+            \DB::raw('count(distinct psu.id) as total_product'),
+            \DB::raw('IF(sp.discounted_percentage IS null, 00 , max(sp.discounted_percentage) ) discounted_percentage ')
         );
         $query =  \App\Product::leftJoin("brands as b",function($q){
                 $q->on("b.id","products.brand");
             })
             ->leftJoin("categories as c",function($q){
                 $q->on("c.id","products.category");
+            })
+            ->leftJoin("scraped_products as sp",function($q){
+                $q->on("sp.product_id","products.id");
             })
             ->Join("product_suppliers as psu",function($q){
                 $q->on("psu.product_id","products.id");
@@ -1244,6 +1249,18 @@ class Product extends Model
             $query = $query->whereDate('products.created_at',$filter_data['date']);
         }
 
+        if(isset($filter_data['date'])) {
+            $query = $query->whereDate('products.created_at',$filter_data['date']);
+        }
+
+        if(isset($filter_data['discounted_percentage_min'])) {
+            $query = $query->where('products.discounted_percentage', '>=',$filter_data['discounted_percentage_min']);
+        }
+
+        if(isset($filter_data['discounted_percentage_max'])) {
+            $query = $query->where('products.discounted_percentage', '<=',$filter_data['discounted_percentage_max']);
+        }
+        
         if(isset($filter_data['no_category']) && $filter_data['no_category'] == "on") {
             $query = $query->where('products.category',"<=",0);
         }
@@ -1273,7 +1290,7 @@ class Product extends Model
             $query = $query->havingRaw('count(products.id) = '.$filter_data['supplier_count']);
         }
 
-        return $query->groupBy("products.id")->with('suppliers_info')->orderBy('products.created_at','DESC')->paginate(Setting::get('pagination'),$columns);
+        return $query->groupBy("products.id")->with('suppliers_info', 'productstatushistory')->orderBy('products.created_at','DESC')->paginate(Setting::get('pagination'),$columns);
     }
     
     public static function getPruductsNames()

@@ -9,6 +9,7 @@ use Modules\BookStack\Uploads\ImageRepo;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Views;
+use DB;
 
 class BookshelfController extends Controller
 {
@@ -40,6 +41,7 @@ class BookshelfController extends Controller
      */
     public function index()
     {
+        return redirect()->route('searchGrid');
         $view = setting()->getUser($this->currentUser, 'bookshelves_view_type', config('app.views.bookshelves', 'grid'));
         $sort = setting()->getUser($this->currentUser, 'bookshelves_sort', 'name');
         $order = setting()->getUser($this->currentUser, 'bookshelves_sort_order', 'asc');
@@ -131,6 +133,39 @@ class BookshelfController extends Controller
             'activity' => Activity::entityActivity($shelf, 20, 1)
         ]);
     }
+    public function showShelf($sortByView, $sortByDate)
+    {
+        $view = setting()->getUser($this->currentUser, 'bookshelves_view_type', config('app.views.bookshelves', 'grid'));
+        $sort = setting()->getUser($this->currentUser, 'bookshelves_sort', 'name');
+        $order = setting()->getUser($this->currentUser, 'bookshelves_sort_order', 'asc');
+        $sortOptions = [
+            'name' => trans('bookstack::common.sort_name'),
+            'created_at' => trans('bookstack::common.sort_created_at'),
+            'updated_at' => trans('bookstack::common.sort_updated_at'),
+        ];
+
+        $shelves = $this->entityRepo->getAllPaginated('bookshelf', 18, $sort, $order);
+        foreach ($shelves as $shelf) {
+            $shelf->books = $this->entityRepo->getBookshelfChildren($shelf);
+        }
+
+        $recents = $this->signedIn ? $this->entityRepo->getRecentlyViewed('bookshelf', 4, 0) : false;
+        $popular = $this->entityRepo->getPopular('bookshelf', 4, 0);
+        $new = $this->entityRepo->getRecentlyCreated('bookshelf', 4, 0);
+
+        $this->entityContextManager->clearShelfContext();
+        
+        return response()->json([
+            'shelves' => $shelves,
+            'recents' => $recents,
+            'popular' => $popular,
+            'new' => $new,
+            'view' => $view,
+            'sort' => $sort,
+            'order' => $order,
+            'sortOptions' => $sortOptions,
+        ]);
+    }
 
     /**
      * Show the form for editing the specified bookshelf.
@@ -156,8 +191,7 @@ class BookshelfController extends Controller
             'books' => $books,
             'shelfBooks' => $shelfBooks,
         ]);
-    }
-
+    } 
 
     /**
      * Update the specified bookshelf in storage.
@@ -184,7 +218,6 @@ class BookshelfController extends Controller
 
          return redirect($shelf->getUrl());
     }
-
 
     /**
      * Shows the page to confirm deletion

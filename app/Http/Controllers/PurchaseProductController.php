@@ -20,7 +20,12 @@ use App\Exports\EnqueryExport;
 use Storage;
 use App\Mails\Manual\PurchaseExport;
 use Mail;
+use App\Email;
 use App\InventoryStatus;
+use App\ChatMessage;
+use App\Product;
+use App\SupplierOrderInquiryData;
+
 class PurchaseProductController extends Controller
 {
     /**
@@ -294,22 +299,40 @@ class PurchaseProductController extends Controller
     }
 
     public function getSuppliers(Request $request) {
+        // START - Purpose : Comment Code - DEVTASK-4048
+        // $term = $request->term;
+        // $suppliers =  ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')
+        // ->join('order_products','order_products.product_id','product_suppliers.product_id');
+        // if($request->term) {
+        //     $suppliers =  $suppliers->where('suppliers.supplier' ,'like', '%'.$request->term.'%');
+        // }
+        // $suppliers = $suppliers->groupBy('product_suppliers.supplier_id')->select('suppliers.*')->get();
+        // return view('purchase-product.partials.suppliers',compact('suppliers','term'));
+        // END - DEVTASK-4048
+
+        // START - Purpose : Code with Product Inquiry Count - DEVTASK-4048
         $term = $request->term;
-        $suppliers =  ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id');
+        $suppliers =  Supplier::withcount('inquiryproductdata')->join('product_suppliers','suppliers.id','product_suppliers.supplier_id')
+        ->join('order_products','order_products.product_id','product_suppliers.product_id');
+        
         if($request->term) {
             $suppliers =  $suppliers->where('suppliers.supplier' ,'like', '%'.$request->term.'%');
         }
-        $suppliers = $suppliers->groupBy('product_suppliers.supplier_id')->select('suppliers.*')->get();
+        $suppliers = $suppliers->groupBy('product_suppliers.supplier_id')->orderBy('inquiryproductdata_count','desc')
+        ->get();
+        // END - DEVTASK-4048
+
         return view('purchase-product.partials.suppliers',compact('suppliers','term'));
     }
 
     public function getProducts($type, $supplier_id) {
         if($type == 'inquiry') {
-            $products = ProductSupplier::join('products','products.id','product_suppliers.product_id')
+            $products = ProductSupplier::
+            join('products','products.id','product_suppliers.product_id')
             ->join('order_products as op','op.product_id','products.id')
-            ->where('product_suppliers.supplier_id',$supplier_id)
+            // ->where('product_suppliers.supplier_id',$supplier_id)
             ->groupBy('product_id')
-            ->select('product_suppliers.price as product_price','products.*','products.id as product_id','product_suppliers.id as ps_id')
+            ->select('product_suppliers.price as product_price','products.*','products.id as product_id','product_suppliers.id as ps_id', 'product_suppliers.supplier_id as sup_id')
             ->get();
 
             return view('purchase-product.partials.products',compact('products','type','supplier_id'));
@@ -319,8 +342,10 @@ class PurchaseProductController extends Controller
             ->join('products','products.id','order_products.product_id')
             ->join('product_suppliers','product_suppliers.product_id','products.id')
             ->where('product_suppliers.supplier_id',$supplier_id)
+            ->orderBy('order_products.id', 'desc')
             /*->groupBy('supplier_discount_infos.id')*/
             ->select('product_suppliers.price as product_price','products.*','supplier_discount_infos.*','product_suppliers.id as ps_id')->get();
+           
             return view('purchase-product.partials.products',compact('products','type','supplier_id'));
         }
     }
@@ -328,11 +353,15 @@ class PurchaseProductController extends Controller
     public function sendProducts($type,$supplier_id,Request $request)
     {
         if($type == 'inquiry') {
+
+            // ChatMessage::sendWithChatApi('919825282', null, $message);
+
             $supplier = Supplier::find($supplier_id);            
             $path = "inquiry_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_enquiry_exports.xlsx";
             $subject = 'Product enquiry';
             $message = 'Please check below products';
             $product_ids = json_decode($request->product_ids, true);
+
             Excel::store(new EnqueryExport($product_ids,$path), $path, 'files');
             
             $emailClass = (new PurchaseExport($path, $subject, $message))->build();
@@ -345,13 +374,53 @@ class PurchaseProductController extends Controller
                 'subject'          => $subject,
                 'message'          => $message,
                 'template'         => 'purchase-simple',
-                'additional_data'  => json_encode(['attachment' => $path]),
+                'additional_data'  => json_encode(['attachment' => [$path]]),
                 'status'           => 'pre-send',
                 'is_draft'         => 0,
             ]);
 
             \App\Jobs\SendEmail::dispatch($email);
 
+            // START - Purpose : Add Record for Inquiry - DEVTASK-4048
+
+            $products_data = Product::whereIn('id',$product_ids)->get()->toArray();
+            $product_names = array_column($products_data, 'name');
+            $products_str = implode(", ",$product_names);
+            $message = 'Please check Product enquiry : '.$products_str;
+
+            $number = ($supplier->phone ? $supplier->phone : '971569119192' );
+
+            $send_whatsapp = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($number,$supplier->whatsapp_number, $message);
+
+
+            $getInquiryData = SupplierOrderInquiryData::where('type',$type)->get()->toArray();
+
+            $pro_data_arr = array();
+            foreach($getInquiryData as $key => $value){
+                $pro_data_arr[$value['type']][$value['product_id']] = $value;
+            }   
+
+
+            $product_id = array_column($getInquiryData, 'product_id');
+
+            $pro_arr = [];
+            foreach ($product_ids as $key => $val)
+            {
+                if (!in_array($val, $product_id))
+                {
+                    $pro_arr[] = [
+                        'supplier_id' => $supplier_id,
+                        'product_id' => $val,
+                        'type' => $type,
+                        'count_number' => '1'
+                    ];
+
+                }
+            }
+
+            SupplierOrderInquiryData::insert($pro_arr);
+            // END - DEVTASK-4048
+            
             return response()->json(['message' => 'Successfull','code' => 200]);
         }
 
@@ -373,12 +442,50 @@ class PurchaseProductController extends Controller
                 'subject'          => $subject,
                 'message'          => $message,
                 'template'         => 'purchase-simple',
-                'additional_data'  => json_encode(['attachment' => $path]),
+                'additional_data'  => json_encode(['attachment' => [$path]]),
                 'status'           => 'pre-send',
                 'is_draft'         => 0,
             ]);
 
             \App\Jobs\SendEmail::dispatch($email);
+
+            // START - Purpose : Add Record for Inquiry - DEVTASK-4048
+            $products_data = Product::whereIn('id',$product_ids)->get()->toArray();
+            $product_names = array_column($products_data, 'name');
+            $products_str = implode(", ",$product_names);
+            $message = 'Please check Product Order : '.$products_str;
+
+            $number = ($supplier->phone ? $supplier->phone : '971569119192' );
+
+            $send_whatsapp = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($number,$supplier->whatsapp_number, $message);
+
+            $getInquiryData = SupplierOrderInquiryData::where('type',$type)->get()->toArray();
+
+            $pro_data_arr = array();
+            foreach($getInquiryData as $key => $value){
+                $pro_data_arr[$value['type']][$value['product_id']] = $value;
+            }   
+
+
+            $product_id = array_column($getInquiryData, 'product_id');
+
+            $pro_arr = [];
+            foreach ($product_ids as $key => $val)
+            {
+                if (!in_array($val, $product_id))
+                {
+                    $pro_arr[] = [
+                        'supplier_id' => $supplier_id,
+                        'product_id' => $val,
+                        'type' => $type,
+                        'count_number' => '1'
+                    ];
+
+                }
+            }
+
+            SupplierOrderInquiryData::insert($pro_arr);
+            // END - DEVTASK-4048
     
             return response()->json(['message' => 'Successfull','code' => 200]);
         }
@@ -406,7 +513,43 @@ class PurchaseProductController extends Controller
         }
         return response()->json(['message' => 'Status not changed' ,'code' => 500]);
     }
+    
+    public function insert_suppliers_product(Request $request){
+       
+        $product_data = Product::find($request->product_id);
+        $suppliers = $request->supplier_id;
 
+        $isexist = ProductSupplier::where('product_id',$product_data->id)->whereIn('supplier_id',$suppliers)->exists();
+
+
+        if($isexist == true)
+        {
+            return response()->json(['message' => 'This Supplier Alreday Added For this Product.' ,'code' => 400]);
+        }
+
+        foreach($suppliers as $key => $val)
+        {
+            $add_product_supplier             = ProductSupplier::create([
+                'product_id' => $product_data->id,
+                'supplier_id' => $val,
+                'sku' => $product_data->sku,
+                'title' => $product_data->name,
+                'description' => $product_data->short_description,
+                'supplier_link' => $product_data->supplier_link,
+                'price'         => $product_data->price,
+                'stock'         => $product_data->stock,
+                'price'         => $product_data->price,
+                'price_special' => $product_data->price_eur_special,
+                'price_discounted' => $product_data->price_eur_discounted,
+                'size'          => $product_data->size,
+                'color'         => $product_data->color,
+                'composition'   => $product_data->composition
+            ]);
+        }
+
+        return response()->json(['message' => 'Supplier Added successfully' ,'code' => 200]);
+    }
+    
     /**
      * Store a newly created resource in storage.
      *
