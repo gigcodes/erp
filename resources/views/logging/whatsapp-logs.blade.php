@@ -98,7 +98,7 @@
             <tr>
             </tr>
             </thead>
-            <tbody id="content_data">
+            <tbody id="content_data" class="infinite-scroll-pending-inner">
             @foreach($array as $row)
                 <tr>
                     <td>{{ $row['date'] }}</td>
@@ -218,8 +218,46 @@
 
     $(".sentMessage").click(function() {
         console.log($(this).attr('data-details'));
-    }); 
- 
-   
+    });
+
+        var page = 1;
+        function getScrollTop() {
+            return (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
+        }
+        window.onscroll = function() {
+            if (getScrollTop() < getDocumentHeight() - window.innerHeight) return;
+            loadMore(++page);
+        };
+
+        function getDocumentHeight() {
+            const body = document.body;
+            const html = document.documentElement;
+
+            return Math.max(
+                body.scrollHeight, body.offsetHeight,
+                html.clientHeight, html.scrollHeight, html.offsetHeight
+            );
+        };
+
+
+        function loadMore(page) {
+
+            page = page + 1;
+            $.ajax({
+                url: "/whatsapp-log?page="+page,
+                type: 'GET',
+                data: $('.form-search-data').serialize(),
+                success: function (data) {
+                    $('.infinite-scroll-pending-inner').append(data);
+                },
+                error: function () {
+
+                }
+            });
+        }
+
+
+
+
     </script>
 @endsection
