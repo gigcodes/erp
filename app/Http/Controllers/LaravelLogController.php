@@ -290,7 +290,7 @@ class LaravelLogController extends Controller
         //    exit;
 
         $errors       = [];
-        $errors       = $final;
+        $errors       = array_unique($final);
         $currentItems = array_slice($errors, $perPage * ($currentPage - 1), $perPage);
         //dd($currentItems);
 
