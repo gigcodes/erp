@@ -145,8 +145,13 @@ class MasterDevTaskController extends Controller
 
 
         $projectDirectoryData = \DB::select($projectDirectorySql);
+
+
+        $logRequest = \App\LogRequest::where('status_code',"!=",200)->whereDate("created_at",date("Y-m-d"))->groupBy('status_code')->select(["status_code",\DB::raw("count(*) as total_error")])->get();
+
+
 		return view("master-dev-task.index",compact(
-            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports','projectDirectoryData','last3HrsJobs','last24HrsJobs','topFiveTables','memory_use'));
+            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports','projectDirectoryData','last3HrsJobs','last24HrsJobs','topFiveTables','memory_use','logRequest'));
     }
 
 }
