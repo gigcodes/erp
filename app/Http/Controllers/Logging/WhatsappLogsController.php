@@ -99,7 +99,7 @@ class WhatsappLogsController extends Controller
           }else if($c == 1){
             // dump($origin, $row);
             $arr4['date'] = $date; 
-            $arr4['error_message1'] = trim(substr($row, 1, ));
+            $arr4['error_message1'] = trim(substr($row, 1, 26));
             $arr4['type'] = 4;
             $resend_details = json_decode(str_replace('resend_details:', '', $resend_details));
             for($i=0; $i< count( (array) $resend_details); $i++){
