@@ -1160,6 +1160,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/task/upload-document', 'DevelopmentController@uploadDocument');
     Route::post('development/task/bulk-delete', 'DevelopmentController@deleteBulkTasks');
     Route::get('development/task/get-document', 'DevelopmentController@getDocument');
+    Route::get('development/task/export-task', 'DevelopmentController@exportTask');
 
 
     Route::resource('task-types', 'TaskTypesController');
