@@ -1261,6 +1261,7 @@ class TaskModuleController extends Controller {
 			abort(404, "Task is not exist");
 		}
 
+		
 		$chatMessages = ChatMessage::where('task_id',$id)->get();
 		if ((!$task->users->contains(Auth::id()) && $task->is_private == 1) || ($task->assign_from != Auth::id() && $task->contacts()->count() > 0) || (!$task->users->contains(Auth::id()) && $task->assign_from != Auth::id() && Auth::id() != 6)) {
 			return redirect()->back()->withErrors("This task is private!");

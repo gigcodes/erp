@@ -716,6 +716,27 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/{id}/updateCategory', 'TaskModuleController@updateCategory')->name('task.update.category');
     Route::post('task/list-by-user-id', 'TaskModuleController@taskListByUserId')->name('task.list.by.user.id');
     Route::post('task/set-priority', 'TaskModuleController@setTaskPriority')->name('task.set.priority');
+    Route::get('/task/assign/master-user', 'TaskModuleController@assignMasterUser')->name('task.asign.master-user');
+    Route::post('/task/upload-documents', 'TaskModuleController@uploadDocuments')->name("task.upload-documents");
+    Route::post('/task/save-documents', 'TaskModuleController@saveDocuments')->name("task.save-documents");
+    Route::get('/task/preview-img/{id}', 'TaskModuleController@previewTaskImage')->name('task.preview-img');
+    Route::get('/task/complete/{taskid}', 'TaskModuleController@complete')->name('task.complete');
+    Route::get('/task/start/{taskid}', 'TaskModuleController@start')->name('task.start');
+    Route::get('/statutory-task/complete/{taskid}', 'TaskModuleController@statutoryComplete')->name('task.statutory.complete');
+    Route::post('/task/addremark', 'TaskModuleController@addRemark')->name('task.addRemark');
+    Route::get('tasks/getremark', 'TaskModuleController@getremark')->name('task.getremark');
+    Route::get('tasks/gettaskremark', 'TaskModuleController@getTaskRemark')->name('task.gettaskremark');
+    Route::post('task/{id}/makePrivate', 'TaskModuleController@makePrivate');
+    Route::post('task/{id}/isWatched', 'TaskModuleController@isWatched');
+    Route::post('task-remark/{id}/delete', 'TaskModuleController@archiveTaskRemark')->name('task.archive.remark');
+    Route::post('tasks/deleteTask', 'TaskModuleController@deleteTask');
+    Route::post('tasks/{id}/delete', 'TaskModuleController@archiveTask')->name('task.archive');
+    //  Route::get('task/completeStatutory/{satutory_task}','TaskModuleController@completeStatutory');
+    Route::post('task/deleteStatutoryTask', 'TaskModuleController@deleteStatutoryTask');
+
+    Route::get('task/export', 'TaskModuleController@exportTask')->name('task.export');
+    Route::post('task/addRemarkStatutory', 'TaskModuleController@addRemark')->name('task.addRemarkStatutory');
+
     Route::get('task/{id}', 'TaskModuleController@show')->name('task.module.show');
     Route::resource('task', 'TaskModuleController');
 
@@ -1104,26 +1125,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Complete the task
     // Route::get('/task/count/{taskid}', 'TaskModuleController@taskCount')->name('task.count');
-    Route::get('/task/assign/master-user', 'TaskModuleController@assignMasterUser')->name('task.asign.master-user');
-    Route::post('/task/upload-documents', 'TaskModuleController@uploadDocuments')->name("task.upload-documents");
-    Route::post('/task/save-documents', 'TaskModuleController@saveDocuments')->name("task.save-documents");
-    Route::get('/task/preview-img/{id}', 'TaskModuleController@previewTaskImage')->name('task.preview-img');
-    Route::get('/task/complete/{taskid}', 'TaskModuleController@complete')->name('task.complete');
-    Route::get('/task/start/{taskid}', 'TaskModuleController@start')->name('task.start');
-    Route::get('/statutory-task/complete/{taskid}', 'TaskModuleController@statutoryComplete')->name('task.statutory.complete');
-    Route::post('/task/addremark', 'TaskModuleController@addRemark')->name('task.addRemark');
-    Route::get('tasks/getremark', 'TaskModuleController@getremark')->name('task.getremark');
-    Route::get('tasks/gettaskremark', 'TaskModuleController@getTaskRemark')->name('task.gettaskremark');
-    Route::post('task/{id}/makePrivate', 'TaskModuleController@makePrivate');
-    Route::post('task/{id}/isWatched', 'TaskModuleController@isWatched');
-    Route::post('task-remark/{id}/delete', 'TaskModuleController@archiveTaskRemark')->name('task.archive.remark');
-    Route::post('tasks/deleteTask', 'TaskModuleController@deleteTask');
-    Route::post('tasks/{id}/delete', 'TaskModuleController@archiveTask')->name('task.archive');
-    //  Route::get('task/completeStatutory/{satutory_task}','TaskModuleController@completeStatutory');
-    Route::post('task/deleteStatutoryTask', 'TaskModuleController@deleteStatutoryTask');
-
-    Route::post('task/export', 'TaskModuleController@exportTask')->name('task.export');
-    Route::post('/task/addRemarkStatutory', 'TaskModuleController@addRemark')->name('task.addRemarkStatutory');
     Route::get('delete/task/note', 'TaskModuleController@deleteTaskNote')->name('delete/task/note');
     Route::get('hide/task/remark', 'TaskModuleController@hideTaskRemark')->name('hide/task/remark');
 
