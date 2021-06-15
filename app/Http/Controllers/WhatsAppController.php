@@ -1938,6 +1938,7 @@ class WhatsAppController extends FindByNumberController
      */
     public function sendMessage(Request $request, $context, $ajaxNeeded = false)
     {
+        // dd($request->all());
         $this->validate($request, [
             'customer_id' => 'sometimes|nullable|numeric',
             'supplier_id' => 'sometimes|nullable|numeric',
@@ -2966,6 +2967,41 @@ class WhatsAppController extends FindByNumberController
             $params['status'] = 1;
             $chat_message = ChatMessage::create($data);
         }
+
+        //START - Purpose : Add ChatbotMessage entry - DEVTASK-4203
+        if($context == 'vendor')
+        {
+            /** Sent To ChatbotMessage */
+                    
+            $loggedUser = $request->user();
+
+            $roles = $loggedUser->roles->pluck('name')->toArray();
+
+            if(!in_array('Admin', $roles)){
+                
+                \App\ChatbotReply::create([
+                    'question'=> $request->message,
+                    'reply' => json_encode([
+                        'context' => 'vendor',
+                        'issue_id' => $data['vendor_id'],
+                        'from' => $loggedUser->id
+                    ]),
+                    'replied_chat_id' => $chat_message->id,
+                    'reply_from' => 'database'
+                ]);
+            }
+
+            $messageReply = \App\ChatbotReply::find($request->chat_reply_message_id);
+
+            if($messageReply){
+
+                $messageReply->chat_id = $chat_message->id;
+                
+                $messageReply->save();
+
+            }
+        }
+        //END - DEVTASK-4203
 
         if ($context == 'customer') {
 

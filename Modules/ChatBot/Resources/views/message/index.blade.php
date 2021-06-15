@@ -279,10 +279,21 @@
             var chatMessageReplyId = tr.data('chat-message-reply-id')
             var type = tr.data("context");
 
+            console.log(type);
+
             if(parseInt(tr.data("vendor-id")) > 0) {
                 type = "vendor";
                 typeId = tr.data("vendor-id");
                 field = "vendor_id";
+
+                //START - Purpose : Add vendor content - DEVTASK-4203
+                var message = thiss.closest(".cls_textarea_subbox").find("textarea").val();
+                data.append("vendor_id", typeId);
+                data.append("message", message);
+                data.append("status", 2);
+                data.append("sendTo", 'to_developer');
+                data.append("chat_reply_message_id", chatMessageReplyId)
+                //END - DEVTASK-4203
             }
             
             var customer_id = typeId;
@@ -308,6 +319,16 @@
                 data.append("status", 1)
                 data.append("chat_reply_message_id", chatMessageReplyId)
             }
+            //START - Purpose : Task message - DEVTASK-4203
+            else if(type === 'task'){
+                data.append('task_id', typeId);
+                data.append("message", message);
+                data.append("status", 2)
+                data.append("sendTo", 'to_developer');
+                data.append("chat_reply_message_id", chatMessageReplyId)
+            }
+            //END - DEVTASK-4203
+
 
             var add_autocomplete  = thiss.closest(".cls_textarea_subbox").find("[name=add_to_autocomplete]").is(':checked') ;
             data.append("add_autocomplete", add_autocomplete);
