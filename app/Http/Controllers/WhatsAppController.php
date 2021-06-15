@@ -1483,6 +1483,21 @@ class WhatsAppController extends FindByNumberController
 
                 $params['dubbizle_id'] = null;
             }
+
+            if($supplier && $message) {
+                \App\ChatbotReply::create([
+                    'question'=> $params['message'],
+                    'replied_chat_id' => $message->id,
+                    'reply_from' => 'database'
+                ]);
+            }else if ($vendor && $message) {
+                \App\ChatbotReply::create([
+                    'question'=> $params['message'],
+                    'replied_chat_id' => $message->id,
+                    'reply_from' => 'database'
+                ]);
+            }
+            
             // }
 
             // Get all numbers from config
@@ -1621,6 +1636,8 @@ class WhatsAppController extends FindByNumberController
                         \App\Helpers\MessageHelper::sendwatson( $customer, $params['message'], true, $message , $params, false, 'customer');
                     }
                 }
+
+                
                 //Auto reply
                 if (isset($customer->id) && $customer->id > 0) {
 

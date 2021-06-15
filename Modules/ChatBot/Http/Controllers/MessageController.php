@@ -24,9 +24,8 @@ class MessageController extends Controller
         $pendingApprovalMsg = ChatMessage::with('taskUser', 'chatBotReplychat', 'chatBotReplychatlatest')
             ->leftjoin("customers as c", "c.id", "chat_messages.customer_id")
             ->leftJoin("vendors as v", "v.id", "chat_messages.vendor_id")
+            ->leftJoin("suppliers as s", "s.id", "chat_messages.supplier_id")
             ->leftJoin("store_websites as sw", "sw.id", "c.store_website_id")
-
-            
             ->Join("chatbot_replies as cr", "cr.replied_chat_id", "chat_messages.id")
             ->leftJoin("chat_messages as cm1", "cm1.id", "cr.chat_id")
             ->groupBy('chat_messages.task_id','chat_messages.developer_task_id','chat_messages.vendor_id','chat_messages.customer_id', 'chat_messages.user_id');//Purpose : Add task_id - DEVTASK-4203
@@ -43,13 +42,13 @@ class MessageController extends Controller
             });
         }
 
-        $pendingApprovalMsg = $pendingApprovalMsg->whereRaw("chat_messages.id in (select max(id) as latest_message from chat_messages where (customer_id > 0 or vendor_id > 0 or task_id > 0 or developer_task_id > 0 or user_id > 0)  GROUP BY task_id,developer_task_id,vendor_id,customer_id,user_id)");
-        
+        $pendingApprovalMsg = $pendingApprovalMsg->whereRaw("chat_messages.id in (select max(id) as latest_message from chat_messages where (customer_id > 0 or vendor_id > 0 or task_id > 0 or developer_task_id > 0 or user_id > 0 or supplier_id > 0)  GROUP BY task_id,developer_task_id,vendor_id,customer_id,user_id,supplier_id)");
+
         $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
             $q->where("chat_messages.message", "!=", "");
         })->select(['cr.id as chat_bot_id', "chat_messages.*", "cm1.id as chat_id", "cr.question",
             "cm1.message as answer",
-            "c.name as customer_name", "v.name as vendors_name", "cr.reply_from", "cm1.approved", "sw.title as website_title"])
+            "c.name as customer_name", "v.name as vendors_name","s.supplier as supplier_name", "cr.reply_from", "cm1.approved", "sw.title as website_title"])
             ->orderBy('cr.id', 'DESC')
             ->paginate(20);
 
