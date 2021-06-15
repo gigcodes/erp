@@ -520,10 +520,10 @@
             success: function(response)
             {
                 toastr.success(response.message);
-                cu_id = response.c_id;
-                for (i = 0; i < cu_id.length; i++) {
-                    $('.customer-id-remove-class[data-customer_id="' + cu_id[i] + '"]').hide();
-                }
+                // cu_id = response.c_id;
+                // for (i = 0; i < cu_id.length; i++) {
+                //     $('.customer-id-remove-class[data-customer_id="' + cu_id[i] + '"]').hide();
+                // }
             }
         });
 
