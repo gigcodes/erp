@@ -1352,6 +1352,9 @@ $metaData = '';
                                     <a class="dropdown-item" href="{{ route('erp-log') }}">ERP Log</a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('whatsapp.log') }}">Whatsapp Log</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('jobs.list') }}">Jobs</a>
                                 </li>
                             </ul>
