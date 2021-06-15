@@ -58,8 +58,7 @@
         <td>{{ $pam->website_title }}</td>
        
         <!-- Purpose : Add question - DEVTASK-4203 -->
-         <!-- <td class="user-input">{{ $pam->question }}</td> -->
-        <td class="user-input">{{ !empty($pam->chatmsg->message) ? $pam->chatmsg->message : $pam->question }}</td>
+         <td class="user-input">{{ $pam->question }}</td>
         <td class="boat-replied">{{ $pam->answer }}</td>
         <td class="message-input">
             <div class="row cls_textarea_subbox">
