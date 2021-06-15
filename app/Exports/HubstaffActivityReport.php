@@ -49,9 +49,10 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
       $totalApproved = 0;
       $totalDiff = 0;
       $totalTrack = 0;
-        // dd( $this->user );
+      $estimatedTime = 0;
+      // dd( $this->user );
       foreach ($this->user as $key => $user) {
-      	// foreach($user['tasks'] as $key =>  $ut) {
+        // foreach($user['tasks'] as $key =>  $ut) {
 	      	
 	      	// @list($taskid,$devtask,$taskName,$estimation,$status,$devTaskId) = explode("||",$ut);
             if ($user['is_manual']) {
@@ -112,7 +113,6 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
     	        $new_customers[$key]['TimeDiff'] = $diff;
     	        $new_customers[$key]['TimeTracked'] =  ( $trackedTime && $devTask->subject) ? number_format($trackedTime / 60,2,".",",") : 'N/A';
     	        $new_customers[$key]['status'] = $devTask->status;
-    	        
 
     	        if (is_numeric($est_time) && $devTask->subject) {
     	        	$totalApproved += $est_time;
@@ -126,17 +126,22 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
     	        }
             }
 
+            if ($user['estimated_time'] !== null) {
+                $estimatedTime += $user['estimated_time'];
+            }
+
       	// }
       }
-
-      array_push($new_customers, [null,null,null,null,null, null]);
-      array_push($new_customers, ['Total ',null,null,$totalApproved,$totalDiff, number_format($totalTrack / 60,2,".",",")]);
+ 
+    //   dd($new_customers);
+      array_push($new_customers, [null,null,null,null,null, null, null]);
+      array_push($new_customers, ['Total ',null,null,$totalApproved,$totalDiff, null, $estimatedTime, number_format($totalTrack / 60,2,".",",")]);
       // dd( $new_customers );
       return $new_customers;
     }
 
     public function headings() : array
     {
-        return ["User", "Date", "Task", "Time approved", "Time Diff", "Time tracked", "Status"];
+        return ["User", "Date", "Task", "Time approved", "Time Diff", "Time tracked", "Estimated Time", "Status"];
     }
 }
