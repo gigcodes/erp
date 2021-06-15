@@ -56,16 +56,50 @@ table tr td{
             {!! Form::text('term',request("term"), ['placeholder' => 'Search by product, sku, brand, category','class' => 'form-control','style' => 'width: 100%;']) !!}
         </div>
         <div class="form-group mr-pd col-md-2">
-            {!! Form::select('brand_names[]',$brands_names, request("brand_names",[]), ['data-placeholder' => 'Select a Brand','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
+            <select class="form-control globalSelect2" data-placeholder="Select a Brand" data-ajax="{{ route('select2.brands',['sort'=>true]) }}"
+            name="brand_names[]" multiple>
+            <option value="">Select a Brand</option>
+
+                @if ($selected_brand)        
+                    @foreach($selected_brand as $brand)
+                                    <option value="{{ $brand->id }}" selected>{{ $brand->name }}</option>
+                    @endforeach
+                @endif
+            </select>
+
         </div>
         <div class="form-group mr-pd col-md-2">
-            {!! $products_categories !!}
+            {{-- {!! $products_categories !!} --}}
+
+            <select class="form-control globalSelect2" data-placeholder="Select a Category" data-ajax="{{ route('select2.categories') }}"
+                name="product_categories[]" multiple>
+                <option value="">Select a Category</option>
+    
+                    @if ($selected_categories)        
+                        @foreach($selected_categories as $category   )
+                                        <option value="{{ $category->id }}" selected>{{ $category->title }}</option>
+                        @endforeach
+                    @endif
+            </select>
+
         </div>
         <div class="form-group mr-pd col-md-2">
             {!! Form::select('in_stock',["" => "--All--" , "1" => "In Stock", "2" => "Out Of Stock"], request("in_stock",null), ['data-placeholder' => 'Select a In Stock','class' => 'form-control']) !!}
         </div>
         <div class="form-group mr- mb-3 col-md-3">
-            {!! Form::select('supplier[]',$supplier_list, request("supplier",[]), ['data-placeholder' => 'Select a Supplier','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
+            {{-- {!! Form::select('supplier[]',$supplier_list, request("supplier",[]), ['data-placeholder' => 'Select a Supplier','class' => 'form-control select-multiple2', 'multiple' => true]) !!} --}}
+
+            <select class="form-control globalSelect2" data-placeholder="Select a Supplier" data-ajax="{{ route('select2.suppliers',['sort'=>true]) }}"
+                name="supplier[]" multiple>
+                {{-- <option value="">Select a Brand</option> --}}
+    
+                    @if ($selected_supplier)        
+                        @foreach($selected_supplier as $supplier )
+                                        <option value="{{ $supplier->id }}" selected>{{ $supplier->supplier }}</option>
+                        @endforeach
+                    @endif
+                </select>
+
         </div>
         <!-- <div class="form-group mr-3 mb-3">
                 {!! Form::select('product_sku[]',$products_sku, request("product_sku",[]), ['data-placeholder' => 'Select a Sku','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
