@@ -116,19 +116,77 @@ class WhatsappLogsController extends Controller
 
 
             }
-            // dump('-----');
-            // dump($array);
-            // dump($total_log);
+
+        }
+
+        /* chat api*/
+//        dump($array);
+
+        $files = Storage::disk('logs')->files('chatapi');
+        // dd(storage_path('logs/whatsapp/'));
+        // $files = File::allfiles(storage_path('logs/whatsapp/'));
+        // dd($files);
+        $chatapiarray = [];
+        $files = array_reverse($files);
+        foreach ($files as $file) {
+            $total_log = 0;
+            $yesterday = strtotime('yesterday');
+            $today = strtotime('today');
+            $path = base_path() . '/';
+            $content = Storage::disk('logs')->get($file);
+//          dd($content);
+            $escaped = str_replace('/', '\/', $path);
+            $matches = [];
+            $rows = preg_split('/\n+/', $content);
+//          $rows = explode('/\n', $content);
+//          $rows = array_reverse($rows);
+//            dump($rows);
+            // dump(count($rows));
+
+            $finaldata = [];
+            foreach ($rows as $key => $row) {
+
+                if (substr($row, 0, 1) === '[') {
+
+                    $date = preg_match('#\[(.*?)\]#', $row, $match);
+//                  dd($match[1], $row);
+                    $finaldata['date'] = $match[1];
+                    $message = preg_match('/{(.*?)}/', $row, $match);
+                    $finaldata['error_message1'] = $match[1];
+                }
+
+                if (substr($row, 0, 7) === 'Message') {
+
+                    $message = substr($row, 8, strlen($row));
+                    $finaldata['error_message2'] = $message;
+                    $finaldata['resend_details'] = '';
+                    $finaldata['type'] = 2;
+
+                    array_push($chatapiarray, $finaldata);
+                    $finaldata = [];
+                }
+
+            }
 
 
         }
+        $chatapiarray = array_reverse($chatapiarray);
+
+        $farray = array_merge($chatapiarray, $array);
+        usort($farray, function ($element1, $element2) {
+            $datetime1 = strtotime($element1['date']);
+            $datetime2 = strtotime($element2['date']);
+            return $datetime2 - $datetime1;
+        });
+//        dd($farray);
+        /* end chat api */
 
         $page = $request->page;
         if ($page == null) {
             $page = 1;
         }
 
-        $array = array_slice($array, ($page * 10 - 10), 10);
+        $array = array_slice($farray, ($page * 10 - 10), 10);
 
         if ($request->ajax()) {
 
