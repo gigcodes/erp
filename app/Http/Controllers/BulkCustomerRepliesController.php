@@ -49,8 +49,10 @@ class BulkCustomerRepliesController extends Controller
                 //     $q->where('do_not_disturb', 0);
                 // }
 
-                 if($request->dnd_enabled !== 'all'){
+                if($request->dnd_enabled !== 'all'){
                     $q->doesntHave('dnd');
+                }else{
+                    $q->has('dnd');
                 }
 
             }])
@@ -153,14 +155,14 @@ class BulkCustomerRepliesController extends Controller
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add([
-                'message' => $request->get('message'),
+                'message' => $request->get('message_bulk'),
                 'customer_id' => $customer,
                 'status' => 1
             ]);
-            
+
             app('App\Http\Controllers\WhatsAppController')->sendMessage($myRequest, 'customer');
 
-            DB::table('bulk_customer_replies_keyword_customer')->where('customer_id', $customer)->delete();
+            DB::table('bulk_customer_replies_keyword_customer')->where('customer_id', $customer)->where("keyword_id",$request->get("keyword_id",0))->delete();
         }
             return response()->json(['message' => 'Messages sent successfully!','c_id' => $customer_id_array]);
         // return redirect()->back()->with('message', 'Messages sent successfully!');
