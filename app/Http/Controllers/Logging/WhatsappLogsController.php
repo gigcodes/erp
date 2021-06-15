@@ -167,9 +167,9 @@ class WhatsappLogsController extends Controller
 
                     $date = preg_match('#\[(.*?)\]#', $row, $match);
 //                  dd($match[1], $row);
-                    $finaldata['date'] = $match[1];
+                    $finaldata['date'] = isset($match[1]) ? $match[1] : '';;
                     $message = preg_match('/{(.*?)}/', $row, $match);
-                    $finaldata['error_message1'] = $match[1];
+                    $finaldata['error_message1'] = isset($match[1]) ? $match[1] : '';
                 }
 
                 if (substr($row, 0, 7) === 'Message') {
