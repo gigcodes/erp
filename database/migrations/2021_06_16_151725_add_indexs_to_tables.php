@@ -19,10 +19,7 @@ class AddIndexsToTables extends Migration
         DB::select("ALTER TABLE `categories` ADD INDEX(`parent_id`);");
         DB::select("ALTER TABLE `user_logins` ADD INDEX(`user_id`);");
         DB::select("ALTER TABLE `product_suppliers` ADD INDEX(`product_id`);");
-        DB::select("ALTER TABLE `suppliers` ADD INDEX(`deleted_at`);");
-        DB::select("ergtsdfstdegrfvfd");
-        DB::select("ergtsdfstdegrfvfd");
-        DB::select("ergtsdfstdegrfvfd");
+        DB::select("ALTER TABLE `suppliers` ADD INDEX(`deleted_at`);"); 
     }
 
     /**
