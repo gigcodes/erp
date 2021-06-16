@@ -2533,6 +2533,7 @@ class ProductController extends Controller
         } else {
             $products = $products->paginate($perPageLimit);
         }
+
         $brand = $request->brand;
         $products_count = $products->total();
         $all_product_ids = [];
@@ -2598,6 +2599,17 @@ class ProductController extends Controller
                     \App\SuggestedProductList::insert($data_to_insert);
                 } 
             }
+
+            //
+            if($request->need_to_send_message == 1) {
+               \App\ChatMessage::create([
+                    "message" => "Total product found '".count($product_ids)."' for the keyword message : {$request->keyword_matched}",
+                    "customer_id" => $model_id,
+                    "status" => 2,
+                    "approved" => 1,
+               ]); 
+            }
+
 
             // $message_body = '';
             // $sending_time = '';
