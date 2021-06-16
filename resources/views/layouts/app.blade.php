@@ -833,6 +833,11 @@ $metaData = '';
                                 <li class="nav-item">
                                     <a id="navbarDropdown" class="" href="{{ route('keywordassign.index') }}" role="button">Keyword Assign</a>
                                 </li>
+                                {{-- START - Purpose : Add new Menu Keyword Response Logs - DEVTASK-4233 --}}
+                                <li class="nav-item">
+                                    <a id="navbarDropdown" class="" href="{{ route('keywordreponse.logs') }}" role="button">Keyword Response Logs</a>
+                                </li>
+                                {{-- END - DEVTASK-4233 --}}
                                 <li class="nav-item">
                                     <a id="navbarDropdown" class="" href="{{ route('purchase-product.index') }}" role="button">Purchase</a>
                                 </li>
