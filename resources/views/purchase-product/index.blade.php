@@ -271,7 +271,9 @@
 
               </td>
               <td>{{-- $order->balance_amount --}}
+                @if ($order_product && $order_product->product)
               <i title="Add Supplier for this product" class="fa fa-user-plus add_supplier" aria-hidden="true" data-product_id="{{$order_product->product->id}}" data-product_name="{{$order_product->product->name}}"></i>
+              @endif
               </td>
 
             </tr>
