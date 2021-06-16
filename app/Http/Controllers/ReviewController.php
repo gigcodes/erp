@@ -556,7 +556,7 @@ class ReviewController extends Controller
 
     public function restartScript()
     {
-        $url = 'http://s05.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
+        $url = 'http://s07.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
         
         $curl = curl_init();
         
@@ -564,11 +564,20 @@ class ReviewController extends Controller
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         
         $response = curl_exec($curl);
-        
+
+        $err      = curl_error($curl);
+
         curl_close($curl);
+
+        if(!empty($err)) {
+           return response()->json(["code" => 500, "message" => "Could not fetch response from server"]);
+        }
         
-        if ($response) {
-            return response()->json(["code" => 200, "message" => "Script Restarted"]);
+
+        $response = json_decode($response);
+        
+        if (isset($response->message)) {
+            return response()->json(["code" => 200, "message" => $response->message]);
         } else {
             return response()->json(["code" => 500, "message" => "Check if Server is running"]);
         }
