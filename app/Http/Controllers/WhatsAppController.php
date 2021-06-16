@@ -1350,7 +1350,9 @@ class WhatsAppController extends FindByNumberController
                 $params["customer_id"] = $customer->id;
                 $message = ChatMessage::create($params);
             }
+
             if ($customer != null) {
+
                 ChatMessagesQuickData::updateOrCreate([
                     'model' => \App\Customer::class,
                     'model_id' => $params['customer_id']
@@ -1534,6 +1536,7 @@ class WhatsAppController extends FindByNumberController
                 $to = $config[0]['number'];
             }
             if ($customer) {
+                (new \App\Services\Products\SendImagesOfProduct)->check($message);
                 \App\Helpers\MessageHelper::whatsAppSend( $customer, $params['message'], true , $message , false, $parentMessage);
             }
             // Is this message from a customer?
