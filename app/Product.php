@@ -1208,7 +1208,7 @@ class Product extends Model
             \DB::raw('count(distinct psu.id) as total_product'),
             \DB::raw('IF(sp.discounted_percentage IS null, 00 , max(sp.discounted_percentage) ) discounted_percentage ')
         );
-        $query =  \App\Product::leftJoin("brands as b",function($q){
+        $query =  \App\Product::with('many_scraped_products.brand')->leftJoin("brands as b",function($q){
                 $q->on("b.id","products.brand");
             })
             ->leftJoin("categories as c",function($q){
