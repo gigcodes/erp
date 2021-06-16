@@ -2388,11 +2388,29 @@ $metaData = '';
 
         $('.btn_save_notes').on('click', function(e) {
             e.preventDefault();
-            var form = $(this).closest("form");
-            console.log(":++++++++++++++++++++");
-           console.log($('#editor-notes-content').html());
-
-
+            var data = $('#editor-notes-content').val();
+            var url  = window.location.href;
+            $.ajax({
+                type: "POST",
+                url: "{{ route('notesCreate') }}",
+                data: {
+                    data: data,
+                    url : url,
+                    _token: "{{ csrf_token() }}",
+                },
+                dataType: "json",
+                success: function(data) {
+                    if(data.code == 200)
+                    {
+                        toastr['success'](data.message, 'success');
+                        $("#quick_notes_modal").modal("hide");
+                    }
+                   
+                },
+                error : function(xhr, status, error) {
+                   
+                }
+            });
         });
         //END - DEVTASK-4289
 

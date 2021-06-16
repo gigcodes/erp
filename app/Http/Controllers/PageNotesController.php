@@ -145,7 +145,22 @@ class PageNotesController extends Controller
 
     public function notesCreate(Request $request)
     {
-        dd("4444");
+        $page = new \App\PageNotes; 
+        $page->url = $request->url;
+        $page->category_id = '';
+        $page->note = $request->data;
+        $page->user_id = \Auth::user()->id;
+        $page->create();
+
+        // $params = [
+        //     'url' => $request->url,
+        //     'category_id' => '',
+        //     'note' => $request->data,
+        //     'user_id' => \Auth::user()->id,
+        // ];
+        // \App\PageNotes::create($params);
+
+        return response()->json(["code" => 200, "message" => 'Notes Added Successfully.']);
     }
 
 }
