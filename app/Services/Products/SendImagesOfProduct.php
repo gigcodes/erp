@@ -15,6 +15,8 @@ class SendImagesOfProduct
             $brand    = $this->checkWithBrand($sentence);
             $category = $this->checkWithCategory($sentence);
 
+            \Log::info(print_r(["Started check for the sentance",$sentence,($brand) ? $brand->id : 0 , ($category) ? $category->id : 0],true));
+
             if($brand && $category) {
 
                 $myRequest = new Request();
