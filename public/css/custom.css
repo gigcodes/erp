@@ -931,6 +931,12 @@ form.display-inline{
 #toast-container .toast-info:nth-child(2) {
     top: 10px;
 }
+.flex-end{
+    justify-content: flex-end;
+}
+.digital-marketings .btn{
+    padding: 6px 3px;
+}
 
 #toast-container .toast-stack {
     position: relative;

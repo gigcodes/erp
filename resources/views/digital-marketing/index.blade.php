@@ -26,7 +26,7 @@
 		    </div>
 		    <div class="col">
 		    	<div class="h" style="margin-bottom:10px;">
-		    		<form class="form-inline message-search-handler" method="post">
+		    		<form class="form-inline message-search-handler flex-end" method="post">
 					  <div class="row">
 				  		<div class="col">
 				  			<div class="form-group">
