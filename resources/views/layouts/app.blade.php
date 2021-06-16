@@ -482,6 +482,8 @@ $metaData = '';
                                                 <a class="dropdown-item" href="{{ route('supplier.count') }}">Supplier Category Count</a>
                                                 <a class="dropdown-item" href="{{ route('supplier.brand.count') }}">Supplier Brand Count</a>
                                                 <a class="dropdown-item" href="{{ url('price-comparison-scraper') }}">Price comparison</a>
+                                                <a class="dropdown-item" href="{{ url('scrap/servers/statistics') }}">Scrap server statistics</a>
+                                                
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -1348,6 +1350,9 @@ $metaData = '';
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('erp-log') }}">ERP Log</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('whatsapp.log') }}">Whatsapp Log</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('jobs.list') }}">Jobs</a>

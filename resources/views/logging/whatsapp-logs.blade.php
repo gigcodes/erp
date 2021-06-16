@@ -98,32 +98,21 @@
             <tr>
             </tr>
             </thead>
-            <tbody id="content_data">
+            <tbody id="content_data" class="infinite-scroll-pending-inner">
             @foreach($array as $row)
                 <tr>
                     <td>{{ $row['date'] }}</td>
-                    <!-- <td>{{ $row['type'] == 1 ? 'Yes' : 'No'}}</td> -->
-                    <td>{{ $row['type']}}</td>
-                    @if($row['type'] == 1)
-                        <td>
-                            Receiver No. : {{ $row['number']}} <br>
-                            ID : {{ $row['id']}} <br>
-                            Message : {{$row['message']}}
-                        </td>
-                    @elseif($row['type'] == 2 || $row['type'] == 3)
+                    <td>No</td>
                         <td class="errorLog">
                             Message1 : {{$row['error_message1']}} <br>
                             Message2 : {{$row['error_message2']}}
                         </td>
-                    @elseif($row['type'] == 4)
-                        <td>
-                            Message : {{$row['error_message1']}}
-                        </td>
-                    @endif
+
+
                     <td>
                         @if((isset($row['error_message1']) && getStr($row['error_message1'])) || (isset($row['error_message2']) && getStr($row['error_message2'])))
 
-                            <button class="btn btn-success sentMessage text-center" {{$row['type'] == 1 ? 'disabled' : ""}}>
+                            <button class="btn btn-success sentMessage text-center" >
                                 Resend
                             </button>
 
@@ -183,7 +172,7 @@
             }
 
 
-            console.log(json.chat_message_id);
+            // console.log(json.chat_message_id);
 
             if (chat_id !== null) {
 
@@ -218,8 +207,46 @@
 
     $(".sentMessage").click(function() {
         console.log($(this).attr('data-details'));
-    }); 
- 
-   
+    });
+
+        var page = 1;
+        function getScrollTop() {
+            return (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
+        }
+        window.onscroll = function() {
+            if (getScrollTop() < getDocumentHeight() - window.innerHeight) return;
+            loadMore(++page);
+        };
+
+        function getDocumentHeight() {
+            const body = document.body;
+            const html = document.documentElement;
+
+            return Math.max(
+                body.scrollHeight, body.offsetHeight,
+                html.clientHeight, html.scrollHeight, html.offsetHeight
+            );
+        };
+
+
+        function loadMore(page) {
+
+            page = page + 1;
+            $.ajax({
+                url: "/whatsapp-log?page="+page,
+                type: 'GET',
+                data: $('.form-search-data').serialize(),
+                success: function (data) {
+                    $('.infinite-scroll-pending-inner').append(data);
+                },
+                error: function () {
+
+                }
+            });
+        }
+
+
+
+
     </script>
 @endsection

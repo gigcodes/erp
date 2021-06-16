@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddMasterUserIdToTasksTable extends Migration
+class AddIndexToDevloperTasks extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class AddMasterUserIdToTasksTable extends Migration
      */
     public function up()
     {
-        Schema::table('tasks', function (Blueprint $table) {
-           $table->integer('master_user_id')->after('customer_id')->nullable();
-           $table->integer('lead_hubstaff_task_id')->after('customer_id')->nullable();
+        Schema::table('developer_tasks', function(Blueprint $table)
+        {
+            $table->index(['status','assigned_to','tester_id','team_lead_id']);
         });
     }
 
@@ -26,8 +26,9 @@ class AddMasterUserIdToTasksTable extends Migration
      */
     public function down()
     {
-        Schema::table('tasks', function (Blueprint $table) {
-            //
+        Schema::table('developer_tasks', function(Blueprint $table)
+        {
+            $table->dropIndex(['status','assigned_to','tester_id','team_lead_id']);
         });
     }
 }

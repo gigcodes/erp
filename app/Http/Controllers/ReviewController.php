@@ -554,4 +554,33 @@ class ReviewController extends Controller
         return redirect()->back()->with('message', "Message sent to @$username by @".$account->last_name);
     }
 
+    public function restartScript()
+    {
+        $url = 'http://s07.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
+        
+        $curl = curl_init();
+        
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        
+        $response = curl_exec($curl);
+
+        $err      = curl_error($curl);
+
+        curl_close($curl);
+
+        if(!empty($err)) {
+           return response()->json(["code" => 500, "message" => "Could not fetch response from server"]);
+        }
+        
+
+        $response = json_decode($response);
+        
+        if (isset($response->message)) {
+            return response()->json(["code" => 200, "message" => $response->message]);
+        } else {
+            return response()->json(["code" => 500, "message" => "Check if Server is running"]);
+        }
+    }
+
 }

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AltDescriptionToActivitiesTable extends Migration
+class AddIndexToStoreWebsiteAnalytics extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,10 @@ class AltDescriptionToActivitiesTable extends Migration
      */
     public function up()
     {
-        \DB::statement("ALTER TABLE `activities` CHANGE `description` `description` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;");
+        Schema::table('store_website_analytics', function(Blueprint $table)
+        {
+            $table->index(['website']);
+        });
     }
 
     /**
@@ -23,5 +26,9 @@ class AltDescriptionToActivitiesTable extends Migration
      */
     public function down()
     {
+        Schema::table('store_website_analytics', function(Blueprint $table)
+        {
+            $table->dropIndex(['website']);
+        });
     }
 }

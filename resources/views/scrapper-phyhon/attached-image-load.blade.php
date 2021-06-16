@@ -43,7 +43,7 @@
 
     <td>
         
-        <button title="Open Images" type="button" class="btn show-scrape-images btn-image no-pd" data-suggestedproductid="{{$store->id}}">
+        <button data-url="{{route('scrapper.phyhon.listImages', ['id' => $store->id])}}" title="Open Images" type="button" class="btn show-scrape-images btn-image no-pd" data-suggestedproductid="{{$store->id}}">
              <img src="/images/forward.png" style="cursor: default;">
         </button>
 
@@ -56,7 +56,7 @@
     
        <!--  <td colspan="7" id="attach-image-list-{{$list['id']}}">
             @if ($list['scrapper_image'])
-            @include('scrapper-phyhon.list-image-products')
+{{--            @include('scrapper-phyhon.list-image-products')--}}
                 
             @endif
         </td> -->
@@ -67,7 +67,7 @@
     <tr class="expand-images-{{$store->id}} hidden">
         <td colspan="7" id="attach-image-list-{{$store->id}}">
             {{-- @if ($store->scrapperImage) --}}
-                @include('scrapper-phyhon.list-image-products')
+{{--                @include('scrapper-phyhon.list-image-products')--}}
             {{-- @endif --}}
         </td>
     </tr>

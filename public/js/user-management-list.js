@@ -72,9 +72,9 @@ var page = {
             page.editRecord($(this));
         });
 
-        page.config.bodyView.on("click",".load-communication-modal",function(e) {
+        /*page.config.bodyView.on("click",".load-communication-modal",function(e) {
             page.chatListHistory($(this));
-        });
+        });*/
 
         page.config.bodyView.on("click",".load-role-modal",function(e) {
             page.roleModalOpen($(this));
