@@ -515,7 +515,12 @@ class CategoryController extends Controller
     {
         $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
 
-        $scrapped_category_mapping = ScrappedCategoryMapping::whereNull('category_id');
+        $scrapped_category_mapping = ScrappedCategoryMapping::whereNull('category_id')
+        ->selectRaw('scrapped_category_mappings.*, COUNT(scrapped_product_category_mappings.category_mapping_id) as total_products')
+        ->leftJoin('scrapped_product_category_mappings', 'scrapped_category_mappings.id', '=', 'scrapped_product_category_mappings.category_mapping_id')
+        ->groupBy('scrapped_category_mappings.id')
+        ->orderBy('total_products', 'DESC');
+
 
         if($request->search){
             $scrapped_category_mapping->where('name', 'LIKE', '%'.$request->search.'%');
