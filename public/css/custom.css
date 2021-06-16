@@ -922,6 +922,9 @@ ul.navbar-nav{
 .row-flex{
     display: flex;
 }
+.btn-xs.rt{
+    padding:2px !important;
+}
 @media (max-width: 1600px) and (min-width: 1299px) {
     .navbar-nav > li > a {
         padding-top: 10px !important;
