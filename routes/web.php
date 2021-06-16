@@ -2322,6 +2322,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::prefix('instruction-notes')->group(function () {
         Route::post('create', 'PageNotesController@instructionCreate')->name('instructionCreate');
     });
+
+    Route::post('notesCreate', 'PageNotesController@notesCreate')->name('notesCreate');
 });
 
 Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'marketing'], function () {

@@ -143,4 +143,9 @@ class PageNotesController extends Controller
 
     }
 
+    public function notesCreate(Request $request)
+    {
+        dd("4444");
+    }
+
 }
