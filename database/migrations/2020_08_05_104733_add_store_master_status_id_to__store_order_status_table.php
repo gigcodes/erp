@@ -15,8 +15,9 @@ class AddStoreMasterStatusIdToStoreOrderStatusTable extends Migration
     {
         Schema::table('store_order_statuses', function (Blueprint $table) {
             $table->integer('store_master_status_id');
-            $table->string('status')->nullable()->change();
+            //$table->string('status')->nullable()->change();
         });
+        \DB::statement("ALTER TABLE `store_order_statuses` CHANGE `status` `status` VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;");
     }
 
     /**
