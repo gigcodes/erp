@@ -2094,7 +2094,8 @@ class LearningModuleController extends Controller {
 		// 	return response('success');
 		// }
 
-		return response()->json(["code" => 200, "data" => [], "message" => "Your Lerning Task created!"]);
+		return redirect()->route('learning.index');
+		// return response()->json(["code" => 200, "data" => [], "message" => "Your Lerning Task created!"]);
 
 	}
 
