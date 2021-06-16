@@ -12,6 +12,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use App\DeveloperTaskHistory;
 
 class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings, WithEvents
 {
@@ -50,10 +51,13 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
       $totalDiff = 0;
       $totalTrack = 0;
       $estimatedTime = 0;
-      // dd( $this->user );
+    //   dd( $this->user );
       foreach ($this->user as $key => $user) {
+        
         // foreach($user['tasks'] as $key =>  $ut) {
 	      	
+            $userDev = User::find($user['user_id']);
+            // dump($userDev->id);
 	      	// @list($taskid,$devtask,$taskName,$estimation,$status,$devTaskId) = explode("||",$ut);
             if ($user['is_manual']) {
                 $task = DeveloperTask::where('id', $user['task_id'])->first();
@@ -82,11 +86,24 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
             }
             $devTask = $task;
             // $devTask = DeveloperTask::where('hubstaff_task_id', $user['task_id'])->first();
+            if(isset($user['type'])){
 
+                $est = DeveloperTaskHistory::where('developer_task_id', $user['task_id'])->latest()->first();
+                $new_customers[$key]['User'] = $userDev->name ?? null;
+                $new_customers[$key]['date'] = \Carbon\Carbon::parse($user['date'])->format('d-m');
+                $new_customers[$key]['TaskId'] = $taskSubject ?? 'N/A';
+                $new_customers[$key]['TimeAppr'] = $est_time ?? 'N/A';
+                $new_customers[$key]['TimeDiff'] = $diff ?? 'N/A';
+                $new_customers[$key]['TimeTracked'] =  ( isset($trackedTime)  && isset($devTask->subject)) ? number_format($trackedTime / 60,2,".",",") : 'N/A';
+                $new_customers[$key]['estimated_time'] = !empty($est) ? $est->new_value ?? 'N/A' : 'N/A';
+                $new_customers[$key]['status'] = $devTask->status ?? 'N/A';
+    
+                array_push($new_customers);
+    
+            }
             if( empty( $devTask ) ){
                 continue;
             }
-            $userDev = User::find($user['user_id']);
             // $task = \App\Hubstaff\HubstaffActivity::where('task_id', $user['task_id'])->first();
             // dd( $devTask );
 	      	$trackedTime = \App\Hubstaff\HubstaffActivity::where('task_id', $user['task_id'])->sum('tracked');
@@ -106,16 +123,19 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
             }
 
             if( $devTask ){
-    	        $new_customers[$key]['User'] = $userDev->userName ?? null;
+                $est = DeveloperTaskHistory::where('developer_task_id', $user['task_id'])->latest()->first();
+    	        $new_customers[$key]['User'] = $userDev->name ?? null;
                 $new_customers[$key]['date'] = \Carbon\Carbon::parse($user['date'])->format('d-m');
     	        $new_customers[$key]['TaskId'] = $taskSubject;
     	        $new_customers[$key]['TimeAppr'] = $est_time;
     	        $new_customers[$key]['TimeDiff'] = $diff;
     	        $new_customers[$key]['TimeTracked'] =  ( $trackedTime && $devTask->subject) ? number_format($trackedTime / 60,2,".",",") : 'N/A';
+                $new_customers[$key]['estimated_time'] = !empty($est) ? $est->new_value ?? 'N/A' : 'N/A';
+    	        $new_customers[$key]['estimated_time'] = $user['estimated_time'];
     	        $new_customers[$key]['status'] = $devTask->status;
 
     	        if (is_numeric($est_time) && $devTask->subject) {
-    	        	$totalApproved += $est_time;
+    	        	$totalApproved += $est_time ?? 0;
     	        }
 
     	        if (is_numeric($diff) && $devTask->subject) {
@@ -124,19 +144,21 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
     	        if ($trackedTime && $devTask->subject) {
     	        	 $totalTrack += $trackedTime;
     	        }
-            }
+                array_push($new_customers);
+                // dump([$key, $new_customers, 'out']);
 
-            if ($user['estimated_time'] !== null) {
-                $estimatedTime += $user['estimated_time'];
-            }
+            } 
+
+            
+            // if ($user['estimated_time'] !== null) {
+            //     $estimatedTime += $user['estimated_time'];
+            // }
 
       	// }
       }
  
     //   dd($new_customers);
-      array_push($new_customers, [null,null,null,null,null, null, null]);
       array_push($new_customers, ['Total ',null,null,$totalApproved,$totalDiff, null, $estimatedTime, number_format($totalTrack / 60,2,".",",")]);
-      // dd( $new_customers );
       return $new_customers;
     }
 
