@@ -66,31 +66,35 @@
           @endif
 
         	<form action="?" method="GET" class="form-inline align-items-start">
-        		<div class="form-group mr-3 mb-3">
+            <div style="display: flex;flex-direction: column;">
+        		<div class="a">
+                <div style="width:13.7%" class="form-group mb-3">
         			<input name="term" type="text" class="form-control" id="product-search" value="{{ request('term','') }}" placeholder="sku,brand,category,status,stage">
         		</div>
-        		<div class="form-group mr-3 mb-3">
+        		<div style="width:13.7%" class="form-group mb-3">
                   {!! $category_selection !!}
                 </div>
-                <div class="form-group mr-3 mb-3">
+                <div style="width:13.7%" class="form-group mb-3">
                   @php $brands = \App\Brand::getAll(); @endphp
                   {!! Form::select('brand[]',$brands, request("brand",[]), ['data-placeholder' => 'Select a Brand','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
                 </div>
-                <div class="form-group mr-3 mb-3">
+                <div style="width:13.7%" class="form-group mr-5 mb-3">
                   @php $colors = new \App\Colors(); @endphp
                   {!! Form::select('color[]',$colors->all(), request("color",[]), ['data-placeholder' => 'Select a Color','class' => 'form-control select-multiple2', 'multiple' => true,'style' => "width:250px;"]) !!}
                 </div>
                 @if($isAdmin)
-                  <div class="form-group mr-3 mb-3">
+                  <div style="width:13.7%" class="form-group ml-2 mb-3">
                   	{!! Form::select('supplier[]',$suppliersDropList, request("supplier",[]), ['data-placeholder' => 'Select a Supplier','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
                   </div>
-                  <div class="form-group mr-3 mb-3">
+                  <div style="width:13.7%" class="form-group mb-3">
                   	{!! Form::select('scrapper[]',$scrapperDropList, request("scrapper",[]), ['data-placeholder' => 'Select a Scrapper','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
                   </div>
-                  <div class="form-group mr-3 mb-3">
+                  <div style="width:13.7%" class="form-group mb-3">
                   	{!! Form::select('type[]',$typeList, request("type",[]), ['data-placeholder' => 'Select a Type','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
                   </div>
                 @endif
+                </div>
+                <div class="b">
                 <div class="form-group mr-3 mb-3">
                   <input name="size" type="text" class="form-control" value="{{ request('size',null) }}" placeholder="Size">
                 </div>
@@ -112,6 +116,8 @@
                       </span>
                   </div>
                 </div>
+                </div>
+                <div class="c">
                 <div class="form-group mr-3 mb-3">
                    <input {{ (request('is_on_sale')) ? 'checked' : '' }} type="checkbox" name="is_on_sale" id="is_on_sale"><label for="is_on_sale">Sale</label>
                 </div>
@@ -131,6 +137,8 @@
                   <input type="hidden" name="customer_id" value="{{ $customer_id }}">
                 @endif
                 <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                </div>
+                </div>
         	</form>
         </div>
         <div class="col-lg-12 margin-tb">
