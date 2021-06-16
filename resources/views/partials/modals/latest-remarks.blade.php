@@ -13,8 +13,8 @@
             <input type="text" id="table-full-search" class="table-full-search form-control" placeholder="Search..">
           </div>
         </div>
-        <table class="table fixed_header" id="latest-remark-records">
-            <thead class="thead-dark">
+        <table class="table table-bordered fixed_header" id="latest-remark-records">
+            <thead >
               <tr>
                 <th scope="col" width="5%">#</th>
                 <th scope="col" width="15%">Scraper Name</th>

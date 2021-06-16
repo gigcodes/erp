@@ -204,6 +204,8 @@ class ScrapStatisticsController extends Controller
         ';
         $scrapeData = DB::select($sql);
 
+        $scrapper_total = count($scrapeData);//Purpose : Scrapper Count - DEVTASK-4219
+
         $allScrapperName = [];
 
         if (!empty($scrapeData)) {
@@ -231,7 +233,7 @@ class ScrapStatisticsController extends Controller
         $users = \App\User::all()->pluck("name", "id")->toArray();
         $allScrapper = Scraper::whereNull('parent_id')->pluck('scraper_name', 'id')->toArray();
         // Return view
-        return view('scrap.stats', compact('allStatus', 'allStatusCounts', 'activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper', 'getLatestOptimization'));
+        return view('scrap.stats', compact('allStatus', 'allStatusCounts', 'activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper', 'getLatestOptimization','scrapper_total'));
     }
 
     /**

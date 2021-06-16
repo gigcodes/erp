@@ -180,7 +180,7 @@ var getHtml = function(response) {
         if (message.error_status == 1) {
             button += '<i title="'+message.error_info+'" class="fa fa-exclamation-triangle" aria-hidden="true"></i>';
         }
-        if (message.type == "task" || message.type == "customer" || message.type == "vendor") {
+        if (message.type == "task" || message.type == "customer" || message.type == "vendor" || message.type == "user") {
 
             if (message.status == 0 || message.status == 5 || message.status == 6) {
                 if (message.status == 0) {

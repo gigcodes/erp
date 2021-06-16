@@ -90,7 +90,8 @@
                             <td colspan="7">
                                 <div class="row">
                                     <div class="col-md-11">
-                                        <textarea name="message" id="message" rows="1" class="form-control" placeholder="Common message.."></textarea>
+                                        <textarea name="message_bulk" id="message" rows="1" class="form-control" placeholder="Common message.."></textarea>
+                                        <input type="hidden" name="keyword_id" value="{{ $searchedKeyword->id }}">
                                     </div>
                                     <div class="col-md-1">
                                         <button class="btn btn-secondary btn-block">Send</button>
@@ -519,10 +520,10 @@
             success: function(response)
             {
                 toastr.success(response.message);
-                cu_id = response.c_id;
-                for (i = 0; i < cu_id.length; i++) {
-                    $('.customer-id-remove-class[data-customer_id="' + cu_id[i] + '"]').hide();
-                }
+                // cu_id = response.c_id;
+                // for (i = 0; i < cu_id.length; i++) {
+                //     $('.customer-id-remove-class[data-customer_id="' + cu_id[i] + '"]').hide();
+                // }
             }
         });
 
