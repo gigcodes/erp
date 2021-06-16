@@ -31,10 +31,11 @@
             height: 250px;
         }
 
-        .fixed_header thead {
+        /* Purpose :  Comment code -  DEVTASK-4219*/
+        /* .fixed_header thead {
             background: black;
             color: #fff;
-        }
+        } */
         .modal-lg{
             max-width: 1500px !important; 
         }
@@ -68,7 +69,10 @@
 
     <div class="row mb-5">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Supplier Scrapping Info <span class="total-info"></span></h2>
+            <!-- START - Purpose : Comment code and get total scrapper - DEVTASK-4219 -->
+            <!-- <h2 class="page-heading">Supplier Scrapping Info <span class="total-info"></span></h2> -->
+            <h2 class="page-heading">Supplier Scrapping Info ({{$scrapper_total}})</h2>
+            <!-- END - DEVTASK-4219 -->
         </div>
     </div>
 
@@ -1102,6 +1106,8 @@
                             html += '<button class="btn btn-sm btn-image latestremarks_sendbtn" data-name="'+value.scraper_name+'"><img src="/images/filled-sent.png"></button>';
                             html += '<button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="'+value.scraper_name+'"><img width="2px;" src="/images/remark.png"/></button>';
                             html += '</td>';
+                        }else{
+                            html += '<td></td>';
                         }
 
                         html += '</tr>';
