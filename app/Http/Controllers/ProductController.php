@@ -2588,6 +2588,8 @@ class ProductController extends Controller
                         $erp_lead->product_id = $id;
                         $erp_lead->category_id = $pr->category;
                         $erp_lead->brand_id = $pr->brand;
+                        $erp_lead->min_price = $request->price_min;
+                        $erp_lead->max_price = $request->price_max;
                         $erp_lead->save();
                     }
                 }
