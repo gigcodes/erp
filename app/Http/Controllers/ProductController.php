@@ -11,6 +11,7 @@ use App\Http\Requests\Products\ProductTranslationRequest;
 use App\Jobs\PushToMagento;
 use App\ListingHistory;
 use App\Order;
+use App\ErpLeads;
 use App\OrderProduct;
 use App\Product;
 use App\RejectedImages;
@@ -2581,6 +2582,15 @@ class ProductController extends Controller
                                 'date' => date('Y-m-d')
                             ];
                         }
+                        $erp_lead = new ErpLeads;
+                        $erp_lead->lead_status_id = 1;
+                        $erp_lead->customer_id = $customerId;
+                        $erp_lead->product_id = $id;
+                        $erp_lead->category_id = $pr->category;
+                        $erp_lead->brand_id = $pr->brand;
+                        $erp_lead->min_price = $request->price_min;
+                        $erp_lead->max_price = $request->price_max;
+                        $erp_lead->save();
                     }
                 }
                 $inserted = count($data_to_insert);

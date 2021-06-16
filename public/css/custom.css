@@ -846,7 +846,7 @@ form.display-inline{
 }
 .navbar-nav>li {
     min-width: 99px;
-    padding-right: 15px;
+    /*padding-right: 15px;*/
 }
 .navbar-light .navbar-nav .nav-link {
     display: inline-flex;
@@ -913,6 +913,20 @@ form.display-inline{
 
 .row:before, .row:after {
     display: inline-block;
+}
+
+ul.navbar-nav{
+    display: block;
+
+}
+.row-flex{
+    display: flex;
+}
+@media (max-width: 1600px) and (min-width: 1299px) {
+    .navbar-nav > li > a {
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+    }
 }
 
 #toast-container > div {

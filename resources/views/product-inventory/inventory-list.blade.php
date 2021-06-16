@@ -13,7 +13,7 @@
     padding:2px;
 }
 table.table.table-bordered.infinite-scroll th:nth-child(2),table.table.table-bordered.infinite-scroll td:nth-child(2){
-    width: 50px !important;
+    width: 80px !important;
 }
 table{
     table-layout: fixed;
@@ -178,8 +178,8 @@ table tr td{
                 <th width="10%">Size system</th>
                 <th width="10%">Size</th>
                 <th width="10%">Size(IT)</th>
-                <th width="10%">Status</th>
-                <th width="10%">Sub Status</th>
+                <th width="8%">Status</th>
+                <th width="9%">Sub Status</th>
                 <th width="10%">Created Date</th>
                 <th width="10%">Actions</th>
             </tr>
@@ -212,6 +212,18 @@ table tr td{
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Status History</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+    </div>
+</div>
+<div id="product-invetories" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="max-width:100% !important;width:90%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Scraped Products</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
@@ -461,6 +473,66 @@ table tr td{
         $('#status-history-modal .modal-body').html(result)
 
         $('#status-history-modal').modal('show')
+    })
+
+
+    //show-scraped-product
+    $('body').delegate('.show-scraped-product', 'click', function() {
+
+        let data = $(this).parent().parent().find('.product-inventory').attr('data')
+        // console.log(data)
+        let result = '';
+
+        if (data != '[]') {
+            data = JSON.parse(data)
+            console.log(data)
+            result += '<table class="table table-bordered">';
+            result += '<thead><th>Id</th><th>Sku</th><th>Name</th><th>Category / Brand</th><th>Price</th><th>Discount %</th><th>Supplier</th><th>Color</th><th>Composition</th><th>Size system</th><th>Size</th><th>Created Date</th></thead>';
+            result += '<tbody>';
+            for (let value in data) {
+                result += '<tr>';
+                result += "<td>" + (data[value].id ? data[value].id :'-' )+ "</td>"
+                result += "<td>" + (data[value].sku ? data[value].sku :'-' )+ "</td>"
+                result += "<td>" + (data[value].title ? data[value].title : '-') + "</td>"
+                result += "<td>" + (data[value].categories ? data[value].categories :'-') +'/'+(data[value].brand['name'] ? data[value].brand['name'] :'-') + "</td>"
+                result += "<td>" + (data[value].price ? data[value].price :'-' )+ "</td>"
+                result += "<td>" + (data[value].discounted_percentage ? data[value].discounted_percentage :'0') + "</td>"
+                result += "<td>" +  (data[value].supplier  ? data[value].supplier :'-')+ "</td>"
+                result += "<td>" + (data[value].color ? data[value].color: '-' )+ "</td>"
+                result += "<td>" + (data[value].composition ? data[value].composition :'-') + "</td>"
+                result += "<td>" + (data[value].size_system ? data[value].size_system :'-') + "</td>"
+                result += "<td>" +( data[value].size ? data[value].size :'-') + "</td>"
+                result += "<td>" + (data[value].created_at ? data[value].created_at :'-') + "</td>"
+                result += '</tr>';
+            }
+            result += '</tbody>';
+            result += '</table>';
+            // for (let value in data) {
+            //     result += '<tr>';
+            //     result += "<td>" + ( data[value].id ? data[value].id :'-') + "</td>"
+            //     result += "<td>" +  data[value].sku  + "</td>"
+            //     result += "<td>" +  data[value].title  + "</td>"
+            //     result += "<td>" +  data[value].categories  +'/'+ data[value].brand['name']  + "</td>"
+            //     result += "<td>" +  data[value].price  + "</td>"
+            //     result += "<td>" +  data[value].discounted_percentage  + "</td>"
+            //     result += "<td>" +   data[value].supplier + "</td>"
+            //     result += "<td>" +  data[value].color + "</td>"
+            //     result += "<td>" +  data[value].composition  + "</td>"
+            //     result += "<td>" +  data[value].size_system  + "</td>"
+            //     result += "<td>" +  data[value].size  + "</td>"
+            //     result += "<td>" +  data[value].created_at  + "</td>"
+            //     result += '</tr>';
+            // }
+            // result += '</tbody>';
+            // result += '</table>';
+
+        } else {
+            result = '<h3>This Product dont have status history</h3>';
+        }
+
+        $('#product-invetories .modal-body').html(result)
+
+        $('#product-invetories').modal('show')
     })
 
 
