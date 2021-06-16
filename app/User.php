@@ -169,6 +169,10 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Permission::class);
     }
+    public function chatMessage()
+    {
+        return $this->hasOne(ChatMessage::class)->latest();
+    }
 
     public function teams()
     {
