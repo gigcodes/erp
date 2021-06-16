@@ -84,16 +84,18 @@ class NewProductInventoryController extends Controller
             }
         }
         // move to the function
-        $categoryAll   = Category::with(['childs', 'childs.childs'])->where('parent_id', 0)->get();
+        $categoryAll   = Category::with('childs.childLevelSencond')
+            ->where('title', 'NOT LIKE', '%Unknown Category%')
+            ->where('magento_id', '!=', '0')
+            ->get();
+
         $categoryArray = [];
         foreach ($categoryAll as $category) {
             $categoryArray[] = array('id' => $category->id, 'value' => $category->title);
-            // $childs          = Category::where('parent_id', $category->id)->get();
             $childs          = $category->childs;
             foreach ($childs as $child) {
                 $categoryArray[] = array('id' => $child->id, 'value' => $category->title . ' > ' . $child->title);
-                $grandChilds     = Category::where('parent_id', $child->id)->get();
-                $grandChilds          = $child->childs;
+                $grandChilds     = $child->childLevelSencond;
                 if ($grandChilds != null) {
                     foreach ($grandChilds as $grandChild) {
                         $categoryArray[] = array('id' => $grandChild->id, 'value' => $category->title . ' > ' . $child->title . ' > ' . $grandChild->title);
@@ -101,7 +103,6 @@ class NewProductInventoryController extends Controller
                 }
             }
         }
-        // dd($categoryArray);
         $categoryArray = collect($categoryArray)->pluck("value", "id")->toArray();
         $sampleColors  = ColorReference::select('erp_color')->groupBy('erp_color')->get()->pluck("erp_color", "erp_color")->toArray();
         if ( request()->ajax() ) {
