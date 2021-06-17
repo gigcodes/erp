@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Setting;//Purpose : Add Setting - DEVTASK-4289
 
 //use Spatie\Permission\Models\Permission;
 //use Spatie\Permission\Models\Role;
@@ -114,7 +115,17 @@ class PageNotesController extends Controller
 
     public function index(Request $request)
     {
-    	return view("pagenotes.index");
+        //START - Purpose : Get Page Note - DEVTASK-4289
+        $records = \App\PageNotes::join('users', 'users.id', '=', 'page_notes.user_id')
+        ->leftJoin('page_notes_categories', 'page_notes.category_id', '=', 'page_notes_categories.id')
+        ->where("page_notes.user_id",\Auth::user()->id)
+        ->orderBy("page_notes.id","desc")
+        ->select(["page_notes.*","users.name", "page_notes_categories.name as category_name"]
+        )->paginate(Setting::get('pagination'));
+
+        // return view("pagenotes.index");
+    	return view("pagenotes.index",compact('records'));
+        //END - DEVTASK-4289
     }
 
     public function records()
