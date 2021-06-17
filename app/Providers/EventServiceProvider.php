@@ -10,15 +10,11 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvi
 use App\Brand;
 use App\Email;
 use App\Observers\BrandObserver;
-<<<<<<< HEAD
 use App\Observers\EmailObserver;
-=======
 use App\Category;
 use App\Observers\ScrappedCategoryMappingObserver;
 use App\ScrapedProducts;
 use App\Observers\ScrappedProductCategoryMappingObserver;
-
->>>>>>> f5fc32d237c6d93818abf8dec91f3a929157b7ce
 
 class EventServiceProvider extends ServiceProvider
 {
