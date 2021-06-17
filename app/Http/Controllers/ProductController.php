@@ -183,7 +183,7 @@ class ProductController extends Controller
 
 
         // Run through query helper
-        $newProducts = QueryHelper::approvedListingOrder($newProducts);
+        $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts);
         $term = $request->input('term');
         $brand = '';
         $category = '';
