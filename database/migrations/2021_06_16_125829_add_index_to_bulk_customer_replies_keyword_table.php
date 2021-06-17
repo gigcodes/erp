@@ -13,12 +13,9 @@ class AddIndexToBulkCustomerRepliesKeywordTable extends Migration
      */
     public function up()
     {
-        Schema::table('bulk_customer_replies_keywords', function (Blueprint $table) {
-
-            $table->string('value','512')->change();
-            $table->index(['count','value']);
-
-        });
+     
+        DB::select("ALTER TABLE `bulk_customer_replies_keywords` CHANGE `value` `value` VARCHAR(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;");
+        DB::select("ALTER TABLE `bulk_customer_replies_keywords` ADD INDEX(`value`);");
     }
 
     /**
@@ -29,9 +26,9 @@ class AddIndexToBulkCustomerRepliesKeywordTable extends Migration
     public function down()
     {
         Schema::table('bulk_customer_replies_keywords', function (Blueprint $table) {
+            $table->dropIndex(['count','value']);
             $table->text('value')->change();
 
-            $table->dropIndex(['count','value']);
 
         });
     }
