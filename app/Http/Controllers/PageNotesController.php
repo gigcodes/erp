@@ -145,7 +145,6 @@ class PageNotesController extends Controller
 
     public function notesCreate(Request $request)
     {
-        dd("444444444444444");
         \App\PageNotes::create([
             'url' => $request->url,
             'category_id' => '',
