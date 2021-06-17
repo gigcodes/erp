@@ -549,6 +549,17 @@ class PurchaseProductController extends Controller
 
         return response()->json(['message' => 'Supplier Added successfully' ,'code' => 200]);
     }
+
+    //START - Purpose : Create function for Purchase Product Order Data - DEVTASK-4236
+    public function purchaseproductorders(Request $request)
+    {
+        try{
+            return view('purchase-product.partials.purchase-product-order',compact('suppliers','term'));
+        }catch(\Exception $e){
+            
+        }
+    }
+    //END - DEVTASK-4236
     
     /**
      * Store a newly created resource in storage.
