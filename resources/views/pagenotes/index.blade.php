@@ -55,7 +55,14 @@
             columns: [
               {data: 'id', name: 'id'},
               {data: 'category_name', name: 'category_name'},
-              {data: 'note', name: 'note'},
+              {
+                  data: 'note',
+                  render : function ( data, type, row ) {
+                      
+                     var data_note =  row.note.replaceAll("&lt;", "<").replaceAll("&gt;",'>');
+                      return data_note;
+                  },
+              },
               {data: 'name', name: 'name'},
               {data: 'created_at', name: 'created_at'},
               {
@@ -69,7 +76,15 @@
           ]
         });
   });
+
+  //START - Purpose : Add editor - DEVTASK-4289
+  $('#erp-notes').on('show.bs.modal', function() {
+    $('#note').richText();
+  });
+  //END - DEVTASK-4289
+
   $(document).on('click', '.editor_edit', function () {
+
        var $this = $(this);
         $.ajax({
             type: "GET",
@@ -85,6 +100,7 @@
             console.log(response);
         });
     });
+
     $(document).on('click', '.update-user-notes', function (e) {
       e.preventDefault();
       var $this = $(this);
