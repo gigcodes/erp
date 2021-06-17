@@ -170,10 +170,10 @@ class KeywordassignController extends Controller
     }
 
     //START - Purpose : create function for get data - DEVTASK-4233
-    PUBLIC FUNCTION keywordreponse_logs(){
+    PUBLIC FUNCTION keywordreponse_logs(Request $request){
         try{
-            $keywordlogs = KeywordAutoGenratedMessageLog::get();
-            return view('keywordassign.logs',compact('keywordlogs'));
+            $keywordlogs = KeywordAutoGenratedMessageLog::orderBy('id', 'DESC')->paginate(30);
+            return view('keywordassign.logs',compact('keywordlogs','request'));
         }catch(\Exception $e){
            
         }

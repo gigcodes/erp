@@ -498,16 +498,22 @@
 
     <div id="exTab2" style="overflow: auto">
         <ul class="nav nav-tabs">
+
             <li class="active"><a href="#1" data-toggle="tab" class="btn-call-data" data-type="pending">Pending Task</a></li>
             <li><a href="#2" data-toggle="tab" class="btn-call-data" data-type="statutory_not_completed">Statutory Activity</a></li>
             <li><a href="#3" data-toggle="tab" class="btn-call-data" data-type="completed">Completed Task</a></li>
             <li><a href="#unassigned-tab" data-toggle="tab">Unassigned Messages</a></li>
+
+            <li> <button type="button"  onclick="window.location.href = '{{ action("DevelopmentController@exportTask",request()->all()) }}'" class="btn btn-xs btn-secondary my-3" role="link"> Download Tasks </button></li> &nbsp;
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_tasks_button" data-selected="0">View Tasks</button></li>&nbsp;
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_categories_button">Categories</button></li>&nbsp;
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_complete_button">Complete Tasks</button></li>&nbsp;
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_delete_button">Delete Tasks</button></li>&nbsp;
 
-            @if(auth()->user()->isAdmin())
+
+{{--            href="{{ action('DevelopmentController@exportTask',request()->all()) }}"--}}
+
+        @if(auth()->user()->isAdmin())
 
             <li><button type="button" class="btn btn-xs btn-secondary my-3" data-toggle='modal' data-target='#taskStatusModal' id="">Create Status</button></li>&nbsp;
 
