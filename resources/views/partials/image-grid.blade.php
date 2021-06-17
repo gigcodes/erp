@@ -170,6 +170,16 @@
                     @endif
 
                     <div class="form-group mr-3">
+                        <input name="discounted_percentage_min" type="text" class="form-control"
+                               value="{{ request('discounted_percentage_min') }}"
+                               placeholder="Discount % min">
+                    </div>
+                    <div class="form-group mr-3">
+                        <input name="discounted_percentage_max" type="text" class="form-control"
+                               value="{{ request('discounted_percentage_max') }}"
+                               placeholder="Discount % max">
+                    </div>
+                    <div class="form-group mr-3">
                         <input name="size" type="text" class="form-control"
                                value="{{ request('size') }}"
                                placeholder="Size">
@@ -203,7 +213,7 @@
                                 $max = (float)$price[1];
                             }
                         ?>
-                        <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="400000" data-slider-step="1000" data-slider-value="[{{$min}},{{$max}}]"/>
+                        <input type="text" name="price" data-provider="slider" data-slider-min="0" data-slider-max="400000" data-slider-step="1000" data-slider-value="[{{$min}},{{$max}}]"/>
                     </div>
 
 
