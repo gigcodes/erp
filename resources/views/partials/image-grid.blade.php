@@ -1,4 +1,4 @@
-    @extends('layouts.app')
+@extends('layouts.app')
 
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
@@ -205,11 +205,7 @@
                         ?>
                         <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="400000" data-slider-step="1000" data-slider-value="[{{$min}},{{$max}}]"/>
                     </div>
-                    <div class="form-group mr-3">
-                        <input name="size" type="text" class="form-control"
-                               value="{{ request('size') }}"
-                               placeholder="Size">
-                    </div>
+
 
                     <input type="hidden" name="message" value="{{ $model_type == 'customers' ? "$message_body" : 'Images attached from grid' }}" id="attach_all_message">
                     <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : 'nothing' }}" value="{{ $model_id }}" id="attach_all_model_id">
@@ -223,8 +219,6 @@
                             for="unsupported">Unsupported Images</label>
                     <input type="checkbox" class="drafted_product" id="drafted_product" {{ (request('drafted_product')) == 'on' ? 'checked' : '' }} name="drafted_product">
                     <label for="drafted_product">Drafted Product</label>
-
-                    
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                 </form>
 
