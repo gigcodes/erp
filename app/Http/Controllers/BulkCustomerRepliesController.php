@@ -46,13 +46,12 @@ class BulkCustomerRepliesController extends Controller
                     $q->has('dnd');
                 }
 
-            }])
-          
+            }])->with('customers.dnd')
             ->where('value', $keyword)
             ->first();
 
-
         }
+
         $groups           = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
         $pdfList = [];
         $nextActionArr = DB::table('customer_next_actions')->pluck('name', 'id');
