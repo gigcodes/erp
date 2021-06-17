@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use \App\ChatMessage;
 use \App\Product;
+use \App\KeywordAutoGenratedMessageLog; //Purpose : Add KeywordAutoGenratedMessageLog - DEVTASK-4233
 
 class MessageHelper
 {
@@ -146,10 +147,21 @@ class MessageHelper
      */
     public static function whatsAppSend($customer = null, $message = null, $sendMsg = null, $messageModel = null, $isEmail = null, $parentMessage = null)
     {
-        
         if ($customer) {
+
+            //START - Purpose : Add Data in array - DEVTASK-4233
+            $log_comment = '';
+            if (!empty($messageModel)) {
+                $temp_log_params['model']     = $messageModel->getTable();
+                $temp_log_params['model_id']     = $messageModel->id;
+            }
+            //END - DEVTASK-4233
+
             // $exp_mesaages = explode(" ", $message);
             $exp_mesaages = explode(" ", $message);
+
+            $temp_log_params['keyword']  =  implode(",",$exp_mesaages);//Purpose : Add keyword in array - DEVTASK-4233
+          
             for ($i = 0; $i < count($exp_mesaages); $i++) {
                 $keywordassign = DB::table('keywordassigns')->select('*')
                     ->whereRaw('FIND_IN_SET(?,keyword)', [strtolower($exp_mesaages[$i])])
@@ -162,6 +174,15 @@ class MessageHelper
             \Log::info("Keyword assign found" . count($keywordassign));
 
             if (count($keywordassign) > 0) {
+
+                //START - Purpose : Log Comment - DEVTASK-4233
+                $log_comment = $log_comment.' Keyword assign found >> ';
+
+                $temp_log_params['keyword_match']     = $keywordassign[0]->task_description;
+
+                $log_comment = $log_comment.' Keyword Match Description : '.$keywordassign[0]->task_description.' >> ';
+                //END - DEVTASK-4233
+
                 $task_array = array(
                     "category"     => 42,
                     "is_statutory" => 0,
@@ -192,6 +213,9 @@ class MessageHelper
                     
                     if (!empty($parentMessage)) {
                         \Log::channel('whatsapp')->info("Auto section parent message  lead pricefound started for customer id : " . $customer->id);
+
+                        $log_comment = $log_comment.' Auto section parent message lead price found started for customer id : '.$customer->id.' >> ';//Purpose : Log Comment - DEVTASK-4233
+
                         $parentMessage->sendLeadPrice($customer);
                     }
 
@@ -200,6 +224,8 @@ class MessageHelper
                     if (!empty($parentMessage)) {
                         
                         \Log::channel('whatsapp')->info("Auto section parent message found started for customer id : " . $customer->id);
+
+                        $log_comment = $log_comment.' Auto section parent message found started for customer id : '.$customer->id.' >> ';//Purpose : Log Comment - DEVTASK-4233
 
                         $products = DB::table('leads')
                         ->select('*')
@@ -230,6 +256,12 @@ class MessageHelper
 
                 if (count($users_info) > 0) {
                     if ($users_info[0]->phone != "") {
+
+                        //START - Purpose : Log Comment - DEVTASK-4233
+                        $log_comment = $log_comment.' User Info id : '.$users_info[0]->id.' >> ';
+                        $log_comment = $log_comment.' User Info phone : '.$users_info[0]->phone.' >> ';
+                        //END - DEVTASK-4233
+
                         $params_task = [
                             'number'            => null,
                             'user_id'           => $users_info[0]->id,
@@ -256,7 +288,9 @@ class MessageHelper
 
                         $myRequest = new Request();
                         $myRequest->setMethod('POST');
-                        $myRequest->request->add(['messageId' => $chat_message->id]);
+                        $myRequest->request->add(['messageId' => $chat_message->id]);//Purpose : add messageid in array - DEVTASK-4233
+
+                        $temp_log_params['message_sent_id']     = $chat_message->id;
 
                         if ($sendMsg === true) {
                             app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
@@ -265,6 +299,14 @@ class MessageHelper
                 }
                 //END CODE Task message to send message in whatsapp
             }
+
+            //START - Purpose : Log Comment , add data - DEVTASK-4233
+            $log_comment = $log_comment.' . ';
+            $temp_log_params['comment']  =  $log_comment;
+
+            $add_keyword = KeywordAutoGenratedMessageLog::create($temp_log_params);
+            //END - DEVTASK-4233
+
         }
     }
 
@@ -277,13 +319,48 @@ class MessageHelper
      */
     public static function sendwatson($customer = null, $message = null, $sendMsg = null, $messageModel = null, $params = [], $isEmail = null, $userType = null)
     {
+        //START - Purpose : add data in array - DEVTASK-4233
+        $log_comment = '';
+        if (!empty($messageModel)) {
+            $temp_log_params['model']     = $messageModel->getTable();
+            $temp_log_params['model_id']     = $messageModel->id;
+        }
+        //END - DEVTASK-4233
+
         $isReplied = 0;
         if ($userType !== 'vendor') {
+            $log_comment = $log_comment.' Vendor condition passed >> ';//Purpose : Log Comment - DEVTASK-4233
             \Log::info("#2 Price for customer vendor condition passed");
             if ((preg_match("/price/i", $message) || preg_match("/you photo/i", $message) || preg_match("/pp/i", $message) || preg_match("/how much/i", $message) || preg_match("/cost/i", $message) || preg_match("/rate/i", $message))) {
+
+                //START - Purpose : Log Comment , get task discription - DEVTASK-4233
+                $log_comment = $log_comment.' Keyword Match >> ';
+
+                $exp_mesaages = explode(" ", $message);
+                $temp_log_params['keyword']  =  implode(",",$exp_mesaages);
+            
+                for ($i = 0; $i < count($exp_mesaages); $i++) {
+                    $keywordassign = DB::table('keywordassigns')->select('*')
+                        ->whereRaw('FIND_IN_SET(?,keyword)', [strtolower($exp_mesaages[$i])])
+                        ->get();
+                    if (count($keywordassign) > 0) {
+                        break;
+                    }
+                }
+
+                if (count($keywordassign) > 0) {
+
+                    $log_comment = $log_comment.' Keyword assign found >> ';
+    
+                    $temp_log_params['keyword_match']     = $keywordassign[0]->task_description;
+                }
+                //END - DEVTASK-4233
+                
                 \Log::info("#3 Price for customer message condition passed");
                 if ($customer) {
                     \Log::info("#4 Price for customer model passed");
+
+                    $log_comment = $log_comment.' Customer Model Passed >> ';//Purpose : Log Comment - DEVTASK-4233
                     // send price from meessage queue
                     $messageSentLast = \App\MessageQueue::where("customer_id", $customer->id)->where("sent", 1)->orderBy("sending_time", "desc")->first();
                     // if message found then start
@@ -305,15 +382,24 @@ class MessageHelper
                     $lastChatMessage = \App\ChatMessage::getLastImgProductId($customer->id);
                     if ($lastChatMessage) {
                         \Log::info("#5 last message condition found" . $lastChatMessage->id);
+
+                        $log_comment = $log_comment.' Last Message Condition Found : '.$lastChatMessage->id.' >> ';//Purpose : Log Comment - DEVTASK-4233
+
                         if ($lastChatMessage->hasMedia(config('constants.attach_image_tag'))) {
                             \Log::info("#6 last message has media found");
                             $lastImg = $lastChatMessage->getMedia(config('constants.attach_image_tag'))->sortByDesc('id')->first();
                             \Log::info("#7 last message get media found");
                             if ($lastImg) {
                                 \Log::info("#8 last message media found " . $lastImg->id);
+
+                                $log_comment = $log_comment.' Last Message Media Found : '.$lastImg->id.' >> ';//Purpose : Log Comment - DEVTASK-4233
+
                                 $mediable = \DB::table("mediables")->where("media_id", $lastImg->id)->where('mediable_type', Product::class)->first();
                                 if (!empty($mediable)) {
                                     \Log::info("#9 last message mediable found");
+
+                                    $log_comment = $log_comment.' Mediable Found  >> ';//Purpose : Log Comment - DEVTASK-4233
+                                    
                                     $product = \App\Product::find($mediable->mediable_id);
                                     if (!empty($product)) {
                                         \Log::info("#9 last message product found");
@@ -349,6 +435,8 @@ class MessageHelper
                                 'size'           => $customer->size,
                                 'created_at'     => Carbon::now(),
                             ]);
+
+                            $log_comment = $log_comment.' ERP Leads Create  >> ';//Purpose : Log Comment - DEVTASK-4233
                         }
 
                         $requestData = new Request();
@@ -407,6 +495,12 @@ class MessageHelper
                     "replied_chat_id" => $messageModel->id,
                 ]);
 
+                //START - Purpose : Log Comment , Add message sent id in array - DEVTASK-4233
+                $temp_log_params['message_sent_id']     = $messageModel->id;
+
+                $log_comment = $log_comment.' Chat Message Create : '.$messageModel->id.'  >> ';
+                //END - DEVTASK-4233
+
                 foreach ($replies as $reply) {
                     if ($message != '' && $customer) {
                         $keyword = $reply->question;
@@ -458,5 +552,12 @@ class MessageHelper
                 WatsonManager::sendMessage($customer, $message, false, null, $messageModel, $userType);
             }
         }
+
+        //START - Purpose : Log Comment ,Add Data - DEVTASK-4233
+        $log_comment = $log_comment.' . ';
+        $temp_log_params['comment']  =  $log_comment;
+
+        $add_keyword = KeywordAutoGenratedMessageLog::create($temp_log_params);
+        //END - DEVTASK-4233
     }
 }
