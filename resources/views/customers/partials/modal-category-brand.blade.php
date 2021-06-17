@@ -53,6 +53,16 @@
                             <input type="text" min="0" name="price_max" max="400000" class="form-control">
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-6 form-group">
+                            <strong>Min Discount %</strong>
+                            <input type="text" min="0" max="100" name="discounted_percentage_min" class="form-control">
+                        </div>
+                        <div class="col-6 form-group">
+                            <strong>Max Discount %</strong>
+                            <input type="text" min="0" name="discounted_percentage_max" max="100" class="form-control">
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
