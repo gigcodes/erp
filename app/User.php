@@ -65,7 +65,8 @@ class User extends Authenticatable
         'payment_frequency',
         'fixed_price_user_or_job',
         'approve_login',
-        'billing_frequency_day'
+        'billing_frequency_day',
+        'user_timeout'
     ];
 
     public function getIsAdminAttribute()
@@ -167,6 +168,10 @@ class User extends Authenticatable
     public function permissions()
     {
         return $this->belongsToMany(Permission::class);
+    }
+    public function chatMessage()
+    {
+        return $this->hasOne(ChatMessage::class)->latest();
     }
 
     public function teams()

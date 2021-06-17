@@ -22,6 +22,11 @@
       </div>
 
       <div class="form-group mr-3">
+        <strong class="mr-3">Product</strong>
+        <input type="text" name="product_name" class="form-control" value="{{ request('product_name') }}" placeholder="Enter product name" />
+      </div>
+
+      <div class="form-group mr-3">
         <strong class="mr-3">Price</strong>
         <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="10000000" data-slider-step="10" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '10000000' }}]"/>
       </div>
@@ -138,17 +143,21 @@
         <thead>
           <th>#ID</th>
           <th>Category</th>
+          <th>Brand</th>
           <th>Price</th>
           <th>Product name</th>
+          <th>Date</th>
           <th>Action</th>
         </thead>
         <tbody>
           @foreach($images as $image)
             <tr>
               <td>{{ $image->id }}</td>
-              <td>{{ $image->category }}</td>
-              <td>{{ $image->price }}</td>
+              <td>{{  ( !empty($image->product) ) ?  $image->product->categories->title : $image->category }}</td>
+              <td>{{  ( !empty($image->product) ) ?  $image->product->brands->name : $image->brand }}</td>
+              <td>{{ ( !empty($image->product) ) ?  $image->product->price :$image->price }}</td>
               <td>{{ $image->product->name ?? '--' }}</td>
+              <td>{{ date( 'd-M-Y' ,strtotime($image->created_at))  }}</td>
               <td>
                   <button title="Open Images" type="button" class="btn preview-attached-img-btn btn-image no-pd" data-id="{{$image->id}}" data-suggestedproductid="{{$image->id}}">
                     <img src="/images/forward.png" style="cursor: default;">
@@ -157,55 +166,66 @@
             </tr>
             <tr class="expand-{{$image->id}} hidden">
                 <td colspan="7">
-                <div class="col-md-3 col-xs-6 text-center">
-                    <img src="{{ $image->filename ? (asset('uploads/social-media') . '/' . $image->filename) : ($image->getMedia(config('constants.media_tags'))->first() ? $image->getMedia(config('constants.media_tags'))->first()->getUrl() : '') }}" class="img-responsive grid-image" alt="" />
+                <div class="col-md-2 col-xs-3 text-center">
+                    <div class="thumbnail">
+                        <img src="{{ $image->filename ? (asset('uploads/social-media') . '/' . $image->filename) : ($image->getMedia(config('constants.media_tags'))->first() ? $image->getMedia(config('constants.media_tags'))->first()->getUrl() : '') }}" class="img-responsive grid-image" alt="" />
+                        <div class="caption">
+                            <span>{{ date( 'd-M-Y' ,strtotime($image->created_at))  }}</span>
+                            <a class="btn btn-image" href="{{ route('image.grid.show',$image->id) }}"><img src="{{asset('/images/view.png')}}" /></a>
+                            @if(auth()->user()->checkPermission('social-create'))
+                              <a class="btn btn-image" href="{{ route('image.grid.edit',$image->id) }}"><img src="{{asset('/images/edit.png')}}" /></a>
 
-                    <a class="btn btn-image" href="{{ route('image.grid.show',$image->id) }}"><img src="{{asset('/images/view.png')}}" /></a>
-                    @if(auth()->user()->checkPermission('social-create'))
-                      <a class="btn btn-image" href="{{ route('image.grid.edit',$image->id) }}"><img src="{{asset('/images/edit.png')}}" /></a>
+                              {!! Form::open(['method' => 'DELETE','route' => ['image.grid.delete', $image->id],'style'=>'display:inline']) !!}
+                                <button type="submit" class="btn btn-image"><img src="{{asset('/images/delete.png')}}" /></button>
+                              {!! Form::close() !!}
+                            @endif
 
-                      {!! Form::open(['method' => 'DELETE','route' => ['image.grid.delete', $image->id],'style'=>'display:inline']) !!}
-                        <button type="submit" class="btn btn-image"><img src="{{asset('/images/delete.png')}}" /></button>
-                      {!! Form::close() !!}
-                    @endif
+                            @if (isset($image->approved_user))
+                              <span style="white-space: pre-wrap; ">Approved by {{ App\User::find($image->approved_user)->name}} on {{ Carbon\Carbon::parse($image->approved_date)->format('d-m') }}</span>
+                            @else
+                              @if(auth()->user()->checkPermission('social-create'))
+                                {{-- <form action="{{ route('image.grid.approveImage', $image->id) }}" method="POST">
+                                  @csrf
+                                  <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
+                                </form> --}}
+                                <button type="button" class="btn btn-xs btn-secondary approve-image" data-id="{{ $image->id }}">Approve</button>
+                              @endif
+                            @endif
+                        </div>
+                    </div>
 
-                    @if (isset($image->approved_user))
-                      <span style="white-space: nowrap; ">Approved by {{ App\User::find($image->approved_user)->name}} on {{ Carbon\Carbon::parse($image->approved_date)->format('d-m') }}</span>
-                    @else
-                      @if(auth()->user()->checkPermission('social-create'))
-                        {{-- <form action="{{ route('image.grid.approveImage', $image->id) }}" method="POST">
-                          @csrf
-                          <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
-                        </form> --}}
-                        <button type="button" class="btn btn-xs btn-secondary approve-image" data-id="{{ $image->id }}">Approve</button>
-                      @endif
-                    @endif
                     </div>
                     @foreach( $image->productImg( $image->product_id, $image->id ) as $img )
                         @if(!$loop->last)
-                            <div class="col-md-3 col-xs-6 text-center">
-                                <img src="{{ $img->filename ? (asset('uploads/social-media') . '/' . $img->filename) : ($img->getMedia(config('constants.media_tags'))->first() ? $img->getMedia(config('constants.media_tags'))->first()->getUrl() : '') }}" class="img-responsive grid-image" alt="" />
+                            <div class="col-md-2 col-xs-3 text-center">
+                                <div class="thumbnail">
+                                    <img src="{{ $img->filename ? (asset('uploads/social-media') . '/' . $img->filename) : ($img->getMedia(config('constants.media_tags'))->first() ? $img->getMedia(config('constants.media_tags'))->first()->getUrl() : '') }}" class="img-responsive grid-image" alt="" />
+                                    
+                                    <div class="caption">
+                                            <span>{{ date( 'd-M-Y' ,strtotime($img->created_at))  }}</span>
+                                            <a class="btn btn-image" href="{{ route('image.grid.show',$img->id) }}"><img src="{{asset('/images/view.png')}}" /></a>
+                                            @if(auth()->user()->checkPermission('social-create'))
+                                              <a class="btn btn-image" href="{{ route('image.grid.edit',$img->id) }}"><img src="{{asset('/images/edit.png')}}" /></a>
 
-                                <a class="btn btn-image" href="{{ route('image.grid.show',$img->id) }}"><img src="{{asset('/images/view.png')}}" /></a>
-                                @if(auth()->user()->checkPermission('social-create'))
-                                  <a class="btn btn-image" href="{{ route('image.grid.edit',$img->id) }}"><img src="{{asset('/images/edit.png')}}" /></a>
+                                              {!! Form::open(['method' => 'DELETE','route' => ['image.grid.delete', $img->id],'style'=>'display:inline']) !!}
+                                                <button type="submit" class="btn btn-image"><img src="{{asset('/images/delete.png')}}" /></button>
+                                              {!! Form::close() !!}
+                                            @endif
 
-                                  {!! Form::open(['method' => 'DELETE','route' => ['image.grid.delete', $img->id],'style'=>'display:inline']) !!}
-                                    <button type="submit" class="btn btn-image"><img src="{{asset('/images/delete.png')}}" /></button>
-                                  {!! Form::close() !!}
-                                @endif
-
-                                @if (isset($img->approved_user))
-                                  <span style="white-space: nowrap; ">Approved by {{ App\User::find($img->approved_user)->name}} on {{ Carbon\Carbon::parse($img->approved_date)->format('d-m') }}</span>
-                                @else
-                                  @if(auth()->user()->checkPermission('social-create'))
-                                    {{-- <form action="{{ route('image.grid.approveImage', $image->id) }}" method="POST">
-                                      @csrf
-                                      <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
-                                    </form> --}}
-                                    <button type="button" class="btn btn-xs btn-secondary approve-image" data-id="{{ $img->id }}">Approve</button>
-                                  @endif
-                                @endif
+                                            @if (isset($img->approved_user))
+                                              <span style="white-space: pre-wrap; ">Approved by {{ App\User::find($img->approved_user)->name}} on {{ Carbon\Carbon::parse($img->approved_date)->format('d-m') }}</span>
+                                            @else
+                                              @if(auth()->user()->checkPermission('social-create'))
+                                                {{-- <form action="{{ route('image.grid.approveImage', $image->id) }}" method="POST">
+                                                  @csrf
+                                                  <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
+                                                </form> --}}
+                                                <button type="button" class="btn btn-xs btn-secondary approve-image" data-id="{{ $img->id }}">Approve</button>
+                                              @endif
+                                            @endif
+                                    </div>
+                                </div>
+                                
                             </div>
                         @endif
                     @endforeach

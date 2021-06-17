@@ -7,6 +7,7 @@ use App\Helpers\SSP;
 use App\Keywordassign;
 use Exception;
 use DB;
+use App\KeywordAutoGenratedMessageLog;//Purpose : add model - DEVTASK-4233
 
 class KeywordassignController extends Controller
 {
@@ -167,4 +168,15 @@ class KeywordassignController extends Controller
         $id = DB::getPdo()->lastInsertId();
         return response()->json(["code" => 200 , "data" => ['id'=>$id,'Category'=>$task_category_name], "message" => "Task Category Inserted"]);
     }
+
+    //START - Purpose : create function for get data - DEVTASK-4233
+    PUBLIC FUNCTION keywordreponse_logs(Request $request){
+        try{
+            $keywordlogs = KeywordAutoGenratedMessageLog::where('keyword_match','!=','')->orderBy('id', 'DESC')->paginate(30);
+            return view('keywordassign.logs',compact('keywordlogs','request'));
+        }catch(\Exception $e){
+           
+        }
+    }
+    //END - DEVTASK-4233
 }

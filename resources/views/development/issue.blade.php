@@ -76,9 +76,9 @@
         <div class="col-md-12">
             @include("development.partials.task-issue-search")
             <div class="pull-right mt-4">
-                <a class="btn btn-secondary download" href="#">
-                           Download
-                </a>
+
+                <a class="btn btn-secondary" href="{{ action('DevelopmentController@exportTask',request()->all()) }}" role="link"> Download Tasks </a>
+
             <a class="btn btn-secondary" 
                         data-toggle="collapse" href="#plannedFilterCount" role="button" aria-expanded="false" aria-controls="plannedFilterCount">
                            Show Planned count
@@ -166,7 +166,8 @@
             });
 
             $(".multiselect").multiselect({
-                nonSelectedText:'Please Select'
+                allSelectedText: 'All',
+                includeSelectAllOption: true
             });
 
             $(window).scroll(function() {
@@ -412,6 +413,8 @@
         $(document).on('click', '.send-message-open', function (event) {
             var textBox = $(this).closest(".expand-row").find(".send-message-textbox");
             var sendToStr  = $(this).closest(".expand-row").find(".send-message-number").val();
+            var add_autocomplete  = $(this).closest(".expand-row").find("[name=add_to_autocomplete]").is(':checked') ;
+            
             let issueId = textBox.attr('data-id');
             let message = textBox.val();
             if (message == '') {
@@ -428,7 +431,8 @@
                     "message": message,
                     "sendTo" : sendToStr,
                     "_token": "{{csrf_token()}}",
-                   "status": 2
+                   "status": 2,
+                   "add_autocomplete": add_autocomplete
                 },
                 dataType: "json",
                 success: function (response) {

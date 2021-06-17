@@ -19,9 +19,7 @@ class EditHubstaffActivitySummariesTable extends Migration
      */
     public function up()
     {
-        Schema::table('hubstaff_activity_summaries', function (Blueprint $table) {
-            $table->text('rejection_note')->nullable()->change();
-        });
+        \DB::statement("ALTER TABLE `hubstaff_activity_summaries` CHANGE `rejection_note` `rejection_note` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;");
     }
 
     /**

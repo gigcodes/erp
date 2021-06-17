@@ -12,6 +12,7 @@ use App\ProductTemplate;
 use App\Template;
 use App\Category;
 use App\Product;
+use App\StoreWebsite;
 
 class ProductTemplatesController extends Controller
 {
@@ -66,6 +67,16 @@ class ProductTemplatesController extends Controller
         $records = $records->orderBy("id", "desc")
         ->select(["product_templates.*","b.name as brand_name","sw.title as website_name"])
         ->paginate(Setting::get('pagination')); 
+
+        $array = [];
+        foreach($records as $record) {
+            if($record->hasMedia('template-image')) {
+                $media = $record->getMedia('template-image')->first();
+                 if(!empty($media))  {
+                    $record->image_url = $media->getUrl();
+                 }
+            }
+        }
 
         return response()->json([
             "code" => 1,
@@ -217,12 +228,13 @@ class ProductTemplatesController extends Controller
                 "fontStyle" => $record->font_style,
                 "fontSize" => $record->font_size,
                 "backgroundColor" => explode(",", $record->background_color),
-                "logo" => ($record->storeWebsite) ? $record->storeWebsite->icon : ""
+                "color" => $record->color,
+                "logo" => ($record->storeWebsite) ? $record->storeWebsite->title : ""
             ];
 
-            if ($record->hasMedia('template-image')) {
+            if ($record->hasMedia('template-image-attach')) {
                 $images = [];
-                foreach ($record->getMedia('template-image') as $i => $media) {
+                foreach ($record->getMedia('template-image-attach') as $i => $media) {
                     $images[] = $media->getUrl();
                 }
                 $data[ "image" ] = $images;
@@ -293,6 +305,32 @@ class ProductTemplatesController extends Controller
             }
         }
 
+        return response()->json(["code" => 0, "message" => "An unknown error has occured"]);
+
+    }
+
+    public function NewApiSave(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+           'text'       =>  'required',
+           'backgroundColor' => 'nullable',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(["code" => 500, "message" => 'Invalid request',"error" => $validator->errors()]);
+        }
+
+        $new = array(
+            'text' => request('text'),
+            'background_color' => request('backgroundColor'),
+        );
+
+        $template = ProductTemplate::insertGetId($new);
+        $template = \App\ProductTemplate::where("id", $template)->first();
+        if( $template ){
+            return response()->json($template);
+        }
+        
         return response()->json(["code" => 0, "message" => "An unknown error has occured"]);
 
     }
@@ -380,9 +418,7 @@ class ProductTemplatesController extends Controller
 
      public function create(Request $request)
     {
-
-        
-
+        // dd( $request->store_website_id );
         $template = new \App\ProductTemplate;
         $params = request()->all();
         $imagesArray=[];
@@ -394,19 +430,23 @@ class ProductTemplatesController extends Controller
         if( $request->modifications_array ){
             $params['background_color']  = $request->modifications_array[0]['background'] ?? null;
             $params['text']  = $request->modifications_array[0]['text'] ?? null;
+            $params['color']  = $request->modifications_array[0]['color'] ?? null;
         }
 
         $template->fill($params);
 
         if ($template->save()) {
 
-            
+            $StoreWebsite = StoreWebsite::where('id',$request->store_website_id)->first();
 
             if (!empty($request->get('product_media_list')) && is_array($request->get('product_media_list'))) {
                 foreach ($request->get('product_media_list') as $mediaid) {
                     $media = Media::find($mediaid);
-                    $template->attachMedia($media, ['template-image']);
+                    $template->attachMedia($media, ['template-image-attach']);
                     $template->save();
+
+                    $StoreWebsite->attachMedia($media, ['website-image-attach']);
+
                     $imagesArray[]=$media->getUrl();
                 }
             }
@@ -415,9 +455,11 @@ class ProductTemplatesController extends Controller
                 foreach ($request->file('files') as $image) {
                     $media = MediaUploader::fromSource($image)->toDirectory('product-template-images')->upload();
 
-                    $template->attachMedia($media,['template-image']);
+                    $template->attachMedia($media,['template-image-attach']);
                     $template->save();
                     $imagesArray[]=$media->getUrl();
+
+                    $StoreWebsite->attachMedia($media, ['website-image-attach']);
                 }
             }
 
@@ -426,6 +468,78 @@ class ProductTemplatesController extends Controller
             }else{
                 $template->template_status = 'python';
                 $template->save();
+
+                //call here the api
+                if($template->category) {
+                    $category = $template->category;
+                    // Get other information related to category
+                    $cat = $category->title;
+                }
+
+                $parent = '';
+                $child = '';
+
+                try {
+                    if ($cat != 'Select Category') {
+                        if ($category->isParent($category->id)) {
+                            $parent = $cat;
+                            $child = $cat;
+                        } else {
+                            $parent = $category->parent()->first()->title;
+                            $child = $cat;
+                        }
+                    }
+                } catch (\ErrorException $e) {
+                    //
+                }
+                $productCategory = $parent.' '.$child;
+
+                $data = [];
+                //check if template exist
+                $templateProductCount = $template->template->no_of_images;
+                
+                // if($record->getMedia('template-image')->count() <= $templateProductCount && $templateProductCount > 0){
+                //     $data = ['message' => 'Template Product Doesnt have Proper Images'];
+                //     return response()->json($data);
+                // }
+
+                $template->is_processed = 2;
+                $template->save();
+                
+                if ($template) {
+                    try {
+                        $data = [
+                            "id" => $template->id,
+                            "templateNumber" => $template->template_no,
+                            "productTitle" => $template->product_title,
+                            "productBrand" => ($template->brand) ? $template->brand->name : "",
+                            "productCategory" => $productCategory,
+                            "productPrice" => $template->price,
+                            "productDiscountedPrice" => $template->discounted_price,
+                            "productCurrency" => $template->currency,
+                            "text" => $template->text,
+                            "fontStyle" => $template->font_style,
+                            "fontSize" => $template->font_size,
+                            "backgroundColor" => explode(",", $template->background_color),
+                            "color" => $template->color,
+                            "logo" => ($template->storeWebsite) ? $template->storeWebsite->title : ""
+                        ];
+
+                        if ($template->hasMedia('template-image-attach')) {
+                            $images = [];
+                            foreach ($template->getMedia('template-image-attach') as $i => $media) {
+                                $images[] = $media->getUrl();
+                            }
+                            $data[ "image" ] = $images;
+                        }
+                        \Log::info(json_encode($data,true));
+                        $response = \App\Helpers\GuzzleHelper::post(env("PYTHON_PRODUCT_TEMPLATES")."/api/product-template", $data,[]);
+                    }catch(\Exception $e) {
+                        \Log::info("Product Templates controller : 541 ".$e->getMessage());
+                    }
+                    
+                }
+
             }
         }
 

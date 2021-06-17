@@ -9,6 +9,15 @@
           <form method="post" enctype="multipart/form-data" id="product-template-from">
              <?php echo csrf_field(); ?>
              <div class="form-group row">
+                <label  class="col-sm-3 col-form-label">Generate image From</label>
+                <div class="col-sm-6">
+                   <select class="form-control" name="generate_image_from" id="generate_image_from_input" aria-invalid="false">
+                        <option value="python-script">Python Script</option>
+                        <option value="banner-bear">Banner bear</option>
+                    </select>
+                </div>
+             </div>
+             <div class="form-group row">
                 <label for="template_no" class="col-sm-3 col-form-label">Template No</label>
                 <div class="col-sm-6">
                     <select class="form-control template-dropdown-function template_no valid" name="template_no" aria-invalid="false">
@@ -49,6 +58,26 @@
              </div>
            
            <div class="special"> </div>
+           <div class="default">
+                <div class="form-group row">
+                    <label for="currency" class="col-sm-3 col-form-label">Text</label>
+                    <div class="col-sm-6">
+                       <?php echo Form::text("modifications_array[0][text]",null,["class" => "form-control"]); ?>
+                    </div>
+                 </div>
+                 <div class="form-group row">
+                    <label for="currency" class="col-sm-3 col-form-label">Color</label>
+                    <div class="col-sm-6">
+                       <?php echo Form::color("modifications_array[0][color]",null,["class" => "form-control"]); ?>
+                    </div>
+                 </div>
+                 <div class="form-group row">
+                    <label for="currency" class="col-sm-3 col-form-label">Background</label>
+                    <div class="col-sm-6">
+                       <?php echo Form::color("modifications_array[0][background]",null,["class" => "form-control"]); ?>
+                    </div>
+                 </div>
+           </div>
 
              <div class="form-group row">
                 <label for="brand_id" class="col-sm-3 col-form-label">Brand</label>
@@ -86,15 +115,7 @@
                    <?php echo Form::select("store_website_id",\App\StoreWebsite::pluck('title','id')->toArraY(),null,["class" => "form-control"]); ?>
                 </div>
              </div>
-             <div class="form-group row">
-                <label  class="col-sm-3 col-form-label">Generate image From</label>
-                <div class="col-sm-6">
-                   <select class="form-control" name="generate_image_from" aria-invalid="false">
-                        <option value="banner-bear">Banner bear</option>
-                        <option value="python-script">Python Script</option>
-                    </select>
-                </div>
-             </div>
+             
              <div class="form-group row show-product-image"> </div>
              <div class="form-group row">
               <div class="col-sm-3 imgUp">

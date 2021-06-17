@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use App\UserLoginIp;
 
 class LoginController extends Controller
 {
@@ -44,27 +45,43 @@ class LoginController extends Controller
   
     public function login(Request $request)
     {
-        $this->validateLogin($request);
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
         // the login attempts for this application. We'll key this by the username and
         // the IP address of the client making these requests into this application.
         if ($this->hasTooManyLoginAttempts($request)) {
             $this->fireLockoutEvent($request);
-
             return $this->sendLockoutResponse($request);
         }
         $credentials =['email'=>$request->email, 'password'=>$request->password];
         if($this->guard()->attempt($credentials,$request->has('remember'))){
+            $this->validateLogin($request);
+            $user_ip = UserLoginIp::where('ip',$request->getClientIp())->where('user_id',auth()->user()->id)->orderBy('created_at','DESC')->first();
+            if(is_null($user_ip)){
+                $user_ip_add = New UserLoginIp();
+                $user_ip_add->user_id = auth()->user()->id;
+                $user_ip_add->ip = $request->getClientIp();
+                $user_ip_add->is_active = (auth()->user()->isAdmin()) ? 0 : 1;
+                $user_ip_add->save();
+            }
             if(auth()->user()->is_active !=1){ //Account has not being activated!
                 $this->logout($request);
                 return back()
                     ->withInput()
                     ->withErrors(['email'=>'Your account is inactive. You are not authorized to access this erp']);
-
             }
             if(!auth()->user()->isAdmin()) {
                 $date =  date('Y-m-d', strtotime('-2 days'));
                 $hubstaff_activities = \App\Hubstaff\HubstaffActivity::join('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at',$date)->where('hubstaff_members.user_id',auth()->user()->id)->count();
+                //if(!auth()->user()->isAdmin()) {
+                
+                if($user_ip){
+                    if($user_ip->is_active == false){
+                        $this->logout($request);
+                        return back()
+                            ->withInput()
+                            ->withErrors(['message'=>'Please ask admin for login approval.']);
+                    }
+                }
                 if($hubstaff_activities) {
                     $activity = \App\Hubstaff\HubstaffActivitySummary::where('user_id',auth()->user()->id)->where('date',$date)->first();
                     if(!$activity) {

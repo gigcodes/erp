@@ -66,7 +66,8 @@
                     @if(auth()->user()->isInCustomerService())
                         #{{ $customerId }} 
                     @else
-                        {{ \App\Customer::find($customerId)->name }} 
+                        @php $customer = \App\Customer::find($customerId)  @endphp
+                        {{  ($customer) ? $customer->name : "" }} 
                     @endif
                 @endif</h2>
 
@@ -606,13 +607,13 @@
             e.preventDefault();
             var image = $(this).data('image');
 
-            if ($(this).data('attached') == 0) {
-                $(this).data('attached', 1);
+            if ($(this).attr('data-attached') == 0) {
+                $(this).attr('data-attached', 1);
                 image_array.push(image);
             } else {
                 var index = image_array.indexOf(image);
 
-                $(this).data('attached', 0);
+                $(this).attr('data-attached', 0);
                 image_array.splice(index, 1);
             }
 
@@ -625,9 +626,8 @@
         $(document).on('click', '.attach-photo-all', function (e) {
             e.preventDefault();
             var image = $(this).data('image');
-
-            if ($(this).data('attached') == 0) {
-                $(this).data('attached', 1);
+            if ($(this).attr('data-attached') == 0) {
+                $(this).attr('data-attached', 1);
 
                 Object.keys(image).forEach(function (index) {
                     image_array.push(image[index]);

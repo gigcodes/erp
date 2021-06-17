@@ -87,6 +87,8 @@ use App\Console\Commands\CreateErpLeadFromCancellationOrder;
 use App\Console\Commands\SendQueuePendingChatMessages;
 use App\Console\Commands\SendQueuePendingChatMessagesGroup;
 use App\Console\Commands\SyncCustomersFromMagento;
+use App\Console\Commands\StoreChatMessagesToAutoCompleteMessages;
+
 use App\NotificationQueue;
 use App\Benchmark;
 use App\Task;
@@ -128,7 +130,8 @@ use App\Console\Commands\DeleteStoreWebsiteCategory;
 use App\Console\Commands\RunGoogleAnalytics;
 use App\Console\Commands\scrappersImages;
 use App\Console\Commands\scrappersImagesDelete;
-use App\Console\Commands\productActivity;
+use App\Console\Commands\productActivityStore;
+use App\Console\Commands\errorAlertMessage;
 use App\Console\Commands\InstagramHandler;
 use App\Console\Commands\SendDailyReports;
 use App\Console\Commands\InsertPleskEmail;
@@ -258,11 +261,13 @@ class Kernel extends ConsoleKernel
 		RunGoogleAnalytics::class,
         scrappersImages::class,
         scrappersImagesDelete::class,
-        productActivity::class,
+        productActivityStore::class,
+        errorAlertMessage::class,
         InstagramHandler::class,
         SendDailyReports::class,
         SendDailyPlannerNotification::class,
-        InsertPleskEmail::class
+        InsertPleskEmail::class,
+        StoreChatMessagesToAutoCompleteMessages::class,
     ];
 
     /**
@@ -446,10 +451,17 @@ class Kernel extends ConsoleKernel
         // send only cron run time
         $queueStartTime = \App\ChatMessage::getStartTime();
         $queueEndTime  = \App\ChatMessage::getEndTime();
+        $queueTime  = \App\ChatMessage::getQueueTime();
         // check if time both is not empty then run the cron
         if(!empty($queueStartTime) && !empty($queueEndTime)) {
-            $schedule->command('send:queue-pending-chat-messages')->cron('*/15 * * * *')->between($queueStartTime, $queueEndTime);
-            $schedule->command('send:queue-pending-chat-group-messages')->everyMinute();
+            if(!empty($queueTime)) {
+                foreach($queueTime as $no => $time) {
+                    if($time > 0) {
+                        $schedule->command('send:queue-pending-chat-messages '.$no)->cron('*/'.$time.' * * * *')->between($queueStartTime, $queueEndTime);
+                        $schedule->command('send:queue-pending-chat-group-messages '.$no)->cron('*/'.$time.' * * * *')->between($queueStartTime, $queueEndTime);        
+                    } 
+                }
+            }
         }
 
 
@@ -482,6 +494,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('google-analytics:run')->everyFifteenMinutes();
         $schedule->command('newsletter:send')->daily();
         $schedule->command('delete:store-website-category')->daily();
+        $schedule->command('memory_usage')->everyMinute();
+
         //$schedule->command('github:load_branch_state')->hourly();
         // $schedule->command('checkScrapersLog')->dailyAt('8:00');
         // $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');
@@ -534,6 +548,9 @@ class Kernel extends ConsoleKernel
         // delate chat message 
          //$schedule->command('delete:chat-messages')->dailyAt('00:00')->timezone('Asia/Kolkata');
 
+        //daily cron for checking due date and add to cashflow 
+        $schedule->command("assetsmanagerduedate:pay")->daily();
+
         //for adding due date in asset manager
         $schedule->command("assetsmanagerpayment:cron Daily")->daily();
         $schedule->command("assetsmanagerpayment:cron Weekly")->weekly();
@@ -541,8 +558,7 @@ class Kernel extends ConsoleKernel
         $schedule->command("assetsmanagerpayment:cron Monthly")->monthly();
         $schedule->command("assetsmanagerpayment:cron Bi-Weekly")->twiceMonthly(1, 16, '13:00');
         
-        //daily cron for checking due date and add to cashflow 
-        $schedule->command("assetsmanagerduedate:pay")->daily();
+        
         
         //cron for fcm push notifications
         $schedule->command("fcm:send")->everyMinute();
@@ -557,7 +573,11 @@ class Kernel extends ConsoleKernel
         $schedule->command("instagram:handler")->everyMinute()->withoutOverlapping();
 
         //Cron for activity
-        $schedule->command("productActivity")->dailyAt("0:00");
+        $schedule->command("productActivityStore")->dailyAt("0:00");
+        $schedule->command("errorAlertMessage")->daily();
+
+        $schedule->command("UpdateScraperDuration")->everyFifteenMinutes();
+
     }
 
     /**

@@ -7,6 +7,7 @@ use App\HashtagPostComment;
 use App\Product;
 use App\TargetLocation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Account;
 use App\Setting;
 use App\ReviewSchedule;
@@ -19,6 +20,7 @@ use App\Helpers;
 use App\User;
 use Auth;
 use InstagramAPI\Instagram;
+use App\ReviewBrandList;
 
 Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
@@ -88,6 +90,7 @@ class ReviewController extends Controller
       //     return $q->where('is_approved', 0)->orWhere('is_approved', 2);
       //   });
       // })
+      $review_schedules = DB::table('brand_reviews')->orderBy('created_at','ASC');
       $review_schedules = $review_schedules->latest()->paginate(Setting::get('pagination'), ['*'], 'review-page');
 
       $posted_reviews = $posted_reviews->latest()->paginate(Setting::get('pagination'), ['*'], 'posted-page');
@@ -99,7 +102,7 @@ class ReviewController extends Controller
         $instagram_dm_reviews = Review::where('platform', 'instagram_dm')->get();
 
         $countries = TargetLocation::all();
-
+      $brand_list = ReviewBrandList::all();
       return view('reviews.index', [
         'accounts'            => $accounts,
         'customers'           => $customers,
@@ -110,8 +113,9 @@ class ReviewController extends Controller
         'filter_posted_date'  => $filter_posted_date,
         'users_array'  => $users_array,
         'accounts_array'  => $accounts_array,
-          'instagram_dm_reviews' => $instagram_dm_reviews,
-          'countries' => $countries
+        'instagram_dm_reviews' => $instagram_dm_reviews,
+        'brand_list' => $brand_list,
+        'countries' => $countries
       ]);
     }
 
@@ -548,6 +552,35 @@ class ReviewController extends Controller
         ], $file);
 
         return redirect()->back()->with('message', "Message sent to @$username by @".$account->last_name);
+    }
+
+    public function restartScript()
+    {
+        $url = 'http://s07.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
+        
+        $curl = curl_init();
+        
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        
+        $response = curl_exec($curl);
+
+        $err      = curl_error($curl);
+
+        curl_close($curl);
+
+        if(!empty($err)) {
+           return response()->json(["code" => 500, "message" => "Could not fetch response from server"]);
+        }
+        
+
+        $response = json_decode($response);
+        
+        if (isset($response->message)) {
+            return response()->json(["code" => 200, "message" => $response->message]);
+        } else {
+            return response()->json(["code" => 500, "message" => "Check if Server is running"]);
+        }
     }
 
 }

@@ -30,6 +30,7 @@ use Auth;
 use Log;
 use Carbon\Carbon;
 use DateTime;
+use App\UserLoginIp;
 
 class UserController extends Controller
 {
@@ -661,5 +662,50 @@ class UserController extends Controller
 			->get();
 
 		return $results;
+	}
+
+	public function loginIps(Request $request)
+	{
+		$user_ips = UserLoginIp::join('users', 'user_login_ips.user_id', '=', 'users.id')
+						->select('user_login_ips.*', 'users.email')
+						->latest()
+						->get();
+		if ($request->ajax()) {
+			return response()->json( ["code" => 200 , "data" => $user_ips] );
+		}else{
+			return view('users.ips', compact('user_ips'));
+		} 	
+		
+	}
+
+	public function addSystemIp(Request $request){
+		if($request->ip){
+			shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f add -i ".$request->ip." -c ".$request->get("comment",""));
+			return response()->json( ["code" => 200 , "data" => "Success"] );
+		}
+		return response()->json( ["code" => 500 , "data" => "Error occured!"] );
+	}
+
+	public function deleteSystemIp(Request $request){
+		if($request->index){
+			shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f delete -n ".$request->index);
+			return response()->json( ["code" => 200 , "data" => "Success"] );
+		}
+		return response()->json( ["code" => 500 , "data" => "Error occured!"] );
+	}
+
+	public function statusChange(Request $request)
+	{
+		if($request->status){
+			$user_ip_status = UserLoginIp::where('id',$request->id)->get();
+			if($request->status == 'Active'){
+				$user_ip_status->is_status = UserLoginIp::where('id',$request->id)
+														->update(['is_active' => true]);
+			}else{
+				$user_ip_status->is_status = UserLoginIp::where('id',$request->id)
+														->update(['is_active' => false]);
+			}
+		}
+		return $request->status;
 	}
 }

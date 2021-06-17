@@ -67,17 +67,8 @@
                 <input style="min-width: 30px;" placeholder="E.minutes" value="{{ $issue->estimate_minutes }}" type="text" class="form-control estimate-time-change" name="estimate_minutes_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_minutes_{{$issue->id}}">
             @endif
                 <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
-                @php
-                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimation_minute')->where('is_approved',1)->first();
-                    if($time_history) {
-                        $est_time = $time_history->new_value;
-                    }
-                    else {
-                        $est_time = 0;
-                    }
-                @endphp
-                @if($est_time)
-                    <span>Approved : {{$est_time}}</span>
+                @if($issue->developerTaskHistory)
+                <span>Approved : {{$issue->developerTaskHistory ? $issue->developerTaskHistory->new_value:0  }}</span>
                 @else 
                     <p style="color:#337ab7"><strong>Unapproved</strong> </p>
                 @endif
@@ -117,20 +108,7 @@
                 <input style="min-width: 30px;" placeholder="E.Date" value="{{ $issue->estimate_date }}" type="text" class="form-control estimate-date estimate-date-update" name="estimate_date_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_date_{{$issue->id}}">
             @endif
                 <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-date-history" title="Show Date History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
-                @php
-                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimate_date')->where('is_approved',1)->first();
-                    if($time_history) {
-                        $est_date = $time_history->new_value;
-                    }
-                    else {
-                        $est_date = '--';
-                    }
-                @endphp
-                @if($est_date)
-                    <span>Approved : {{$est_date}}</span>
-                @else 
-                    <p style="color:#337ab7"><strong>Unapproved</strong> </p>
-                @endif
+               <span>Approved : {{$issue->developerTaskHistory ? $issue->developerTaskHistory->new_value :'--'  }}</span>
             </div>
         </div>
         @if(auth()->user()->id == $issue->assigned_to)
@@ -273,8 +251,8 @@
                         @foreach($issue->messages as $message)
                             <p>
                                 <strong>
-                                    <?php echo !empty($message->sendTaskUsername()) ? "To : ".$message->sendTaskUsername() : ""; ?>
-                                    <?php echo !empty($message->sendername()) ? "From : ".$message->sendername() : ""; ?>
+                                    <?php echo !empty($message->taskUser) ? "To : ".$message->taskUser->name : ""; ?>
+                                    <?php echo !empty($message->user) ? "From : ".$message->user->name : ""; ?>
                                     At {{ date('d-M-Y H:i:s', strtotime($message->created_at)) }}
                                 </strong>
                             </p>

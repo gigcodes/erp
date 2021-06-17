@@ -59,7 +59,7 @@ class UpdateInventory extends Command
                 })
                 ->limit(100)
                 ->where("suppliers.supplier_status_id", 1)
-                ->select("sp.last_inventory_at", "sp.sku", "sc.inventory_lifetime", "p.id as product_id", "suppliers.id as supplier_id", "sp.id as sproduct_id", "p.isUploaded")->get()->groupBy("sku")->toArray();
+                ->select("sp.last_inventory_at", "sp.sku", "sc.inventory_lifetime", "p.id as product_id", "suppliers.id as supplier_id", "sp.id as sproduct_id", "p.isUploaded","p.color")->get()->groupBy("sku")->toArray();
 
             if (!empty($products)) {
                 $zeroStock = [];
@@ -104,6 +104,7 @@ class UpdateInventory extends Command
                                     'date'          => $today,
                                     'in_stock'      => $new_in_stock,
                                     'prev_in_stock' => $prev_in_stock,
+                                    'created_at'    => date("Y-m-d H:i:s")
                                 );
 
                                 // $history = new \App\InventoryStatusHistory;
@@ -140,7 +141,7 @@ class UpdateInventory extends Command
                     \DB::table('scraped_products')->whereIn('id', $sproductIdArr)->update(array('last_cron_check' => date("Y-m-d H:i:s")));
                 }
                 if (!empty($productIdsArr)) {
-                    \DB::table('products')->whereIn('ids', $productIdsArr)->update(array('stock' => 0, 'updated_at' => date("Y-m-d H:i:s")));
+                    \DB::table('products')->whereIn('id', $productIdsArr)->update(array('stock' => 0, 'updated_at' => date("Y-m-d H:i:s")));
                 }
 
                 if (!empty($statusHistory)) {
@@ -152,7 +153,7 @@ class UpdateInventory extends Command
                         $time_start = microtime(true);
                         CallHelperForZeroStockQtyUpdate::dispatch($needToCheck)->onQueue('MagentoHelperForZeroStockQtyUpdate');
                         $time_end = microtime(true);
-                        \Log::info('inventory:update :: ForZeroStockQtyUpdate -Total Execution Time => ' . ($execution_time));
+                        //\Log::info('inventory:update :: ForZeroStockQtyUpdate -Total Execution Time => ' . ($execution_time));
                     } catch (\Exception $e) {
                         \Log::error('inventory:update :: CallHelperForZeroStockQtyUpdate :: ' . $e->getMessage());
                     }

@@ -82,6 +82,11 @@ class Customer extends Model
         return $this->hasMany('App\ErpLeads')->orderBy('created_at', 'DESC');
     }
 
+    public function dnd()
+    {
+        return $this->hasMany('App\CustomerBulkMessageDND', 'customer_id', 'id')->where('filter', app('request')->keyword_filter);
+    }
+
     public function orders()
     {
         return $this->hasMany('App\Order')->orderBy('created_at', 'DESC');

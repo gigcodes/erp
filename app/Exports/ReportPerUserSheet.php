@@ -43,7 +43,7 @@ class ReportPerUserSheet implements FromQuery, WithTitle, WithHeadings, ShouldAu
         return $this->users_array[$this->user_id];
       }
 
-      return 'User Not Exists'
+      return 'User Not Exists';
     }
 
     public function headings(): array
