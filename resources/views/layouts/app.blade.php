@@ -2394,6 +2394,13 @@ $metaData = '';
         $('.btn_save_notes').on('click', function(e) {
             e.preventDefault();
             var data = $('#editor-notes-content').val();
+
+            if($(data).text() == ''){
+                toastr['error']('Note Is Required');
+                return false;
+            }
+            
+
             var url  = window.location.href;
             $.ajax({
                 type: "POST",
