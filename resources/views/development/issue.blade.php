@@ -680,11 +680,12 @@
 
         $(document).on('click', '.show-time-history', function() {
             var data = $(this).data('history');
+            var userId = $(this).data('userid'); 
             var issueId = $(this).data('id');
             $('#time_history_div table tbody').html('');
             $.ajax({
                 url: "{{ route('development/time/history') }}",
-                data: {id: issueId},
+                data: {id: issueId, user_id: userId},
                 success: function (data) {
                     if(data != 'error') {
                         $('input[name="developer_task_id"]').val(issueId);
@@ -699,15 +700,36 @@
                                 '<tr>\
                                     <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
                                     <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
+                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td>\
+                                    <td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
                                 </tr>'
-                            );
+                            );  
                         });
+                        $('#time_history_div table tbody').append(
+                            '<input type="hidden" name="user_id" value="'+userId+'" class=" "/>'
+                        );
                     }
                 }
             });
             $('#time_history_modal').modal('show');
         });
+
+        $(document).on('click', '.revise_btn', function() {
+            var userId = $(this).data('userid'); 
+            var issueId = $(this).data('id');
+            $(this).attr('data-userid', userId);
+
+            $('#time_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/time/history/approve/sendMessage') }}",
+                data: {id: issueId, user_id: userId},
+                success: function (data) {
+                    toastr['success']('Successfully send', 'success');
+                }
+            });
+            $('#time_history_modal').modal('show');
+        });
+
         $(document).on('click', '.show-lead-time-history', function() {
             var data = $(this).data('history');
             var issueId = $(this).data('id');

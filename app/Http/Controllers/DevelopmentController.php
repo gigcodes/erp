@@ -2203,6 +2203,27 @@ class DevelopmentController extends Controller
                 'message' => 'Success'
             ],200);
         }
+        $user = User::find($request->user_id);
+        if($user){
+            $receiver_user_phone = $user->phone;
+            if($receiver_user_phone){
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi(971547763482, $receiver_user_phone, 'test msg', false);
+            } 
+        }
+        return response()->json([
+            'message' => 'Only admin can approve'
+        ],500);
+    }
+
+    public function sendReviseMessage(Request $request) {
+        
+        $user = User::find($request->user_id);
+        if($user){
+            $receiver_user_phone = $user->phone;
+            if($receiver_user_phone){
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi(971547763482, $receiver_user_phone, 'test msg', false);
+            } 
+        }
         return response()->json([
             'message' => 'Only admin can approve'
         ],500);
@@ -2264,7 +2285,15 @@ class DevelopmentController extends Controller
                 'user_id' => Auth::id(),
             ]);
         }
-
+        
+        $user = User::find($issue->user_id);
+        if($user){
+            $receiver_user_phone = $user->phone;
+            if($receiver_user_phone){
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi(971547763482, $receiver_user_phone, 'test msg', false);
+            } 
+        }
+        
         $issue->estimate_minutes = $request->get('estimate_minutes');
         $issue->save();
 
@@ -2645,9 +2674,18 @@ class DevelopmentController extends Controller
     {
         $id = $request->id;
         $task_module = DeveloperTaskHistory::join('users','users.id','developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model','App\DeveloperTask')->where('attribute','estimation_minute')->select('developer_tasks_history.*','users.name')->get();
+        
+        $user = User::find($request->user_id);
+        if($user && !count($task_module)){
+            $receiver_user_phone = $user->phone;
+            if($receiver_user_phone){
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi(971547763482, $receiver_user_phone, 'test msg', false);
+            } 
+        }
         if($task_module) {
             return $task_module;
         }
+        
         return 'error';
     }
 

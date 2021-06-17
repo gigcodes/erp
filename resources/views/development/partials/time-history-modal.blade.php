@@ -112,6 +112,9 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     @if(auth()->user()->isReviwerLikeAdmin())
+                        <button type="text" class="btn btn-secondary revise_btn">Revise</button>
+                    @endif
+                    @if(auth()->user()->isReviwerLikeAdmin())
                         <button type="submit" class="btn btn-secondary">Confirm</button>
                     @endif
                 </div>
