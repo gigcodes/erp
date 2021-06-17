@@ -98,7 +98,7 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
                 $new_customers[$key]['estimated_time'] = !empty($est) ? $est->new_value ?? 'N/A' : 'N/A';
                 $new_customers[$key]['status'] = $devTask->status ?? 'N/A';
     
-                array_push($new_customers);
+                // array_push($new_customers);
     
             }
             if( empty( $devTask ) ){
@@ -144,7 +144,7 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
     	        if ($trackedTime && $devTask->subject) {
     	        	 $totalTrack += $trackedTime;
     	        }
-                array_push($new_customers);
+                // array_push($new_customers);
                 // dump([$key, $new_customers, 'out']);
 
             } 

@@ -2477,6 +2477,8 @@ Route::get('keywordassign/{id}', 'KeywordassignController@edit');
 Route::post('keywordassign/{id}/update', 'KeywordassignController@update');
 Route::get('keywordassign/{id}/destroy', 'KeywordassignController@destroy');
 
+Route::get('keywordreponse/logs', 'KeywordassignController@keywordreponse_logs')->name('keywordreponse.logs');//Purpose : add route for Keyword logs - DEVTASK-4233
+
 
 
 Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');

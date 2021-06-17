@@ -1,6 +1,6 @@
 <script type="text/x-jsrender" id="template-result-block">
 	<div class="row">
-		<table class="table table-bordered">
+		<table class="table table-bordered digital-marketings">
 		    <thead>
 		      <tr>
 		      	<th width="2%">Id</th>
@@ -24,17 +24,17 @@
 			        <td>{{:prop.status_name}}</td>
 			        <td>{{:prop.created_at}}</td>
 			        <td>
-			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template"><img width="15px" title="Edit" src="/images/edit.png"></button>
-			        	|<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><i class="fa fa-trash" aria-hidden="true"></i></button>
-			        	| <a href="/digital-marketing/{{>prop.id}}/solution"><button type="button" data-id="{{>prop.id}}" class="btn btn-add-solution"><i class="fa fa-pie-chart" aria-hidden="true"></i></button></a>
-						| <a href="javascript:;">
+			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template btn-xs"><img width="15px" title="Edit" src="/images/edit.png"></button>
+			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><i class="fa fa-trash" aria-hidden="true"></i></button>
+			        	<a href="/digital-marketing/{{>prop.id}}/solution"><button type="button" data-id="{{>prop.id}}" class="btn btn-add-solution"><i class="fa fa-pie-chart" aria-hidden="true"></i></button></a>
+						<a href="javascript:;">
 							<button type="button" data-id="{{>prop.id}}" class="btn btn-add-components">
 								<i class="fa fa-compass" aria-hidden="true"></i>
 							</button>
-						</a> | 
+						</a>
 						<label for="upload_file{{>prop.id}}" data-id="{{>prop.id}}" class="fa fa-upload"></label>
 						<input type="file" multiple data-id="{{>prop.id}}" class="upload_file hide" name="upload_file{{>prop.id}}" id="upload_file{{>prop.id}}">
-						<a href="javascript:;" class="get_Files" data-id="{{>prop.id}}"></a> | 
+						<a href="javascript:;" class="get_Files" data-id="{{>prop.id}}"></a>
 						<button class="btn btn-sm btn-image show-emails" data-id="{{:prop.id}}"><i class="fa fa-envelope" aria-hidden="true"></i></button>
 			        </td>
 			      </tr>

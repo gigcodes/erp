@@ -13,9 +13,10 @@ class ModifyModelIdInEmailsTable extends Migration
      */
     public function up()
     {
-        Schema::table('emails', function (Blueprint $table) {
+        /*Schema::table('emails', function (Blueprint $table) {
             $table->integer('model_id')->unsigned()->nullable()->change();
-        });
+        });*/
+        \DB::statement("ALTER TABLE `emails` CHANGE `model_id` `model_id` INT(10) UNSIGNED NULL;");
     }
 
     /**
@@ -25,8 +26,8 @@ class ModifyModelIdInEmailsTable extends Migration
      */
     public function down()
     {
-        Schema::table('emails', function (Blueprint $table) {
+        /*Schema::table('emails', function (Blueprint $table) {
             $table->integer('model_id')->unsigned()->change();
-        });
+        });*/
     }
 }

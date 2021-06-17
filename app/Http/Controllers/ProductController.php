@@ -2533,6 +2533,7 @@ class ProductController extends Controller
         } else {
             $products = $products->paginate($perPageLimit);
         }
+
         $brand = $request->brand;
         $products_count = $products->total();
         $all_product_ids = [];
@@ -2588,8 +2589,8 @@ class ProductController extends Controller
                         $erp_lead->product_id = $id;
                         $erp_lead->category_id = $pr->category;
                         $erp_lead->brand_id = $pr->brand;
-                        $erp_lead->min_price = $request->price_min;
-                        $erp_lead->max_price = $request->price_max;
+                        $erp_lead->min_price = !empty($request->price_min) ? $request->price_min : 0;
+                        $erp_lead->max_price = !empty($request->price_max) ? $request->price_max : 0;
                         $erp_lead->save();
                     }
                 }
@@ -2598,6 +2599,17 @@ class ProductController extends Controller
                     \App\SuggestedProductList::insert($data_to_insert);
                 } 
             }
+
+            //
+            if($request->need_to_send_message == 1) {
+               \App\ChatMessage::create([
+                    "message" => "Total product found '".count($product_ids)."' for the keyword message : {$request->keyword_matched}",
+                    "customer_id" => $model_id,
+                    "status" => 2,
+                    "approved" => 1,
+               ]); 
+            }
+
 
             // $message_body = '';
             // $sending_time = '';
