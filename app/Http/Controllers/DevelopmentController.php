@@ -566,7 +566,8 @@ class DevelopmentController extends Controller
         if ( request()->ajax() ) {
 			return view("development.partials.load-more", compact('issues', 'users', 'modules', 'request','title','type','countPlanned','countInProgress','statusList','priority'));
         }
-        
+
+
         return view('development.issue', [
             'issues' => $issues,
             'users' => $users,
@@ -604,11 +605,9 @@ class DevelopmentController extends Controller
         if ((int) $request->get('responsible_user') > 0) {
             $issues = $issues->where('developer_tasks.responsible_user_id', $request->get('responsible_user'));
         }
-
         if ((int) $request->get('corrected_by') > 0) {
             $issues = $issues->where('developer_tasks.user_id', $request->get('corrected_by'));
         }
-
         if ((int) $request->get('assigned_to') > 0) {
             $issues = $issues->where('developer_tasks.assigned_to', $request->get('assigned_to'));
         }
@@ -691,17 +690,28 @@ class DevelopmentController extends Controller
         
         $issues = $issues->get();
         $tasks_csv = [];
+
+
         
         foreach ($issues as $value) {
             $task_csv = [];
             $task_csv['id'] = $value->id;
             $task_csv['Subject'] = $value->subject;
             $task_csv['communication'] = $value->message;
-            $task_csv['developer'] = $value->team_lead_id;
+            $task_csv['Developer'] = $value->team_lead_id;
+            $task_csv['Approved estimated time'] = $value->estimate_time;
+            $task_csv['Status'] = $value->status;
+
+            $startTime = Carbon::parse($value->start_time);
+            $endTime = Carbon::parse($value->end_time);
+            $totalDuration = $endTime->diffForHumans($startTime);
+
+            $task_csv['Tracked Time'] = date('h:i:s',strtotime($value->start_time))." to ".date('h:i:s',strtotime($value->end_time));
+            $task_csv['Difference'] = $totalDuration;
             array_push($tasks_csv,$task_csv);
         }
         
-        $this->outputCsv('downaload-task-summaries.csv', $tasks_csv);
+        $this->outputCsv('download-task-summaries.csv', $tasks_csv);
     }
 
     private function outputCsv($fileName, $assocDataArray)
