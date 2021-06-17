@@ -14,9 +14,9 @@ class AlterDropForeignKeyPageNotesTable extends Migration
     public function up()
     {
         //
-        Schema::table('page_notes', function (Blueprint $table) {
-            $table->dropForeign('page_notes_category_id_foreign');
-        });
+        // Schema::table('page_notes', function (Blueprint $table) {
+        //     $table->dropForeign('page_notes_category_id_foreign');
+        // });
     }
 
     /**
@@ -27,13 +27,13 @@ class AlterDropForeignKeyPageNotesTable extends Migration
     public function down()
     {
         //
-        Schema::table('page_notes', function (Blueprint $table) {
+        /*Schema::table('page_notes', function (Blueprint $table) {
             // $table->unsignedInteger('category_id');
   
             $table->foreign('category_id')
                   ->references('id')
                   ->on('page_notes_categories')
                   ->onDelete('cascade');
-          });
+          });*/
     }
 }
