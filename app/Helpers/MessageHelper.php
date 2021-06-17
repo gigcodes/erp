@@ -304,7 +304,10 @@ class MessageHelper
             $log_comment = $log_comment.' . ';
             $temp_log_params['comment']  =  $log_comment;
 
-            $add_keyword = KeywordAutoGenratedMessageLog::create($temp_log_params);
+            if($temp_log_params['keyword_match'] != '')
+            {
+                $add_keyword = KeywordAutoGenratedMessageLog::create($temp_log_params);
+            }
             //END - DEVTASK-4233
 
         }
@@ -556,8 +559,11 @@ class MessageHelper
         //START - Purpose : Log Comment ,Add Data - DEVTASK-4233
         $log_comment = $log_comment.' . ';
         $temp_log_params['comment']  =  $log_comment;
-
-        $add_keyword = KeywordAutoGenratedMessageLog::create($temp_log_params);
+        
+        if($temp_log_params['keyword_match'] != '')
+        {
+            $add_keyword = KeywordAutoGenratedMessageLog::create($temp_log_params);
+        }
         //END - DEVTASK-4233
     }
 }
