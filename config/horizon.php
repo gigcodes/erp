@@ -104,7 +104,7 @@ return [
             'supervisor-1' => [
                 'connection' => 'redis',
                 'queue' => ['product','magento','magentoone','magentotwo','magentothree','supplier_products','customer_message','watson_push','default','email','high'],
-                'balance' => 'simple',
+                'balance' => 'auto',
                 'processes' => 10,
                 'tries' => 1,
             ],
@@ -114,7 +114,7 @@ return [
             'supervisor-1' => [
                 'connection' => 'redis',
                 'queue' => ['product','magento','magentoone','magentotwo','magentothree','supplier_products','customer_message','watson_push','default','email','high'],
-                'balance' => 'simple',
+                'balance' => 'auto',
                 'processes' => 10,
                 'tries' => 1,
             ]
