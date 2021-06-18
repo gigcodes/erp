@@ -7,7 +7,11 @@
 @endsection
 @section('content')
 
-
+<style>
+table tbody tr td{
+  word-wrap: break-word;
+}
+</style>
 
 <div class="row">
     <div class="col-lg-12 margin-tb">
@@ -23,12 +27,12 @@
         <table class="table table-striped table-bordered" style="width: 99%" id="keywordassign_table">
             <thead>
                 <tr>
-                    <th width="15%">Model</th>
+                    <th width="10%">Model</th>
                     <th width="15%">Model Id</th>
-                    <th width="15%">Keyword</th>
+                    <th width="10%">Keyword</th>
                     <th width="15%">Keyword Match</th>
                     <th width="15%">Message Send Id</th>
-                    <th width="20%">Comment</th>
+                    <th width="25%">Comment</th>
                 </tr>
             </thead>
             <tbody>
