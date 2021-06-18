@@ -189,7 +189,7 @@ class ScrapController extends Controller
     public function syncProductsFromNodeApp(Request $request)
     {
 
-        \Log::channel('scraper')->debug("##!!##" . json_encode($request->all()) . "##!!##");
+        //\Log::channel('scraper')->debug("##!!##" . json_encode($request->all()) . "##!!##");
 
         // Update request data with common mistakes
         $request = ProductHelper::fixCommonMistakesInRequest($request);
@@ -750,7 +750,7 @@ class ScrapController extends Controller
      */
     public function saveFromNewSupplier(Request $request)
     {
-        \Log::channel('scraper')->debug("\n##!EXTERNAL-SCRAPER!##\n" . json_encode($request->all()) . "\n##!EXTERNAL-SCRAPER!##\n");
+        //\Log::channel('scraper')->debug("\n##!EXTERNAL-SCRAPER!##\n" . json_encode($request->all()) . "\n##!EXTERNAL-SCRAPER!##\n");
         
         // Overwrite website
         //$request->website = 'internal_scraper';

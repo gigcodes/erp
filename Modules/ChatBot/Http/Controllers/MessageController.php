@@ -28,7 +28,7 @@ class MessageController extends Controller
             ->leftJoin("store_websites as sw", "sw.id", "c.store_website_id")
             ->Join("chatbot_replies as cr", "cr.replied_chat_id", "chat_messages.id")
             ->leftJoin("chat_messages as cm1", "cm1.id", "cr.chat_id")
-            ->groupBy('chat_messages.task_id','chat_messages.developer_task_id','chat_messages.vendor_id','chat_messages.customer_id', 'chat_messages.user_id');//Purpose : Add task_id - DEVTASK-4203
+            ->groupBy(['chat_messages.customer_id','chat_messages.vendor_id','chat_messages.user_id', 'chat_messages.task_id','chat_messages.developer_task_id']);//Purpose : Add task_id - DEVTASK-4203
             
         if (!empty($search)) {
             $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($search) {
@@ -42,7 +42,7 @@ class MessageController extends Controller
             });
         }
 
-        $pendingApprovalMsg = $pendingApprovalMsg->whereRaw("chat_messages.id in (select max(id) as latest_message from chat_messages where (customer_id > 0 or vendor_id > 0 or task_id > 0 or developer_task_id > 0 or user_id > 0 or supplier_id > 0)  GROUP BY task_id,developer_task_id,vendor_id,customer_id,user_id,supplier_id)");
+        $pendingApprovalMsg = $pendingApprovalMsg->whereRaw("chat_messages.id in (select max(chat_messages.id) as latest_message from chat_messages JOIN chatbot_replies as cr on cr.replied_chat_id = `chat_messages`.`id` where (customer_id > 0 or vendor_id > 0 or task_id > 0 or developer_task_id > 0 or user_id > 0 or supplier_id > 0)  GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id)");
 
         $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
             $q->where("chat_messages.message", "!=", "");
