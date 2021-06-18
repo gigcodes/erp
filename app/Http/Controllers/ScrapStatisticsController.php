@@ -734,7 +734,7 @@ class ScrapStatisticsController extends Controller
         //START - Purpose : Coment query and write new query for display only manualy added message - DEVTASK-4086
         //$lastRemark = \DB::select("select * from scrap_remarks as sr join ( select max(id) as id from scrap_remarks group by scraper_name) as max_s on sr.id =  max_s.id order by sr.scraper_name asc");
 
-        $lastRemark = \DB::select("select * from scrap_remarks as sr join ( SELECT MAX(id) AS id FROM scrap_remarks WHERE user_name != '' AND scrap_field IS NULL  GROUP BY scraper_name ) as max_s on sr.id =  max_s.id join scrapers as scr on scr.scraper_name = sr.scraper_name WHERE sr.user_name IS NOT NULL order by sr.scraper_name asc");
+        $lastRemark = \DB::select("select * from scrap_remarks as sr join ( SELECT MAX(id) AS id FROM scrap_remarks WHERE user_name != '' AND scrap_field IS NULL  GROUP BY scraper_name ) as max_s on sr.id =  max_s.id     join scrapers as scr on scr.scraper_name = sr.scraper_name WHERE sr.user_name IS NOT NULL order by sr.scraper_name asc");
 
 
         $suppliers = DB::table('products')
