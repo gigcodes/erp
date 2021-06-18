@@ -344,7 +344,7 @@ class PurchaseProductController extends Controller
             ->where('product_suppliers.supplier_id',$supplier_id)
             ->orderBy('order_products.id', 'desc')
             /*->groupBy('supplier_discount_infos.id')*/
-            ->select('product_suppliers.price as product_price','products.*','supplier_discount_infos.*','product_suppliers.id as ps_id')->get();
+            ->select('product_suppliers.price as product_price','products.*','supplier_discount_infos.*','product_suppliers.id as ps_id','products.id as id')->get();
            
             return view('purchase-product.partials.products',compact('products','type','supplier_id'));
         }
@@ -430,6 +430,7 @@ class PurchaseProductController extends Controller
             $subject = 'Product order';
             $message = 'Please check below product order request';
             $product_ids = json_decode($request->product_ids, true);
+
             Excel::store(new EnqueryExport($product_ids,$path), $path, 'files');
            
             $emailClass = (new PurchaseExport($path, $subject, $message))->build();

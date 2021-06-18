@@ -2189,6 +2189,8 @@ class DevelopmentController extends Controller
     }
 
     public function approveTimeHistory(Request $request) {
+
+       
         if(Auth::user()->isAdmin) {
             if(!$request->approve_time || $request->approve_time == "" || !$request->developer_task_id || $request->developer_task_id == '') {
                 return response()->json([
@@ -2199,13 +2201,53 @@ class DevelopmentController extends Controller
             $history = DeveloperTaskHistory::find($request->approve_time);
             $history->is_approved = 1;
             $history->save();
-            return response()->json([
-                'message' => 'Success'
-            ],200);
+
+            $user = User::find($request->user_id);
+            if($user){
+                $receiver_user_phone = $user->phone;
+                if($receiver_user_phone){
+                $task = DeveloperTask::find($request->developer_task_id);
+                $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' .  $request->approve_time . ' MINS';
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false);
+                } 
+            } 
         }
+        
         return response()->json([
             'message' => 'Only admin can approve'
         ],500);
+    }
+
+    public function sendRemindMessage(Request $request) {
+        
+        $user = User::find($request->user_id);
+        if($user){
+            $receiver_user_phone = $user->phone;
+            if($receiver_user_phone){
+                $task = DeveloperTask::find($request->id);
+                $msg = 'PLS ADD ESTIMATED TIME FOR TASK  ' . '#DEVTASK-' . $task->id . '-' . $task->subject ; 
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false);
+            } 
+        }
+        return response()->json([
+            'message' => 'Remind message sent successfully',
+        ]);
+    }
+
+    public function sendReviseMessage(Request $request) {
+        
+        $user = User::find($request->user_id);
+        if($user){
+            $receiver_user_phone = $user->phone;
+            if($receiver_user_phone){
+                $task = DeveloperTask::find($request->id);
+                $msg = 'TIME NOT APPROVED REVISE THE ESTIMATED TIME FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject;
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false);
+            } 
+        }
+        return response()->json([
+            'message' => 'Revise message sent successfully',
+        ]);
     }
 
     public function approveLeadTimeHistory(Request $request) {
@@ -2252,7 +2294,6 @@ class DevelopmentController extends Controller
     public function saveEstimateMinutes(Request $request)
     {
         $issue = DeveloperTask::find($request->get('issue_id'));
-        //$issue = Issue::find($request->get('issue_id'));
 
         if($issue && $request->estimate_minutes) {
             DeveloperTaskHistory::create([
@@ -2264,7 +2305,28 @@ class DevelopmentController extends Controller
                 'user_id' => Auth::id(),
             ]);
         }
-
+        if(Auth::user()->isAdmin()){
+            $user = User::find($issue->user_id);
+            if($user){
+                $receiver_user_phone = $user->phone;
+                if($receiver_user_phone){
+                    $msg = 'TIME ESTIMATED BY ADMIN FOR TASK ' . '#DEVTASK-' . $issue->id . '-' .$issue->subject . ' ' .  $request->estimate_minutes . ' MINS';
+                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false);
+                } 
+            }
+        }else{
+            $users = User::get();
+            foreach($users as $user){
+                if($user->isAdmin()){
+                    $receiver_user_phone = $user->phone;
+                    if($receiver_user_phone){
+                        $msg = 'TIME ESTIMATED BY USER FOR TASK ' . '#DEVTASK-' . $issue->id . '-' .$issue->subject . ' ' .  $request->estimate_minutes . ' MINS';
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false);
+                    } 
+                }
+            }
+        }
+        
         $issue->estimate_minutes = $request->get('estimate_minutes');
         $issue->save();
 
@@ -2643,11 +2705,15 @@ class DevelopmentController extends Controller
 
     public function getTimeHistory(Request $request)
     {
+        $users = User::get();
+        
         $id = $request->id;
         $task_module = DeveloperTaskHistory::join('users','users.id','developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model','App\DeveloperTask')->where('attribute','estimation_minute')->select('developer_tasks_history.*','users.name')->get();
+        
         if($task_module) {
             return $task_module;
         }
+        
         return 'error';
     }
 
