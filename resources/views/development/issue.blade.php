@@ -683,6 +683,14 @@
             var userId = $(this).data('userid'); 
             var issueId = $(this).data('id');
             $('#time_history_div table tbody').html('');
+
+            const hasText = $(this).siblings('input').val()
+
+            if(!hasText){
+                $('#time_history_modal .revise_btn').prop('disabled', true);
+                $('#time_history_modal .remind_btn').prop('disabled', false);
+            }
+
             $.ajax({
                 url: "{{ route('development/time/history') }}",
                 data: {id: issueId, user_id: userId},
@@ -708,26 +716,45 @@
                         $('#time_history_div table tbody').append(
                             '<input type="hidden" name="user_id" value="'+userId+'" class=" "/>'
                         );
+                        $('#time_history_div table tbody').append(
+                            '<input type="hidden" name="issueId" value="'+issueId+'" class=" "/>'
+                        );
                     }
+                    $('#time_history_modal').modal('show');
+                }
+            }); 
+        });
+
+        $(document).on('click', '.remind_btn', function() {
+            var issueId = $('#approve-time-btn input[name="developer_task_id"]').val(); 
+            var userId = $('#approve-time-btn input[name="user_id"]').val();  
+
+            $('#time_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/time/history/approve/sendRemindMessage') }}",
+                type: 'POST',
+                data: {id: issueId, user_id: userId, _token: '{{csrf_token()}}' },
+                success: function (data) {
+                    toastr['success'](data.message, 'success');
                 }
             });
-            $('#time_history_modal').modal('show');
+            $('#time_history_modal').modal('hide');
         });
 
         $(document).on('click', '.revise_btn', function() {
-            var userId = $(this).data('userid'); 
-            var issueId = $(this).data('id');
-            $(this).attr('data-userid', userId);
+            var issueId = $('#approve-time-btn input[name="developer_task_id"]').val(); 
+            var userId = $('#approve-time-btn input[name="user_id"]').val();  
 
             $('#time_history_div table tbody').html('');
             $.ajax({
                 url: "{{ route('development/time/history/approve/sendMessage') }}",
-                data: {id: issueId, user_id: userId},
+                type: 'POST',
+                data: {id: issueId, user_id: userId, _token: '{{csrf_token()}}' },
                 success: function (data) {
-                    toastr['success']('Successfully send', 'success');
+                    toastr['success'](data.message, 'success');
                 }
             });
-            $('#time_history_modal').modal('show');
+            $('#time_history_modal').modal('hide');
         });
 
         $(document).on('click', '.show-lead-time-history', function() {
