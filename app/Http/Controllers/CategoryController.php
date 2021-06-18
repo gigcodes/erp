@@ -664,16 +664,16 @@ class CategoryController extends Controller
         // }
 
         // $view = (string) view("category.partials.preview-categories", compact('links'));
+        $loeggedUser = $request->user();
 
         $scrapped_category_mapping = ScrappedCategoryMapping::select('id', 'name')
         ->whereNull('category_id');
 
-        if($request->show_skipeed_btn_value == 'false'){
-            $scrapped_category_mapping->where('is_skip',0);
+        if($request->show_skipeed_btn_value == 'false') {
+            $scrapped_category_mapping->where('is_skip', 0);
         }
 
-        $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination'));
-
+        $scrapped_category_mapping = $scrapped_category_mapping->get();
         $links = [];
 
         if (!$scrapped_category_mapping->isEmpty()) {
@@ -682,18 +682,55 @@ class CategoryController extends Controller
 
                 $filter = \App\Category::updateCategoryAuto($category->name);
 
-                $links[] = [
-                    "from_id" => $category->id,
-                    "from" => $category->name,
-                    "to"   => ($filter) ? $filter->id : null,
-                ];
+                // "to"   => ($filter) ? $filter->id : null,
+                if ($filter) {
+                    $links[$category->id] = ($filter) ? $filter->id : null;
+                }
             }
         }
 
-        $view = (string) view("category.partials.preview-categories", compact('links'));
+        $count=0;   
+        if (!empty($links)) {
+            //$cat_name = array();
+            foreach ($links as $scrappedCategoryId => $selectedCategoryId) {
 
-        return response()->json(["code" => 200, "html" => $view]);
+                if ($selectedCategoryId != 1) {
 
+                    $scrappedCategory = ScrappedCategoryMapping::find($scrappedCategoryId);
+                    $selectedCategory = Category::find($selectedCategoryId);
+
+                    \App\Jobs\UpdateProductCategoryFromErp::dispatch([
+                        "from"    => $scrappedCategory->name,
+                        "to"      => $selectedCategory->id,
+                        "user_id" => $loeggedUser->id,
+                    ])->onQueue("supplier_products");
+
+                    \App\UserUpdatedAttributeHistory::create([
+                        'old_value'      => $scrappedCategory->id,
+                        'new_value'      => $selectedCategory->id,
+                        'attribute_name' => 'category',
+                        'attribute_id'   => $selectedCategory->id,
+                        'user_id'        => $loeggedUser->id,
+                    ]);
+
+                  $isUpdtaed =   $scrappedCategory->update([
+                        'category_id' => $selectedCategory->id,
+                        'is_skip' => 1
+                    ]);
+                if($isUpdtaed){
+                    $count++;
+                }
+
+                } else {
+                    ScrappedCategoryMapping::where('id', $scrappedCategoryId)->update(["is_skip" => 1]);
+                }
+            }
+        }
+
+
+
+
+        return response()->json(["code" => 200, "count"=>$count]);
     }
 
     public function saveCategoryReference(Request $request)
