@@ -157,12 +157,12 @@
 
                 <?php /* <button style="padding:3px;" type="button" class="btn btn-image d-inline toggle-class pd-5" data-id="{{ $category->id }}"><img width="2px;" src="/images/forward.png" /></button> */ ?>
 
-                <?php /*echo Form::select("status", ["" => "-- Select --"] + $allStatus, ($site) ? $site->status : 0, [
+                <?php echo Form::select("status", ["" => "-- Select --"] + $allStatus, ($site) ? $site->status : 0, [
                     "class" => "form-control save-item-select",
                     "data-category" => $category->id,
                     "data-type" => "status",
                     "data-site" => ($site) ? $site->id : ""
-                ]) */ ?>
+                ])  ?>
                 <span>
                 <?php $status = ($site) ? $site->status : 0; ?> 
                 @if($status==3)
