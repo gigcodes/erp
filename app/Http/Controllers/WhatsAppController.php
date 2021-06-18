@@ -2465,6 +2465,10 @@ class WhatsAppController extends FindByNumberController
                         if($get_emails != null)
                         {
 
+                            $prefix = ($issue->task_type_id == 1) ? "#DEVTASK-" : "#ISSUE-";
+
+                            $subject = $prefix . $issue->id . '-' . $issue->subject;
+
                             $mail_arr = explode(",",$get_emails->emails);
                         
                             if(count($mail_arr) > 0)
@@ -2478,8 +2482,8 @@ class WhatsAppController extends FindByNumberController
                                         'model_type'       => \App\DeveloperTask::class,
                                         'from'             => $from_address,
                                         'to'               => $mail_id,
-                                        'subject'          => '#DEVTASK-' . $issue->id,
-                                        'message'          => '#DEVTASK-' . $issue->id.' => '.$request->get('message'),
+                                        'subject'          => $subject,
+                                        'message'          => $prefix . $issue->id . '-' . $issue->subject.' => '.$request->get('message'),
                                         'template'         => 'customer-simple',
                                         'additional_data'  => '',
                                         'status'           => 'pre-send',
