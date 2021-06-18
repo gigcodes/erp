@@ -5225,7 +5225,9 @@ class WhatsAppController extends FindByNumberController
         ));
 
         $response = curl_exec($curl);
+        \Log::info(print_r(["Whatsapp send message Response",$response],true));
         $err = curl_error($curl);
+        \Log::info(print_r(["Whatsapp send message error",$err],true));
 
         // $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
