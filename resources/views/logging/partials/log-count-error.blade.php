@@ -2,8 +2,8 @@
     <thead>
         <tr>
             <th># Website</th>
-            <th>Url</th>
             <th>Count</th>
+            <th>Url</th>
         </tr>
     </thead>
     <tbody>
@@ -11,8 +11,8 @@
             @foreach($log as $l)
                 <tr>
                     <td>{{$l->website}}</td>
-                    <td>{{$l->url}}</td>
                     <td>{{$l->total_error}}</td>
+                    <td>{{$l->url}}</td>
                 </tr>
             @endforeach
         @endif

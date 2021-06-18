@@ -486,8 +486,9 @@ class LogListMagentoController extends Controller
         ->groupBy("ppel.url")
         ->where("ppel.response_status","error")
         ->where("ppel.url","!=","")
+        ->where("ppel.created_at",">=",date("Y-m-d",strtotime('-7 days')))
         ->select([\DB::raw("count(*) as total_error"),"ppel.url","sw.website"])
-        ->orderBy("ppel.id","desc")
+        ->orderBy("total_error","desc")
         ->get();
 
         return view("logging.partials.log-count-error",compact("log"));
