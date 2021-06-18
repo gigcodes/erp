@@ -17,11 +17,13 @@ class ScrapLogsController extends Controller
 		return view('scrap-logs.index',compact('name','servers'));
     }
 
-	public function filter($searchVal, $dateVal) 
+	public function filter($searchVal, $dateVal, Request $request) 
     {
     	$serverArray = [];
     	$servers = \App\Scraper::select('server_id')->whereNotNull('server_id')->groupBy('server_id')->get();
-    	
+    	if ($request->server_id !== null) {
+			$servers = \App\Scraper::select('server_id')->where('server_id',$request->server_id)->groupBy('server_id')->get();
+		}
     	foreach ($servers as $server) {
     		$serverArray[] = $server['server_id'];
     	}
