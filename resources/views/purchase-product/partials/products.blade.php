@@ -21,7 +21,7 @@
         <tbody>
 			@foreach ($products as $key => $product)
             <tr class="supplier-{{$supplier_id}}">
-              <td><input type="checkbox" class="select-pr-list-chk" data-id="{{$product->id}}"></td>
+              <td><input type="checkbox" class="select-pr-list-chk" data-id="{{$product->id}}" data-order-id="{{ $product->order_product_id ?? 0}}"></td><!-- Purpose : Add Order id - DEVATSK-4236 -->
               <td>{{ ++$key }}</td>
               <td>
               {{-- START - Purpose : Replace $product to $product_data - DEVTASK-4048 --}}

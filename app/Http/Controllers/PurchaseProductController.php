@@ -25,6 +25,9 @@ use App\InventoryStatus;
 use App\ChatMessage;
 use App\Product;
 use App\SupplierOrderInquiryData;
+use App\PurchaseProductOrder;
+use App\PurchaseProductOrderLog;
+use App\Setting;
 
 class PurchaseProductController extends Controller
 {
@@ -344,7 +347,7 @@ class PurchaseProductController extends Controller
             ->where('product_suppliers.supplier_id',$supplier_id)
             ->orderBy('order_products.id', 'desc')
             /*->groupBy('supplier_discount_infos.id')*/
-            ->select('product_suppliers.price as product_price','products.*','supplier_discount_infos.*','product_suppliers.id as ps_id','products.id as id')->get();//Putpose : Select products.id - DEVTASK-4236
+            ->select('product_suppliers.price as product_price','products.*','supplier_discount_infos.*','product_suppliers.id as ps_id','order_products.id as order_product_id')->get();
             return view('purchase-product.partials.products',compact('products','type','supplier_id'));
         }
     }
@@ -424,11 +427,13 @@ class PurchaseProductController extends Controller
         }
 
         if($type == 'order') {
+            
             $supplier = Supplier::find($supplier_id);            
             $path = "order_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_order_exports.xlsx";
             $subject = 'Product order';
             $message = 'Please check below product order request';
             $product_ids = json_decode($request->product_ids, true);
+            $order_ids = json_decode($request->order_ids, true);//Purpose: Get order id - DEVTASK-4236
             
             Excel::store(new EnqueryExport($product_ids,$path), $path, 'files');
            
@@ -486,6 +491,27 @@ class PurchaseProductController extends Controller
 
             SupplierOrderInquiryData::insert($pro_arr);
             // END - DEVTASK-4048
+
+            //START - Purpose : Get Order data - DEVTASK-4236
+            $order_products_data = OrderProduct::whereIn('id',$order_ids)->get();
+
+            $order_pro_arr = [];
+            foreach ($order_products_data as $key => $val)
+            {
+                $order_pro_arr[] = [
+                    'product_id' => $val->product_id,
+                    'order_products_id' => $val->id,
+                    'order_id'      => $val->order_id,
+                    'supplier_id' => $supplier_id,
+                    'created_by' => \Auth::id(),
+                    'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
+                    'updated_at' => \Carbon\Carbon::now()->toDateTimeString(),
+                ];
+            }
+
+            PurchaseProductOrder::insert($order_pro_arr); 
+
+            //END - DEVTASK-4236
     
             return response()->json(['message' => 'Successfull','code' => 200]);
         }
@@ -554,7 +580,182 @@ class PurchaseProductController extends Controller
     public function purchaseproductorders(Request $request)
     {
         try{
-            return view('purchase-product.partials.purchase-product-order',compact('suppliers','term'));
+            $purchar_product_order = PurchaseProductOrder::
+            join('order_products','purchase_product_orders.order_products_id','order_products.id')
+            ->join('products','products.id','order_products.product_id')
+            ->join('product_suppliers','product_suppliers.product_id','products.id')
+            ->join('brands','brands.id','products.brand')
+            ->select('order_products.*','products.*','product_suppliers.*','purchase_product_orders.*','purchase_product_orders.id as pur_pro_id','product_suppliers.price as mrp','brands.name as brand_name')
+            ->groupBy('order_products.id')
+            ->orderBy('purchase_product_orders.id','DESC')
+            ->paginate(Setting::get('pagination'));
+
+            return view('purchase-product.partials.purchase-product-order',compact('purchar_product_order','request'));
+        }catch(\Exception $e){
+            
+        }
+    }
+
+    public function purchaseproductorders_update(Request $request)
+    {
+        try{
+            $from = $request->from;
+            $purchase_pro_id = $request->purchase_pro_id;
+
+            $get_data = PurchaseProductOrder::where('id',$purchase_pro_id)->first();
+            $params['purchase_product_order_id'] = $purchase_pro_id;
+            $params['created_by'] = \Auth::id();
+
+            if($from == 'invoice')
+            {
+                $message = $request->message;
+                $update = [
+                    'invoice' => $message,
+                ];
+                PurchaseProductOrder::where('id',$purchase_pro_id)->update($update);
+
+                $params['header_name'] = 'Invoice';
+                $params['replace_from'] = $get_data->invoice;
+                $params['replace_to'] = $message;
+
+                $log = PurchaseProductOrderLog::create($params);
+
+                return response()->json(['messages' => 'Invoice Updated successfully' ,'code' => 200]);
+            }
+            else if($from == 'payment_details'){
+
+                $payment_currency = $request->payment_currency;
+                $payment_amount = $request->payment_amount;
+                $payment_mode = $request->payment_mode;
+
+                $update = [
+                    'payment_currency' => $payment_currency,
+                    'payment_amount' => $payment_amount,
+                    'payment_mode' => $payment_mode,
+                ];
+                PurchaseProductOrder::where('id',$purchase_pro_id)->update($update);
+
+                $params['header_name'] = 'Payment Details';
+                $params['replace_from'] = 'Payment Currency : '.$get_data->payment_currency.' Payment Amount : '.$get_data->payment_amount.' Payment Mode : '.$get_data->payment_mode;
+                $params['replace_to'] = 'Payment Currency : '.$payment_currency.' Payment Amount : '.$payment_amount.' Payment Mode : '.$payment_mode;
+
+                $log = PurchaseProductOrderLog::create($params);
+
+                return response()->json(['messages' => 'Payment Details Updated successfully' ,'code' => 200]);
+            }
+            else if($from == 'costs'){
+                $shipping_cost = $request->shipping_cost;
+                $duty_cost = $request->duty_cost;
+                $update = [
+                    'shipping_cost' => $shipping_cost,
+                    'duty_cost' => $duty_cost,
+                ];
+                PurchaseProductOrder::where('id',$purchase_pro_id)->update($update);
+
+                $params['header_name'] = 'Cost';
+                $params['replace_from'] = 'Shipping Cost : '.$get_data->shipping_cost.' Duty Cost : '.$get_data->duty_cost;
+                $params['replace_to'] = 'Shipping Cost : '.$shipping_cost.' Duty Cost : '.$duty_cost;
+
+                $log = PurchaseProductOrderLog::create($params);
+
+                return response()->json(['messages' => 'Costs Updated successfully' ,'code' => 200]);
+            }
+            else if($from == 'status'){
+                $status = $request->status;
+                $update = [
+                    'status' => $status,
+                ];
+                PurchaseProductOrder::where('id',$purchase_pro_id)->update($update);
+
+                $params['header_name'] = 'Status';
+                $params['replace_from'] = $get_data->status;
+                $params['replace_to'] = $status;
+
+                $log = PurchaseProductOrderLog::create($params);
+
+                return response()->json(['messages' => 'Status Updated successfully' ,'code' => 200]);
+            }
+            else if($from == 'mrp'){
+                $mrp = $request->mrp;
+                $update = [
+                    'mrp_price' => $mrp,
+                ];
+                PurchaseProductOrder::where('id',$purchase_pro_id)->update($update);
+
+                $params['header_name'] = 'MRP';
+                $params['replace_from'] = $get_data->mrp_price;
+                $params['replace_to'] = $mrp;
+
+                $log = PurchaseProductOrderLog::create($params);
+
+                return response()->json(['messages' => 'Status Updated successfully' ,'code' => 200]);
+            }
+            else if($from == 'discount_price'){
+                $discount_price = $request->discount_price;
+                $update = [
+                    'discount_price' => $discount_price,
+                ];
+                PurchaseProductOrder::where('id',$purchase_pro_id)->update($update);
+
+                $params['header_name'] = 'Discounted Price';
+                $params['replace_from'] = $get_data->discount_price;
+                $params['replace_to'] = $discount_price;
+
+                $log = PurchaseProductOrderLog::create($params);
+
+                return response()->json(['messages' => 'Status Updated successfully' ,'code' => 200]);
+            }
+            else if($from == 'special_price'){
+                $special_price = $request->special_price;
+                $update = [
+                    'special_price' => $special_price,
+                ];
+                PurchaseProductOrder::where('id',$purchase_pro_id)->update($update);
+
+                $params['header_name'] = 'Special Price';
+                $params['replace_from'] = $get_data->special_price;
+                $params['replace_to'] = $special_price;
+
+                $log = PurchaseProductOrderLog::create($params);
+
+                return response()->json(['messages' => 'Status Updated successfully' ,'code' => 200]);
+            }
+
+            
+        }catch(\Exception $e){
+            
+        }
+    }
+
+    public function purchaseproductorders_logs(Request $request)
+    {
+        try{
+
+            $log_data = PurchaseProductOrderLog::where('purchase_product_order_id',$request->purchase_pro_id)
+            ->join('users','purchase_product_order_logs.created_by','users.id')
+            ->where('header_name',$request->header_name)
+            ->orderBy('purchase_product_order_logs.id','DESC')
+            ->select('purchase_product_order_logs.*','users.*','purchase_product_order_logs.created_at as log_created_at')
+            ->get();
+
+            return response()->json(['log_data' => $log_data ,'code' => 200]);
+            
+        }catch(\Exception $e){
+            
+        }
+    }
+
+    public function purchaseproductorders_orderdata(Request $request)
+    {
+        try{
+
+            $order_data = OrderProduct::join('products','order_products.product_id','products.id')
+            ->join('brands','brands.id','products.brand')
+            ->where('order_products.order_id',$request->order_id)
+            ->get();
+
+            return response()->json(['order_data' => $order_data ,'code' => 200]);
+            
         }catch(\Exception $e){
             
         }
