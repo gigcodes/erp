@@ -34,7 +34,20 @@
     .mr-t-5 {
         margin-top:5px !important;
     }
- 
+    /* START - Pupose : Set Loader image - DEVTASK-4359*/
+    #myDiv{
+        position: fixed;
+        z-index: 99;
+        text-align: center;
+    }
+    #myDiv img{
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        right: 50%;
+        bottom: 50%;
+    }
+    /* END - DEVTASK-4359*/
 </style>
 
 
@@ -70,7 +83,7 @@
         ];
     @endphp
     <div id="myDiv">
-        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;">
     </div>
     <div class="row mb-4">
         <div class="col-md-12">
@@ -436,6 +449,7 @@
                 },
                 dataType: "json",
                 success: function (response) {
+                    $("#loading-image").hide();//Purpose : Hide loader - DEVTASK-4359
                     toastr["success"]("Message sent successfully!", "Message");
                     if(response.message) {
                         var created_at = response.message.created_at;
@@ -450,9 +464,11 @@
                     $(self).val('');
                 },
                 beforeSend: function () {
+                    $("#loading-image").show();//Purpose : Show loader - DEVTASK-4359
                     $(self).attr('disabled', true);
                 },
                 error: function () {
+                    $("#loading-image").hide();//Purpose : Hide loader - DEVTASK-4359
                     alert('There was an error sending the message...');
                     $(self).removeAttr('disabled', true);
                 }
