@@ -86,6 +86,7 @@ use App\Helpers\HubstaffTrait;
 use Tickets;
 use App\Email;
 use App\EmailAddress;
+use App\EmailNotificationEmailDetails;//Purpose : Add Modal - DEVTASK-4359
 
 class WhatsAppController extends FindByNumberController
 {
@@ -2453,6 +2454,46 @@ class WhatsAppController extends FindByNumberController
                         }
 
                     }
+
+                    //START - Purpose : Email notification - DEVTASK-4359
+                    $user_data = User::where('id',Auth::user()->id)->first();
+
+                    if($user_data->mail_notification = 1)
+                    {
+                        $get_emails = EmailNotificationEmailDetails::where('user_id',Auth::user()->id)->first();
+
+                        if($get_emails != null)
+                        {
+
+                            $mail_arr = explode(",",$get_emails->emails);
+                        
+                            if(count($mail_arr) > 0)
+                            {
+                                $from_address      = \Config::get("mail.from.address");
+
+                                foreach($mail_arr as $key => $mail_id){
+
+                                    $email = \App\Email::create([
+                                        'model_id'         => $issue->id, //Issue_id
+                                        'model_type'       => \App\DeveloperTask::class,
+                                        'from'             => $from_address,
+                                        'to'               => $mail_id,
+                                        'subject'          => '#DEVTASK-' . $issue->id,
+                                        'message'          => '#DEVTASK-' . $issue->id.' => '.$request->get('message'),
+                                        'template'         => 'customer-simple',
+                                        'additional_data'  => '',
+                                        'status'           => 'pre-send',
+                                        'store_website_id' => null,
+                                        'is_draft' => 0,
+                                    ]);
+
+                                    \App\Jobs\SendEmail::dispatch($email);
+                                }
+                            }
+                        }
+                    }
+
+                    //END - DEVTASK-4359
 
                     return response()->json(['message' => $chat_message]);
 
