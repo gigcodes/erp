@@ -8,12 +8,13 @@ use App\Listeners\VendorPaymentCashFlow;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use App\Brand;
+use App\Email;
 use App\Observers\BrandObserver;
+use App\Observers\EmailObserver;
 use App\Category;
 use App\Observers\ScrappedCategoryMappingObserver;
 use App\ScrapedProducts;
 use App\Observers\ScrappedProductCategoryMappingObserver;
-
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -90,6 +91,7 @@ class EventServiceProvider extends ServiceProvider
         parent::boot();
 
         Brand::observe(BrandObserver::class);
+        Email::observe(EmailObserver::class);
 
         Category::observe(ScrappedCategoryMappingObserver::class);
 

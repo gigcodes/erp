@@ -66,7 +66,8 @@ class User extends Authenticatable
         'fixed_price_user_or_job',
         'approve_login',
         'billing_frequency_day',
-        'user_timeout'
+        'user_timeout',
+        'mail_notification'
     ];
 
     public function getIsAdminAttribute()

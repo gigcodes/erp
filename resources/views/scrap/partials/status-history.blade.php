@@ -12,7 +12,7 @@
         @foreach ($statusHistory as $statusHist)
             <tr>
                 <td>{{ $statusHist->server_id }}</td>
-                <td>{{ str_replace("-"," hr ",$statusHist->duration) }}</td>
+                <td>{{ str_replace("-"," day ",$statusHist->duration) }}</td>
                 <td>{{ $statusHist->scraper_name }}</td>
                 <td>{{ $statusHist->scraper_string }}</td>
                 <td>{{ $statusHist->created_at }}</td>
