@@ -304,7 +304,7 @@ class MessageHelper
             $log_comment = $log_comment.' . ';
             $temp_log_params['comment']  =  $log_comment;
 
-            if($temp_log_params['keyword_match'] != '')
+            if ( !empty($temp_log_params['keyword_match']) && $temp_log_params['keyword_match'] != '')
             {
                 $add_keyword = KeywordAutoGenratedMessageLog::create($temp_log_params);
             }
@@ -560,7 +560,7 @@ class MessageHelper
         $log_comment = $log_comment.' . ';
         $temp_log_params['comment']  =  $log_comment;
         
-        if($temp_log_params['keyword_match'] != '')
+        if ( !empty($temp_log_params['keyword_match']) && $temp_log_params['keyword_match'] != '')
         {
             $add_keyword = KeywordAutoGenratedMessageLog::create($temp_log_params);
         }

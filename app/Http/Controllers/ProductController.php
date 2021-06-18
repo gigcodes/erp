@@ -2615,7 +2615,9 @@ class ProductController extends Controller
                     "customer_id" => $model_id,
                     "status" => 2,
                     "approved" => 1,
-               ]); 
+               ]);
+               
+               return ["total_product" => count($product_ids)];
             }
 
 
