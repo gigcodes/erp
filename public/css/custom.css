@@ -1740,3 +1740,6 @@ label.error{
     letter-spacing: 0.5px;
     text-decoration: none;
 }
+.save-item-select.width-auto{
+    width: auto !important;
+}
