@@ -478,4 +478,18 @@ class LogListMagentoController extends Controller
         }
         // dd($request->productSkus);
     }
+
+    public function errorReporting(Request $request)
+    {
+        $log = \App\Loggers\LogListMagento::leftJoin("product_push_error_logs as ppel","ppel.log_list_magento_id","log_list_magentos.id")
+        ->leftJoin("store_websites as sw","sw.id","log_list_magentos.store_website_id")
+        ->groupBy("ppel.url")
+        ->where("ppel.response_status","error")
+        ->where("ppel.url","!=","")
+        ->select([\DB::raw("count(*) as total_error"),"ppel.url","sw.website"])
+        ->orderBy("ppel.id","desc")
+        ->get();
+
+        return view("logging.partials.log-count-error",compact("log"));
+    }
 }
