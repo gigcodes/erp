@@ -23,6 +23,7 @@ class SiteDevelopmentController extends Controller
 //
     public function index($id = null, Request $request)
     {
+
         //Getting Website Details
         $website = StoreWebsite::find($id);
 
@@ -56,7 +57,7 @@ class SiteDevelopmentController extends Controller
 
         $allStatus = \App\SiteDevelopmentStatus::pluck("name", "id")->toArray();
 
-
+//dd($allStatus);
         $statusCount = \App\SiteDevelopment::join("site_development_statuses as sds","sds.id","site_developments.status")
         ->where("site_developments.website_id",$id)
         ->groupBy("sds.id")

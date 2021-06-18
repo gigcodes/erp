@@ -347,7 +347,8 @@ class PurchaseProductController extends Controller
             ->where('product_suppliers.supplier_id',$supplier_id)
             ->orderBy('order_products.id', 'desc')
             /*->groupBy('supplier_discount_infos.id')*/
-            ->select('product_suppliers.price as product_price','products.*','supplier_discount_infos.*','product_suppliers.id as ps_id','order_products.id as order_product_id')->get();
+            ->select('product_suppliers.price as product_price','products.*','supplier_discount_infos.*','product_suppliers.id as ps_id','order_products.id as order_product_id','products.id as id')->get();
+           
             return view('purchase-product.partials.products',compact('products','type','supplier_id'));
         }
     }

@@ -39,7 +39,7 @@
                         <td>{{$value->keyword}}</td>
                         <td>{{$value->keyword_match}}</td>
                         <td>{{$value->message_sent_id}}</td>
-                        <td>{{$value->comment}}</td>
+                        <td>{!!nl2br($value->comment)!!}</td>
                     </tr>
                 @endforeach
             </tbody>

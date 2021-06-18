@@ -319,6 +319,7 @@
                                 <th width="9%">Due date</th>
                                 <th width="10%">Status</th>
                                 <th width="33%">Communication</th>
+                                <th width="5%">Action</th>
                             </tr>
                             </thead>
                             <tbody class="pending-row-render-view infinite-scroll-pending-inner">
@@ -362,6 +363,36 @@
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
               50% 50% no-repeat;display:none;">
     </div>
+
+    <div id="file-upload-area-section" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+               <form method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="learning_id" id="hidden-task-id" value="">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Upload File(s)</h4>
+                    </div>
+                    <div class="modal-body" style="background-color: #999999;">
+                            @csrf
+                            <div class="form-group">
+                                <label for="document">Documents</label>
+                                <div class="needsclick dropzone" id="document-dropzone">
+    
+                                </div>
+                            </div>
+                            <div class="form-group add-task-list">
+                                
+                            </div>
+    
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default btn-save-documents">Save</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     {{-- @include("development.partials.time-history-modal") --}}
     {{-- @include("learning-module.partials.tracked-time-history") --}}
 @endsection
@@ -374,6 +405,63 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
     <script>
+        var uploadedDocumentMap = {}
+        Dropzone.options.documentDropzone = {
+            url: '{{ route("task.upload-documents") }}',
+            maxFilesize: 20, // MB
+            addRemoveLinks: true,
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            success: function (file, response) {
+                $('form').append('<input type="hidden" name="document[]" value="' + response.name + '">')
+                uploadedDocumentMap[file.name] = response.name
+            },
+            removedfile: function (file) {
+                file.previewElement.remove()
+                var name = ''
+                if (typeof file.file_name !== 'undefined') {
+                    name = file.file_name
+                } else {
+                    name = uploadedDocumentMap[file.name]
+                }
+                $('form').find('input[name="document[]"][value="' + name + '"]').remove()
+            },
+            init: function () {
+
+            }
+        }
+
+        $(document).on("click",".btn-save-documents",function(e){
+            e.preventDefault();
+            var $this = $(this);
+            var formData = new FormData($this.closest("form")[0]);
+            $.ajax({
+                url: '/learning/save-documents',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                dataType:"json",
+                data: $this.closest("form").serialize(),
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            }).done(function (data) {
+                $("#loading-image").hide();
+                if(data.code == 500) {
+                    toastr["error"](data.message);
+                }
+                else {
+                    toastr["success"]("Document uploaded successfully");
+                    location.reload();
+                }
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                toastr["error"](jqXHR.responseJSON.message);
+                $("#loading-image").hide();
+            });
+        });
+        
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -495,6 +583,14 @@
                     toastr.success(response.message);
                 }
             })
+        });
+
+        $(document).on("click",".btn-file-upload",function() {
+            var $this = $(this);
+            var learning_id = $this.data("id");
+            $("#file-upload-area-section").modal("show");
+            $("#hidden-task-id").val(learning_id);
+            $("#loading-image").hide();
         });
     </script>
     <script>
