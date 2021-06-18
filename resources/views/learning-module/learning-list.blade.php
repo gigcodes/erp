@@ -75,14 +75,14 @@
         </div>
     </td>
     <td>
-        {{-- @if ($special_learning->users->contains(Auth::id()) || $learning->assign_from == Auth::id()  || $learning->master_user_id == Auth::id()) --}}
-            <button type="button"  data-id="{{ $learning->id }}" class="btn btn-file-upload pd-5">
+        @if ($special_learning->users->contains(Auth::id()) || $learning->assign_from == Auth::id()  || $learning->master_user_id == Auth::id())
+            <button type="button"  data-id="{{ $learning->id }}" class="btn btn-xs btn-file-upload pd-5 p-0">
                 <i class="fa fa-upload" aria-hidden="true"></i>
             </button>
-        {{-- @endif --}}
-        {{-- @if ($special_learning->users->contains(Auth::id()) || ($learning->assign_from == Auth::id() && $learning->is_private == 0) || ($learning->assign_from == Auth::id() && $special_learning->contacts()->count() > 0) || Auth::id() == 6) --}}
-            <a href="{{ route('learning.show', $learning->id) }}" class="btn btn-image pd-5" href=""><img src="{{asset('images/view.png')}}"/></a>
-        {{-- @endif --}}
+        @endif
+        @if ($special_learning->users->contains(Auth::id()) || ($learning->assign_from == Auth::id() && $learning->is_private == 0) || ($learning->assign_from == Auth::id() && $special_learning->contacts()->count() > 0) || Auth::id() == 6)
+            <a href="{{ route('learning.show', $learning->id) }}" class="btn btn-xs btn-image pd-5 p-0" href=""><img src="{{asset('images/view.png')}}"/></a>
+        @endif
     </td>
     {{-- <td><div style="display: flex"><input type="text" class="form-control send-message-textbox"> <img src="/images/filled-sent.png" style="cursor: pointer; object-fit: contain; height: auto; width: 16px; margin-left: 4px;"></div></td> --}}
 </tr>
