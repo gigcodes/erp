@@ -145,6 +145,26 @@
                             </div>
                         </div>
                     @endif
+                    
+                    <!-- START - Purpose : Email notification - DEVTASK-4359 -->
+                    <div class="col-xs-12 col-sm-12 col-md-12 email_notification_chkbox_cls">
+                        <div class="form-group">
+                            <strong>Email Notification :</strong>
+                            @if ($user->mail_notification == 1)
+                            <input type="checkbox" id="email_notification_chkbox" name="email_notification_chkbox" checked value="">
+                            @else
+                            <input type="checkbox" id="email_notification_chkbox" name="email_notification_chkbox" value="">
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 notification_mail_id_cls">
+                        <div class="form-group">
+                            <strong>Email Id :</strong> (Add Multiple Email Saprated by comma)
+                            <input type="text" name="notification_mail_id" class="form-control" value="{{$email_notification_data->emails ?? ''}}">
+                        </div>
+                    </div>
+                    <!-- END - DEVTASK-4359 -->
 
                     <div class="col-xs-12 col-sm-12 col-md-12 text-center">
                         <button type="submit" class="btn btn-secondary">Save Changes</button>
@@ -235,6 +255,19 @@
 @section('scripts')
 
 <script>
+    //START - Purpose : set Checkbox val - DEVTASK-4359
+    $(document).ready(function(){
+            
+            $('#email_notification_chkbox').on('click', function() {
+                if($('#email_notification_chkbox').is(":checked") == true){
+                    $('#email_notification_chkbox').val('1');
+                }else{
+                    $('#email_notification_chkbox').val('0');
+                }
+            });
+        });
+    //END - DEVTASK-4359
+
 function permissionSearch() {
     var input, filter, ul, li, a, i, txtValue;
     input = document.getElementById("myInput");

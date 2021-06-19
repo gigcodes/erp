@@ -116,23 +116,22 @@ class ScrapStatisticsController extends Controller
 
         $activeSuppliers = $activeSuppliers->get();
 
+            $suppliers = DB::table('products')
+                ->select(DB::raw('count(*) as inventory'), 'supplier_id as id', DB::raw('max(created_at) as last_date'))
+                ->groupBy('supplier_id')->orderBy('created_at', 'desc')->get();
+    //        Supplier::with('inventory', 'lastProduct')->whereIn('id', $ids)->get();
+            $data = [];
 
-        $suppliers = DB::table('products')
-            ->select(DB::raw('count(*) as inventory'), 'supplier_id as id', DB::raw('max(created_at) as last_date'))
-            ->groupBy('supplier_id')->orderBy('created_at', 'desc')->get();
-//        Supplier::with('inventory', 'lastProduct')->whereIn('id', $ids)->get();
-        $data = [];
+            foreach ($suppliers as $supplier) {
 
-        foreach ($suppliers as $supplier) {
+                if ($supplier->id !== null) {
 
-            if ($supplier->id !== null) {
+                    $data[$supplier->id]['inventory'] = $supplier->inventory;
+                    $data[$supplier->id]['last_date'] = $supplier->last_date;
 
-                $data[$supplier->id]['inventory'] = $supplier->inventory;
-                $data[$supplier->id]['last_date'] = $supplier->last_date;
-
-//            $data[$supplier->id]['last_date'] = $supplier->lastProduct !== null ? $supplier->lastProduct->created_at : null;
+    //            $data[$supplier->id]['last_date'] = $supplier->lastProduct !== null ? $supplier->lastProduct->created_at : null;
+                }
             }
-        }
 //        dd($suppliers, $data);
 
 
@@ -146,7 +145,6 @@ class ScrapStatisticsController extends Controller
                 $activeSupplier->last_date = null;
             }
 
-//dd($activeSupplier);
         }
 
 
@@ -736,7 +734,40 @@ class ScrapStatisticsController extends Controller
         //START - Purpose : Coment query and write new query for display only manualy added message - DEVTASK-4086
         //$lastRemark = \DB::select("select * from scrap_remarks as sr join ( select max(id) as id from scrap_remarks group by scraper_name) as max_s on sr.id =  max_s.id order by sr.scraper_name asc");
 
-        $lastRemark = \DB::select("select * from scrap_remarks as sr join ( SELECT MAX(id) AS id FROM scrap_remarks WHERE user_name != '' AND scrap_field IS NULL GROUP BY scraper_name ) as max_s on sr.id =  max_s.id WHERE sr.user_name IS NOT NULL order by sr.scraper_name asc");
+        $lastRemark = \DB::select("select * from scrap_remarks as sr join ( SELECT MAX(id) AS id FROM scrap_remarks WHERE user_name != '' AND scrap_field IS NULL  GROUP BY scraper_name ) as max_s on sr.id =  max_s.id     join scrapers as scr on scr.scraper_name = sr.scraper_name WHERE sr.user_name IS NOT NULL order by sr.scraper_name asc");
+
+
+        $suppliers = DB::table('products')
+        ->select(DB::raw('count(*) as inventory'), 'supplier_id as id', DB::raw('max(created_at) as last_date'))
+        ->groupBy('supplier_id')->orderBy('created_at', 'desc')->get();
+
+// dd($lastRemark);
+//        Supplier::with('inventory', 'lastProduct')->whereIn('id', $ids)->get();
+    $data = [];
+
+    foreach ($suppliers as $supplier) {
+
+        if ($supplier->id !== null) {
+
+            $data[$supplier->id]['inventory'] = $supplier->inventory;
+            $data[$supplier->id]['last_date'] = $supplier->last_date;
+
+//            $data[$supplier->id]['last_date'] = $supplier->lastProduct !== null ? $supplier->lastProduct->created_at : null;
+        }
+    }
+//        dd($suppliers, $data);
+//  dd($data);
+
+foreach ($lastRemark as $lastRemar) {
+
+    if (isset($data[$lastRemar->supplier_id])) {
+        $lastRemar->inventory = $data[$lastRemar->supplier_id]['inventory'];
+        $lastRemar->last_date = $data[$lastRemar->supplier_id]['last_date'];;
+    } else {
+        $lastRemar->inventory = 0;
+        $lastRemar->last_date = null;
+    }
+}
 
         //END - DEVTASK-4086
 
