@@ -697,18 +697,23 @@ class DevelopmentController extends Controller
             $task_csv = [];
             $task_csv['id'] = $value->id;
             $task_csv['Subject'] = $value->subject;
-            $task_csv['communication'] = $value->message;
-            $task_csv['Developer'] = $value->team_lead_id;
-            $task_csv['Approved estimated time'] = $value->estimate_time;
+            $task_csv['Communication'] = $value->message;
+            $task_csv['Developer'] = (!empty($users[$value->assigned_to]) ? $users[$value->assigned_to] : '' );
+
+            $task_csv['Approved Time'] = $value->estimate_minutes;
             $task_csv['Status'] = $value->status;
 
+//            dd($value->start_time);
             $startTime = Carbon::parse($value->start_time);
             $endTime = Carbon::parse($value->end_time);
-            $totalDuration = $endTime->diffForHumans($startTime);
 
-            $task_csv['Tracked Time'] = date('h:i:s',strtotime($value->start_time))." to ".date('h:i:s',strtotime($value->end_time));
-            $task_csv['Difference'] = $totalDuration;
+            $totalDuration = $endTime->diffInMinutes($startTime);
+
+
+            $task_csv['Tracked Time'] = $totalDuration;
+            $task_csv['Difference'] = ($totalDuration-$value->estimate_minutes > 0 ? $totalDuration-$value->estimate_minutes : "+".abs($totalDuration-$value->estimate_minutes));
             array_push($tasks_csv,$task_csv);
+
         }
         
         $this->outputCsv('download-task-summaries.csv', $tasks_csv);
