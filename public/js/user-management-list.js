@@ -1156,6 +1156,6 @@ $.views.helpers({
 
 $('body').on('focus',".due_date_cls", function(){
         $(this).datetimepicker({
-                format: 'YYYY-MM-DD HH:mm'
+                format: 'YYYY-MM-DD'
             }); 
 });
