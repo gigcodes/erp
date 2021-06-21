@@ -3248,12 +3248,12 @@ class WhatsAppController extends FindByNumberController
                             $media = Media::find($image_key);
                             if($media) {
                                 $mediable = \App\Mediables::where('media_id',$media->id)->where('mediable_type','App\Product')->first();
-                                //$data['media_url'] = $media->getUrl();
+                                $data['media_url'] = $media->getUrl();
                                 try{
                                     if($iimg != 0) {
                                         $chat_message = ChatMessage::create($data);
                                     }else{
-                                        //ChatMessage::where('id', $chat_message->id)->update(['media_url' => $media->getUrl()]);
+                                        ChatMessage::where('id', $chat_message->id)->update(['media_url' => $media->getUrl()]);
                                     }
                                     $chat_message->attachMedia($media, config('constants.media_tags'));
                                     if($mediable) {
@@ -3264,7 +3264,7 @@ class WhatsAppController extends FindByNumberController
                                         $myRequest = new Request();
                                         $myRequest->setMethod('POST');
                                         $myRequest->request->add(['messageId' => $chat_message->id]);
-                                        //$this->approveMessage($context, $myRequest);
+                                        $this->approveMessage($context, $myRequest);
                                         if($mediable) {
                                             $productList->update(['chat_message_id' => $chat_message->id]);
                                         }
@@ -3294,7 +3294,7 @@ class WhatsAppController extends FindByNumberController
                                         $myRequest = new Request();
                                         $myRequest->setMethod('POST');
                                         $myRequest->request->add(['messageId' => $chat_message->id]);
-                                        //$this->approveMessage($context, $myRequest);
+                                        $this->approveMessage($context, $myRequest);
                                     }
     
                                 } catch (\Exception $e) {
@@ -3346,7 +3346,7 @@ class WhatsAppController extends FindByNumberController
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add(['messageId' => $chat_message->id]);
-            //$this->approveMessage($context, $myRequest);
+            $this->approveMessage($context, $myRequest);
         }
 
         if ($request->ajax() || $ajaxNeeded) {
