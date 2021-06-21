@@ -3264,7 +3264,7 @@ class WhatsAppController extends FindByNumberController
                                         $myRequest = new Request();
                                         $myRequest->setMethod('POST');
                                         $myRequest->request->add(['messageId' => $chat_message->id]);
-                                        $this->approveMessage($context, $myRequest);
+                                        //$this->approveMessage($context, $myRequest);
                                         if($mediable) {
                                             $productList->update(['chat_message_id' => $chat_message->id]);
                                         }
@@ -3281,12 +3281,12 @@ class WhatsAppController extends FindByNumberController
                         if(!$medias->isEmpty()) {
                             foreach($medias as $iimg => $media) {
                                 $mediable = \App\Mediables::where('media_id',$media->id)->where('mediable_type','App\Product')->first();
-                                //$data['media_url'] = $media->getUrl();
+                                $data['media_url'] = $media->getUrl();
                                 try{
                                     if($iimg != 0) {
                                         $chat_message = ChatMessage::create($data);
                                     }else{
-                                        //ChatMessage::where('id', $chat_message->id)->update(['media_url' => $media->getUrl()]);
+                                        ChatMessage::where('id', $chat_message->id)->update(['media_url' => $media->getUrl()]);
                                     }
                                     $chat_message->attachMedia($media, config('constants.media_tags'));
                                     // if this message is not first then send to the client
@@ -3342,9 +3342,6 @@ class WhatsAppController extends FindByNumberController
         }
 
         // get the status for approval
-        if($chat_message->customer_id == "10589") {
-            $isNeedToBeSend = false;
-        }
         if ($isNeedToBeSend && $chat_message->status != 0 && $chat_message->is_queue == '0') {
             $myRequest = new Request();
             $myRequest->setMethod('POST');
