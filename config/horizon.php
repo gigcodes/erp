@@ -103,20 +103,28 @@ return [
         'production' => [
             'supervisor-1' => [
                 'connection' => 'redis',
-                'queue' => ['product','magento','mageone','magetwo','magethree','supplier_products','customer_message','watson_push','default','email','high'],
+                'queue' => ['product','magento','mageone','magetwo','magethree','supplier_products','customer_message','watson_push','email','high'],
                 'balance' => 'auto',
                 'processes' => 10,
                 'tries' => 1,
+                'minProcesses' => 1,
+                'maxProcesses' => 10,
+                'memory' => 2048,
+                'timeout' => 600
             ],
         ],
 
         'local' => [
             'supervisor-1' => [
                 'connection' => 'redis',
-                'queue' => ['product','magento','mageone','magetwo','magethree','supplier_products','customer_message','watson_push','default','email','high'],
+                'queue' => ['product','magento','mageone','magetwo','magethree','supplier_products','customer_message','watson_push','email','high'],
                 'balance' => 'auto',
                 'processes' => 10,
                 'tries' => 1,
+                'minProcesses' => 1,
+                'maxProcesses' => 10,
+                'memory' => 2048,
+                'timeout' => 600
             ]
         ],
     ],

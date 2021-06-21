@@ -27,7 +27,7 @@ class BulkCustomerRepliesController extends Controller
                 'changed', 'them', 'with' , '0008000401700', 'WhatsApp', 'send', 'Auto', 'based', 'suggestion',
                 'Will', 'your', 'number', 'number,', 'messages', 'also', 'meanwhile'
             ])
-            ->take(25)
+            ->take(50)
             ->orderBy('count', 'DESC')
             ->get();
         $searchedKeyword = null;

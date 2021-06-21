@@ -27,6 +27,7 @@ use App\Product;
 use App\SupplierOrderInquiryData;
 use App\PurchaseProductOrder;
 use App\PurchaseProductOrderLog;
+use App\PurchaseProductOrderImage;
 use App\Setting;
 
 class PurchaseProductController extends Controller
@@ -751,14 +752,45 @@ class PurchaseProductController extends Controller
         try{
 
             $order_data = OrderProduct::join('products','order_products.product_id','products.id')
-            ->join('brands','brands.id','products.brand')
+            // ->join('brands','brands.id','products.brand')
             ->where('order_products.order_id',$request->order_id)
+            ->select('products.*','order_products.id as order_products_id')
             ->get();
 
             return response()->json(['order_data' => $order_data ,'code' => 200]);
             
         }catch(\Exception $e){
             
+        }
+    }
+
+    public function purchaseproductorders_saveuploads(Request $request)
+    {
+        // dd($request->all());
+        try{
+           
+            $order_product_id = $request->order_product_id;
+            $order_id = $request->order_id;
+            $files = $request->file('file');
+            $fileNameArray = array();
+            foreach($files as $key=>$file){
+                //echo $file->getClientOriginalName();
+                $fileName = time().$key.'.'.$file->extension();
+                $fileNameArray[] = $fileName;
+
+                $params['order_product_id'] = $order_product_id;
+                $params['order_id'] = $order_id;
+                $params['file_name'] = $fileName;
+                $params['user_id'] = \Auth::id();
+
+                $log = PurchaseProductOrderImage::create($params);
+                
+                $file->move(public_path('purchase_product_orders'), $fileName);
+            }
+            return response()->json(["code" => 200, "msg" => "files uploaded successfully","data"=>$fileNameArray]);
+            
+        }catch(\Exception $e){
+
         }
     }
     //END - DEVTASK-4236
