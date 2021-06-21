@@ -301,4 +301,11 @@ class LogScraperController extends Controller
         return view('logging.product-sku-errors', compact('logScrappers','category_selection','failed','existingIssues','lastCreatedIssue','pendingIssues','requestParam','pendingIssuesCount'));
     
     }
+
+    public function scraperApiLog(Request $request)
+    {
+        $apilogs = \App\ScrapApiLog::select('scrap_api_logs.*','scrap_api_logs.scraper_id')->leftJoin('scrapers', 'scrap_api_logs.scraper_id', '=', 'scrapers.id')->select('scrap_api_logs.*','scrapers.scraper_name')->get();
+        $data['api_logs'] = $apilogs;
+        return view('scrap.scrap_api_log', $data);
+    }
 }
