@@ -1,11 +1,12 @@
-{{-- @php
-    $user = App\User::find($learning->learning_user);
-    $provider = App\User::find($learning->learning_vendor);
-    $module = App\LearningModule::find($learning->learning_module);
-    $submodule = App\LearningModule::find($learning->learning_submodule);
-    $assignment = App\Contact::find($learning->learning_assignment);
-    $status = App\TaskStatus::find($learning->learning_status);
-@endphp --}}
+@php
+    $special_learning = App\Learning::find($learning->id);
+    // $user = App\User::find($learning->learning_user);
+    // $provider = App\User::find($learning->learning_vendor);
+    // $module = App\LearningModule::find($learning->learning_module);
+    // $submodule = App\LearningModule::find($learning->learning_submodule);
+    // $assignment = App\Contact::find($learning->learning_assignment);
+    // $status = App\TaskStatus::find($learning->learning_status);
+@endphp
 <tr class="learning_and_activity" data-id="{{ $learning->id }}">
     <td>{{ $learning->id }}</td>
     <td>{{ $learning->created_at->format('m/d/Y') }}</td>
@@ -57,21 +58,31 @@
         <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message"  data-id="{{$learning->id}}" ><img src="/images/filled-sent.png"/></button>
         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='learning' data-id="{{ $learning->id }}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
         {{-- <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? '' : '' }} justify-content-between expand-row-msg" style="word-break: break-all;" data-id="{{$learning->id}}">
-        <span class="td-mini-container-{{$learning->id}}" style="margin:0px;">
-                        {{  \Illuminate\Support\Str::limit($issue->message, 25, $end='...') }}
+            <span class="td-mini-container-{{$learning->id}}" style="margin:0px;">
+                            {{  \Illuminate\Support\Str::limit($issue->message, 25, $end='...') }}
+            </span>
         </span> --}}
-    </span>
-    <div class="expand-row-msg" data-id="{{$learning->id}}">
-        <span class="td-full-container-{{$learning->id}} hidden">
-            {{-- {{ $issue->message }} --}}
-            <br>
-            <div class="td-full-container">
-                <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $learning->id }})">Send Attachment</button>
-                <button class="btn btn-secondary btn-xs" onclick="sendUploadImage({{$learning->id}})">Send Images</button>
-                <input id="file-input{{ $learning->id }}" type="file" name="files" style="display: none;" multiple/>
-            </div> 
-        </span>
-    </div>
-        </td>
+        <div class="expand-row-msg" data-id="{{$learning->id}}">
+            <span class="td-full-container-{{$learning->id}} hidden">
+                {{-- {{ $issue->message }} --}}
+                <br>
+                <div class="td-full-container">
+                    <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $learning->id }})">Send Attachment</button>
+                    <button class="btn btn-secondary btn-xs" onclick="sendUploadImage({{$learning->id}})">Send Images</button>
+                    <input id="file-input{{ $learning->id }}" type="file" name="files" style="display: none;" multiple/>
+                </div> 
+            </span>
+        </div>
+    </td>
+    <td>
+        {{-- @if ($special_learning->users->contains(Auth::id()) || $learning->assign_from == Auth::id()  || $learning->master_user_id == Auth::id()) --}}
+            <button type="button"  data-id="{{ $learning->id }}" class="btn btn-xs btn-file-upload pd-5 p-0">
+                <i class="fa fa-upload" aria-hidden="true"></i>
+            </button>
+        {{-- @endif --}}
+        {{-- @if ($special_learning->users->contains(Auth::id()) || ($learning->assign_from == Auth::id() && $learning->is_private == 0) || ($learning->assign_from == Auth::id() && $special_learning->contacts()->count() > 0) || Auth::id() == 6) --}}
+            <a href="{{ route('learning.show', $learning->id) }}" class="btn btn-xs btn-image pd-5 p-0" href=""><img src="{{asset('images/view.png')}}"/></a>
+        {{-- @endif --}}
+    </td>
     {{-- <td><div style="display: flex"><input type="text" class="form-control send-message-textbox"> <img src="/images/filled-sent.png" style="cursor: pointer; object-fit: contain; height: auto; width: 16px; margin-left: 4px;"></div></td> --}}
 </tr>

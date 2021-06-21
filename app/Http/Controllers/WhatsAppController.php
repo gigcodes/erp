@@ -86,6 +86,7 @@ use App\Helpers\HubstaffTrait;
 use Tickets;
 use App\Email;
 use App\EmailAddress;
+use App\EmailNotificationEmailDetails;//Purpose : Add Modal - DEVTASK-4359
 
 class WhatsAppController extends FindByNumberController
 {
@@ -1036,6 +1037,7 @@ class WhatsAppController extends FindByNumberController
         $isReplied = false;
         // Log incoming webhook
         \Log::channel('chatapi')->debug('Webhook: ' . json_encode($data));
+        \Log::debug('Webhook: ' . json_encode($data));
 
         // Check for ack
         if (array_key_exists('ack', $data)) {
@@ -2454,6 +2456,50 @@ class WhatsAppController extends FindByNumberController
 
                     }
 
+                    //START - Purpose : Email notification - DEVTASK-4359
+                    $user_data = User::where('id',Auth::user()->id)->first();
+
+                    if($user_data->mail_notification = 1)
+                    {
+                        $get_emails = EmailNotificationEmailDetails::where('user_id',Auth::user()->id)->first();
+
+                        if($get_emails != null)
+                        {
+
+                            $prefix = ($issue->task_type_id == 1) ? "#DEVTASK-" : "#ISSUE-";
+
+                            $subject = $prefix . $issue->id . '-' . $issue->subject;
+
+                            $mail_arr = explode(",",$get_emails->emails);
+                        
+                            if(count($mail_arr) > 0)
+                            {
+                                $from_address      = \Config::get("mail.from.address");
+
+                                foreach($mail_arr as $key => $mail_id){
+
+                                    $email = \App\Email::create([
+                                        'model_id'         => $issue->id, //Issue_id
+                                        'model_type'       => \App\DeveloperTask::class,
+                                        'from'             => $from_address,
+                                        'to'               => $mail_id,
+                                        'subject'          => $subject,
+                                        'message'          => $prefix . $issue->id . '-' . $issue->subject.' => '.$request->get('message'),
+                                        'template'         => 'customer-simple',
+                                        'additional_data'  => '',
+                                        'status'           => 'pre-send',
+                                        'store_website_id' => null,
+                                        'is_draft' => 0,
+                                    ]);
+
+                                    \App\Jobs\SendEmail::dispatch($email);
+                                }
+                            }
+                        }
+                    }
+
+                    //END - DEVTASK-4359
+
                     return response()->json(['message' => $chat_message]);
 
                 } elseif ($context == 'auto_task') {
@@ -3202,9 +3248,12 @@ class WhatsAppController extends FindByNumberController
                             $media = Media::find($image_key);
                             if($media) {
                                 $mediable = \App\Mediables::where('media_id',$media->id)->where('mediable_type','App\Product')->first();
+                                $data['media_url'] = $media->getUrl();
                                 try{
                                     if($iimg != 0) {
                                         $chat_message = ChatMessage::create($data);
+                                    }else{
+                                        ChatMessage::where('id', $chat_message->id)->update(['media_url' => $media->getUrl()]);
                                     }
                                     $chat_message->attachMedia($media, config('constants.media_tags'));
                                     if($mediable) {
@@ -3232,10 +3281,12 @@ class WhatsAppController extends FindByNumberController
                         if(!$medias->isEmpty()) {
                             foreach($medias as $iimg => $media) {
                                 $mediable = \App\Mediables::where('media_id',$media->id)->where('mediable_type','App\Product')->first();
+                                $data['media_url'] = $media->getUrl();
                                 try{
-                                    $data['media_url'] = $media->getUrl();
                                     if($iimg != 0) {
                                         $chat_message = ChatMessage::create($data);
+                                    }else{
+                                        ChatMessage::where('id', $chat_message->id)->update(['media_url' => $media->getUrl()]);
                                     }
                                     $chat_message->attachMedia($media, config('constants.media_tags'));
                                     // if this message is not first then send to the client
@@ -5175,7 +5226,9 @@ class WhatsAppController extends FindByNumberController
         ));
 
         $response = curl_exec($curl);
+        \Log::info(print_r(["Whatsapp send message Response",$response],true));
         $err = curl_error($curl);
+        \Log::info(print_r(["Whatsapp send message error",$err],true));
 
         // $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 

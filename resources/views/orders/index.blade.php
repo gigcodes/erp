@@ -227,9 +227,9 @@
                     <strong class="text-danger mr-1">!!!</strong>
                   @endif
                   <span class="td-mini-container">
-                  <span style="font-size:14px;" class="toggle-title-box has-small" data-small-title="<?php echo ($order->order_id) ? substr($order->order_id, 0,3) : '' ?>" data-full-title="<?php echo ($order->order_id) ? $order->order_id : '' ?>">
-                        <?php
-                            echo (strlen($order->order_id) > 3) ? substr($order->order_id, 0,3).".." : $order->order_id;
+                  <span style="font-size:14px;" class="toggle-title-box has-small" data-small-title="<?php echo ($order->order_id) ? substr($order->order_id, 0,3) : '' ?>" data-full-title="<?php echo ($order->order_id) ? $order->order_id : 
+                  '' ?>">
+                        <?php                            echo (strlen($order->order_id) > 3) ? substr($order->order_id, 0,3).".." : $order->order_id;
                         ?>
                      </span>
                   </span>

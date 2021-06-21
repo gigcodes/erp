@@ -27,7 +27,7 @@ class BulkCustomerRepliesController extends Controller
                 'changed', 'them', 'with' , '0008000401700', 'WhatsApp', 'send', 'Auto', 'based', 'suggestion',
                 'Will', 'your', 'number', 'number,', 'messages', 'also', 'meanwhile'
             ])
-            ->take(25)
+            ->take(50)
             ->orderBy('count', 'DESC')
             ->get();
         $searchedKeyword = null;
@@ -46,13 +46,12 @@ class BulkCustomerRepliesController extends Controller
                     $q->has('dnd');
                 }
 
-            }])
-          
+            }])->with('customers.dnd')
             ->where('value', $keyword)
             ->first();
 
-
         }
+
         $groups           = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
         $pdfList = [];
         $nextActionArr = DB::table('customer_next_actions')->pluck('name', 'id');

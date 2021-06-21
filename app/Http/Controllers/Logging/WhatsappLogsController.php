@@ -206,8 +206,10 @@ class WhatsappLogsController extends Controller
         $array = array_slice($farray, ($page * 10 - 10), 10);
 
         if ($request->ajax()) {
+            $page = $request->page - 1;
+            $sr = $page * 10 - 9;
 
-            return view('logging.whatsapp-grid', compact('array'));
+            return view('logging.whatsapp-grid', compact('array','sr'));
         }
 
         return view('logging.whatsapp-logs', compact('array'));

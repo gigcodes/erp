@@ -99,7 +99,10 @@
                                 </div>
                             </td>
                         </tr>
-                        @foreach($searchedKeyword->customers as $key=>$customer)
+                        @php
+                            $searchWithPagination = $searchedKeyword->customers()->paginate(20);
+                        @endphp
+                        @foreach($searchWithPagination as $key=>$customer)
 <!--                            --><?php //dump($customer->dnd); ?>
                             <tr data-customer_id="{{ $customer->id }}" class="customer-id-remove-class">
                                 <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}" class="customer_message"></td>
@@ -111,7 +114,7 @@
                                     </span>
                                     @else
                                     <span data-customer_id="{{$customer->id}}" class="remove_from_dnd" style="cursor:pointer;font-size:12px">
-                                        Remove from DND
+                                         Remove from DND
                                     </span>
                                     @endif
                                 </td>
@@ -121,7 +124,12 @@
                             </tr>
                         @endforeach
                     </table>
+                    {!! $searchWithPagination->appends(request()->query())->links() !!}
+
                 </form>
+
+
+
             @else
             @endif
         @endif

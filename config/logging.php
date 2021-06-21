@@ -123,7 +123,7 @@ return [
         'scraper'        => [
             'driver' => 'daily',
             'path'   => storage_path('logs/scraper/scraper.log'),
-            'days'   => 14,
+            'days'   => 7,
         ],
         'update_category_job'        => [
             'driver' => 'daily',
@@ -134,6 +134,11 @@ return [
             'driver' => 'daily',
             'path'   => storage_path('logs/color_job/color_job.log'),
             'days'   => 7,
+        ],
+        'broadcast_log' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/general/broadcast.log'),
+            'days'   => 1,
         ]
     ],
 

@@ -183,7 +183,7 @@ class ProductController extends Controller
 
 
         // Run through query helper
-        $newProducts = QueryHelper::approvedListingOrder($newProducts);
+        $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts);
         $term = $request->input('term');
         $brand = '';
         $category = '';
@@ -2307,6 +2307,14 @@ class ProductController extends Controller
             $products = $products->where('price_inr_special', '<=', $request->price_max);
         }
 
+        if ($request->discounted_percentage_min != null && $request->discounted_percentage_min != 0) {
+            $products = $products->where('discounted_percentage', '>=', $request->discounted_percentage_min);
+        }
+
+        if ($request->discounted_percentage_max != null) {
+            $products = $products->where('discounted_percentage', '<=', $request->discounted_percentage_max);
+        }
+
         if (isset($request->supplier[0])) {
             if ($request->supplier[0] != null) {
                 $suppliers_list = implode(',', $request->supplier);
@@ -2607,7 +2615,9 @@ class ProductController extends Controller
                     "customer_id" => $model_id,
                     "status" => 2,
                     "approved" => 1,
-               ]); 
+               ]);
+               
+               return ["total_product" => count($product_ids)];
             }
 
 
@@ -4676,6 +4686,7 @@ class ProductController extends Controller
         // }
         $suggestedProducts = \App\SuggestedProduct::leftJoin("suggested_product_lists as spl","spl.suggested_products_id", "suggested_products.id");
         $suggestedProducts = $suggestedProducts->leftJoin("products as p","spl.product_id", "p.id");
+        $suggestedProducts = $suggestedProducts->leftJoin("customers as c","c.id", "suggested_products.customer_id");
         if($customerId) {
             $suggestedProducts = $suggestedProducts->where('suggested_products.customer_id',$customerId);
         }
@@ -4693,6 +4704,12 @@ class ProductController extends Controller
             $suggestedProducts = $suggestedProducts->where(function($q) use($term){
                 $q->orWhere("p.sku","LIKE","%".$term."%")->orWhere("p.id","LIKE","%".$term."%");
             });
+        }
+
+        $loggedInUser = auth()->user();
+        $isInCustomerService = $loggedInUser->isInCustomerService();
+        if($isInCustomerService) {
+            $suggestedProducts = $suggestedProducts->where('c.user_id',$loggedInUser->id);
         }
 
         // $perPageLimit
@@ -5136,6 +5153,7 @@ class ProductController extends Controller
         
         if ($suggestedProducts) {
             $suggestedProducts->touch();
+            $new_suggestedproductid = $suggestedProducts->id;
         } else {
             $suggestedProducts              = new \App\SuggestedProduct;
             $suggestedProducts->customer_id = $customerId;

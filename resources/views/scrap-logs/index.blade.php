@@ -21,7 +21,7 @@
 			</select>
 		</div>
 		<div class="col-lg-2">
-			<select name="date" id="datepicker" class="form-control">
+			<select name="date" id="datepicker" class="form-control server_id-value">
 				<option value="">Select Server</option>
 					@foreach($servers as $server)
 						<option value="{{ $server['server_id'] }}")>{{$server['server_id'] }}</option>
@@ -195,6 +195,8 @@
 			var search = $("input[name='search'").val() != "" ? $("input[name='search'").val() : null;
 			var date = $("#datepicker").val() !="" ? $("#datepicker").val() : null;
             var download = "?download=" + $("select[name='download_option'").val();
+			var server_id = $('.server_id-value').val();
+
 
             if($("select[name='download_option'").val() == "yes") {
                 window.location.href = BASE_URL+"/scrap-logs/fetch/"+search+"/"+date+"/"+download;
@@ -206,7 +208,7 @@
 				headers: {
 				    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 				  },
-				data:{},
+				data:{'server_id':server_id},
 				cache: false,
 				success: function(data) {
 						console.log(data)
