@@ -97,6 +97,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
 
    // Route::post('filter/list/api/logs','LaravelLogController@apiLogs')->name('api-filter-logs')
     Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
+    Route::get('list-magento/error-reporting', 'Logging\LogListMagentoController@errorReporting')->name('list.magento.error-reporting');
     Route::post('list-magento/{id}', 'Logging\LogListMagentoController@updateMagentoStatus');
     Route::get('show-error-logs/{product_id}/{website_id?}', 'Logging\LogListMagentoController@showErrorLogs')->name('list.magento.show-error-logs');
     Route::get('show-error-log-by-id/{id}', 'Logging\LogListMagentoController@showErrorByLogId')->name('list.magento.show-error-log-by-id');
@@ -120,6 +121,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::post('magento-product-skus-ajax', 'Logging\LogListMagentoController@getMagentoProductAPIAjaxCall')->name('logging.magento.product.api.ajax.call');
 });
 
+Route::get('log-scraper-api', 'Logging\LogScraperController@scraperApiLog')->middleware('auth')->name('log-scraper.api');
 Route::get('log-scraper', 'Logging\LogScraperController@index')->middleware('auth')->name('log-scraper.index');
 
 Route::prefix('category-messages')->middleware('auth')->group(function () {
@@ -716,6 +718,27 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/{id}/updateCategory', 'TaskModuleController@updateCategory')->name('task.update.category');
     Route::post('task/list-by-user-id', 'TaskModuleController@taskListByUserId')->name('task.list.by.user.id');
     Route::post('task/set-priority', 'TaskModuleController@setTaskPriority')->name('task.set.priority');
+    Route::get('/task/assign/master-user', 'TaskModuleController@assignMasterUser')->name('task.asign.master-user');
+    Route::post('/task/upload-documents', 'TaskModuleController@uploadDocuments')->name("task.upload-documents");
+    Route::post('/task/save-documents', 'TaskModuleController@saveDocuments')->name("task.save-documents");
+    Route::get('/task/preview-img/{id}', 'TaskModuleController@previewTaskImage')->name('task.preview-img');
+    Route::get('/task/complete/{taskid}', 'TaskModuleController@complete')->name('task.complete');
+    Route::get('/task/start/{taskid}', 'TaskModuleController@start')->name('task.start');
+    Route::get('/statutory-task/complete/{taskid}', 'TaskModuleController@statutoryComplete')->name('task.statutory.complete');
+    Route::post('/task/addremark', 'TaskModuleController@addRemark')->name('task.addRemark');
+    Route::get('tasks/getremark', 'TaskModuleController@getremark')->name('task.getremark');
+    Route::get('tasks/gettaskremark', 'TaskModuleController@getTaskRemark')->name('task.gettaskremark');
+    Route::post('task/{id}/makePrivate', 'TaskModuleController@makePrivate');
+    Route::post('task/{id}/isWatched', 'TaskModuleController@isWatched');
+    Route::post('task-remark/{id}/delete', 'TaskModuleController@archiveTaskRemark')->name('task.archive.remark');
+    Route::post('tasks/deleteTask', 'TaskModuleController@deleteTask');
+    Route::post('tasks/{id}/delete', 'TaskModuleController@archiveTask')->name('task.archive');
+    //  Route::get('task/completeStatutory/{satutory_task}','TaskModuleController@completeStatutory');
+    Route::post('task/deleteStatutoryTask', 'TaskModuleController@deleteStatutoryTask');
+
+    Route::get('task/export', 'TaskModuleController@exportTask')->name('task.export');
+    Route::post('task/addRemarkStatutory', 'TaskModuleController@addRemark')->name('task.addRemarkStatutory');
+
     Route::get('task/{id}', 'TaskModuleController@show')->name('task.module.show');
     Route::resource('task', 'TaskModuleController');
 
@@ -748,6 +771,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('learning_category/submodule', 'LearningCategoryController@getSubModule');
     Route::post('learning/create-learning-from-shortcut', 'LearningModuleController@createLearningFromSortcut');
     Route::post('learning-module/update', 'LearningModuleController@learningModuleUpdate')->name('learning-module.update');
+    Route::post('/learning/save-documents', 'LearningModuleController@saveDocuments')->name("learning.save-documents");
+    Route::get('learning/{id}', 'LearningModuleController@show')->name('learning.module.show');
+
+
 
     Route::get('/', 'MasterControlController@index')->name('home');
     Route::get('/master-dev-task', 'MasterDevTaskController@index')->name('master.dev.task');
@@ -1057,6 +1084,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('purchase-product/insert_suppliers_product', 'PurchaseProductController@insert_suppliers_product')->name('purchase-product.insert_suppliers_product');
 
+    Route::get('purchaseproductorders/list', 'PurchaseProductController@purchaseproductorders')->name('purchaseproductorders.list');//Purpose : Add Route for Purchase Product Order - DEVTASK-4236
+    Route::post('purchaseproductorders/update', 'PurchaseProductController@purchaseproductorders_update')->name('purchaseproductorders.update');//Purpose : Add Route for Purchase Product Order - DEVTASK-4236
+    Route::get('purchaseproductorders/logs', 'PurchaseProductController@purchaseproductorders_logs')->name('purchaseproductorders.logs');//Purpose : Add Route for Purchase Product Order - DEVTASK-4236
+    Route::get('purchaseproductorders/orderdata', 'PurchaseProductController@purchaseproductorders_orderdata')->name('purchaseproductorders.orderdata');//Purpose : Add Route for Purchase Product Order - DEVTASK-4236
+    Route::post('purchaseproductorders/saveuploads', 'PurchaseProductController@purchaseproductorders_saveuploads')->name('purchaseproductorders.saveuploads');//Purpose : Add Route for Purchase Product Order - DEVTASK-4236
+
     // Cash Vouchers
     Route::get('/voucher/payment/request', 'VoucherController@paymentRequest')->name("voucher.payment.request");
     Route::post('/voucher/payment/request', 'VoucherController@createPaymentRequest')->name('voucher.payment.request-submit');
@@ -1104,26 +1137,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Complete the task
     // Route::get('/task/count/{taskid}', 'TaskModuleController@taskCount')->name('task.count');
-    Route::get('/task/assign/master-user', 'TaskModuleController@assignMasterUser')->name('task.asign.master-user');
-    Route::post('/task/upload-documents', 'TaskModuleController@uploadDocuments')->name("task.upload-documents");
-    Route::post('/task/save-documents', 'TaskModuleController@saveDocuments')->name("task.save-documents");
-    Route::get('/task/preview-img/{id}', 'TaskModuleController@previewTaskImage')->name('task.preview-img');
-    Route::get('/task/complete/{taskid}', 'TaskModuleController@complete')->name('task.complete');
-    Route::get('/task/start/{taskid}', 'TaskModuleController@start')->name('task.start');
-    Route::get('/statutory-task/complete/{taskid}', 'TaskModuleController@statutoryComplete')->name('task.statutory.complete');
-    Route::post('/task/addremark', 'TaskModuleController@addRemark')->name('task.addRemark');
-    Route::get('tasks/getremark', 'TaskModuleController@getremark')->name('task.getremark');
-    Route::get('tasks/gettaskremark', 'TaskModuleController@getTaskRemark')->name('task.gettaskremark');
-    Route::post('task/{id}/makePrivate', 'TaskModuleController@makePrivate');
-    Route::post('task/{id}/isWatched', 'TaskModuleController@isWatched');
-    Route::post('task-remark/{id}/delete', 'TaskModuleController@archiveTaskRemark')->name('task.archive.remark');
-    Route::post('tasks/deleteTask', 'TaskModuleController@deleteTask');
-    Route::post('tasks/{id}/delete', 'TaskModuleController@archiveTask')->name('task.archive');
-    //  Route::get('task/completeStatutory/{satutory_task}','TaskModuleController@completeStatutory');
-    Route::post('task/deleteStatutoryTask', 'TaskModuleController@deleteStatutoryTask');
-
-    Route::post('task/export', 'TaskModuleController@exportTask')->name('task.export');
-    Route::post('/task/addRemarkStatutory', 'TaskModuleController@addRemark')->name('task.addRemarkStatutory');
     Route::get('delete/task/note', 'TaskModuleController@deleteTaskNote')->name('delete/task/note');
     Route::get('hide/task/remark', 'TaskModuleController@hideTaskRemark')->name('hide/task/remark');
 
@@ -1159,6 +1172,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/task/upload-document', 'DevelopmentController@uploadDocument');
     Route::post('development/task/bulk-delete', 'DevelopmentController@deleteBulkTasks');
     Route::get('development/task/get-document', 'DevelopmentController@getDocument');
+    Route::get('development/task/export-task', 'DevelopmentController@exportTask');
 
 
     Route::resource('task-types', 'TaskTypesController');
@@ -1187,6 +1201,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
     //Route::post('development/time/history/approve', 'DevelopmentController@approveTimeHistory')->name('development/time/history/approve');
     Route::post('development/time/history/approve', 'DevelopmentController@approveTimeHistory')->name('development/time/history/approve');
+    Route::post('development/time/history/approve/sendMessage', 'DevelopmentController@sendReviseMessage')->name('development/time/history/approve/sendMessage');
+    Route::post('development/time/history/approve/sendRemindMessage', 'DevelopmentController@sendRemindMessage')->name('development/time/history/approve/sendRemindMessage');
     Route::post('development/date/history/approve', 'DevelopmentController@approveDateHistory')->name('development/date/history/approve');
     Route::post('development/lead/time/history/approve', 'DevelopmentController@approveLeadTimeHistory')->name('development/lead/time/history/approve');
     Route::post('development/time/meeting/approve/{task_id}', 'DevelopmentController@approveMeetingHistory')->name('development/time/meeting/approve');
@@ -1356,7 +1372,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Reviews Module
     Route::post('review/createFromInstagramHashtag', 'ReviewController@createFromInstagramHashtag');
-    Route::get('review/restart-script', 'ReviewController@restartScript');
+    Route::post('review/restart-script', 'ReviewController@restartScript');
     Route::get('review/instagram/reply', 'ReviewController@replyToPost');
     Route::post('review/instagram/dm', 'ReviewController@sendDm');
     Route::get('review/{id}/updateStatus', 'ReviewController@updateStatus');
@@ -2320,6 +2336,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::prefix('instruction-notes')->group(function () {
         Route::post('create', 'PageNotesController@instructionCreate')->name('instructionCreate');
     });
+
+    Route::post('notesCreate', 'PageNotesController@notesCreate')->name('notesCreate');//Purpose : Create Route for Insert Note - DEVTASK-4289
 });
 
 Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'marketing'], function () {
@@ -2474,6 +2492,8 @@ Route::post('keywordassign/taskcategory', 'KeywordassignController@taskcategory'
 Route::get('keywordassign/{id}', 'KeywordassignController@edit');
 Route::post('keywordassign/{id}/update', 'KeywordassignController@update');
 Route::get('keywordassign/{id}/destroy', 'KeywordassignController@destroy');
+
+Route::get('keywordreponse/logs', 'KeywordassignController@keywordreponse_logs')->name('keywordreponse.logs');//Purpose : add route for Keyword logs - DEVTASK-4233
 
 
 
@@ -2968,6 +2988,7 @@ Route::prefix('system')->middleware('auth')->group(static function () {
 Route::middleware('auth')->group(function()
 {
 Route::get('/scrapper-python', 'scrapperPhyhon@index')->name('scrapper.phyhon.index');
+Route::get('/scrapper-python/list-images', 'scrapperPhyhon@listImages')->name('scrapper.phyhon.listImages');
 
 Route::get('/set/default/store/{website?}/{store?}/{checked?}', 'scrapperPhyhon@setDefaultStore')->name('set.default.store');
 

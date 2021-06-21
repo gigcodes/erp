@@ -518,6 +518,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'ordered') }}">Ordered Grid</a>
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'delivered') }}">Delivered Grid</a>
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'non_ordered') }}">Non Ordered Grid</a>
+                                            <a class="dropdown-item" href="{{ route('purchaseproductorders.list') }}">Purchase Product Orders</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -555,6 +556,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
                                             <a class="dropdown-item" href="{{ action('DubbizleController@index') }}">Dubzzle</a>
                                             <a class="dropdown-item" href="{{ route('log-scraper.index') }}">Scraper log</a>
+                                            <a class="dropdown-item" href="{{ route('log-scraper.api') }}">Scraper Api log</a>
                                             <a class="dropdown-item" href="{{ route('scrap-brand') }}">Scrap Brand</a>
                                         </li>
                                     </ul>
@@ -833,6 +835,11 @@ $metaData = '';
                                 <li class="nav-item">
                                     <a id="navbarDropdown" class="" href="{{ route('keywordassign.index') }}" role="button">Keyword Assign</a>
                                 </li>
+                                {{-- START - Purpose : Add new Menu Keyword Response Logs - DEVTASK-4233 --}}
+                                <li class="nav-item">
+                                    <a id="navbarDropdown" class="" href="{{ route('keywordreponse.logs') }}" role="button">Keyword Response Logs</a>
+                                </li>
+                                {{-- END - DEVTASK-4233 --}}
                                 <li class="nav-item">
                                     <a id="navbarDropdown" class="" href="{{ route('purchase-product.index') }}" role="button">Purchase</a>
                                 </li>
@@ -1986,6 +1993,7 @@ $metaData = '';
         @include('partials.modals.quick-chatbox-window')
         @include('partials.modals.quick-zoom-meeting-window')
         @include('partials.modals.quick-create-task-window')
+        @include('partials.modals.quick-notes') {{-- Purpose : Import notes modal - DEVTASK-4289 --}}
         @php
             $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
             $key = \App\LivechatincSetting::first();
@@ -2048,6 +2056,13 @@ $metaData = '';
                             <span><i class="fa fa-refresh fa-2x" aria-hidden="true"></i></span>
                         </a>
                     </li>
+                    {{-- START - Purpose : Add Notes - DEVTASK-4289 --}}
+                    <li>
+                        <a title="Add Notes" class="create_notes_btn quick-icon" href="#">
+                            <span><i class="fa fa-book fa-2x" aria-hidden="true"></i></span>
+                        </a>
+                    </li>
+                    {{-- END - DEVTASK-4289 --}}
                 </ul>
             </nav>
             <!-- end section for sidebar toggle -->
@@ -2325,6 +2340,9 @@ $metaData = '';
 
             $('#editor-note-content').richText();
             $('#editor-instruction-content').richText();
+
+            $('#editor-notes-content').richText();//Purpose : Add Text content - DEVTASK-4289
+
             $('#notification-date').datetimepicker({
                 format: 'YYYY-MM-DD'
             });
@@ -2369,6 +2387,46 @@ $metaData = '';
             //$('.help-button-wrapper').toggleClass('expanded');
             //$('.instruction-notes-list-rt').toggleClass('dis-none');
         });
+
+        //START - Purpose : Open Modal - DEVTASK-4289
+        $('.create_notes_btn').on('click', function() {
+            $("#quick_notes_modal").modal("show");
+        });
+
+        $('.btn_save_notes').on('click', function(e) {
+            e.preventDefault();
+            var data = $('#editor-notes-content').val();
+
+            if($(data).text() == ''){
+                toastr['error']('Note Is Required');
+                return false;
+            }
+            
+
+            var url  = window.location.href;
+            $.ajax({
+                type: "POST",
+                url: "{{ route('notesCreate') }}",
+                data: {
+                    data: data,
+                    url : url,
+                    _token: "{{ csrf_token() }}",
+                },
+                dataType: "json",
+                success: function(data) {
+                    if(data.code == 200)
+                    {
+                        toastr['success'](data.message, 'success');
+                        $("#quick_notes_modal").modal("hide");
+                    }
+                   
+                },
+                error : function(xhr, status, error) {
+                   
+                }
+            });
+        });
+        //END - DEVTASK-4289
 
         $('.notification-button').on('click', function() {
             $("#quick-user-event-notification-modal").modal("show");

@@ -21,15 +21,16 @@
 <table class="table table-bordered page-template-{{ $page }}">
     <thead>
     <tr>
-        <th width="10%"># Name</th>
+        <th width="6%"># Name</th>
         <th width="5%">Website</th>
-        <th width="10%">User input</th>
-        <th width="15%">Bot Replied</th>
-        <th width="15%">Message Box</th>
+        <th width="9%">User input</th>
+        <th width="12%">Bot Replied</th>
+        <th width="30%">Message Box</th>
         <th width="5%">From</th>
         <th width="10%">Images</th>
-        <th width="10%">Created</th>
-        <th width="10%">Action</th>
+        <th width="8%">Created</th>
+        <th width="5%">Action</th>
+
     </tr>
     </thead>
     <tbody>
@@ -54,21 +55,28 @@
 
         @endphp
 
-        <td data-context="{{ $context }}" data-url={{ route('whatsapp.send', ['context' => $context]) }} {{ $pam->taskUser ? 'data-chat-message-reply-id='.$pam->chat_bot_id : '' }}  data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id ?? ( $pam->taskUser ? $issueID : '')}}" data-vendor-id="{{$pam->vendor_id}}">{{  ($pam->vendor_id > 0 ) ? "#".$pam->vendor_id." ".$pam->vendors_name : ( $pam->taskUser ? '#'.$pam->taskUser->id .' ' . $pam->taskUser->name : "#".$pam->customer_id." ".$pam->customer_name  )  }}</td>
+        <td data-context="{{ $context }}" data-url={{ route('whatsapp.send', ['context' => $context]) }} {{ $pam->taskUser ? 'data-chat-message-reply-id='.$pam->chat_bot_id : '' }}  data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id ?? ( $pam->taskUser ? $issueID : '')}}" data-vendor-id="{{$pam->vendor_id}}" data-supplier-id="{{$pam->supplier_id}}">
+            @if($pam->supplier_id > 0)
+                {{  "#".$pam->supplier_id." ".$pam->supplier_name  }}</td>
+            @else
+                {{  ($pam->vendor_id > 0 ) ? "#".$pam->vendor_id." ".$pam->vendors_name : ( $pam->taskUser ? '#'.$pam->taskUser->id .' ' . $pam->taskUser->name : "#".$pam->customer_id." ".$pam->customer_name  )  }}</td>
+            @endif
         <td>{{ $pam->website_title }}</td>
-        <td class="user-input">{{ $pam->question }}</td>
+
+        <!-- Purpose : Add question - DEVTASK-4203 -->
+         <td class="user-input">{{ $pam->question }}</td>
         <td class="boat-replied">{{ $pam->answer }}</td>
         <td class="message-input">
             <div class="row cls_textarea_subbox">
                 <div class="col-md-9 cls_remove_rightpadding">
                     <textarea rows="1" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-customer-id="{{ $pam->customer_id }}" name="message" placeholder="Message"></textarea>
                 </div>
-                
-                <div class="col-md-1 cls_remove_allpadding">
-                    <input class="" name="add_to_autocomplete" class="add_to_autocomplete" type="checkbox" value="true">
-                    <button class="btn btn-sm btn-image send-message1" data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
+
+                <div class="col-md-3 cls_remove_allpadding row-flex">
+                    <span class="pt-2 mt-1 pl-2 pr-2"><input class="" name="add_to_autocomplete" class="add_to_autocomplete" type="checkbox" value="true"></span>
+                    <button class="btn btn-xs rt btn-image send-message1" data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
                     @if($pam->vendor_id > 0 )
-                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="vendor" data-id="{{$pam->vendor_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                        <button type="button" class="btn btn-xs rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="vendor" data-id="{{$pam->vendor_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                     @elseif($context === 'task' || $context === 'issue')
 
                         @php
@@ -96,7 +104,7 @@
                 @endif
             </form>
         </td>
-        <td>{{ $pam->created_at }}</td>
+        <td>{{ date('m-d H:i', strtotime($pam->created_at)) }}</td>
         <td>
             @if($pam->approved == 0)
             <a href="javascript:;" class="approve-message" data-id="{{ $pam->chat_id }}">

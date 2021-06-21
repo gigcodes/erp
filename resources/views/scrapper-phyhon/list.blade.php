@@ -547,12 +547,13 @@
          $(document).on('click', '.show-scrape-images', function (e) {     
             console.log('load images');
             e.preventDefault();
+             window.location.href = $(this).data('url');
            
-            var suggestedproductid = $(this).data('suggestedproductid');
-            
-            
-            var expand = $('.expand-images-'+suggestedproductid);
-            $(expand).toggleClass('hidden');
+            // var suggestedproductid = $(this).data('suggestedproductid');
+            //
+            //
+            // var expand = $('.expand-images-'+suggestedproductid);
+            // $(expand).toggleClass('hidden');
 
         });
 

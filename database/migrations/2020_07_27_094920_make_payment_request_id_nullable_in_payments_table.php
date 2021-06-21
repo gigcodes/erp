@@ -13,9 +13,7 @@ class MakePaymentRequestIdNullableInPaymentsTable extends Migration
      */
     public function up()
     {
-        Schema::table('payments', function (Blueprint $table) {
-            $table->integer('payment_receipt_id')->nullable()->change();
-        });
+        \DB::statement("ALTER TABLE `payments` CHANGE `payment_receipt_id` `payment_receipt_id` INT(11) NULL;");
     }
 
     /**

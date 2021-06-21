@@ -1249,7 +1249,7 @@ class LearningModuleController extends Controller {
 		$task = Learning::find($id);
 		$chatMessages = ChatMessage::where('task_id',$id)->get();
 		if ((!$task->users->contains(Auth::id()) && $task->is_private == 1) || ($task->assign_from != Auth::id() && $task->contacts()->count() > 0) || (!$task->users->contains(Auth::id()) && $task->assign_from != Auth::id() && Auth::id() != 6)) {
-			return redirect()->back()->withErrors("This task is private!");
+			return redirect()->back()->withErrors("This Learning is private!");
 		}
 
 		$users = User::all();
@@ -1265,7 +1265,7 @@ class LearningModuleController extends Controller {
 		}
 		
 		$hiddenRemarks = $task->notes()->where('is_hide', 1)->get();
-		return view('learning-module.task-show', [
+		return view('learning-module.learning-show', [
 			'task'	=> $task,
 			'users'	=> $users,
 			'users_array'	=> $users_array,
@@ -2094,7 +2094,8 @@ class LearningModuleController extends Controller {
 		// 	return response('success');
 		// }
 
-		return response()->json(["code" => 200, "data" => [], "message" => "Your Lerning Task created!"]);
+		return redirect()->route('learning.index');
+		// return response()->json(["code" => 200, "data" => [], "message" => "Your Lerning Task created!"]);
 
 	}
 
@@ -2199,19 +2200,19 @@ class LearningModuleController extends Controller {
 
 	public function saveDocuments(Request $request)
 	{
-		if(!$request->task_id || $request->task_id == '') {
-			return response()->json(["code" => 500, "data" => [], "message" => "Select one task"]);
+		if(!$request->learning_id || $request->learning_id == '') {
+			return response()->json(["code" => 500, "data" => [], "message" => "Select one learning"]);
 		}
 		$documents = $request->input('document', []);
-		$task = Learning::find($request->task_id);
+		$learning = Learning::find($request->learning_id);
 		if (!empty($documents)) {
 			$count = 0;
 			foreach ($request->input('document', []) as $file) {
 				$path  = storage_path('tmp/uploads/' . $file);
 				$media = MediaUploader::fromSource($path)
-					->toDirectory('task-files/' . floor($task->id / config('constants.image_per_folder')))
+					->toDirectory('learning-files/' . floor($learning->id / config('constants.image_per_folder')))
 					->upload();
-				$task->attachMedia($media, config('constants.media_tags'));
+				$learning->attachMedia($media, config('constants.media_tags'));
 				$count++;
 			}
 

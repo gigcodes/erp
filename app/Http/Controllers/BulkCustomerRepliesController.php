@@ -30,7 +30,6 @@ class BulkCustomerRepliesController extends Controller
             ->take(25)
             ->orderBy('count', 'DESC')
             ->get();
-
         $searchedKeyword = null;
 
         if ($request->get('keyword_filter')) {
@@ -41,50 +40,18 @@ class BulkCustomerRepliesController extends Controller
                 ->groupBy('customers.id')
                 ->orderBy('max_id','desc');
 
-                // if($request->dnd_enabled === 'all'){
-
-                // }else if($request->dnd_enabled == 1){
-                //     $q->where('do_not_disturb', 1);
-                // }else{
-                //     $q->where('do_not_disturb', 0);
-                // }
-
-                 if($request->dnd_enabled !== 'all'){
+                if($request->dnd_enabled !== 'all'){
                     $q->doesntHave('dnd');
+                }else{
+                    $q->has('dnd');
                 }
 
-            }])
-            //$customers = $searchedKeyword->customers()->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id  GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id')->groupBy('customers.id')->orderBy('max_id','desc')->get()
+            }])->with('customers.dnd')
             ->where('value', $keyword)
             ->first();
 
-            // $searchedKeyword = BulkCustomerRepliesKeyword::with(['customers' => function($q) use($request){
-             
-            //     $searchedKeyword = BulkCustomerRepliesKeyword::with(['customers' => function($q)use($request){
-            //     $q->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id  GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id')
-            //     ->groupBy('customers.id')
-            //     ->orderBy('max_id','desc');
-
-            //     if($request->dnd_enabled === 'all'){
-
-            //     }else if($request->dnd_enabled == 1){
-            //         $q->where('do_not_disturb', 1);
-            //     }else{
-            //         $q->where('do_not_disturb', 0);
-            //     }
-
-            // }])
-            // //$customers = $searchedKeyword->customers()->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id  GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id')->groupBy('customers.id')->orderBy('max_id','desc')->get()
-            // ->where('value', $keyword)
-            // ->first();
-
-            //     // if($request->dnd_enabled !== 'all'){
-            //     //     $q->doesntHave('dnd');
-            //     // }
-            
-            // }])->where('value', $keyword)->first();
-
         }
+
         $groups           = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
         $pdfList = [];
         $nextActionArr = DB::table('customer_next_actions')->pluck('name', 'id');
@@ -101,6 +68,7 @@ class BulkCustomerRepliesController extends Controller
 
         $whatsappNos = getInstanceNo();
         $chatbotKeywords = \App\ChatbotKeyword::all();
+        // dd($chatbotKeywords);
 // dd($searchedKeyword);
         return view('bulk-customer-replies.index', compact('keywords','autoKeywords', 'searchedKeyword', 'nextActionArr','groups','pdfList','reply_categories','settingShortCuts','users_array','whatsappNos','chatbotKeywords'));
     }
@@ -153,14 +121,14 @@ class BulkCustomerRepliesController extends Controller
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add([
-                'message' => $request->get('message'),
+                'message' => $request->get('message_bulk'),
                 'customer_id' => $customer,
                 'status' => 1
             ]);
-            
+
             app('App\Http\Controllers\WhatsAppController')->sendMessage($myRequest, 'customer');
 
-            DB::table('bulk_customer_replies_keyword_customer')->where('customer_id', $customer)->delete();
+            // DB::table('bulk_customer_replies_keyword_customer')->where('customer_id', $customer)->where("keyword_id",$request->get("keyword_id",0))->delete();
         }
             return response()->json(['message' => 'Messages sent successfully!','c_id' => $customer_id_array]);
         // return redirect()->back()->with('message', 'Messages sent successfully!');

@@ -178,6 +178,7 @@ $(document).on('click', '.product-list-btn', function(e) {
             return result;
         }
     var product_ids = [];
+    var order_ids = [];//Purpose : array for Order id - DEVTASK-4236
     $(document).on('click', '.btn-send', function(e) {
       e.preventDefault();
       // product_ids = [];
@@ -190,9 +191,15 @@ $(document).on('click', '.product-list-btn', function(e) {
              var supplier_cls = ".supplier-"+supplier_id+" .select-pr-list-chk";
              var $input = $(supplier_cls).eq(i);
              var product_id = $input.data('id');
+             var order_id = $input.data('order-id');
              if ($input.is(":checked") === true) {
                     product_ids.push(product_id);
                     product_ids = unique(product_ids);
+
+                    //START - Purpose : Add Order id - DEVTASK-4236
+                    order_ids.push(order_id);
+                    order_ids = unique(order_ids);
+                    //END - DEVTASK-4236
                 }
             }
     if(product_ids.length == 0)
@@ -205,7 +212,8 @@ $(document).on('click', '.product-list-btn', function(e) {
           type: 'GET',
           dataType: 'html',
           data: {
-              product_ids:JSON.stringify(product_ids)
+              product_ids:JSON.stringify(product_ids),
+              order_ids:JSON.stringify(order_ids)
           },
           beforeSend: function() {
             $("#loading-image").show();

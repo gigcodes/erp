@@ -27,7 +27,7 @@
 		    <div class="col">
 		    	<div class="h" style="margin-bottom:10px;">
 					<div class="row">
-		    			<form class="form-inline message-search-handler" method="post">
+		    			<form class="form-inline message-search-handler " method="post">
 					  		<div class="col">
 					  			<div class="form-group">
 								    <label for="keyword">Keyword:</label>

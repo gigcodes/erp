@@ -90,7 +90,8 @@
                             <td colspan="7">
                                 <div class="row">
                                     <div class="col-md-11">
-                                        <textarea name="message" id="message" rows="1" class="form-control" placeholder="Common message.."></textarea>
+                                        <textarea name="message_bulk" id="message" rows="1" class="form-control" placeholder="Common message.."></textarea>
+                                        <input type="hidden" name="keyword_id" value="{{ $searchedKeyword->id }}">
                                     </div>
                                     <div class="col-md-1">
                                         <button class="btn btn-secondary btn-block">Send</button>
@@ -98,7 +99,10 @@
                                 </div>
                             </td>
                         </tr>
-                        @foreach($searchedKeyword->customers as $key=>$customer)
+                        @php
+                            $searchWithPagination = $searchedKeyword->customers()->paginate(20);
+                        @endphp
+                        @foreach($searchWithPagination as $key=>$customer)
 <!--                            --><?php //dump($customer->dnd); ?>
                             <tr data-customer_id="{{ $customer->id }}" class="customer-id-remove-class">
                                 <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}" class="customer_message"></td>
@@ -110,7 +114,7 @@
                                     </span>
                                     @else
                                     <span data-customer_id="{{$customer->id}}" class="remove_from_dnd" style="cursor:pointer;font-size:12px">
-                                        Remove from DND
+                                         Remove from DND
                                     </span>
                                     @endif
                                 </td>
@@ -120,7 +124,12 @@
                             </tr>
                         @endforeach
                     </table>
+                    {!! $searchWithPagination->appends(request()->query())->links() !!}
+
                 </form>
+
+
+
             @else
             @endif
         @endif
@@ -519,10 +528,10 @@
             success: function(response)
             {
                 toastr.success(response.message);
-                cu_id = response.c_id;
-                for (i = 0; i < cu_id.length; i++) {
-                    $('.customer-id-remove-class[data-customer_id="' + cu_id[i] + '"]').hide();
-                }
+                // cu_id = response.c_id;
+                // for (i = 0; i < cu_id.length; i++) {
+                //     $('.customer-id-remove-class[data-customer_id="' + cu_id[i] + '"]').hide();
+                // }
             }
         });
 
