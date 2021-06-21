@@ -11,6 +11,7 @@ use App\Http\Requests\Products\ProductTranslationRequest;
 use App\Jobs\PushToMagento;
 use App\ListingHistory;
 use App\Order;
+use App\ErpLeads;
 use App\OrderProduct;
 use App\Product;
 use App\RejectedImages;
@@ -182,7 +183,7 @@ class ProductController extends Controller
 
 
         // Run through query helper
-        $newProducts = QueryHelper::approvedListingOrder($newProducts);
+        $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts);
         $term = $request->input('term');
         $brand = '';
         $category = '';
@@ -2306,6 +2307,14 @@ class ProductController extends Controller
             $products = $products->where('price_inr_special', '<=', $request->price_max);
         }
 
+        if ($request->discounted_percentage_min != null && $request->discounted_percentage_min != 0) {
+            $products = $products->where('discounted_percentage', '>=', $request->discounted_percentage_min);
+        }
+
+        if ($request->discounted_percentage_max != null) {
+            $products = $products->where('discounted_percentage', '<=', $request->discounted_percentage_max);
+        }
+
         if (isset($request->supplier[0])) {
             if ($request->supplier[0] != null) {
                 $suppliers_list = implode(',', $request->supplier);
@@ -2532,6 +2541,7 @@ class ProductController extends Controller
         } else {
             $products = $products->paginate($perPageLimit);
         }
+
         $brand = $request->brand;
         $products_count = $products->total();
         $all_product_ids = [];
@@ -2581,6 +2591,15 @@ class ProductController extends Controller
                                 'date' => date('Y-m-d')
                             ];
                         }
+                        $erp_lead = new ErpLeads;
+                        $erp_lead->lead_status_id = 1;
+                        $erp_lead->customer_id = $customerId;
+                        $erp_lead->product_id = $id;
+                        $erp_lead->category_id = $pr->category;
+                        $erp_lead->brand_id = $pr->brand;
+                        $erp_lead->min_price = !empty($request->price_min) ? $request->price_min : 0;
+                        $erp_lead->max_price = !empty($request->price_max) ? $request->price_max : 0;
+                        $erp_lead->save();
                     }
                 }
                 $inserted = count($data_to_insert);
@@ -2588,6 +2607,19 @@ class ProductController extends Controller
                     \App\SuggestedProductList::insert($data_to_insert);
                 } 
             }
+
+            //
+            if($request->need_to_send_message == 1) {
+               \App\ChatMessage::create([
+                    "message" => "Total product found '".count($product_ids)."' for the keyword message : {$request->keyword_matched}",
+                    "customer_id" => $model_id,
+                    "status" => 2,
+                    "approved" => 1,
+               ]);
+               
+               return ["total_product" => count($product_ids)];
+            }
+
 
             // $message_body = '';
             // $sending_time = '';
@@ -4654,6 +4686,7 @@ class ProductController extends Controller
         // }
         $suggestedProducts = \App\SuggestedProduct::leftJoin("suggested_product_lists as spl","spl.suggested_products_id", "suggested_products.id");
         $suggestedProducts = $suggestedProducts->leftJoin("products as p","spl.product_id", "p.id");
+        $suggestedProducts = $suggestedProducts->leftJoin("customers as c","c.id", "suggested_products.customer_id");
         if($customerId) {
             $suggestedProducts = $suggestedProducts->where('suggested_products.customer_id',$customerId);
         }
@@ -4671,6 +4704,12 @@ class ProductController extends Controller
             $suggestedProducts = $suggestedProducts->where(function($q) use($term){
                 $q->orWhere("p.sku","LIKE","%".$term."%")->orWhere("p.id","LIKE","%".$term."%");
             });
+        }
+
+        $loggedInUser = auth()->user();
+        $isInCustomerService = $loggedInUser->isInCustomerService();
+        if($isInCustomerService) {
+            $suggestedProducts = $suggestedProducts->where('c.user_id',$loggedInUser->id);
         }
 
         // $perPageLimit

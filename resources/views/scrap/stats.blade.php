@@ -31,10 +31,11 @@
             height: 250px;
         }
 
-        .fixed_header thead {
+        /* Purpose :  Comment code -  DEVTASK-4219*/
+        /* .fixed_header thead {
             background: black;
             color: #fff;
-        }
+        } */
         .modal-lg{
             max-width: 1500px !important; 
         }
@@ -68,7 +69,10 @@
 
     <div class="row mb-5">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Supplier Scrapping Info <span class="total-info"></span></h2>
+            <!-- START - Purpose : Comment code and get total scrapper - DEVTASK-4219 -->
+            <!-- <h2 class="page-heading">Supplier Scrapping Info <span class="total-info"></span></h2> -->
+            <h2 class="page-heading">Supplier Scrapping Info ({{$scrapper_total}})</h2>
+            <!-- END - DEVTASK-4219 -->
         </div>
     </div>
 
@@ -1092,7 +1096,7 @@
                     $.each(response.data, function (index, value) {
                         //Purpose : Add Index - DEVTASK-4219
                         var i = index + 1;
-                        html += '<tr><td>' + i + '</td><td>' + value.scraper_name + '</td><td class="remark_created_at">' + moment(value.created_at).format('DD-M H:mm') + '</td><td class="remark_posted_by" >' + value.user_name + '</td><td class="remark_text">' + value.remark + '</td>';
+                        html += '<tr><td>' + i + '</td><td>' + value.scraper_name + '</td><td class="remark_created_at">' + moment(value.created_at).format('DD-M H:mm') + '</td><td>'+ value.inventory+'</td><td>'+(value.last_date?  moment(value.last_date).format('D-MMM-YYYY'):'-')  +'</td><td class="remark_posted_by" >' + value.user_name + '</td><td class="remark_text">' + value.remark + '</td>';
 
                         //START - Purpose : Send Remark - DEVTASK-4219
                         if(value.user_name != '')
@@ -1102,6 +1106,8 @@
                             html += '<button class="btn btn-sm btn-image latestremarks_sendbtn" data-name="'+value.scraper_name+'"><img src="/images/filled-sent.png"></button>';
                             html += '<button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="'+value.scraper_name+'"><img width="2px;" src="/images/remark.png"/></button>';
                             html += '</td>';
+                        }else{
+                            html += '<td></td>';
                         }
 
                         html += '</tr>';

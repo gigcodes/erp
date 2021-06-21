@@ -54,11 +54,11 @@
                 <button type="button" class="btn btn-secondary">Fix Auto Suggested</button>
             </a>
         </div>
-        {{-- <div class="form-group col-md-4">
-            <a href="{{ route('category.fix-autosuggested-via-str',request()->all()) }}" class="fix-autosuggested">
-                <button type="button" class="btn btn-secondary">Fix Auto Suggested(2)</button>
+        <div class="form-group col-md-4">
+            <a href="{{ route('category.fix-autosuggested-via-str',request()->all()) }}" class="fix-autosuggested-auto">
+                <button type="button" class="btn btn-secondary">Auto fix</button>
             </a>
-        </div> --}}
+        </div>
     </div>
     <div class="col-md-12 mt-5">
         <table class="table table-bordered">
@@ -98,8 +98,10 @@
                             <span class="call-used-product" data-id="{{ $unKnownCategory->name }}"  data-type="name">{{ $unKnownCategory->name }}</span> <!-- <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $unKnownCategory }}" ><img src="/images/add.png"></button> -->
                         </td>
                         
-                        <td>
-                            {!! $unKnownCategory->all_websites !!}
+                        <td class="website-popup" data-website="{{ $unKnownCategory->all_websites }}">
+                            {{ explode('<br>', $unKnownCategory->all_websites)[0] }} <br>
+                            {{ explode('<br>', $unKnownCategory->all_websites)[1] ?? '' }} <br>
+                            {{ explode('<br>', $unKnownCategory->all_websites)[2] ?? ''}}
                         </td>
                            
                         <td>
@@ -128,6 +130,33 @@
     <div class="modal-dialog modal-lg" role="document">
     </div>  
 </div>
+    <div class="container">
+        <h2>Modal Example</h2>
+        <!-- Trigger the modal with a button -->
+        <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#website-popup-model">Open Modal</button>
+    
+        <!-- Modal -->
+        <div class="modal fade" id="website-popup-model" role="dialog">
+            <div class="modal-dialog">
+            
+                <!-- Modal content-->
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Website</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
 @section('scripts')
     <script type="text/javascript">
             $(".select2").select2({"tags" : true});
@@ -307,6 +336,35 @@
                 });
             });
 
+            $(document).on("click",".fix-autosuggested-auto",function(e) {
+                var $this = $(this);
+                e.preventDefault();
+                $.ajax({
+                    type: 'GET',    
+                    url: $this.attr("href"),
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    console.log(response)
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        if(response.count){
+                        toastr['success'](response.count + ' Data updated successfully', 'success');
+                        }else{
+                        toastr['success']( 'All data already updated', 'success');
+                        }
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    toastr['error']('Sorry, something went wrong', 'error');
+                });
+            });
+
             $(document).on('click','.update-category-selected',function() {
                 var changeto = $(".change-list-categories").val();
                 var changesFrom = $(".categories-checkbox:checked");
@@ -377,6 +435,13 @@
                     $(".show-listing-exe-records").modal('hide');
                 });
             });
+
+            $(document).on('click','.website-popup',function(){
+                $('#website-popup-model').find('p').text('');
+                var website = $(this).data('website');
+                $('#website-popup-model').modal('show');
+                $('#website-popup-model').find('p').append(website);
+            })
 
     </script>
 @endsection

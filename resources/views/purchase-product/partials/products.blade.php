@@ -21,17 +21,23 @@
         <tbody>
 			@foreach ($products as $key => $product)
             <tr class="supplier-{{$supplier_id}}">
-              <td><input type="checkbox" class="select-pr-list-chk" data-id="{{$product->id}}"></td>
+              <td><input type="checkbox" class="select-pr-list-chk" data-id="{{$product->id}}" data-order-id="{{ $product->order_product_id ?? 0}}"></td><!-- Purpose : Add Order id - DEVATSK-4236 -->
               <td>{{ ++$key }}</td>
               <td>
+              {{-- START - Purpose : Replace $product to $product_data - DEVTASK-4048 --}}
               @php
-                $product = \App\Product::find($product->id);
+                $product_data = \App\Product::find($product->id);
               @endphp
-              @if ($product->hasMedia(config('constants.media_tags')))
-                <span class="td-mini-container">
-                    <a data-fancybox="gallery" href="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}">View</a>
-                </span>
+
+              {{-- Purpose : Add If Condition - DEVTASK-4048 --}}
+              @if($product_data != null)
+                @if ($product_data->hasMedia(config('constants.media_tags')))
+                  <span class="td-mini-container">
+                      <a data-fancybox="gallery" href="{{ $product_data->getMedia(config('constants.media_tags'))->first()->getUrl() }}">View</a>
+                  </span>
+                @endif
               @endif
+              {{-- END - DEVTASK-4048 --}}
               </td>
               <td>{{ $product->name }}</td>
               @if($type == 'inquiry')<td>{{ $product->sup_id == $supplier_id ? 'Yes' : 'No'}}</td>@endif

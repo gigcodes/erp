@@ -13,15 +13,17 @@
             <input type="text" id="table-full-search" class="table-full-search form-control" placeholder="Search..">
           </div>
         </div>
-        <table class="table fixed_header" id="latest-remark-records">
-            <thead class="thead-dark">
+        <table class="table table-bordered fixed_header" id="latest-remark-records">
+            <thead >
               <tr>
                 <th scope="col" width="5%">#</th>
-                <th scope="col" width="15%">Scraper Name</th>
-                <th scope="col" width="15%">Created At</th>
-                <th scope="col" width="15%">Posted By</th>
-                <th scope="col" width="25%">Remark</th>
-                <th scope="col" width="25%">Communication</th> <!-- Purpose : Add Column- DEVTASK-4219 -->
+                <th scope="col" width="10%">Scraper Name</th>
+                <th scope="col" width="10%">Created At</th>
+                <th scope="col" width="10%">Product count</th>
+                <th scope="col" width="10%">Last date product added</th>
+                <th scope="col" width="10%">Posted By</th>
+                <th scope="col" width="22%">Remark</th>
+                <th scope="col" width="23%">Communication</th> <!-- Purpose : Add Column- DEVTASK-4219 -->
               </tr>
             </thead>
             <tbody class="show-list-records">
