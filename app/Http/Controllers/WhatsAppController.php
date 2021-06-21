@@ -3294,7 +3294,7 @@ class WhatsAppController extends FindByNumberController
                                         $myRequest = new Request();
                                         $myRequest->setMethod('POST');
                                         $myRequest->request->add(['messageId' => $chat_message->id]);
-                                        $this->approveMessage($context, $myRequest);
+                                        //$this->approveMessage($context, $myRequest);
                                     }
     
                                 } catch (\Exception $e) {
@@ -3346,7 +3346,7 @@ class WhatsAppController extends FindByNumberController
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add(['messageId' => $chat_message->id]);
-            $this->approveMessage($context, $myRequest);
+            //$this->approveMessage($context, $myRequest);
         }
 
         if ($request->ajax() || $ajaxNeeded) {
