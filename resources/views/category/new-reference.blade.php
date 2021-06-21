@@ -55,8 +55,8 @@
             </a>
         </div>
         <div class="form-group col-md-4">
-            <a href="{{ route('category.fix-autosuggested-via-str',request()->all()) }}" class="fix-autosuggested">
-                <button type="button" class="btn btn-secondary">Fix Auto Suggested(2)</button>
+            <a href="{{ route('category.fix-autosuggested-via-str',request()->all()) }}" class="fix-autosuggested-auto">
+                <button type="button" class="btn btn-secondary">Auto fix</button>
             </a>
         </div>
     </div>
@@ -333,6 +333,35 @@
                     $("#loading-image").hide();
                     toastr['error']('Sorry, something went wrong', 'error');
                     $(".show-listing-exe-records").modal('hide');
+                });
+            });
+
+            $(document).on("click",".fix-autosuggested-auto",function(e) {
+                var $this = $(this);
+                e.preventDefault();
+                $.ajax({
+                    type: 'GET',    
+                    url: $this.attr("href"),
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    console.log(response)
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        if(response.count){
+                        toastr['success'](response.count + ' Data updated successfully', 'success');
+                        }else{
+                        toastr['success']( 'All data already updated', 'success');
+                        }
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    toastr['error']('Sorry, something went wrong', 'error');
                 });
             });
 

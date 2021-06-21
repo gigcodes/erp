@@ -696,11 +696,20 @@
 
         $(document).on('click', '.show-time-history', function() {
             var data = $(this).data('history');
+            var userId = $(this).data('userid'); 
             var issueId = $(this).data('id');
             $('#time_history_div table tbody').html('');
+
+            const hasText = $(this).siblings('input').val()
+
+            if(!hasText){
+                $('#time_history_modal .revise_btn').prop('disabled', true);
+                $('#time_history_modal .remind_btn').prop('disabled', false);
+            }
+
             $.ajax({
                 url: "{{ route('development/time/history') }}",
-                data: {id: issueId},
+                data: {id: issueId, user_id: userId},
                 success: function (data) {
                     if(data != 'error') {
                         $('input[name="developer_task_id"]').val(issueId);
@@ -715,15 +724,55 @@
                                 '<tr>\
                                     <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
                                     <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
+                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td>\
+                                    <td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
                                 </tr>'
-                            );
+                            );  
                         });
+                        $('#time_history_div table tbody').append(
+                            '<input type="hidden" name="user_id" value="'+userId+'" class=" "/>'
+                        );
+                        $('#time_history_div table tbody').append(
+                            '<input type="hidden" name="issueId" value="'+issueId+'" class=" "/>'
+                        );
                     }
+                    $('#time_history_modal').modal('show');
+                }
+            }); 
+        });
+
+        $(document).on('click', '.remind_btn', function() {
+            var issueId = $('#approve-time-btn input[name="developer_task_id"]').val(); 
+            var userId = $('#approve-time-btn input[name="user_id"]').val();  
+
+            $('#time_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/time/history/approve/sendRemindMessage') }}",
+                type: 'POST',
+                data: {id: issueId, user_id: userId, _token: '{{csrf_token()}}' },
+                success: function (data) {
+                    toastr['success'](data.message, 'success');
                 }
             });
-            $('#time_history_modal').modal('show');
+            $('#time_history_modal').modal('hide');
         });
+
+        $(document).on('click', '.revise_btn', function() {
+            var issueId = $('#approve-time-btn input[name="developer_task_id"]').val(); 
+            var userId = $('#approve-time-btn input[name="user_id"]').val();  
+
+            $('#time_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/time/history/approve/sendMessage') }}",
+                type: 'POST',
+                data: {id: issueId, user_id: userId, _token: '{{csrf_token()}}' },
+                success: function (data) {
+                    toastr['success'](data.message, 'success');
+                }
+            });
+            $('#time_history_modal').modal('hide');
+        });
+
         $(document).on('click', '.show-lead-time-history', function() {
             var data = $(this).data('history');
             var issueId = $(this).data('id');
