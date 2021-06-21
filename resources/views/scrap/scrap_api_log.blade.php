@@ -48,6 +48,7 @@
                     <td>{{ $log->log_messages }}</td>
                 </tr>
             @endforeach
+                <tr>{{ $api_logs->links() }}</tr>
             </thead>
 
         </table>
