@@ -107,6 +107,10 @@ return [
                 'balance' => 'auto',
                 'processes' => 10,
                 'tries' => 1,
+                'minProcesses' => 1,
+                'maxProcesses' => 10,
+                'memory' => 2048,
+                'timeout' => 600
             ],
         ],
 
@@ -117,6 +121,10 @@ return [
                 'balance' => 'auto',
                 'processes' => 10,
                 'tries' => 1,
+                'minProcesses' => 1,
+                'maxProcesses' => 10,
+                'memory' => 2048,
+                'timeout' => 600
             ]
         ],
     ],
