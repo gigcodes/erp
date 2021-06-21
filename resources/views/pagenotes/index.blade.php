@@ -20,14 +20,14 @@
   <div class="col-md-12">
     <div class="pagenote-scroll"><!-- Purpose : Add Div for Scrolling - DEVTASK-4289 -->
       <div class="table-responsive">
-        <table cellspacing="0" role="grid" class="table table-striped table-bordered datatable mdl-data-table dataTable" style="width:100%">
+        <table cellspacing="0" role="grid" class="page-notes table table-bordered datatable mdl-data-table dataTable" style="width:100%">
           <thead>
               <tr>
                   <th width="5%">#</th>
-                  <th width="15%">Category</th>
-                  <th width="40%">Note</th>
-                  <th width="15%">User Name</th>
-                  <th width="15%">Created at</th>
+                  <th width="8%">Category</th>
+                  <th width="60%">Note</th>
+                  <th width="7%">User Name</th>
+                  <th width="10%">Created at</th>
                   <th width="10%">Action</th>
               </tr>
           </thead>
@@ -39,8 +39,8 @@
                   <td>{{$value->category_name}}</td>
                   <td>{!!$value->note !!}</td>
                   <td>{{$value->name}}</td>
-                  <td>{{$value->created_at}}</td>
-                  <td><a href="javascript:;" data-note-id = "{{$value->id}}" class="editor_edit btn btn-image"><img src="/images/edit.png"></a><a data-note-id = "{{$value->id}}" href="javascript:;" class="editor_remove btn btn-image"><img src="/images/delete.png"></a></td>
+                  <td>{{ date('m-d  H:i', strtotime($value->created_at)) }}</td>
+                  <td><a href="javascript:;" data-note-id = "{{$value->id}}" class="editor_edit btn-xs btn btn-image p-2"><img src="/images/edit.png"></a><a data-note-id = "{{$value->id}}" href="javascript:;" class="editor_remove btn-xs btn btn-image p-2"><img src="/images/delete.png"></a></td>
               </tr>
           @endforeach
           <!-- END - DEVTASK-4289 -->
