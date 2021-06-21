@@ -106,7 +106,8 @@
               <select data-placeholder="Select location" class="form-control select-multiple2" name="location[]" multiple>
                 <optgroup label="Locations">
                   @foreach ($locations as $name)
-                    <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
+                    {{-- <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option> --}}
+                    <option value="{{ $name }}" {{  isset($location) && in_array($name,$location) ? 'selected' : '' }}>{{ $name }}</option>
                   @endforeach
                 </optgroup>
               </select>
@@ -676,30 +677,29 @@
 
     
 
-    
-
     var product_array = [];
+                      $('ul.pagination').not(":last").remove();
 
-    $(document).ready(function() {
-       $(".select-multiple").multiselect();
-       $(".select-multiple2").select2();
-       $('ul.pagination').hide();
-       $(function () {
-            $('.infinite-scroll').jscroll({
-                autoTrigger: true,
-                loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-                padding: 2500,
-                nextSelector: '.pagination li.active + li a',
-                contentSelector: 'div.infinite-scroll',
-                callback: function () {
-                    console.log($('ul.pagination').not(":last"));
-                    $('ul.pagination').not(":last").remove();
-                    $(".select-multiple").multiselect();
-                    $(".select-multiple2").select2();
-                }
-            });
-        });
-    });
+      $(document).ready(function() {
+         $(".select-multiple").multiselect();
+         $(".select-multiple2").select2();
+         $('ul.pagination').hide();
+         $(function () {
+              // $('.infinite-scroll').jscroll({
+              //     autoTrigger: true,
+              //     loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+              //     padding: 5000,
+              //     nextSelector: '.pagination li.active + li a',
+              //     contentSelector: 'div.infinite-scroll',
+              //     callback: function () {
+              //         console.log($('ul.pagination').not(":last"));
+              //         $('ul.pagination').not(":last").remove();
+              //         $(".select-multiple").multiselect();
+              //         $(".select-multiple2").select2();
+              //     }
+              // });
+          });
+      });
 
     // $('#product-search').autocomplete({
     //   source: function(request, response) {
@@ -726,21 +726,6 @@
       });
     }*/
 
-    {{--$('#searchForm').on('submit', function(e) {--}}
-    {{--  e.preventDefault();--}}
-
-    {{--  var url = "{{ route('productinventory.instock') }}";--}}
-    {{--  var formData = $('#searchForm').serialize();--}}
-
-    {{--  $.ajax({--}}
-    {{--    url: url,--}}
-    {{--    data: formData--}}
-    {{--  }).done(function(data) {--}}
-    {{--    $('#productGrid').html(data.html);--}}
-    {{--  }).fail(function() {--}}
-    {{--    alert('Error searching for products');--}}
-    {{--  });--}}
-    {{--});--}}
 
     $(document).on('click', '.select-product', function(e) {
       e.preventDefault();

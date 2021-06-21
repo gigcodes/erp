@@ -3,20 +3,20 @@
 <div class="table-responsive">
     <table class="table table-bordered" id="users-table">
         <thead>
-        <tr>
-            <th>Image</th>
-            <th>Brand</th>
-            <th>Transist Status</th>
-            <th>Location</th>
-            <th>Sku</th>
-            <th>Id</th>
-            <th>Size</th>
-            <th>Price</th>
-            <th>Status</th>
-            <th>Created</th>
-            <th>Updated</th>
-            <th width="200px">Action</th>
-        </tr>
+            <tr>
+                <th>Image</th>
+                <th>Brand</th>
+                <th>Transist Status</th>
+                <th>Location</th>
+                <th>Sku</th>
+                <th>Id</th>
+                <th>Size</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Updated</th>
+                <th width="200px">Action</th>
+            </tr>
         </thead>
         <tbody>
         @foreach ($products as $product)

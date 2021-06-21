@@ -255,14 +255,14 @@ class ProductInventoryController extends Controller
 		}*/
 
 		if (isset($request->location) && $request->location[0] != null) {
-			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price != "0,10000000") {
+			if (($request->brand && is_array($request->brand)  && $request->brand[0] != null )|| ($request->color && is_array($request->color[0]) && $request->color[0] != null) || ( $request->category && is_array($request->category[0]) &&  $request->category[0] != 1) || (  $request->price &&     $request->price != "0,10000000")) {
 				$productQuery = $productQuery->whereIn('location', $request->location);
 
 			} else {
 				$productQuery = ( new Product() )->newQuery()->latest()
 				                                 ->whereIn('location', $request->location);
 			}
-			$data['location'] = $request->location[0];
+			$data['location'] = $request->location;
 		}
 
 		if ($request->no_locations) {
@@ -290,7 +290,6 @@ class ProductInventoryController extends Controller
 								 $q->where('stock_status',$key);
 							});
 				});
-
 		} else {
 			if (isset($request->brand) && $request->brand[0] == null && $request->color[0] == null && (!isset($request->category) || $request->category[0] == 1) && (!isset($request->price) || $request->price == "0,10000000") && $request->location[0] == null && !isset($request->no_locations)) {
 				$productQuery = ( new Product() )->newQuery()
