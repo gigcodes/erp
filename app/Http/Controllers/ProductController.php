@@ -3862,7 +3862,7 @@ class ProductController extends Controller
         $data['customer_id'] = $request->customer_id;
         $data['status'] = $request->status;
         $data['type'] = $request->type;
-        \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
+        //\App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
 
         $json = request()->get("json", false);
 
