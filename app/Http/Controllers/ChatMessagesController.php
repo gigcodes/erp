@@ -98,7 +98,7 @@ class ChatMessagesController extends Controller
         $currentPage = request("page",1);
         $skip        = ($currentPage - 1) * $limit;
 
-        $loadType       = $request->get('load_type','text');
+        $loadType       = $request->get('load_type');
         $onlyBroadcast  = false;
 
         //  if loadtype is brodcast then get the images only
