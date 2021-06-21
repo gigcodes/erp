@@ -5153,6 +5153,7 @@ class ProductController extends Controller
         
         if ($suggestedProducts) {
             $suggestedProducts->touch();
+            $new_suggestedproductid = $suggestedProducts->id;
         } else {
             $suggestedProducts              = new \App\SuggestedProduct;
             $suggestedProducts->customer_id = $customerId;
