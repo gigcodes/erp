@@ -3342,7 +3342,7 @@ class WhatsAppController extends FindByNumberController
         }
 
         // get the status for approval
-        if($chat_message->customer == "10589") {
+        if($chat_message->customer_id == "10589") {
             $isNeedToBeSend = false;
         }
         if ($isNeedToBeSend && $chat_message->status != 0 && $chat_message->is_queue == '0') {
