@@ -134,6 +134,11 @@ return [
             'driver' => 'daily',
             'path'   => storage_path('logs/color_job/color_job.log'),
             'days'   => 7,
+        ],
+        'broadcast_log' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/general/broadcast.log'),
+            'days'   => 1,
         ]
     ],
 
