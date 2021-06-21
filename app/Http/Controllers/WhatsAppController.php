@@ -1037,7 +1037,6 @@ class WhatsAppController extends FindByNumberController
         $isReplied = false;
         // Log incoming webhook
         \Log::channel('chatapi')->debug('Webhook: ' . json_encode($data));
-        \Log::debug('Webhook: ' . json_encode($data));
 
         // Check for ack
         if (array_key_exists('ack', $data)) {
