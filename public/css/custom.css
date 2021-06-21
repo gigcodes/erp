@@ -1740,3 +1740,17 @@ label.error{
     letter-spacing: 0.5px;
     text-decoration: none;
 }
+.save-item-select.width-auto{
+    width: auto !important;
+.page-notes{
+    border: 1px solid #ddd !important;
+}
+.page-notes>thead:first-child>tr:first-child>th {
+    border-top: none !important;
+}
+.page-notes>thead>tr>td, .page-notes>thead>tr>th {
+    border-bottom-width: 1px !important;
+}
+.page-notes th,.page-notes td{
+    font-size: 14px;
+}

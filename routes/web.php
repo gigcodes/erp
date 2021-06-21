@@ -1083,6 +1083,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('purchase-product/insert_suppliers_product', 'PurchaseProductController@insert_suppliers_product')->name('purchase-product.insert_suppliers_product');
 
+    Route::get('purchaseproductorders/list', 'PurchaseProductController@purchaseproductorders')->name('purchaseproductorders.list');//Purpose : Add Route for Purchase Product Order - DEVTASK-4236
+    Route::post('purchaseproductorders/update', 'PurchaseProductController@purchaseproductorders_update')->name('purchaseproductorders.update');//Purpose : Add Route for Purchase Product Order - DEVTASK-4236
+    Route::get('purchaseproductorders/logs', 'PurchaseProductController@purchaseproductorders_logs')->name('purchaseproductorders.logs');//Purpose : Add Route for Purchase Product Order - DEVTASK-4236
+    Route::get('purchaseproductorders/orderdata', 'PurchaseProductController@purchaseproductorders_orderdata')->name('purchaseproductorders.orderdata');//Purpose : Add Route for Purchase Product Order - DEVTASK-4236
+
     // Cash Vouchers
     Route::get('/voucher/payment/request', 'VoucherController@paymentRequest')->name("voucher.payment.request");
     Route::post('/voucher/payment/request', 'VoucherController@createPaymentRequest')->name('voucher.payment.request-submit');
