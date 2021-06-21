@@ -2258,17 +2258,20 @@ class ScrapController extends Controller
             curl_close($curl);
             
             if (!empty($response)) {
-                $api_log = new ScrapApiLog;
-                $api_log->scraper_id = $scraper->id;
-                $api_log->server_id = $request->server_id;
-                $api_log->log_messages = substr($response, 1, -1);
-                $api_log->save();
                 
                 $response = json_decode($response);
+                
+                $log = \Log::info(print_r($response,true));
+                if (!empty($log)) {
 
-                \Log::info(print_r($response,true));
-
-
+                    $api_log = new ScrapApiLog;
+                    $api_log->scraper_id = $scraper->id;
+                    $api_log->server_id = $request->server_id;
+                    $api_log->log_messages = $log;
+                    $api_log->save();
+                }
+                
+                
                 if((isset($response->status) && $response->status == "Didn't able to find file of given scrapper") || empty($response->log)) {
                     echo "Sorry , no log was return from server";
                     die;
@@ -2281,14 +2284,10 @@ class ScrapController extends Controller
                         echo base64_decode($response->log);
                     }
                 }
-                $data['logs'] = ScrapApiLog::where('scraper_id',$scraper->id)->get();
-                return view('scrap.scrap_api_log',$data);
             } else {
                 abort(404);
             }
         }
-        // $data['logs'] = ScrapApiLog::get();
-        // return view('scrap.scrap_api_log',$data);
     }
 
     /**

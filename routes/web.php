@@ -121,6 +121,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::post('magento-product-skus-ajax', 'Logging\LogListMagentoController@getMagentoProductAPIAjaxCall')->name('logging.magento.product.api.ajax.call');
 });
 
+Route::get('log-scraper-api', 'Logging\LogScraperController@scraperApiLog')->middleware('auth')->name('log-scraper.api');
 Route::get('log-scraper', 'Logging\LogScraperController@index')->middleware('auth')->name('log-scraper.index');
 
 Route::prefix('category-messages')->middleware('auth')->group(function () {
@@ -1087,6 +1088,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('purchaseproductorders/update', 'PurchaseProductController@purchaseproductorders_update')->name('purchaseproductorders.update');//Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::get('purchaseproductorders/logs', 'PurchaseProductController@purchaseproductorders_logs')->name('purchaseproductorders.logs');//Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::get('purchaseproductorders/orderdata', 'PurchaseProductController@purchaseproductorders_orderdata')->name('purchaseproductorders.orderdata');//Purpose : Add Route for Purchase Product Order - DEVTASK-4236
+    Route::post('purchaseproductorders/saveuploads', 'PurchaseProductController@purchaseproductorders_saveuploads')->name('purchaseproductorders.saveuploads');//Purpose : Add Route for Purchase Product Order - DEVTASK-4236
 
     // Cash Vouchers
     Route::get('/voucher/payment/request', 'VoucherController@paymentRequest')->name("voucher.payment.request");
@@ -1370,7 +1372,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Reviews Module
     Route::post('review/createFromInstagramHashtag', 'ReviewController@createFromInstagramHashtag');
-    Route::get('review/restart-script', 'ReviewController@restartScript');
+    Route::post('review/restart-script', 'ReviewController@restartScript');
     Route::get('review/instagram/reply', 'ReviewController@replyToPost');
     Route::post('review/instagram/dm', 'ReviewController@sendDm');
     Route::get('review/{id}/updateStatus', 'ReviewController@updateStatus');

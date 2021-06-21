@@ -124,13 +124,15 @@ class ImageController extends Controller
       $category = '';
       $price = null;
 
-      if ($request->brand[0] != null) {
+      //Purpose : Add isset() for Brancd - DEVTASK-4378
+      if (isset($request->brand) && $request->brand[0] != null) {
          $images = $images->whereIn('brand', $request->brand);
 
          $brand = $request->brand[0];
         }
 
-      if ($request->category[0] != null && $request->category[0] != 1) {
+      //Purpose : Add isset() for Category - DEVTASK-4378
+      if (isset($request->category) && $request->category[0] != null && $request->category[0] != 1) {
          $is_parent = Category::isParent($request->category[0]);
          $category_children = [];
 

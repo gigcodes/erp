@@ -45,6 +45,19 @@
                       </div>
                     </div>
                   </div>
+
+                  <div class="col">
+                    <div class="form-group">
+                      <select class="form-control" name="brand">
+                        <option value="">Select Brand</option>
+                        @foreach($brand_list as $brand)
+                          <option value="{{ $brand->name }}" {{ $brand->name == $filter_brand ? 'selected' : '' }}>{{ $brand->name }}</option>
+                        @endforeach
+                      </select>
+                    </div>
+                  </div>
+
+
                   <div class="col">
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                   </div>
@@ -53,10 +66,15 @@
 
             </div>
             <div class="pull-right">
-              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#accountCreateModal">Create Account</a>
+              <button class="btn btn-secondary add_brands ml-3" data-toggle="modal" data-target="#myModal">Add Brands</button>
+              <button class="btn btn-secondary ml-3" data-toggle="modal" data-target="#brandList">Brand List</button>
+              <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#accountCreateModal">Create Account</a>
               <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#scheduleReviewModal">Schedule Review</a>
               <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#complaintCreateModal">Create Thread</a>
-              <button type="button" class="btn btn-secondary ml-3 restart-button-script" data-toggle="modal">Restart Script</a>
+              
+              {{-- <button type="button" class="btn btn-secondary ml-3 restart-button-script" data-toggle="modal">Restart Script</a> --}} 
+
+              <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#scrapper_list_Modal">Restart Script</a>
             </div>
         </div>
     </div>
@@ -72,7 +90,7 @@
           <a href="#accounts_tab" class="tab-filter" data-toggle="tab">Accounts</a>
         </li>
         <li class="@if($active_tab == 'reviews_tab') active @endif">
-          <a href="#reviews_tab" class="tab-filter" data-toggle="tab">Reviews</a>
+          <a href="#reviews_tab" class="tab-filter" data-toggle="tab">Reviews({{ $review_schedules_count }})</a>
         </li>
         <li class="@if($active_tab == 'posted_tab') active @endif">
           <a href="#posted_tab" class="tab-filter" data-toggle="tab">Posted Reviews</a>
@@ -137,8 +155,7 @@
       </div>
 
       <div class="tab-pane @if($active_tab == 'reviews_tab') active @endif mt-3" id="reviews_tab">
-        <button class="btn btn-secondary add_brands" data-toggle="modal" data-target="#myModal">Add Brands</button>
-        <button class="btn btn-secondary" data-toggle="modal" data-target="#brandList">Brand List</button>
+        
         <div class="table-responsive mt-3">
           <table class="table table-bordered">
             <thead>
@@ -151,6 +168,7 @@
                 <th>Title</th>
                 <th>Body</th>
                 <th>Stars</th>
+                <th>Date</th>
                 <!-- <th>Actions</th> -->
               </tr>
             </thead>
@@ -169,6 +187,7 @@
                       {{ $schedule->body }}
                     </div></td>
                   <td>{{ $schedule->stars }}</td>
+                  <td>{{ !empty($schedule->created_at) ? \Carbon\Carbon::parse($schedule->created_at)->format('Y-m-d') : '' }}</td>
                   <!-- <td>
                     {{-- <button type="button" class="btn btn-image edit-schedule" data-toggle="modal" data-target="#scheduleEditModal" data-schedule="{{ $schedule }}" data-reviews="{{ $schedule }}"><img src="/images/edit.png" /></button> --}}
                     <button type="button" class="btn btn-image edit-review" data-toggle="modal" data-target="#reviewEditModal" data-review="{{ $schedule->id }}"><img src="/images/edit.png" /></button>
@@ -600,6 +619,40 @@
     </div>
   </div>
 </div>
+
+
+
+<div id="scrapper_list_Modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Scrapper Sever</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <form id="scrapper_form">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Select Scraper</label>
+                        <select name="scraper_name" id ="scraper_name" class="form-control select2" required>
+                            <option value="">Select Scrapper</option>
+                            @foreach($serverIds as $serverId)
+                              <option value="{{$serverId}}">{{$serverId}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" id="submit" class="btn btn-default">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+  </div> 
+
+
     @include('reviews.partials.account-modals')
     @include('reviews.partials.review-schedule-modals')
     @include('reviews.partials.review-modals')
@@ -1069,12 +1122,37 @@
 
     })
 
-    $(document).on("click",".restart-button-script",function(e) {
+    /* $(document).on("click",".restart-button-script",function(e) {
        e.preventDefault();
        $.ajax({
           type: 'GET',
           url: "/review/restart-script",
           dataType:"json"
+        }).done(function(response) {
+          if(response.code == 200) {
+            toastr["success"](response.message);
+          }else{
+            toastr["error"](response.message);
+          }
+        }).fail(function(response) {
+          toastr["error"]('An error occured!');
+        });
+    }); */
+
+    //$('#scrapper_form').on('submit', function(event){
+      $(document).on("submit", "#scrapper_form", function (e) {
+       e.preventDefault();
+       $.ajax({
+          type: 'POST',
+          url: "/review/restart-script",
+          data: {
+            _token: "{{ csrf_token() }}",
+            serverId: $('#scraper_name').val()
+          },
+          dataType:"json",
+          beforeSend: function() {
+              $('#scrapper_list_Modal').modal('hide');
+          }
         }).done(function(response) {
           if(response.code == 200) {
             toastr["success"](response.message);
