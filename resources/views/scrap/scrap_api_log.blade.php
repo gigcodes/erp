@@ -32,6 +32,7 @@
             <thead>
             <tr>
                 <th width="10%">#</th>
+                <th width="10%">Scraper</th>
                 <th width="10%">Server id</th>
                 <th width="25%">Logs</th>
             </tr>
@@ -39,9 +40,10 @@
                 $i = 1;
             @endphp
             
-            @foreach ($logs as $log)
+            @foreach ($api_logs as $log)
                 <tr>
                     <td>{{ $i++ }}</td>
+                    <td>{{ $log->scraper_name }}</td>
                     <td>{{ $log->server_id }}</td>
                     <td>{{ $log->log_messages }}</td>
                 </tr>

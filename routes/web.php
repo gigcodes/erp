@@ -121,6 +121,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::post('magento-product-skus-ajax', 'Logging\LogListMagentoController@getMagentoProductAPIAjaxCall')->name('logging.magento.product.api.ajax.call');
 });
 
+Route::get('log-scraper-api', 'Logging\LogScraperController@scraperApiLog')->middleware('auth')->name('log-scraper.api');
 Route::get('log-scraper', 'Logging\LogScraperController@index')->middleware('auth')->name('log-scraper.index');
 
 Route::prefix('category-messages')->middleware('auth')->group(function () {
