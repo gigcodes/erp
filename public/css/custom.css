@@ -1844,6 +1844,10 @@ label.error {
 }
 .page-notes > thead:first-child > tr:first-child > th {
   border-top: none !important;
+.save-item-select.width-auto{
+    width: auto !important;
+.page-notes{
+    border: 1px solid #ddd !important;
 }
 .page-notes > thead > tr > td,
 .page-notes > thead > tr > th {

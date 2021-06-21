@@ -40,7 +40,7 @@ class LogScraper extends Model
         $errorLog .= self::validateBrand(!empty($request->brand) ? $request->brand : '');
 
         // Validate title
-        $errorLog .= self::validateTitle($request->title);
+        //$errorLog .= self::validateTitle($request->title);
 
         // Validate description
         $warningLog .= self::validateDescription($request->description);

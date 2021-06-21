@@ -80,7 +80,7 @@
 							</div>
 							<div class="form-group">
 								<?php /* <label for="status">Status:</label> */?>
-								<?php echo Form::select("status", [""=>"All Status", "ignored" => "Ignored Status"], request("status"), ["class" => "form-control", "id" => "enter-status"]) ?>
+							<?php echo Form::select("status", [""=>"All Status"]+ $allStatus, request("status"), ["class" => "form-control", "id" => "enter-status"]) ?>
 							</div>
 							<div class="form-group">
 							<?php /* <label for="button">&nbsp;</label> */ ?>
