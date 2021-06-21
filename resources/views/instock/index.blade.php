@@ -62,7 +62,7 @@
           */
           ?>
 
-          <div class="form-group mr-3">
+          {{-- <div class="form-group mr-3">
             @php $brands = \App\Brand::getAll();
             @endphp
             <select data-placeholder="Select brands"  class="form-control select-multiple2" name="brand[]" multiple>
@@ -72,7 +72,20 @@
                 @endforeach
               </optgroup>
             </select>
-          </div>
+          </div> --}}
+          {{-- <div class="form-group mr-pd col-md-2"> --}}
+          <div class="form-group mr-pd col-md-2">
+            <select class="form-control globalSelect2" data-placeholder="Select brands" data-ajax="{{ route('select2.brands',['sort'=>true]) }}"
+                name="brand[]" multiple>
+
+                @if ($selected_brand)        
+                    @foreach($selected_brand as $brand)
+                                    <option value="{{ $brand->id }}" selected>{{ $brand->name }}</option>
+                    @endforeach
+                @endif
+
+            </select>
+        </div>
           <div class="form-group mr-3 mb-3">
               <input placeholder="Shoe Size" type="text" name="shoe_size" value="{{request()->get('shoe_size')}}" class="form-control-sm form-control">
           </div>
