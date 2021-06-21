@@ -31,8 +31,9 @@ table tbody tr td{
                     <th width="15%">Model Id</th>
                     <th width="10%">Keyword</th>
                     <th width="15%">Keyword Match</th>
-                    <th width="15%">Message Send Id</th>
-                    <th width="25%">Comment</th>
+                    <th width="10%">Message Send Id</th>
+                    <th width="20%">Comment</th>
+                    <th width="10%">Date</th>
                 </tr>
             </thead>
             <tbody>
@@ -44,6 +45,7 @@ table tbody tr td{
                         <td>{{$value->keyword_match}}</td>
                         <td>{{$value->message_sent_id}}</td>
                         <td>{!!nl2br($value->comment)!!}</td>
+                        <td>{{$value->created_at}}</td>
                     </tr>
                 @endforeach
             </tbody>
