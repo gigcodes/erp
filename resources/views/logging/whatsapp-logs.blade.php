@@ -90,32 +90,45 @@
         <table class="table table-bordered table-striped" id="log-table">
             <thead>
             <tr>
-                <th style="width: 20% !important;">Date</th>
-                <th style="width: 20% !important;">Sent ?</th>
+                <th style="width: 1% !important;">Sr.No</th>
+                <th style="width: 1% !important;">Date</th>
+                <th style="width: 1% !important;">Sent ?</th>
                 <th style="width: 40% !important;">Log</th>
-                <th>Action</th>
+                <th style="width: 3% !important;">Action</th>
             </tr>
             <tr>
             </tr>
             </thead>
             <tbody id="content_data" class="infinite-scroll-pending-inner">
+                @php
+                    $user_role = App\RoleUser::where('user_id',Auth::id())->first();
+                    $sr_no = 1;
+                @endphp
             @foreach($array as $row)
                 <tr>
+                    <td>{{ $sr_no++ }}</td>
                     <td>{{ $row['date'] }}</td>
                     <td>No</td>
-                        <td class="errorLog">
-                            Message1 : {{$row['error_message1']}} <br>
-                            Message2 : {{$row['error_message2']}}
-                        </td>
-
+                        @if ($user_role->role_id == 1)
+                            <td class="errorLog">
+                                Message1 : {{$row['error_message1']}} <br>
+                                Message2 : {{$row['error_message2']}}
+                            </td>
+                        @else
+                            <td></td>
+                        @endif
 
                     <td>
                         @if((isset($row['error_message1']) && getStr($row['error_message1'])) || (isset($row['error_message2']) && getStr($row['error_message2'])))
-
-                            <button class="btn btn-success sentMessage text-center" >
-                                Resend
-                            </button>
-
+                            @if ($user_role->role_id == 1)
+                                <button class="btn btn-success sentMessage text-center" >
+                                    Resend
+                                </button>
+                            @else
+                                <button class="btn btn-success text-center" disabled>
+                                    Resend
+                                </button>
+                            @endif
                         @endif
                     </td>
                 </tr>
