@@ -67,6 +67,7 @@ public/uploads
 public/zoom/*
 !public/zoom/.gitkeep
 public/tmp_images/*
+public/purchase_product_orders/*
 
 /deployment_scripts_test
 
