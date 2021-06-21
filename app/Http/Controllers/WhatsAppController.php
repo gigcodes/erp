@@ -3185,6 +3185,10 @@ class WhatsAppController extends FindByNumberController
             $isNeedToBeSend = true;
         }
 
+        if($request->customer_id == 10589) {
+            die;
+        }
+
         if ($request->images) {
             $imagesDecoded = json_decode($request->images, true);
             if (!empty($request->send_pdf) && $request->send_pdf == 1) {
