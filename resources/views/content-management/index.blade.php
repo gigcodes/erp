@@ -104,6 +104,38 @@
 		        </td>
 		    </tr>
             @endforeach
+            @foreach (App\GmailDataList::get() as $gmailData)
+                <tr>
+                    <td>{{ ++$key }}</td>
+                    <td>{{ $gmailData->domain }}</td>
+                    <td>{{ $gmailData->facebook }}</td>
+                    <td>{{ $gmailData->instagram }}</td>
+                    <td>
+                        <div class="d-flex"> 
+                            <button title="Open Images" type="button" class="btn preview-attached-img-btn-gmail btn-image no-pd" data-id="{{$gmailData->id}}" data-images="{{ $gmailData->gmailDataMedia }}">
+                                <img src="/images/forward.png" style="cursor: default;">
+                            </button>
+                            <button title="Post instagram" type="button" class="btn btn-image no-pd" data-id="{{$gmailData->id}}">
+                                <img src="/images/instagram.svg" style="cursor: default;">
+                            </button>
+                            <button type="button" class="btn pd-3">
+                                {{-- <a href="/content-management/manage/{{$gmailData->id}}"> --}}
+                                    <img width="15px" title="Manage Contents" src="/images/project.png">
+                                {{-- </a> --}}
+                            </button> 
+                            <button type="button" class="btn preview-img-btn pd-3" data-id="{{$gmailData->id}}">
+                                <i class="fa fa-eye" aria-hidden="true"></i>
+                            </button>
+                            
+                        </div>
+                    </td>
+                </tr>
+                <tr class="expand-gmail-{{$gmailData->id}} hidden">
+                    <td colspan="7" id="attach-gamil-image-list-{{$gmailData->id}}">
+                        
+                    </td>
+                </tr>
+            @endforeach
             </table>
     </div>
 	</div>
@@ -219,6 +251,37 @@
             });
             
             var expand = $('.expand-'+websiteId);
+            $(expand).toggleClass('hidden');
+
+        });
+
+		$(document).on('click', '.preview-attached-img-btn-gmail', function (e) {     
+            console.log($(this).data('images'));
+            e.preventDefault();
+            var website_Id = $(this).data('id');
+            if( website_Id == '' && website_Id != '0' ){
+            	 alert('No webiste select');
+            	 return false;
+            }
+            
+            const images__ =$(this).data('images')
+            let html =""
+            images__.forEach(element => {
+                html += '<img src="'+element.images+'">'
+            });
+            // $.ajax({
+            //     url: '/content-management/manage/attach/images',
+            //     type: 'POST',
+            //     data: { _token: "{{ csrf_token() }}", website_Id: website_Id},
+            //     dataType: 'html',
+            // }).done(function (data) {
+            //     $('#attach-gmail-image-list-'+website_Id).html(data);
+            // }).fail(function () {
+            //     alert('Error searching for images');
+            // });
+            $('#attach-gamil-image-list-'+website_Id).append(html);
+            
+            var expand = $('.expand-gmail-'+website_Id);
             $(expand).toggleClass('hidden');
 
         });

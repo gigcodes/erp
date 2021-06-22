@@ -13,6 +13,8 @@ use App\SuggestedProductList;
 use App\SuggestedProduct;
 use App\Helpers\CompareImagesHelper;
 use Auth;
+use Symfony\Component\Process\Process;
+use \Plank\Mediable\Media;
 
 class SearchAttachedImages implements ShouldQueue
 {
@@ -29,57 +31,69 @@ class SearchAttachedImages implements ShouldQueue
 
     public function handle()
     {
-        // Set time limit
         set_time_limit(0);
 
         $id = $this->id;
         $params = $this->req_data;
     
         $chat_messages = \App\ChatMessage::where('id', $id)->get();
-        // $params = request()->all();
-        $products = (new ProductSearch($params))
-            ->getQuery()->get();
-        $matched_images = [];
-        if (@file_get_contents($chat_messages[0]->media_url)) {
-            foreach ($products as $product) {
-                $productImages = $product->getMedia(config('constants.media_tags'));
-                if(count($productImages)){
-                    foreach ($productImages as $productImage) {
-                        $url = str_replace(' ', "%20", $productImage->getUrl());
-                        if (@file_get_contents($url)) {
-                            if(CompareImagesHelper::compare($chat_messages[0]->media_url,$url) < 10){
-                                $matched_image = [];
-                                $matched_image['image_url'] = $url;
-                                $matched_image['product'] = $product;
-                                array_push($matched_images, $matched_image);
-                            }
-                        }
-                    }
+        $process = Process::fromShellCommandline('find $(pwd) -maxdepth 5 -type f -not -path "*/\.*" | sort ', public_path('uploads/product'));
+        $process->run(); 
+        $files = explode("\n", $process->getOutput());
+        $match_image_path = [];
+        foreach($files as $key => $file){
+            if($key == 0){
+                $base_path = explode('public', $file)[0] . 'public';
+                $chat_messages = \App\ChatMessage::where('id', $id)->get();
+                $ref_file = explode(".com", $chat_messages[0]->media_url);
+                $ref_file = $ref_file[count($ref_file) - 1];
+                $ref_file = $base_path . $ref_file;
+            }
+            $compare = Process::fromShellCommandline('compare -metric ae -fuzz XX% ' . $ref_file . ' ' . $file . ' null: 2>&1', public_path('uploads/product'));
+            $compare->run();
+            $match = $compare->getOutput() == '0' ? true : false;
+            if($match){
+                // dump([$file, $ref_file, $match]);
+                if($file != $ref_file){
+                    $match_image_path[] = $file;
                 }
             }
         }
-        if(count($matched_images)){
-            $sp = SuggestedProduct::create([
-                'total' => 0,
-                'customer_id' => $chat_messages[0]->customer_id,
-                'chat_message_id' => $chat_messages[0]->id,
-            ]); 
-            
-            foreach($matched_images as $prod){
-                $prod = $prod['product'];
-                SuggestedProductList::create([
-                    'total' => 0,
-                    'customer_id' => $chat_messages[0]->customer_id,
-                    'product_id' => $prod->id,
-                    'chat_message_id' => $chat_messages[0]->id,
-                    'suggested_products_id' => $sp->id
-                ]); 
+        
+        $first_time = true;
+        foreach ($match_image_path as $key => $value) {
+            $name = explode('/', $value)[count(explode('/', $value)) - 1 ];
+            $ext = explode('.', $name)[count(explode('.', $name)) - 1];
+            $name = str_replace('.' . $ext, '', $name);
+            $media = Media::where('filename', explode('.', $name)[0])->first();
+            if($media !== null){
+                $dir = explode('/', $media->directory);
+                if(isset($dir[2])){
+                    if($first_time){
+                        $sp = SuggestedProduct::create([
+                            'total' => 0,
+                            'customer_id' => $chat_messages[0]->customer_id,
+                            'chat_message_id' => $chat_messages[0]->id,
+                        ]);
+                        $first_time = false;
+                    } 
+                    SuggestedProductList::create([
+                        'total' => 0,
+                        'customer_id' => $chat_messages[0]->customer_id,
+                        'product_id' => $dir[2],
+                        'chat_message_id' => $chat_messages[0]->id,
+                        'suggested_products_id' => $sp->id
+                    ]); 
+                    // dump($dir[2]);
+                }
             }
+            // dump([$name, $ext, $media]);
         }
 
         $user = Auth::user();
         $msg = 'Your image find process is completed.';
         app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
+        // return view('ErpCustomer::product-search', compact('matched_images'));
 
     }
 
