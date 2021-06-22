@@ -17,6 +17,13 @@
     background: rgba(0, 0, 0, 0.2);
     z-index: 1060;
 }
+.scroll_div{
+    max-height:390px;
+    overflow: auto;
+}
+.fa-trash{
+    cursor: pointer;
+}
 </style>
 @endsection
 
@@ -49,26 +56,33 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
     <div class="table-responsive mt-3">
         <table class="table table-bordered">
             <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Logo</th>
-                <th>Action</th>
+                <th width="10%">ID</th>
+                <th width="40%">Name</th>
+                <th width="40%">Logo</th>
+                <th width="10%">Action</th>
             </tr>
             @foreach($brand_data as $key => $value)
-            <tr class="tr_{{$value->id}}">
+            <tr class="tr_{{$value->brands_id}}">
                 <td>{{ $key+1}}</th>
-                <td>{{ $value->name }}</td>
-                <td></td>
+                <td>{{ $value->brands_name }}</td>
+                @if($value->brand_logos_image != null)
+                    <td>
+                    <img src="/brand_logo/{{ $value->brand_logos_image }}"  style="height: 150px; width: 150px;display: block;margin-left: auto;margin-right: auto;" />
+                    </td>
+                @else
+                    <td></td>
+                @endif
                 <td>
-                    <button title="Open Images" type="button" class="btn preview-attached-img-btn btn-image no-pd" data-id="{{$value->id}}">
-                    <img src="/images/forward.png" style="cursor: default;">
+                    <button title="Open Images" type="button" class="btn preview-attached-img-btn btn-image no-pd" data-id="{{$value->brands_id}}">
+                        <img src="/images/forward.png" style="cursor: default;">
                     </button>
+                    <i class="fa fa-trash delete_logo" aria-hidden="true" data-id="{{$value->brands_id}}" ></i>
                 </td>
             </tr>
 
-            <tr class="expand-{{$value->id}} hidden">
+            <tr class="expand-{{$value->brands_id}} hidden">
                 
-                <td colspan="4" id="attach-image-list-{{$value->id}}" >
+                <td colspan="4" id="attach-image-list-{{$value->brands_id}}" >
                     
                 </td>
             </tr>
@@ -132,7 +146,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
     $(document).on('click', '.preview-attached-img-btn', function (e) {     
         e.preventDefault();
         var logo_id = $(this).data('id');
-
+        var origin   = window.location.origin; 
         // $('#attach-image-list-'+logo_id).html('ffff');
 
         $.ajax({
@@ -148,21 +162,24 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 html_content += '<div class="col-md-12">';
                 html_content += '<button class="btn btn-secondary btn-xs pull-right btn_save_brand_image" data-id="'+logo_id+'">Save</button>';
                 html_content += '</div>';
+                html_content += '<div class="col-md-12 scroll_div">';
                     $.each( response.brand_logo_image, function( key, value ) {
-                    
                         html_content += '<div class="col-md-2">';
                         html_content += '<div class="col-md-12 text-center" style="padding:5px; margin-bottom:2px !important;" >';
                         html_content += '<div style="border: 1px solid #bfc0bf;padding:0px 5px;">';
                         html_content += '<div data-interval="false" id="carousel" class="carousel slide" data-ride="carousel" >';
                         html_content += '<div class="carousel-inner maincarousel">';
                         html_content += '<div class="item" style="display: block;">';
-                        html_content += '<img src="{{ public_path() }}/brand_logo/'+value.logo_image_name+'"  style="height: 150px; width: 150px;display: block;margin-left: auto;margin-right: auto;" />';
+                        html_content += '<img src="'+origin+'/brand_logo/'+value.brand_logo_image_name+'"  style="height: 150px; width: 150px;display: block;margin-left: auto;margin-right: auto;" />';
                         html_content += '</div>';
                         html_content += '</div>';
                         html_content += '</div>';
                         html_content += '<div class="row pl-4 pr-4" style="padding: 0px; margin-bottom: 8px;">';
                         html_content += '<div class="custom-control custom-checkbox">';
-                        html_content += '<input type="radio" name="brand_logo_radio_'+logo_id+'" class="brand_logo_radio_'+logo_id+'" value="'+value.id+'" />';
+                        if(logo_id == value.brand_with_logos_brand_id && value.brand_logos_id == value.brand_with_logos_brand_logo_image_id)
+                            html_content += '<input type="radio" name="brand_logo_radio_'+logo_id+'" checked class="brand_logo_radio_'+logo_id+'" value="'+value.brand_logos_id+'" />';
+                        else
+                            html_content += '<input type="radio" name="brand_logo_radio_'+logo_id+'" class="brand_logo_radio_'+logo_id+'" value="'+value.brand_logos_id+'" />';
                         // html_content += '<label class="custom-control-label" for="defaultUnchecked_'+value.id+'" ></label>';
                         html_content += '</div>';
                         html_content += '</div>';
@@ -171,6 +188,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 
                         html_content += '</div>';
                     });
+                    html_content += '</div>';
                 $('#attach-image-list-'+logo_id).html(html_content);
             },
             error: function(response){
@@ -254,6 +272,8 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 
                 if(response.code == 200) {
                     toastr['success'](response.message, 'Success');
+
+                    setTimeout(function(){ location.reload(); }, 2000);
                 }
             },
             error: function(response){
@@ -261,6 +281,28 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             } 
         });
     });
-  
+    
+    $(document).on("click",".delete_logo",function(e) {
+        var brand_id = $(this).data('id');
+
+        if (confirm('Are you sure you want to remove this logo?')) {
+            $.ajax({
+                url: "{{ route('brand.remove_logo') }}",
+                type: "POST",
+                dataType: "json",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    brand_id: brand_id,
+                },
+                success: function (response) {
+                    if(response.code == 200) {
+                    toastr['success'](response.message, 'Success');
+
+                    setTimeout(function(){ location.reload(); }, 2000);
+                }
+                }
+            });
+        }
+    });
 </script>
 @endsection
