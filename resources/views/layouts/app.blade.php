@@ -1813,6 +1813,9 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
                                         </li>
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('brand.logo_data')}}">Brand Logos</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('missing-brands.index')}}">Missing Brands</a>
                                         </li>
                                         <li class="nav-item dropdown">

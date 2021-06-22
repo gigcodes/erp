@@ -60,6 +60,21 @@
                   <div class="alert alert-danger">{{$errors->first('brand')}}</div>
               @endif
         </div>
+{{-- 
+        <div class="form-group">
+          <label>Brand:</label>
+          <select class="form-control globalSelect2" data-placeholder="Select brands" data-ajax="{{ route('select2.brands',['sort'=>true]) }}"
+              name="brand[]" multiple>
+
+              @if ($selected_brand)        
+                  @foreach($selected_brand as $brand)
+                                  <option value="{{ $brand->id }}" selected>{{ $brand->name }}</option>
+                  @endforeach
+              @endif
+
+          </select>
+      </div> --}}
+
 
         <div class="form-group">
           <strong>Category:</strong>
