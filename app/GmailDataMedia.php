@@ -11,8 +11,8 @@ class GmailDataMedia extends Model
         'images',
     ];
 
-    public function gmailData()
+    public function gmailDataList()
     {
-        return $this->belongsTo(GmailData::class);
+        return $this->belongsTo(GmailDataList::class);
     }
 }

@@ -48,6 +48,20 @@
                                     </option>
                                 </select>
                             </div>
+
+                            <!-- START - Purpose : Set unreplied messages - DEVATSK=4350 -->
+                            <div>
+                                
+                                    @if(isset($_REQUEST['unreplied_msg']) && $_REQUEST['unreplied_msg']== true)
+                                        @php $check_status = 'checked'; @endphp
+                                    @else
+                                        @php $check_status = ''; @endphp
+                                    @endif
+                               
+                                <input type="checkbox" id="unreplied_msg" name="unreplied_msg" {{$check_status}} value="true"> Unreplied Messages
+                            </div>
+                            <!-- END - DEVATSK=4350 -->
+
                             <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
                                 <img src="/images/search.png" style="cursor: default;">
                             </button>
