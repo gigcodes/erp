@@ -67,8 +67,12 @@ class UserManagementController extends Controller
                   LEFT JOIN hubstaff_members ON hubstaff_members.user_id=users.id 
                   LEFT JOIN hubstaff_activities ON hubstaff_members.hubstaff_user_id=hubstaff_activities.user_id 
                   LEFT JOIN developer_tasks ON hubstaff_activities.task_id=developer_tasks.hubstaff_task_id 
-                  WHERE (`hubstaff_activities`.`starts_at` LIKE " . $date . "  OR `hubstaff_activities`.`starts_at` is NULL )
-                  group by users.id order by day_tracked desc ");
+                  LEFT JOIN tasks ON hubstaff_activities.task_id=developer_tasks.hubstaff_task_id 
+                  WHERE (`hubstaff_activities`.`starts_at` LIKE " . $date . "  OR `hubstaff_activities`.`starts_at` is NULL AND developer_tasks.id is NOT NULL  )
+                    order by day_tracked desc ");
+                 // WHERE (`hubstaff_activities`.`starts_at` LIKE " . $date . "  OR `hubstaff_activities`.`starts_at` is NULL ) group by users.id order by day_tracked desc ");
+                 
+                 //purpose : Add AND developer_tasks.id is NOT NULL in where condition ,  Remove group by users.id , Add left join task Table Old Query is Comment - DEVTASK-4256
         $filterList = [];
         if ( !empty( $history ) ) {
             foreach ($history as $key => $value) {
