@@ -2836,6 +2836,11 @@ Route::middleware('auth')->group(function()
 Route::post('message-queue/approve/approved', '\Modules\MessageQueue\Http\Controllers\MessageQueueController@approved');
 
 
+Route::get('message-counter', [\Modules\MessageQueue\Http\Controllers\MessageQueueController::class,'message_counter'])->name('message.counter');
+
+
+
+
 //Charity Routes
 Route::get('charity', 'CharityController@index')->name('charity');
 Route::any('charity/update', 'CharityController@update')->name('charity.update');
@@ -2845,8 +2850,6 @@ Route::post('charity/add-status', 'CharityController@addStatus')->name('charity.
 Route::post('charity/update-charity-order-status', 'CharityController@updateCharityOrderStatus')->name('charity.update-charity-order-status');
 Route::post('charity/create-history', 'CharityController@createHistory')->name('charity.create-history');
 Route::get('charity/view-order-history/{order_id}', 'CharityController@viewHistory')->name('charity.view-order-history');
-
-
 
 });
 
