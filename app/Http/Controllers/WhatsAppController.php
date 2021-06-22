@@ -3853,7 +3853,6 @@ class WhatsAppController extends FindByNumberController
     {
         $defCustomer = '971547763482';
         $message = ChatMessage::findOrFail($request->get("messageId"));
-        \Log::info(print_r(["called how many times",$request->All()],true));
         $today_date = Carbon::now()->format('Y-m-d');
 
         if ($context == "customer") {
@@ -4116,7 +4115,6 @@ class WhatsAppController extends FindByNumberController
                     }
                 }
                 if ($context == 'customer') {
-                    \Log::channel('whatsapp')->info('My TEst Run');
                     $supplierDetails = Customer::find($message->supplier_id);
                     $language = $supplierDetails->language;
                     if ($language != null) {
@@ -5204,9 +5202,6 @@ class WhatsAppController extends FindByNumberController
             $domain = "https://api.chat-api.com/instance$instanceId/$link?token=$token";
         }
 
-        \Log::info("Whatsapp send message => ".json_encode([$domain,$array]));
-
-
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
@@ -5225,9 +5220,7 @@ class WhatsAppController extends FindByNumberController
         ));
 
         $response = curl_exec($curl);
-        \Log::info(print_r(["Whatsapp send message Response",$response],true));
         $err = curl_error($curl);
-        \Log::info(print_r(["Whatsapp send message error",$err],true));
 
         // $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
