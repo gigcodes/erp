@@ -36,7 +36,7 @@ class BulkCustomerRepliesController extends Controller
             $keyword = $request->get('keyword_filter');
 
             $searchedKeyword = BulkCustomerRepliesKeyword::with(['customers' => function($q)use($request){
-                $q->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id  GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id')
+                $q->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id,whatsapp_number, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id  GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id')
                 ->groupBy('customers.id')
                 ->orderBy('max_id','desc');
 
