@@ -62,33 +62,33 @@
                             @endforeach
                         </select>
                     </div>
-{{--                    <div class="col-md-6 pl-1">--}}
-{{--                        <select style="margin-top: 5px;" name="designer_id" class="form-control save-item-select designer" data-category="{{ $category->id }}" data-type="designer_id" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">--}}
-{{--                            <option value="">Select Designer</option>--}}
-{{--                            @foreach($users as $user)--}}
-{{--                            <option value="{{ $user->id }}" @if($site && $site->designer_id == $user->id) selected @endif >{{ $user->name }}</option>--}}
-{{--                            @endforeach--}}
-{{--                        </select>--}}
-{{--                    </div>--}}
+                    <div class="col-md-12 ">
+                        <select style="margin-top: 5px;" name="designer_id" class="form-control save-item-select designer" data-category="{{ $category->id }}" data-type="designer_id" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
+                            <option value="">Select Designer</option>
+                            @foreach($users as $user)
+                            <option value="{{ $user->id }}" @if($site && $site->designer_id == $user->id) selected @endif >{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
-{{--                <div class="row">--}}
-{{--                    <div class="col-md-6 pr-1">--}}
-{{--                        <select style="margin-top: 5px;" name="html_designer" class="form-control save-item-select html" data-category="{{ $category->id }}" data-type="html_designer" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">--}}
-{{--                            <option value="">Select Html</option>--}}
-{{--                            @foreach($users as $user)--}}
-{{--                            <option value="{{ $user->id }}" @if($site && $site->html_designer == $user->id) selected @endif >{{ $user->name }}</option>--}}
-{{--                            @endforeach--}}
-{{--                        </select>--}}
-{{--                    </div>--}}
-{{--                    <div class="col-md-6 pl-1">--}}
-{{--                        <select style="margin-top: 5px;" name="tester_id" class="form-control save-item-select html" data-category="{{ $category->id }}" data-type="tester_id" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">--}}
-{{--                            <option value="">Select Tester</option>--}}
-{{--                            @foreach($users as $user)--}}
-{{--                            <option value="{{ $user->id }}" @if($site && $site->tester_id == $user->id) selected @endif >{{ $user->name }}</option>--}}
-{{--                            @endforeach--}}
-{{--                        </select>--}}
-{{--                    </div>--}}
-{{--                </div>--}}
+                <div class="row">
+                    <div class="col-md-12 ">
+                        <select style="margin-top: 5px;" name="html_designer" class="form-control save-item-select html" data-category="{{ $category->id }}" data-type="html_designer" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
+                            <option value="">Select Html</option>
+                            @foreach($users as $user)
+                            <option value="{{ $user->id }}" @if($site && $site->html_designer == $user->id) selected @endif >{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-12 ">
+                        <select style="margin-top: 5px;" name="tester_id" class="form-control save-item-select html" data-category="{{ $category->id }}" data-type="tester_id" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
+                            <option value="">Select Tester</option>
+                            @foreach($users as $user)
+                            <option value="{{ $user->id }}" @if($site && $site->tester_id == $user->id) selected @endif >{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
             </td>
             <td>
                 <div class="row">
@@ -132,16 +132,16 @@
                     </div>
 
                 </div>
-                <div style="display: none !important;" class="d-flex">
+                <div  class="d-flex mt-5">
                 <span  class="hidden_row_{{ $category->id  }}" >
                     <input type="checkbox" id="developer_{{$category->id}}" name="developer" value="developer">
-                    &nbsp;&nbsp;<label for="developer">Developer</label>&nbsp;&nbsp;
+                    &nbsp;<label for="developer">Developer</label>&nbsp;&nbsp;
                     <input type="checkbox" id="designer_{{$category->id}}" name="designer" value="designer">
-                    &nbsp;&nbsp;<label for="designer">Designer</label>&nbsp;&nbsp;
+                    &nbsp;<label for="designer">Designer</label>&nbsp;&nbsp;
                     <input type="checkbox" id="html_{{$category->id}}" name="html" value="html">
-                    &nbsp;&nbsp;<label for="html">Html</label>&nbsp;&nbsp;
+                    &nbsp;<label for="html">Html</label>&nbsp;&nbsp;
                     <input type="checkbox" id="html_{{$category->id}}" name="tester" value="tester">
-                    &nbsp;&nbsp;<label for="html">Tester</label>
+                    &nbsp;<label for="html">Tester</label>
                 </span>
                 </div>
             </td>
@@ -198,13 +198,13 @@
                 ])  ?>
 
             </td>
-            <?php /* <td colspan="2">
+            <?php  <td colspan="2">
             <select style="margin-top: 5px;" class="form-control save-item-select developer" data-category="{{ $category->id }}" data-type="developer" data-site="@if($site){{ $site->id }}@endif" name="developer_id" id="user-@if($site){{ $site->id }}@endif">
     				<option value="">Select Developer</option>
     				@foreach($users as $user)
     					<option value="{{ $user->id }}" @if($site && $site->developer_id == $user->id) selected @endif >{{ $user->name }}</option>
     				@endforeach
-    			</select>  
+    			</select>
             <select style="margin-top: 5px;" name="designer_id" class="form-control save-item-select designer" data-category="{{ $category->id }}" data-type="designer_id" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
                     <option value="">Select Designer</option>
                     @foreach($users as $user)
@@ -216,13 +216,13 @@
                     @foreach($users as $user)
                         <option value="{{ $user->id }}" @if($site && $site->html_designer == $user->id) selected @endif >{{ $user->name }}</option>
                     @endforeach
-                </select> 
+                </select>
                 <select style="margin-top: 5px;" name="tester_id" class="form-control save-item-select html" data-category="{{ $category->id }}" data-type="tester_id" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
                     <option value="">Select Tester</option>
                     @foreach($users as $user)
                         <option value="{{ $user->id }}" @if($site && $site->tester_id == $user->id) selected @endif >{{ $user->name }}</option>
                     @endforeach
-                </select> 
+                </select>
             </td>
             <td></td>
             <td></td>
