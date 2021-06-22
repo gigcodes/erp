@@ -186,7 +186,7 @@ class ProductInventoryController extends Controller
 		$term     = $request->input( 'term' );
 		$data['term']     = $term;
 
-		$productQuery = ( new Product() )->newQuery();
+		$productQuery = ( new Product() )->newQuery()->latest()->with(['brands','product_category']);
         if (isset($request->brand) && $request->brand[0] != null) {
             $productQuery = ( new Product() )->newQuery()->latest()->whereIn('brand', $request->brand);
 
@@ -225,8 +225,7 @@ class ProductInventoryController extends Controller
 			} else {
 				array_push($category_children, $request->category[0]);
 			}
-
-			if ($request->brand[0] != null || $request->color[0] != null) {
+			if (($request->brand && is_array($request->brand) &&  $request->brand[0] != null) || ($request->color && is_array($request->color[0])&&  $request->color[0] != null)) {
 				$productQuery = $productQuery->whereIn('category', $category_children);
 			} else {
 				$productQuery = (new Product())->newQuery()
@@ -256,14 +255,14 @@ class ProductInventoryController extends Controller
 		}*/
 
 		if (isset($request->location) && $request->location[0] != null) {
-			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price != "0,10000000") {
+			if (($request->brand && is_array($request->brand)  && $request->brand[0] != null )|| ($request->color && is_array($request->color[0]) && $request->color[0] != null) || ( $request->category && is_array($request->category[0]) &&  $request->category[0] != 1) || (  $request->price &&     $request->price != "0,10000000")) {
 				$productQuery = $productQuery->whereIn('location', $request->location);
 
 			} else {
 				$productQuery = ( new Product() )->newQuery()->latest()
 				                                 ->whereIn('location', $request->location);
 			}
-			$data['location'] = $request->location[0];
+			$data['location'] = $request->location;
 		}
 
 		if ($request->no_locations) {
@@ -278,31 +277,19 @@ class ProductInventoryController extends Controller
 		}
 
 		if (trim($term) != '') {
-			$productQuery = (( new Product() )->newQuery())
-			                                 ->latest()->where(function ($query) use ($term){
-															 	    		return $query->orWhere( 'sku', 'LIKE', "%$term%" )
-			                                 							->orWhere( 'id', 'LIKE', "%$term%" );
-																									});
+				$productQuery->when(!empty($term),function($q)  use ($term){
 
-
-			if ( $term == - 1 ) {
-				$productQuery = $productQuery->where(function ($query){
-				 															return $query->orWhere( 'isApproved', - 1 );
-									 });
-			}
-
-			if ( Brand::where('name', 'LIKE' ,"%$term%")->first() ) {
-				$brand_id = Brand::where('name', 'LIKE' ,"%$term%")->first()->id;
-				$productQuery = $productQuery->where(function ($query) use ($brand_id){
-																			return $query->orWhere( 'brand', 'LIKE', "%$brand_id%" );});
-			}
-
-			if ( $category = Category::where('title', 'LIKE' ,"%$term%")->first() ) {
-				$category_id = $category = Category::where('title', 'LIKE' ,"%$term%")->first()->id;
-				$productQuery = $productQuery->where(function ($query) use ($term){
-								return $query->orWhere( 'category', CategoryController::getCategoryIdByName( $term ));} );
-			}
-
+							$q->where('sku','LIKE',"%$term%")
+							   ->orWhereHas('brands',function	($q) use($term){
+								$q->where( 'name', 'LIKE', "%$term%");
+							})->orwhereHas('product_category',function	($q) use($term){
+								$q->where( 'title', 'LIKE', "%$term%");
+							})->orWhere(function($q) use ($term){
+								 $arr_id = Product::STOCK_STATUS;	
+								$key = array_search(ucwords($term), $arr_id);
+								 $q->where('stock_status',$key);
+							});
+				});
 		} else {
 			if (isset($request->brand) && $request->brand[0] == null && $request->color[0] == null && (!isset($request->category) || $request->category[0] == 1) && (!isset($request->price) || $request->price == "0,10000000") && $request->location[0] == null && !isset($request->no_locations)) {
 				$productQuery = ( new Product() )->newQuery()
@@ -311,6 +298,11 @@ class ProductInventoryController extends Controller
 			}
 		}
 
+		$selected_brand = null;
+		if($request->brand){
+		$selected_brand = Brand::select('id','name')->whereIn('id',$request->brand)->get();
+		}
+		$data['selected_brand']= $selected_brand;
 		// $search_suggestions = [];
 		//
 		// $sku_suggestions = ( new Product() )->newQuery()->where('supplier', 'In-stock')
