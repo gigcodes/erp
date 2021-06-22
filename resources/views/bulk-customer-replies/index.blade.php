@@ -78,13 +78,13 @@
                     @csrf
                     <table class="table table-striped table-bordered">
                         <tr>
-                            <th style="width:2%">Pick?</th>
-                            <th style="width:3%">S.N</th>
-                            <th style="width:8%">Customer ({{count($searchedKeyword->customers)}})</th>
-                            <th style="width:8%">Whatsapp num</th>
-                            <th style="width:25%">Shortcuts</th>
-                            <th style="width:25%">Next Action</th>
-                            <th style="width:27%" >Communication</th>
+                            <th style="width:1%">Pick</th>
+                            <th style="width:2%">S.N</th>
+                            <th style="width:6%">Customer ({{count($searchedKeyword->customers)}})</th>
+                            <th style="width:12%">Whatsapp num</th>
+                            <th style="width:23%">Shortcuts</th>
+                            <th style="width:23%">Next Action</th>
+                            <th style="width:25%" >Communication</th>
                         </tr>
                         <tr>
                             <td colspan="7">
