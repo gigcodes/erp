@@ -58,7 +58,12 @@
             <a href="{{ route('category.fix-autosuggested-via-str',request()->all()) }}" class="fix-autosuggested-auto">
                 <button type="button" class="btn btn-secondary">Auto fix</button>
             </a>
+            <a href="{{ route('category.fix-autosuggested',['show_auto_fix'=>true]) }}" class="fix-autosuggested">
+                <button type="button" class="btn btn-secondary">Show auto fix</button>
+            </a>
         </div>
+        {{-- <div class="form-group col-md-4"> --}}
+        {{-- </div> --}}
     </div>
     <div class="col-md-12 mt-5">
         <table class="table table-bordered">

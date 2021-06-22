@@ -603,7 +603,7 @@ class CategoryController extends Controller
 
     public function fixAutoSuggested(Request $request)
     {
-        
+
         $scrapped_category_mapping = ScrappedCategoryMapping::select('id', 'name')
         ->whereNull('category_id');
 
@@ -621,11 +621,22 @@ class CategoryController extends Controller
 
                 $filter = \App\Category::updateCategoryAuto($category->name);
 
-                $links[] = [
-                    "from_id" => $category->id,
-                    "from" => $category->name,
-                    "to"   => ($filter) ? $filter->id : null,
-                ];
+                if(isset($request->show_auto_fix) &&  $request->show_auto_fix){
+
+                    if($filter && $filter->id)
+
+                    $links[] = [
+                        "from_id" => $category->id,
+                        "from" => $category->name,
+                        "to"   =>  $filter->id ,
+                    ];
+                }else{
+                    $links[] = [
+                        "from_id" => $category->id,
+                        "from" => $category->name,
+                        "to"   => ($filter) ? $filter->id : null,
+                    ];
+                }
             }
         }
 
