@@ -2990,5 +2990,6 @@ Route::group(['middleware' => 'auth'], function () {
 
 Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('customers', 'Select2Controller@customers')->name('select2.customer');
+    Route::get('customersByMultiple', 'Select2Controller@customersByMultiple')->name('select2.customerByMultiple');
     Route::get('users', 'Select2Controller@users')->name('select2.user');
 });
