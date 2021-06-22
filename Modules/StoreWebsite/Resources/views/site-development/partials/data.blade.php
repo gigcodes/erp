@@ -88,7 +88,7 @@
 {{--                            @endforeach--}}
 {{--                        </select>--}}
 {{--                    </div>--}}
-                </div>
+{{--                </div>--}}
             </td>
             <td>
                 <div class="row">
@@ -101,7 +101,8 @@
 {{--                        </div>--}}
 {{--                    </div>--}}
 {{--                    @endif--}}
-                    <div class="col-md-12">
+
+                    <div class="col-md-12 mb-3">
                         <?php
                         $MsgPreview = '# ';
                         if ($website) {
@@ -119,24 +120,29 @@
                             @if($site)
                             <div  class="chat_messages expand-row table-hover-cell d-inline">
                                 <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="site_development" data-id="{{$site->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
-                                <span class="chat-mini-container"> @if($site->lastChat) {{ $site->lastChat->message }} @endif</span>
                                 <span class="chat-full-container hidden"></span>
                             </div>
                             @endif
                         </div>
                     </div>
+                    <div class="col-md-12">
+                        @if($site)
+                            <span class="chat-mini-container pl-1"> @if($site->lastChat) {{ $site->lastChat->message }} @endif</span>
+                        @endif
+                    </div>
+
                 </div>
-                <div class="d-flex">
-{{--                <span class="hidden_row_{{ $category->id  }}" >--}}
-{{--                    <input type="checkbox" id="developer_{{$category->id}}" name="developer" value="developer">--}}
-{{--                    &nbsp;&nbsp;<label for="developer">Developer</label>&nbsp;&nbsp;--}}
-{{--                    <input type="checkbox" id="designer_{{$category->id}}" name="designer" value="designer">--}}
-{{--                    &nbsp;&nbsp;<label for="designer">Designer</label>&nbsp;&nbsp;--}}
-{{--                    <input type="checkbox" id="html_{{$category->id}}" name="html" value="html">--}}
-{{--                    &nbsp;&nbsp;<label for="html">Html</label>&nbsp;&nbsp;--}}
-{{--                    <input type="checkbox" id="html_{{$category->id}}" name="tester" value="tester">--}}
-{{--                    &nbsp;&nbsp;<label for="html">Tester</label>--}}
-{{--                </span>--}}
+                <div style="display: none !important;" class="d-flex">
+                <span  class="hidden_row_{{ $category->id  }}" >
+                    <input type="checkbox" id="developer_{{$category->id}}" name="developer" value="developer">
+                    &nbsp;&nbsp;<label for="developer">Developer</label>&nbsp;&nbsp;
+                    <input type="checkbox" id="designer_{{$category->id}}" name="designer" value="designer">
+                    &nbsp;&nbsp;<label for="designer">Designer</label>&nbsp;&nbsp;
+                    <input type="checkbox" id="html_{{$category->id}}" name="html" value="html">
+                    &nbsp;&nbsp;<label for="html">Html</label>&nbsp;&nbsp;
+                    <input type="checkbox" id="html_{{$category->id}}" name="tester" value="tester">
+                    &nbsp;&nbsp;<label for="html">Tester</label>
+                </span>
                 </div>
             </td>
             <td>

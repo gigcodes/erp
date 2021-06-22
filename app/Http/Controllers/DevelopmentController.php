@@ -1220,6 +1220,29 @@ class DevelopmentController extends Controller
         //     }
         // }
         $task = DeveloperTask::create($data);
+
+        //check the assinged user in any team ?
+        if($request->assigned_to > 0 && empty($task->team_lead_id)) {
+            $teamUser = \App\TeamUser::where("user_id",$task->assigned_to)->first();
+            if($teamUser) {
+                $team = $teamUser->team;
+                if($team) {
+                    $task->team_lead_id = $team->user_id;
+                    $task->save();
+                }
+            }else{
+                $isTeamLeader = \App\Team::where("user_id",$task->assigned_to)->first();
+                if($isTeamLeader) {
+                    $task->team_lead_id = $task->assigned_to;
+                    $task->save();
+                }
+            }
+
+        }
+
+
+
+
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
                 $media = MediaUploader::fromSource($image)

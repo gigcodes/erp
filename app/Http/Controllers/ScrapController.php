@@ -2261,7 +2261,15 @@ class ScrapController extends Controller
                 
                 $response = json_decode($response);
                 
-                \Log::info(print_r($response,true));
+                $log = \Log::info(print_r($response,true));
+                if (!empty($log)) {
+
+                    $api_log = new ScrapApiLog;
+                    $api_log->scraper_id = $scraper->id;
+                    $api_log->server_id = $request->server_id;
+                    $api_log->log_messages = $log;
+                    $api_log->save();
+                }
                 
                 
                 if((isset($response->status) && $response->status == "Didn't able to find file of given scrapper") || empty($response->log)) {
