@@ -78,12 +78,12 @@
                     @csrf
                     <table class="table table-striped table-bordered">
                         <tr>
-                            <th style="width:3%">Pick?</th>
+                            <th style="width:2%">Pick?</th>
                             <th style="width:3%">S.N</th>
-                            <th style="width:10%">Customer ({{count($searchedKeyword->customers)}})</th>
-                            {{-- <th>Recent Messages</th> --}}
-                            <th style="width:27%">Shortcuts</th>
-                            <th style="width:27%">Next Action</th>
+                            <th style="width:8%">Customer ({{count($searchedKeyword->customers)}})</th>
+                            <th style="width:8%">Whatsapp num</th>
+                            <th style="width:25%">Shortcuts</th>
+                            <th style="width:25%">Next Action</th>
                             <th style="width:27%" >Communication</th>
                         </tr>
                         <tr>
@@ -117,6 +117,17 @@
                                          Remove from DND
                                     </span>
                                     @endif
+                                </td>
+                                <td>
+
+                                    <select class="form-control change-whatsapp-no-bulk" data-customer-id="<?php echo $customer->id; ?>" data-type="whatsapp_number">
+                                        <option value="">-No Selected-</option>
+                                        @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+                                            @if($number != "0")
+                                                <option {{ ($number == $customer->whatsapp_number && $customer->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
                                 </td>
                                 <td>@include('bulk-customer-replies.partials.shortcuts')</td>
                                 <td>@include('bulk-customer-replies.partials.next_actions')</td>
@@ -173,11 +184,11 @@
 
 @section('scripts')
     <!-- <script type="text/javascript" src="/js/site-helper.js"></script> -->
-    <script src="https://rawgit.com/jackmoore/autosize/master/dist/autosize.min.js"></script>
+    <script src="https://rawgit.com/jackmoore/autosize/master/dist/autosize.min.js"></script>       
+
     <script>
+
         autosize(document.getElementById("message"));
-    </script>
-    <script type="text/javascript">
 
         $(document).on('click', '.add_to_dnd', function(){
 
@@ -534,9 +545,25 @@
                 // }
             }
         });
-
     });
 
+    $(document).on('change', '.change-whatsapp-no-bulk', function () {
+            var $this = $(this);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('customer.change.whatsapp') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    customer_id: $this.data("customer-id"),
+                    number: $this.val(),
+                    type : $this.data("type")
+                }
+            }).done(function () {
+                alert('Number updated successfully!');
+            }).fail(function (response) {
+                console.log(response);
+            });
+        });
 
     </script>
 @endsection
