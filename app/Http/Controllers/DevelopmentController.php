@@ -1230,6 +1230,12 @@ class DevelopmentController extends Controller
                     $task->team_lead_id = $team->user_id;
                     $task->save();
                 }
+            }else{
+                $isTeamLeader = \App\Team::where("user_id",$task->assigned_to)->first();
+                if($isTeamLeader) {
+                    $task->team_lead_id = $task->assigned_to;
+                    $task->save();
+                }
             }
 
         }
