@@ -205,7 +205,10 @@ class WhatsappLogsController extends Controller
         }
         
         $array = array_slice($farray, ($page * 10 - 10), 10);
-        $isAdmin = Auth::user()->isAdmin();
+
+        $roles = Auth::user()->roles->pluck('name')->toArray();
+
+        $isAdmin = in_array('Admin', $roles);
 
         if ($request->ajax()) {
             $page = $request->page - 1;
