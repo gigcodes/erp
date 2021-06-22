@@ -43,6 +43,7 @@ use Response;
 use Storage;
 use App\MeetingAndOtherTime;
 use App\Helpers\HubstaffTrait;
+use App\ChatMessage;
 
 class DevelopmentController extends Controller
 {
@@ -2229,21 +2230,29 @@ class DevelopmentController extends Controller
             $history = DeveloperTaskHistory::find($request->approve_time);
             $history->is_approved = 1;
             $history->save();
-
             $user = User::find($request->user_id);
             if($user){
                 $receiver_user_phone = $user->phone;
                 if($receiver_user_phone){
-                $task = DeveloperTask::find($request->developer_task_id);
-                $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' .  $request->approve_time . ' MINS';
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false);
+                    $task = DeveloperTask::find($request->developer_task_id);
+                    $time = $history->new_value !== null ? $history->new_value : $history->old_value;
+                    $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' .  $time . ' MINS'; 
+                    $chat = ChatMessage::create([
+                        'number' => $receiver_user_phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
+                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
                 } 
             } 
+    }else{
+            return response()->json([
+                'message' => 'Only admin can approve'
+            ],500);
         }
-        
-        return response()->json([
-            'message' => 'Only admin can approve'
-        ],500);
     }
 
     public function sendRemindMessage(Request $request) {
@@ -2254,7 +2263,15 @@ class DevelopmentController extends Controller
             if($receiver_user_phone){
                 $task = DeveloperTask::find($request->id);
                 $msg = 'PLS ADD ESTIMATED TIME FOR TASK  ' . '#DEVTASK-' . $task->id . '-' . $task->subject ; 
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false);
+                $chat = ChatMessage::create([
+                    'number' => $receiver_user_phone,
+                    'user_id' => $user->id,
+                    'customer_id' => $user->id,
+                    'message' => $msg,
+                    'status' => 0, 
+                    'developer_task_id' => $request->id
+                ]);
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
             } 
         }
         return response()->json([
@@ -2270,7 +2287,15 @@ class DevelopmentController extends Controller
             if($receiver_user_phone){
                 $task = DeveloperTask::find($request->id);
                 $msg = 'TIME NOT APPROVED REVISE THE ESTIMATED TIME FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject;
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false);
+                $chat = ChatMessage::create([
+                    'number' => $receiver_user_phone,
+                    'user_id' => $user->id,
+                    'customer_id' => $user->id,
+                    'message' => $msg,
+                    'status' => 0, 
+                    'developer_task_id' => $request->id
+                ]);
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
             } 
         }
         return response()->json([
@@ -2339,19 +2364,33 @@ class DevelopmentController extends Controller
                 $receiver_user_phone = $user->phone;
                 if($receiver_user_phone){
                     $msg = 'TIME ESTIMATED BY ADMIN FOR TASK ' . '#DEVTASK-' . $issue->id . '-' .$issue->subject . ' ' .  $request->estimate_minutes . ' MINS';
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false);
+                    $chat = ChatMessage::create([
+                        'number' => $receiver_user_phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->issue_id
+                    ]);
+                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
                 } 
             }
         }else{
             $users = User::get();
             foreach($users as $user){
-                if($user->isAdmin()){
-                    $receiver_user_phone = $user->phone;
-                    if($receiver_user_phone){
-                        $msg = 'TIME ESTIMATED BY USER FOR TASK ' . '#DEVTASK-' . $issue->id . '-' .$issue->subject . ' ' .  $request->estimate_minutes . ' MINS';
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false);
-                    } 
-                }
+                $receiver_user_phone = $user->phone;
+                if($receiver_user_phone){
+                    $msg = 'TIME ESTIMATED BY USER FOR TASK ' . '#DEVTASK-' . $issue->id . '-' .$issue->subject . ' ' .  $request->estimate_minutes . ' MINS';
+                    $chat = ChatMessage::create([
+                        'number' => $receiver_user_phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->issue_id
+                    ]);
+                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+                } 
             }
         }
         
