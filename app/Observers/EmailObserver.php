@@ -3,7 +3,7 @@
 namespace App\Observers;
 
 use App\Email;
-use App\GmailData;
+use App\GmailDataList;
 use App\GmailDataMedia;
 
 class EmailObserver
@@ -69,7 +69,7 @@ class EmailObserver
         $img = preg_match_all('/<img[^>]+src=([\'"])(?<src>.+?)\1[^>]*>/i', $email->message, $imgTags);
 
         if ($a > 0) {
-            $gmail = new GmailData;
+            $gmail = new GmailDataList;
             $gmail->sender = $email->from;
             $gmail->domain = substr($email->from, strpos($email->from, "@") + 1);
             $gmail->received_at = $email->created_at->format('m/d/Y');
