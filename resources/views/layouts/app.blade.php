@@ -518,6 +518,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'ordered') }}">Ordered Grid</a>
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'delivered') }}">Delivered Grid</a>
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'non_ordered') }}">Non Ordered Grid</a>
+                                            <a class="dropdown-item" href="{{ route('purchaseproductorders.list') }}">Purchase Product Orders</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -555,6 +556,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
                                             <a class="dropdown-item" href="{{ action('DubbizleController@index') }}">Dubzzle</a>
                                             <a class="dropdown-item" href="{{ route('log-scraper.index') }}">Scraper log</a>
+                                            <a class="dropdown-item" href="{{ route('log-scraper.api') }}">Scraper Api log</a>
                                             <a class="dropdown-item" href="{{ route('scrap-brand') }}">Scrap Brand</a>
                                         </li>
                                     </ul>
@@ -1809,6 +1811,9 @@ $metaData = '';
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('brand.logo_data')}}">Brand Logos</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('missing-brands.index')}}">Missing Brands</a>
