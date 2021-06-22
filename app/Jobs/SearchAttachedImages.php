@@ -53,7 +53,7 @@ class SearchAttachedImages implements ShouldQueue
             $compare->run();
             $match = $compare->getOutput() == '0' ? true : false;
             if($match){
-                dump([$file, $ref_file, $match]);
+                // dump([$file, $ref_file, $match]);
                 if($file != $ref_file){
                     $match_image_path[] = $file;
                 }
@@ -84,10 +84,10 @@ class SearchAttachedImages implements ShouldQueue
                         'chat_message_id' => $chat_messages[0]->id,
                         'suggested_products_id' => $sp->id
                     ]); 
-                    dump($dir[2]);
+                    // dump($dir[2]);
                 }
             }
-            dump([$name, $ext, $media]);
+            // dump([$name, $ext, $media]);
         }
 
         $user = Auth::user();
