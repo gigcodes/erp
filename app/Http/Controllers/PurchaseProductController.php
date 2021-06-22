@@ -396,6 +396,15 @@ class PurchaseProductController extends Controller
 
             $send_whatsapp = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($number,$supplier->whatsapp_number, $message);
 
+             //START - purpose : Add in ChatMessage -DEVTASK-4236
+             $message_chat = ' Inquiry WhatsApp Message : '.$message;
+             $params = [
+                 'message' => $message_chat,
+                 'supplier_id' => $supplier_id,
+                 'user_id' => \Auth::id(),
+             ];
+             $chatMessage = ChatMessage::create($params);
+             //END -DEVTASK-4236
 
             $getInquiryData = SupplierOrderInquiryData::where('type',$type)->get()->toArray();
 
@@ -454,7 +463,7 @@ class PurchaseProductController extends Controller
                 'is_draft'         => 0,
             ]);
 
-            \App\Jobs\SendEmail::dispatch($email);
+             \App\Jobs\SendEmail::dispatch($email);
 
             // START - Purpose : Add Record for Inquiry - DEVTASK-4048
             $products_data = Product::whereIn('id',$product_ids)->get()->toArray();
@@ -465,6 +474,16 @@ class PurchaseProductController extends Controller
             $number = ($supplier->phone ? $supplier->phone : '971569119192' );
 
             $send_whatsapp = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($number,$supplier->whatsapp_number, $message);
+
+            //START - purpose : Add in ChatMessage -DEVTASK-4236
+            $message_chat = ' Order WhatsApp Message : '.$message;
+            $params = [
+                'message' => $message_chat,
+                'supplier_id' => $supplier_id,
+                'user_id' => \Auth::id(),
+            ];
+            $chatMessage = ChatMessage::create($params);
+            //END -DEVTASK-4236
 
             $getInquiryData = SupplierOrderInquiryData::where('type',$type)->get()->toArray();
 
@@ -491,11 +510,39 @@ class PurchaseProductController extends Controller
                 }
             }
 
-            SupplierOrderInquiryData::insert($pro_arr);
+           SupplierOrderInquiryData::insert($pro_arr);
             // END - DEVTASK-4048
 
             //START - Purpose : Get Order data - DEVTASK-4236
             $order_products_data = OrderProduct::whereIn('id',$order_ids)->get();
+
+            $order_products_data_arr = OrderProduct::whereIn('id',$order_ids)->get()->toArray();
+            $all_order_id = array_column($order_products_data_arr, 'order_id');
+
+            $order_data = OrderProduct::join('products','order_products.product_id','products.id')
+            ->join('brands','brands.id','products.brand')
+            ->join('product_suppliers','product_suppliers.product_id','products.id')
+            ->whereIn('order_products.order_id',$all_order_id)
+            ->select('product_suppliers.price as mrp','product_suppliers.price_special as price_special','product_suppliers.price_discounted as price_discounted','order_products.order_id as order_id')
+            ->get();
+
+            $order_data_arr = [];
+            foreach($order_data as $key => $val)
+            {
+                if (array_key_exists($val->order_id,$order_data_arr))
+                {
+                    $order_data_arr[$val->order_id]['totla_mrp'] += $val->mrp;
+                    $order_data_arr[$val->order_id]['totla_price_special'] += $val->price_special;
+                    $order_data_arr[$val->order_id]['totla_price_discounted'] += $val->price_discounted;
+                }
+                else
+                {
+                    $order_data_arr[$val->order_id]['totla_mrp'] = $val->mrp;
+                    $order_data_arr[$val->order_id]['totla_price_special'] = $val->price_special;
+                    $order_data_arr[$val->order_id]['totla_price_discounted'] = $val->price_discounted;
+                }
+                
+            }
 
             $order_pro_arr = [];
             foreach ($order_products_data as $key => $val)
@@ -503,8 +550,12 @@ class PurchaseProductController extends Controller
                 $order_pro_arr[] = [
                     'product_id' => $val->product_id,
                     'order_products_id' => $val->id,
-                    'order_id'      => $val->order_id,
+                   // 'order_id'      => $val->order_id,
+                    'order_id'      => rand(999999,9999999).'0'.$val->order_id,
                     'supplier_id' => $supplier_id,
+                    'mrp_price' => $order_data_arr[$val->order_id]['totla_mrp'],
+                    'discount_price' => $order_data_arr[$val->order_id]['totla_price_discounted'],
+                    'special_price' => $order_data_arr[$val->order_id]['totla_price_special'],
                     'created_by' => \Auth::id(),
                     'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
                     'updated_at' => \Carbon\Carbon::now()->toDateTimeString(),
@@ -690,7 +741,7 @@ class PurchaseProductController extends Controller
 
                 $log = PurchaseProductOrderLog::create($params);
 
-                return response()->json(['messages' => 'Status Updated successfully' ,'code' => 200]);
+                return response()->json(['messages' => 'MRP Updated successfully' ,'code' => 200]);
             }
             else if($from == 'discount_price'){
                 $discount_price = $request->discount_price;
@@ -705,7 +756,7 @@ class PurchaseProductController extends Controller
 
                 $log = PurchaseProductOrderLog::create($params);
 
-                return response()->json(['messages' => 'Status Updated successfully' ,'code' => 200]);
+                return response()->json(['messages' => 'Discount Updated successfully' ,'code' => 200]);
             }
             else if($from == 'special_price'){
                 $special_price = $request->special_price;
@@ -720,7 +771,7 @@ class PurchaseProductController extends Controller
 
                 $log = PurchaseProductOrderLog::create($params);
 
-                return response()->json(['messages' => 'Status Updated successfully' ,'code' => 200]);
+                return response()->json(['messages' => 'Special Price Updated successfully' ,'code' => 200]);
             }
 
             
@@ -752,9 +803,9 @@ class PurchaseProductController extends Controller
         try{
 
             $order_data = OrderProduct::join('products','order_products.product_id','products.id')
-            // ->join('brands','brands.id','products.brand')
+            ->join('brands','brands.id','products.brand')
             ->where('order_products.order_id',$request->order_id)
-            ->select('products.*','order_products.id as order_products_id')
+            ->select('products.*','order_products.id as order_products_id','brands.name as brands_name')
             ->get();
 
             return response()->json(['order_data' => $order_data ,'code' => 200]);

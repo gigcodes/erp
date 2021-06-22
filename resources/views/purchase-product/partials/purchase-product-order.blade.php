@@ -95,9 +95,9 @@ table tr td {
                         <tr>
                             <th width="5%">#</th>
                             <th width="5%">Order Id</th>
-                            <th width="8%">Product</th>
+                            <!-- <th width="8%">Product</th>
                             <th width="8%">SKU</th>
-                            <th width="8%">Brand</th>
+                            <th width="8%">Brand</th> -->
                             <th width="5%">MRP</th>
                             <th width="5%">Discounted Price</th>
                             <th width="5%">Special Price</th>
@@ -116,9 +116,9 @@ table tr td {
                         <tr class="row_{{$value->pur_pro_id}}">
                             <td>{{$key+1}}</td>
                             <td>{{$value->order_id}}</td>
-                            <td>{{$value->name}}</td>
+                            <!-- <td>{{$value->name}}</td>
                             <td>{{$value->sku}}</td>
-                            <td>{{$value->brand_name}}</td>
+                            <td>{{$value->brand_name}}</td> -->
                             <td>
                                 <input type="text" name="product_mrp" placeholder="MRP" class="form-control mb-3 product_mrp" value="{{ $value->mrp_price ?? $value->mrp ?? '' }}">
                                 <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_mrp" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
@@ -130,7 +130,13 @@ table tr td {
                                 <i class="fa fa-info-circle view_log" title="Discounted Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Discounted Price"></i>
                             </td>
                             <td>
-                                <input type="text" name="product_special_price" placeholder="Special Price" class="form-control mb-3 product_special_price" value="{{ $value->special_price ?? $value->price_special ?? '' }}">
+                            @php
+                            $discount_amt = ( $value->discount_price ?? $value->price_discounted ?? 0 );
+                            $special_amt = ($value->special_price ?? $value->price_special ?? 0);
+
+                            $final_special_amt = $special_amt - $discount_amt;
+                            @endphp
+                                <input type="text" name="product_special_price" placeholder="Special Price" class="form-control mb-3 product_special_price" value="{{ $final_special_amt }}">
                                 <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_special_price" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
                                 <i class="fa fa-info-circle view_log" title="Special Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Special Price"></i>
                             </td>
@@ -157,7 +163,8 @@ table tr td {
                                 @php
                                 $purchase_price = $value->mrp_price ?? $value->mrp - $value->price_discounted / 1.22;
                                 @endphp
-                                ( {{$value->mrp_price ?? $value->mrp ?? 0}} - {{$value->price_discounted}} / 1.22 ) + {{$value->shipping_cost ?? 0}}  + {{$value->duty_cost ?? 0}} = <b> {{ $purchase_price + $value->shipping_cost + $value->duty_cost }} </b>
+                                {{-- ( {{$value->mrp_price ?? $value->mrp ?? 0}} - {{$value->price_discounted}} / 1.22 ) + {{$value->shipping_cost ?? 0}}  + {{$value->duty_cost ?? 0}}  --}}
+                                 {{ $purchase_price + $value->shipping_cost + $value->duty_cost }} 
                             </td>
                             <td>
                                 <select class="form-control change_status" name="status" id="status" data-id="{{$value->pur_pro_id}}">
@@ -562,14 +569,15 @@ table tr td {
 
                 var html_content = '';
                 html_content += '<tr class="expand-row-10 row_order_data_'+purchase_pro_id+'">';
-                html_content += '<td colspan="15" id="product-list-data-10"><center><p>ORDERED PRODUCTS</p></center>';
+                html_content += '<td colspan="12" id="product-list-data-10"><center><p>ORDERED PRODUCTS</p></center>';
                 html_content += '<div class="table-responsive mt-2">';
                 html_content += '<table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;table-layout:fixed">';
                 html_content += '<thead>';
                 html_content += '<tr>';
                 html_content += '<th width="10%">#</th>';
-                html_content += '<th width="40%">Name</th>';
-                html_content += '<th width="30%">SKU</th>';
+                html_content += '<th width="30%">Name</th>';
+                html_content += '<th width="20%">SKU</th>';
+                html_content += '<th width="20%">Brand</th>';
                 html_content += '<th width="20%">Action</th>';
                 html_content += '</tr>';
                 html_content += '</thead>';
@@ -581,6 +589,7 @@ table tr td {
                     html_content += '<td>'+index+'</td>';
                     html_content += '<td>'+value.name+'</td>';
                     html_content += '<td>'+value.sku+'</td>';
+                    html_content += '<td>'+value.brands_name+'</td>';
                     html_content += '<td><i class="fa fa-upload upload_data_btn" data-id="'+value.order_products_id+'" data-order-id="'+order_id+'" aria-hidden="true"></i></td>';
                     html_content += '</tr>';
 
