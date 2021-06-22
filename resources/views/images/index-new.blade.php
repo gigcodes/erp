@@ -153,8 +153,8 @@
           @foreach($images as $image)
             <tr>
               <td>{{ $image->id }}</td>
-              <td>{{  ( !empty($image->product) ) ?  $image->product->categories->title : $image->category }}</td>
-              <td>{{  ( !empty($image->product) ) ?  $image->product->brands->name : $image->brand }}</td>
+              <td>{{  ( !empty($image->product) && !empty($image->product->categories) ) ?  $image->product->categories->title : $image->category }}</td><!-- Purpose : Added !empty($image->product->categories) - DEvTASK-4378 -->
+              <td>{{  ( !empty($image->product) && !empty($image->product->brands) ) ?  $image->product->brands->name : $image->brand }}</td><!-- Purpose : Added !empty($image->product->brands) - DEvTASK-4378 -->
               <td>{{ ( !empty($image->product) ) ?  $image->product->price :$image->price }}</td>
               <td>{{ $image->product->name ?? '--' }}</td>
               <td>{{ date( 'd-M-Y' ,strtotime($image->created_at))  }}</td>

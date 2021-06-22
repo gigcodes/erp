@@ -1037,6 +1037,7 @@ class WhatsAppController extends FindByNumberController
         $isReplied = false;
         // Log incoming webhook
         \Log::channel('chatapi')->debug('Webhook: ' . json_encode($data));
+        \Log::debug('Webhook: ' . json_encode($data));
 
         // Check for ack
         if (array_key_exists('ack', $data)) {
@@ -3184,6 +3185,8 @@ class WhatsAppController extends FindByNumberController
             $isNeedToBeSend = true;
         }
 
+        $isNeedToBeSend = true;
+
         if ($request->images) {
             $imagesDecoded = json_decode($request->images, true);
             if (!empty($request->send_pdf) && $request->send_pdf == 1) {
@@ -3247,12 +3250,10 @@ class WhatsAppController extends FindByNumberController
                             $media = Media::find($image_key);
                             if($media) {
                                 $mediable = \App\Mediables::where('media_id',$media->id)->where('mediable_type','App\Product')->first();
-                                $data['media_url'] = $media->getUrl();
+                                //$data['media_url'] = $media->getUrl();
                                 try{
                                     if($iimg != 0) {
                                         $chat_message = ChatMessage::create($data);
-                                    }else{
-                                        ChatMessage::where('id', $chat_message->id)->update(['media_url' => $media->getUrl()]);
                                     }
                                     $chat_message->attachMedia($media, config('constants.media_tags'));
                                     if($mediable) {
@@ -3280,12 +3281,10 @@ class WhatsAppController extends FindByNumberController
                         if(!$medias->isEmpty()) {
                             foreach($medias as $iimg => $media) {
                                 $mediable = \App\Mediables::where('media_id',$media->id)->where('mediable_type','App\Product')->first();
-                                $data['media_url'] = $media->getUrl();
+                                //$data['media_url'] = $media->getUrl();
                                 try{
                                     if($iimg != 0) {
                                         $chat_message = ChatMessage::create($data);
-                                    }else{
-                                        ChatMessage::where('id', $chat_message->id)->update(['media_url' => $media->getUrl()]);
                                     }
                                     $chat_message->attachMedia($media, config('constants.media_tags'));
                                     // if this message is not first then send to the client
@@ -4116,7 +4115,6 @@ class WhatsAppController extends FindByNumberController
                     }
                 }
                 if ($context == 'customer') {
-                    \Log::channel('whatsapp')->info('My TEst Run');
                     $supplierDetails = Customer::find($message->supplier_id);
                     $language = $supplierDetails->language;
                     if ($language != null) {
@@ -5204,9 +5202,6 @@ class WhatsAppController extends FindByNumberController
             $domain = "https://api.chat-api.com/instance$instanceId/$link?token=$token";
         }
 
-        \Log::info("Whatsapp send message => ".json_encode([$domain,$array]));
-
-
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
@@ -5225,9 +5220,7 @@ class WhatsAppController extends FindByNumberController
         ));
 
         $response = curl_exec($curl);
-        \Log::info(print_r(["Whatsapp send message Response",$response],true));
         $err = curl_error($curl);
-        \Log::info(print_r(["Whatsapp send message error",$err],true));
 
         // $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 

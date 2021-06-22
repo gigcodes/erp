@@ -26,6 +26,8 @@ use Illuminate\Support\Facades\File;
 use Maatwebsite\Excel\Facades\Excel;
 use Zend\Diactoros\Response\JsonResponse;
 use \Carbon\Carbon;
+use App\BrandLogo;
+use App\BrandWithLogo;
 
 class BrandController extends Controller
 {
@@ -563,4 +565,95 @@ class BrandController extends Controller
             return response()->json(["code" => 500, "error" => "Oops, Please fillup required fields"]);
         }
     }
+    
+    //START - Purpose : Fetch data - DEVTASK-4278
+    public function fetchlogos(Request $request)
+    {
+        try{
+            // $brand_data = Brand::paginate(Setting::get('pagination'));
+            $brand_data = Brand::leftjoin('brand_with_logos','brands.id','brand_with_logos.brand_id')
+            ->leftjoin('brand_logos','brand_with_logos.brand_logo_image_id','brand_logos.id')
+            ->select('brands.id as brands_id','brands.name as brands_name','brand_logos.logo_image_name as brand_logos_image')
+            ->orderBy('brands.name','asc')
+            ->paginate(Setting::get('pagination'));
+            return view('brand.brand_logo', compact('brand_data'))->with('i', (request()->input('page', 1) - 1) * 10);
+        }catch(\Exception $e){
+            
+        }
+    }
+
+    public function uploadlogo(Request $request)
+    {
+        try{
+         
+            $files = $request->file('file');
+            $fileNameArray = array();
+            foreach($files as $key=>$file){
+                //echo $file->getClientOriginalName();
+                $fileName = time().$key.'.'.$file->extension();
+                $fileNameArray[] = $fileName;
+
+                $params['logo_image_name'] = $fileName;
+                $params['user_id'] = Auth::id();
+
+                $log = BrandLogo::create($params);
+                
+                $file->move(public_path('brand_logo'), $fileName);
+            }
+            return response()->json(["code" => 200, "msg" => "files uploaded successfully","data"=>$fileNameArray]);
+        }catch(\Exception $e){
+            
+        }
+    }
+
+    public function get_all_images(Request $request)
+    {
+        try{
+            // $brand_data = BrandLogo::get();
+            $brand_data = BrandLogo::leftjoin('brand_with_logos','brand_logos.id','brand_with_logos.brand_logo_image_id')
+            ->select('brand_logos.id as brand_logos_id','brand_logos.logo_image_name as brand_logo_image_name','brand_with_logos.id as brand_with_logos_id','brand_with_logos.brand_logo_image_id as brand_with_logos_brand_logo_image_id','brand_with_logos.brand_id as brand_with_logos_brand_id')
+            ->get();
+            return response()->json(["code" => 200, "brand_logo_image"=>$brand_data]);
+        }catch(\Exception $e){
+            
+        }
+    }
+
+    public function set_logo_with_brand(Request $request){
+        try{
+            $brand_id = $request->logo_id;
+            $logo_image_id = $request->logo_image_id;
+
+            BrandWithLogo::updateOrCreate(
+                [
+                    'brand_id' => $brand_id,
+                ],
+                [
+                    'brand_id'   => $brand_id,
+                    'brand_logo_image_id'   => $logo_image_id,
+                    'user_id' => Auth::id(),
+                ]
+            );
+
+            return response()->json(["code" => 200, "message"=>'Logo Set Sucessfully for this Brand.']);
+
+        }catch(\Exception $e){
+            
+        }
+    }
+
+    public function remove_logo(Request $request){
+        try{
+            $brand_id = $request->brand_id;
+
+            $record = BrandWithLogo::where('brand_id',$brand_id);
+            $record->delete();  
+
+            return response()->json(["code" => 200, "message"=>'Logo has been Removed Sucessfully.']);
+
+        }catch(\Exception $e){
+            
+        }
+    }
+    //END - DEVTASK-4278
 }
