@@ -87,6 +87,8 @@ use App\Console\Commands\CreateErpLeadFromCancellationOrder;
 use App\Console\Commands\SendQueuePendingChatMessages;
 use App\Console\Commands\SendQueuePendingChatMessagesGroup;
 use App\Console\Commands\SyncCustomersFromMagento;
+use App\Console\Commands\StoreChatMessagesToAutoCompleteMessages;
+
 use App\NotificationQueue;
 use App\Benchmark;
 use App\Task;
@@ -264,7 +266,8 @@ class Kernel extends ConsoleKernel
         InstagramHandler::class,
         SendDailyReports::class,
         SendDailyPlannerNotification::class,
-        InsertPleskEmail::class
+        InsertPleskEmail::class,
+        StoreChatMessagesToAutoCompleteMessages::class,
     ];
 
     /**
@@ -448,10 +451,17 @@ class Kernel extends ConsoleKernel
         // send only cron run time
         $queueStartTime = \App\ChatMessage::getStartTime();
         $queueEndTime  = \App\ChatMessage::getEndTime();
+        $queueTime  = \App\ChatMessage::getQueueTime();
         // check if time both is not empty then run the cron
         if(!empty($queueStartTime) && !empty($queueEndTime)) {
-            $schedule->command('send:queue-pending-chat-messages')->cron('*/15 * * * *')->between($queueStartTime, $queueEndTime);
-            $schedule->command('send:queue-pending-chat-group-messages')->everyMinute();
+            if(!empty($queueTime)) {
+                foreach($queueTime as $no => $time) {
+                    if($time > 0) {
+                        $schedule->command('send:queue-pending-chat-messages '.$no)->cron('*/'.$time.' * * * *')->between($queueStartTime, $queueEndTime);
+                        $schedule->command('send:queue-pending-chat-group-messages '.$no)->cron('*/'.$time.' * * * *')->between($queueStartTime, $queueEndTime);        
+                    } 
+                }
+            }
         }
 
 
@@ -484,6 +494,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('google-analytics:run')->everyFifteenMinutes();
         $schedule->command('newsletter:send')->daily();
         $schedule->command('delete:store-website-category')->daily();
+        $schedule->command('memory_usage')->everyMinute();
+
         //$schedule->command('github:load_branch_state')->hourly();
         // $schedule->command('checkScrapersLog')->dailyAt('8:00');
         // $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');
@@ -529,6 +541,7 @@ class Kernel extends ConsoleKernel
         //  $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');
         // $schedule->command('check:landing-page')->everyMinute();
 
+        $schedule->command('ScrapApi:LogCommand')->hourly();
 
         $schedule->command('AuthenticateWhatsapp:instance')->hourly();
         // Get tickets from Live Chat inc and put them as unread messages
@@ -563,6 +576,9 @@ class Kernel extends ConsoleKernel
         //Cron for activity
         $schedule->command("productActivityStore")->dailyAt("0:00");
         $schedule->command("errorAlertMessage")->daily();
+
+        $schedule->command("UpdateScraperDuration")->everyFifteenMinutes();
+
     }
 
     /**

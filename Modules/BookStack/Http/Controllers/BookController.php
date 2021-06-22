@@ -51,6 +51,7 @@ class BookController extends Controller
      */
     public function index()
     {
+        return redirect()->route('searchGrid');
         $view = setting()->getUser($this->currentUser, 'books_view_type', config('app.views.books'));
         $sort = setting()->getUser($this->currentUser, 'books_sort', 'name');
         $order = setting()->getUser($this->currentUser, 'books_sort_order', 'asc');
@@ -68,7 +69,7 @@ class BookController extends Controller
         $this->entityContextManager->clearShelfContext();
 
         $this->setPageTitle(trans('bookstack::entities.books'));
-        return view('bookstack::books.index', [
+        return view('bookstack::shelves.index_grid', [
             'books' => $books,
             'recents' => $recents,
             'popular' => $popular,
@@ -164,6 +165,38 @@ class BookController extends Controller
             'current' => $book,
             'bookChildren' => $bookChildren,
             'activity' => Activity::entityActivity($book, 20, 1)
+        ]);
+    }
+
+    public function showBook($sortByView, $sortByDate)
+    {
+        
+        $view = setting()->getUser($this->currentUser, 'books_view_type', config('app.views.books'));
+        $sort = setting()->getUser($this->currentUser, 'books_sort', 'name');
+        $order = setting()->getUser($this->currentUser, 'books_sort_order', 'asc');
+        $sortOptions = [
+            'name' => trans('bookstack::common.sort_name'),
+            'created_at' => trans('bookstack::common.sort_created_at'),
+            'updated_at' => trans('bookstack::common.sort_updated_at'),
+        ];
+
+        $books = $this->entityRepo->getAllPaginated('book', 18, $sort, $order);
+        $recents = $this->signedIn ? $this->entityRepo->getRecentlyViewed('book', 4, 0) : false;
+        $popular = $this->entityRepo->getPopular('book', 4, 0);
+        $new = $this->entityRepo->getRecentlyCreated('book', 4, 0);
+
+        $this->entityContextManager->clearShelfContext();
+
+        $this->setPageTitle(trans('bookstack::entities.books'));
+        return response()->json([
+            'books' => $books,
+            'recents' => $recents,
+            'popular' => $popular,
+            'new' => $new,
+            'view' => $view,
+            'sort' => $sort,
+            'order' => $order,
+            'sortOptions' => $sortOptions,
         ]);
     }
 

@@ -31,6 +31,7 @@ use Log;
 use Carbon\Carbon;
 use DateTime;
 use App\UserLoginIp;
+use App\EmailNotificationEmailDetails;//Purpose : add MOdal - DEVTASK-4359
 
 class UserController extends Controller
 {
@@ -217,10 +218,13 @@ class UserController extends Controller
 		$customers_all = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->whereRaw("customers.id NOT IN (SELECT customer_id FROM user_customers WHERE user_id != $id)")->get()->toArray();
 
 		$userRate = UserRate::getRateForUser($user->id);
+		
+		$email_notification_data = EmailNotificationEmailDetails::where('user_id',$id)->first();//Purpose : get email details - DEVTASK-4359
+
 
 		return view(
 			'users.edit',
-			compact('user', 'users', 'roles', 'userRole', 'agent_roles', 'user_agent_roles', 'api_keys', 'customers_all', 'permission', 'userPermission', 'userRate')
+			compact('user', 'users', 'roles', 'userRole', 'agent_roles', 'user_agent_roles', 'api_keys', 'customers_all', 'permission', 'userPermission', 'userRate','email_notification_data')//Purpose : add email_notification_data - DEVTASK-4359
 		);
 	}
 
@@ -234,7 +238,7 @@ class UserController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{
-		//dd($request);
+		// dd($request->all());
 		$this->validate($request, [
 			'name' => 'required',
 			'email' => 'required|email|unique:users,email,' . $id,
@@ -242,7 +246,6 @@ class UserController extends Controller
 			'password' => 'same:confirm-password',
 			'roles' => 'required',
 		]);
-
 
 		$input = $request->all();
 		
@@ -269,6 +272,21 @@ class UserController extends Controller
 			$input = array_except($input, array('password'));
 		}
 
+		//START - Purpose : Set Email notification status - DEVTASK-4359
+		$input['mail_notification'] = 0;
+		if(isset($request->email_notification_chkbox))
+		{
+			if($request->email_notification_chkbox == 1)
+				$input['mail_notification'] = 1;
+		}
+
+		if($request->notification_mail_id != ''){
+			EmailNotificationEmailDetails::updateOrCreate(
+				["user_id" => $id],
+				["emails" => $request->notification_mail_id]
+			);
+		}
+		//END - DEVTASK-4359
 
 		$user = User::find($id);
 		$user->update($input);
@@ -668,9 +686,32 @@ class UserController extends Controller
 	{
 		$user_ips = UserLoginIp::join('users', 'user_login_ips.user_id', '=', 'users.id')
 						->select('user_login_ips.*', 'users.email')
+						->latest()
 						->get();
-		return view('users.ips', compact('user_ips'));
+		if ($request->ajax()) {
+			return response()->json( ["code" => 200 , "data" => $user_ips] );
+		}else{
+			return view('users.ips', compact('user_ips'));
+		} 	
+		
 	}
+
+	public function addSystemIp(Request $request){
+		if($request->ip){
+			shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f add -i ".$request->ip." -c ".$request->get("comment",""));
+			return response()->json( ["code" => 200 , "data" => "Success"] );
+		}
+		return response()->json( ["code" => 500 , "data" => "Error occured!"] );
+	}
+
+	public function deleteSystemIp(Request $request){
+		if($request->index){
+			shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f delete -n ".$request->index);
+			return response()->json( ["code" => 200 , "data" => "Success"] );
+		}
+		return response()->json( ["code" => 500 , "data" => "Error occured!"] );
+	}
+
 	public function statusChange(Request $request)
 	{
 		if($request->status){

@@ -109,7 +109,7 @@
             padding: 4px 8px;
         }
         .btn.btn-image.btn-call-data {
-            margin-top: -9px;
+            margin-top: -15px;
         }
         .dis-none {
         display: none;
@@ -215,8 +215,21 @@
                             </select>
                         </div>
                     </div>
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-group">
+                            <select name="filter_status" id="filter_status" class="form-control input-sm">
+                                <option value="">Status Filter</option>
+                                @foreach($task_statuses as $task_statuse)
+                                    <option @if(request('filter_status') == $task_statuse->id) selected @endif value="{{$task_statuse->id}}">{{$task_statuse->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <input type="checkbox" name="flag_filter"> Flagged
+                    </div>
                     <button type="button" class="btn btn-image btn-call-data"><img src="{{asset('images/filter.png')}}"/></button>
-                        <button type="button" style="height: 30px;" class="btn btn-secondary cls_comm_btn priority_model_btn">Priority</button>
+                    <button type="button" style="height: 30px;" class="btn btn-secondary cls_comm_btn priority_model_btn">Priority</button>
                 </div>    
                 
             </form>
@@ -485,16 +498,22 @@
 
     <div id="exTab2" style="overflow: auto">
         <ul class="nav nav-tabs">
+
             <li class="active"><a href="#1" data-toggle="tab" class="btn-call-data" data-type="pending">Pending Task</a></li>
             <li><a href="#2" data-toggle="tab" class="btn-call-data" data-type="statutory_not_completed">Statutory Activity</a></li>
             <li><a href="#3" data-toggle="tab" class="btn-call-data" data-type="completed">Completed Task</a></li>
             <li><a href="#unassigned-tab" data-toggle="tab">Unassigned Messages</a></li>
+
+            <li> <button type="button"  onclick="window.location.href = '{{ action("DevelopmentController@exportTask",request()->all()) }}'" class="btn btn-xs btn-secondary my-3" role="link"> Download Tasks </button></li> &nbsp;
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_tasks_button" data-selected="0">View Tasks</button></li>&nbsp;
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_categories_button">Categories</button></li>&nbsp;
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_complete_button">Complete Tasks</button></li>&nbsp;
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_delete_button">Delete Tasks</button></li>&nbsp;
 
-            @if(auth()->user()->isAdmin())
+
+{{--            href="{{ action('DevelopmentController@exportTask',request()->all()) }}"--}}
+
+        @if(auth()->user()->isAdmin())
 
             <li><button type="button" class="btn btn-xs btn-secondary my-3" data-toggle='modal' data-target='#taskStatusModal' id="">Create Status</button></li>&nbsp;
 

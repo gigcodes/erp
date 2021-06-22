@@ -100,3 +100,42 @@ function initialize_select2(initial_skip = false) {
     }
 
 initialize_select2();
+
+$(document).find( ".addToAutoComplete" ).autocomplete({
+    source: function (request, response) {
+
+        jQuery.post("/list/autoCompleteMessages", {
+            "_token": $('meta[name="csrf-token"]').attr('content'),
+            "keyword": request.term,
+        }, function (data) {
+            // assuming data is a JavaScript array such as
+            // ["one@abc.de", "onf@abc.de","ong@abc.de"]
+            // and not a string
+
+            response(data.data);
+        });
+    },
+  });
+
+
+$(document).on('change', '.quickCategory.select-child', function(e){
+    
+    if ($(this).val() != "") {
+
+        var replies = JSON.parse($(this).val());
+        
+        $(this).parents(".row").find('.quickComment').html($('<option>', {
+            value: '',
+            text: 'Quick Reply'
+        }));
+        replies.forEach((reply) => {
+            $(this).parents(".row").find('.quickComment').append($('<option>', {
+                value: reply.reply,
+                text: reply.reply,
+                'data-id': reply.id
+            }));
+        });
+    }
+});
+
+ 

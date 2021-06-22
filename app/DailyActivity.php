@@ -34,6 +34,7 @@ class DailyActivity extends Model {
 		'repeat_end',
 		'repeat_end_date',
 		'parent_row',
+		'timezone',
 		'status'
 	];
 

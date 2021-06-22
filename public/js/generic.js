@@ -180,7 +180,7 @@ var getHtml = function(response) {
         if (message.error_status == 1) {
             button += '<i title="'+message.error_info+'" class="fa fa-exclamation-triangle" aria-hidden="true"></i>';
         }
-        if (message.type == "task" || message.type == "customer" || message.type == "vendor") {
+        if (message.type == "task" || message.type == "customer" || message.type == "vendor" || message.type == "user") {
 
             if (message.status == 0 || message.status == 5 || message.status == 6) {
                 if (message.status == 0) {
@@ -209,6 +209,7 @@ var getHtml = function(response) {
                          }
                      }
                      button += '&nbsp;<button title="Forward" class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
+                     button += '&nbsp;<button title="Search Product Image" data-id="'+message.id+'" class="btn btn-xs btn-secondary search-image"><i class="fa fa-search" aria-hidden="true"></i></button>';
                 }
 
 

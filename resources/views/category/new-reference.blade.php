@@ -13,7 +13,7 @@
 </style>
 <div class="row">
     <div class="col-md-12">
-        <h2 class="page-heading">New Category Reference ({{ $unKnownCategories->total() }})</h2>
+        <h2 class="page-heading">New Category Reference ({{ $scrapped_category_mapping->total() }})</h2>
     </div>
     @if ($message = Session::get('success'))
          <div class="col-md-12">
@@ -55,8 +55,8 @@
             </a>
         </div>
         <div class="form-group col-md-4">
-            <a href="{{ route('category.fix-autosuggested-via-str',request()->all()) }}" class="fix-autosuggested">
-                <button type="button" class="btn btn-secondary">Fix Auto Suggested(2)</button>
+            <a href="{{ route('category.fix-autosuggested-via-str',request()->all()) }}" class="fix-autosuggested-auto">
+                <button type="button" class="btn btn-secondary">Auto fix</button>
             </a>
         </div>
     </div>
@@ -72,11 +72,20 @@
             </tr>
             <?php $count = 1; ?>
             {{-- @dd($unKnownCategories->items()); --}}
-            @foreach($unKnownCategories as $unKnownCategory)
-                @if($unKnownCategory != '')
+            @foreach($scrapped_category_mapping as $key => $unKnownCategory)
+
+                @php
+                    // $websites_ = $unKnownCategory->scmSPCM->toArray();
+
+                    
+
+                    // $websites_ = array_unique($websites_);
+                @endphp
+                
+                @if($unKnownCategory->name != '')
                     <?php 
                         //getting name 
-                        $nameArray  = explode('/',$unKnownCategory);
+                        $nameArray  = explode('/',$unKnownCategory->name);
                         $name = end($nameArray);
 
                     ?>
@@ -86,19 +95,21 @@
                         </td>
                         
                         <td>
-                            <span class="call-used-product" data-id="{{ $unKnownCategory }}"  data-type="name">{{ $unKnownCategory }}</span> <!-- <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $unKnownCategory }}" ><img src="/images/add.png"></button> -->
+                            <span class="call-used-product" data-id="{{ $unKnownCategory->name }}"  data-type="name">{{ $unKnownCategory->name }}</span> <!-- <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $unKnownCategory }}" ><img src="/images/add.png"></button> -->
                         </td>
                         
+                        <td class="website-popup" data-website="{{ $unKnownCategory->all_websites }}">
+                            {{ explode('<br>', $unKnownCategory->all_websites)[0] }} <br>
+                            {{ explode('<br>', $unKnownCategory->all_websites)[1] ?? '' }} <br>
+                            {{ explode('<br>', $unKnownCategory->all_websites)[2] ?? ''}}
+                        </td>
+                           
                         <td>
-                            {{ \App\Category::website_name($unKnownCategory) }}
+                            {{$unKnownCategory->total_products}}
                         </td>
 
                         <td>
-                            {{ \App\Category::ScrapedProducts($unKnownCategory) }}
-                        </td>
-
-                        <td>
-                            <select class="select2 form-control change-list-category" data-name="{{ $name }}" data-whole="{{ $unKnownCategory }}">
+                            <select class="select2 form-control change-list-category" data-old-id={{ $unKnownCategory->id  }} data-name="{{ $name }}" data-whole="{{ $unKnownCategory->name }}">
                                 @foreach($categoryAll as $cat)
                                     <option value="{{ $cat['id'] }}">{{ $cat['value'] }}</option>
                                 @endforeach
@@ -109,7 +120,7 @@
                 @endif
             @endforeach
         </table>
-        {{ $unKnownCategories->appends(request()->except('page')) }}
+        {!! $scrapped_category_mapping->render() !!}
     </div>
 </div>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
@@ -119,6 +130,33 @@
     <div class="modal-dialog modal-lg" role="document">
     </div>  
 </div>
+    <div class="container">
+        <h2>Modal Example</h2>
+        <!-- Trigger the modal with a button -->
+        <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#website-popup-model">Open Modal</button>
+    
+        <!-- Modal -->
+        <div class="modal fade" id="website-popup-model" role="dialog">
+            <div class="modal-dialog">
+            
+                <!-- Modal content-->
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Website</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
 @section('scripts')
     <script type="text/javascript">
             $(".select2").select2({"tags" : true});
@@ -154,7 +192,7 @@
 
             $(document).on("change",".change-list-category",function() {
                 var $this = $(this);
-                var oldCatid = {{ $unKnownCategoryId }};
+               // var oldCatid = {{ $unKnownCategoryId }};
 
                 $.ajax({
                     type: 'POST',
@@ -166,7 +204,7 @@
                         _token: "{{ csrf_token() }}",
                         'cat_name' : $this.data("name"),
                         'new_cat_id' : $this.val(),
-                        'old_cat_id' : oldCatid,
+                        'old_cat_id' : $this.data("old-id"),
                         'wholeString': $this.data("whole"),
                     },
                     dataType: "json"
@@ -188,7 +226,7 @@
 
             $(document).on("click",".btn-change-composition",function() {
                 var $this = $(this);
-                 var oldCatid = {{ $unKnownCategoryId }};
+                // var oldCatid = {{ $unKnownCategoryId }};
                 $.ajax({
                     type: 'POST',
                     url: '/category/references/update-category',
@@ -197,7 +235,7 @@
                     },
                     data: {
                         _token: "{{ csrf_token() }}",
-                        'old_cat_id' : oldCatid,
+                        'old_cat_id' :  $this.data("from-id"),
                         'new_cat_id' : $this.data("to"),
                         'cat_name' : $this.data("from"),
                         'with_product':$this.data('with-product'),
@@ -298,6 +336,35 @@
                 });
             });
 
+            $(document).on("click",".fix-autosuggested-auto",function(e) {
+                var $this = $(this);
+                e.preventDefault();
+                $.ajax({
+                    type: 'GET',    
+                    url: $this.attr("href"),
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    console.log(response)
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        if(response.count){
+                        toastr['success'](response.count + ' Data updated successfully', 'success');
+                        }else{
+                        toastr['success']( 'All data already updated', 'success');
+                        }
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    toastr['error']('Sorry, something went wrong', 'error');
+                });
+            });
+
             $(document).on('click','.update-category-selected',function() {
                 var changeto = $(".change-list-categories").val();
                 var changesFrom = $(".categories-checkbox:checked");
@@ -368,6 +435,13 @@
                     $(".show-listing-exe-records").modal('hide');
                 });
             });
+
+            $(document).on('click','.website-popup',function(){
+                $('#website-popup-model').find('p').text('');
+                var website = $(this).data('website');
+                $('#website-popup-model').modal('show');
+                $('#website-popup-model').find('p').append(website);
+            })
 
     </script>
 @endsection

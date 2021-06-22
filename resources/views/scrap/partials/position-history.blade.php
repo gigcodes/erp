@@ -1,4 +1,7 @@
 <table class="table table-bordered table-striped sort-priority-scrapper">
+    
+    <!-- STRAT - Purpose : ADD Download  Position History Button - DEVTASK-4086 -->
+    <button type="submit" data-id="{{$histories[0]['scraper_id']}}" class="btn btn-default downloadPositionHistory">Download</button><br/><br/>
     <thead>
         <tr>
             <th width="20%">Scraper name</th>

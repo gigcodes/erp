@@ -3,26 +3,28 @@
 <div class="table-responsive">
     <table class="table table-bordered" id="users-table">
         <thead>
-        <tr>
-            <th>Image</th>
-            <th>Brand</th>
-            <th>Transist Status</th>
-            <th>Location</th>
-            <th>Sku</th>
-            <th>Id</th>
-            <th>Size</th>
-            <th>Price</th>
-            <th>Status</th>
-            <th width="280px">Action</th>
-        </tr>
+            <tr>
+                <th>Image</th>
+                <th>Brand</th>
+                <th>Transist Status</th>
+                <th>Location</th>
+                <th>Sku</th>
+                <th>Id</th>
+                <th>Size</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Updated</th>
+                <th width="200px">Action</th>
+            </tr>
         </thead>
         <tbody>
         @foreach ($products as $product)
             <tr>
                 <td>
                     <a href="{{ route('products.show', $product->id) }}">
-                        <img style="width: 80px;height: 80px;"  src="{{ $product->getMedia(config('constants.media_tags'))->first()
-                            ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
+                        <img style="width: 80px;height: 80px;"  src="{{ $product->getMedia(config('constants.attach_image_tag'))->first()
+                            ? $product->getMedia(config('constants.attach_image_tag'))->first()->getUrl()
                             : ''
                           }}" class="img-responsive grid-image" alt=""/>
                     </a>
@@ -43,6 +45,8 @@
                 <td><span class="text-editable" data-field-name="price_inr_special"
                           data-product-id="{{ $product->id }}">{{ ($product->price_inr_special > 0) ? $product->price_inr_special : "N/A" }}</span></td>
                 <td><?php echo Form::select("stock_status", [null => "- Select --"] + \App\Product::STOCK_STATUS, $product->stock_status, ["class" => "form-control update-product-stock-status", "data-product-id" => $product->id]); ?></td>
+                <td>{{ $product->created_at }}</td>
+                <td>{{ $product->updated_at }}</td>
                 <td>
                     <button type="button" data-product-id="{{ $product->id }}" class="btn btn-image crt-instruction"
                             title="Create Dispatch / Location Change"><img src="/images/support.png"></button>
@@ -51,7 +55,7 @@
                     <button type="button" data-product-id="{{ $product->id }}" class="btn btn-image crt-product-dispatch"
                             title="Create Dispatch"><img src="/images/resend.png"></button>
                     <?php
-                    $getMedia = $product->getMedia(config('constants.media_tags'));
+                    $getMedia = $product->getMedia(config('constants.attach_image_tag'));
                     $image = [];
                     foreach ($getMedia as $value) {
                         $image[] = $value->id;

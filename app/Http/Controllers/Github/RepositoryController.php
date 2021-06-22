@@ -187,7 +187,13 @@ class RepositoryController extends Controller
             try {
 
                 \Log::info('updateDevTask :: PR merge msg send .'.json_encode($devTask->user));
-                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($devTask->user->phone, $devTask->user->phone, $branchName.':: PR has been merged', false);
+
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $requestData->request->add(['issue_id' => $devTaskId, 'message' => $branchName.':: PR has been merged', 'status' => 1]);
+                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+
+                //app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($devTask->user->phone, $devTask->user->whatsapp_number, $branchName.':: PR has been merged', false);
             } catch (Exception $e) {
                 \Log::info('updateDevTask ::'. $e->getMessage());
                 \Log::error('updateDevTask ::'. $e->getMessage());

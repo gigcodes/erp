@@ -13,9 +13,10 @@ class RenameMagentoOrderIdInStoreWebsiteOrdersTable extends Migration
      */
     public function up()
     {
-        Schema::table('store_website_orders', function (Blueprint $table) {
+        /*Schema::table('store_website_orders', function (Blueprint $table) {
             $table->renameColumn('magento_order_id', 'platform_order_id');
-        });
+        });*/
+        \DB::statement("ALTER TABLE `store_website_orders` CHANGE `magento_order_id` `platform_order_id` VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;");
     }
 
     /**
@@ -25,8 +26,8 @@ class RenameMagentoOrderIdInStoreWebsiteOrdersTable extends Migration
      */
     public function down()
     {
-        Schema::table('store_website_orders', function (Blueprint $table) {
+        /*Schema::table('store_website_orders', function (Blueprint $table) {
             $table->renameColumn('platform_order_id', 'magento_order_id');
-        });
+        });*/
     }
 }

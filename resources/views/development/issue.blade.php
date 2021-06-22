@@ -34,7 +34,20 @@
     .mr-t-5 {
         margin-top:5px !important;
     }
- 
+    /* START - Pupose : Set Loader image - DEVTASK-4359*/
+    #myDiv{
+        position: fixed;
+        z-index: 99;
+        text-align: center;
+    }
+    #myDiv img{
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        right: 50%;
+        bottom: 50%;
+    }
+    /* END - DEVTASK-4359*/
 </style>
 
 
@@ -70,14 +83,14 @@
         ];
     @endphp
     <div id="myDiv">
-        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;">
     </div>
     <div class="row mb-4">
         <div class="col-md-12">
             @include("development.partials.task-issue-search")
             <div class="pull-right mt-4">
 
-                <a class="btn btn-secondary" href="{{ route('task.export') }}" role="link"> Download Tasks </a>
+                <a class="btn btn-secondary" href="{{ action('DevelopmentController@exportTask',request()->all()) }}" role="link"> Download Tasks </a>
 
             <a class="btn btn-secondary" 
                         data-toggle="collapse" href="#plannedFilterCount" role="button" aria-expanded="false" aria-controls="plannedFilterCount">
@@ -413,6 +426,8 @@
         $(document).on('click', '.send-message-open', function (event) {
             var textBox = $(this).closest(".expand-row").find(".send-message-textbox");
             var sendToStr  = $(this).closest(".expand-row").find(".send-message-number").val();
+            var add_autocomplete  = $(this).closest(".expand-row").find("[name=add_to_autocomplete]").is(':checked') ;
+            
             let issueId = textBox.attr('data-id');
             let message = textBox.val();
             if (message == '') {
@@ -429,10 +444,12 @@
                     "message": message,
                     "sendTo" : sendToStr,
                     "_token": "{{csrf_token()}}",
-                   "status": 2
+                   "status": 2,
+                   "add_autocomplete": add_autocomplete
                 },
                 dataType: "json",
                 success: function (response) {
+                    $("#loading-image").hide();//Purpose : Hide loader - DEVTASK-4359
                     toastr["success"]("Message sent successfully!", "Message");
                     if(response.message) {
                         var created_at = response.message.created_at;
@@ -447,9 +464,11 @@
                     $(self).val('');
                 },
                 beforeSend: function () {
+                    $("#loading-image").show();//Purpose : Show loader - DEVTASK-4359
                     $(self).attr('disabled', true);
                 },
                 error: function () {
+                    $("#loading-image").hide();//Purpose : Hide loader - DEVTASK-4359
                     alert('There was an error sending the message...');
                     $(self).removeAttr('disabled', true);
                 }
@@ -677,11 +696,20 @@
 
         $(document).on('click', '.show-time-history', function() {
             var data = $(this).data('history');
+            var userId = $(this).data('userid'); 
             var issueId = $(this).data('id');
             $('#time_history_div table tbody').html('');
+
+            const hasText = $(this).siblings('input').val()
+
+            if(!hasText){
+                $('#time_history_modal .revise_btn').prop('disabled', true);
+                $('#time_history_modal .remind_btn').prop('disabled', false);
+            }
+
             $.ajax({
                 url: "{{ route('development/time/history') }}",
-                data: {id: issueId},
+                data: {id: issueId, user_id: userId},
                 success: function (data) {
                     if(data != 'error') {
                         $('input[name="developer_task_id"]').val(issueId);
@@ -696,15 +724,55 @@
                                 '<tr>\
                                     <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
                                     <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
+                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td>\
+                                    <td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
                                 </tr>'
-                            );
+                            );  
                         });
+                        $('#time_history_div table tbody').append(
+                            '<input type="hidden" name="user_id" value="'+userId+'" class=" "/>'
+                        );
+                        $('#time_history_div table tbody').append(
+                            '<input type="hidden" name="issueId" value="'+issueId+'" class=" "/>'
+                        );
                     }
+                    $('#time_history_modal').modal('show');
+                }
+            }); 
+        });
+
+        $(document).on('click', '.remind_btn', function() {
+            var issueId = $('#approve-time-btn input[name="developer_task_id"]').val(); 
+            var userId = $('#approve-time-btn input[name="user_id"]').val();  
+
+            $('#time_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/time/history/approve/sendRemindMessage') }}",
+                type: 'POST',
+                data: {id: issueId, user_id: userId, _token: '{{csrf_token()}}' },
+                success: function (data) {
+                    toastr['success'](data.message, 'success');
                 }
             });
-            $('#time_history_modal').modal('show');
+            $('#time_history_modal').modal('hide');
         });
+
+        $(document).on('click', '.revise_btn', function() {
+            var issueId = $('#approve-time-btn input[name="developer_task_id"]').val(); 
+            var userId = $('#approve-time-btn input[name="user_id"]').val();  
+
+            $('#time_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/time/history/approve/sendMessage') }}",
+                type: 'POST',
+                data: {id: issueId, user_id: userId, _token: '{{csrf_token()}}' },
+                success: function (data) {
+                    toastr['success'](data.message, 'success');
+                }
+            });
+            $('#time_history_modal').modal('hide');
+        });
+
         $(document).on('click', '.show-lead-time-history', function() {
             var data = $(this).data('history');
             var issueId = $(this).data('id');

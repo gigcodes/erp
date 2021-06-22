@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Http\Input;
+use Illuminate\Support\Facades\Input;
 use App\ReviewBrandList;
+use Illuminate\Support\Facades\DB;
 
 class BrandReviewController extends Controller
 {
@@ -20,18 +21,50 @@ class BrandReviewController extends Controller
     }
 
     public function store(Request $request){
-        ReviewBrandList::insert([
-            'name' => $request->name
-        ]);
+        if($request->name){
+            ReviewBrandList::insert([
+                'name' => $request->name,
+                'url' => $request->url
+            ]);
+            return response()->json(['status' => '200']);
+        }
+        return response()->json(['status' => '500']);
+        
     }
     public function getAllBrandReview(){
-        $data = ReviewBrandList::all();
+        $data = ReviewBrandList::select('name','url')->get();
         return $data;
     }
     public function storeReview(Request $request){
-        foreach ($request as $key => $value) {
-            return $value;
+        $data = Input::all();
+        if($data){
+            foreach ($data as $key => $value) {
+               
+               $exists =  DB::table('brand_reviews')
+                ->where('brand',$value['brand'])
+                ->where('review_url',$value['review_url'])
+                ->first(); 
+
+               if(!$exists){
+                    DB::table('brand_reviews')->insert([
+                        'website' => $value['website'],
+                        'brand' => $value['brand'],
+                        'review_url' => $value['review_url'],
+                        'username' => $value['username'],
+                        'title' => $value['title'],
+                        'body' => $value['body'],
+                        'stars' => $value['stars']
+                    ]);
+                }    
+            }
+            return response()->json([
+                "code" => 200,
+                "message" => 'Data have been updated successfully',
+            ]);
         }
-        
+        return response()->json([
+            "code" => 500,
+            "message" => 'Error Occured, please try again later.',
+        ]);
     }
 }

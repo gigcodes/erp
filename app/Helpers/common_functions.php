@@ -6,6 +6,21 @@ function printStatusView()
 {
 }
 
+function changeTimeZone($dateString, $timeZoneSource = null, $timeZoneTarget = null)
+{
+  if (empty($timeZoneSource)) {
+    $timeZoneSource = date_default_timezone_get();
+  }
+  if (empty($timeZoneTarget)) {
+    $timeZoneTarget = date_default_timezone_get();
+  }
+
+  $dt = new DateTime($dateString, new DateTimeZone($timeZoneSource));
+  $dt->setTimezone(new DateTimeZone($timeZoneTarget));
+
+  return $dt->format("Y-m-d H:i:s");
+}
+
 /**
  * Create image and text
  *
@@ -281,6 +296,17 @@ function storeERPLog($erpData)
         $erpData['response'] = json_encode($erpData['response']);
         ErpLog::create($erpData);
     }
+
+}
+function getStr($srt)
+{
+
+
+    preg_match("/\[(.*)\]/", $srt , $matches);
+    if($matches && $matches[0] !== ''){
+        return true;
+    };
+    return false;
 
 }
 

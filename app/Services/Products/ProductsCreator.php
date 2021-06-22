@@ -20,6 +20,7 @@ use App\SupplierCategoryCount;
 use App\Setting;
 use App\Compositions;
 use App\DescriptionChange;
+use App\ScrappedCategoryMapping;
 
 class ProductsCreator
 {
@@ -183,6 +184,7 @@ class ProductsCreator
                 $supplierSizeSystem = \App\ProductSupplier::getSizeSystem($product->id, $supplierModel->id);
                 $euSize = ProductHelper::getEuSize($product, $allSize, !empty($supplierSizeSystem) ? $supplierSizeSystem : $image->size_system);
                 $product->size_eu = implode(',', $euSize);
+                \App\ProductSizes::where('product_id',$product->id)->where('supplier_id',$supplierModel->id)->delete();
                 if(empty($euSize)) {
                     $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
                 }else{
@@ -207,6 +209,7 @@ class ProductsCreator
             $product->price_inr_special = $formattedPrices[ 'price_inr_special' ];
             $product->price_inr_discounted = $formattedPrices[ 'price_inr_discounted' ];
             $product->is_scraped = $isExcel == 1 ? $product->is_scraped : 1;
+            $product->discounted_percentage = $image->discounted_percentage;
             // check if the product category is not set
             if($product->category <= 1) {
                 $product->status_id = \App\Helpers\StatusHelper::$unknownCategory;
@@ -392,6 +395,7 @@ class ProductsCreator
                 $supplierSizeSystem = \App\ProductSupplier::getSizeSystem($product->id, $supplierModel->id);
                 $euSize = ProductHelper::getEuSize($product, $allSize, !empty($supplierSizeSystem) ? $supplierSizeSystem : $image->size_system);
                 $product->size_eu = implode(',', $euSize);
+                \App\ProductSizes::where('product_id',$product->id)->where('supplier_id',$supplierModel->id)->delete();
                 if(empty($euSize)) {
                     $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
                 }else{
@@ -416,6 +420,7 @@ class ProductsCreator
         $product->price_inr = $formattedPrices[ 'price_inr' ];
         $product->price_inr_special = $formattedPrices[ 'price_inr_special' ];
         $product->price_inr_discounted = $formattedPrices[ 'price_inr_discounted' ];
+        $product->discounted_percentage = $image->discounted_percentage;
 
         try {
             $product->save();
@@ -678,20 +683,27 @@ class ProductsCreator
                 
                 if(!$category){
                     $categoryReference = implode('/',$properties_array[ 'category' ]);
-                    $unknownCategory = Category::where('title','LIKE','%Unknown Category%')->first();
-                    //checking if it already exist in reference table
-                    $results = explode(',', $unknownCategory->references);
-                    $exist = 0;
-                    foreach ($results as $result) {
-                        if(strtolower($result) == strtolower($categoryReference)){
-                            $exist = 1;
-                            break;
-                        }
-                    }
-                    if($exist == 0){
-                        $unknownCategory->references = $unknownCategory->references . ',' . $categoryReference;
-                        $unknownCategory->save();    
-                    }
+
+                    ScrappedCategoryMapping::updateOrCreate([
+                        'name' =>$categoryReference
+                    ],[
+                        'name' => $categoryReference
+                        ]);
+
+                    // $unknownCategory = Category::where('title','LIKE','%Unknown Category%')->first();
+                    // //checking if it already exist in reference table
+                    // $results = explode(',', $unknownCategory->references);
+                    // $exist = 0;
+                    // foreach ($results as $result) {
+                    //     if(strtolower($result) == strtolower($categoryReference)){
+                    //         $exist = 1;
+                    //         break;
+                    //     }
+                    // }
+                    // if($exist == 0){
+                    //     $unknownCategory->references = $unknownCategory->references . ',' . $categoryReference;
+                    //     $unknownCategory->save();    
+                    // }
                     
                 }
             

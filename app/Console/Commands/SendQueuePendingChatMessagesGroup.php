@@ -20,7 +20,7 @@ class SendQueuePendingChatMessagesGroup extends Command
      *
      * @var string
      */
-    protected $signature = 'send:queue-pending-chat-group-messages';
+    protected $signature = 'send:queue-pending-chat-group-messages {number}';
 
     /**
      * The console command description.
@@ -72,7 +72,7 @@ class SendQueuePendingChatMessagesGroup extends Command
             'start_time' => Carbon::now(),
         ]);
 
-        $numberList = array_unique(self::getNumberList());
+        $numberList = [$this->argument('number')];
 
         // get the status for approval
         $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();

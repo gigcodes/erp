@@ -169,18 +169,25 @@ class DeveloperTask extends Model
     }
 
     public function scopeNotEstimated($query){
-        return $query->whereNull('estimate_time');
+        return $query->whereNull('estimate_minutes')
+                      ->where('estimate_date','0000-00-00');
     }
 
     public function scopeEstimated($query){
-        return $query->whereNotNull('estimate_time');
+        return $query->whereNotNull('estimate_minutes');
     }
 
     public function scopeAdminNotApproved( $query ){
         return $query->join('developer_tasks_history' , 'developer_tasks_history.developer_task_id' , 'developer_tasks.id' )
-                    //   ->estimated()
-                    //   ->where('attribute','estimation_minute')
-                      ->where('model','App\DeveloperTask')
+                      ->estimated()
+                      ->where('attribute','estimation_minute')
+                      ->where('model',\App\DeveloperTask::class)
                       ->where('is_approved','0');
     }
+
+    public function developerTaskHistory()
+    {
+       return  $this->hasOne(DeveloperTaskHistory::class,'developer_task_id','id');
+    }
+
 }

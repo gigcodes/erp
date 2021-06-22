@@ -95,6 +95,10 @@ class Supplier extends Model
     {
         return $this->belongsToMany('App\Product', 'product_suppliers', 'supplier_id', 'product_id');
     }
+    public function lastProduct()
+    {
+        return $this->hasOne('App\Product', 'supplier_id', 'id')->latest();
+    }
 
     public function purchases()
     {
@@ -201,5 +205,17 @@ class Supplier extends Model
 
         return $list;
     }
+    public function inventory()
+    {
+
+        return $this->hasMany('App\Product', 'supplier_id', 'id');
+    }
+
+    // START - Purpose : Product Inquiry Data -DEVTASK-4048
+    public function inquiryproductdata()
+	{
+		return $this->hasMany('App\SupplierOrderInquiryData', 'supplier_id', 'id');
+	}
+    // END -DEVTASK-4048
 
 }

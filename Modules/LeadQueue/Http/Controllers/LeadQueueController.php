@@ -6,6 +6,7 @@ use App\Services\Whatsapp\ChatApi\ChatApi;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use DB;
 
 class LeadQueueController extends Controller
 {
@@ -65,6 +66,25 @@ class LeadQueueController extends Controller
             $customerId =  $explode[1];
         }
     }
+
+    $Data = ChatMessage::select('c.name','c.id as cust_id','c.phone','chat_messages.*','chat_messages.id as chatid')->join("customers as c", "c.id", "chat_messages.customer_id")->where("is_queue", "=", 0)
+                            ->where("lead_id" , '!=' ,NULL)
+                            ->where("lead_id" , '!=' ,'')
+                            ->when($lead_id != '', function ($q) use($lead_id) {
+                                    return $q->where('lead_id', $lead_id);
+                                })
+                            ->when($customer_name != '', function ($q) use($customer_name) {
+                                    return $q->where("c.name",'LIKE', '%' . $customer_name . '%');
+                                })
+                            ->when($customerId != '', function ($q) use($customerId) {
+                                    return $q->where("c.id", $customerId );
+                                })
+                            ->when($message != '', function ($q) use($message) {
+                                    return $q->where("message",'LIKE', '%' . $message . '%');
+                                })
+                            ->groupBy("lead_id")
+                            ->orderBy("lead_id","desc")
+                            ->get();
     
     //dd(\DB::getQueryLog());
     $messageData = ChatMessage::select('c.name','c.id as cust_id','c.phone','chat_messages.*','chat_messages.id as chatid')->join("customers as c", "c.id", "chat_messages.customer_id")->where("is_queue", "=", 0)
@@ -82,21 +102,78 @@ class LeadQueueController extends Controller
       ->when($message != '', function ($q) use($message) {
         return $q->where("message",'LIKE', '%' . $message . '%');
       })
-    ->groupBy("lead_id")
+    // ->groupBy("lead_id")
+    ->groupBy("cust_id")
     ->orderBy("lead_id","desc")
     ->get();
-    //dd(\DB::getQueryLog());
-    return view('leadqueue::approve', compact('leadList','messageData','lead_id'));
+
+    $messageData_arr = $messageData->toArray();
+    $cust_id_arr = array_column($messageData_arr, 'cust_id');
+
+    // $lead_group = ChatMessage::whereIn('customer_id',$cust_id_arr)->where("lead_id" , '!=' ,NULL)->where("lead_id" , '!=' ,'')->get()->unique('lead_id')->toArray();
+    $lead_group = $Data->unique('lead_id')->toArray();
+    $lead_group_array = array();
+    foreach($lead_group as $key => $val)
+    {
+        if (array_key_exists($val['customer_id'],$lead_group_array))
+        {
+            $lead_group_array[$val['customer_id']] = $lead_group_array[$val['customer_id']] . ',' .$val['lead_id'];
+        }
+        else
+        {
+            $lead_group_array[$val['customer_id']] = $val['lead_id'];
+        }
+        
+    }
+
+    $message = $Data->unique('message')->toArray();
+    $message_array = array();
+
+    foreach($message as $key => $val)
+    {
+        if (array_key_exists($val['customer_id'],$message_array))
+        {
+            $message_array[$val['customer_id']] = $message_array[$val['customer_id']] . ',' .$val['message'];
+        }
+        else
+        {
+            $message_array[$val['customer_id']] = $val['message'];
+        }
+        
+    }
+
+    $chat = $Data->toArray();
+    $chat_array = array();
+
+    foreach($chat as $key => $val)
+    {
+        if (array_key_exists($val['customer_id'],$chat_array))
+        {
+            $chat_array[$val['customer_id']] = $chat_array[$val['customer_id']] . ',' .$val['id'];
+        }
+        else
+        {
+            $chat_array[$val['customer_id']] = $val['id'];
+        }
+        
+    }
+
+    return view('leadqueue::approve', compact('leadList','messageData','lead_id','lead_group_array','message_array','chat_array'));
 
     }
 
     public function approved(Request $request)
     {
-      if(is_array($request->lead_id)){
-        $leadIdApprove = ChatMessage::whereIn('lead_id',$request->lead_id)->update(["is_queue"=>1]);  
-      }else{
-        $leadIdApprove = ChatMessage::where('lead_id',$request->lead_id)->update(["is_queue"=>1]);
-      }
+        $lead_id_array = explode(",",$request->lead_id);
+
+        foreach($lead_id_array as $lead_id){
+            if(is_array($lead_id)){
+              $leadIdApprove = ChatMessage::whereIn('lead_id',$lead_id)->update(["is_queue"=>1]);  
+            }else{
+              $leadIdApprove = ChatMessage::where('lead_id',$lead_id)->update(["is_queue"=>1]);
+            }
+        }
+
       return response()->json(["code" => 200, "message" => "Approved Successfully"]);
     }
 
@@ -127,25 +204,39 @@ class LeadQueueController extends Controller
         if (!empty($customerName)) {
             $chatMessage = $chatMessage->where("c.name", "like", "%" . $customerName . "%");
         }
-
-        $chatMessage = $chatMessage->select(["chat_messages.*", "c.phone", "c.whatsapp_number", "c.name as customer_name"]);
-
-        $chatMessage = $chatMessage->orderby("chat_messages.id", "DESC")->paginate($limit);
-
+        // $mediaUrl = $chatMessage->select(["chat_messages.*",DB::raw("GROUP_CONCAT(chat_messages.media_url SEPARATOR ',') as `media_url`")])->groupBy('c.id');
+        // dd($mediaUrl->get());
+        
+        $chatMessage = $chatMessage->select(["chat_messages.*",DB::raw("GROUP_CONCAT(chat_messages.id SEPARATOR ',') as `chat_id`"),DB::raw("GROUP_CONCAT(chat_messages.message SEPARATOR '----') as `message`"),DB::raw("GROUP_CONCAT(chat_messages.media_url SEPARATOR ',') as `media_url`"), "c.phone", "c.whatsapp_number", "c.name as customer_name"])->groupBy("c.id");
+        // dd($chatMessage->get());
+        $chatMessage = $chatMessage->orderby("chat_messages.id", "DESC")->paginate(20);
+        
         $itemsList = [];
-
-        foreach ($chatMessage->items() as $key => $items) {
-            //$inserted = $items->attribute();
-            $media = [];
-            if ($images = $items->getMedia(config('constants.attach_image_tag'))) {
-                foreach ($images as $image) {
-                    $media[] = $image->getUrl();
-                }
+        
+        // foreach ($chatMessage->items() as $key => $items) {
+        //     //$inserted = $items->attribute();
+        //     $media = [];
+        //     if ($images = $items->getMedia(config('constants.attach_image_tag'))) {
+        //         foreach ($images as $image) {
+        //             $media[] = $image->getUrl();
+        //         }
+        //     }
+        //     $items->mediaList = $media;
+        //     $itemsList[]      = $items;
+        // }
+        foreach ($chatMessage as $key => $items) {
+            $chat = array_unique(explode('---',$items->message));
+            $chat = implode('<br>',$chat);
+            if($chat !== ""){
+                $items->short_message = substr($chat, 0, 20).'...';
             }
-            $items->mediaList = $media;
+            $items->long_message = $chat;
+            
+            $media = explode(',',$items->media_url);
+            $items->media_url = $media;
+
             $itemsList[]      = $items;
         }
-
         return response()->json([
             "code"       => 200,
             "data"       => $itemsList,
@@ -155,17 +246,17 @@ class LeadQueueController extends Controller
         ]);
     }
 
-    public function deleteRecord(Request $request, $id)
+    public function deleteRecord(Request $request)
     {
-       
-        $message = ChatMessage::find($id);
+        $chat_id_array = explode(",",$request->chat_id);
 
-        if (!empty($message)) {
+        foreach($chat_id_array as $chat_id){
+            $message = ChatMessage::find($chat_id);
             $message->delete();
-            return response()->json(["code" => 200, "message" => "Deleted Successfully"]);
         }
+        return response()->json(["code" => 200, "message" => "Deleted Successfully"]);
 
-        return response()->json(["code" => 500, "message" => "Sorry no message found in records"]);
+        // return response()->json(["code" => 500, "message" => "Sorry no message found in records"]);
 
     }
 
