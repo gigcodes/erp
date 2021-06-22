@@ -2,12 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Brand;
-use App\Category;
 use App\Customer;
-use App\Supplier;
 use App\User;
-use App\Vendor;
 use Illuminate\Http\Request;
 
 class Select2Controller extends Controller
@@ -283,5 +279,28 @@ class Select2Controller extends Controller
         }
     
         return response()->json($result);
+    }  
+
+    public function customersByMultiple(Request $request){
+
+        $term = request()->get("q", null);
+        $customers = \App\Customer::select('id', 'name', 'phone')->where("name", "like", "%{$term}%")->orWhere("phone", "like", "%{$term}%")->orWhere("id", "like", "%{$term}%");
+ 
+        $customers = $customers->paginate(30);
+
+        $result['total_count'] = $customers->total();
+        $result['incomplete_results'] = $customers->nextPageUrl() !== null;
+
+        foreach ($customers as $customer) {
+
+            $result['items'][] = [
+                'id' => $customer->id,
+                'text' => '<strong>Name</strong>: ' . $customer->name . ' <strong>Phone</strong>: ' . $customer->phone
+            ];
+        }
+
+        return response()->json($result);
+
     }
+   
 }
