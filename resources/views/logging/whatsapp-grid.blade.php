@@ -4,8 +4,10 @@
                     $message_str = strtok(substr($row['error_message1'],$message), ',');
                     // dump(str_replace($message_str,"",$row['error_message1']));
                     $message1 = strpos($row['error_message1'],'whatsapp_number');
-                    $receiver_number = substr($row['error_message1'],$message1+18,12);
+                    $sender_number = substr($row['error_message1'],$message1+18,12);
                     $null = substr($row['error_message1'],$message1+17,4);
+                    $number = strpos($row['error_message1'],'"number":');
+                    $receiver_number = substr($row['error_message1'],$number+10,12);
                 @endphp
                     <tr>
                         <td>{{ $sr++ }}</td>
@@ -14,8 +16,13 @@
                         @if ($message1 == '' || $null == "null")
                             <td></td>
                         @else
-                            <td>{{ $receiver_number }}</td>
+                            <td>{{ $sender_number }}</td>
                         @endif
+                        @if ($number == '' )
+                        <td></td>
+                    @else
+                        <td>{{ $receiver_number }}</td>
+                    @endif
                         <td class="errorLog">
                             <div class="log-text-style">
                                 @if ($isAdmin)
@@ -34,10 +41,6 @@
                         @if((isset($row['error_message1']) && getStr($row['error_message1'])) || (isset($row['error_message2']) && getStr($row['error_message2'])))
                             @if ($isAdmin)
                                 <button class="btn btn-success sentMessage text-center" >
-                                    Resend
-                                </button>
-                            @else
-                                <button class="btn btn-success text-center" disabled>
                                     Resend
                                 </button>
                             @endif

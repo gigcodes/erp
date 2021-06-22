@@ -24,12 +24,12 @@
             word-wrap: break-word;
             max-width: 600px;
         }
-        .load-more svg {
+        .infinite-scroll-products-loader svg {
             -webkit-animation: spin 3s linear infinite;
             animation: spin 3s linear infinite;
             /*transform: rotate(180deg);*/
         }
-        .load-more {
+        .infinite-scroll-products-loader {
             position: relative;
             width: 100%;
             text-align: center;
@@ -109,7 +109,8 @@
                 <th style="width: 1% !important;">Sr.No</th>
                 <th style="width: 1% !important;">Date</th>
                 <th style="width: 1% !important;">Sent ?</th>
-                <th style="width: 3% !important;">REceiver Number</th>
+                <th style="width: 3% !important;">Sender Number</th>
+                <th style="width: 3% !important;">Receiver Number</th>
                 <th style="width: 40% !important;">Text</th>
                 <th style="width: 3% !important;">Action</th>
             </tr>
@@ -125,7 +126,10 @@
                 $message_str = strtok(substr($row['error_message1'],$message), ',');
                 // dump(str_replace($message_str,"",$row['error_message1']));
                 $message1 = strpos($row['error_message1'],'whatsapp_number');
-                $receiver_number = substr($row['error_message1'],$message1+18,12);
+                $number = strpos($row['error_message1'],'"number":');
+                $receiver_number = substr($row['error_message1'],$number+10,12);
+                // dump($receiver_number);
+                $sender_number = substr($row['error_message1'],$message1+18,12);
                 $null = substr($row['error_message1'],$message1+17,4);
             @endphp
                 <tr>
@@ -133,6 +137,11 @@
                     <td>{{ $row['date'] }}</td>
                     <td>No</td>
                     @if ($message1 == '' || $null == "null")
+                        <td></td>
+                    @else
+                        <td>{{ $sender_number }}</td>
+                    @endif
+                    @if ($number == '' )
                         <td></td>
                     @else
                         <td>{{ $receiver_number }}</td>
@@ -152,13 +161,10 @@
                         </div>
                     </td>
                     <td>
+
                         @if((isset($row['error_message1']) && getStr($row['error_message1'])) || (isset($row['error_message2']) && getStr($row['error_message2'])))
                             @if ($isAdmin)
                                 <button class="btn btn-success sentMessage text-center" >
-                                    Resend
-                                </button>
-                            @else
-                                <button class="btn btn-success text-center" disabled>
                                     Resend
                                 </button>
                             @endif
@@ -169,46 +175,8 @@
         </tbody>
         
     </table>
-    <div class="load-mored d-flex justify-content-center" style="display: none">
-        <svg preserveAspectRatio="xMidYMid meet" id="comp-kma9ypuwsvgcontent" viewBox="19.999998092651367 28.5 160 143" height="40" width="40" xmlns="http://www.w3.org/2000/svg" data-type="color" role="img">
-            <g>
-                <path d="M159.9 37.8c0 5.1-4.1 9.3-9.2 9.3s-9.3-4.1-9.3-9.3c0-5.1 4.1-9.3 9.3-9.3 5 0 9.1 4.1 9.2 9.3z" fill="#757575" data-color="1"></path>
-                <path d="M172.8 56c0 4.8-3.9 8.8-8.7 8.8-4.8 0-8.8-3.9-8.8-8.8 0-4.8 3.9-8.8 8.8-8.8 4.7 0 8.7 4 8.7 8.8z" fill="#757575" data-color="1"></path>
-                <path d="M179.5 76.6c0 4.6-3.7 8.3-8.2 8.3-4.6 0-8.2-3.7-8.3-8.3 0-4.6 3.7-8.3 8.3-8.3 4.5.1 8.2 3.8 8.2 8.3z" fill="#757575" data-color="1"></path>
-                <path d="M180 98.2c0 4.3-3.5 7.8-7.7 7.8-4.3 0-7.7-3.5-7.7-7.7 0-4.3 3.5-7.8 7.7-7.7 4.2-.1 7.7 3.3 7.7 7.6z" fill="#757575" data-color="1"></path>
-                <path d="M174.3 119.3c0 4-3.2 7.3-7.2 7.3s-7.2-3.2-7.2-7.2 3.2-7.2 7.2-7.2c4-.1 7.2 3.1 7.2 7.1z" fill="#757575" data-color="1"></path>
-                <path d="M162.5 138.5c0 3.7-3 6.7-6.7 6.8s-6.7-3-6.7-6.7 3-6.7 6.7-6.7c3.7-.1 6.7 2.9 6.7 6.6z" fill="#757575" data-color="1"></path>
-                <path d="M145 153.9c0 3.4-2.8 6.2-6.2 6.2-3.4 0-6.2-2.8-6.2-6.2 0-3.4 2.8-6.2 6.2-6.2 3.5-.1 6.2 2.7 6.2 6.2z" fill="#757575" data-color="1"></path>
-                <path d="M124.6 163.2c0 3.2-2.6 5.7-5.7 5.7-3.2 0-5.7-2.6-5.7-5.7 0-3.2 2.6-5.7 5.7-5.7 3.1-.1 5.7 2.5 5.7 5.7z" fill="#757575" data-color="1"></path>
-                <path d="M102.7 166.3c0 2.9-2.3 5.2-5.2 5.2-2.9 0-5.2-2.3-5.2-5.2 0-2.9 2.3-5.2 5.2-5.2 2.9-.1 5.2 2.3 5.2 5.2z" fill="#757575" data-color="1"></path>
-                <path d="M80.8 163.2c0 2.6-2.1 4.7-4.7 4.7s-4.7-2.1-4.7-4.7 2.1-4.7 4.7-4.7c2.6-.1 4.7 2.1 4.7 4.7z" fill="#757575" data-color="1"></path>
-                <path d="M60.4 153.9c0 2.3-1.9 4.2-4.2 4.2-2.3 0-4.2-1.9-4.2-4.2 0-2.3 1.9-4.2 4.2-4.2 2.3-.1 4.2 1.8 4.2 4.2z" fill="#757575" data-color="1"></path>
-                <path d="M42.9 138.5c0 2.1-1.7 3.7-3.7 3.7s-3.7-1.7-3.7-3.7c0-2.1 1.7-3.7 3.7-3.7 2.1 0 3.7 1.7 3.7 3.7z" fill="#757575" data-color="1"></path>
-                <path d="M31.1 119.3c0 1.8-1.4 3.2-3.2 3.2-1.8 0-3.2-1.4-3.2-3.2 0-1.8 1.4-3.2 3.2-3.2 1.7 0 3.2 1.4 3.2 3.2z" fill="#757575" data-color="1"></path>
-                <path d="M25.4 98.2c0 1.5-1.2 2.7-2.7 2.7-1.5 0-2.7-1.2-2.7-2.7 0-1.5 1.2-2.7 2.7-2.7 1.5 0 2.7 1.2 2.7 2.7z" fill="#757575" data-color="1"></path>
-                <path d="M25.9 76.6c0 1.2-1 2.2-2.2 2.2-1.2 0-2.2-1-2.2-2.2 0-1.2 1-2.2 2.2-2.2 1.2 0 2.2 1 2.2 2.2z" fill="#757575" data-color="1"></path>
-                <path d="M32.6 56c0 .9-.8 1.7-1.7 1.7-.9 0-1.7-.8-1.7-1.7 0-.9.8-1.7 1.7-1.7 1 0 1.7.8 1.7 1.7z" fill="#757575" data-color="1"></path>
-                <path d="M45.6 37.8c0 .7-.5 1.2-1.2 1.2s-1.2-.5-1.2-1.2.5-1.2 1.2-1.2c.6 0 1.2.5 1.2 1.2z" fill="#757575" data-color="1"></path>
-                <path d="M70.3 124c0 3.1-2.5 5.7-5.7 5.7-3.1 0-5.7-2.5-5.7-5.7 0-3.1 2.5-5.7 5.7-5.7s5.7 2.5 5.7 5.7z" fill="#c7c7c7" data-color="2"></path>
-                <path d="M61.8 112.8c0 3-2.4 5.4-5.4 5.4-3 0-5.4-2.4-5.4-5.4 0-3 2.4-5.4 5.4-5.4 3 0 5.4 2.5 5.4 5.4z" fill="#c7c7c7" data-color="2"></path>
-                <path d="M57.1 100.2c0 2.8-2.3 5.1-5.1 5.1s-5.1-2.3-5.1-5.1 2.3-5.1 5.1-5.1 5.1 2.3 5.1 5.1z" fill="#c7c7c7" data-color="2"></path>
-                <path d="M56.1 87c0 2.6-2.1 4.8-4.7 4.8s-4.7-2.1-4.7-4.8 2.1-4.8 4.7-4.8 4.7 2.1 4.7 4.8z" fill="#c7c7c7" data-color="2"></path>
-                <path d="M59 74c0 2.5-2 4.4-4.4 4.4-2.4 0-4.4-2-4.4-4.4s2-4.4 4.4-4.4c2.4 0 4.4 2 4.4 4.4z" fill="#c7c7c7" data-color="2"></path>
-                <path d="M65.6 62.3c0 2.3-1.8 4.1-4.1 4.1s-4.1-1.8-4.1-4.1 1.9-4.1 4.1-4.1c2.3-.1 4.1 1.8 4.1 4.1z" fill="#c7c7c7" data-color="2"></path>
-                <path d="M75.7 52.9c0 2.1-1.7 3.8-3.8 3.8-2.1 0-3.8-1.7-3.8-3.8 0-2.1 1.7-3.8 3.8-3.8 2.1-.1 3.8 1.6 3.8 3.8z" fill="#c7c7c7" data-color="2"></path>
-                <path d="M87.6 47.2c0 1.9-1.6 3.5-3.5 3.5s-3.5-1.6-3.5-3.5 1.6-3.5 3.5-3.5c1.9-.1 3.5 1.5 3.5 3.5z" fill="#c7c7c7" data-color="2"></path>
-                <path d="M100.4 45.3c0 1.8-1.4 3.2-3.2 3.2S94 47 94 45.3c0-1.8 1.4-3.2 3.2-3.2s3.2 1.4 3.2 3.2z" fill="#c7c7c7" data-color="2"></path>
-                <path d="M113.2 47.2c0 1.6-1.3 2.9-2.9 2.9s-2.9-1.3-2.9-2.9c0-1.6 1.3-2.9 2.9-2.9s2.9 1.3 2.9 2.9z" fill="#c7c7c7" data-color="2"></path>
-                <path d="M125.1 52.9c0 1.4-1.2 2.6-2.6 2.6-1.4 0-2.6-1.2-2.6-2.6s1.2-2.6 2.6-2.6c1.4 0 2.6 1.1 2.6 2.6z" fill="#c7c7c7" data-color="2"></path>
-                <path d="M135.2 62.3c0 1.3-1 2.3-2.3 2.3-1.3 0-2.3-1-2.3-2.3 0-1.3 1-2.3 2.3-2.3 1.2 0 2.3 1 2.3 2.3z" fill="#c7c7c7" data-color="2"></path>
-                <path d="M141.8 74c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2c1.1.1 2 .9 2 2z" fill="#c7c7c7" data-color="2"></path>
-                <path d="M144.7 87c0 .9-.7 1.7-1.7 1.7-.9 0-1.7-.7-1.7-1.7 0-.9.7-1.7 1.7-1.7.9 0 1.6.7 1.7 1.7z" fill="#c7c7c7" data-color="2"></path>
-                <path d="M143.7 100.2c0 .7-.6 1.4-1.3 1.4-.7 0-1.3-.6-1.3-1.4 0-.7.6-1.4 1.3-1.4.7 0 1.3.6 1.3 1.4z" fill="#c7c7c7" data-color="2"></path>
-                <path d="M139 112.8c0 .6-.5 1-1 1-.6 0-1-.5-1-1 0-.6.5-1 1-1s1 .4 1 1z" fill="#c7c7c7" data-color="2"></path>
-                <path d="M130.5 124c0 .4-.3.7-.7.7-.4 0-.7-.3-.7-.7s.3-.7.7-.7c.3-.1.7.3.7.7z" fill="#c7c7c7" data-color="2"></path>
-            </g>
-        </svg>
-    </div>
+    <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="cursor: nwse-resize; width: 20px; margin-top: -50px; display: none;">
+
     </div>
     <div id="chat-list-history" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -323,17 +291,17 @@
                 type: 'GET',
                 data: $('.form-search-data').serialize(),
                 beforeSend:function(){
-                        $('.load-more').show();
+                        $('.infinite-scroll-products-loader').show();
                 },
                 success: function (data) {
                     if (data == '') {
-                        $('.load-more').hide();
+                        $('.infinite-scroll-products-loader').hide();
                     }
-                    $('.load-more').hide();
+                    $('.infinite-scroll-products-loader').hide();
                     $('.infinite-scroll-pending-inner').append(data);
                 },
                 error: function () {
-                    $('.load-more').hide();
+                    $('.infinite-scroll-products-loader').hide();
                 }
             });
         }
