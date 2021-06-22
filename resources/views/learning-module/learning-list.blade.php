@@ -43,11 +43,15 @@
     <td><div style="display: flex"><input type="text" class="form-control send-message-textbox" name="learning_assignment" value="{{ $learning->learning_assignment }}" maxlength="15"> <img src="/images/filled-sent.png" class="updateAssignment" style="cursor: pointer; object-fit: contain; height: auto; width: 16px; margin-left: 4px;"></div></td>
     <td>{{ $learning->learning_duedate }}</td>
     <td>
+        <div style="display: flex">
         <select class="form-control updateStatus" name="status">
             @foreach(App\TaskStatus::all() as $status)
                 <option value="{{ $status->id }}" {{ $learning->learning_status == $status->id ? 'selected' : '' }}>{{ $status->name }}</option>
             @endforeach
         </select>
+
+        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-learningid="{{ $learning->id }}"><i class="fa fa-info-circle"></i></button>
+        </div>
     </td>
     <td class="communication-td">
         <!-- class="expand-row" -->
