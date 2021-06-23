@@ -14,10 +14,8 @@ class AlterAddFieldOrderIaTable extends Migration
     public function up()
     {
         //
-        Schema::table('purchase_product_orders',function(Blueprint $table) {
-            $table->string("order_products_order_id")->nullable();
-            $table->string('order_products_id', 191)->change();
-        });
+        DB::statement('ALTER TABLE `purchase_product_orders` CHANGE `order_products_id` `order_products_id` VARCHAR(191) NULL DEFAULT NULL');
+        DB::statement('ALTER TABLE `purchase_product_orders` ADD `order_products_order_id` VARCHAR(191) NULL DEFAULT NULL AFTER `updated_at`');
     }
 
     /**
@@ -28,8 +26,5 @@ class AlterAddFieldOrderIaTable extends Migration
     public function down()
     {
         //
-        Schema::table('purchase_product_orders',function(Blueprint $table) {
-            $table->dropField("order_products_order_id");
-        });
     }
 }
