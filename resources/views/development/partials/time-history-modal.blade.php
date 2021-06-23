@@ -111,8 +111,10 @@
                 </div>
                 <div class="modal-footer1 mx-5 d-flex justify-content-between">
                     <div class="b">
+                    @if(\Auth::user()->isAdmin())
                         <button type="button" class="btn btn-secondary remind_btn" disabled>Remind</button>
                         <button type="button" class="btn btn-secondary revise_btn">Revise</button>
+                    @endif
                     </div>
                     <div class="a">
                         <button type="button" class="btn btn-default close_btn" data-dismiss="modal">Close</button>
