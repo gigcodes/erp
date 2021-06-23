@@ -1,8 +1,15 @@
             @foreach($array as $row)
                 @php
-                    $message = strpos($row['error_message1'],'"message');
-                    $message_str = strtok(substr($row['error_message1'],$message), ',');
-                    // dump(str_replace($message_str,"",$row['error_message1']));
+                    $row_array = explode(",",$row['error_message1']);
+                    foreach ($row_array as $key => $value) {
+                        if(strpos($value,'message"')){
+                            unset($row_array[$key]);
+                        }
+                    }
+
+                    $message = implode(',',$row_array);
+                    // $message = strpos($row['error_message1'],'"message');
+                    // $message_str = strtok(substr($row['error_message1'],$message), ',');
                     $message1 = strpos($row['error_message1'],'whatsapp_number');
                     $sender_number = substr($row['error_message1'],$message1+18,12);
                     $null = substr($row['error_message1'],$message1+17,4);
@@ -28,11 +35,13 @@
                                 @if ($isAdmin)
                                 Message1 : {{$row['error_message1']}} <br>
                             @else
-                                @if ($message)
+                                Message1 : {{ $message }} <br>
+
+                                {{-- @if ($message)
                                     Message1 : {{str_replace($message_str,"",$row['error_message1'])}} <br>    
                                 @else
                                     Message1 : {{$row['error_message1']}} <br>
-                                @endif
+                                @endif --}}
                             @endif
                             Message2 : {{$row['error_message2']}}
                             </div>

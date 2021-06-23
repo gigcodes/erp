@@ -58,6 +58,10 @@ table tr td {
 .fa-upload{
     cursor: pointer;
 }
+.fa-refresh{
+    cursor: pointer;
+    color:#000;
+}
 </style>
 @endsection
 
@@ -72,18 +76,34 @@ table tr td {
         <div class="col-12" style="padding:0px;">
             <h2 class="page-heading">Purchase Product Orders List</h2>
         </div>
-        <!-- <div class="col-10" style="padding-left:0px;">
+         <div class="col-10" style="padding-left:0px;">
             <div >
-                <form class="form-inline" action="/purchase-product/get-suppliers" method="GET">
+                <form class="form-inline" action="" method="GET">
+                    <div class="form-group col-md-2 pd-3">
+                        
+                        <input style="width:100%;" name="order_id" type="text" class="form-control" value="{{ isset($_REQUEST['order_id']) ? $_REQUEST['order_id'] : '' }}" placeholder="Order id">
+                    </div>
                     <div class="form-group col-md-3 pd-3">
-                    <input style="width:100%;" name="term" type="text" class="form-control" value="{{ isset($term) ? $term : '' }}" placeholder="Search">
+                        <select class="form-control globalSelect2" data-ajax="{{ route('select2.suppliers') }}" style="width:100%" name="supplier_id" data-placeholder="Search Supplier By Name.." >
+                        
+                        @if(isset($_REQUEST['supplier_id']))
+                        @if ($suppliers_all)        
+                            <option value="{{ $suppliers_all->id }}" selected>{{ $suppliers_all->supplier }}</option>
+                        @endif
+
+                        @endif
+                        <option ></option>
+                                 
+                        </select>
                     </div>
                     <div class="form-group col-md-1 pd-3">
                         <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
+
+                        <a href="{{ route('purchaseproductorders.list') }}" class="fa fa-refresh" aria-hidden="true"></a>
                     </div>
                 </form>
             </div>
-        </div> -->
+        </div>
     </div>	
 
 
@@ -93,21 +113,22 @@ table tr td {
                 <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;table-layout:fixed">
                     <thead>
                         <tr>
-                            <th width="5%">#</th>
+                            <th width="2%">#</th>
                             <th width="5%">Order Id</th>
                             <!-- <th width="8%">Product</th>
                             <th width="8%">SKU</th>
                             <th width="8%">Brand</th> -->
+                            <th width="8%">Supplier</th>
                             <th width="5%">MRP</th>
                             <th width="5%">Discounted Price</th>
                             <th width="5%">Special Price</th>
-                            <th width="8%">Supplier</th>
-                            <th width="5%">Invoice No</th>
-                            <th width="5%">Payment Details</th>
+                            <th width="7%">Invoice No</th>
+                            <th width="7%">Payment Details</th>
                             <th width="5%">Cost Details</th>
-                            <th width="6%">Landed cost of the product</th>
+                            <th width="6%">Landed cost</th>
                             <th width="6%">Status</th>
-                            <th width="7%">Action</th>
+                            <th width="5%">Action</th>
+                            <th width="5%">Created Date</th>
                         </tr>
                     </thead>
                     
@@ -119,6 +140,7 @@ table tr td {
                             <!-- <td>{{$value->name}}</td>
                             <td>{{$value->sku}}</td>
                             <td>{{$value->brand_name}}</td> -->
+                            <td>{{$value->supplier}}</td>
                             <td>
                                 <input type="text" name="product_mrp" placeholder="MRP" class="form-control mb-3 product_mrp" value="{{ $value->mrp_price ?? $value->mrp ?? '' }}">
                                 <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_mrp" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
@@ -140,7 +162,7 @@ table tr td {
                                 <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_special_price" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
                                 <i class="fa fa-info-circle view_log" title="Special Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Special Price"></i>
                             </td>
-                            <td>{{$value->supplier}}</td>
+                            
                             <td>
                                 <input type="text" name="invoice_no" placeholder="Add Invoice No." class="form-control mb-3 invoice_no" value="{{ $value->invoice ?? '' }}">
                                 <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_invoice" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
@@ -169,15 +191,17 @@ table tr td {
                             <td>
                                 <select class="form-control change_status" name="status" id="status" data-id="{{$value->pur_pro_id}}">
                                     <option value="">Select</option>
+                                    <option {{$value->status == 'pending' ? 'selected' : ''}} value="pending">Pending</option>
+                                    <option {{$value->status == 'complete' ? 'selected' : ''}} value="complete">Complete</option>
                                     <option {{$value->status == 'in_stock' ? 'selected' : ''}} value="in_stock">In Stock</option>
                                     <option {{$value->status == 'out_stock' ? 'selected' : ''}} value="out_stock">Out Stock</option>
                                 </select>
                                 <i class="fa fa-info-circle view_log" title="Status Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Status"></i>
                             </td>
                             <td>
-                                <i class="fa fa-list-ul view_full_order" data-id="{{$value->pur_pro_id}}" data-order-id="{{$value->order_id}}" aria-hidden="true"></i>
+                                <i class="fa fa-list-ul view_full_order" data-id="{{$value->pur_pro_id}}" data-order-id="{{$value->order_pro_order_id}}" aria-hidden="true"></i>
                             </td>
-
+                            <td>{{$value->created_at}}</td>
                         </tr>
                     @endforeach
                     </tbody>
@@ -309,6 +333,10 @@ table tr td {
             return false;
         }else if(payment_amount == ''){
             toastr['error']('Payment Amount is Required');
+            return false;
+        }
+        else if(!$.isNumeric(payment_amount)){
+            toastr['error']('Please Enter Valid Payment Amount.');
             return false;
         }
         else if(payment_mode == ''){
@@ -525,7 +553,7 @@ table tr td {
                 var html_content = ''
                 $.each( response.log_data, function( key, value ) {
                     html_content += '<tr>';
-                    html_content += '<td>'+ value.replace_from+'</td>';
+                    html_content += '<td>'+ (value.replace_from == null ? '-' : value.replace_from )+'</td>';
                     html_content += '<td>'+ value.replace_to+'</td>';
                     html_content += '<td>'+ value.name+'</td>';
                     html_content += '<td>'+ value.log_created_at+'</td>';

@@ -12,7 +12,7 @@
 
 <div class="row" id="message-queue-page">
 	<div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Message Queue <span id="total-counter"></span></h2>
+        <h2 class="page-heading">Message Queue {{now()}}<span id="total-counter"></span></h2>
     </div>
     <br>
     <div class="col-lg-12 margin-tb">
