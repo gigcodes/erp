@@ -578,6 +578,7 @@ class Kernel extends ConsoleKernel
         $schedule->command("errorAlertMessage")->daily();
 
         $schedule->command("UpdateScraperDuration")->everyFifteenMinutes();
+        $schedule->command('horizon:snapshot')->everyFiveMinutes();
 
     }
 

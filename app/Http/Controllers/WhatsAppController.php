@@ -1037,8 +1037,6 @@ class WhatsAppController extends FindByNumberController
         $isReplied = false;
         // Log incoming webhook
         \Log::channel('chatapi')->debug('Webhook: ' . json_encode($data));
-        \Log::debug('Webhook: ' . json_encode($data));
-
         // Check for ack
         if (array_key_exists('ack', $data)) {
             ChatMessage::handleChatApiAck($data);
@@ -2474,14 +2472,15 @@ class WhatsAppController extends FindByNumberController
                         
                             if(count($mail_arr) > 0)
                             {
-                                $from_address      = \Config::get("mail.from.address");
+                                
+                                $emailAddress = EmailAddress::where('from_address', 'info@theluxuryunlimited.com')->first();
 
                                 foreach($mail_arr as $key => $mail_id){
 
                                     $email = \App\Email::create([
                                         'model_id'         => $issue->id, //Issue_id
                                         'model_type'       => \App\DeveloperTask::class,
-                                        'from'             => $from_address,
+                                        'from'             => $emailAddress->from_address,
                                         'to'               => $mail_id,
                                         'subject'          => $subject,
                                         'message'          => $prefix . $issue->id . '-' . $issue->subject.' => '.$request->get('message'),
@@ -3185,6 +3184,8 @@ class WhatsAppController extends FindByNumberController
             $isNeedToBeSend = true;
         }
 
+        $isNeedToBeSend = true;
+
         if ($request->images) {
             $imagesDecoded = json_decode($request->images, true);
             if (!empty($request->send_pdf) && $request->send_pdf == 1) {
@@ -3252,8 +3253,6 @@ class WhatsAppController extends FindByNumberController
                                 try{
                                     if($iimg != 0) {
                                         $chat_message = ChatMessage::create($data);
-                                    }else{
-                                        //ChatMessage::where('id', $chat_message->id)->update(['media_url' => $media->getUrl()]);
                                     }
                                     $chat_message->attachMedia($media, config('constants.media_tags'));
                                     if($mediable) {
@@ -3285,8 +3284,6 @@ class WhatsAppController extends FindByNumberController
                                 try{
                                     if($iimg != 0) {
                                         $chat_message = ChatMessage::create($data);
-                                    }else{
-                                        //ChatMessage::where('id', $chat_message->id)->update(['media_url' => $media->getUrl()]);
                                     }
                                     $chat_message->attachMedia($media, config('constants.media_tags'));
                                     // if this message is not first then send to the client
@@ -4117,7 +4114,6 @@ class WhatsAppController extends FindByNumberController
                     }
                 }
                 if ($context == 'customer') {
-                    \Log::channel('whatsapp')->info('My TEst Run');
                     $supplierDetails = Customer::find($message->supplier_id);
                     $language = $supplierDetails->language;
                     if ($language != null) {
@@ -5205,9 +5201,6 @@ class WhatsAppController extends FindByNumberController
             $domain = "https://api.chat-api.com/instance$instanceId/$link?token=$token";
         }
 
-        \Log::info("Whatsapp send message => ".json_encode([$domain,$array]));
-
-
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
@@ -5226,9 +5219,7 @@ class WhatsAppController extends FindByNumberController
         ));
 
         $response = curl_exec($curl);
-        \Log::info(print_r(["Whatsapp send message Response",$response],true));
         $err = curl_error($curl);
-        \Log::info(print_r(["Whatsapp send message error",$err],true));
 
         // $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
