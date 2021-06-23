@@ -2132,7 +2132,7 @@ class WhatsAppController extends FindByNumberController
                 
                 $message_ = "[ ". $loggedUser->name ." ] - #". $task->id.' - '. $task->task_subject . "\n\n" . $request->message;
 
-                $this->sendEmailOrWebhookNotification($task->users->pluck('id')->toArray() , $message_ );
+                //$this->sendEmailOrWebhookNotification($task->users->pluck('id')->toArray() , $message_ );
 
             }elseif($context == 'learning'){
                 $learning = \App\Learning::find($request->issue_id);
@@ -2465,7 +2465,7 @@ class WhatsAppController extends FindByNumberController
 
                     $message_ = ($issue->task_type_id == 1 ? "[ ". $loggedUser->name ." ] - #DEVTASK-" : "#ISSUE-"). $issue->id.' - '. $issue->subject . "\n\n" . $request->message;
 
-                    $this->sendEmailOrWebhookNotification([$userId] , $message_ );
+                    //$this->sendEmailOrWebhookNotification([$userId] , $message_ );
 
                     //END - DEVTASK-4359
 
@@ -2523,7 +2523,7 @@ class WhatsAppController extends FindByNumberController
 
                     $message_ = ($issue->task_type_id == 1 ? "[ ". $loggedUser->name ." ]- #DEVTASK-" : "#ISSUE-"). $issue->id.' - '. $issue->subject . "\n\n" . $request->message;
 
-                    $this->sendEmailOrWebhookNotification([$userId] , $message_ );
+                    //$this->sendEmailOrWebhookNotification([$userId] , $message_ );
 
                     return response()->json(['message' => $chat_message]);
 
