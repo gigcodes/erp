@@ -132,7 +132,7 @@
                     </div>
 
                 </div>
-                <div  class="d-flex mt-5">
+                <div  class="d-flex mt-1">
                 <span  class="hidden_row_{{ $category->id  }}" >
                     <input type="checkbox" id="developer_{{$category->id}}" name="developer" value="developer">
                     &nbsp;<label for="developer">Developer</label>&nbsp;&nbsp;
