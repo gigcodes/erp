@@ -47,6 +47,8 @@ class ContentManagementController extends Controller
 
         $websites = $websites->get();
 
+        $gmail_data = \App\GmailDataList::get();
+
         foreach($websites as $w) {
             // $media = $w->getMedia('website-image-attach');
             // dd( $media );
@@ -58,7 +60,7 @@ class ContentManagementController extends Controller
             $w->instagramAccount = StoreSocialAccount::where('platform','instagram')->where('store_website_id',$w->id)->first();
 
         }
-        return view('content-management.index', compact('title','websites'));
+        return view('content-management.index', compact('title','websites','gmail_data'));
     }
 
     public function getAttachImages(Request $request)

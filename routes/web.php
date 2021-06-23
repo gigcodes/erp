@@ -366,6 +366,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     //  Route::resource('activity','ActivityConroller');
 
+    Route::get('brand/get_all_images', 'BrandController@get_all_images')->name('brand.get_all_images');//Purpose : upload logo - DEVTASK-4278
+    Route::get('brand/logo_data', 'BrandController@fetchlogos')->name('brand.logo_data');//Purpose : Get Brand Logo - DEVTASK-4278
+    Route::post('brand/uploadlogo', 'BrandController@uploadlogo')->name('brand.uploadlogo');//Purpose : upload logo - DEVTASK-4278
+    Route::post('brand/set_logo_with_brand', 'BrandController@set_logo_with_brand')->name('brand.set_logo_with_brand');//Purpose : upload logo with brand - DEVTASK-4278
+    Route::post('brand/remove_logo', 'BrandController@remove_logo')->name('brand.remove_logo');//Purpose : remove logo - DEVTASK-4278
+
     // For Brand size chart
     Route::get('brand/size/chart', 'BrandSizeChartController@index')->name('brand/size/chart');
     Route::get('brand/create/size/chart', 'BrandSizeChartController@createSizeChart')->name('brand/create/size/chart');
@@ -384,7 +390,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
    Route::put('brand/priority/{id}', 'BrandController@priority');
 
-
+   
 
 
     Route::resource('reply', 'ReplyController');
@@ -1088,6 +1094,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('purchaseproductorders/update', 'PurchaseProductController@purchaseproductorders_update')->name('purchaseproductorders.update');//Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::get('purchaseproductorders/logs', 'PurchaseProductController@purchaseproductorders_logs')->name('purchaseproductorders.logs');//Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::get('purchaseproductorders/orderdata', 'PurchaseProductController@purchaseproductorders_orderdata')->name('purchaseproductorders.orderdata');//Purpose : Add Route for Purchase Product Order - DEVTASK-4236
+    Route::post('purchaseproductorders/saveuploads', 'PurchaseProductController@purchaseproductorders_saveuploads')->name('purchaseproductorders.saveuploads');//Purpose : Add Route for Purchase Product Order - DEVTASK-4236
 
     // Cash Vouchers
     Route::get('/voucher/payment/request', 'VoucherController@paymentRequest')->name("voucher.payment.request");
@@ -1371,7 +1378,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Reviews Module
     Route::post('review/createFromInstagramHashtag', 'ReviewController@createFromInstagramHashtag');
-    Route::get('review/restart-script', 'ReviewController@restartScript');
+    Route::post('review/restart-script', 'ReviewController@restartScript');
     Route::get('review/instagram/reply', 'ReviewController@replyToPost');
     Route::post('review/instagram/dm', 'ReviewController@sendDm');
     Route::get('review/{id}/updateStatus', 'ReviewController@updateStatus');
@@ -3051,6 +3058,7 @@ Route::group(['middleware' => 'auth'], function () {
 
 Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('customers', 'Select2Controller@customers')->name('select2.customer');
+    Route::get('customersByMultiple', 'Select2Controller@customersByMultiple')->name('select2.customerByMultiple');
     Route::get('users', 'Select2Controller@users')->name('select2.user');
     Route::get('users_vendors', 'Select2Controller@users_vendors')->name('select2.uservendor');
     Route::get('suppliers', 'Select2Controller@suppliers')->name('select2.suppliers');

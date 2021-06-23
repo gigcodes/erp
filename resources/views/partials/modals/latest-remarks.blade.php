@@ -21,6 +21,7 @@
                 <th scope="col" width="10%">Created At</th>
                 <th scope="col" width="10%">Product count</th>
                 <th scope="col" width="10%">Last date product added</th>
+                <th scope="col" width="10%">Last extracted log</th>
                 <th scope="col" width="10%">Posted By</th>
                 <th scope="col" width="22%">Remark</th>
                 <th scope="col" width="23%">Communication</th> <!-- Purpose : Add Column- DEVTASK-4219 -->

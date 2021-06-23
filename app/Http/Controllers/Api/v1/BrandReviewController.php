@@ -39,15 +39,23 @@ class BrandReviewController extends Controller
         $data = Input::all();
         if($data){
             foreach ($data as $key => $value) {
-                DB::table('brand_reviews')->insert([
-                    'website' => $value['website'],
-                    'brand' => $value['brand'],
-                    'review_url' => $value['review_url'],
-                    'username' => $value['username'],
-                    'title' => $value['title'],
-                    'body' => $value['body'],
-                    'stars' => $value['stars']
-                ]);
+               
+               $exists =  DB::table('brand_reviews')
+                ->where('brand',$value['brand'])
+                ->where('review_url',$value['review_url'])
+                ->first(); 
+
+               if(!$exists){
+                    DB::table('brand_reviews')->insert([
+                        'website' => $value['website'],
+                        'brand' => $value['brand'],
+                        'review_url' => $value['review_url'],
+                        'username' => $value['username'],
+                        'title' => $value['title'],
+                        'body' => $value['body'],
+                        'stars' => $value['stars']
+                    ]);
+                }    
             }
             return response()->json([
                 "code" => 200,
