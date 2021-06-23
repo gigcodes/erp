@@ -702,8 +702,8 @@ class PurchaseProductController extends Controller
                 PurchaseProductOrder::where('id',$purchase_pro_id)->update($update);
 
                 $params['header_name'] = 'Payment Details';
-                $params['replace_from'] = 'Payment Currency : '.$get_data->payment_currency.' Payment Amount : '.$get_data->payment_amount.' Payment Mode : '.$get_data->payment_mode;
-                $params['replace_to'] = 'Payment Currency : '.$payment_currency.' Payment Amount : '.$payment_amount.' Payment Mode : '.$payment_mode;
+                $params['replace_from'] = 'Payment Currency : '.$get_data->payment_currency.'<br/> Payment Amount : '.$get_data->payment_amount.' <br/> Payment Mode : '.$get_data->payment_mode;
+                $params['replace_to'] = 'Payment Currency : '.$payment_currency.' <br/> Payment Amount : '.$payment_amount.' <br/> Payment Mode : '.$payment_mode;
 
                 $log = PurchaseProductOrderLog::create($params);
 
