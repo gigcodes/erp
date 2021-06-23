@@ -175,6 +175,10 @@ class User extends Authenticatable
         return $this->hasOne(ChatMessage::class)->latest();
     }
 
+    public function webhookNotification(){
+        return $this->hasOne(WebhookNotification::class)->latest();
+    }
+
     public function teams()
     {
         return $this->belongsToMany(Team::class);

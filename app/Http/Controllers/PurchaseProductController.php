@@ -401,6 +401,7 @@ class PurchaseProductController extends Controller
              $params = [
                  'message' => $message_chat,
                  'supplier_id' => $supplier_id,
+                 'additional_data' => json_encode(['attachment' => [$path]]),//Purpose : Add Excel sheet path - DEVTASK-4236
                  'user_id' => \Auth::id(),
              ];
              $chatMessage = ChatMessage::create($params);
@@ -480,6 +481,7 @@ class PurchaseProductController extends Controller
             $params = [
                 'message' => $message_chat,
                 'supplier_id' => $supplier_id,
+                'additional_data' => json_encode(['attachment' => [$path]]),//Purpose : Add Excel sheet path - DEVTASK-4236
                 'user_id' => \Auth::id(),
             ];
             $chatMessage = ChatMessage::create($params);
@@ -633,17 +635,28 @@ class PurchaseProductController extends Controller
     public function purchaseproductorders(Request $request)
     {
         try{
+            $suppliers_all = '';
             $purchar_product_order = PurchaseProductOrder::
             join('order_products','purchase_product_orders.order_products_id','order_products.id')
             ->join('products','products.id','order_products.product_id')
             ->join('product_suppliers','product_suppliers.product_id','products.id')
             ->join('brands','brands.id','products.brand')
-            ->select('order_products.*','products.*','product_suppliers.*','purchase_product_orders.*','purchase_product_orders.id as pur_pro_id','product_suppliers.price as mrp','brands.name as brand_name')
-            ->groupBy('order_products.id')
-            ->orderBy('purchase_product_orders.id','DESC')
-            ->paginate(Setting::get('pagination'));
+            ->select('order_products.*','products.*','product_suppliers.*','purchase_product_orders.*','purchase_product_orders.id as pur_pro_id','product_suppliers.price as mrp','brands.name as brand_name','order_products.order_id as order_pro_order_id');
+           
+            if($request->order_id) {
+                $purchar_product_order =  $purchar_product_order->where('purchase_product_orders.order_id',$request->order_id);
+            }
 
-            return view('purchase-product.partials.purchase-product-order',compact('purchar_product_order','request'));
+            if($request->supplier_id) {
+                $purchar_product_order =  $purchar_product_order->where('purchase_product_orders.supplier_id',$request->supplier_id);
+                $suppliers_all = Supplier::where('id',$request->supplier_id)->first();
+            }
+
+            $purchar_product_order =  $purchar_product_order->groupBy('order_products.id')->orderBy('purchase_product_orders.id','DESC')->paginate(Setting::get('pagination'));
+
+            
+
+            return view('purchase-product.partials.purchase-product-order',compact('purchar_product_order','request','suppliers_all'));
         }catch(\Exception $e){
             
         }
@@ -689,8 +702,8 @@ class PurchaseProductController extends Controller
                 PurchaseProductOrder::where('id',$purchase_pro_id)->update($update);
 
                 $params['header_name'] = 'Payment Details';
-                $params['replace_from'] = 'Payment Currency : '.$get_data->payment_currency.' Payment Amount : '.$get_data->payment_amount.' Payment Mode : '.$get_data->payment_mode;
-                $params['replace_to'] = 'Payment Currency : '.$payment_currency.' Payment Amount : '.$payment_amount.' Payment Mode : '.$payment_mode;
+                $params['replace_from'] = 'Payment Currency : '.$get_data->payment_currency.'<br/> Payment Amount : '.$get_data->payment_amount.' <br/> Payment Mode : '.$get_data->payment_mode;
+                $params['replace_to'] = 'Payment Currency : '.$payment_currency.' <br/> Payment Amount : '.$payment_amount.' <br/> Payment Mode : '.$payment_mode;
 
                 $log = PurchaseProductOrderLog::create($params);
 

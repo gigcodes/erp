@@ -32,6 +32,7 @@ use Carbon\Carbon;
 use DateTime;
 use App\UserLoginIp;
 use App\EmailNotificationEmailDetails;//Purpose : add MOdal - DEVTASK-4359
+use App\WebhookNotification;
 
 class UserController extends Controller
 {
@@ -205,7 +206,7 @@ class UserController extends Controller
 	 */
 	public function edit($id)
 	{
-		$user = User::find($id);
+		$user = User::with('webhookNotification')->find($id);
 		$roles = Role::orderBy('name', 'asc')->pluck('name', 'id')->all();
 		$permission = Permission::orderBy('name', 'asc')->pluck('name', 'id')->all();
 
@@ -220,6 +221,7 @@ class UserController extends Controller
 		$userRate = UserRate::getRateForUser($user->id);
 		
 		$email_notification_data = EmailNotificationEmailDetails::where('user_id',$id)->first();//Purpose : get email details - DEVTASK-4359
+
 
 
 		return view(
@@ -309,7 +311,12 @@ class UserController extends Controller
 		$user->listing_approval_rate = $request->get('listing_approval_rate') ?? '0';
 		$user->listing_rejection_rate = $request->get('listing_rejection_rate') ?? '0';
 		$user->save();
-
+		
+		if($request->webhook && isset($request->webhook['url']) && isset($request->webhook['payload'])){
+			WebhookNotification::updateOrCreate([
+				'user_id' => $user->id
+			], $request->webhook);
+		}
 
 		$userRate = new UserRate();
 		$userRate->start_date = Carbon::now();
