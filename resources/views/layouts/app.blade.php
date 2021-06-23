@@ -556,6 +556,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
                                             <a class="dropdown-item" href="{{ action('DubbizleController@index') }}">Dubzzle</a>
                                             <a class="dropdown-item" href="{{ route('log-scraper.index') }}">Scraper log</a>
+                                            <a class="dropdown-item" href="{{ route('log-scraper.api') }}">Scraper Api log</a>
                                             <a class="dropdown-item" href="{{ route('scrap-brand') }}">Scrap Brand</a>
                                         </li>
                                     </ul>
@@ -1361,7 +1362,7 @@ $metaData = '';
                                     <a class="dropdown-item" href="{{ route('whatsapp.log') }}">Whatsapp Log</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('jobs.list') }}">Jobs</a>
+                                    <a class="dropdown-item" href="{{ url('horizon') }}">Jobs</a>
                                 </li>
                             </ul>
                         </li>
@@ -1392,6 +1393,11 @@ $metaData = '';
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('message-queue.approve') }}">Message Queue Approval</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{route('message.counter')}}">Message Counter</a>
+                                    </li>
+
+
                                 </ul>
                             </li>
                         @endif
@@ -1810,6 +1816,9 @@ $metaData = '';
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('brand.logo_data')}}">Brand Logos</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('missing-brands.index')}}">Missing Brands</a>

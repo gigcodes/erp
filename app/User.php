@@ -175,6 +175,10 @@ class User extends Authenticatable
         return $this->hasOne(ChatMessage::class)->latest();
     }
 
+    public function webhookNotification(){
+        return $this->hasOne(WebhookNotification::class)->latest();
+    }
+
     public function teams()
     {
         return $this->belongsToMany(Team::class);
@@ -275,7 +279,7 @@ class User extends Authenticatable
         $user_role = $this->roles()
             ->pluck('id')->unique()->toArray();
 
-        //dd($user_role);
+
         foreach ($user_role as $key => $value) {
             if (in_array($value, $role)) {
                 return true;

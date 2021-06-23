@@ -20,6 +20,22 @@
         input {
             width: 100px;
         }
+        .log-text-style{
+            word-wrap: break-word;
+            max-width: 600px;
+        }
+        .infinite-scroll-products-loader svg {
+            -webkit-animation: spin 3s linear infinite;
+            animation: spin 3s linear infinite;
+            /*transform: rotate(180deg);*/
+        }
+        .infinite-scroll-products-loader {
+            position: relative;
+            width: 100%;
+            text-align: center;
+            padding: 40px 0;
+        }
+
     </style>
 @endsection
 
@@ -90,39 +106,83 @@
         <table class="table table-bordered table-striped" id="log-table">
             <thead>
             <tr>
-                <th style="width: 20% !important;">Date</th>
-                <th style="width: 20% !important;">Sent ?</th>
-                <th style="width: 40% !important;">Log</th>
-                <th>Action</th>
+                <th style="width: 1% !important;">Sr.No</th>
+                <th style="width: 1% !important;">Date</th>
+                <th style="width: 1% !important;">Sent ?</th>
+                <th style="width: 3% !important;">Sender Number</th>
+                <th style="width: 3% !important;">Receiver Number</th>
+                <th style="width: 40% !important;">Text</th>
+                <th style="width: 3% !important;">Action</th>
             </tr>
-            <tr>
-            </tr>
+            
             </thead>
             <tbody id="content_data" class="infinite-scroll-pending-inner">
+                @php
+                    $sr_no = 1;
+                @endphp
             @foreach($array as $row)
+            @php
+                $row_array = explode(",",$row['error_message1']);
+                foreach ($row_array as $key => $value) {
+                    if(strpos($value,'message"')){
+                        unset($row_array[$key]);
+                    }
+                }
+                $message = implode(',',$row_array);
+                // $message = strpos($row['error_message1'],'"message');
+                // $message_str = strtok(substr($row['error_message1'],$message), ',');
+                $message1 = strpos($row['error_message1'],'whatsapp_number');
+                $number = strpos($row['error_message1'],'"number":');
+                $receiver_number = substr($row['error_message1'],$number+10,12);
+                $sender_number = substr($row['error_message1'],$message1+18,12);
+                $null = substr($row['error_message1'],$message1+17,4);
+            @endphp
                 <tr>
+                    <td>{{ $sr_no++ }}</td>
                     <td>{{ $row['date'] }}</td>
                     <td>No</td>
-                        <td class="errorLog">
+                    @if ($message1 == '' || $null == "null")
+                        <td></td>
+                    @else
+                        <td>{{ $sender_number }}</td>
+                    @endif
+                    @if ($number == '' )
+                        <td></td>
+                    @else
+                        <td>{{ $receiver_number }}</td>
+                    @endif
+                    <td class="errorLog">
+                        <div class="log-text-style">
+                            @if ($isAdmin)
                             Message1 : {{$row['error_message1']}} <br>
-                            Message2 : {{$row['error_message2']}}
-                        </td>
-
-
+                        @else
+                            Message1 : {{ $message }} <br>
+                            {{-- @if ($message)
+                                Message1 : {{str_replace($message_str,"",$row['error_message1'])}} <br>    
+                            @else
+                                Message1 : {{$row['error_message1']}} <br>
+                            @endif --}}
+                        @endif
+                        Message2 : {{$row['error_message2']}}
+                        </div>
+                    </td>
                     <td>
+
                         @if((isset($row['error_message1']) && getStr($row['error_message1'])) || (isset($row['error_message2']) && getStr($row['error_message2'])))
-
-                            <button class="btn btn-success sentMessage text-center" >
-                                Resend
-                            </button>
-
+                            @if ($isAdmin)
+                                <button class="btn btn-success sentMessage text-center" >
+                                    Resend
+                                </button>
+                            @endif
                         @endif
                     </td>
                 </tr>
             @endforeach
-            </tbody>
+        </tbody>
+        
+    </table>
+    <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="cursor: nwse-resize; width: 20px; margin-top: -50px; display: none;">
 
-        </table>
     </div>
     <div id="chat-list-history" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -236,11 +296,18 @@
                 url: "/whatsapp-log?page="+page,
                 type: 'GET',
                 data: $('.form-search-data').serialize(),
+                beforeSend:function(){
+                        $('.infinite-scroll-products-loader').show();
+                },
                 success: function (data) {
+                    if (data == '') {
+                        $('.infinite-scroll-products-loader').hide();
+                    }
+                    $('.infinite-scroll-products-loader').hide();
                     $('.infinite-scroll-pending-inner').append(data);
                 },
                 error: function () {
-
+                    $('.infinite-scroll-products-loader').hide();
                 }
             });
         }

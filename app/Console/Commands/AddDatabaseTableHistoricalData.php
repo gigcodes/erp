@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use App\DatabaseHistoricalRecord;
 use App\DatabaseTableHistoricalRecord;
+use Illuminate\Support\Facades\DB;
 
 class AddDatabaseTableHistoricalData extends Command
 {

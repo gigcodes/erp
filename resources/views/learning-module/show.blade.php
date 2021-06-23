@@ -5,10 +5,17 @@
 @section('title', 'Learning')
 
 @section('styles')
+    
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
+    
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+
     <style>
         .btn.btn-image {
             padding: 5px 3px;
@@ -33,6 +40,14 @@
         }
         .pd-2 {
             padding:2px;
+        }
+
+        .status-selection .btn-group {
+            padding: 0;
+            width: 100%;
+        }
+        .status-selection .multiselect {
+            width : 100%;
         }
     </style>
 @endsection
@@ -298,6 +313,48 @@
         </div>
     @endif    
 
+
+    <form action="" method="get">
+        <div class="row">
+            <div class="col-md-2 pd-sm">
+                <select class="form-control" name="user_id" id="user_id">
+                    <option value="">Select User</option>
+                    @foreach($users as $id=>$user)
+                        <option {{request()->get('user_id')==$id ? 'selected' : ''}} value="{{$id}}">{{ $user }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-2 pd-sm">
+                <input type="text" name="subject" placeholder="Subject" class="form-control" value="{{ request()->get('subject') }}">
+            </div>
+
+            
+            <div class="col-md-2 pd-sm status-selection">
+                <?php echo Form::select("task_status[]",$statusList,request()->get('task_status', []),["class" => "form-control multiselect","multiple" => true]); ?>
+            </div>
+
+            <div class="col-md-2 pd-sm">
+                <div class='input-group date' id="learning-overdue-datetime">
+                    <input type='text' class="form-control input-sm" name="overduedate"  value="{{ request()->get('overduedate') }}"/>
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>    
+            
+            
+
+            <div class="col-md-1 pd-sm">
+                <button type="submit" class="btn btn-image search">
+                    <img src="{{ asset('images/search.png') }}" alt="Search">
+                </button>
+            </div>
+        </div>
+    </form>
+
+    </br>    
+
     <div id="exTab2" style="overflow: auto">
         <div class="tab-content ">
             <!-- Pending task div start -->
@@ -323,7 +380,7 @@
                             </tr>
                             </thead>
                             <tbody class="pending-row-render-view infinite-scroll-pending-inner">
-                                @foreach (App\Learning::all() as $learning)
+                                @foreach ($learningsListing as $learning)
                                     
                                     @include('learning-module.learning-list')
                                     
@@ -338,6 +395,43 @@
            
         </div>
     </div>
+    </div>
+
+
+    <div id="status_history_modal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title">Status History</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <form action="">
+                    <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12" id="status_history_div">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Old status</th>
+                                        <th>New status</th>
+                                        <th>Updated by</th>
+                                        
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
 
@@ -404,6 +498,51 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
+    
+    <script src="/js/bootstrap-multiselect.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            $(".multiselect").multiselect({
+                allSelectedText: 'All',
+                includeSelectAllOption: true
+            });
+
+            $('#learning-overdue-datetime').datetimepicker({
+                 format: 'YYYY-MM-DD'
+            });
+
+        });
+
+        $(document).on('click', '.show-time-history', function() {
+            
+            var learningid = $(this).data('learningid');
+            
+            $('#status_history_div table tbody').html('');
+
+            $.ajax({
+                url: "{{ route('learning/status/history') }}",
+                data: {learningid: learningid},
+                success: function (data) {
+                    if(data != 'error') {
+                        $.each(data, function(i, item) {
+                            $('#status_history_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ item['created_date'] +'</td>\
+                                    <td>'+ item['old_status']  +'</td>\
+                                    <td>'+ item['new_status']  +'</td>\
+                                    <td>'+ item['update_by']+'</td>\
+                                </tr>'
+                            );  
+                        });
+                    }
+                    $('#status_history_modal').modal('show');
+                }
+            }); 
+        });
+
+    </script>    
+
     <script>
         var uploadedDocumentMap = {}
         Dropzone.options.documentDropzone = {

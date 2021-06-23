@@ -51,6 +51,9 @@ class HubstaffActivitiesController extends Controller
     public function notificationRecords(Request $request)
     {
         $records = \App\Hubstaff\HubstaffActivityNotification::join("users as u", "hubstaff_activity_notifications.user_id", "u.id");
+        
+        $records->leftJoin("user_avaibilities as av", "hubstaff_activity_notifications.user_id", "av.user_id");
+        
         $keyword = request("keyword");
         if (!empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
@@ -66,8 +69,32 @@ class HubstaffActivitiesController extends Controller
             $records = $records->whereDate("start_date", "<=", $request->end_date . " 23:59:59");
         }
 
-        $records = $records->select(["hubstaff_activity_notifications.*", "u.name as user_name"])->get();
-        return response()->json(["code" => 200, "data" => $records, "total" => count($records)]);
+        $records = $records->select([
+            "hubstaff_activity_notifications.*", 
+            "u.name as user_name",
+            "av.minute as daily_working_hour",
+            "u.name as total_working_hour",
+        ])
+        ->get();
+
+         $recordsArr = []; 
+       foreach($records as $row){
+            $recordsArr[] = [
+
+                'id' => $row->id,
+                'user_name' => $row->user_name,
+                'start_date' => $row->start_date,
+                'daily_working_hour' => $row->daily_working_hour ? number_format($row->daily_working_hour,2,".","") : 0,
+                'total_working_hour' => $row->total_track? number_format($row->total_track/60/60,2,".","") : 0,
+                'min_percentage' => $row->min_percentage,
+                'actual_percentage' => $row->actual_percentage,
+                'reason' => $row->reason,
+                'status' => $row->status,
+                
+            ];
+       }   
+
+        return response()->json(["code" => 200, "data" => $recordsArr, "total" => count($records)]);
     }
 
     public function notificationReasonSave(Request $request)
