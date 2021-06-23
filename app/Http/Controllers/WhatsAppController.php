@@ -1987,6 +1987,7 @@ class WhatsAppController extends FindByNumberController
         $data['number'] = $request->get('number');
         // $params['status'] = 1;
 
+        $loggedUser = $request->user();
 
         if($request->add_autocomplete == "true"){
 
@@ -2129,6 +2130,10 @@ class WhatsAppController extends FindByNumberController
                     ]);
                 }
                 
+                $message_ = "[ ". $loggedUser->name ." ] - #". $task->id.' - '. $task->task_subject . "\n\n" . $request->message;
+
+                $this->sendEmailOrWebhookNotification($task->users->pluck('id')->toArray() , $message_ );
+
             }elseif($context == 'learning'){
                 $learning = \App\Learning::find($request->issue_id);
                 if($data['user_id'] == $learning->learning_user){
@@ -2242,6 +2247,7 @@ class WhatsAppController extends FindByNumberController
                     $issue = DeveloperTask::find($request->get('issue_id'));
 
                     $userId = $issue->assigned_to;
+
                     if ($sendTo == "to_master") {
                         if ($issue->master_user_id) {
                             $userId = $issue->master_user_id;
@@ -2456,47 +2462,10 @@ class WhatsAppController extends FindByNumberController
                     }
 
                     //START - Purpose : Email notification - DEVTASK-4359
-                    $user_data = User::where('id',Auth::user()->id)->first();
 
-                    if($user_data->mail_notification = 1)
-                    {
-                        $get_emails = EmailNotificationEmailDetails::where('user_id',Auth::user()->id)->first();
+                    $message_ = ($issue->task_type_id == 1 ? "[ ". $loggedUser->name ." ] - #DEVTASK-" : "#ISSUE-"). $issue->id.' - '. $issue->subject . "\n\n" . $request->message;
 
-                        if($get_emails != null)
-                        {
-
-                            $prefix = ($issue->task_type_id == 1) ? "#DEVTASK-" : "#ISSUE-";
-
-                            $subject = $prefix . $issue->id . '-' . $issue->subject;
-
-                            $mail_arr = explode(",",$get_emails->emails);
-                        
-                            if(count($mail_arr) > 0)
-                            {
-                                
-                                $emailAddress = EmailAddress::where('from_address', 'info@theluxuryunlimited.com')->first();
-
-                                foreach($mail_arr as $key => $mail_id){
-
-                                    $email = \App\Email::create([
-                                        'model_id'         => $issue->id, //Issue_id
-                                        'model_type'       => \App\DeveloperTask::class,
-                                        'from'             => $emailAddress->from_address,
-                                        'to'               => $mail_id,
-                                        'subject'          => $subject,
-                                        'message'          => $prefix . $issue->id . '-' . $issue->subject.' => '.$request->get('message'),
-                                        'template'         => 'customer-simple',
-                                        'additional_data'  => '',
-                                        'status'           => 'pre-send',
-                                        'store_website_id' => null,
-                                        'is_draft' => 0,
-                                    ]);
-
-                                    \App\Jobs\SendEmail::dispatch($email);
-                                }
-                            }
-                        }
-                    }
+                    $this->sendEmailOrWebhookNotification([$userId] , $message_ );
 
                     //END - DEVTASK-4359
 
@@ -2551,6 +2520,10 @@ class WhatsAppController extends FindByNumberController
                         'last_communicated_message_at' => Carbon::now(),
                         'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
                     ]);
+
+                    $message_ = ($issue->task_type_id == 1 ? "[ ". $loggedUser->name ." ]- #DEVTASK-" : "#ISSUE-"). $issue->id.' - '. $issue->subject . "\n\n" . $request->message;
+
+                    $this->sendEmailOrWebhookNotification([$userId] , $message_ );
 
                     return response()->json(['message' => $chat_message]);
 
@@ -5921,5 +5894,61 @@ class WhatsAppController extends FindByNumberController
         return response()->json(['data' => $data]);
     }
 
+    protected function sendEmailOrWebhookNotification($toUsers, $message){
+        
+        foreach($toUsers as $user_id){
+
+            $user = User::with('webhookNotification')->find($user_id);
+
+            if(!$user){
+                continue;
+            }
+            
+            $webhookNotification = $user->webhookNotification;
+            
+            try{
+
+                $webhookClient = new GuzzleClient();
+
+                $webhookClient->{$webhookNotification->method}($webhookNotification->url, [
+                    'body' => str_replace('[MESSAGE]', $message, $webhookNotification->payload),
+                    'connect_timeout' => 3,
+                    'headers' => ['Content-Type' => $webhookNotification->content_type ],
+                ]);
+
+            }catch(\Exception $e){
+                dd($e->getMessage());
+            }
+
+            // $mail_arr = explode(",",$get_emails->emails);
+            
+            //     if(count($mail_arr) > 0)
+            //     {
+                    
+            //         $emailAddress = EmailAddress::where('from_address', 'info@theluxuryunlimited.com')->first();
+
+            //         foreach($mail_arr as $key => $mail_id){
+
+            //             $email = \App\Email::create([
+            //                 'model_id'         => $issue->id, //Issue_id
+            //                 'model_type'       => \App\DeveloperTask::class,
+            //                 'from'             => $emailAddress->from_address,
+            //                 'to'               => $mail_id,
+            //                 'subject'          => $subject,
+            //                 'message'          => $message,
+            //                 'template'         => 'customer-simple',
+            //                 'additional_data'  => '',
+            //                 'status'           => 'pre-send',
+            //                 'store_website_id' => null,
+            //                 'is_draft' => 0,
+            //             ]);
+
+            //             \App\Jobs\SendEmail::dispatch($email);
+            //         }
+            //     }
+
+        }
+
+    }
 
 }
