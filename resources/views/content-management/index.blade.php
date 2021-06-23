@@ -104,7 +104,7 @@
 		        </td>
 		    </tr>
             @endforeach
-            @foreach (App\GmailDataList::get() as $gmailData)
+            @foreach ($gmail_data as $gmailData)
                 <tr>
                     <td>{{ ++$key }}</td>
                     <td>{{ $gmailData->domain }}</td>
