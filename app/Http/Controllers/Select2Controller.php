@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Customer;
 use App\User;
 use Illuminate\Http\Request;
+use App\Supplier;//Purpose : Add modal - DEVTASK-4236
 
 class Select2Controller extends Controller
 {

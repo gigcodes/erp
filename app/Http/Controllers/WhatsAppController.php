@@ -87,6 +87,7 @@ use Tickets;
 use App\Email;
 use App\EmailAddress;
 use App\EmailNotificationEmailDetails;//Purpose : Add Modal - DEVTASK-4359
+use App\Mails\Manual\PurchaseExport;//Purpose : Add Modal - DEVTASK-4236
 
 class WhatsAppController extends FindByNumberController
 {
@@ -5481,6 +5482,49 @@ class WhatsAppController extends FindByNumberController
             }
 
 
+        }
+
+        if($chat_message->supplier_id != "")
+        {
+            $supplier = Supplier::find($chat_message->supplier_id);
+         
+            if ($supplier) {
+
+                if ($chat_message->message != '') {
+                    $this->sendWithThirdApi($supplier->phone, $supplier->whatsapp_number, $chat_message->message, null, $chat_message->id);
+                }
+
+                if ($chat_message->additional_data != '') {
+                   $additional_data_arr =  json_decode($chat_message->additional_data);
+                   $path = $additional_data_arr->attachment[0];
+                   $subject = 'Product order';
+                    $message = 'Please check below product order request';
+                   if($path != '')
+                   {
+                        $emailClass = (new PurchaseExport($path, $subject, $message))->build();
+
+                        $email             = Email::create([
+                            'model_id'         => $supplier->id,
+                            'model_type'       => Supplier::class,
+                            'from'             => 'buying@amourint.com',
+                            'to'               => $supplier->email,
+                            'subject'          => $subject,
+                            'message'          => $message,
+                            'template'         => 'purchase-simple',
+                            'additional_data'  => json_encode(['attachment' => [$path]]),
+                            'status'           => 're-send',
+                            'is_draft'         => 0,
+                        ]);
+            
+                        \App\Jobs\SendEmail::dispatch($email);
+                   }
+                }
+
+                $chat_message->update([
+                    'resent' => $chat_message->resent + 1
+                ]);
+
+            }
         }
 
         return response()->json([
