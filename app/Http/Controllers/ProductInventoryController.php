@@ -25,6 +25,7 @@ use \App\Jobs\UpdateFromSizeManager;
 use DB;
 use Illuminate\Support\Facades\Input;
 use App\Imports\DiscountFileImport;
+use App\ProductSupplier;
 use App\Supplier;
 use App\SupplierBrandDiscount;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
@@ -198,28 +199,26 @@ class ProductInventoryController extends Controller
             $data['color'] = $request->color;
         }
 
-        if (isset($request->category) && $request->category[0] != 1) {
-			$is_parent = Category::isParent($request->category[0]);
+		if (isset($request->category) && $request->category[0] != 1) {
+
+			$category   = Category::with('childs.childLevelSencond')->find($request->category[0]);
 			$category_children = [];
-
-			if ($is_parent) {
-				$childs = Category::find($request->category[0])->childs()->get();
-
+			if($category->childs->count()){
+				$childs  = $category->childs;
 				foreach ($childs as $child) {
-					$is_parent = Category::isParent($child->id);
-
-					if ($is_parent) {
-						$children = Category::find($child->id)->childs()->get();
-
-						foreach ($children as $chili) {
-							array_push($category_children, $chili->id);
+					// $category_children[] =  $child->id;
+					if ($child->childLevelSencond->count()) {
+					$grandChilds     = $child->childLevelSencond;
+						foreach ($grandChilds as $grandChild) {
+							$category_children[] =  $grandChild->id;
 						}
-					} else {
-						array_push($category_children, $child->id);
+					}else{
+						$category_children[] =  $child->id;
 					}
 				}
-			} else {
-				array_push($category_children, $request->category[0]);
+			}else{
+				$category_children[] =  $category->id;
+
 			}
 				$productQuery = $productQuery->whereIn('category', $category_children);
 			$data['category'] = $request->category[0];
@@ -283,14 +282,19 @@ class ProductInventoryController extends Controller
         $productQuery->where(function($query){
         	$query->where("purchase_status","!=","Delivered")->orWhereNull("purchase_status");
         });
-		
       
-
+// dd($productQuery->count());
         if ($request->get('in_pdf') === 'on') {
             $data[ 'products' ] = $productQuery->whereRaw( "(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))" )->get();
         } else {
-            $data[ 'products' ] = $productQuery->whereRaw( "(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))" )->paginate( Setting::get( 'pagination' ) );
+	            $data[ 'products' ] = $productQuery->whereRaw( "(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))" )->paginate( Setting::get( 'pagination' ) );
+
+					// $data[ 'products' ] = $productQuery->whereIn('products.id',$sub_q)->orWhere(function($q){
+					// 	$q->whereNotNull('location')->where('location','<>','');
+					// })->paginate( Setting::get( 'pagination' ) );
+					// $data[ 'products' ] = $productQuery->whereIn('products.id',$sub_q)->orWhereNotNull('location')->where('location','<>','')->paginate( Setting::get( 'pagination' ) );
         }
+
         $data['date'] = $request->date ? $request->date : '';
 		$data['type'] = $request->type ? $request->type : '';
 		$data['customer_id'] = $request->customer_id ? $request->customer_id : '';
@@ -302,7 +306,7 @@ class ProductInventoryController extends Controller
 		$data['category_tree'] = [];
 		$data['categories_array'] = [];
 
-		foreach (Category::all() as $category) {
+		foreach (Category::with('parent')->get() as $category) {
 			if ($category->parent_id != 0) {
 				$parent = $category->parent;
 				if($parent) {
