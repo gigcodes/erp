@@ -473,7 +473,7 @@ class Kernel extends ConsoleKernel
 
             }
 
-            if(!empty($allowCounter) and $allowCounter==true and !empty($counterNo))
+            /*if(!empty($allowCounter) and $allowCounter==true and !empty($counterNo))
             {
                 $tempSettingData = DB::table('settings')->where('name','is_queue_sending_limit')->get();
                 $numbers = array_unique($counterNo);
@@ -494,7 +494,7 @@ class Kernel extends ConsoleKernel
                     DB::table('message_queue_history')->insert($insert_data);
 
                 }
-            }
+            }*/
         }
 
 
