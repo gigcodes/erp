@@ -13,7 +13,7 @@ class CreateMessageQueueHistoryTable extends Migration
 		$table->integer('id',11);
 		$table->string('number',180);
 		$table->integer('counter')->default('0');
-		$table->datetime('time')->default('CURRENT_TIMESTAMP');
+		$table->timestamp('time')->default(\DB::raw('CURRENT_TIMESTAMP'));
 
         });
     }

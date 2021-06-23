@@ -30,9 +30,6 @@
 
 
         <div class="container-fluid">
-            <button class="btn btn-success float-right" onclick="window.location.href='{{route('export.message.counter')}}';">Export Report</button>
-            <br>
-
             <table id="example" class="table table-striped table-bordered" style="width:100%">
                 <thead>
                 <tr>
