@@ -6,8 +6,8 @@
 		      	<th width="2%"></th>
 		      	<th width="2%">User</th>
 		        <th width="10%">Start Date</th>
-		        <th width="10%">Daily Availble Minutes</th>
-		        <th width="10%">Total Working Minutes</th>
+		        <th width="10%">Daily Availble hr</th>
+		        <th width="10%">Total Working hr</th>
 		        <th width="2%">Min Percentage</th>
 		        <th width="2%">Actual Percentage</th>
 		        <th width="10%">Reason</th>]
