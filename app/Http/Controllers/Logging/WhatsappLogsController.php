@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Logging;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+
 use Storage;
 
 class WhatsappLogsController extends Controller
@@ -197,22 +199,25 @@ class WhatsappLogsController extends Controller
         });
 //        dd($farray);
         /* end chat api */
-
         $page = $request->page;
         if ($page == null) {
             $page = 1;
         }
-
+        
         $array = array_slice($farray, ($page * 10 - 10), 10);
+
+        $roles = Auth::user()->roles->pluck('name')->toArray();
+
+        $isAdmin = in_array('Admin', $roles);
 
         if ($request->ajax()) {
             $page = $request->page - 1;
             $sr = $page * 10 - 9;
 
-            return view('logging.whatsapp-grid', compact('array','sr'));
+            return view('logging.whatsapp-grid', compact('array','sr','isAdmin'));
         }
 
-        return view('logging.whatsapp-logs', compact('array'));
+        return view('logging.whatsapp-logs', compact('array','isAdmin'));
 
     }
 }
