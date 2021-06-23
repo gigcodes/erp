@@ -17,7 +17,7 @@ class LearningModule extends Model
       * @SWG\Property(property="is_approved",type="boolean")
       * @SWG\Property(property="is_active",type="boolean")
      */
-	// /use SoftDeletes;
+	use SoftDeletes;
 	use NestableTrait;
 
 	protected $parent = 'parent_id';
