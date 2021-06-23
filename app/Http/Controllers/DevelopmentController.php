@@ -2375,10 +2375,11 @@ class DevelopmentController extends Controller
                     app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
                 } 
             }
-        }else{
+        }else{ 
             $users = User::get();
             foreach($users as $user){
                 if($user->isAdmin()){
+                    $receiver_user_phone = $user->phone;
                     if($receiver_user_phone){
                         $msg = 'TIME ESTIMATED BY USER FOR TASK ' . '#DEVTASK-' . $issue->id . '-' .$issue->subject . ' ' .  $request->estimate_minutes . ' MINS';
                         $chat = ChatMessage::create([
@@ -2392,7 +2393,7 @@ class DevelopmentController extends Controller
                         app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
                     } 
                 } 
-            }
+            }  
         }
         
         $issue->estimate_minutes = $request->get('estimate_minutes');

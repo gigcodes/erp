@@ -1037,8 +1037,6 @@ class WhatsAppController extends FindByNumberController
         $isReplied = false;
         // Log incoming webhook
         \Log::channel('chatapi')->debug('Webhook: ' . json_encode($data));
-        \Log::debug('Webhook: ' . json_encode($data));
-
         // Check for ack
         if (array_key_exists('ack', $data)) {
             ChatMessage::handleChatApiAck($data);
@@ -2474,14 +2472,15 @@ class WhatsAppController extends FindByNumberController
                         
                             if(count($mail_arr) > 0)
                             {
-                                $from_address      = \Config::get("mail.from.address");
+                                
+                                $emailAddress = EmailAddress::where('from_address', 'info@theluxuryunlimited.com')->first();
 
                                 foreach($mail_arr as $key => $mail_id){
 
                                     $email = \App\Email::create([
                                         'model_id'         => $issue->id, //Issue_id
                                         'model_type'       => \App\DeveloperTask::class,
-                                        'from'             => $from_address,
+                                        'from'             => $emailAddress->from_address,
                                         'to'               => $mail_id,
                                         'subject'          => $subject,
                                         'message'          => $prefix . $issue->id . '-' . $issue->subject.' => '.$request->get('message'),
