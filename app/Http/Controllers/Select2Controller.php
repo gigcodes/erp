@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Brand;
+use App\Category;
 use App\Customer;
+use App\Supplier;
 use App\User;
+use App\Vendor;
 use Illuminate\Http\Request;
 use App\Supplier;//Purpose : Add modal - DEVTASK-4236
 

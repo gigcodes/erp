@@ -2376,22 +2376,22 @@ class DevelopmentController extends Controller
                 } 
             }
         }else{
-            $users = User::get();
-            foreach($users as $user){
-                $receiver_user_phone = $user->phone;
-                if($receiver_user_phone){
-                    $msg = 'TIME ESTIMATED BY USER FOR TASK ' . '#DEVTASK-' . $issue->id . '-' .$issue->subject . ' ' .  $request->estimate_minutes . ' MINS';
-                    $chat = ChatMessage::create([
-                        'number' => $receiver_user_phone,
-                        'user_id' => $user->id,
-                        'customer_id' => $user->id,
-                        'message' => $msg,
-                        'status' => 0, 
-                        'developer_task_id' => $request->issue_id
-                    ]);
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
-                } 
-            }
+            // $users = User::get();
+            // foreach($users as $user){
+            //     $receiver_user_phone = $user->phone;
+            //     if($receiver_user_phone){
+            //         $msg = 'TIME ESTIMATED BY USER FOR TASK ' . '#DEVTASK-' . $issue->id . '-' .$issue->subject . ' ' .  $request->estimate_minutes . ' MINS';
+            //         $chat = ChatMessage::create([
+            //             'number' => $receiver_user_phone,
+            //             'user_id' => $user->id,
+            //             'customer_id' => $user->id,
+            //             'message' => $msg,
+            //             'status' => 0, 
+            //             'developer_task_id' => $request->issue_id
+            //         ]);
+            //         app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+            //     } 
+            // }
         }
         
         $issue->estimate_minutes = $request->get('estimate_minutes');
