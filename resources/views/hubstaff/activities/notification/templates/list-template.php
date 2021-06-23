@@ -10,7 +10,7 @@
 		        <th width="10%">Total Working hr</th>
 		        <th width="2%">Min Percentage</th>
 		        <th width="2%">Actual Percentage</th>
-		        <th width="10%">Reason</th>]
+		        <th width="10%">Reason</th>
 		        <th width="10%">Status</th>
 		        <th width="10%">Action</th>
 		      </tr>
