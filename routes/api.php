@@ -79,6 +79,7 @@ Route::post('get-customers', 'QuickSellController@getCustomers')->name('getCusto
 
 Route::get('product-template', 'ProductTemplatesController@apiIndex');
 Route::post('product-template', 'ProductTemplatesController@apiSave');
+Route::post('new-product-template', 'ProductTemplatesController@NewApiSave');
 
 
 Route::get('{client}/{numberFrom}/get-im','InstantMessagingController@getMessage');
@@ -139,6 +140,10 @@ Route::post('search/{type}', 'SearchQueueController@upload_content');
 Route::post('magento/customer-reference','MagentoCustomerReferenceController@store');
 
 Route::post('node/restart-script','ScrapController@restartNode');
+
+Route::post('node/update-script','ScrapController@updateNode');
+
+Route::post('node/kill-script','ScrapController@killNode');
 
 Route::post('local/instagram-post','InstagramPostsController@saveFromLocal');
 
@@ -213,13 +218,14 @@ Route::post('notification/create','\App\Http\Controllers\Api\v1\PushFcmNotificat
 //Saving Not Found Brand
 Route::get('missing-brand/save','MissingBrandController@saveMissingBrand');
 
-//Store data into the laravel_logs
+//Store data into the laravel_logs 
 Route::post('laravel-logs/save','LaravelLogController@saveNewLogData');
 
 
 
 Route::post('templates/create/webhook','TemplatesController@createWebhook');
 Route::post('product/templates/update/webhook','ProductTemplatesController@updateWebhook')->name('api.product.update.webhook');
+
 
 //check for order cancellation
 Route::post('order/check-cancellation','\App\Http\Controllers\Api\v1\ProductController@checkCancellation');
@@ -230,3 +236,8 @@ Route::post('wishlist/remove','\App\Http\Controllers\Api\v1\ProductController@wi
 Route::post('magento/order-create','MagentoCustomerReferenceController@createOrder');
 
 Route::post('scraper-images-save','scrapperPhyhon@imageSave');
+
+//New API for trust pilot reviews
+Route::get('review/get','\App\Http\Controllers\Api\v1\BrandReviewController@getAllBrandReview');
+Route::post('review/scrap' ,'\App\Http\Controllers\Api\v1\BrandReviewController@storeReview');
+

@@ -34,6 +34,6 @@ class WebsiteStoreView extends Model
 
     public function scrapperImage()
     {
-        return $this->hasMany(\App\scraperImags::class, 'website_id', 'code')->where('store_website','website_store_id');
+        return $this->hasMany(\App\scraperImags::class, 'website_id', 'code');
     }
 }

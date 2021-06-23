@@ -176,7 +176,7 @@ $metaData = '';
     <link href="https://unpkg.com/tabulator-tables@4.0.5/dist/css/tabulator.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.css">
-
+    <link rel="stylesheet" href="{{ url('css/global_custom.css') }}">
     @yield("styles")
 
     <script>
@@ -482,6 +482,8 @@ $metaData = '';
                                                 <a class="dropdown-item" href="{{ route('supplier.count') }}">Supplier Category Count</a>
                                                 <a class="dropdown-item" href="{{ route('supplier.brand.count') }}">Supplier Brand Count</a>
                                                 <a class="dropdown-item" href="{{ url('price-comparison-scraper') }}">Price comparison</a>
+                                                <a class="dropdown-item" href="{{ url('scrap/servers/statistics') }}">Scrap server statistics</a>
+                                                
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -516,6 +518,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'ordered') }}">Ordered Grid</a>
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'delivered') }}">Delivered Grid</a>
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'non_ordered') }}">Non Ordered Grid</a>
+                                            <a class="dropdown-item" href="{{ route('purchaseproductorders.list') }}">Purchase Product Orders</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -553,6 +556,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
                                             <a class="dropdown-item" href="{{ action('DubbizleController@index') }}">Dubzzle</a>
                                             <a class="dropdown-item" href="{{ route('log-scraper.index') }}">Scraper log</a>
+                                            <a class="dropdown-item" href="{{ route('log-scraper.api') }}">Scraper Api log</a>
                                             <a class="dropdown-item" href="{{ route('scrap-brand') }}">Scrap Brand</a>
                                         </li>
                                     </ul>
@@ -723,6 +727,7 @@ $metaData = '';
                                                 <a class="dropdown-item" href="{{ route('order.products') }}">Order Product List</a>
                                                 <a class="dropdown-item" href="{{ route('return-exchange.list') }}">Return-Exchange</a>
                                                 <a class="dropdown-item" href="{{ route('return-exchange.status') }}">Return-Exchange Status</a>
+                                                <a class="dropdown-item" href="{{ route('order.status.messages') }}">Order Status Messages</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -830,6 +835,11 @@ $metaData = '';
                                 <li class="nav-item">
                                     <a id="navbarDropdown" class="" href="{{ route('keywordassign.index') }}" role="button">Keyword Assign</a>
                                 </li>
+                                {{-- START - Purpose : Add new Menu Keyword Response Logs - DEVTASK-4233 --}}
+                                <li class="nav-item">
+                                    <a id="navbarDropdown" class="" href="{{ route('keywordreponse.logs') }}" role="button">Keyword Response Logs</a>
+                                </li>
+                                {{-- END - DEVTASK-4233 --}}
                                 <li class="nav-item">
                                     <a id="navbarDropdown" class="" href="{{ route('purchase-product.index') }}" role="button">Purchase</a>
                                 </li>
@@ -1348,6 +1358,12 @@ $metaData = '';
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('erp-log') }}">ERP Log</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('whatsapp.log') }}">Whatsapp Log</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('horizon') }}">Jobs</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1377,6 +1393,11 @@ $metaData = '';
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('message-queue.approve') }}">Message Queue Approval</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{route('message.counter')}}">Message Counter</a>
+                                    </li>
+
+
                                 </ul>
                             </li>
                         @endif
@@ -1440,7 +1461,7 @@ $metaData = '';
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.product-attribute.index') }}">Product Attribute</a>
                                     </li>
-									<li class="nav-item">
+                                    <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('scrapper.phyhon.index') }}">Site Scrapper Phyhon</a>
                                     </li>
                                     <li class="nav-item">
@@ -1797,6 +1818,9 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
                                         </li>
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('brand.logo_data')}}">Brand Logos</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('missing-brands.index')}}">Missing Brands</a>
                                         </li>
                                         <li class="nav-item dropdown">
@@ -1864,7 +1888,21 @@ $metaData = '';
                                 </li>
                             </ul>
                         </li>
-
+                         <!------    System Menu     !-------->
+                         <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin Menu <span class="caret"></span></a>
+                            <ul class="dropdown-menu multi-level">
+                                {{-- Sub Menu Admin Menu --}} 
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Database Menu<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('admin.databse.menu.direct.dbquery')}}">Direct DB Query</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
                     </ul>
 
                 </div>
@@ -1963,6 +2001,7 @@ $metaData = '';
         @include('partials.modals.quick-chatbox-window')
         @include('partials.modals.quick-zoom-meeting-window')
         @include('partials.modals.quick-create-task-window')
+        @include('partials.modals.quick-notes') {{-- Purpose : Import notes modal - DEVTASK-4289 --}}
         @php
             $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
             $key = \App\LivechatincSetting::first();
@@ -1976,6 +2015,9 @@ $metaData = '';
             <!---start section for the sidebar toggle -->
             <nav id="quick-sidebar">
                 <ul class="list-unstyled components">
+                    <li>
+                        <a class="notification-buttonS quick-icon" href="/"><span><i class="fa fa-home fa-2x"></i></span></a>
+                    </li>
                     <li>
                         <a class="notification-button quick-icon" href="#"><span><i class="fa fa-bell fa-2x"></i></span></a>
                     </li>
@@ -2022,6 +2064,13 @@ $metaData = '';
                             <span><i class="fa fa-refresh fa-2x" aria-hidden="true"></i></span>
                         </a>
                     </li>
+                    {{-- START - Purpose : Add Notes - DEVTASK-4289 --}}
+                    <li>
+                        <a title="Add Notes" class="create_notes_btn quick-icon" href="#">
+                            <span><i class="fa fa-book fa-2x" aria-hidden="true"></i></span>
+                        </a>
+                    </li>
+                    {{-- END - DEVTASK-4289 --}}
                 </ul>
             </nav>
             <!-- end section for sidebar toggle -->
@@ -2081,15 +2130,17 @@ $metaData = '';
                             </div>
                             <div class="card-body contacts_body">
                                 @php
-                                $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
+                                $chatIds = \App\CustomerLiveChat::with('customer')->orderBy('seen','asc')
+                                ->orderBy('status','desc')
+                                ->get();
                                 $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                 @endphp
                                 <ul class="contacts" id="customer-list-chat">
                                     @foreach ($chatIds as $chatId)
-                                    @php
-                                    $customer = \App\Customer::where('id',$chatId->customer_id)->first();
-                                    $customerInital = substr($customer->name, 0, 1);
-                                    @endphp
+                                        @php
+                                        $customer = $chatId->customer;
+                                        $customerInital = substr($customer->name, 0, 1);
+                                        @endphp
                                     <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
                                         <div class="d-flex bd-highlight">
                                             <div class="img_cont">
@@ -2264,6 +2315,10 @@ $metaData = '';
     <script type="text/javascript" src="{{asset('js/jquery.cookie.js')}}"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+
+    <script type="text/javascript" src="{{url('js/jquery-ui.js')}}"></script>
+    <script type="text/javascript" src="{{url('js/custom_global_script.js')}}"></script>
+
     <script>
         $(document).ready(function() {
             //$.cookie('auto_refresh', '0', { path: '/{{ Request::path() }}' });
@@ -2293,6 +2348,9 @@ $metaData = '';
 
             $('#editor-note-content').richText();
             $('#editor-instruction-content').richText();
+
+            $('#editor-notes-content').richText();//Purpose : Add Text content - DEVTASK-4289
+
             $('#notification-date').datetimepicker({
                 format: 'YYYY-MM-DD'
             });
@@ -2337,6 +2395,46 @@ $metaData = '';
             //$('.help-button-wrapper').toggleClass('expanded');
             //$('.instruction-notes-list-rt').toggleClass('dis-none');
         });
+
+        //START - Purpose : Open Modal - DEVTASK-4289
+        $('.create_notes_btn').on('click', function() {
+            $("#quick_notes_modal").modal("show");
+        });
+
+        $('.btn_save_notes').on('click', function(e) {
+            e.preventDefault();
+            var data = $('#editor-notes-content').val();
+
+            if($(data).text() == ''){
+                toastr['error']('Note Is Required');
+                return false;
+            }
+            
+
+            var url  = window.location.href;
+            $.ajax({
+                type: "POST",
+                url: "{{ route('notesCreate') }}",
+                data: {
+                    data: data,
+                    url : url,
+                    _token: "{{ csrf_token() }}",
+                },
+                dataType: "json",
+                success: function(data) {
+                    if(data.code == 200)
+                    {
+                        toastr['success'](data.message, 'success');
+                        $("#quick_notes_modal").modal("hide");
+                    }
+                   
+                },
+                error : function(xhr, status, error) {
+                   
+                }
+            });
+        });
+        //END - DEVTASK-4289
 
         $('.notification-button').on('click', function() {
             $("#quick-user-event-notification-modal").modal("show");

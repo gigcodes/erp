@@ -23,4 +23,9 @@ class GmailData extends Model
         'images' => 'array',
         'tags' => 'array',
     ];
+
+    public function gmailDataMedia()
+    {
+        return $this->hasMany(GmailDataMedia::class);
+    }
 }

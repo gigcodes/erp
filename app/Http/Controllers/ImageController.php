@@ -115,22 +115,24 @@ class ImageController extends Controller
     public function indexNew(Request $request)
     {
       if (!isset($request->sortby) || $request->sortby == 'asc') {
-        $images = Images::where('status', '1')->whereNull('approved_date');
+        $images = Images::where('images.status', '1')->whereNull('approved_date');
       } else {
-        $images = Images::where('status', '1')->whereNull('approved_date')->latest();
+        $images = Images::where('images.status', '1')->whereNull('approved_date')->latest();
       }
 
       $brand = '';
       $category = '';
       $price = null;
 
-      if ($request->brand[0] != null) {
+      //Purpose : Add isset() for Brancd - DEVTASK-4378
+      if (isset($request->brand) && $request->brand[0] != null) {
          $images = $images->whereIn('brand', $request->brand);
 
          $brand = $request->brand[0];
         }
 
-      if ($request->category[0] != null && $request->category[0] != 1) {
+      //Purpose : Add isset() for Category - DEVTASK-4378
+      if (isset($request->category) && $request->category[0] != null && $request->category[0] != 1) {
          $is_parent = Category::isParent($request->category[0]);
          $category_children = [];
 
@@ -179,11 +181,14 @@ class ImageController extends Controller
         $category_selection = Category::attr(['name' => 'category[]','class' => 'form-control select-multiple'])
                                                 ->selected($selected_categories)
                                                 ->renderAsDropdown();
-
+        if( !empty(request('product_name')) ){
+            $images->leftjoin('products','products.id','=','images.product_id');
+            $images->where('products.name', 'like', '%'.request('product_name').'%');
+        }
       $images = $images->select('images.*')->orderBy('id','desc')
-                ->groupBy(\DB::raw('ifnull(product_id,id)'))
+                ->groupBy(\DB::raw('ifnull(product_id,images.id)'))
                 ->paginate(Setting::get('pagination'));
-      // dd($images);
+      
       return view('images.index-new')->with([
         'images'  => $images,
         'brands'  => $brands,

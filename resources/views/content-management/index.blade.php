@@ -56,13 +56,13 @@
 		    </div>
 	    </div>	
 		<div>
-        <table class="table table-bordered table-striped" style="table-layout:fixed;">
+        <table class="table table-bordered" style="table-layout:fixed;">
             <tr>
                 <th style="width:5%;">Sl no</th>
                 <th style="width:20%;">Site name</th>
                 <th style="width:35%;">Facebook</th>
-                <th style="width:35%;">Instagram</th>
-                <th style="width:5%;">Action</th>
+                <th style="width:30%;">Instagram</th>
+                <th style="width:10%;">Action</th>
             </tr>
             @foreach($websites as $key => $website)
             <tr>
@@ -79,18 +79,63 @@
 				@endif
 				</td>
                 <td>
-				<button type="button" class="btn pd-3">
-			        <a href="/content-management/manage/{{$website->id}}">
-			        	<img width="15px" title="Manage Contents" src="/images/project.png">
-			        </a>
-				</button> 
-				<button type="button" class="btn preview-img-btn pd-3" data-id="{{$website->id}}">
-					<i class="fa fa-eye" aria-hidden="true"></i>
-				</button>
+                	<div class="d-flex"> 
+	                	<button title="Open Images" type="button" class="btn preview-attached-img-btn btn-image no-pd" data-id="{{$website->id}}">
+							<img src="/images/forward.png" style="cursor: default;">
+						</button>
+						<button title="Post instagram" type="button" class="btn post-to-instagram btn-image no-pd" data-id="{{$website->id}}">
+							<img src="/images/instagram.svg" style="cursor: default;">
+						</button>
+						<button type="button" class="btn pd-3">
+					        <a href="/content-management/manage/{{$website->id}}">
+					        	<img width="15px" title="Manage Contents" src="/images/project.png">
+					        </a>
+						</button> 
+						<button type="button" class="btn preview-img-btn pd-3" data-id="{{$website->id}}">
+							<i class="fa fa-eye" aria-hidden="true"></i>
+						</button>
+                		
+                	</div>
 				</td>
             </tr>
+            <tr class="expand-{{$website->id}} hidden">
+		        <td colspan="7" id="attach-image-list-{{$website->id}}">
+		        
+		        </td>
+		    </tr>
             @endforeach
-        
+            @foreach ($gmail_data as $gmailData)
+                <tr>
+                    <td>{{ ++$key }}</td>
+                    <td>{{ $gmailData->domain }}</td>
+                    <td>{{ $gmailData->facebook }}</td>
+                    <td>{{ $gmailData->instagram }}</td>
+                    <td>
+                        <div class="d-flex"> 
+                            <button title="Open Images" type="button" class="btn preview-attached-img-btn-gmail btn-image no-pd" data-id="{{$gmailData->id}}" data-images="{{ $gmailData->gmailDataMedia }}">
+                                <img src="/images/forward.png" style="cursor: default;">
+                            </button>
+                            <button title="Post instagram" type="button" class="btn btn-image no-pd" data-id="{{$gmailData->id}}">
+                                <img src="/images/instagram.svg" style="cursor: default;">
+                            </button>
+                            <button type="button" class="btn pd-3">
+                                {{-- <a href="/content-management/manage/{{$gmailData->id}}"> --}}
+                                    <img width="15px" title="Manage Contents" src="/images/project.png">
+                                {{-- </a> --}}
+                            </button> 
+                            <button type="button" class="btn preview-img-btn pd-3" data-id="{{$gmailData->id}}">
+                                <i class="fa fa-eye" aria-hidden="true"></i>
+                            </button>
+                            
+                        </div>
+                    </td>
+                </tr>
+                <tr class="expand-gmail-{{$gmailData->id}} hidden">
+                    <td colspan="7" id="attach-gamil-image-list-{{$gmailData->id}}">
+                        
+                    </td>
+                </tr>
+            @endforeach
             </table>
     </div>
 	</div>
@@ -138,7 +183,109 @@
         </div>
     </div>
 </div>
+
+<form method="post" class="d-none" id="PostImgInstaMedia" action="{{route('instagram.post.images')}}">
+    @csrf
+    <div class="row">
+          <input type="hidden" name="media_ids" id="media_ids">
+    </div>
+</form>
 <script type="text/javascript">
+
+		$(document).on("click", ".post-to-instagram", function (event) {
+
+            var website = $(this).data("id");
+            $("#forward_suggestedproductid").val(website);
+            /* alert(suggestedproductid); 
+            return false; */
+            var cus_cls = ".customer-"+website;
+            var total = $(cus_cls).find(".select-pr-list-chk").length;
+            image_array = [];
+            for (i = 0; i < total; i++) {
+             var customer_cls = ".customer-"+website+" .select-pr-list-chk";
+             var $input = $(customer_cls).eq(i);
+            var productCard = $input.parent().parent().find(".attach-photo");
+            if (productCard.length > 0) {
+                    var image = productCard.data("media");
+                    if ($input.is(":checked") === true) {
+                        image_array.push(image);
+                        image_array = unique(image_array);
+                    }
+                }
+            }
+
+            if (image_array.length == 0) {
+                alert('Please select some images');
+                return;
+            }
+            console.log(image_array);
+            $('#media_ids').val(image_array);
+            $("#PostImgInstaMedia").submit();
+
+        });
+
+        function unique(list) {
+            var result = [];
+            $.each(list, function (i, e) {
+                if ($.inArray(e, result) == -1) result.push(e);
+            });
+            return result;
+        }
+
+		$(document).on('click', '.preview-attached-img-btn', function (e) {     
+            e.preventDefault();
+            var websiteId = $(this).data('id');
+            if( websiteId == '' && websiteId != '0' ){
+            	 alert('No webiste select');
+            	 return false;
+            }
+            $.ajax({
+                url: '/content-management/manage/attach/images',
+                type: 'POST',
+                data: { _token: "{{ csrf_token() }}", websiteId: websiteId},
+                dataType: 'html',
+            }).done(function (data) {
+                $('#attach-image-list-'+websiteId).html(data);
+            }).fail(function () {
+                alert('Error searching for images');
+            });
+            
+            var expand = $('.expand-'+websiteId);
+            $(expand).toggleClass('hidden');
+
+        });
+
+		$(document).on('click', '.preview-attached-img-btn-gmail', function (e) {     
+            console.log($(this).data('images'));
+            e.preventDefault();
+            var website_Id = $(this).data('id');
+            if( website_Id == '' && website_Id != '0' ){
+            	 alert('No webiste select');
+            	 return false;
+            }
+            
+            const images__ =$(this).data('images')
+            let html =""
+            images__.forEach(element => {
+                html += '<img src="'+element.images+'">'
+            });
+            // $.ajax({
+            //     url: '/content-management/manage/attach/images',
+            //     type: 'POST',
+            //     data: { _token: "{{ csrf_token() }}", website_Id: website_Id},
+            //     dataType: 'html',
+            // }).done(function (data) {
+            //     $('#attach-gmail-image-list-'+website_Id).html(data);
+            // }).fail(function () {
+            //     alert('Error searching for images');
+            // });
+            $('#attach-gamil-image-list-'+website_Id).append(html);
+            
+            var expand = $('.expand-gmail-'+website_Id);
+            $(expand).toggleClass('hidden');
+
+        });
+
 	    $(document).on('click', '.add-social-account', function (e) {
             e.preventDefault();
             $.ajax({

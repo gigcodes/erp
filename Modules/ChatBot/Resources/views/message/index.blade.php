@@ -48,6 +48,20 @@
                                     </option>
                                 </select>
                             </div>
+
+                            <!-- START - Purpose : Set unreplied messages - DEVATSK=4350 -->
+                            <div>
+                                
+                                    @if(isset($_REQUEST['unreplied_msg']) && $_REQUEST['unreplied_msg']== true)
+                                        @php $check_status = 'checked'; @endphp
+                                    @else
+                                        @php $check_status = ''; @endphp
+                                    @endif
+                               
+                                <input type="checkbox" id="unreplied_msg" name="unreplied_msg" {{$check_status}} value="true"> Unreplied Messages
+                            </div>
+                            <!-- END - DEVATSK=4350 -->
+
                             <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
                                 <img src="/images/search.png" style="cursor: default;">
                             </button>
@@ -269,23 +283,69 @@
         });
 
         $(document).on('click', '.send-message1', function () {
+            console.log('*****************************');
             var thiss = $(this);
             var data = new FormData();
-            var type = "customer";
+            
             var field = "customer_id";
             var tr  = $(this).closest("tr").find("td").first();
             var typeId = tr.data('customer-id');
+            var chatMessageReplyId = tr.data('chat-message-reply-id')
+            var type = tr.data("context");
+
+            console.log(type);
+
             if(parseInt(tr.data("vendor-id")) > 0) {
                 type = "vendor";
                 typeId = tr.data("vendor-id");
                 field = "vendor_id";
+
+                //START - Purpose : Add vendor content - DEVTASK-4203
+                var message = thiss.closest(".cls_textarea_subbox").find("textarea").val();
+                data.append("vendor_id", typeId);
+                data.append("message", message);
+                data.append("status", 2);
+                data.append("sendTo", 'to_developer');
+                data.append("chat_reply_message_id", chatMessageReplyId)
+                //END - DEVTASK-4203
             }
-            console.log("Field is as per this",[type,typeId,field,tr]);
+            
             var customer_id = typeId;
             var message = thiss.closest(".cls_textarea_subbox").find("textarea").val();
-            data.append(field, typeId);
-            data.append("message", message);
-            data.append("status", 1);
+
+            if(type === 'customer'){
+
+                data.append("customer_id", typeId);
+                data.append("message", message);
+                data.append("status", 1);
+
+            }else if(type === 'issue'){
+
+                data.append('issue_id', typeId);
+                data.append("message", message);
+                data.append("sendTo", 'to_developer');
+                data.append("status", 2)
+                data.append("chat_reply_message_id", chatMessageReplyId)
+
+            }else if(type === 'issue'){
+                data.append('issue_id', typeId);
+                data.append("message", message);
+                data.append("status", 1)
+                data.append("chat_reply_message_id", chatMessageReplyId)
+            }
+            //START - Purpose : Task message - DEVTASK-4203
+            else if(type === 'task'){
+                data.append('task_id', typeId);
+                data.append("message", message);
+                data.append("status", 2)
+                data.append("sendTo", 'to_developer');
+                data.append("chat_reply_message_id", chatMessageReplyId)
+            }
+            //END - DEVTASK-4203
+
+
+            var add_autocomplete  = thiss.closest(".cls_textarea_subbox").find("[name=add_to_autocomplete]").is(':checked') ;
+            data.append("add_autocomplete", add_autocomplete);
 
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {

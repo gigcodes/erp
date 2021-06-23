@@ -1179,7 +1179,7 @@
             }
             
             $('#forward-products-form').find('#product_lists').val(JSON.stringify(image_array));
-            $('#forward-products-form').find('#forward_type').val('attach');
+            $('#forward-products-form').find('#forward_type').val('forward');
             $("#forwardProductsModal").modal('show');
             $('select.select2').select2({
                 width: "100%"
@@ -1213,7 +1213,7 @@
             }
             
             $('#forward-products-form').find('#product_lists').val(JSON.stringify(image_array));
-            $('#forward-products-form').find('#forward_type').val('attach');
+            $('#forward-products-form').find('#forward_type').val('forward');
             $("#forwardProductsModal").modal('show');
             $('select.select2').select2({
                 width: "100%"

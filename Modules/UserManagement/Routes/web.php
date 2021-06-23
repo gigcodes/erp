@@ -16,6 +16,7 @@ Route::prefix('user-management')->middleware('auth')->group(function() {
     Route::get('/', 'UserManagementController@index')->name("user-management.index");
     Route::post('/request-list', 'UserManagementController@permissionRequest')->name("user-management.permission.request");
     Route::post('/task-activity', 'UserManagementController@taskActivity')->name("user-management.task.activity");
+    Route::post('today-task-history', 'UserManagementController@todayTaskHistory')->name("user-management.today.task.history");
     Route::post('modifiy-permission', 'UserManagementController@modifiyPermission')->name("user-management.modifiy.permission");
     Route::get('/edit/{id}', 'UserManagementController@edit')->name("user-management.edit");
     Route::get('/role/{id}', 'UserManagementController@getRoles')->name("user-management.get-role");
@@ -46,9 +47,11 @@ Route::prefix('user-management')->middleware('auth')->group(function() {
     Route::get('/records', 'UserManagementController@records')->name("user-management.records");
     Route::get('/user-details/{id}', 'UserManagementController@GetUserDetails')->name("user-management.user-details");
     Route::get('task-hours/{id}', 'UserManagementController@getPendingandAvalHour')->name("user-management.task-hours");
+    Route::get('/system-ips', 'UserManagementController@systemIps');
     Route::get('{id}/get-database', 'UserManagementController@getDatabase')->name("user-management.get-database");
     Route::post('{id}/create-database', 'UserManagementController@createDatabaseUser')->name("user-management.create-database");
     Route::post('{id}/assign-database-table', 'UserManagementController@assignDatabaseTable')->name("user-management.assign-database-table");
     Route::post('{id}/delete-database-access', 'UserManagementController@deleteDatabaseAccess')->name("user-management.delete-database-access");
     Route::post('{id}/choose-database', 'UserManagementController@chooseDatabase')->name("user-management.choose-database");
+    Route::post('/update-status', 'UserManagementController@updateStatus');
 });

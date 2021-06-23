@@ -20,30 +20,47 @@ class MessageController extends Controller
     {
         $search = request("search");
         $status = request("status");
+        $unreplied_msg = request("unreplied_msg");//Purpose : get unreplied message value - DEVATSK=4350
 
-        $pendingApprovalMsg = ChatMessage::leftjoin("customers as c", "c.id", "chat_messages.customer_id")
+
+        $pendingApprovalMsg = ChatMessage::with('taskUser', 'chatBotReplychat', 'chatBotReplychatlatest')
+            ->leftjoin("customers as c", "c.id", "chat_messages.customer_id")
             ->leftJoin("vendors as v", "v.id", "chat_messages.vendor_id")
-            ->leftJoin("store_websites as sw","sw.id","c.store_website_id")
+            ->leftJoin("suppliers as s", "s.id", "chat_messages.supplier_id")
+            ->leftJoin("store_websites as sw", "sw.id", "c.store_website_id")
             ->Join("chatbot_replies as cr", "cr.replied_chat_id", "chat_messages.id")
-            ->leftJoin("chat_messages as cm1", "cm1.id", "cr.chat_id");
-
+            ->leftJoin("chat_messages as cm1", "cm1.id", "cr.chat_id")
+            ->groupBy(['chat_messages.customer_id','chat_messages.vendor_id','chat_messages.user_id', 'chat_messages.task_id','chat_messages.developer_task_id']);//Purpose : Add task_id - DEVTASK-4203
+            
         if (!empty($search)) {
             $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($search) {
                 $q->where("cr.question", "like", "%" . $search . "%")->orWhere("cr.answer", "Like", "%" . $search . "%");
             });
         }
 
-        if(isset($status) && $status !== null){
+        //START - Purpose : get unreplied messages - DEVATSK=4350 
+        if (!empty($unreplied_msg)) {
+            $pendingApprovalMsg = $pendingApprovalMsg->where('cm1.message',null);
+        }
+        //END - DEVATSK=4350 
+
+        if (isset($status) && $status !== null) {
             $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($status) {
                 $q->where("chat_messages.approved", $status);
             });
         }
 
-        $pendingApprovalMsg = $pendingApprovalMsg->where(function($q) {
-            $q->where("chat_messages.message","!=", "");
-        })->select(["chat_messages.*", "cm1.id as chat_id", "cr.question","cm1.message as answer", "c.name as customer_name","v.name as vendors_name","cr.reply_from","cm1.approved","sw.title as website_title"])
-        ->orderBy("chat_messages.id","desc")
-        ->paginate(20);
+        $pendingApprovalMsg = $pendingApprovalMsg->whereRaw("chat_messages.id in (select max(chat_messages.id) as latest_message from chat_messages JOIN chatbot_replies as cr on cr.replied_chat_id = `chat_messages`.`id` where (customer_id > 0 or vendor_id > 0 or task_id > 0 or developer_task_id > 0 or user_id > 0 or supplier_id > 0)  GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id)");
+
+        $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
+            $q->where("chat_messages.message", "!=", "");
+        })->select(['cr.id as chat_bot_id', "chat_messages.*", "cm1.id as chat_id", "cr.question",
+            "cm1.message as answer",
+            "c.name as customer_name", "v.name as vendors_name","s.supplier as supplier_name", "cr.reply_from", "cm1.approved", "sw.title as website_title"])
+            ->orderBy('cr.id', 'DESC')
+            ->paginate(20);
+
+            // dd($pendingApprovalMsg);
             
         $allCategory = ChatbotCategory::all();
         $allCategoryList = [];
@@ -54,7 +71,7 @@ class MessageController extends Controller
         }
         $page = $pendingApprovalMsg->currentPage();
         if ($request->ajax()) {
-            $tml = (string) view("chatbot::message.partial.list", compact('pendingApprovalMsg', 'page','allCategoryList'));
+            $tml = (string)view("chatbot::message.partial.list", compact('pendingApprovalMsg', 'page', 'allCategoryList'));
             return response()->json(["code" => 200, "tpl" => $tml, "page" => $page]);
         }
 
@@ -106,8 +123,8 @@ class MessageController extends Controller
     {
         $id = $request->get("chat_id", 0);
 
-        $data   = [];
-        $ids    = [];
+        $data = [];
+        $ids = [];
         $images = [];
 
         if ($id > 0) {
@@ -117,11 +134,11 @@ class MessageController extends Controller
             if ($chatMessages) {
                 $chatsuggestion = $chatMessages->suggestion;
                 if ($chatsuggestion) {
-                    $data    = SuggestedProduct::attachMoreProducts($chatsuggestion);
-                    $code    = 500;
+                    $data = SuggestedProduct::attachMoreProducts($chatsuggestion);
+                    $code = 500;
                     $message = "Sorry no images found!";
                     if (count($data) > 0) {
-                        $code    = 200;
+                        $code = 200;
                         $message = "More images attached Successfully";
                     }
                     return response()->json(["code" => $code, "data" => $data, "message" => $message]);
@@ -138,9 +155,9 @@ class MessageController extends Controller
     public function forwardToCustomer(Request $request)
     {
         $customer = $request->get("customer");
-        $images   = $request->get("images");
+        $images = $request->get("images");
 
-        if($customer > 0 && !empty($images)) {
+        if ($customer > 0 && !empty($images)) {
 
             $params = request()->all();
             $params["user_id"] = \Auth::id();
@@ -150,12 +167,12 @@ class MessageController extends Controller
             $groupId = \DB::table('chat_messages')->max('group_id');
             $params["group_id"] = ($groupId > 0) ? $groupId + 1 : 1;
             $params["images"] = $images;
-            
+
             \App\Jobs\SendMessageToCustomer::dispatch($params);
 
         }
 
-        return response()->json(["code" => 200 , "data" => [], "message" => "Message forward to customer(s)"]);
+        return response()->json(["code" => 200, "data" => [], "message" => "Message forward to customer(s)"]);
 
     }
 
@@ -163,20 +180,20 @@ class MessageController extends Controller
     {
         $chatId = $request->get("chat_id");
 
-        if(!empty($chatId)) {
+        if (!empty($chatId)) {
             $chatMessage = \App\ChatMessage::find($chatId);
-            if($chatMessage) {
+            if ($chatMessage) {
                 $customer = $chatMessage->customer;
-                if($customer) {
+                if ($customer) {
                     $params = $chatMessage->getAttributes();
-                    \App\Helpers\MessageHelper::whatsAppSend($customer,$chatMessage->message, null , $chatMessage);
-                    \App\Helpers\MessageHelper::sendwatson($customer,$chatMessage->message, null , $chatMessage, $params, false, 'customer');
-                    return response()->json(["code" => 200 , "data" => [] , "message" => "Message sent Successfully"]);
+                    \App\Helpers\MessageHelper::whatsAppSend($customer, $chatMessage->message, null, $chatMessage);
+                    \App\Helpers\MessageHelper::sendwatson($customer, $chatMessage->message, null, $chatMessage, $params, false, 'customer');
+                    return response()->json(["code" => 200, "data" => [], "message" => "Message sent Successfully"]);
                 }
             }
         }
 
-        return response()->json(["code" => 500 , "data" => [] , "message" => "Message not exist in record"]);
-    } 
+        return response()->json(["code" => 500, "data" => [], "message" => "Message not exist in record"]);
+    }
 
 }

@@ -145,6 +145,64 @@
                             </div>
                         </div>
                     @endif
+                    
+                    <!-- START - Purpose : Email notification - DEVTASK-4359 -->
+                    <div class="col-xs-12 col-sm-12 col-md-12 notification_mail_id_cls">
+                        <div class="form-group">
+                            <hr>
+                            <strong>Email Notification :</strong>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 email_notification_chkbox_cls">
+                        <div class="form-group">
+                            @if ($user->mail_notification == 1)
+                            <input type="checkbox" id="email_notification_chkbox" name="email_notification_chkbox" checked value="">
+                            @else
+                            <input type="checkbox" id="email_notification_chkbox" name="email_notification_chkbox" value="">
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 notification_mail_id_cls">
+                        <div class="form-group">
+                            <strong>Email Id :</strong> (Add Multiple Email Saprated by comma)
+                            <input type="text" name="notification_mail_id" class="form-control" value="{{$email_notification_data->emails ?? ''}}">
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 notification_mail_id_cls">
+                        <div class="form-group">
+                            <hr>
+                            <strong>Webhook Notifications:</strong>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 notification_mail_id_cls">
+                        <div class="form-group">
+                            <strong>Method:</strong>
+                            <select class="form-control" name=webhook[method] >
+                                <option value="" >Select Request Method</option>
+                                <option value="GET"  {{ $user->webhookNotification && $user->webhookNotification->method === 'get' ? 'selected' : '' }} >GET</option>
+                                <option value="POST" {{ $user->webhookNotification && $user->webhookNotification->method === 'post' ? 'selected' : '' }} >POST</option>
+                                <option value="PUT" {{ $user->webhookNotification && $user->webhookNotification->method === 'put' ? 'selected' : '' }} >PUT</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <strong>Url:</strong>
+                            <input type="text" name="webhook[url]" class="form-control" value="{{ $user->webhookNotification->url ?? '' }}">
+                        </div>
+                        <div class="form-group">
+                            <strong>Content Type:</strong>
+                            <input type="text" name="webhook[content_type]" class="form-control" value="{{ $user->webhookNotification->content_type ?? '' }}">
+                        </div>
+                        <div class="form-group">
+                            <strong>Payload:</strong>
+                            <input type="text" name="webhook[payload]" class="form-control" value="{{  $user->webhookNotification->payload ?? ''}}">
+                        </div>
+                    </div>
+                    
+
+                    <!-- END - DEVTASK-4359 -->
 
                     <div class="col-xs-12 col-sm-12 col-md-12 text-center">
                         <button type="submit" class="btn btn-secondary">Save Changes</button>
@@ -235,6 +293,19 @@
 @section('scripts')
 
 <script>
+    //START - Purpose : set Checkbox val - DEVTASK-4359
+    $(document).ready(function(){
+            
+            $('#email_notification_chkbox').on('click', function() {
+                if($('#email_notification_chkbox').is(":checked") == true){
+                    $('#email_notification_chkbox').val('1');
+                }else{
+                    $('#email_notification_chkbox').val('0');
+                }
+            });
+        });
+    //END - DEVTASK-4359
+
 function permissionSearch() {
     var input, filter, ul, li, a, i, txtValue;
     input = document.getElementById("myInput");

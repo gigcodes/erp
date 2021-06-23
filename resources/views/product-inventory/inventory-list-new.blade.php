@@ -110,6 +110,19 @@
     </div>
 </div>
 
+<div id="product-inventory-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Status History</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <div id="inventory-history-modal" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -261,6 +274,39 @@
         $('#status-history-modal .modal-body').html(result)
 
         $('#status-history-modal').modal('show')
+    })
+
+    //product inventory
+
+
+    $('body').delegate('.show-products-inventories', 'click', function() {
+
+        let data = $(this).parent().parent().find('.status-history').attr('data')
+        let result = '';
+
+        if (data != '[]') {
+            data = JSON.parse(data)
+
+            result += '<table class="table table-bordered">';
+            result += '<thead><th>old status</th><th>new status</th><th>created at</th></thead>';
+            result += '<tbody>';
+            for (let value in data) {
+                result += '<tr>';
+                result += "<td>" + data[value].old_status + "</td>"
+                result += "<td>" + data[value].new_status + "</td>"
+                result += "<td>" + data[value].created_at + "</td>"
+                result += '</tr>';
+            }
+            result += '</tbody>';
+            result += '</table>';
+
+        } else {
+            result = '<h3>This Product dont have status history</h3>';
+        }
+
+        $('#product-inventory-modal .modal-body').html(result)
+
+        $('#product-inventory-modal').modal('show')
     })
 
 

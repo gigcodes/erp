@@ -109,11 +109,19 @@
                     </div>
                 </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    @if(auth()->user()->isReviwerLikeAdmin())
-                        <button type="submit" class="btn btn-secondary">Confirm</button>
+                <div class="modal-footer1 mx-5 d-flex justify-content-between">
+                    <div class="b">
+                    @if(\Auth::user()->isAdmin())
+                        <button type="button" class="btn btn-secondary remind_btn" disabled>Remind</button>
+                        <button type="button" class="btn btn-secondary revise_btn">Revise</button>
                     @endif
+                    </div>
+                    <div class="a">
+                        <button type="button" class="btn btn-default close_btn" data-dismiss="modal">Close</button>
+                        @if(auth()->user()->isReviwerLikeAdmin())
+                            <button type="submit" class="btn btn-secondary confirm_btn">Confirm</button>
+                        @endif
+                    </div>
                 </div>
             </form>
         </div>

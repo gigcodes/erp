@@ -22,6 +22,11 @@
       </div>
 
       <div class="form-group mr-3">
+        <strong class="mr-3">Product</strong>
+        <input type="text" name="product_name" class="form-control" value="{{ request('product_name') }}" placeholder="Enter product name" />
+      </div>
+
+      <div class="form-group mr-3">
         <strong class="mr-3">Price</strong>
         <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="10000000" data-slider-step="10" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '10000000' }}]"/>
       </div>
@@ -138,6 +143,7 @@
         <thead>
           <th>#ID</th>
           <th>Category</th>
+          <th>Brand</th>
           <th>Price</th>
           <th>Product name</th>
           <th>Date</th>
@@ -147,8 +153,9 @@
           @foreach($images as $image)
             <tr>
               <td>{{ $image->id }}</td>
-              <td>{{ $image->category }}</td>
-              <td>{{ $image->price }}</td>
+              <td>{{  ( !empty($image->product) && !empty($image->product->categories) ) ?  $image->product->categories->title : $image->category }}</td><!-- Purpose : Added !empty($image->product->categories) - DEvTASK-4378 -->
+              <td>{{  ( !empty($image->product) && !empty($image->product->brands) ) ?  $image->product->brands->name : $image->brand }}</td><!-- Purpose : Added !empty($image->product->brands) - DEvTASK-4378 -->
+              <td>{{ ( !empty($image->product) ) ?  $image->product->price :$image->price }}</td>
               <td>{{ $image->product->name ?? '--' }}</td>
               <td>{{ date( 'd-M-Y' ,strtotime($image->created_at))  }}</td>
               <td>

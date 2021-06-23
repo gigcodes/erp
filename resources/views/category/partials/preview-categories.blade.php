@@ -18,34 +18,34 @@
                     </thead>
                     <tbody>
                         @foreach($links as $link)
-                          <tr>
-                            <td>{{ $link['from'] }}</td>
-                            <td>
-                                <?php 
-                                  echo "<select class='form-control select2' name='updated_category[".$link["from"]."]'>";
-                                  $categories = \App\Category::attr(["name" => "updated_category[".$link["from"]."]", "class" => "form-control select2"])->renderAsArray();
+                        <tr>
+                          <td>{{ $link['from'] }}</td>
+                          <td>
+                            <?php
+                                  echo "<select class='form-control select2' name='updated_category[".$link["from_id"]."]'>";
+                                  $categories = \App\Category::attr(["name" => "updated_category[".$link["from_id"]."]", "class" => "form-control select2"])->renderAsArray();
                                   if(!empty($categories)) {
                                     foreach($categories as $cat) {
-                                       $selected = ($cat['id'] == $link["to"]) ? "selected='selected'" : "";
-                                       echo  "<option ".$selected." value='".$cat['id']."'>".$cat['title']."</option>";
-                                       if(!empty($cat['child'])) {
-                                          foreach($cat['child'] as $child) {
-                                            $selected = ($child['id'] == $link["to"]) ? "selected='selected'" : "";
-                                            echo  "<option ".$selected." value='".$child['id']."'>".$cat['title']." > ".$child['title']."</option>";
-                                            if(!empty($child['child'])) {
-                                                foreach($child['child'] as $mchild) {
-                                                  $selected = ($mchild['id'] == $link["to"]) ? "selected='selected'" : "";
-                                                  echo  "<option ".$selected." value='".$mchild['id']."'>".$cat['title']." > ".$child['title']." > ".$mchild['title']."</option>";
-                                                  if(!empty($mchild['child'])) {
-                                                      foreach($mchild['child'] as $pchild) {
-                                                        $selected = ($pchild['id'] == $link["to"]) ? "selected='selected'" : "";
-                                                        echo  "<option ".$selected." value='".$pchild['id']."'>".$cat['title']." > ".$child['title']." > ".$mchild['title']." > ".$pchild['title']."</option>";
-                                                      }
-                                                   } 
+                                      $selected = ($cat['id'] == $link["to"]) ? "selected='selected'" : "";
+                                      echo  "<option ".$selected." value='".$cat['id']."'>".$cat['title']."</option>";
+                                      if(!empty($cat['child'])) {
+                                        foreach($cat['child'] as $child) {
+                                          $selected = ($child['id'] == $link["to"]) ? "selected='selected'" : "";
+                                          echo  "<option ".$selected." value='".$child['id']."'>".$cat['title']." > ".$child['title']."</option>";
+                                          if(!empty($child['child'])) {
+                                            foreach($child['child'] as $mchild) {
+                                              $selected = ($mchild['id'] == $link["to"]) ? "selected='selected'" : "";
+                                              echo  "<option ".$selected." value='".$mchild['id']."'>".$cat['title']." > ".$child['title']." > ".$mchild['title']."</option>";
+                                              if(!empty($mchild['child'])) {
+                                                foreach($mchild['child'] as $pchild) {
+                                                  $selected = ($pchild['id'] == $link["to"]) ? "selected='selected'" : "";
+                                                  echo  "<option ".$selected." value='".$pchild['id']."'>".$cat['title']." > ".$child['title']." > ".$mchild['title']." > ".$pchild['title']."</option>";
                                                 }
-                                             }
+                                              } 
+                                            }
                                           }
-                                       }
+                                        }
+                                      }
                                     }
                                   }
                                   echo "</select>";

@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Helpers\hubstaffTrait;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\HubstaffActivityReport;
+use App\DeveloperTaskHistory;
 
 class HubstaffActivitiesController extends Controller
 {
@@ -50,6 +51,9 @@ class HubstaffActivitiesController extends Controller
     public function notificationRecords(Request $request)
     {
         $records = \App\Hubstaff\HubstaffActivityNotification::join("users as u", "hubstaff_activity_notifications.user_id", "u.id");
+        
+        $records->leftJoin("user_avaibilities as av", "hubstaff_activity_notifications.user_id", "av.user_id");
+        
         $keyword = request("keyword");
         if (!empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
@@ -65,8 +69,32 @@ class HubstaffActivitiesController extends Controller
             $records = $records->whereDate("start_date", "<=", $request->end_date . " 23:59:59");
         }
 
-        $records = $records->select(["hubstaff_activity_notifications.*", "u.name as user_name"])->get();
-        return response()->json(["code" => 200, "data" => $records, "total" => count($records)]);
+        $records = $records->select([
+            "hubstaff_activity_notifications.*", 
+            "u.name as user_name",
+            "av.minute as daily_working_hour",
+            "u.name as total_working_hour",
+        ])
+        ->get();
+
+         $recordsArr = []; 
+       foreach($records as $row){
+            $recordsArr[] = [
+
+                'id' => $row->id,
+                'user_name' => $row->user_name,
+                'start_date' => $row->start_date,
+                'daily_working_hour' => $row->daily_working_hour ? number_format($row->daily_working_hour,2,".","") : 0,
+                'total_working_hour' => $row->total_track? number_format($row->total_track/60/60,2,".","") : 0,
+                'min_percentage' => $row->min_percentage,
+                'actual_percentage' => $row->actual_percentage,
+                'reason' => $row->reason,
+                'status' => $row->status,
+                
+            ];
+       }   
+
+        return response()->json(["code" => 200, "data" => $recordsArr, "total" => count($records)]);
     }
 
     public function notificationReasonSave(Request $request)
@@ -101,7 +129,12 @@ class HubstaffActivitiesController extends Controller
     }
 
     public function getActivityUsers(Request $request)
-    {
+    {   
+
+        if( request('submit') ==  'report_download'){
+           return $this->downloadExcelReport();
+
+        }
         $title      = "Hubstaff Activities";
         $start_date = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-1 days"));
         $end_date   = $request->end_date ? $request->end_date : date('Y-m-d', strtotime("-1 days"));
@@ -177,7 +210,6 @@ class HubstaffActivitiesController extends Controller
         hubstaff_activities.user_id,
         SUM(hubstaff_activities.tracked) as total_tracked,DATE(hubstaff_activities.starts_at) as date,hubstaff_members.user_id as system_user_id")
         )->groupBy('date', 'user_id')->orderBy('date', 'desc')->get();
-
         $activityUsers = collect([]);
 
         foreach ($activities as $activity) {
@@ -212,7 +244,7 @@ class HubstaffActivitiesController extends Controller
             }
 
             // send hubstaff activities
-            $ac            = DB::select(DB::raw("SELECT hubstaff_activities.* FROM hubstaff_activities where DATE(starts_at) = '" . $activity->date . "' and user_id = " . $activity->user_id));
+            $ac            = DB::select(DB::raw("SELECT hubstaff_activities.* FROM hubstaff_activities where DATE(starts_at) = '" . $activity->date . "' and hubstaff_activities.user_id = " . $activity->user_id));
             $totalApproved = 0;
             $totalPending = 0;
             $isAllSelected = 0;
@@ -459,17 +491,86 @@ class HubstaffActivitiesController extends Controller
             }
         }
 
-        //dd($activityUsers);
-        if( request('submit') ==  'report_download'){
-           return $this->downloadExcelReport( $activityUsers );
-        }
+        
         $status = $request->status;
         return view("hubstaff.activities.activity-users", compact('title', 'status', 'activityUsers', 'start_date', 'end_date', 'users', 'user_id', 'task_id'));
     }
 
-    public function downloadExcelReport($activityUsers)
-    {
-        return Excel::download(new HubstaffActivityReport($activityUsers->toArray()), 'customers.xlsx');
+     public function downloadExcelReport(){
+
+        // dd(request()->all());
+        $query = HubstaffActivity::join('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=', request('start_date'))->whereDate('hubstaff_activities.starts_at', '<=', request('end_date'));
+        
+        $query->leftJoin('developer_tasks','hubstaff_activities.task_id','developer_tasks.hubstaff_task_id');
+        
+        $query = $query->where('hubstaff_members.user_id', request('user_id'));
+        
+         $activities = $query->select(DB::raw("
+         SUM(developer_tasks.estimate_minutes) as estimated_time, hubstaff_members.user_id,hubstaff_activities.task_id,hubstaff_activities.is_manual,
+                SUM(hubstaff_activities.tracked) as total_tracked,DATE(hubstaff_activities.starts_at) as date,hubstaff_members.user_id as system_user_id")
+        )->groupBy('task_id')->orderBy('date', 'desc')->get();
+
+        if(request('user_id')){
+            $user = User::where('id', request('user_id'))->first();
+        }else{
+            $user = User::where('id', Auth::user()->id)->first();
+        }
+
+        $userid = Auth::id();
+        $userquery = ' AND (assign_from = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
+        $test = DB::Select(
+        '
+			SELECT tasks.*
+
+			FROM (
+			  SELECT * FROM tasks
+			  LEFT JOIN (
+				  SELECT 
+				  chat_messages.id as message_id, 
+				  chat_messages.task_id, 
+				  chat_messages.message, 
+				  chat_messages.status as message_status, 
+				  chat_messages.sent as message_type, 
+				  chat_messages.created_at as message_created_at, 
+				  chat_messages.is_reminder AS message_is_reminder,
+				  chat_messages.user_id AS message_user_id
+				  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
+			  ) as chat_messages  ON chat_messages.task_id = tasks.id
+			) AS tasks
+			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$userquery  
+        );
+        // dd($test);
+        $activities = $activities->toArray();
+        foreach($test as $t){
+            // dump($t);
+            $a["type"] = "task";
+            $a["estimated_time"] = "N/A";
+            $a["user_id"] = $userid;
+            $a["task_id"] = $t->task_id;
+            $a["is_manual"] = 0;
+            $a["total_tracked"] = 0;
+            $a["date"] = $t->message_created_at;
+            $a["system_user_id"] = 'N/A';
+            $id = $t->id;
+			$task_module = DeveloperTaskHistory::where('developer_task_id', $id)->select('developer_tasks_history.*')->latest()->first();
+			if($task_module) {
+                $a["estimated_time"] = $task_module->estimate_minutes ?? 'N/A';
+            }
+            $activities[] = $a;
+        }
+        // dd($activities);
+
+        return Excel::download(new HubstaffActivityReport($activities), $user->name.'-'.request('start_date').'-To-'.request('end_date').'.xlsx');
+    }
+    public function downloadExcelReportOld($activityUsers, $users)
+    {   
+        if(request('user_id')){
+            $user = User::where('id', request('user_id'))->first();
+        }else{
+            $user = User::where('id', Auth::user()->id)->first();
+        }
+        
+        return Excel::download(new HubstaffActivityReport($activityUsers->toArray()), $user->name.'-'.request('start_date').'-To-'.request('end_date').'.xlsx');
     }
 
     public function approveTime(Request $request)
