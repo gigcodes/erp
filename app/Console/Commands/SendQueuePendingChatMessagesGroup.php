@@ -65,6 +65,9 @@ class SendQueuePendingChatMessagesGroup extends Command
      */
     public function handle()
     {
+        $tempSettingData = DB::table('settings')->where('name','is_queue_sending_limit')->get();
+
+
         //try {
 
         $report = \App\CronJobReport::create([
@@ -72,7 +75,12 @@ class SendQueuePendingChatMessagesGroup extends Command
             'start_time' => Carbon::now(),
         ]);
 
-        $numberList = [$this->argument('number')];
+
+
+         $numberList = [$this->argument('number')];
+
+
+
 
         // get the status for approval
         $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();
@@ -92,9 +100,14 @@ class SendQueuePendingChatMessagesGroup extends Command
                 }
             }
 
+
             if (!empty($numberList)) {
                 $groups = ChatMessage::where('is_queue', ">", 0)->where("group_id", ">", 0)->groupBy("group_id")->pluck("group_id")->toArray();
                 foreach ($numberList as $number) {
+
+
+
+
                     $sendLimit = isset($limit[$number]) ? $limit[$number] : 0;
                     foreach ($groups as $group) {
                         // get the group list first

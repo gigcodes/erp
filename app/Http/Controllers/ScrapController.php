@@ -2282,6 +2282,15 @@ class ScrapController extends Controller
                         header("Content-type: application/octet-stream");
                         header("Content-disposition: attachment; filename= ".$file."");
                         echo base64_decode($response->log);
+                        
+                        $api_log = new ScrapApiLog;
+                        $api_log->scraper_id = $scraper->id;
+                        $api_log->server_id = $request->server_id;
+                        $api_log->log_messages = $response->log;
+                        // $api_log->log_messages = substr($response, 1, -1);
+                        $api_log->save();
+                        $data['logs'] = ScrapApiLog::where('scraper_id',$scraper->id)->get();
+                        return view('scrap.scrap_api_log',$data);
                     }
                 }
             } else {
