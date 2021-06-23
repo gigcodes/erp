@@ -464,7 +464,7 @@ class PurchaseProductController extends Controller
                 'is_draft'         => 0,
             ]);
 
-             \App\Jobs\SendEmail::dispatch($email);
+            \App\Jobs\SendEmail::dispatch($email);
 
             // START - Purpose : Add Record for Inquiry - DEVTASK-4048
             $products_data = Product::whereIn('id',$product_ids)->get()->toArray();
@@ -512,57 +512,58 @@ class PurchaseProductController extends Controller
                 }
             }
 
-           SupplierOrderInquiryData::insert($pro_arr);
+            SupplierOrderInquiryData::insert($pro_arr);
             // END - DEVTASK-4048
 
             //START - Purpose : Get Order data - DEVTASK-4236
+            
             $order_products_data = OrderProduct::whereIn('id',$order_ids)->get();
 
             $order_products_data_arr = OrderProduct::whereIn('id',$order_ids)->get()->toArray();
-            $all_order_id = array_column($order_products_data_arr, 'order_id');
+            $all_product_id = array_column($order_products_data_arr, 'product_id');
 
-            $order_data = OrderProduct::join('products','order_products.product_id','products.id')
-            ->join('brands','brands.id','products.brand')
-            ->join('product_suppliers','product_suppliers.product_id','products.id')
-            ->whereIn('order_products.order_id',$all_order_id)
+            $order_data = OrderProduct::
+            // leftjoin('products','order_products.product_id','products.id')
+            // ->leftjoin('brands','brands.id','products.brand')
+            join('product_suppliers','product_suppliers.product_id','order_products.product_id')
+            ->whereIn('order_products.id',$order_ids)
+            ->where('product_suppliers.supplier_id',$supplier_id)
             ->select('product_suppliers.price as mrp','product_suppliers.price_special as price_special','product_suppliers.price_discounted as price_discounted','order_products.order_id as order_id')
             ->get();
+            
 
-            $order_data_arr = [];
+            
+            $order_data_total_mrp = 0;
+            $order_data_total_price_discount = 0;
+            $order_data_total_price_special = 0;
             foreach($order_data as $key => $val)
             {
-                if (array_key_exists($val->order_id,$order_data_arr))
-                {
-                    $order_data_arr[$val->order_id]['totla_mrp'] += $val->mrp;
-                    $order_data_arr[$val->order_id]['totla_price_special'] += $val->price_special;
-                    $order_data_arr[$val->order_id]['totla_price_discounted'] += $val->price_discounted;
-                }
-                else
-                {
-                    $order_data_arr[$val->order_id]['totla_mrp'] = $val->mrp;
-                    $order_data_arr[$val->order_id]['totla_price_special'] = $val->price_special;
-                    $order_data_arr[$val->order_id]['totla_price_discounted'] = $val->price_discounted;
-                }
-                
+                $order_data_total_mrp += $val->mrp;
+                $order_data_total_price_discount += $val->price_discounted;
+                $order_data_total_price_special += $val->price_special;
             }
 
             $order_pro_arr = [];
-            foreach ($order_products_data as $key => $val)
-            {
+
+            // foreach ($order_products_data as $key => $val)
+            // {
+                $rand_order_no = rand(999,9999).'0'.rand(99,999);
+                
                 $order_pro_arr[] = [
-                    'product_id' => $val->product_id,
-                    'order_products_id' => $val->id,
-                   // 'order_id'      => $val->order_id,
-                    'order_id'      => rand(999999,9999999).'0'.$val->order_id,
+                    'product_id' => '',
+                    'order_products_id' => $request->product_ids,
+                    'order_id'      => $rand_order_no,
                     'supplier_id' => $supplier_id,
-                    'mrp_price' => $order_data_arr[$val->order_id]['totla_mrp'],
-                    'discount_price' => $order_data_arr[$val->order_id]['totla_price_discounted'],
-                    'special_price' => $order_data_arr[$val->order_id]['totla_price_special'],
+                    'mrp_price' => $order_data_total_mrp,
+                    'discount_price' => $order_data_total_price_discount,
+                    'special_price' => $order_data_total_price_special,
                     'created_by' => \Auth::id(),
                     'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
                     'updated_at' => \Carbon\Carbon::now()->toDateTimeString(),
+                    'order_products_order_id' => $request->order_ids,
                 ];
-            }
+            // }
+            
 
             PurchaseProductOrder::insert($order_pro_arr); 
 
@@ -636,12 +637,15 @@ class PurchaseProductController extends Controller
     {
         try{
             $suppliers_all = '';
-            $purchar_product_order = PurchaseProductOrder::
-            join('order_products','purchase_product_orders.order_products_id','order_products.id')
-            ->join('products','products.id','order_products.product_id')
-            ->join('product_suppliers','product_suppliers.product_id','products.id')
-            ->join('brands','brands.id','products.brand')
-            ->select('order_products.*','products.*','product_suppliers.*','purchase_product_orders.*','purchase_product_orders.id as pur_pro_id','product_suppliers.price as mrp','brands.name as brand_name','order_products.order_id as order_pro_order_id');
+            // $purchar_product_order = PurchaseProductOrder::
+            // join('order_products','purchase_product_orders.order_products_id','order_products.id')
+            // ->join('products','products.id','order_products.product_id')
+            // ->join('product_suppliers','product_suppliers.product_id','products.id')
+            // ->join('suppliers','suppliers.id','purchase_product_orders.supplier_id')
+            // ->leftjoin('brands','brands.id','products.brand')
+            // ->select('order_products.*','products.*','product_suppliers.*','purchase_product_orders.*','purchase_product_orders.id as pur_pro_id','product_suppliers.price as mrp','brands.name as brand_name','purchase_product_orders.order_products_id as order_pro_order_id','suppliers.supplier as supplier_name');
+           
+            $purchar_product_order = PurchaseProductOrder::join('suppliers','purchase_product_orders.supplier_id','suppliers.id');
            
             if($request->order_id) {
                 $purchar_product_order =  $purchar_product_order->where('purchase_product_orders.order_id',$request->order_id);
@@ -652,9 +656,8 @@ class PurchaseProductController extends Controller
                 $suppliers_all = Supplier::where('id',$request->supplier_id)->first();
             }
 
-            $purchar_product_order =  $purchar_product_order->groupBy('order_products.id')->orderBy('purchase_product_orders.id','DESC')->paginate(Setting::get('pagination'));
-
-            
+            $purchar_product_order =  $purchar_product_order->select('purchase_product_orders.*','suppliers.*','purchase_product_orders.id as pur_pro_id');
+            $purchar_product_order =  $purchar_product_order->orderBy('purchase_product_orders.id','DESC')->paginate(Setting::get('pagination'));
 
             return view('purchase-product.partials.purchase-product-order',compact('purchar_product_order','request','suppliers_all'));
         }catch(\Exception $e){
@@ -814,11 +817,14 @@ class PurchaseProductController extends Controller
     public function purchaseproductorders_orderdata(Request $request)
     {
         try{
+            $order_products_order_id_arr = explode(",",$request->order_products_order_id);
 
             $order_data = OrderProduct::join('products','order_products.product_id','products.id')
-            ->join('brands','brands.id','products.brand')
-            ->where('order_products.order_id',$request->order_id)
-            ->select('products.*','order_products.id as order_products_id','brands.name as brands_name')
+            ->leftjoin('brands','brands.id','products.brand')
+            ->join('product_suppliers','product_suppliers.product_id','products.id')
+            ->whereIn('order_products.id',$order_products_order_id_arr)
+            ->where('product_suppliers.supplier_id',$request->supplier_id)
+            ->select('products.*','order_products.id as order_products_id','brands.name as brands_name','product_suppliers.price as mrp_price','product_suppliers.price_discounted as mrp_price_discounted','product_suppliers.price_special as mrp_price_special')
             ->get();
 
             return response()->json(['order_data' => $order_data ,'code' => 200]);

@@ -127,8 +127,9 @@ table tr td {
                             <th width="5%">Cost Details</th>
                             <th width="6%">Landed cost</th>
                             <th width="6%">Status</th>
-                            <th width="5%">Action</th>
                             <th width="5%">Created Date</th>
+                            <th width="5%">Action</th>
+                           
                         </tr>
                     </thead>
                     
@@ -183,10 +184,10 @@ table tr td {
                             </td>
                             <td>
                                 @php
-                                $purchase_price = $value->mrp_price ?? $value->mrp - $value->price_discounted / 1.22;
+                                $purchase_price = $value->mrp_price - $value->discount_price  / 1.22;
                                 @endphp
                                 {{-- ( {{$value->mrp_price ?? $value->mrp ?? 0}} - {{$value->price_discounted}} / 1.22 ) + {{$value->shipping_cost ?? 0}}  + {{$value->duty_cost ?? 0}}  --}}
-                                 {{ $purchase_price + $value->shipping_cost + $value->duty_cost }} 
+                                 {{ round($purchase_price + $value->shipping_cost + $value->duty_cost,2) }} 
                             </td>
                             <td>
                                 <select class="form-control change_status" name="status" id="status" data-id="{{$value->pur_pro_id}}">
@@ -198,10 +199,16 @@ table tr td {
                                 </select>
                                 <i class="fa fa-info-circle view_log" title="Status Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Status"></i>
                             </td>
-                            <td>
-                                <i class="fa fa-list-ul view_full_order" data-id="{{$value->pur_pro_id}}" data-order-id="{{$value->order_pro_order_id}}" aria-hidden="true"></i>
-                            </td>
                             <td>{{$value->created_at}}</td>
+                            <td>
+                            @php
+                            $order_products_order_id = $value->order_products_order_id;
+                            $vowels = array("[", "]");
+                            $onlyconsonants = str_replace($vowels, "", $order_products_order_id);
+                            @endphp
+                                <i class="fa fa-list-ul view_full_order" data-id="{{$value->pur_pro_id}}" data-pro-order-id="{{$onlyconsonants}}" data-supplier-id="{{$value->supplier_id}}" data-order-id="{{$value->order_pro_order_id}}" aria-hidden="true"></i>
+                            </td>
+                            
                         </tr>
                     @endforeach
                     </tbody>
@@ -572,6 +579,8 @@ table tr td {
     $(".view_full_order").click(function (e) {
         var purchase_pro_id = $(this).data('id');
         var order_id = $(this).data('order-id');
+        var order_products_order_id = $(this).data('pro-order-id');
+        var supplier_id = $(this).data('supplier-id');
 
         var order_row = "row_order_data_"+purchase_pro_id;
 
@@ -591,13 +600,15 @@ table tr td {
 				_token: "{{ csrf_token() }}",
                 order_id : order_id,
 				purchase_pro_id: purchase_pro_id,
+                order_products_order_id:order_products_order_id,
+                supplier_id:supplier_id,
             },
             dataType : "json",
             success: function (response) {
 
                 var html_content = '';
                 html_content += '<tr class="expand-row-10 row_order_data_'+purchase_pro_id+'">';
-                html_content += '<td colspan="12" id="product-list-data-10"><center><p>ORDERED PRODUCTS</p></center>';
+                html_content += '<td colspan="13" id="product-list-data-10"><center><p>ORDERED PRODUCTS</p></center>';
                 html_content += '<div class="table-responsive mt-2">';
                 html_content += '<table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;table-layout:fixed">';
                 html_content += '<thead>';
@@ -606,6 +617,9 @@ table tr td {
                 html_content += '<th width="30%">Name</th>';
                 html_content += '<th width="20%">SKU</th>';
                 html_content += '<th width="20%">Brand</th>';
+                html_content += '<th width="20%">MRP</th>';
+                html_content += '<th width="20%">Discounted Price</th>';
+                html_content += '<th width="20%">Special Price</th>';
                 html_content += '<th width="20%">Action</th>';
                 html_content += '</tr>';
                 html_content += '</thead>';
@@ -617,7 +631,10 @@ table tr td {
                     html_content += '<td>'+index+'</td>';
                     html_content += '<td>'+value.name+'</td>';
                     html_content += '<td>'+value.sku+'</td>';
-                    html_content += '<td>'+value.brands_name+'</td>';
+                    html_content += '<td>'+(value.brands_name != null ? value.brands_name : '' )+'</td>';
+                    html_content += '<td>'+(value.mrp_price != null ? value.mrp_price : '')+'</td>';
+                    html_content += '<td>'+(value.mrp_price_discounted != null ? value.mrp_price_discounted : '') +'</td>';
+                    html_content += '<td>'+(value.mrp_price_special != null ? value.mrp_price_special: '') +'</td>';
                     html_content += '<td><i class="fa fa-upload upload_data_btn" data-id="'+value.order_products_id+'" data-order-id="'+order_id+'" aria-hidden="true"></i></td>';
                     html_content += '</tr>';
 
