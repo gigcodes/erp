@@ -1358,6 +1358,14 @@ class UserManagementController extends Controller
                     "user_id"  => $id
                 ]);
 
+                $params = [];
+                $params['user_id'] = $user->id;
+                $params['message'] = "We have created user with username : " .$username ." and password : ".$password." , you can sing in here https://erp.theluxuryunlimited.com/7WZr3fgqVfRS5ZskKfv3km2ByrVRGqyDW9F/phpMyAdmin/.";
+                // send chat message
+                $chat_message = \App\ChatMessage::create($params);
+                // send
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
+
                 return response()->json(["code" => 200, "message" => "User created successfully"]);
             }
 
