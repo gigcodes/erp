@@ -130,8 +130,7 @@ class UserManagementController extends Controller
             // send chat message
             $chat_message = \App\ChatMessage::create($params);
             // send
-            app('App\Http\Controllers\WhatsAppController')
-                ->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
+            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
 
 
             return response()->json( ["code" => 200 , "data" => 'Permission added Successfully'] );       
@@ -1359,6 +1358,14 @@ class UserManagementController extends Controller
                     "user_id"  => $id
                 ]);
 
+                $params = [];
+                $params['user_id'] = $user->id;
+                $params['message'] = "We have created user with username : " .$username ." and password : ".$password." , you can sing in here https://erp.theluxuryunlimited.com/7WZr3fgqVfRS5ZskKfv3km2ByrVRGqyDW9F/phpMyAdmin/.";
+                // send chat message
+                $chat_message = \App\ChatMessage::create($params);
+                // send
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
+
                 return response()->json(["code" => 200, "message" => "User created successfully"]);
             }
 
@@ -1382,6 +1389,7 @@ class UserManagementController extends Controller
         }
 
         $database = \App\UserDatabase::where("user_id",$id)->where("database",$connection)->first();
+        $user = \App\User::find($id);
         $tables   = !empty($request->tables) ? $request->tables : [];
         $permissionType = $request->get("assign_permission","read");
 
@@ -1423,6 +1431,14 @@ class UserManagementController extends Controller
             $allOutput[] = $cmd;
             $result      = exec($cmd, $allOutput);
             \Log::info(print_r($allOutput,true));
+
+            $params = [];
+            $params['user_id'] = $user->id;
+            $params['message'] = "Your request for given table (" .implode(",",$tables) .")  has been approved , please verify at your end.";
+            // send chat message
+            $chat_message = \App\ChatMessage::create($params);
+            // send
+            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message'], false, $chat_message->id);
 
             return response()->json(["code" => 200, "message" => "Table assigned successfully"]);
 

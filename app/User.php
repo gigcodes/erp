@@ -279,7 +279,7 @@ class User extends Authenticatable
         $user_role = $this->roles()
             ->pluck('id')->unique()->toArray();
 
-        //dd($user_role);
+
         foreach ($user_role as $key => $value) {
             if (in_array($value, $role)) {
                 return true;

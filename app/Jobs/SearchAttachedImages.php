@@ -36,59 +36,47 @@ class SearchAttachedImages implements ShouldQueue
         $id = $this->id;
         $params = $this->req_data;
     
-        $chat_messages = \App\ChatMessage::where('id', $id)->get();
+        $chat_message = \App\ChatMessage::where('id', $id)->first();
+        $media = $chat_message->getMedia(config('constants.media_tags'))[0];
+        $ref_file = public_path('uploads/') . $media->directory . '/' . $media->filename . '.' . $media->extension;
         $process = Process::fromShellCommandline('find $(pwd) -maxdepth 5 -type f -not -path "*/\.*" | sort ', public_path('uploads/product'));
         $process->run(); 
         $files = explode("\n", $process->getOutput());
         $match_image_path = [];
+        $first_time = true;
         foreach($files as $key => $file){
-            if($key == 0){
-                $base_path = explode('public', $file)[0] . 'public';
-                $chat_messages = \App\ChatMessage::where('id', $id)->get();
-                $ref_file = explode(".com", $chat_messages[0]->media_url);
-                $ref_file = $ref_file[count($ref_file) - 1];
-                $ref_file = $base_path . $ref_file;
-            }
             $compare = Process::fromShellCommandline('compare -metric ae -fuzz XX% ' . $ref_file . ' ' . $file . ' null: 2>&1', public_path('uploads/product'));
             $compare->run();
             $match = $compare->getOutput() == '0' ? true : false;
             if($match){
-                // dump([$file, $ref_file, $match]);
-                if($file != $ref_file){
-                    $match_image_path[] = $file;
-                }
+                // if($file != $ref_file){
+                    $name = explode('/', $file)[count(explode('/', $file)) - 1 ];
+                    $ext = explode('.', $name)[count(explode('.', $name)) - 1];
+                    $name = str_replace('.' . $ext, '', $name);
+                    $media = Media::where('filename', $name)->first();
+                    if($media != null){
+                        $dir = explode('/', $media->directory);
+                        if(isset($dir[2])){
+                            if($first_time){
+                                $sp = SuggestedProduct::create([
+                                    'total' => 0,
+                                    'customer_id' => $chat_message->customer_id,
+                                    'chat_message_id' => $chat_message->id,
+                                ]);
+                                $first_time = false;
+                            } 
+                            SuggestedProductList::create([
+                                'total' => 0,
+                                'customer_id' => $chat_message->customer_id,
+                                'product_id' => $dir[2],
+                                'chat_message_id' => $chat_message->id,
+                                'suggested_products_id' => $sp->id
+                            ]); 
+                        }
+                    }
+                // }
             }
-        }
-        
-        $first_time = true;
-        foreach ($match_image_path as $key => $value) {
-            $name = explode('/', $value)[count(explode('/', $value)) - 1 ];
-            $ext = explode('.', $name)[count(explode('.', $name)) - 1];
-            $name = str_replace('.' . $ext, '', $name);
-            $media = Media::where('filename', explode('.', $name)[0])->first();
-            if($media !== null){
-                $dir = explode('/', $media->directory);
-                if(isset($dir[2])){
-                    if($first_time){
-                        $sp = SuggestedProduct::create([
-                            'total' => 0,
-                            'customer_id' => $chat_messages[0]->customer_id,
-                            'chat_message_id' => $chat_messages[0]->id,
-                        ]);
-                        $first_time = false;
-                    } 
-                    SuggestedProductList::create([
-                        'total' => 0,
-                        'customer_id' => $chat_messages[0]->customer_id,
-                        'product_id' => $dir[2],
-                        'chat_message_id' => $chat_messages[0]->id,
-                        'suggested_products_id' => $sp->id
-                    ]); 
-                    // dump($dir[2]);
-                }
-            }
-            // dump([$name, $ext, $media]);
-        }
+        }  
 
         $user = Auth::user();
         $msg = 'Your image find process is completed.';
