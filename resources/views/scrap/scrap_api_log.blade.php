@@ -31,10 +31,10 @@
         <table class="table table-bordered table-striped" id="log-table">
             <thead>
             <tr>
-                <th width="10%">#</th>
+                <th width="5%">#</th>
                 <th width="10%">Scraper</th>
-                <th width="10%">Server id</th>
-                <th width="25%">Logs</th>
+                <th width="5%">Server id</th>
+                <th width="80%">Logs</th>
             </tr>
             @php
                 $i = 1;
@@ -45,7 +45,7 @@
                     <td>{{ $i++ }}</td>
                     <td>{{ $log->scraper_name }}</td>
                     <td>{{ $log->server_id }}</td>
-                    <td>{{ $log->log_messages }}</td>
+                    <td style="word-break: break-word;">{{ $log->log_messages }}</td>
                 </tr>
             @endforeach
                 <tr>{{ $api_logs->links() }}</tr>
