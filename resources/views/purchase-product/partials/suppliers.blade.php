@@ -252,6 +252,7 @@ $(document).on('click', '.product-list-btn', function(e) {
         }).done( function(response) {
             $("#loading-image").hide();
             toastr['success']("Message sent successfully!", "Success");
+            setTimeout(function(){ location.reload(); }, 2000);
         }).fail(function(errObj) {
             $("#loading-image").hide();
         });
