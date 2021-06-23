@@ -773,7 +773,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Route::get('/', 'TaskModuleController@index')->name('home');
 
     Route::resource('learning', 'LearningModuleController');
-    Route::resource('learning_category', 'LearningCategoryController');
+    Route::get('learning/status/history','LearningModuleController@getStatusHistory')->name('learning/status/history');
+    Route::resource('learning_category','LearningCategoryController');
     Route::post('learning_category/submodule', 'LearningCategoryController@getSubModule');
     Route::post('learning/create-learning-from-shortcut', 'LearningModuleController@createLearningFromSortcut');
     Route::post('learning-module/update', 'LearningModuleController@learningModuleUpdate')->name('learning-module.update');
@@ -2844,6 +2845,11 @@ Route::middleware('auth')->group(function()
 Route::post('message-queue/approve/approved', '\Modules\MessageQueue\Http\Controllers\MessageQueueController@approved');
 
 
+Route::get('message-counter', [\Modules\MessageQueue\Http\Controllers\MessageQueueController::class,'message_counter'])->name('message.counter');
+
+
+
+
 //Charity Routes
 Route::get('charity', 'CharityController@index')->name('charity');
 Route::any('charity/update', 'CharityController@update')->name('charity.update');
@@ -2853,8 +2859,6 @@ Route::post('charity/add-status', 'CharityController@addStatus')->name('charity.
 Route::post('charity/update-charity-order-status', 'CharityController@updateCharityOrderStatus')->name('charity.update-charity-order-status');
 Route::post('charity/create-history', 'CharityController@createHistory')->name('charity.create-history');
 Route::get('charity/view-order-history/{order_id}', 'CharityController@viewHistory')->name('charity.view-order-history');
-
-
 
 });
 
@@ -3058,6 +3062,7 @@ Route::group(['middleware' => 'auth'], function () {
 
 Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('customers', 'Select2Controller@customers')->name('select2.customer');
+    Route::get('customersByMultiple', 'Select2Controller@customersByMultiple')->name('select2.customerByMultiple');
     Route::get('users', 'Select2Controller@users')->name('select2.user');
     Route::get('users_vendors', 'Select2Controller@users_vendors')->name('select2.uservendor');
     Route::get('suppliers', 'Select2Controller@suppliers')->name('select2.suppliers');

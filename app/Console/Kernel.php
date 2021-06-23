@@ -136,6 +136,7 @@ use App\Console\Commands\InstagramHandler;
 use App\Console\Commands\SendDailyReports;
 use App\Console\Commands\InsertPleskEmail;
 use App\Console\Commands\SendDailyPlannerNotification;
+use DB;
 
 class Kernel extends ConsoleKernel
 {
@@ -278,6 +279,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+
+
         // $schedule->command('reminder:send-to-dubbizle')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         // $schedule->command('reminder:send-to-vendor')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         // $schedule->command('reminder:send-to-customer')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
@@ -457,11 +460,41 @@ class Kernel extends ConsoleKernel
             if(!empty($queueTime)) {
                 foreach($queueTime as $no => $time) {
                     if($time > 0) {
+
+
+                        $allowCounter = true;
+                        $counterNo[] = $no;
                         $schedule->command('send:queue-pending-chat-messages '.$no)->cron('*/'.$time.' * * * *')->between($queueStartTime, $queueEndTime);
-                        $schedule->command('send:queue-pending-chat-group-messages '.$no)->cron('*/'.$time.' * * * *')->between($queueStartTime, $queueEndTime);        
-                    } 
+                        $schedule->command('send:queue-pending-chat-group-messages '.$no)->cron('*/'.$time.' * * * *')->between($queueStartTime, $queueEndTime);
+
+                    }
                 }
+
+
             }
+
+            /*if(!empty($allowCounter) and $allowCounter==true and !empty($counterNo))
+            {
+                $tempSettingData = DB::table('settings')->where('name','is_queue_sending_limit')->get();
+                $numbers = array_unique($counterNo);
+                foreach ($numbers as $number)
+                {
+
+                    $tempNo = $number;
+                    $settingData = $tempSettingData[0];
+                    $messagesRules = json_decode($settingData->val);
+                    $counter = ( !empty($messagesRules->$tempNo) ? $messagesRules->$tempNo : 0);
+                    $insert_data = null;
+
+                    $insert_data = array(
+                        'counter'=>$counter,
+                        'number'=>$number,
+                        'time'=>now()
+                    );
+                    DB::table('message_queue_history')->insert($insert_data);
+
+                }
+            }*/
         }
 
 
@@ -578,6 +611,7 @@ class Kernel extends ConsoleKernel
         $schedule->command("errorAlertMessage")->daily();
 
         $schedule->command("UpdateScraperDuration")->everyFifteenMinutes();
+        $schedule->command('horizon:snapshot')->everyFiveMinutes();
 
     }
 

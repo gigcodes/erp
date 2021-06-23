@@ -28,7 +28,7 @@
     </div>
 
     <div class="mt-3 col-md-12">
-        <table class="table table-bordered table-striped" id="log-table">
+        <table class="table table-bordered table-striped" id="log-table" style="width: 100%">
             <thead>
             <tr>
                 <th width="10%">#</th>

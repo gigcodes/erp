@@ -104,7 +104,7 @@
 		        </td>
 		    </tr>
             @endforeach
-            @foreach (App\GmailData::get() as $gmailData)
+            @foreach ($gmail_data as $gmailData)
                 <tr>
                     <td>{{ ++$key }}</td>
                     <td>{{ $gmailData->domain }}</td>
@@ -112,7 +112,7 @@
                     <td>{{ $gmailData->instagram }}</td>
                     <td>
                         <div class="d-flex"> 
-                            <button title="Open Images" type="button" class="btn preview-attached-img-btn-gmail btn-image no-pd" data-id="{{$gmailData->id}}">
+                            <button title="Open Images" type="button" class="btn preview-attached-img-btn-gmail btn-image no-pd" data-id="{{$gmailData->id}}" data-images="{{ $gmailData->gmailDataMedia }}">
                                 <img src="/images/forward.png" style="cursor: default;">
                             </button>
                             <button title="Post instagram" type="button" class="btn btn-image no-pd" data-id="{{$gmailData->id}}">
@@ -132,9 +132,7 @@
                 </tr>
                 <tr class="expand-gmail-{{$gmailData->id}} hidden">
                     <td colspan="7" id="attach-gamil-image-list-{{$gmailData->id}}">
-                        @foreach ($gmailData->gmailDataMedia as $image)
-                            <img src="{{$image->images}}" height="50px" width="30px">
-                        @endforeach
+                        
                     </td>
                 </tr>
             @endforeach
@@ -258,12 +256,19 @@
         });
 
 		$(document).on('click', '.preview-attached-img-btn-gmail', function (e) {     
+            console.log($(this).data('images'));
             e.preventDefault();
             var website_Id = $(this).data('id');
             if( website_Id == '' && website_Id != '0' ){
             	 alert('No webiste select');
             	 return false;
             }
+            
+            const images__ =$(this).data('images')
+            let html =""
+            images__.forEach(element => {
+                html += '<img src="'+element.images+'">'
+            });
             // $.ajax({
             //     url: '/content-management/manage/attach/images',
             //     type: 'POST',
@@ -274,6 +279,7 @@
             // }).fail(function () {
             //     alert('Error searching for images');
             // });
+            $('#attach-gamil-image-list-'+website_Id).append(html);
             
             var expand = $('.expand-gmail-'+website_Id);
             $(expand).toggleClass('hidden');

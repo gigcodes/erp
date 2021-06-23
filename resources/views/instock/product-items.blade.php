@@ -1,4 +1,4 @@
-{!! $products->appends(Request::except('page'))->links() !!}
+{!! $products->links() !!}
 
 <div class="table-responsive">
     <table class="table table-bordered" id="users-table">
@@ -13,9 +13,9 @@
                 <th>Size</th>
                 <th>Price</th>
                 <th>Status</th>
-                <th>Created</th>
-                <th>Updated</th>
-                <th width="200px">Action</th>
+                <th width="10%">Created</th>
+                <th width="10%">Updated</th>
+                <th width="13%">Action</th>
             </tr>
         </thead>
         <tbody>
@@ -32,7 +32,7 @@
                 <td>
                     {{ isset($product->brands) ? $product->brands->name : "" }}
                 </td>
-                <td class="transist_status_{{$product->id}} show-more-content-btn" data-text="{{$product->purchase_status}}">
+                <td c   lass="transist_status_{{$product->id}} show-more-content-btn" data-text="{{$product->purchase_status}}">
                     {{ strlen($product->purchase_status) > 10 ? substr($product->purchase_status, 0, 10) . '...' : $product->purchase_status }}
                 </td>
                 <td class="location_{{$product->id}} show-more-content-btn" data-text="{{$product->location}}">
@@ -63,9 +63,9 @@
                     ?>
                     <button type="button" data-media-ids="{{ implode(',', $image) }}" class="btn btn-image crt-attach-images"
                             title="Attach Images to Message"><img src="/images/attach.png"></button>
-
-                    <input type="checkbox" class="select-product-edit" name="product_id" data-id="{{ $product->id }}">
-
+                    <span class="" style="padding:6px !important">
+                            <input type="checkbox" class="select-product-edit" name="product_id" data-id="{{ $product->id }}">
+                    </span>
                     @if ($type == 'private_viewing')
                         <a href="#" class="btn btn-secondary select-product" data-id="{{ $product->id }}" data-attached="0">Select</a>
                     @endif
@@ -81,8 +81,8 @@
                         {!! Form::open(['method' => 'DELETE','route' => ['products.destroy', $product->id],'style'=>'display:inline']) !!}
                         <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                         {!! Form::close() !!}
-                        @endif
-                        </a>
+                    @endif
+                </a>
                 </td>
             </tr>
 

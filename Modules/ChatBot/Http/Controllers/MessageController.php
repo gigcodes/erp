@@ -20,6 +20,8 @@ class MessageController extends Controller
     {
         $search = request("search");
         $status = request("status");
+        $unreplied_msg = request("unreplied_msg");//Purpose : get unreplied message value - DEVATSK=4350
+
 
         $pendingApprovalMsg = ChatMessage::with('taskUser', 'chatBotReplychat', 'chatBotReplychatlatest')
             ->leftjoin("customers as c", "c.id", "chat_messages.customer_id")
@@ -35,6 +37,12 @@ class MessageController extends Controller
                 $q->where("cr.question", "like", "%" . $search . "%")->orWhere("cr.answer", "Like", "%" . $search . "%");
             });
         }
+
+        //START - Purpose : get unreplied messages - DEVATSK=4350 
+        if (!empty($unreplied_msg)) {
+            $pendingApprovalMsg = $pendingApprovalMsg->where('cm1.message',null);
+        }
+        //END - DEVATSK=4350 
 
         if (isset($status) && $status !== null) {
             $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($status) {
