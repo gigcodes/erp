@@ -63,12 +63,14 @@ class UserManagementController extends Controller
         //             $history->where('users.id',$request->id);
         //           }
         // $history =  $history->orderBy("hubstaff_activities.id","desc")->get(); 
-        $history = DB::select("SELECT users.name, developer_tasks.subject, developer_tasks.id as devtaskId, hubstaff_activities.starts_at, SUM(tracked) as day_tracked FROM `users` 
-                  LEFT JOIN hubstaff_members ON hubstaff_members.user_id=users.id 
-                  LEFT JOIN hubstaff_activities ON hubstaff_members.hubstaff_user_id=hubstaff_activities.user_id 
+        $history = DB::select("SELECT users.name, developer_tasks.subject, developer_tasks.id as devtaskId,tasks.id as task_id,tasks.task_subject as task_subject,  hubstaff_activities.starts_at, SUM(tracked) as day_tracked 
+                  FROM `users` 
+                  JOIN hubstaff_members ON hubstaff_members.user_id=users.id 
+                  JOIN hubstaff_activities ON hubstaff_members.hubstaff_user_id=hubstaff_activities.user_id 
                   LEFT JOIN developer_tasks ON hubstaff_activities.task_id=developer_tasks.hubstaff_task_id 
                   LEFT JOIN tasks ON hubstaff_activities.task_id=tasks.hubstaff_task_id 
-                  WHERE ( (`hubstaff_activities`.`starts_at` LIKE " . $date . "  OR `hubstaff_activities`.`starts_at` is NULL ) AND (developer_tasks.id is NOT NULL or tasks.id is not null)  )
+                  WHERE ( (`hubstaff_activities`.`starts_at` LIKE " . $date . ") AND (developer_tasks.id is NOT NULL or tasks.id is not null) and hubstaff_activities.task_id > 0)
+                    GROUP by hubstaff_activities.task_id
                     order by day_tracked desc ");
                  // WHERE (`hubstaff_activities`.`starts_at` LIKE " . $date . "  OR `hubstaff_activities`.`starts_at` is NULL ) group by users.id order by day_tracked desc ");
                  
@@ -78,8 +80,8 @@ class UserManagementController extends Controller
             foreach ($history as $key => $value) {
                 $filterList[] = array(
                     'user_name' => $value->name,
-                    'devtaskId' => $value->devtaskId,
-                    'task'      => $value->subject,
+                    'devtaskId' => empty($value->devtaskId) ? $value->task_id : $value->devtaskId,
+                    'task'      => empty($value->devtaskId) ? $value->task_subject : $value->subject,
                     'date'      => $value->starts_at,
                     'tracked'   => number_format($value->day_tracked / 60,2,".",","),
                 );
