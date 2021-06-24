@@ -20,7 +20,7 @@ class SendQueuePendingChatMessages extends Command
      *
      * @var string
      */
-    protected $signature = 'send:queue-pending-chat-messages';
+    protected $signature = 'send:queue-pending-chat-messages {number}';
 
     /**
      * The console command description.
@@ -53,7 +53,12 @@ class SendQueuePendingChatMessages extends Command
         $noList = [];
         foreach($q as $queue) {
             $noList[] = $queue->number;
+
         }
+
+
+
+
 
         return $noList;
     }
@@ -65,6 +70,9 @@ class SendQueuePendingChatMessages extends Command
      */
     public function handle()
     {
+
+
+
         //try {
 
             $report = \App\CronJobReport::create([
@@ -72,7 +80,7 @@ class SendQueuePendingChatMessages extends Command
                 'start_time' => Carbon::now(),
             ]);
             
-            $numberList = array_unique(self::getNumberList());
+            $numberList = [$this->argument('number')];
 
             // get the status for approval
             $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();
@@ -91,9 +99,11 @@ class SendQueuePendingChatMessages extends Command
                         $this->waitingMessages[$no] = $waitingMessage;
                     }
                 }
-                
+
+
                 if (!empty($numberList)) {
                     foreach ($numberList as $number) {
+
                         $sendLimit = isset($limit[$number]) ? $limit[$number] : 0;
 
                         $chatMessage = ChatMessage::where('is_queue', ">", 0)
@@ -162,6 +172,7 @@ class SendQueuePendingChatMessages extends Command
 
             //  For vendor
             $this->waitingMessages = [];
+
             if (!empty($numberList)) {
                 foreach ($numberList as $no) {
                     $chatApi                    = new ChatApi;
@@ -169,6 +180,7 @@ class SendQueuePendingChatMessages extends Command
                     $this->waitingMessages[$no] = $waitingMessage;
                 }
             }
+
             if (!empty($numberList)) {
                 foreach ($numberList as $number) {
                     $sendLimit = isset($limit[$number]) ? $limit[$number] : 0;

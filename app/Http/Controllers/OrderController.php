@@ -181,6 +181,32 @@ class OrderController extends Controller
 
     }
 
+    
+    public function downloadOrderMailPdf(Request $request)
+    {
+        if(!empty($request->email_id)){
+            $email = Email::where('id', $request->email_id)->first();
+        }else{
+            $order = Order::where('id', $request->order_id)->first();
+            $email = Email::where('model_id', $order->id)->where('model_type', 'App\Order')->orderBy('id', 'desc')->first();
+        }
+
+        if($email) {
+            $content = $email->message;
+        }else{
+            $content = "No Email found";
+        }
+
+        // load the view for pdf and after that load that into dompdf instance, and then stream (download) the pdf
+        $html = view('orders.order_mail', compact('content'));
+        $pdf  = new Dompdf();
+        $paper_size = array(0,0,700, 1080);
+        $pdf->set_paper($paper_size);
+        $pdf->loadHtml($html->render());
+        $pdf->render();
+        $pdf->stream('orderMail.pdf');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -307,9 +333,37 @@ class OrderController extends Controller
             ->where("order_status", "!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"), "os.status as order_status", "swo.website_id")->get()->toArray();
         $totalOrders  = sizeOf($orders->get());
         $orders_array = $orders->paginate(10);
+        
         $quickreply   = Reply::where('model', 'Order')->get();
+
+        $duty_shipping = array();
+        foreach($orders_array as $key => $order){
+            $duty_shipping[$order->id]['id'] = $order->id;
+
+            $website_code_data = $order->duty_tax;
+            if($website_code_data != null)
+            {
+                $product_qty = count($order->order_product);
+
+                $code = $website_code_data->website_code->code;
+
+                $duty_countries = $website_code_data->website_code->duty_of_country;
+                $shipping_countries = $website_code_data->website_code->shipping_of_country($code);
+                
+                $duty_amount = ($duty_countries->default_duty * $product_qty);
+                $shipping_amount = ($shipping_countries->price * $product_qty);
+
+                $duty_shipping[$order->id]['shipping'] = $duty_amount;
+                $duty_shipping[$order->id]['duty'] = $shipping_amount;
+            }else{
+                $duty_shipping[$order->id]['shipping'] = 0;
+                $duty_shipping[$order->id]['duty'] = 0;
+            }
+
+        }
+        $orderStatusList = OrderStatus::all();
         //return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
-        return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault'));
+        return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault','duty_shipping','orderStatusList'));
     }
 
     public function addProduct(Request $request)
@@ -2373,7 +2427,6 @@ class OrderController extends Controller
                                 'template'         => 'order-status-update',
                                 'additional_data'  => $order->id,
                                 'status'           => 'pre-send',
-                                'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
                                 'is_draft'         => 0,
                             ]);
 
@@ -2515,7 +2568,7 @@ class OrderController extends Controller
 //TODO downloadInvoice - added by jammer
     public function downloadInvoice(Request $request, $id)
     {
-        $invoice = Invoice::where("id", $id)->first();
+        $invoice = Invoice::with('orders.duty_tax')->where("id", $id)->first();
         if ($invoice) {
             $data["invoice"]      = $invoice;
             $data["orders"]       = $invoice->orders;
@@ -2754,8 +2807,39 @@ class OrderController extends Controller
     {   
         // error_reporting(0);
         $invoices = Invoice::with('orders.order_product', 'orders.customer')->orderBy('id', 'desc')->paginate(30);
-        //dd($invoices);
-        return view('orders.invoices.index', compact('invoices'));
+        
+        $invoice_array = $invoices->toArray();
+        $invoice_id = array_column($invoice_array['data'], 'id');
+
+        $orders_array = Order::whereIn('invoice_id', $invoice_id)->get();
+
+        $duty_shipping = array();
+        foreach($orders_array as $key => $order){
+            $duty_shipping[$order->id]['id'] = $order->id;
+
+            $website_code_data = $order->duty_tax;
+            if($website_code_data != null)
+            {
+                $product_qty = count($order->order_product);
+
+                $code = $website_code_data->website_code->code;
+
+                $duty_countries = $website_code_data->website_code->duty_of_country;
+                $shipping_countries = $website_code_data->website_code->shipping_of_country($code);
+                
+                $duty_amount = ($duty_countries->default_duty * $product_qty);
+                $shipping_amount = ($shipping_countries->price * $product_qty);
+
+                $duty_shipping[$order->invoice_id]['shipping'] = $duty_amount;
+                $duty_shipping[$order->invoice_id]['duty'] = $shipping_amount;
+            }else{
+                $duty_shipping[$order->invoice_id]['shipping'] = 0;
+                $duty_shipping[$order->invoice_id]['duty'] = 0;
+            }
+
+        }
+        
+        return view('orders.invoices.index', compact('invoices','duty_shipping'));
     }
 
     public function addInvoice($id)

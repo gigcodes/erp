@@ -14,10 +14,8 @@ class UpdateDeveloperTasksHistory extends Migration
     public function up()
     {
         //
-        Schema::table('developer_tasks_history', function ($table) {
-            $table->string('old_value')->change();
-            $table->string('new_value')->change();
-        });
+        \DB::statement("ALTER TABLE `developer_tasks_history` CHANGE `old_value` `old_value` VARCHAR(255) NULL DEFAULT NULL;");
+        \DB::statement("ALTER TABLE `developer_tasks_history` CHANGE `new_value` `new_value` VARCHAR(255) NULL DEFAULT NULL;");
     }
 
     /**

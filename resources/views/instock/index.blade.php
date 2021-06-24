@@ -19,97 +19,91 @@
       <div class="">
         <h2 class="page-heading">In stock Products</h2>
 
-        <div class="pull-right">
-          <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productModal">Upload Products</button>
-          <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#updateBulkProductModal" id="bulk-update-btn">Update Products</button>
-          <button type="button" class="btn btn-secondary" id="js-send-product-btn">Send Products</button>
-        </div>
 
         <!--Product Search Input -->
         <form action="{{ route('productinventory.instock') }}" method="GET" id="searchForm" class="form-inline align-items-start">
+      <div class="d-flex" style="flex-direction: column;width:100%">
+          <div class="d-flex" >
+
           <input type="hidden" name="type" value="{{ $type }}">
           <input type="hidden" name="date" value="{{ $date }}">
-          <div class="form-group mr-3 mb-3">
-            <input name="term" type="text" class="form-control" id="product-search" value="{{ isset($term) ? $term : '' }}" placeholder="sku,brand,category,status">
+          <div class="form-group mr-3 mb-3" style="flex:1">
+            <input name="term" type="text" class="form-control" id="product-search" value="{{ isset($term) ? $term : '' }}" placeholder="sku,brand,category,status" style="width: 100%">
           </div>
-          <div class="form-group mr-3 mb-3">
+          <div class="form-group mr-3 mb-3 "  style="flex:1">
             {!! $category_selection !!}
           </div>
 
-          <div class="form-group mr-3 mb-3">
+          <div class="form-group mr-3 mb-3"  style="flex:1">
              <?php echo Form::select("stock_status",[ "" => "--Select--"] + \App\Product::STOCK_STATUS,request("stock_status"),["class" => "form-control"]); ?>
           </div>
-          
-          <?php /*
-          <div class="form-group mr-3 mb-3">
-            @php $stockStatus = \App\Product::STOCK_STATUS;
-            @endphp
-            <select data-placeholder="Select stock status"  class="form-control select-multiple2" name="stock_status[]" multiple>
-              <optgroup label="Stock Status">
-                @foreach ($stockStatus as $id => $name)
-                  <option value="{{ $id }}" {{ isset($stock_status) && $stock_status == $id ? 'selected' : '' }}>{{ $name }}</option>
-                @endforeach
-              </optgroup>
-            </select>
-          </div>
-          */ ?>
-          <?php 
-          /*
-          <div class="form-group mr-3 mb-3">
-            <strong class="mr-3">Price</strong>
-            <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="10000000" data-slider-step="10" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '10000000' }}]" />
-          </div>
-          */
-          ?>
+          <div class="form-group mr-3 mb-3"  style="flex:1">
+            <select class="form-control globalSelect2" data-placeholder="Select brands" data-ajax="{{ route('select2.brands',['sort'=>true]) }}"
+                name="brand[]" multiple>
 
-          <div class="form-group mr-3">
-            @php $brands = \App\Brand::getAll();
-            @endphp
-            <select data-placeholder="Select brands"  class="form-control select-multiple2" name="brand[]" multiple>
-              <optgroup label="Brands">
-                @foreach ($brands as $id => $name)
-                  <option value="{{ $id }}" {{ isset($brand) && $brand == $id ? 'selected' : '' }}>{{ $name }}</option>
-                @endforeach
-              </optgroup>
+                @if ($selected_brand)        
+                    @foreach($selected_brand as $brand)
+                        <option value="{{ $brand->id }}" selected>{{ $brand->name }}</option>
+                    @endforeach
+                @endif
+
             </select>
+        </div>
+          <div class="form-group mr-3 mb-3"  style="flex:1">
+              <input placeholder="Shoe Size" type="text" name="shoe_size" value="{{request()->get('shoe_size')}}" class="form-control-sm form-control" style="width: 100%">
           </div>
-          <div class="form-group mr-3 mb-3">
-              <input placeholder="Shoe Size" type="text" name="shoe_size" value="{{request()->get('shoe_size')}}" class="form-control-sm form-control">
-          </div>
-          <div class="form-group mr-3">
+
+          <div class="form-group mr-3 mb-3"  style="flex:1">
             @php $colors = new \App\Colors();
             @endphp
             <select data-placeholder="Select color"  class="form-control select-multiple2" name="color[]" multiple>
               <optgroup label="Colors">
                 @foreach ($colors->all() as $id => $name)
-                  <option value="{{ $id }}" {{ isset($color) && $color == $id ? 'selected' : '' }}>{{ $name }}</option>
+                  {{-- <option value="{{ $id }}" {{ isset($color) && $color == $id ? 'selected' : '' }}>{{ $name }}</option> --}}
+                  <option value="{{ $id }}" {{ isset($color) && in_array($name,$color) ? 'selected' : '' }}>{{ $name }}</option>
+                  
                 @endforeach
               </optgroup>
             </select>
           </div>
 
           @if (Auth::user()->hasRole('Admin'))
-            <div class="form-group mr-3">
+
+            <div class="form-group mr-3 mb-3"  style="flex:1">
               <select data-placeholder="Select location" class="form-control select-multiple2" name="location[]" multiple>
                 <optgroup label="Locations">
                   @foreach ($locations as $name)
-                    <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
+                    {{-- <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option> --}}
+                    <option value="{{ $name }}" {{  isset($location) && in_array($name,$location) ? 'selected' : '' }}>{{ $name }}</option>
                   @endforeach
                 </optgroup>
               </select>
             </div>
-
+            @endif
+    </div>
+    <div class="d-flex justify-content-between">
+      <div class="">
+        @if (Auth::user()->hasRole('Admin'))
             <div class="form-group mr-3">
               <input type="checkbox" name="no_locations" id="no_locations" {{ isset($no_locations) ? 'checked' : '' }}>
               <label for="no_locations">With no Locations</label>
             </div>
-          @endif
+        @endif
 
           <div class="form-group">
             <input type="checkbox" id="in_pdf" name="in_pdf"> <label for="in_pdf">Export PDF</label>
           </div>
 
           <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+        </div>
+        <div class="">
+          <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productModal">Upload Products</button>
+          <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#updateBulkProductModal" id="bulk-update-btn">Update Products</button>
+          <button type="button" class="btn btn-secondary" id="js-send-product-btn">Send Products</button>
+        </div>
+
+    </div>
+  </div>
         </form>
 
 
@@ -661,32 +655,26 @@
 
     });
 
-    
-
-    
-
     var product_array = [];
+         $('ul.pagination').not(":last").remove();
 
-    $(document).ready(function() {
-       $(".select-multiple").multiselect();
-       $(".select-multiple2").select2();
-       $('ul.pagination').hide();
-       $(function () {
-            $('.infinite-scroll').jscroll({
-                autoTrigger: true,
-                loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-                padding: 2500,
-                nextSelector: '.pagination li.active + li a',
-                contentSelector: 'div.infinite-scroll',
-                callback: function () {
-                    console.log($('ul.pagination').not(":last"));
-                    $('ul.pagination').not(":last").remove();
-                    $(".select-multiple").multiselect();
-                    $(".select-multiple2").select2();
-                }
-            });
-        });
-    });
+         $(".select-multiple").multiselect();
+         $(".select-multiple2").select2();
+         $('ul.pagination').hide();
+         $(function () {
+              $('.infinite-scroll').jscroll({
+                  autoTrigger: true,
+                  loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+                  padding: 2500,
+                  nextSelector: '.pagination li.active + li a',
+                  contentSelector: 'div.infinite-scroll',
+                  callback: function () {
+                     
+                      $('ul.pagination').not(":last").remove();
+                      $(".select-multiple2").select2();
+                  }
+              });
+          });
 
     // $('#product-search').autocomplete({
     //   source: function(request, response) {
@@ -713,21 +701,6 @@
       });
     }*/
 
-    {{--$('#searchForm').on('submit', function(e) {--}}
-    {{--  e.preventDefault();--}}
-
-    {{--  var url = "{{ route('productinventory.instock') }}";--}}
-    {{--  var formData = $('#searchForm').serialize();--}}
-
-    {{--  $.ajax({--}}
-    {{--    url: url,--}}
-    {{--    data: formData--}}
-    {{--  }).done(function(data) {--}}
-    {{--    $('#productGrid').html(data.html);--}}
-    {{--  }).fail(function() {--}}
-    {{--    alert('Error searching for products');--}}
-    {{--  });--}}
-    {{--});--}}
 
     $(document).on('click', '.select-product', function(e) {
       e.preventDefault();

@@ -11,6 +11,7 @@ use App\Http\Requests\Products\ProductTranslationRequest;
 use App\Jobs\PushToMagento;
 use App\ListingHistory;
 use App\Order;
+use App\ErpLeads;
 use App\OrderProduct;
 use App\Product;
 use App\RejectedImages;
@@ -182,7 +183,7 @@ class ProductController extends Controller
 
 
         // Run through query helper
-        $newProducts = QueryHelper::approvedListingOrder($newProducts);
+        $newProducts = QueryHelper::approvedListingOrderFinalApproval($newProducts);
         $term = $request->input('term');
         $brand = '';
         $category = '';
@@ -2231,19 +2232,19 @@ class ProductController extends Controller
         // start add fixing for the price range since the one request from price is in range
         // price  = 0 , 100
 
-        $priceRange = $request->get("price", null);
+        // $priceRange = $request->get("price", null);
 
-        if ($priceRange && !empty($priceRange)) {
-            @list($minPrice, $maxPrice) = explode(",", $priceRange);
-            // adding min price
-            if (isset($minPrice)) {
-                $request->request->add(['price_min' => $minPrice]);
-            }
-            // addin max price
-            if (isset($maxPrice)) {
-                $request->request->add(['price_max' => $maxPrice]);
-            }
-        }
+        // if ($priceRange && !empty($priceRange)) {
+        //     @list($minPrice, $maxPrice) = explode(",", $priceRange);
+        //     // adding min price
+        //     if (isset($minPrice)) {
+        //         $request->request->add(['price_min' => $minPrice]);
+        //     }
+        //     // addin max price
+        //     if (isset($maxPrice)) {
+        //         $request->request->add(['price_max' => $maxPrice]);
+        //     }
+        // }
 
         $products = (new Product())->newQuery()->latest();
         $products->where("has_mediables", 1);
@@ -2304,6 +2305,14 @@ class ProductController extends Controller
 
         if ($request->price_max != null) {
             $products = $products->where('price_inr_special', '<=', $request->price_max);
+        }
+
+        if ($request->discounted_percentage_min != null && $request->discounted_percentage_min != 0) {
+            $products = $products->where('discounted_percentage', '>=', $request->discounted_percentage_min);
+        }
+
+        if ($request->discounted_percentage_max != null) {
+            $products = $products->where('discounted_percentage', '<=', $request->discounted_percentage_max);
         }
 
         if (isset($request->supplier[0])) {
@@ -2532,6 +2541,7 @@ class ProductController extends Controller
         } else {
             $products = $products->paginate($perPageLimit);
         }
+
         $brand = $request->brand;
         $products_count = $products->total();
         $all_product_ids = [];
@@ -2568,6 +2578,9 @@ class ProductController extends Controller
                 $suggestedProducts->total = $perPageLimit;
                 $suggestedProducts->save();
                 $suggestedProductId=$suggestedProducts->id;
+
+                
+
                 $data_to_insert = [];
                 foreach($product_ids as $id){
                     $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$id)->where('date',date('Y-m-d'))->first();
@@ -2581,6 +2594,20 @@ class ProductController extends Controller
                                 'date' => date('Y-m-d')
                             ];
                         }
+                        $category_brand_count = ErpLeads::where('category_id',$pr->category)->where('brand_id',$pr->brand)->count();
+                        if($category_brand_count === 0){
+
+                            $erp_lead = new ErpLeads;
+                            $erp_lead->lead_status_id = 1;
+                            $erp_lead->customer_id = $customerId;
+                            $erp_lead->product_id = $id;
+                            $erp_lead->category_id = $pr->category;
+                            $erp_lead->brand_id = $pr->brand;
+                            $erp_lead->min_price = !empty($request->price_min) ? $request->price_min : 0;
+                            $erp_lead->max_price = !empty($request->price_max) ? $request->price_max : 0;
+                            $erp_lead->save();
+                        }
+                        
                     }
                 }
                 $inserted = count($data_to_insert);
@@ -2588,6 +2615,19 @@ class ProductController extends Controller
                     \App\SuggestedProductList::insert($data_to_insert);
                 } 
             }
+
+            //
+            if($request->need_to_send_message == 1) {
+               \App\ChatMessage::create([
+                    "message" => "Total product found '".count($product_ids)."' for the keyword message : {$request->keyword_matched}",
+                    "customer_id" => $model_id,
+                    "status" => 2,
+                    "approved" => 1,
+               ]);
+               
+               return ["total_product" => count($product_ids)];
+            }
+
 
             // $message_body = '';
             // $sending_time = '';
@@ -4552,6 +4592,39 @@ class ProductController extends Controller
 
     }
     
+    public function createTemplate(Request $request)
+    {   
+
+        $this->validate($request, [
+            'template_no'   => 'required',
+            'product_media_id'   => 'required',
+            'background'   => 'required',
+            'text'   => 'required',
+        ]);
+
+        $product_media_id = explode(',', $request->product_media_id);
+        $template = new \App\ProductTemplate;
+        $template->template_no = $request->template_no;
+        $template->text = $request->text;
+        $template->background_color = $request->background;
+        $template->template_status = 'python';
+
+        if ($template->save()) {
+
+            if (!empty($request->get('product_media_id')) && is_array($request->get('product_media_id'))) {
+                foreach ($request->get('product_media_id') as $mediaid) {
+                    $media = Media::find($mediaid);
+                    $template->attachMedia($media, ['template-image-attach']);
+                    $template->save();
+                    $imagesArray[]=$media->getUrl();
+                }
+            }
+
+            return redirect()->back()->with('success','Template has been created successfully');
+        }
+        return redirect()->back()->with('error','Something went wrong, Please try again!');
+    }
+
     public function attachedImageGrid($model_type = null, $model_id = null, $status = null, $assigned_user = null, Request $request) {
         $model_type = 'customer';
         if ($model_type == 'customer') {
@@ -4621,6 +4694,7 @@ class ProductController extends Controller
         // }
         $suggestedProducts = \App\SuggestedProduct::leftJoin("suggested_product_lists as spl","spl.suggested_products_id", "suggested_products.id");
         $suggestedProducts = $suggestedProducts->leftJoin("products as p","spl.product_id", "p.id");
+        $suggestedProducts = $suggestedProducts->leftJoin("customers as c","c.id", "suggested_products.customer_id");
         if($customerId) {
             $suggestedProducts = $suggestedProducts->where('suggested_products.customer_id',$customerId);
         }
@@ -4638,6 +4712,12 @@ class ProductController extends Controller
             $suggestedProducts = $suggestedProducts->where(function($q) use($term){
                 $q->orWhere("p.sku","LIKE","%".$term."%")->orWhere("p.id","LIKE","%".$term."%");
             });
+        }
+
+        $loggedInUser = auth()->user();
+        $isInCustomerService = $loggedInUser->isInCustomerService();
+        if($isInCustomerService) {
+            $suggestedProducts = $suggestedProducts->where('c.user_id',$loggedInUser->id);
         }
 
         // $perPageLimit
@@ -4670,7 +4750,7 @@ class ProductController extends Controller
             }
         }
 
-        
+        $templateArr = \App\Template::all();
 
         $all_product_ids = [];
         $model_type = 'customer';
@@ -4715,7 +4795,7 @@ class ProductController extends Controller
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
         $customers = \App\Customer::pluck('name','id');
         return view('partials.attached-image-grid', compact(
-                        'suggestedProducts', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups', 'countBrands', 'countCategory', 'countSuppliers', 'customerId', 'categoryArray', 'term','customers'
+                        'suggestedProducts', 'templateArr', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups', 'countBrands', 'countCategory', 'countSuppliers', 'customerId', 'categoryArray', 'term','customers'
         ));
     }
     public function crop_rejected_status(Request $request)
@@ -4932,7 +5012,7 @@ class ProductController extends Controller
                 $suggestion->brdNames = Brand::whereIn('id',$brandIds)->get();
             }
             else {
-                $suggestion->brdNames = []; 
+                $suggestion->brdNames = [];
             }
 
             $catIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->where('suggested_products_id',$suggestion->id)->groupBy('products.category')->pluck('products.category');
@@ -4940,7 +5020,7 @@ class ProductController extends Controller
                 $suggestion->catNames = Category::whereIn('id',$catIds)->get();
             }
             else {
-                $suggestion->catNames = []; 
+                $suggestion->catNames = [];
             }
         }
 
@@ -5081,6 +5161,7 @@ class ProductController extends Controller
         
         if ($suggestedProducts) {
             $suggestedProducts->touch();
+            $new_suggestedproductid = $suggestedProducts->id;
         } else {
             $suggestedProducts              = new \App\SuggestedProduct;
             $suggestedProducts->customer_id = $customerId;
@@ -5322,6 +5403,46 @@ class ProductController extends Controller
 
 
         return response()->json($data);
+    }
+
+
+
+    public function add_product_def_cust($product_id,Request $request)
+    {
+        $product = Product::find($product_id);
+        
+        $def_cust_id = getenv('DEFAULT_CUST_ID');
+
+        $customers = \App\Customer::find($def_cust_id);
+
+        $statement = \DB::select("SHOW TABLE STATUS LIKE 'orders'");
+        $nextId    = 0;
+        if (!empty($statement)) {
+            $nextId = $statement[0]->Auto_increment;
+        }
+
+        $order_id = "OFF-" . date('Ym') .'-'. $nextId;
+       
+        $order_data = array(
+            'customer_id' => $def_cust_id,
+            'order_id' => $order_id,
+            'order_date' => date('Y-m-d'),
+            'client_name' => $customers->name,
+        );
+        $order = Order::create($order_data);
+
+        $order_id = $order->id;
+
+        $orderproduct_data = array(
+            'order_id' => $order_id,
+            'sku' => $product->sku,
+            'product_id' => $product->id,
+            'product_price' => $product->price,
+        );
+        
+        $order_products = OrderProduct::create($orderproduct_data);
+
+        return response()->json(['code' => 200, 'message' => 'Purchase Products Added successfully']);
     }
 
 }

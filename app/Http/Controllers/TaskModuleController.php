@@ -35,7 +35,7 @@ use GuzzleHttp\RequestOptions;
 use Storage;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\Helpers\HubstaffTrait;
-
+use App\Helpers\MessageHelper;
 
 class TaskModuleController extends Controller {
 
@@ -108,6 +108,14 @@ class TaskModuleController extends Controller {
 		$data['task']['pending'] = [];
 		$data['task']['statutory_not_completed'] = [];
 		$data['task']['completed'] = [];
+		$status_filter = '';
+		if($request->filter_status){
+			$status_filter = ' AND status = '.$request->filter_status.' ';
+		}
+		$flag_filter = ' AND is_flagged = 0 ';
+		if($request->flag_filter){
+			$flag_filter = ' ';
+		}
 		if($type == 'pending') {
 			$paginate = 50;
     		$page = $request->get('page', 1);
@@ -125,7 +133,7 @@ class TaskModuleController extends Controller {
 			if($request->filter_by == 2) {
 				$isCompleteWhereClose = ' AND is_completed IS NOT NULL AND is_verified IS NULL ';
 			}
-
+			
 			$data['task']['pending'] = DB::select('
 			SELECT tasks.*
 
@@ -144,7 +152,7 @@ class TaskModuleController extends Controller {
 				  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
 			  ) as chat_messages  ON chat_messages.task_id = tasks.id
 			) AS tasks
-			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$isCompleteWhereClose.$userquery. $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.'; ');
+			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$isCompleteWhereClose.$userquery. $status_filter . $flag_filter . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.'; ');
 
 
 			foreach ($data['task']['pending'] as $task) {
@@ -183,6 +191,7 @@ class TaskModuleController extends Controller {
     		$page = $request->get('page', 1);
 			$offSet = ($page * $paginate) - $paginate; 
 			$orderByClause .= ' last_communicated_at DESC';
+			
 			$data['task']['completed'] = DB::select('
                 SELECT *,
  				message_id,
@@ -205,7 +214,7 @@ class TaskModuleController extends Controller {
 					FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
                  ) AS chat_messages ON chat_messages.task_id = tasks.id
                 ) AS tasks
-                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL '.$userquery . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.';');
+                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL '.$userquery . $categoryWhereClause . $status_filter . $flag_filter . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.';');
 				
 
 				foreach ($data['task']['completed'] as $task) {
@@ -244,6 +253,7 @@ class TaskModuleController extends Controller {
     		$page = $request->get('page', 1);
 			$offSet = ($page * $paginate) - $paginate; 
 			$orderByClause .= ' last_communicated_at DESC';
+			
 			$data['task']['statutory_not_completed'] = DB::select('
 	               SELECT *,
 				   message_id,
@@ -268,7 +278,7 @@ class TaskModuleController extends Controller {
 	                 ) AS chat_messages ON chat_messages.task_id = tasks.id
 
 	               ) AS tasks
-				   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL '.$userquery . $categoryWhereClause . $orderByClause .' limit '.$paginate.' offset '.$offSet.';');
+				   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL '.$userquery . $categoryWhereClause . $status_filter . $flag_filter . $orderByClause .' limit '.$paginate.' offset '.$offSet.';');
 				   
 				   foreach ($data['task']['statutory_not_completed'] as $task) {
 					array_push($assign_to_arr, $task->assign_to);
@@ -574,7 +584,6 @@ class TaskModuleController extends Controller {
 		->selected($request->category)
 		->renderAsDropdown();
 
-
 		$categories = [];
 		foreach (TaskCategory::all() as $category) {
 			$categories[$category->id] = $category->title;
@@ -601,7 +610,6 @@ class TaskModuleController extends Controller {
 		}
 
 	    $task_statuses=TaskStatus::all();
-
 
 
 		if ($request->ajax()) {
@@ -1249,6 +1257,12 @@ class TaskModuleController extends Controller {
 	{
 		$task = Task::find($id);
 
+		if(!$task) {
+			abort(404, "Task is not exist");
+		}
+
+		
+		$chatMessages = ChatMessage::where('task_id',$id)->get();
 		if ((!$task->users->contains(Auth::id()) && $task->is_private == 1) || ($task->assign_from != Auth::id() && $task->contacts()->count() > 0) || (!$task->users->contains(Auth::id()) && $task->assign_from != Auth::id() && Auth::id() != 6)) {
 			return redirect()->back()->withErrors("This task is private!");
 		}
@@ -1273,6 +1287,7 @@ class TaskModuleController extends Controller {
 			'categories'	=> $categories,
 			'taskNotes'	=> $taskNotes,
 			'hiddenRemarks'	=> $hiddenRemarks,
+			'chatMessages'	=> $chatMessages,
 		]);
 	}
 
@@ -2366,21 +2381,33 @@ class TaskModuleController extends Controller {
 
 	public function saveDocuments(Request $request)
 	{
+		$loggedUser = $request->user();
+
 		if(!$request->task_id || $request->task_id == '') {
 			return response()->json(["code" => 500, "data" => [], "message" => "Select one task"]);
 		}
 		$documents = $request->input('document', []);
 		$task = Task::find($request->task_id);
+
 		if (!empty($documents)) {
-			$count = 0;
-			foreach ($request->input('document', []) as $file) {
+
+			$count = count($documents);
+			
+			$message = '['. $loggedUser->name.'] - #ISSUE-'. $task->id. ' - ' . $task->task_subject . "\n\n " . $count . ' new attchment'. ( $count > 1 ? 's' : '' );
+
+			foreach ($documents as $file) {
 				$path  = storage_path('tmp/uploads/' . $file);
 				$media = MediaUploader::fromSource($path)
 					->toDirectory('task-files/' . floor($task->id / config('constants.image_per_folder')))
 					->upload();
 				$task->attachMedia($media, config('constants.media_tags'));
-				$count++;
+				
+				$message .= "\n" . $file;
 			}
+
+			$message . "\nhas been added. \n Please check it and add your comment if any.";
+
+			MessageHelper::sendEmailOrWebhookNotification([$task->users->pluck('id')->toArray()], $message );
 
 			return response()->json(["code" => 200, "data" => [], "message" => "Done!"]);
 		} else {

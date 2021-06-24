@@ -87,7 +87,9 @@ color:black!important;
         <thead>
         <tr>
             <th width="10%">Sl no</th>
-            <th width="75%">Name</th>
+            <th width="35%">Name</th>
+            <th width="20%">Product Inquiry Count</th> <!-- Purpose : Product Inquiry Count -DEVTASK-4048 -->
+            <th width="20%">Communication</th> <!-- Purpose : Add communication -DEVTASK-4236 -->
             <th width="15%">Action</th>
          </tr>
         </thead>
@@ -97,6 +99,17 @@ color:black!important;
             <tr class="">
               <td>{{ ++$key }}</td>
               <td>{{ $supplier->supplier }}</td>
+              <td>{{$supplier->inquiryproductdata_count}}</td><!-- Purpose : Product Inquiry Count -DEVTASK-4048 -->
+              <!-- START - purpose : Add Communication -DEVTASK-4236 -->
+              <td>
+              @if($supplier->phone)
+              <input type="text" name="message" id="message_{{$supplier->id}}" placeholder="whatsapp message..." class="form-control send-message" data-id="{{$supplier->id}}">
+              
+
+              <a type="button" class="btn btn-xs btn-image load-communication-modal"  data-object="supplier" data-load-type="text" data-all="1" title="Load messages" data-object="supplier" data-id="{{$supplier->id}}" ><img src="/images/chat.png" alt=""></a>
+              @endif
+              </td>
+               <!-- END - DEVTASK-4236 -->
               <td>
               <a href="#"  data-type="order" data-id="{{$supplier->id}}" class="btn btn-xs btn-secondary product-list-btn" style="color:white !important;">
                 Order
@@ -110,7 +123,7 @@ color:black!important;
               </td>
             </tr>
             <tr class="expand-row-{{$supplier->id}} hidden">
-                <td colspan="3" id="product-list-data-{{$supplier->id}}">
+                <td colspan="5" id="product-list-data-{{$supplier->id}}">
                 
                 </td>
             </tr>
@@ -122,6 +135,26 @@ color:black!important;
     </div>
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
    </div>
+
+
+   <div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+                    <input type="hidden" id="chat_obj_type" name="chat_obj_type">
+                    <input type="hidden" id="chat_obj_id" name="chat_obj_id">
+                    <button type="submit" class="btn btn-default downloadChatMessages">Download</button>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 @endsection
 @section('scripts')
@@ -176,9 +209,10 @@ $(document).on('click', '.product-list-btn', function(e) {
             return result;
         }
     var product_ids = [];
+    var order_ids = [];//Purpose : array for Order id - DEVTASK-4236
     $(document).on('click', '.btn-send', function(e) {
       e.preventDefault();
-      product_ids = [];
+      // product_ids = [];
       let type = $(this).data('type');
       let supplier_id = $(this).data('id');
 
@@ -188,9 +222,15 @@ $(document).on('click', '.product-list-btn', function(e) {
              var supplier_cls = ".supplier-"+supplier_id+" .select-pr-list-chk";
              var $input = $(supplier_cls).eq(i);
              var product_id = $input.data('id');
+             var order_id = $input.data('order-id');
              if ($input.is(":checked") === true) {
                     product_ids.push(product_id);
                     product_ids = unique(product_ids);
+
+                    //START - Purpose : Add Order id - DEVTASK-4236
+                    order_ids.push(order_id);
+                    order_ids = unique(order_ids);
+                    //END - DEVTASK-4236
                 }
             }
     if(product_ids.length == 0)
@@ -203,17 +243,62 @@ $(document).on('click', '.product-list-btn', function(e) {
           type: 'GET',
           dataType: 'html',
           data: {
-              product_ids:JSON.stringify(product_ids)
+              product_ids:JSON.stringify(product_ids),
+              order_ids:JSON.stringify(order_ids)
           },
           beforeSend: function() {
             $("#loading-image").show();
           }
         }).done( function(response) {
             $("#loading-image").hide();
+            toastr['success']("Message sent successfully!", "Success");
+            setTimeout(function(){ location.reload(); }, 2000);
         }).fail(function(errObj) {
             $("#loading-image").hide();
         });
     });
+
+    //START - purpose : Add Communication send msg -DEVTASK-4236
+    $(document).on('keyup', '.send-message', function(event) {
+        if (event.keyCode != 13) {
+            return;
+        }
+
+        let supplierId = $(this).attr('data-id');
+        let message = $(this).val();
+        let self = this;
+
+        if (message == '') {
+            return;
+        }
+
+        $.ajax({
+            url: "{{action('WhatsAppController@sendMessage', 'supplier')}}",
+            type: 'post',
+            data: {
+                message: message,
+                supplier_id: supplierId,
+                _token: "{{csrf_token()}}",
+                status: 2
+            },
+            success: function() {
+              $("#loading-image").hide();
+                $(self).removeAttr('disabled');
+                $(self).val('');
+                toastr['success']("Message sent successfully!", "Success");
+            },
+            beforeSend: function() {
+                $(self).attr('disabled', true);
+                $("#loading-image").show();
+            },
+            error: function() {
+              $("#loading-image").hide();
+                $(self).removeAttr('disabled');
+            }
+        });
+
+    });
+    //END - DEVTASK-4236
     
 </script>
 @endsection

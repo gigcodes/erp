@@ -22,29 +22,29 @@
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-			<h2 class="page-heading">Live Laravel Logs
+            <h2 class="page-heading">Live Laravel Logs
                 <a style="float: right;" href="{{ action('LaravelLogController@liveLogDownloads') }}" class="btn btn-success btn-xs">Download</a>
                 <a style="float: right; padding-left: 10px;" href="{{ action('LaravelLogController@liveMagentoDownloads') }}" class="btn btn-success btn-xs">Magento Log</a>
             </h2>
-			@if ($message = Session::get('message'))
-				<div class="alert alert-success">
-					<p>{{ $message }}</p>
-				</div>
-			@endif
+            @if ($message = Session::get('message'))
+                <div class="alert alert-success">
+                    <p>{{ $message }}</p>
+                </div>
+            @endif
         </div>
     </div>
 
     @include('partials.flash_messages')
-	<div class="row">
-		<div class="col-md-6">
-			<form method="get" action="{{ url('logging/live-laravel-logs') }}" class="form-horizontal" role="form">
-				<div class="col-md-3">
-					<select name="type" class="form-control select-multiple" id="error-select">
-						@foreach($errSelection as $key => $selection)
-							<option value="{{ $selection }}" {{ app('request')->input('type') == $selection ? ' selected' : '' }}>{{ $selection }}</option>
-						@endforeach
-					</select>
-				</div>
+    <div class="row">
+        <div class="col-md-6">
+            <form method="get" action="{{ url('logging/live-laravel-logs') }}" class="form-horizontal" role="form">
+                <div class="col-md-3">
+                    <select name="type" class="form-control select-multiple" id="error-select">
+                        @foreach($errSelection as $key => $selection)
+                            <option value="{{ $selection }}" {{ app('request')->input('type') == $selection ? ' selected' : '' }}>{{ $selection }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
                 <div class="col-md-3">
                     <select name="channel" class="form-control select-multiple" id="error-select">
@@ -56,12 +56,30 @@
                 <div class="col-md-4">
                     <input type="text" name="search" value="{{ app('request')->input('search') != '' ? app('request')->input('search') : '' }}" class="form-control" id="error-search" placeholder="Search...">
                 </div>
-				<div class="col-md-2">
-					<button type='submit' class="btn btn-default">Search</button>
-				</div>
-			</form>
-		</div>
-	</div>
+                <div class="col-md-2">
+                    <button type='submit' class="btn btn-default">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="conatainer">
+        <div class="row mt-3">
+            <form action="{{ action('LaravelLogController@LogKeyword') }}" class="form-horizontal logKeyword" role="form" method="post">
+                <div class="col-md-3">
+                    <input type="text" name="title" value="" class="form-control" placeholder="Keyword" required>
+                </div>
+                <div class="col-md-3">
+                    <button type='submit' class="btn btn-default">Add Keyword</button>
+                </div>
+                <div class="col-md-3">
+                    <button type='button' class="btn btn-default show-keywords">Show Keyword</button>
+                </div>
+                <div class="col-md-3">
+                    <button type='button' class="btn btn-default load-messages" data-object="user" data-id="6">Show Messages</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <div class="mt-3 col-md-12">
         <table class="table table-bordered table-striped" id="log-table">
             <thead>
@@ -69,7 +87,7 @@
                 <th width="10%">Filename</th>
                 <th width="10%">Channel</th>
                 <th width="50%">Log</th>
-                <th width="10%">Action</th>
+                <th width="13%">Action</th>
             </tr>
             </thead>
             <tbody id="content_data">
@@ -80,34 +98,126 @@
     </div>
  
  
-	<div id="assign_task_model" class="modal fade" role="dialog" data-backdrop="static">
-		<div class="modal-dialog">
-			<!-- Modal content-->
-			<div class="modal-content">
-				<form action="{{ url('logging/assign') }}" method="POST">
-				@csrf
-				<div class="modal-header">
-					<h4 class="modal-title">Assign Task</h4>
-				</div>
-				<div class="modal-body">
-					<input type="hidden" name="issue" id="issue">
-					<div class="form-group">
-						<strong>User:</strong>
-						<select class="form-control select-multiple" name="assign_to" id="user-select">
-							<option value="">Select User</option>
-							@foreach($users as $key => $user)
-								<option value="{{ $user->id }}">{{ $user->name }}</option>
-							@endforeach
-						</select>
-					</div>
-				</div>
-				<div class="modal-footer">
-				  <button type="button" class="btn btn-default close-setting" data-dismiss="modal">Close</button>
-				  <button type="submit" class="btn btn-secondary">Assign</button>
-				</div>
-			</form>
+    <div id="assign_task_model" class="modal fade" role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form action="{{ url('logging/assign') }}" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h4 class="modal-title">Assign Task</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="issue" id="issue">
+                    <div class="form-group">
+                        <strong>User:</strong>
+                        <select class="form-control select-multiple" name="assign_to" id="user-select">
+                            <option value="">Select User</option>
+                            @foreach($users as $key => $user)
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default close-setting" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-secondary">Assign</button>
+                </div>
+            </form>
         </div>
       </div>
+    </div>
+    
+    <div id="view_error" class="modal fade" role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form action="{{ url('logging/assign') }}" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h4 class="modal-title">Assign Task</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-striped">
+                        <tr>
+                            <th>Index</th>
+                            <th>Time</th>
+                        </tr>
+                        <tbody class="content">
+                            
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default close-setting" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="show_keywords" class="modal fade" role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Keywords</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <td>Index</td>
+                                <td>Keyword</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($logKeywords as $logKeyword)
+                                <tr>
+                                    <td>{{ $logKeyword->id }}</td>
+                                    <td>{{ $logKeyword->text }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default close-setting" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="load_messages" class="modal fade" role="dialog" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Keywords</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <td>Index</td>
+                                <td>Message</td>
+                                <td>Sent On</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php $count=0; @endphp
+                            @foreach($ChatMessages as $ChatMessage)
+                                <tr>
+                                    <td>{{ $count++ }}</td>
+                                    <td>{{ $ChatMessage->message }}</td>
+                                    <td>{{ $ChatMessage->created_at }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default close-setting" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 @endsection
@@ -120,23 +230,23 @@
     
     <script type="text/javascript">
 
-	function encode(e){return e.replace(/[^]/g,function(e){return"&#"+e.charCodeAt(0)+";"})}
+    function encode(e){return e.replace(/[^]/g,function(e){return"&#"+e.charCodeAt(0)+";"})}
 
 
 
     //Ajax Request For Search
     $(document).ready(function () {
           
-		$('.select-multiple').select2({width: '100%'}); 
-    	$(".assign_task").on('click', function () {
-			var err = $(this).closest("tr").find("span.td-full-container").text();
-			$("#issue").val(err.replace(/[^]/g,function(err){return "&#"+err.charCodeAt(0)+";"}));
-		});
-		$('.close-setting').on('click', function() {
-			$("#issue").val('');
-		});
-		
-		
+        $('.select-multiple').select2({width: '100%'}); 
+        $(".assign_task").on('click', function () {
+            var err = $(this).closest("tr").find("span.td-full-container").text();
+            $("#issue").val(err.replace(/[^]/g,function(err){return "&#"+err.charCodeAt(0)+";"}));
+        });
+        $('.close-setting').on('click', function() {
+            $("#issue").val('');
+        });
+        
+        
         //Expand Row
          $(document).on('click', '.expand-row', function () {
             var selection = window.getSelection();
@@ -333,7 +443,7 @@
                     blank : blank
                 },
                 beforeSend: function() {
-                       $("#loading-image").show();
+                    $("#loading-image").show();
                 },
             
             }).done(function (data) {
@@ -428,8 +538,67 @@
 
             }).fail(function (jqXHR, ajaxOptions, thrownError) {
                 alert('No response from server');
-            });  
+            });
 
          }
+        $(document).on('click','.show-keywords',function(event){
+            event.preventDefault();
+            $('#show_keywords').modal('show');
+        });
+        $(document).on('click','.load-messages',function(event){
+            event.preventDefault();
+            $('#load_messages').modal('show');
+        });
+
+        $(document).on('submit','.logKeyword',function(event){
+            event.preventDefault();
+            
+            $.ajax({
+                url: $(this).attr('action'),
+                dataType: "json",
+                data: {
+                    title : $(this).find('input[name="title"]').val(),
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+            }).done(function (data) {
+                toastr['success'](data.message, 'Keyword Added Successfully.');
+                $("#loading-image").hide();
+                window.location.reload();
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                toastr['error'](data.message, 'Error ocuured!');
+                $("#loading-image").hide();
+            });
+        });
+        $(document).on('click','.view_error',function(event){
+            event.preventDefault();
+            console.log($(this).parent('td').siblings('td.expand-row.table-hover-cell').find('.td-full-container').text());
+            $.ajax({
+                url: '{{ action("LaravelLogController@liveLogsSingle") }}',
+                dataType: "json",
+                data: {
+                    msg : $(this).parent('td').siblings('td.expand-row.table-hover-cell').find('.td-full-container').text(),
+                },
+                beforeSend: function () {
+                    //$("#loading-image").show();
+                },
+            }).done(function (data) {
+                var $html = '';
+                $.each(data, function(i, item) {
+                    $html += '<tr>';
+                    $html += '<td>'+parseInt(i+1)+'</td>';
+                    $html += '<td>'+item+'</td>';
+                    $html += '</tr>';
+                });
+                $('#view_error table tbody.content').html($html);
+                $('#view_error').modal('show');
+                console.log($html);
+                //window.location.reload();
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                //toastr['error'](data.message, 'Error ocuured!');
+                //$("#loading-image").hide();
+            });
+        });
     </script>
 @endsection

@@ -13,7 +13,7 @@
 <body>
    <div style="width: 800px; margin: 30px auto; border:2px solid #f4e7e1;">
       <div style="width: 100%;text-align: center; padding-top: 30px;background-color: #f4e7e1;">
-        <img src="{{ asset('images/emails/logo.png') }}" alt="" />
+        <img src="data:image/png;base64, {{ base64_encode(file_get_contents(asset('images/emails/logo.png'))) }}" alt="" />
       </div>
       <div style="width: 100%;background-color: #f4e7e1;padding: 0 30px;">
         <table>
@@ -90,7 +90,8 @@
                         <tbody>
                           <tr>
                              <td>
-                              <div style="float: left;margin-top: 3px;"><img src="{{ asset('images/emails/mail.png') }}"></div>
+                              <div style="float: left;margin-top: 3px;">
+                              <img src="data:image/png;base64, {{ base64_encode(file_get_contents(asset('images/emails/mail.png'))) }}" alt="" />
                               <div style="margin-left: 30px;"><a href="#" style="font-size: 12px; color: #000000;">customercare@sololuxury.com</a></div>
                             </td>
                           </tr>
@@ -100,10 +101,14 @@
                       <tbody>
                         <tr>
                           <td style="text-align: right;padding-top: 6px;">
-                            <a href="#" style="display: inline-block; margin-left: 15px;"><img style="width: 6px;" src="{{ asset('images/emails/fb.png') }}"></a>
-                            <a href="#" style="display: inline-block; margin-left: 15px;"><img style="width: 13px;" src="{{ asset('images/emails/tw.png') }}"></a>
-                            <a href="#" style="display: inline-block; margin-left: 15px;"><img style="width: 13px;" src="{{ asset('images/emails/insta.png') }}"></a>
-                            <a href="#" style="display: inline-block; margin-left: 15px;"><img style="width: 13px;" src="{{ asset('images/emails/linkin.png') }}"></a>
+                            <a href="#" style="display: inline-block; margin-left: 15px;">
+                              <img src="data:image/png;base64, {{ base64_encode(file_get_contents(asset('images/emails/fb.png'))) }}" alt="" />
+                            <a href="#" style="display: inline-block; margin-left: 15px;">
+                              <img src="data:image/png;base64, {{ base64_encode(file_get_contents(asset('images/emails/tw.png'))) }}" alt="" />
+                            <a href="#" style="display: inline-block; margin-left: 15px;">
+                              <img src="data:image/png;base64, {{ base64_encode(file_get_contents(asset('images/emails/insta.png'))) }}" alt="" />
+                            <a href="#" style="display: inline-block; margin-left: 15px;">
+                              <img src="data:image/png;base64, {{ base64_encode(file_get_contents(asset('images/emails/linkin.png'))) }}" alt="" />
                           </td>
                         </tr>
                       </tbody>

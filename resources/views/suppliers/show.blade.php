@@ -246,9 +246,14 @@
                                             $scrapersList[] = $ssc->scraper_name;
                                         }
                                     }
+
+                                    $scrapersName = implode(",",$scrapersList);
                                 @endphp
-                                <input type="text" name="scraper_name" id="supplier_scraper_name" class="form-control input-sm" placeholder="Scraper Name" 
-                                    value="{{ implode(',',$scrapersList) }}">
+
+                                <input type="text" name="scraper_name" id="supplier_scraper_name" class="form-control input-sm" placeholder="Scraper Name" value="{{ $scrapersName }}">
+                                
+                                {{-- <input type="text" name="scraper_name" id="supplier_scraper_name" class="form-control input-sm" placeholder="Scraper Name" value="{{ $scrapers[0]->scraper_name }}"> --}}
+
                             </div>
 
                             <div class="form-group">

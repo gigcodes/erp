@@ -74,6 +74,10 @@
                 @if($email->approve_mail == 1)
                   <a title="Approve and send watson reply" class="btn-image resend-email-btn" data-id="{{ $email->id }}" data-type="approve" href="javascript:void(0);">  <i class="fa fa-check-circle"></i></a>
                 @endif
+                <a class="btn btn-image btn-ht" href="{{route('order.generate.order-mail.pdf', ['order_id' => 'empty', 'email_id' => $email->id])}}">
+                  <i class="fa fa-file-pdf-o" aria-hidden="true"></i>      
+                </a>
+                <button style="padding:3px;" type="button" class="btn btn-image make-label d-inline" data-toggle="modal" data-target="#labelingModal" data-id="{{ $email->id }}"><i class="fa fa-tags" aria-hidden="true"></i></button>
             </td>
         </tr>
     @endforeach

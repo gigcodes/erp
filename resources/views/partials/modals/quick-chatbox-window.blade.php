@@ -18,13 +18,13 @@
                             </div>
                             <div class="card-body contacts_body">
                                 @php
-                                $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
+                                $chatIds = \App\CustomerLiveChat::with('customer')->orderBy('seen','asc')->orderBy('status','desc')->get();
                                 $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                 @endphp
                                 <ul class="contacts" id="customer-list-chat">
                                     @foreach ($chatIds as $chatId)
                                     @php
-                                    $customer = \App\Customer::where('id',$chatId->customer_id)->first();
+                                    $customer = $chatId->customer;
                                     $customerInital = substr($customer->name, 0, 1);
                                     @endphp
                                         <input type="hidden" id="live_selected_customer_store" value="{{ $customer->store_website_id }}" />

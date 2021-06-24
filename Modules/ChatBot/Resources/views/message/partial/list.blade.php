@@ -21,55 +21,126 @@
 <table class="table table-bordered page-template-{{ $page }}">
     <thead>
     <tr>
-        <th width="10%"># Name</th>
+        <th width="6%"># Name</th>
         <th width="5%">Website</th>
-        <th width="10%">User input</th>
-        <th width="15%">Bot Replied</th>
-        <th width="15%">Message Box</th>
+        <th width="9%">User input</th>
+        <th width="12%">Bot Replied</th>
+        <th width="20%">Message Box</th>
         <th width="5%">From</th>
-        <th width="10%">Images</th>
-        <th width="10%">Created</th>
-        <th width="10%">Action</th>
+        <th width="20%">Shortcuts</th>
+        <th width="5%">Action</th>
+
     </tr>
     </thead>
     <tbody>
     <?php if (!empty($pendingApprovalMsg)) {?>
-    <?php foreach ($pendingApprovalMsg as $pam) {?>
-    <tr>
-        <td data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id}}" data-vendor-id="{{$pam->vendor_id}}">{{  ($pam->vendor_id > 0 ) ? "#".$pam->vendor_id." ".$pam->vendors_name : "#".$pam->customer_id." ".$pam->customer_name }}</td>
+    <?php foreach ($pendingApprovalMsg as $pam) { ?>
+    <tr class="customer-raw-line">
+
+
+        @php
+
+
+
+            $context = 'customer';
+            $issueID = null;
+            if($pam->chatBotReplychat){
+            
+                $reply = json_decode($pam->chatBotReplychat->reply);
+                
+                if(isset($reply->context)){
+                    $context = $reply->context;
+                    $issueID = $reply->issue_id;
+                }
+
+            }
+
+        @endphp
+
+        <td data-context="{{ $context }}" data-url={{ route('whatsapp.send', ['context' => $context]) }} {{ $pam->taskUser ? 'data-chat-message-reply-id='.$pam->chat_bot_id : '' }}  data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id ?? ( $pam->taskUser ? $issueID : '')}}" data-vendor-id="{{$pam->vendor_id}}" data-supplier-id="{{$pam->supplier_id}}">
+            @if($pam->supplier_id > 0)
+                {{  "#".$pam->supplier_id." ".$pam->supplier_name  }}</td>
+            @else
+                {{  ($pam->vendor_id > 0 ) ? "#".$pam->vendor_id." ".$pam->vendors_name : ( $pam->taskUser ? '#'.$pam->taskUser->id .' ' . $pam->taskUser->name : "#".$pam->customer_id." ".$pam->customer_name  )  }}</td>
+            @endif
         <td>{{ $pam->website_title }}</td>
-        <td class="user-input">{{ $pam->question }}</td>
+
+        <!-- Purpose : Add question - DEVTASK-4203 -->
+        <td class="user-input">
+            {{ $pam->question }}
+            @if($pam->chat_read_id == 1)
+                <a href="javascript:;" class="read-message" data-value="0" data-id="{{ $pam->chat_bot_id }}">
+                    <img width="15px" title="Mark as unread" height="15px" src="/images/completed-green.png">
+                </a>
+            @else
+                <a href="javascript:;" class="read-message" data-value="1" data-id="{{ $pam->chat_bot_id }}">
+                    <img width="15px" title="Mark as read" height="15px" src="/images/completed.png">
+                </a>
+            @endif
+            
+        </td>
         <td class="boat-replied">{{ $pam->answer }}</td>
         <td class="message-input">
             <div class="row cls_textarea_subbox">
                 <div class="col-md-9 cls_remove_rightpadding">
-                    <textarea rows="1" class="form-control quick-message-field cls_quick_message" data-customer-id="{{ $pam->customer_id }}" name="message" placeholder="Message"></textarea>
+                    <textarea rows="1" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-customer-id="{{ $pam->customer_id }}" name="message" placeholder="Message"></textarea>
                 </div>
-                <div class="col-md-1 cls_remove_allpadding">
-                    <button class="btn btn-sm btn-image send-message1" data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
+
+                <div class="col-md-3 cls_remove_allpadding row-flex">
+                    <span class="pt-2 mt-1 pl-2 pr-2"><input class="" name="add_to_autocomplete" class="add_to_autocomplete" type="checkbox" value="true"></span>
+                    <button class="btn btn-xs rt btn-image send-message1" data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
                     @if($pam->vendor_id > 0 )
-                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="vendor" data-id="{{$pam->vendor_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                        <button type="button" class="btn btn-xs rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="vendor" data-id="{{$pam->vendor_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    @elseif($context === 'task' || $context === 'issue')
+
+                        @php
+                            $context__  = $context === 'issue' ? 'developer_task' : $context;
+                        @endphp
+
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="{{ $context__ }}" data-id="{{ $issueID }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                     @else
-                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="customer" data-id="{{$pam->customer_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="customer" data-id="{{$pam->customer_id }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$pam->customer_id }}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
                     @endif
                 </div>
             </div>
         </td>
         <td class="boat-replied">{{ $pam->reply_from }}</td>
-        <td class="images-layout">
-            <form class="remove-images-form" action="{{ route('chatbot.messages.remove-images') }}" method="post">
-                {{ csrf_field() }}
-                @php
-                    $botMessage = \App\ChatMessage::find($pam->chat_id);
-                @endphp
-                @if(isset($botMessage))
-                    @if($botMessage->hasMedia(config('constants.media_tags')))
-                        {{ $botMessage->getMedia(config('constants.media_tags'))->count() }}
-                    @endif
-                @endif
-            </form>
+        <td class="communication">
+            <div class="row">
+                <div class="col-6 d-inline form-inline">
+                    <input style="width: 87%" type="text" name="category_name" placeholder="Enter New Category" class="form-control mb-3 quick_category">
+                    <button class="btn btn-secondary quick_category_add" style="position: absolute;  margin-left: 8px;">+</button>
+                </div>
+                <div class="col-6 d-inline form-inline" style="padding-left: 0px;">
+                    <div style="float: left; width: 86%">
+                        <select name="quickCategory" class="form-control mb-3 quickCategory">
+                            <option value="">Select Category</option>
+                            @foreach($reply_categories as $category)
+                                <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div style="float: right; width: 14%;">
+                        <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>
+                    </div>
+                </div>
+                <div class="col-6 d-inline form-inline">
+                    <input style="width: 87%" type="text" name="quick_comment" placeholder="Enter New Quick Comment" class="form-control mb-3 quick_comment">
+                    <button class="btn btn-secondary quick_comment_add" style="position: absolute;  margin-left: 8px;">+</button>
+                </div>
+                <div class="col-6 d-inline form-inline" style="padding-left: 0px;">
+                    <div style="float: left; width: 86%">
+                        <select name="quickComment" class="form-control quickComment">
+                            <option value="">Quick Reply</option>
+                        </select>
+                    </div>
+                    <div style="float: right; width: 14%;">
+                        <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>
+                    </div>
+                </div>
+            </div>
         </td>
-        <td>{{ $pam->created_at }}</td>
         <td>
             @if($pam->approved == 0)
             <a href="javascript:;" class="approve-message" data-id="{{ $pam->chat_id }}">
@@ -151,14 +222,14 @@
             data: form.serialize(),
             dataType : "json",
             success: function (response) {
-               // location.reload();
-                // if(response.code == 200) {
-                //     toastr['success']('data updated successfully!');
-                //     window.location.replace(response.redirect);
-                // }else{
-                //     errorMessage = response.error ? response.error : 'data is not correct or duplicate!';
-                //     toastr['error'](errorMessage);
-                // }
+               //location.reload();
+                if(response.code == 200) {
+                    toastr['success']('data updated successfully!');
+                    window.location.replace(response.redirect);
+                }else{
+                    errorMessage = response.error ? response.error : 'data is not correct or duplicate!';
+                    toastr['error'](errorMessage);
+                }
             },
             error: function () {
                 toastr['error']('Could not change module!');
@@ -187,5 +258,42 @@
             }
         });
     });
+
+    $(document).on("click",".read-message",function () {
+        let chatID = $(this).data("id");
+        let value = $(this).data("value");
+        var $this = $(this);
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            type: "POST",
+            url: "/chatbot/messages/update-read-status",
+            data: {
+                chat_id : chatID,
+                value  : value
+            },
+            dataType : "json",
+            success: function (response) {
+                if(response.code == 200) {
+                    toastr['success'](response.messages);
+                    if(value == 1) {
+                        $this.html('<img width="15px" title="Mark as unread" height="15px" src="/images/completed-green.png">');
+                        $this.data("value",0);
+                    }else{
+                        $this.html('<img width="15px" title="Mark as read" height="15px" src="/images/completed.png">');
+                        $this.data("value",1);
+                    }
+                }else{
+                    toastr['error'](response.messages);
+                }
+            },
+            error: function () {
+                toastr['error']('Message not sent successfully!');
+            }
+        });
+    });
+
+
 
 </script>

@@ -59,6 +59,7 @@ use App\ProductSupplier;
 use App\Website;
 use App\WebsiteStore;
 use App\scraperImags;
+use Validator;
 
 
 class scrapperPhyhon extends Controller
@@ -70,7 +71,7 @@ class scrapperPhyhon extends Controller
      */
     function __construct()
     {
-        $this->middleware('permission:product-lister', ['only' => ['listing']]);
+        // $this->middleware('permission:product-lister', ['only' => ['listing']]);
     }
 
     /**
@@ -137,6 +138,35 @@ class scrapperPhyhon extends Controller
         return view('scrapper-phyhon.list', compact('websites','query','allWebsites','request'));
     }
 
+
+
+    public function listImages(Request $request){
+
+        $store_id = $request->id;
+//        $list =  Website::where('id',$website_id)->first();
+//dd($list, $website_id);
+        $oldDate = null;
+        $count   = 0;
+        $images = [];
+        // dd( $list->store_website_id );
+
+            $webStore = \App\WebsiteStore::where('id',$store_id)->first();
+                $list =  Website::where('id',$webStore->website_id)->first();
+                $website_id = $list->id;
+        if( $webStore ){
+            $website_store_views = \App\WebsiteStoreView::where('website_store_id',$webStore->id)->first();
+//            dd($list->store_website_id);
+//            dd($list->store_website_id);
+                if( $website_store_views ){
+                    $images = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$website_store_views->code)->get()->toArray();
+                }
+            }
+
+
+        return view('scrapper-phyhon.list-image-products', compact('images', 'website_id'));
+
+    }
+
     public function setDefaultStore(int $website=0,int $store=0,$checked=0)
     {
         if($website && $store)
@@ -196,6 +226,57 @@ class scrapperPhyhon extends Controller
         return $response;
     }
 
+    public function imageSave(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+           'country_code'   => 'required',
+           'image'          => 'required',
+           'image_name'     => 'required',
+           'store_website'  => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(["code" => 500, "message" => 'Invalid request',"error" => $validator->errors()]);
+        }
+
+        $StoreWebsite = \App\StoreWebsite::where('website',$request->store_website)->first();
+        if( $this->saveBase64Image( $request->image_name,  $request->image ) ){
+            $newImage = array(
+                'website_id' => $request->country_code,
+                'store_website' => $StoreWebsite->id ?? 0,
+                'img_name'   => $request->image_name,
+                'img_url'    => $request->image_name,
+            );
+            scraperImags::insert( $newImage );
+            return response()->json(["code" => 200, "message" => 'Image successfully saved']);
+        }else{
+            return response()->json(["code" => 500, "message" => 'Something went wrong!']);
+        }
+
+    }
+
+
+    public function saveBase64Image( $file_name, $base64Image )
+    {   
+        try {
+            $base64Image = trim($base64Image);
+            $base64Image = str_replace('data:image/png;base64,', '', $base64Image);
+            $base64Image = str_replace('data:image/jpg;base64,', '', $base64Image);
+            $base64Image = str_replace('data:image/jpeg;base64,', '', $base64Image);
+            $base64Image = str_replace('data:image/gif;base64,', '', $base64Image);
+            $base64Image = str_replace(' ', '+', $base64Image);
+            $imageData = base64_decode( $base64Image );
+    
+            // //Set image whole path here 
+            $filePath = public_path('scrappersImages').'/' . $file_name;
+            file_put_contents($filePath, $imageData);
+            return true;
+        } catch (\Throwable $th) {
+            dd( $th->getMessage() ) ;
+            \Log::error('scrapper_images :: ' .$th->getMessage());
+            return false;
+        }
+    }
 }
 
 
