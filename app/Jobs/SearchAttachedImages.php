@@ -44,6 +44,7 @@ class SearchAttachedImages implements ShouldQueue
         $files = explode("\n", $process->getOutput());
         $match_image_path = [];
         $first_time = true;
+        $is_matched = false;
         foreach($files as $key => $file){
             $compare = Process::fromShellCommandline('compare -metric ae -fuzz XX% ' . $ref_file . ' ' . $file . ' null: 2>&1', public_path('uploads/product'));
             $compare->run();
@@ -57,6 +58,7 @@ class SearchAttachedImages implements ShouldQueue
                     if($media != null){
                         $dir = explode('/', $media->directory);
                         if(isset($dir[2])){
+                            $is_matched = true;
                             if($first_time){
                                 $sp = SuggestedProduct::create([
                                     'total' => 0,
@@ -79,7 +81,11 @@ class SearchAttachedImages implements ShouldQueue
         }  
 
         $user = Auth::user();
-        $msg = 'Your image find process is completed.';
+        if($is_matched){
+            $msg = 'Your image find process is completed.';
+        }else{
+            $msg = 'Your image find process is completed, No results found';
+        }
         app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
         // return view('ErpCustomer::product-search', compact('matched_images'));
 
