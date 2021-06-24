@@ -69,17 +69,6 @@
 
           @if (Auth::user()->hasRole('Admin'))
 
-          <?php /*
-        
-          */ ?>
-          <?php 
-          /*
-         
-          */
-          ?>
-
-         
-          
             <div class="form-group mr-3 mb-3"  style="flex:1">
               <select data-placeholder="Select location" class="form-control select-multiple2" name="location[]" multiple>
                 <optgroup label="Locations">
@@ -93,8 +82,8 @@
             @endif
     </div>
     <div class="d-flex justify-content-between">
-      @if (Auth::user()->hasRole('Admin'))
       <div class="">
+        @if (Auth::user()->hasRole('Admin'))
             <div class="form-group mr-3">
               <input type="checkbox" name="no_locations" id="no_locations" {{ isset($no_locations) ? 'checked' : '' }}>
               <label for="no_locations">With no Locations</label>

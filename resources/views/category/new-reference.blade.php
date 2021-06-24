@@ -79,13 +79,6 @@
             {{-- @dd($unKnownCategories->items()); --}}
             @foreach($scrapped_category_mapping as $key => $unKnownCategory)
 
-                @php
-                    // $websites_ = $unKnownCategory->scmSPCM->toArray();
-
-                    
-
-                    // $websites_ = array_unique($websites_);
-                @endphp
                 
                 @if($unKnownCategory->name != '')
                     <?php 

@@ -2578,6 +2578,9 @@ class ProductController extends Controller
                 $suggestedProducts->total = $perPageLimit;
                 $suggestedProducts->save();
                 $suggestedProductId=$suggestedProducts->id;
+
+                
+
                 $data_to_insert = [];
                 foreach($product_ids as $id){
                     $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$id)->where('date',date('Y-m-d'))->first();
@@ -2591,15 +2594,20 @@ class ProductController extends Controller
                                 'date' => date('Y-m-d')
                             ];
                         }
-                        $erp_lead = new ErpLeads;
-                        $erp_lead->lead_status_id = 1;
-                        $erp_lead->customer_id = $customerId;
-                        $erp_lead->product_id = $id;
-                        $erp_lead->category_id = $pr->category;
-                        $erp_lead->brand_id = $pr->brand;
-                        $erp_lead->min_price = !empty($request->price_min) ? $request->price_min : 0;
-                        $erp_lead->max_price = !empty($request->price_max) ? $request->price_max : 0;
-                        $erp_lead->save();
+                        $category_brand_count = ErpLeads::where('category_id',$pr->category)->where('brand_id',$pr->brand)->count();
+                        if($category_brand_count === 0){
+
+                            $erp_lead = new ErpLeads;
+                            $erp_lead->lead_status_id = 1;
+                            $erp_lead->customer_id = $customerId;
+                            $erp_lead->product_id = $id;
+                            $erp_lead->category_id = $pr->category;
+                            $erp_lead->brand_id = $pr->brand;
+                            $erp_lead->min_price = !empty($request->price_min) ? $request->price_min : 0;
+                            $erp_lead->max_price = !empty($request->price_max) ? $request->price_max : 0;
+                            $erp_lead->save();
+                        }
+                        
                     }
                 }
                 $inserted = count($data_to_insert);

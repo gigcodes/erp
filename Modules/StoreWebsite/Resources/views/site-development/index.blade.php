@@ -765,40 +765,30 @@
 
 		var hidden_row_class = 'hidden_row_' + category;
 
-		//START - Purpose : Set User - DEVATSK-4361 
-		var value = $this.closest("tr").find("select[name='developer_id']").val();
-		if (value != "") {
-			users.push(value);
+		if ($this.closest("tr").find("input[name='developer']:checked").length > 0) {
+			var value = $this.closest("tr").find("select[name='developer_id']").val();
+			if (value != "") {
+				users.push(value);
+			}
 		}
-
-		//Purpose : Comment Code - DEVATSK-4361 
-
-		// if ($this.closest("tr").find("input[name='developer']:checked").length > 0) {
-		// 	var value = $this.closest("tr").find("select[name='developer_id']").val();
-		// 	if (value != "") {
-		// 		users.push(value);
-		// 	}
-		// }
-		// if ($this.closest("tr").find("input[name='designer']:checked").length > 0) {
-		// 	var value = $this.closest("tr").find("select[name='designer_id']").val();
-		// 	if (value != "") {
-		// 		users.push(value);
-		// 	}
-		// }
-		// if ($this.closest("tr").find("input[name='html']:checked").length > 0) {
-		// 	var value = $this.closest("tr").find("select[name='html_designer']").val();
-		// 	if (value != "") {
-		// 		users.push(value);
-		// 	}
-		// }
-		// if ($this.closest("tr").find("input[name='tester']:checked").length > 0) {
-		// 	var value = $this.closest("tr").find("select[name='tester_id']").val();
-		// 	if (value != "") {
-		// 		users.push(value);
-		// 	}
-		// }
-
-		//END - DEVATSK-4361 
+		if ($this.closest("tr").find("input[name='designer']:checked").length > 0) {
+			var value = $this.closest("tr").find("select[name='designer_id']").val();
+			if (value != "") {
+				users.push(value);
+			}
+		}
+		if ($this.closest("tr").find("input[name='html']:checked").length > 0) {
+			var value = $this.closest("tr").find("select[name='html_designer']").val();
+			if (value != "") {
+				users.push(value);
+			}
+		}
+		if ($this.closest("tr").find("input[name='tester']:checked").length > 0) {
+			var value = $this.closest("tr").find("select[name='tester_id']").val();
+			if (value != "") {
+				users.push(value);
+			}
+		}
 
 		console.log(users);
 		if (users.length <= 0) {
