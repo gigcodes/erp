@@ -607,18 +607,18 @@ class CategoryController extends Controller
         $scrapped_category_mapping = ScrappedCategoryMapping::select('id', 'name','category_id')->when(isset($request->show_auto_fix) && $request->show_auto_fix,function($q){
             $q->where('is_auto_fix',1);
         })
-        ->whereNull('category_id');
+        ;
         if($request->show_skipeed_btn_value == 'false'){
 
             $scrapped_category_mapping->where('is_skip',0)->orWhere('is_auto_fix',1);
             if(!(isset($request->show_auto_fix) && $request->show_auto_fix)){
-                $scrapped_category_mapping->where('is_skip',0);
+                $scrapped_category_mapping->where('is_skip',0)->whereNull('category_id');
 
                 }else{
-                $scrapped_category_mapping->where('is_auto_fix',1);
+                $scrapped_category_mapping->where('is_auto_fix',1)->whereNotNull('category_id');
             }
         }
-        $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination'));
+        $scrapped_category_mapping = $scrapped_category_mapping->paginate(5);
 
         $links = [];
 
@@ -657,7 +657,7 @@ class CategoryController extends Controller
         ->whereNull('category_id');
 
         if($request->show_skipeed_btn_value == 'false') {
-            $scrapped_category_mapping->where('is_skip', 0);
+            $scrapped_category_mapping->whereNull('category_id');
         }
 
         $scrapped_category_mapping = $scrapped_category_mapping->get();
@@ -701,7 +701,8 @@ class CategoryController extends Controller
                   $isUpdtaed =   $scrappedCategory->update([
                         'category_id' => $selectedCategory->id,
                         'is_skip' => 1,
-                        'is_auto_fix'=>1
+                        'is_auto_fix'=>1,
+                        'is_auto_fix'=>isset($request->show_auto_fix) && $request->show_auto_fix ? 1:0
                     ]);
                 if($isUpdtaed){
                     $count++;
