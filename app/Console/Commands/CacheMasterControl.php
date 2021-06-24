@@ -116,9 +116,9 @@ class CacheMasterControl extends Command
             });
 
             //Getting Customer Chat
-            $chat = ChatMessage::where('created_at','>=', Carbon::now()->subDay()->toDateTimeString());
+            $chat = null;//ChatMessage::where('created_at','>=', Carbon::now()->subDay()->toDateTimeString());
 
-            Cache::remember('result_customer_chat', 30, function () use ($chat) {
+            /*Cache::remember('result_customer_chat', 30, function () use ($chat) {
 
                 $chatCustomers = clone $chat;
                 $customerChats = $chatCustomers->select('customer_id')->whereNotNull('customer_id')->whereNotNull('number')->orderBy('created_at', 'desc')->groupBy('customer_id')->get()->toArray();
@@ -182,7 +182,7 @@ class CacheMasterControl extends Command
 
                 return $vendors;
 
-            });
+            });*/
 
             Cache::remember('reply_categories', 30, function () use ($chat) {
                 return $reply_categories = ReplyCategory::all();

@@ -176,6 +176,7 @@ class MessageQueueController extends Controller
     public function approved(Request $request)
     {
 
+
         $groupIdApprove = ChatMessage::where('group_id', $request->group_id)->update(["is_queue" => 1]);
         return response()->json(["code" => 200, "message" => "Approved Successfully"]);
     }

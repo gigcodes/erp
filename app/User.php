@@ -67,7 +67,8 @@ class User extends Authenticatable
         'approve_login',
         'billing_frequency_day',
         'user_timeout',
-        'mail_notification'
+        'mail_notification',
+        'is_auto_approval'
     ];
 
     public function getIsAdminAttribute()
@@ -279,7 +280,7 @@ class User extends Authenticatable
         $user_role = $this->roles()
             ->pluck('id')->unique()->toArray();
 
-        //dd($user_role);
+
         foreach ($user_role as $key => $value) {
             if (in_array($value, $role)) {
                 return true;

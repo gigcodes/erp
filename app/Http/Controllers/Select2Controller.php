@@ -9,7 +9,6 @@ use App\Supplier;
 use App\User;
 use App\Vendor;
 use Illuminate\Http\Request;
-use App\Supplier;//Purpose : Add modal - DEVTASK-4236
 
 class Select2Controller extends Controller
 {
