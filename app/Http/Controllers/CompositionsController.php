@@ -325,6 +325,7 @@ class CompositionsController extends Controller
 
     public function replaceComposition(Request $request)
     {
+        ini_set("memory_limit","-1");
         $from = $request->name;
         $to   = $request->replace_with;
         if (!empty($from) && !empty($to)) {
