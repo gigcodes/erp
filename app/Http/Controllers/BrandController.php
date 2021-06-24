@@ -624,7 +624,7 @@ class BrandController extends Controller
             $brand_id = $request->logo_id;
             $logo_image_id = $request->logo_image_id;
 
-            BrandWithLogo::updateOrCreate(
+            $brand_logo_data = BrandWithLogo::updateOrCreate(
                 [
                     'brand_id' => $brand_id,
                 ],
@@ -635,7 +635,9 @@ class BrandController extends Controller
                 ]
             );
 
-            return response()->json(["code" => 200, "message"=>'Logo Set Sucessfully for this Brand.']);
+            $brand_logo_image = BrandLogo::where('id',$brand_logo_data->brand_logo_image_id)->select('logo_image_name')->first();
+
+            return response()->json(["code" => 200, "message"=>'Logo Set Sucessfully for this Brand.',"brand_logo_image" => $brand_logo_image->logo_image_name]);
 
         }catch(\Exception $e){
             
