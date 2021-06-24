@@ -188,15 +188,44 @@ class UserManagementController extends Controller
                     $user_in_team = 1;
                 }
 
-                $pending_tasks = Task::where('is_statutory', 0)
-            ->whereNull('is_completed')
-            ->Where('assign_to', $u->id)->count();
+                $taskList = DB::select('
+                select * from (
+                    (SELECT tasks.id as task_id,tasks.task_subject as subject, tasks.task_details as details, tasks.approximate as approximate_time, tasks.due_date,tasks.deleted_at,tasks.assign_to as assign_to,tasks.status as status_falg,chat_messages.message as last_message, chat_messages.created_at as orderBytime, tasks.is_verified as cond, "TASK" as type,tasks.created_at as created_at,tasks.priority_no,tasks.is_flagged as has_flag  FROM tasks
+                              LEFT JOIN
+                               (SELECT MAX(id) AS max_id,
+                                       task_id,
+                                       message,
+                                       created_at
+                                FROM chat_messages
+                                WHERE task_id > 0
+                                GROUP BY task_id) m_max ON m_max.task_id = tasks.id
+                            LEFT JOIN task_statuses ON task_statuses.id = tasks.status
+                             LEFT JOIN chat_messages ON chat_messages.id = m_max.max_id
+                              WHERE tasks.deleted_at IS NULL and tasks.is_statutory != 1 and tasks.is_verified is null and tasks.assign_to = '.$u->id.') 
+                    
+                    union  
+                    
+                    (
+                        select developer_tasks.id as task_id, developer_tasks.subject as subject, developer_tasks.task as details, developer_tasks.estimate_minutes as approximate_time, developer_tasks.due_date as due_date,developer_tasks.deleted_at, developer_tasks.assigned_to as assign_to,developer_tasks.status as status_falg, chat_messages.message as last_message, chat_messages.created_at as orderBytime,"d" as cond, "DEVTASK" as type,developer_tasks.created_at as created_at,developer_tasks.priority_no,"0" as has_flag from developer_tasks left join (SELECT MAX(id) as  max_id, issue_id, message,created_at  FROM  chat_messages where issue_id > 0  GROUP BY issue_id ) m_max on  m_max.issue_id = developer_tasks.id left join chat_messages on chat_messages.id = m_max.max_id where developer_tasks.status != "Done" and developer_tasks.deleted_at is null and developer_tasks.assigned_to = '.$u->id.'
+                        
+                        ) 
+                    ) as c order by priority_no desc
+                ');
+ 
+            $pending_tasks =  0;
+            $total_tasks = count($taskList);
+            foreach($taskList as $t){
+                if($t->has_flag != 1) $pending_tasks++;
+            }
+            //     $pending_tasks = Task::where('is_statutory', 0)
+            // ->whereNull('is_completed')
+            // ->Where('assign_to', $u->id)->count();
 
             $no_time_estimate = DeveloperTask::whereNull('estimate_minutes')->where('assigned_to', $u->id)->count();
             $overdue_task     = DeveloperTask::where('estimate_date', '>', date('Y-m-d'))->where('status', '!=', 'Done')->where('assigned_to', $u->id)->count();
 
-            $total_tasks = Task::where('is_statutory', 0)
-            ->Where('assign_to', $u->id)->count();
+            // $total_tasks = Task::where('is_statutory', 0)
+            // ->Where('assign_to', $u->id)->count();
                 $u["pending_tasks"] = $pending_tasks;
                 $u["total_tasks"] = $total_tasks;
                 $u['no_time_estimate'] = $no_time_estimate;
@@ -945,8 +974,8 @@ class UserManagementController extends Controller
                                    message,
                                    created_at
                             FROM chat_messages
-                            WHERE task_id > 0 
-                            GROUP BY task_id) m_max ON m_max.task_id = tasks.id 
+                            WHERE task_id > 0
+                            GROUP BY task_id) m_max ON m_max.task_id = tasks.id
                         LEFT JOIN task_statuses ON task_statuses.id = tasks.status
                          LEFT JOIN chat_messages ON chat_messages.id = m_max.max_id
                           WHERE tasks.deleted_at IS NULL and tasks.is_statutory != 1 and tasks.is_verified is null and tasks.assign_to = '.$id.') 
@@ -954,10 +983,10 @@ class UserManagementController extends Controller
                 union 
                 
                 (
-                    select developer_tasks.id as task_id, developer_tasks.subject as subject, developer_tasks.task as details, developer_tasks.estimate_minutes as approximate_time, DATE(developer_tasks.due_date) as due_date,developer_tasks.deleted_at, developer_tasks.assigned_to as assign_to,developer_tasks.status as status_falg, chat_messages.message as last_message, chat_messages.created_at as orderBytime,"d" as cond, "DEVTASK" as type,developer_tasks.created_at as created_at,developer_tasks.priority_no,"0" as has_flag from developer_tasks left join (SELECT MAX(id) as  max_id, issue_id, message,created_at  FROM  chat_messages where issue_id > 0  GROUP BY issue_id ) m_max on  m_max.issue_id = developer_tasks.id left join chat_messages on chat_messages.id = m_max.max_id where developer_tasks.status != "Done" and developer_tasks.deleted_at is null and developer_tasks.assigned_to = '.$id.'
+                    select developer_tasks.id as task_id, developer_tasks.subject as subject, developer_tasks.task as details, developer_tasks.estimate_minutes as approximate_time, developer_tasks.due_date as due_date,developer_tasks.deleted_at, developer_tasks.assigned_to as assign_to,developer_tasks.status as status_falg, chat_messages.message as last_message, chat_messages.created_at as orderBytime,"d" as cond, "DEVTASK" as type,developer_tasks.created_at as created_at,developer_tasks.priority_no,"0" as has_flag from developer_tasks left join (SELECT MAX(id) as  max_id, issue_id, message,created_at  FROM  chat_messages where issue_id > 0  GROUP BY issue_id ) m_max on  m_max.issue_id = developer_tasks.id left join chat_messages on chat_messages.id = m_max.max_id where developer_tasks.status != "Done" and developer_tasks.deleted_at is null and developer_tasks.assigned_to = '.$id.'
                     
                     ) 
-                ) as c order by priority_no  desc, has_flag desc
+                ) as c order by has_flag desc
             ');
 
 

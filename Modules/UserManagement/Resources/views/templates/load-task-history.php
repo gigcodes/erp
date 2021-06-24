@@ -64,12 +64,18 @@
                         </select>
 <!--                        {{:prop.status_falg}}-->
                     </td>
-					<td>
-					        {{:prop.details}}
-<!--						<div class="show_hide_description">Show Description</div>-->
-<!--						<div class="description_content" style="display:none">-->
-<!--							-->
-<!--						</div>-->
+					<td> 
+						{{if prop.details.length > 100}}
+							<div class="description">
+								{{:prop.details.substr(0, 100)}}...
+							</div>
+						{{else}}
+							{{:prop.details}}
+						{{/if}}
+						
+						<div class="full_description d-none">
+						{{:prop.details}}
+						</div> 
 					</td>
 			      	<td>
 					  <div class="form-group">
@@ -224,3 +230,9 @@ $(document).on('click','.load-time-modals',function(e){
 	$('.load-time-modal[data-id="'+id+'"]').trigger('click');
 })
 	</script>
+   <script>
+        $(document).on('click','.description',function(){
+            $('#logMessageModel').modal('show');
+            $('#logMessageModel p').text($(this).next().html());
+        })
+    </script>
