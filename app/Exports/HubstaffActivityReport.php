@@ -179,6 +179,8 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
             $new_customers[$index]['Time_tracked_1'] = number_format($vvv['total_tracked'] / 60,2,".",",");
 
             $total_time_tracked += number_format($vvv['total_tracked'] / 60,2,".",",");
+
+            
             
             foreach($vvv['tasks'] as $kk => $vv) {
                     @list($taskid,$devtask,$taskName,$estimation,$status,$devTaskId) = explode("||",$vv);
@@ -192,6 +194,8 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
                         $est_time = 0;
                     }
 
+                   
+                    $old_key_index= $index;
                     if($taskid)
                     {
                         if (array_key_exists($index,$new_customers))
@@ -285,7 +289,22 @@ class HubstaffActivityReport implements FromArray, ShouldAutoSize, WithHeadings,
                         }
                         $index++;
                     }
+                    else{
+                        
+                        if(!isset($old_key))
+                        {
+                            $old_key = $index;
+                            $new_customers[$old_key]['Tasks'] = '';
+                            $new_customers[$old_key]['Time_tracked_2'] = '';
+                            $new_customers[$old_key]['Time_estimation'] =  '';
+                            $new_customers[$old_key]['Time_diff'] = '';
+                            $new_customers[$old_key]['status'] = '';
+                            $new_customers[$old_key]['Time_app'] = '';
+                        }
+                    }
             }
+            
+           
             $new_customers[$old_key]['Time_approved'] = number_format($vvv['totalApproved'] / 60,2,".",",");
             $total_time_approved += number_format($vvv['totalApproved'] / 60,2,".",",");
 
