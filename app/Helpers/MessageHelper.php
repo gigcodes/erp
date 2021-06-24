@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use \App\ChatMessage;
 use \App\Product;
 use \App\KeywordAutoGenratedMessageLog; //Purpose : Add KeywordAutoGenratedMessageLog - DEVTASK-4233
+use App\User;
 
 class MessageHelper
 {
@@ -573,4 +574,34 @@ class MessageHelper
         }
         //END - DEVTASK-4233
     }
+
+    public static function sendEmailOrWebhookNotification($toUsers, $message){
+        
+        try{
+
+            foreach($toUsers as $user_id){
+
+                $user = User::with('webhookNotification')->find($user_id);
+
+                if(!$user){
+                    continue;
+                }
+                
+                $webhookNotification = $user->webhookNotification;
+                
+                    $webhookClient = new GuzzleClient();
+
+                    $webhookClient->{$webhookNotification->method}($webhookNotification->url, [
+                        'body' => str_replace('[MESSAGE]', $message, $webhookNotification->payload),
+                        'connect_timeout' => 3,
+                        'headers' => ['Content-Type' => $webhookNotification->content_type ],
+                    ]);
+            }
+
+        }catch(\Exception $e){
+            \Log::channel('webhook')->debug($e->getMessage(). ' | Line no: ' . $e->getLine() .' | ' . $e->getFile());
+        }
+
+    }
+
 }
