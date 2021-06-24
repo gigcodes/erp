@@ -179,11 +179,12 @@
     var scroll = true;
         var old_product;
         function start_scroll_down() { 
-            if(scroll){
+            var img_count = $(".infinite-scroll-data img").length;
+            if(scroll && i < img_count){
                 $("html, body").animate({
-                    scrollTop: $(".infinite-scroll-data div").eq(i).offset().top
+                    scrollTop: $(".infinite-scroll-data div img").eq(i).offset().top
                     }, 500).delay(500); 
-                i++;
+                i+=5;
             }else{
                 console.log("no scroll")
             }
@@ -203,9 +204,9 @@
         $(".start-again").attr("disabled","disabled")
         $(".pause").attr("disabled",false)
         $("html, body").animate({
-            scrollTop: $(".infinite-scroll-data div").eq(i).offset().top
+            scrollTop: $(".infinite-scroll-data div img").eq(i).offset().top
             }, 500).delay(500); 
-        i++;
+        i+=5;
         stop = setInterval(function(){ console.log("Running");start_scroll_down() }, $("#scrolltime").val()*1000);
     }
 
