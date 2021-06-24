@@ -241,7 +241,7 @@
         @endif
     @else
         <button type="submit" class="btn btn-danger submit-record">Forword</button> 
-        <button type="button" class="btn btn-secondary hide submit-notes">Submit notes</button> 
+        <button type="button" class="btn btn-secondary submit-notes">Submit notes</button> 
     @endif
     </div>
 </form>
@@ -266,10 +266,10 @@
         } 
     });
 
-    if ($('.not_approve').length > 0) {
+    /*if ($('.not_approve').length > 0) {
           $('.submit-record').remove();
           $('.submit-notes').toggleClass('hide');
-    }
+    }*/
     
     $(document).on("click",".submit-notes",function() {
 
