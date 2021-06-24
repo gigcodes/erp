@@ -222,14 +222,14 @@
             data: form.serialize(),
             dataType : "json",
             success: function (response) {
-               // location.reload();
-                // if(response.code == 200) {
-                //     toastr['success']('data updated successfully!');
-                //     window.location.replace(response.redirect);
-                // }else{
-                //     errorMessage = response.error ? response.error : 'data is not correct or duplicate!';
-                //     toastr['error'](errorMessage);
-                // }
+               //location.reload();
+                if(response.code == 200) {
+                    toastr['success']('data updated successfully!');
+                    window.location.replace(response.redirect);
+                }else{
+                    errorMessage = response.error ? response.error : 'data is not correct or duplicate!';
+                    toastr['error'](errorMessage);
+                }
             },
             error: function () {
                 toastr['error']('Could not change module!');
