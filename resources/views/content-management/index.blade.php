@@ -267,7 +267,22 @@
             const images__ =$(this).data('images')
             let html =""
             images__.forEach(element => {
-                html += '<img src="'+element.images+'">'
+                html += '<div class="col-md-2 col-xs-4 text-center product-list-card mb-4 single-image-'+element.id+'" style="padding:0px 5px;margin-bottom:2px !important;">'+
+                    '<div style="border: 1px solid #bfc0bf;padding:0px 5px;">'+
+                        '<div data-interval="false" id="carousel_{{ request('websiteId') }}" class="carousel slide" data-ride="carousel">'+
+                            '<div class="carousel-inner maincarousel">'+
+                                '<div class="item" style="display: block;"> <img src="'+element.images+'" style="height: 150px; width: 150px;display: block;margin-left: auto;margin-right: auto;"> </div>'+
+                            '</div>'+
+                        '</div>'+
+                        '<div class="row pl-4 pr-4" style="padding: 0px; margin-bottom: 8px;">'+
+                            '<div class="custom-control custom-checkbox">'+
+                                '<input type="checkbox" class="custom-control-input select-pr-list-chk"  id="defaultUnchecked_'+element.id+'" >'+
+                                '<label class="custom-control-label" for="defaultUnchecked_'+element.id+'"></label>'+
+                            '</div>'+
+                            '<a href="'+element.page_url+'" download="'+element.images+'" data-media="" class="btn btn-md select_row attach-photo"><i class="fa fa-download"></i></a>'+
+                        '</div>'+
+                    '</div>'+
+                '</div>'
             });
             // $.ajax({
             //     url: '/content-management/manage/attach/images',
