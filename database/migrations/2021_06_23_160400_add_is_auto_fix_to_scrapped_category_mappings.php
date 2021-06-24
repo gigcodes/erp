@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterAddFieldOrderIaTable extends Migration
+class AddIsAutoFixToScrappedCategoryMappings extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class AlterAddFieldOrderIaTable extends Migration
      */
     public function up()
     {
-        //
-        DB::statement('ALTER TABLE `purchase_product_orders` CHANGE `order_products_id` `order_products_id` VARCHAR(191) NULL DEFAULT NULL');
-        DB::statement('ALTER TABLE `purchase_product_orders` ADD `order_products_order_id` VARCHAR(191) NULL DEFAULT NULL AFTER `updated_at`');
+        Schema::table('scrapped_category_mappings', function (Blueprint $table) {
+            $table->boolean('is_auto_fix')->defalut(0);
+        });
     }
 
     /**
@@ -25,6 +25,10 @@ class AlterAddFieldOrderIaTable extends Migration
      */
     public function down()
     {
-        //
+
+        Schema::table('scrapped_category_mappings', function (Blueprint $table) {
+            $table->dropColumn('is_auto_fix');
+        });
+
     }
 }
