@@ -2296,7 +2296,7 @@ class DevelopmentController extends Controller
                 ]);
                 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
 
-                MessageHelper::sendEmailOrWebhookNotification([$task->user_id],$msg);
+                MessageHelper::sendEmailOrWebhookNotification([$task->assigned_to],$msg);
             } 
         }
         return response()->json([
@@ -2383,7 +2383,7 @@ class DevelopmentController extends Controller
 
                 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
 
-                MessageHelper::sendEmailOrWebhookNotification([$issue->user_id],$msg);
+                MessageHelper::sendEmailOrWebhookNotification([$issue->assigned_to],$msg);
             } 
         }
 
@@ -2714,7 +2714,7 @@ class DevelopmentController extends Controller
 
                     $message = '[ '. $loggedUser->name .' ] - #DEVTASK-' . $devTask->id .' - ' . $devTask->subject ." \n\n" . 'New attchment(s) called ' . $subject . ' has been added. Please check and give your comment or fix it if any issue.';
 
-                    MessageHelper::sendEmailOrWebhookNotification([$devTask->user_id], $message);
+                    MessageHelper::sendEmailOrWebhookNotification([$devTask->assigned_to], $message);
 
                 }
 
