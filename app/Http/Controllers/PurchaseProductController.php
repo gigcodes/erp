@@ -656,7 +656,7 @@ class PurchaseProductController extends Controller
                 $suppliers_all = Supplier::where('id',$request->supplier_id)->first();
             }
 
-            $purchar_product_order =  $purchar_product_order->select('purchase_product_orders.*','suppliers.*','purchase_product_orders.id as pur_pro_id');
+            $purchar_product_order =  $purchar_product_order->select('purchase_product_orders.*','suppliers.*','purchase_product_orders.id as pur_pro_id','purchase_product_orders.created_at as created_at_date');
             $purchar_product_order =  $purchar_product_order->orderBy('purchase_product_orders.id','DESC')->paginate(Setting::get('pagination'));
 
             return view('purchase-product.partials.purchase-product-order',compact('purchar_product_order','request','suppliers_all'));
