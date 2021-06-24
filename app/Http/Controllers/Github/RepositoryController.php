@@ -196,7 +196,7 @@ class RepositoryController extends Controller
                 $requestData->request->add(['issue_id' => $devTaskId, 'message' => $message, 'status' => 1]);
                 app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
 
-                MessageHelper::sendEmailOrWebhookNotification([$devTask->user_id] , $message .'. kindly test task in live if possible and put test result as comment in task.' );
+                MessageHelper::sendEmailOrWebhookNotification([$devTask->assigned_to] , $message .'. kindly test task in live if possible and put test result as comment in task.' );
 
                 //app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($devTask->user->phone, $devTask->user->whatsapp_number, $branchName.':: PR has been merged', false);
             } catch (Exception $e) {

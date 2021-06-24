@@ -2466,7 +2466,7 @@ class WhatsAppController extends FindByNumberController
                     $message_ = ($issue->task_type_id == 1 ? "[ ". $loggedUser->name ." ] - #DEVTASK-" : "#ISSUE-"). $issue->id.' - '. $issue->subject . "\n\n" . $request->message;
 
                 
-                    MessageHelper::sendEmailOrWebhookNotification([$userId] , $message_ );
+                    MessageHelper::sendEmailOrWebhookNotification([$issue->assigned_to] , $message_ );
                     //END - DEVTASK-4359
 
                     return response()->json(['message' => $chat_message]);
