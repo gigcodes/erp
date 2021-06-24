@@ -87,9 +87,10 @@
         <table class="table table-bordered">
             <tr>
                 <th width="10%"><input type="checkbox" class="check-all-btn">&nbsp;SN</th>
-                <th width="30%">Composition</th>
+                <th width="20%">Composition</th>
                 <th width="5%">Pro Count</th>
-                <th width="35%">Erp Composition</th>
+                <th width="20%">Original</th>
+                <th width="20%">Erp Composition</th>
                 <th width="20%">Action</th>
             </tr>
             @foreach($compositions as $key=>$composition)
@@ -98,13 +99,17 @@
                     <td>
                         <div class="d-flex">
                             <input type="text" class="col-10" id="{{ $composition->id }}" value="{{ $composition->name }}"> 
-                            <button class="btn btn-secondary btn-sm composition-name-update" data-id="{{ $composition->id }}" title="Update"><i class="fa fa-save"></i></button>
+                            <!-- <button class="btn btn-secondary btn-sm composition-name-update" data-id="{{ $composition->id }}" title="Update"><i class="fa fa-save"></i></button> -->
 
                             <span class="call-used-product d-none"  data-id="{{ $composition->id }}" data-type="name">{{ $composition->name }}</span> 
                             <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $composition->name }}" data-id="{{ $composition->id }}"><img src="/images/add.png"></button>
                         </div>
                     </td>
                     <td>{{ $composition->products($composition->name) }}</td>
+                    <td>
+                        <input type="text" class="col-10 compositions-from-org" data-org-name="{{ $composition->name }}" id="compo_{{ $composition->id }}" value="{{ $composition->name }}">
+                        <button class="btn btn-secondary btn-sm composition-assign-update" data-id="{{ $composition->id }}" title="Update"><i class="fa fa-save"></i></button>
+                    </td>
                     <td>
                         <div class="form-group small-field">
                             <select name="replace_with" class="form-control change-list-compostion select2" style="width:400px" data-name="{{$composition->name}}" id="select{{$composition->id}}" data-id="{{ $composition->id }}">
@@ -118,8 +123,7 @@
                                         $selected = false;
                                         $optionSelected = null;
                                         $itemArr  = array_filter(explode(' ', preg_replace("/[^a-zA-Z]+/", " ", $item)));
-                                        $exitsArr = array_filter(explode(' ', preg_replace("/[^a-zA-Z]+/", " ", $composition->name)));
-                                        
+                                        $exitsArr = array_filter(explode(' ', preg_replace("/[^a-zA-Z]+/", " ", $composition->replace_with)));
                                         if($exitsArr){
                                             if( sizeof( $exitsArr ) > 2 ){
                                                 if( in_array( $exitsArr[2], $itemArr) && $selected == false ){
@@ -131,13 +135,18 @@
                                                     $selected = true; 
                                                     $optionSelected =  'selected'; 
                                                 }
+
+                                                if($composition->name == $item) {
+                                                   $selected = true; 
+                                                   $optionSelected =  'selected';  
+                                                }
                                             }
                                         }
                                     @endphp
                                     <option value="{{ $item }}" {{ $optionSelected }} > {{ $item }} </option>
                                 @endforeach
                             </select>
-                            <button class="btn btn-secondary btn-xs change-selectbox" data-id="{{$composition->id}}"><i class="fa fa-save"></i></button>
+                            <!-- <button class="btn btn-secondary btn-xs change-selectbox" data-id="{{$composition->id}}"><i class="fa fa-save"></i></button> -->
                         </div>
                     </td>
                     <td>
@@ -392,6 +401,36 @@
 
             $(document).on("click",".check-all-btn",function() {
                 $(".composition-checkbox").trigger("click");
+            });
+
+            $(document).on("click",".composition-assign-update",function() {
+                var $this = $(this);
+                $.ajax({
+                    type: 'GET',
+                    url: '/compositions/affected-product',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        from : $this.closest("td").find(".compositions-from-org").data("org-name"),
+                        to : $this.closest("td").find(".compositions-from-org").val()
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        if(response.html != "") {
+                            $(".show-listing-exe-records").find('.modal-dialog').html(response.html);
+                            $(".show-listing-exe-records").modal('show');
+                        }else{
+                            //toastr['error']('Sorry no product founds', 'error');
+                        }
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    console.log("Sorry, something went wrong");
+                });
             });
 
             $(document).on('click','.update-composition-selected',function() {

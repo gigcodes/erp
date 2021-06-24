@@ -35,7 +35,7 @@ use GuzzleHttp\RequestOptions;
 use Storage;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\Helpers\HubstaffTrait;
-
+use App\Helpers\MessageHelper;
 
 class TaskModuleController extends Controller {
 
@@ -2381,21 +2381,33 @@ class TaskModuleController extends Controller {
 
 	public function saveDocuments(Request $request)
 	{
+		$loggedUser = $request->user();
+
 		if(!$request->task_id || $request->task_id == '') {
 			return response()->json(["code" => 500, "data" => [], "message" => "Select one task"]);
 		}
 		$documents = $request->input('document', []);
 		$task = Task::find($request->task_id);
+
 		if (!empty($documents)) {
-			$count = 0;
-			foreach ($request->input('document', []) as $file) {
+
+			$count = count($documents);
+			
+			$message = '['. $loggedUser->name.'] - #ISSUE-'. $task->id. ' - ' . $task->task_subject . "\n\n " . $count . ' new attchment'. ( $count > 1 ? 's' : '' );
+
+			foreach ($documents as $file) {
 				$path  = storage_path('tmp/uploads/' . $file);
 				$media = MediaUploader::fromSource($path)
 					->toDirectory('task-files/' . floor($task->id / config('constants.image_per_folder')))
 					->upload();
 				$task->attachMedia($media, config('constants.media_tags'));
-				$count++;
+				
+				$message .= "\n" . $file;
 			}
+
+			$message . "\nhas been added. \n Please check it and add your comment if any.";
+
+			MessageHelper::sendEmailOrWebhookNotification([$task->users->pluck('id')->toArray()], $message );
 
 			return response()->json(["code" => 200, "data" => [], "message" => "Done!"]);
 		} else {

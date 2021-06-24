@@ -45,7 +45,11 @@
                     <td>{{ $i++ }}</td>
                     <td>{{ $log->scraper_name }}</td>
                     <td>{{ $log->server_id }}</td>
-                    <td style="word-break: break-word;" data-log_message="{{ $log->log_messages }}" class="log-message-popup">{{ substr($log->log_messages,0,250) }}...</td>
+                    @if (strlen($log->log_messages) > 250)
+                        <td style="word-break: break-word;" data-log_message="{{ $log->log_messages }}" class="log-message-popup">{{ substr($log->log_messages,0,250) }}...</td>    
+                    @else
+                        <td style="word-break: break-word;">{{ $log->log_messages }}</td>
+                    @endif
                 </tr>
             @endforeach
                 <tr>{{ $api_logs->links() }}</tr>
