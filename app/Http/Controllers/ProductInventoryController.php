@@ -199,7 +199,7 @@ class ProductInventoryController extends Controller
             $data['color'] = $request->color;
         }
 
-		if (isset($request->category) && $request->category[0] != 1) {
+		if (!empty($request->category) && $request->category[0] != 1) {
 
 			$category   = Category::with('childs.childLevelSencond')->find($request->category[0]);
 			$category_children = [];
@@ -220,20 +220,20 @@ class ProductInventoryController extends Controller
 				$category_children[] =  $category->id;
 
 			}
-				$productQuery = $productQuery->whereIn('category', $category_children);
+				$productQuery->whereIn('category', $category_children);
 			$data['category'] = $request->category[0];
 		}
 
 		if (isset($request->location) && $request->location[0] != null) {
 		
-				$productQuery = $productQuery->whereIn('location', $request->location);
+				$productQuery->whereIn('location', $request->location);
 
 			$data['location'] = $request->location;
 		}
 
 		if ( isset($request->no_locations) && $request->no_locations) {
 
-				$productQuery = $productQuery->whereNull('location');
+				$productQuery->whereNull('location');
 
 		
 			$data['no_locations'] = true;
@@ -272,11 +272,11 @@ class ProductInventoryController extends Controller
 //	
 		$stockStatus = $request->get('stock_status', "");					
 		if (!empty($stockStatus)) {
-			$productQuery = $productQuery->where('stock_status',$stockStatus);
+			$productQuery->where('stock_status',$stockStatus);
 		}
 
 		if ($request->get('shoe_size', false)) {
-            $productQuery = $productQuery->where('products.size', 'like', "%".$request->get('shoe_size')."%");
+            $productQuery->where('products.size', 'like', "%".$request->get('shoe_size')."%");
         }
 
         $productQuery->where(function($query){
@@ -287,12 +287,18 @@ class ProductInventoryController extends Controller
         if ($request->get('in_pdf') === 'on') {
             $data[ 'products' ] = $productQuery->whereRaw( "(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))" )->get();
         } else {
-	            $data[ 'products' ] = $productQuery->whereRaw( "(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))" )->paginate( Setting::get( 'pagination' ) );
 
-					// $data[ 'products' ] = $productQuery->whereIn('products.id',$sub_q)->orWhere(function($q){
-					// 	$q->whereNotNull('location')->where('location','<>','');
-					// })->paginate( Setting::get( 'pagination' ) );
-					// $data[ 'products' ] = $productQuery->whereIn('products.id',$sub_q)->orWhereNotNull('location')->where('location','<>','')->paginate( Setting::get( 'pagination' ) );
+			$sub_q = ProductSupplier::select('product_id')->where('supplier_id',11)->get()->pluck('product_id')->toArray();
+			// dd($sub_q);
+// dump('queary');
+	            // $data[ 'products' ] = $productQuery->whereRaw( "(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))" )->paginate( Setting::get( 'pagination' ) );
+
+					$data[ 'products' ] = $productQuery->where(function($j) use($sub_q){
+						$j->whereIn('products.id',$sub_q)->orWhere(function($q){
+							$q->whereNotNull('location')->where('location','<>','');
+						});
+					})->paginate( Setting::get( 'pagination' ) );
+					
         }
 
         $data['date'] = $request->date ? $request->date : '';
