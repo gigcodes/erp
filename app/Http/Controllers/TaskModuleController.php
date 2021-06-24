@@ -2407,7 +2407,7 @@ class TaskModuleController extends Controller {
 
 			$message . "\nhas been added. \n Please check it and add your comment if any.";
 
-			MessageHelper::sendEmailOrWebhookNotification([$task->users->pluck('id')->toArray()], $message );
+			MessageHelper::sendEmailOrWebhookNotification($task->users->pluck('id')->toArray(), $message );
 
 			return response()->json(["code" => 200, "data" => [], "message" => "Done!"]);
 		} else {
