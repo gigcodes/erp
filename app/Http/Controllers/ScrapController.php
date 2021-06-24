@@ -2261,7 +2261,7 @@ class ScrapController extends Controller
                 
                 $response = json_decode($response);
                 
-                $log = \Log::info(print_r($response,true));
+                /*$log = \Log::info(print_r($response,true));
                 if (!empty($log)) {
 
                     $api_log = new ScrapApiLog;
@@ -2269,7 +2269,7 @@ class ScrapController extends Controller
                     $api_log->server_id = $request->server_id;
                     $api_log->log_messages = $log;
                     $api_log->save();
-                }
+                }*/
                 
                 
                 if((isset($response->status) && $response->status == "Didn't able to find file of given scrapper") || empty($response->log)) {
@@ -2283,13 +2283,13 @@ class ScrapController extends Controller
                         header("Content-disposition: attachment; filename= ".$file."");
                         echo base64_decode($response->log);
                         
-                        $api_log = new ScrapApiLog;
+                        /*$api_log = new ScrapApiLog;
                         $api_log->scraper_id = $scraper->id;
                         $api_log->server_id = $request->server_id;
                         $api_log->log_messages = $response->log;
                         // $api_log->log_messages = substr($response, 1, -1);
-                        $api_log->save();
-                        $data['logs'] = ScrapApiLog::where('scraper_id',$scraper->id)->get();
+                        $api_log->save();*/
+                        $data['logs'] = null;//ScrapApiLog::where('scraper_id',$scraper->id)->get();
                         return view('scrap.scrap_api_log',$data);
                     }
                 }
