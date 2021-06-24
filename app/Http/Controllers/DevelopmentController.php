@@ -44,6 +44,7 @@ use Storage;
 use App\MeetingAndOtherTime;
 use App\Helpers\HubstaffTrait;
 use App\ChatMessage;
+use App\Helpers\MessageHelper;
 
 class DevelopmentController extends Controller
 {
@@ -2265,7 +2266,11 @@ class DevelopmentController extends Controller
                     'status' => 0, 
                     'developer_task_id' => $request->id
                 ]);
+
                 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+
+                MessageHelper::sendEmailOrWebhookNotification([$task->user_id],$msg);
+
             } 
         }
         return response()->json([
@@ -2290,6 +2295,8 @@ class DevelopmentController extends Controller
                     'developer_task_id' => $request->id
                 ]);
                 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+
+                MessageHelper::sendEmailOrWebhookNotification([$task->user_id],$msg);
             } 
         }
         return response()->json([
@@ -2354,42 +2361,32 @@ class DevelopmentController extends Controller
         }
         if(Auth::user()->isAdmin()){
             $user = User::find($issue->user_id);
-            if($user){
-                $receiver_user_phone = $user->phone;
-                if($receiver_user_phone){
-                    $msg = 'TIME ESTIMATED BY ADMIN FOR TASK ' . '#DEVTASK-' . $issue->id . '-' .$issue->subject . ' ' .  $request->estimate_minutes . ' MINS';
-                    $chat = ChatMessage::create([
-                        'number' => $receiver_user_phone,
-                        'user_id' => $user->id,
-                        'customer_id' => $user->id,
-                        'message' => $msg,
-                        'status' => 0, 
-                        'developer_task_id' => $request->issue_id
-                    ]);
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
-                } 
-            }
+            $msg = 'TIME ESTIMATED BY ADMIN FOR TASK ' . '#DEVTASK-' . $issue->id . '-' .$issue->subject . ' ' .  $request->estimate_minutes . ' MINS';
         }else{ 
-            $users = User::get();
-            foreach($users as $user){
-                if($user->isAdmin()){
-                    $receiver_user_phone = $user->phone;
-                    if($receiver_user_phone){
-                        $msg = 'TIME ESTIMATED BY USER FOR TASK ' . '#DEVTASK-' . $issue->id . '-' .$issue->subject . ' ' .  $request->estimate_minutes . ' MINS';
-                        $chat = ChatMessage::create([
-                            'number' => $receiver_user_phone,
-                            'user_id' => $user->id,
-                            'customer_id' => $user->id,
-                            'message' => $msg,
-                            'status' => 0, 
-                            'developer_task_id' => $request->issue_id
-                        ]);
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
-                    } 
-                } 
-            }  
+            $user = User::find($issue->master_user_id); 
+            $msg = 'TIME ESTIMATED BY USER FOR TASK ' . '#DEVTASK-' . $issue->id . '-' .$issue->subject . ' ' .  $request->estimate_minutes . ' MINS';
         }
-        
+
+        if($user){
+
+            $receiver_user_phone = $user->phone;
+
+            if($receiver_user_phone){
+                $chat = ChatMessage::create([
+                    'number' => $receiver_user_phone,
+                    'user_id' => $user->id,
+                    'customer_id' => $user->id,
+                    'message' => $msg,
+                    'status' => 0, 
+                    'developer_task_id' => $request->issue_id
+                ]);
+
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+
+                MessageHelper::sendEmailOrWebhookNotification([$issue->user_id],$msg);
+            } 
+        }
+
         $issue->estimate_minutes = $request->get('estimate_minutes');
         $issue->save();
 
@@ -2693,6 +2690,8 @@ class DevelopmentController extends Controller
         $id = $request->get("developer_task_id", 0);
         $subject = $request->get("subject", null);
 
+        $loggedUser = $request->user();
+
         if ($id > 0 && !empty($subject)) {
 
             $devTask = DeveloperTask::find($id);
@@ -2705,12 +2704,18 @@ class DevelopmentController extends Controller
                 $devDocuments->save();
 
                 if ($request->hasfile('files')) {
+
                     foreach ($request->file('files') as $files) {
                         $media = MediaUploader::fromSource($files)
                             ->toDirectory('developertask/' . floor($devTask->id / config('constants.image_per_folder')))
                             ->upload();
                         $devDocuments->attachMedia($media, config('constants.media_tags'));
                     }
+
+                    $message = '[ '. $loggedUser->name .' ] - #DEVTASK-' . $devTask->id .' - ' . $devTask->subject ." \n\n" . 'New attchment(s) called ' . $subject . ' has been added. Please check and give your comment or fix it if any issue.';
+
+                    MessageHelper::sendEmailOrWebhookNotification([$devTask->user_id], $message);
+
                 }
 
                 return response()->json(["code" => 200, "success" => "Done!"]);

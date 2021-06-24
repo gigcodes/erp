@@ -50,11 +50,17 @@ class MessageController extends Controller
             });
         }
 
+        if(request("unread_message") == "true") {
+            $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($status) {
+                $q->where("cr.is_read", 0);
+            });
+        }
+
         $pendingApprovalMsg = $pendingApprovalMsg->whereRaw("chat_messages.id in (select max(chat_messages.id) as latest_message from chat_messages JOIN chatbot_replies as cr on cr.replied_chat_id = `chat_messages`.`id` where (customer_id > 0 or vendor_id > 0 or task_id > 0 or developer_task_id > 0 or user_id > 0 or supplier_id > 0)  GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id)");
 
         $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
             $q->where("chat_messages.message", "!=", "");
-        })->select(['cr.id as chat_bot_id', "chat_messages.*", "cm1.id as chat_id", "cr.question",
+        })->select(['cr.id as chat_bot_id','cr.is_read as chat_read_id', "chat_messages.*", "cm1.id as chat_id", "cr.question",
             "cm1.message as answer",
             "c.name as customer_name", "v.name as vendors_name","s.supplier as supplier_name", "cr.reply_from", "cm1.approved", "sw.title as website_title"])
             ->orderBy('cr.id', 'DESC')
@@ -70,14 +76,17 @@ class MessageController extends Controller
             }
         }
         $page = $pendingApprovalMsg->currentPage();
+        $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('id', 'DESC')->get();
+
+
         if ($request->ajax()) {
-            $tml = (string)view("chatbot::message.partial.list", compact('pendingApprovalMsg', 'page', 'allCategoryList'));
+            $tml = (string)view("chatbot::message.partial.list", compact('pendingApprovalMsg', 'page', 'allCategoryList','reply_categories'));
             return response()->json(["code" => 200, "tpl" => $tml, "page" => $page]);
         }
 
         
 //dd($pendingApprovalMsg);
-        return view("chatbot::message.index", compact('pendingApprovalMsg', 'page', 'allCategoryList'));
+        return view("chatbot::message.index", compact('pendingApprovalMsg', 'page', 'allCategoryList','reply_categories'));
     }
 
     public function approve()
@@ -194,6 +203,26 @@ class MessageController extends Controller
         }
 
         return response()->json(["code" => 500, "data" => [], "message" => "Message not exist in record"]);
+    }
+
+    public function updateReadStatus(Request $request)
+    {
+        $chatId = $request->get("chat_id");
+        $value  = $request->get("value");
+
+        $reply = \App\ChatbotReply::find($chatId);
+
+        if($reply) {
+            
+            $reply->is_read = $value;
+            $reply->save();
+            
+            $status = ($value == 1) ? "read" : "unread";
+
+            return response()->json(["code" => 200, "data" => [], "messages" => "Marked as ".$status]);
+        }
+
+        return response()->json(["code" => 500, "data" => [], "messages" => "Message not exist in record"]);
     }
 
 }

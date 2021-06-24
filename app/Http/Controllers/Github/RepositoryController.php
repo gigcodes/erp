@@ -6,6 +6,7 @@ use App\DeveloperTask;
 use App\Github\GithubBranchState;
 use App\Github\GithubRepository;
 use App\Helpers\githubTrait;
+use App\Helpers\MessageHelper;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Artisan;
@@ -188,10 +189,14 @@ class RepositoryController extends Controller
 
                 \Log::info('updateDevTask :: PR merge msg send .'.json_encode($devTask->user));
 
+                $message =  $branchName.':: PR has been merged';
+
                 $requestData = new Request();
                 $requestData->setMethod('POST');
-                $requestData->request->add(['issue_id' => $devTaskId, 'message' => $branchName.':: PR has been merged', 'status' => 1]);
+                $requestData->request->add(['issue_id' => $devTaskId, 'message' => $message, 'status' => 1]);
                 app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+
+                MessageHelper::sendEmailOrWebhookNotification([$devTask->user_id] , $message .'. kindly test task in live if possible and put test result as comment in task.' );
 
                 //app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($devTask->user->phone, $devTask->user->whatsapp_number, $branchName.':: PR has been merged', false);
             } catch (Exception $e) {
