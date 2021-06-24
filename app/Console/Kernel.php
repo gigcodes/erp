@@ -574,7 +574,7 @@ class Kernel extends ConsoleKernel
         //  $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');
         // $schedule->command('check:landing-page')->everyMinute();
 
-        //$schedule->command('ScrapApi:LogCommand')->hourly();
+        $schedule->command('ScrapApi:LogCommand')->hourly();
 
         $schedule->command('AuthenticateWhatsapp:instance')->hourly();
         // Get tickets from Live Chat inc and put them as unread messages
