@@ -330,6 +330,7 @@ class CompositionsController extends Controller
         $to   = $request->replace_with;
         if (!empty($from) && !empty($to)) {
             $products = \App\Product::where('composition', 'LIKE', '%' . $from . '%')->get();
+            $user = \Auth::user();
 
             if ($products) {
                 foreach ($products as $product) {
@@ -352,7 +353,7 @@ class CompositionsController extends Controller
                         'new_value'      => $to,
                         'attribute_name' => 'compositions',
                         'attribute_id'   => $c->id,
-                        'user_id'        => $userId,
+                        'user_id'        => $user->id,
                     ]);
 
                     $c->replace_with = $to;
@@ -370,7 +371,7 @@ class CompositionsController extends Controller
                             'new_value'      => $to,
                             'attribute_name' => 'compositions',
                             'attribute_id'   => $comp->id,
-                            'user_id'        => $userId,
+                            'user_id'        => $user->id,
                         ]);
                     }
                 }
