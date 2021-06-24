@@ -45,7 +45,7 @@
                     <td>{{ $i++ }}</td>
                     <td>{{ $log->scraper_name }}</td>
                     <td>{{ $log->server_id }}</td>
-                    <td style="word-break: break-word;">{{ $log->log_messages }}</td>
+                    <td style="word-break: break-word;" data-log_message="{{ $log->log_messages }}" class="log-message-popup">{{ substr($log->log_messages,0,250) }}...</td>
                 </tr>
             @endforeach
                 <tr>{{ $api_logs->links() }}</tr>
@@ -53,6 +53,35 @@
 
         </table>
     </div>
+
+    <!--Log Messages Modal -->
+    <div id="logMessageModel" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+    
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Scrap Api Log</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="word-break: break-word;"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    
+        </div>
+    </div>
  
 
+@endsection
+@section("scripts")
+    <script>
+        $(document).on('click','.log-message-popup',function(){
+            $('#logMessageModel').modal('show');
+            $('#logMessageModel p').text($(this).data('log_message'));
+        })
+    </script>
 @endsection
