@@ -326,9 +326,22 @@ class CompositionsController extends Controller
     public function replaceComposition(Request $request)
     {
         ini_set("memory_limit","-1");
+        set_time_limit(0);
+        
         $from = $request->name;
         $to   = $request->replace_with;
         if (!empty($from) && !empty($to)) {
+
+            // remove here the word
+            $compositionList = \App\Compositions::where("replace_with","like","%".$from."%")->orWhere("name","like","%".$from."%")->get();
+            if(!$compositionList->isEmpty()) {
+                foreach($compositionList as $cl) {
+                    $cl->replace_with = str_ireplace($from, $to, $cl->replace_with);
+                    $cl->name = str_ireplace($from, $to, $cl->name);
+                    $cl->save();
+                }
+            }
+
             $products = \App\Product::where('composition', 'LIKE', '%' . $from . '%')->get();
             $user = \Auth::user();
 

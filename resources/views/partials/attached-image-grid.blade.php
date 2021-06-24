@@ -1234,7 +1234,8 @@
                 success: function(result){
                      $("#loading-image").hide();
                     toastr['success'](result.message, 'success');
-                     location.reload();
+                    $("#forwardProductsModal").modal('hide');
+                     //location.reload();
              }
             });
         });

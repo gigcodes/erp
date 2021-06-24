@@ -100,6 +100,7 @@
                         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="{{ $context__ }}" data-id="{{ $issueID }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                     @else
                         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="customer" data-id="{{$pam->customer_id }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$pam->customer_id }}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
                     @endif
                 </div>
             </div>
@@ -221,14 +222,14 @@
             data: form.serialize(),
             dataType : "json",
             success: function (response) {
-               // location.reload();
-                // if(response.code == 200) {
-                //     toastr['success']('data updated successfully!');
-                //     window.location.replace(response.redirect);
-                // }else{
-                //     errorMessage = response.error ? response.error : 'data is not correct or duplicate!';
-                //     toastr['error'](errorMessage);
-                // }
+               //location.reload();
+                if(response.code == 200) {
+                    toastr['success']('data updated successfully!');
+                    window.location.replace(response.redirect);
+                }else{
+                    errorMessage = response.error ? response.error : 'data is not correct or duplicate!';
+                    toastr['error'](errorMessage);
+                }
             },
             error: function () {
                 toastr['error']('Could not change module!');
