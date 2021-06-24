@@ -279,7 +279,7 @@
                                 '<input type="checkbox" class="custom-control-input select-pr-list-chk"  id="defaultUnchecked_'+element.id+'" >'+
                                 '<label class="custom-control-label" for="defaultUnchecked_'+element.id+'"></label>'+
                             '</div>'+
-                            '<a href="'+element.page_url+'" download="'+element.images+'" data-media="" class="btn btn-md select_row attach-photo"><i class="fa fa-download"></i></a>'+
+                            '<a href="'+element.page_url+'" download="" data-media="" class="btn btn-md select_row attach-photo"><i class="fa fa-download"></i></a>'+
                         '</div>'+
                     '</div>'+
                 '</div>'
