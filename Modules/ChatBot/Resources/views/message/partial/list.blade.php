@@ -25,10 +25,9 @@
         <th width="5%">Website</th>
         <th width="9%">User input</th>
         <th width="12%">Bot Replied</th>
-        <th width="30%">Message Box</th>
+        <th width="20%">Message Box</th>
         <th width="5%">From</th>
-        <th width="10%">Images</th>
-        <th width="8%">Created</th>
+        <th width="20%">Shortcuts</th>
         <th width="5%">Action</th>
 
     </tr>
@@ -36,9 +35,12 @@
     <tbody>
     <?php if (!empty($pendingApprovalMsg)) {?>
     <?php foreach ($pendingApprovalMsg as $pam) { ?>
-    <tr>
+    <tr class="customer-raw-line">
+
 
         @php
+
+
 
             $context = 'customer';
             $issueID = null;
@@ -64,7 +66,19 @@
         <td>{{ $pam->website_title }}</td>
 
         <!-- Purpose : Add question - DEVTASK-4203 -->
-         <td class="user-input">{{ $pam->question }}</td>
+        <td class="user-input">
+            {{ $pam->question }}
+            @if($pam->chat_read_id == 1)
+                <a href="javascript:;" class="read-message" data-value="0" data-id="{{ $pam->chat_bot_id }}">
+                    <img width="15px" title="Mark as unread" height="15px" src="/images/completed-green.png">
+                </a>
+            @else
+                <a href="javascript:;" class="read-message" data-value="1" data-id="{{ $pam->chat_bot_id }}">
+                    <img width="15px" title="Mark as read" height="15px" src="/images/completed.png">
+                </a>
+            @endif
+            
+        </td>
         <td class="boat-replied">{{ $pam->answer }}</td>
         <td class="message-input">
             <div class="row cls_textarea_subbox">
@@ -86,25 +100,47 @@
                         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="{{ $context__ }}" data-id="{{ $issueID }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                     @else
                         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="customer" data-id="{{$pam->customer_id }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$pam->customer_id }}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
                     @endif
                 </div>
             </div>
         </td>
         <td class="boat-replied">{{ $pam->reply_from }}</td>
-        <td class="images-layout">
-            <form class="remove-images-form" action="{{ route('chatbot.messages.remove-images') }}" method="post">
-                {{ csrf_field() }}
-                @php
-                    $botMessage = \App\ChatMessage::find($pam->chat_id);
-                @endphp
-                @if(isset($botMessage))
-                    @if($botMessage->hasMedia(config('constants.media_tags')))
-                        {{ $botMessage->getMedia(config('constants.media_tags'))->count() }}
-                    @endif
-                @endif
-            </form>
+        <td class="communication">
+            <div class="row">
+                <div class="col-6 d-inline form-inline">
+                    <input style="width: 87%" type="text" name="category_name" placeholder="Enter New Category" class="form-control mb-3 quick_category">
+                    <button class="btn btn-secondary quick_category_add" style="position: absolute;  margin-left: 8px;">+</button>
+                </div>
+                <div class="col-6 d-inline form-inline" style="padding-left: 0px;">
+                    <div style="float: left; width: 86%">
+                        <select name="quickCategory" class="form-control mb-3 quickCategory">
+                            <option value="">Select Category</option>
+                            @foreach($reply_categories as $category)
+                                <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div style="float: right; width: 14%;">
+                        <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>
+                    </div>
+                </div>
+                <div class="col-6 d-inline form-inline">
+                    <input style="width: 87%" type="text" name="quick_comment" placeholder="Enter New Quick Comment" class="form-control mb-3 quick_comment">
+                    <button class="btn btn-secondary quick_comment_add" style="position: absolute;  margin-left: 8px;">+</button>
+                </div>
+                <div class="col-6 d-inline form-inline" style="padding-left: 0px;">
+                    <div style="float: left; width: 86%">
+                        <select name="quickComment" class="form-control quickComment">
+                            <option value="">Quick Reply</option>
+                        </select>
+                    </div>
+                    <div style="float: right; width: 14%;">
+                        <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>
+                    </div>
+                </div>
+            </div>
         </td>
-        <td>{{ date('m-d H:i', strtotime($pam->created_at)) }}</td>
         <td>
             @if($pam->approved == 0)
             <a href="javascript:;" class="approve-message" data-id="{{ $pam->chat_id }}">
@@ -222,5 +258,42 @@
             }
         });
     });
+
+    $(document).on("click",".read-message",function () {
+        let chatID = $(this).data("id");
+        let value = $(this).data("value");
+        var $this = $(this);
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            type: "POST",
+            url: "/chatbot/messages/update-read-status",
+            data: {
+                chat_id : chatID,
+                value  : value
+            },
+            dataType : "json",
+            success: function (response) {
+                if(response.code == 200) {
+                    toastr['success'](response.messages);
+                    if(value == 1) {
+                        $this.html('<img width="15px" title="Mark as unread" height="15px" src="/images/completed-green.png">');
+                        $this.data("value",0);
+                    }else{
+                        $this.html('<img width="15px" title="Mark as read" height="15px" src="/images/completed.png">');
+                        $this.data("value",1);
+                    }
+                }else{
+                    toastr['error'](response.messages);
+                }
+            },
+            error: function () {
+                toastr['error']('Message not sent successfully!');
+            }
+        });
+    });
+
+
 
 </script>
