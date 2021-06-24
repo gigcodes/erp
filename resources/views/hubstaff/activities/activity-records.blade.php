@@ -237,10 +237,10 @@
         <button type="submit" class="btn btn-secondary final-submit-record" data-status="1">Approve</button>
         <button type="submit" class="btn btn-secondary final-submit-record" data-status="2">Pending</button>
         @if(count($teamLeaders) > 0)
-            <button type="submit" class="btn btn-danger submit-record">Forword</button>
+            <button type="submit" class="btn btn-danger submit-record">Forward</button>
         @endif
     @else
-        <button type="submit" class="btn btn-danger submit-record">Forword</button> 
+        <button type="submit" class="btn btn-danger submit-record">Forward</button> 
         <button type="button" class="btn btn-secondary submit-notes">Submit notes</button> 
     @endif
     </div>
