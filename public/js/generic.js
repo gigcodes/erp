@@ -1043,7 +1043,7 @@ var id = $(this).data('id');
 $('#forward_message_id').val(id);
 });
 
-$(document).on("focusout", '.search_chat_pop', function() {
+$(document).on("keyup", '.search_chat_pop', function() {
     var value = $(this).val().toLowerCase();
     exampleFunction() ;//your function call
     // $(".speech-wrapper .bubble").filter(function() {

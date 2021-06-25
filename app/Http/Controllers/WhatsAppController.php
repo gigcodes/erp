@@ -2136,17 +2136,23 @@ class WhatsAppController extends FindByNumberController
 
             }elseif($context == 'learning'){
                 $learning = \App\Learning::find($request->issue_id);
-                if($data['user_id'] == $learning->learning_user){
+                if($data['user_id'] == $learning->learning_vendor){
                     $userId = $data['user_id'];
                 }else{
-                    $userId = $learning->learning_user;
+                    $userId = $learning->learning_vendor;
                 }
-                $params['message'] = $request->get('message');
+
+                $prefix = null;
+                if($learning && $learning->learningUser) {
+                    $prefix = $learning->learningUser->name ." : ";
+                }
+
+                $params['message'] = $prefix.$request->get('message');
                 $params['erp_user'] = $userId;
                 $params['sent_to_user_id'] = $userId;
                 // $params['issue_id'] = $request->issue_id;
                 $params['learning_id'] = $request->issue_id;//Purpose - Add learning_id - DEVTASK-4020
-                $params['user_id'] = $data['user_id'];
+                $params['user_id'] = $userId;
                 $params['approved'] = 1;
                 $params['status'] = 2;
                 $number = User::find($userId);
@@ -2157,7 +2163,7 @@ class WhatsAppController extends FindByNumberController
                     $number = $number->phone;
                 
                 $chat_message = ChatMessage::create($params);
-                $this->sendWithThirdApi($number, $whatsapp, '',$chat_message->id);
+                $this->sendWithThirdApi($number, $whatsapp, $params['message'],$chat_message->id);
 
                 return response()->json(['message' => $chat_message]);
 
@@ -2466,7 +2472,7 @@ class WhatsAppController extends FindByNumberController
                     $message_ = ($issue->task_type_id == 1 ? "[ ". $loggedUser->name ." ] - #DEVTASK-" : "#ISSUE-"). $issue->id.' - '. $issue->subject . "\n\n" . $request->message;
 
                 
-                    MessageHelper::sendEmailOrWebhookNotification([$issue->assigned_to] , $message_ );
+                    MessageHelper::sendEmailOrWebhookNotification([$issue->assigned_to, $issue->team_lead_id, $issue->tester_id] , $message_ );
                     //END - DEVTASK-4359
 
                     return response()->json(['message' => $chat_message]);
