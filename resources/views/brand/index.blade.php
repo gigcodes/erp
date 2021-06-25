@@ -393,7 +393,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             }).done(function(response) {
                 if (response.code == 200) {
                     toastr['success']('Brand merged successfully', 'success');
-                    location.reload();
+                    //location.reload();
                 }
             }).fail(function(response) {
                 console.log("Could not update successfully");
