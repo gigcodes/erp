@@ -93,6 +93,10 @@ function initialize_select2(initial_skip = false) {
                 options['tags'] = $(elem).data('tags');
             }
         
+            if ($(elem).hasClass('merge-brand merge_brand_close_e')) {
+                options['allowClear'] = false
+            }
+            
             $(elem).select2(options);
     
         })

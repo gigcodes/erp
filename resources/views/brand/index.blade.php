@@ -120,13 +120,14 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 </td>
                 <td>
                     <div class="form-select">
-                        <?php
-                        echo Form::select(
-                            "merge_brand",
-                            ["" => "-- Select Brand --"] + $bList,
-                            $brand->brand_segment,
-                            ["class" => "form-control merge-brand", "data-brand-id" => $brand->id]
-                        ); ?>
+                      
+ {{-- <strong>Brand</strong> --}}
+ <select class="form-control globalSelect2 merge-brand merge_brand_close_e" data-brand-id = {{ $brand->id }} data-ajax="{{ route('select2.brands',['sort'=>true])  }}"  
+     name="merge_brand" data-placeholder="-- Select Brand --">
+     <option value="">Select a Brand</option>
+ </select>
+
+
                     </div>
                 </td>
                 <td class="remote-td">{{ $brand->magento_id}}</td>
@@ -154,6 +155,9 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                         @else
                             <input type="text" class="form-control" value="" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
                         @endif
+                        {{-- <input type="text" class="form-control" value="{{ $brand->pivot->amount }}" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"> --}}
+
+
                     </td>
                 @endforeach
                 <td>
@@ -378,29 +382,35 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
     });
 
     $(document).on("change",".merge-brand",function(e){
-        var ready = confirm("Are you sure want to merge brand ?");
-        if (ready) {
-            var brand_id = $(this).data("brand-id");
-            var reference = $(this).val();
-            $.ajax({
-                type: 'POST',
-                url: "/brand/merge-brand",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    from_brand: brand_id,
-                    to_brand: reference
+// console.log($(this).val(),'this is chnge')
+$('.select2-selection__clear').remove()
+        if($(this).val()){
+            
+            var ready = confirm("Are you sure want to merge brand ?");
+                if (ready) {
+                    var brand_id = $(this).data("brand-id");
+                    var reference = $(this).val();
+                    $.ajax({
+                        type: 'POST',
+                        url: "/brand/merge-brand",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            from_brand: brand_id,
+                            to_brand: reference
+                        }
+                    }).done(function(response) {
+                        if (response.code == 200) {
+                            toastr['success']('Brand merged successfully', 'success');
+                            //location.reload();
+                        }
+                    }).fail(function(response) {
+                        console.log("Could not update successfully");
+                    });
+                }else{
+                    return false;
                 }
-            }).done(function(response) {
-                if (response.code == 200) {
-                    toastr['success']('Brand merged successfully', 'success');
-                    //location.reload();
-                }
-            }).fail(function(response) {
-                console.log("Could not update successfully");
-            });
-        }else{
-            return false;
-        }    
+
+        }
     });
     
 
