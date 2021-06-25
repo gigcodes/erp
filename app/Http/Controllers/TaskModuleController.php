@@ -46,6 +46,7 @@ class TaskModuleController extends Controller {
 	}
 
 	public function index( Request $request ) {
+
 		if ( $request->input( 'selected_user' ) == '' ) {
 			$userid = Auth::id();
 			$userquery = ' AND (assign_from = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
@@ -108,15 +109,28 @@ class TaskModuleController extends Controller {
 		$data['task']['pending'] = [];
 		$data['task']['statutory_not_completed'] = [];
 		$data['task']['completed'] = [];
-		$status_filter = '';
+
+		$status_filter = '';		
 		if($request->filter_status){
-			$status_filter = ' AND status = '.$request->filter_status.' ';
+			$status_filter = " AND status IN ('".implode("','",$request->filter_status)."')";
+		}else{
+			//1 => for "done" lable status
+			$status_filter = " AND status NOT IN ('1')"; 
 		}
-		$flag_filter = ' AND is_flagged = 0 ';
-		if($request->flag_filter){
-			$flag_filter = ' ';
+	
+	
+		$flag_filter = ' ';
+
+		if($request->ajax())
+		{
+			$flag_filter = ' AND is_flagged = 0 ';
+			if($request->flag_filter){
+				$flag_filter = ' ';
+			}
 		}
+			
 		if($type == 'pending') {
+
 			$paginate = 50;
     		$page = $request->get('page', 1);
 			$offSet = ($page * $paginate) - $paginate; 
@@ -610,6 +624,8 @@ class TaskModuleController extends Controller {
 		}
 
 	    $task_statuses=TaskStatus::all();
+	    
+
 
 
 		if ($request->ajax()) {
@@ -631,7 +647,10 @@ class TaskModuleController extends Controller {
 			return view( 'task-module.discussion-tasks', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses'));
 		}
 		else {
-			return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses'));
+			$statuseslist=TaskStatus::pluck('name','id')->toArray();
+			$selectStatusList=TaskStatus::whereNotIn('id',[1])->pluck('id')->toArray();
+
+			return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses','statuseslist','selectStatusList'));
 		}
 	}
 
