@@ -1147,10 +1147,10 @@ class TaskModuleController extends Controller {
 	
 	public function flag(Request $request)
 	{
-		if($request->task_type == 'TASK'){
-			$task = Task::find($request->task_id);
-		}else if($request->task_type == 'DEVTASK'){
+		if($request->task_type == 'DEVTASK'){
 			$task = DeveloperTask::find($request->task_id);
+		}else {
+			$task = Task::find($request->task_id);
 		}	
 
 		if ($task->is_flagged == 0) {
