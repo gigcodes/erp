@@ -131,10 +131,13 @@ class HubstaffActivitiesController extends Controller
     public function getActivityUsers(Request $request)
     {   
 
-        if( request('submit') ==  'report_download'){
-           return $this->downloadExcelReport();
+        //START - Purpose : Comment code - DEVATSK-4300
+        // if( request('submit') ==  'report_download'){
+        //    return $this->downloadExcelReport();
 
-        }
+        // }
+        //END - DEVATSK-4300
+
         $title      = "Hubstaff Activities";
         $start_date = $request->start_date ? $request->start_date : date('Y-m-d', strtotime("-1 days"));
         $end_date   = $request->end_date ? $request->end_date : date('Y-m-d', strtotime("-1 days"));
@@ -185,6 +188,10 @@ class HubstaffActivitiesController extends Controller
 
             $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereIn('hubstaff_activities.task_id', $taskIds)->whereDate('hubstaff_activities.starts_at', '>=', $start_date)->whereDate('hubstaff_activities.starts_at', '<=', $end_date);
         } else {
+            //START - Purpose : Add Date Temporary Remove this code - DEVATSK-4300
+            // $start_date = '2020-09-01';
+            // $end_date = '2020-09-02';
+            //END - DEVATSK-4300
             $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=', $start_date)->whereDate('hubstaff_activities.starts_at', '<=', $end_date);
         }
 
@@ -211,6 +218,7 @@ class HubstaffActivitiesController extends Controller
         SUM(hubstaff_activities.tracked) as total_tracked,DATE(hubstaff_activities.starts_at) as date,hubstaff_members.user_id as system_user_id")
         )->groupBy('date', 'user_id')->orderBy('date', 'desc')->get();
         $activityUsers = collect([]);
+
 
         foreach ($activities as $activity) {
             $a = [];
@@ -491,74 +499,91 @@ class HubstaffActivitiesController extends Controller
             }
         }
 
+        //START - Purpose : set data for download  - DEVATSK-4300
+        if( request('submit') ==  'report_download'){
+           return $this->downloadExcelReport($activityUsers);
+
+        }
+        //END - DEVATSK-4300
+
         
         $status = $request->status;
         return view("hubstaff.activities.activity-users", compact('title', 'status', 'activityUsers', 'start_date', 'end_date', 'users', 'user_id', 'task_id'));
     }
 
-     public function downloadExcelReport(){
+    //Purpose : Add activityUsers parameter - DEVATSK-4300
+     public function downloadExcelReport($activityUsers){
 
         // dd(request()->all());
-        $query = HubstaffActivity::join('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=', request('start_date'))->whereDate('hubstaff_activities.starts_at', '<=', request('end_date'));
+        // $query = HubstaffActivity::join('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=', request('start_date'))->whereDate('hubstaff_activities.starts_at', '<=', request('end_date'));
         
-        $query->leftJoin('developer_tasks','hubstaff_activities.task_id','developer_tasks.hubstaff_task_id');
+        // $query->leftJoin('developer_tasks','hubstaff_activities.task_id','developer_tasks.hubstaff_task_id');
         
-        $query = $query->where('hubstaff_members.user_id', request('user_id'));
+        // $query = $query->where('hubstaff_members.user_id', request('user_id'));
         
-         $activities = $query->select(DB::raw("
-         SUM(developer_tasks.estimate_minutes) as estimated_time, hubstaff_members.user_id,hubstaff_activities.task_id,hubstaff_activities.is_manual,
-                SUM(hubstaff_activities.tracked) as total_tracked,DATE(hubstaff_activities.starts_at) as date,hubstaff_members.user_id as system_user_id")
-        )->groupBy('task_id')->orderBy('date', 'desc')->get();
+        //  $activities = $query->select(DB::raw("
+        //  SUM(developer_tasks.estimate_minutes) as estimated_time, hubstaff_members.user_id,hubstaff_activities.task_id,hubstaff_activities.is_manual,
+        //         SUM(hubstaff_activities.tracked) as total_tracked,DATE(hubstaff_activities.starts_at) as date,hubstaff_members.user_id as system_user_id")
+        // )->groupBy('task_id')->orderBy('date', 'desc')->get();
 
+        // if(request('user_id')){
+        //     $user = User::where('id', request('user_id'))->first();
+        // }else{
+        //     $user = User::where('id', Auth::user()->id)->first();
+        // }
+
+        // $userid = Auth::id();
+        // $userquery = ' AND (assign_from = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
+        // $test = DB::Select(
+        // '
+		// 	SELECT tasks.*
+
+		// 	FROM (
+		// 	  SELECT * FROM tasks
+		// 	  LEFT JOIN (
+		// 		  SELECT 
+		// 		  chat_messages.id as message_id, 
+		// 		  chat_messages.task_id, 
+		// 		  chat_messages.message, 
+		// 		  chat_messages.status as message_status, 
+		// 		  chat_messages.sent as message_type, 
+		// 		  chat_messages.created_at as message_created_at, 
+		// 		  chat_messages.is_reminder AS message_is_reminder,
+		// 		  chat_messages.user_id AS message_user_id
+		// 		  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
+		// 	  ) as chat_messages  ON chat_messages.task_id = tasks.id
+		// 	) AS tasks
+		// 	WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$userquery  
+        // );
+        // // dd($test);
+        // $activities = $activities->toArray();
+        // foreach($test as $t){
+        //     // dump($t);
+        //     $a["type"] = "task";
+        //     $a["estimated_time"] = "N/A";
+        //     $a["user_id"] = $userid;
+        //     $a["task_id"] = $t->task_id;
+        //     $a["is_manual"] = 0;
+        //     $a["total_tracked"] = 0;
+        //     $a["date"] = $t->message_created_at;
+        //     $a["system_user_id"] = 'N/A';
+        //     $id = $t->id;
+		// 	$task_module = DeveloperTaskHistory::where('developer_task_id', $id)->select('developer_tasks_history.*')->latest()->first();
+		// 	if($task_module) {
+        //         $a["estimated_time"] = $task_module->estimate_minutes ?? 'N/A';
+        //     }
+        //     $activities[] = $a;
+        // }
+        // // dd($activities);
+
+        //START - Purpose : Get User Data - DEVATSK-4300 
         if(request('user_id')){
             $user = User::where('id', request('user_id'))->first();
         }else{
             $user = User::where('id', Auth::user()->id)->first();
         }
-
-        $userid = Auth::id();
-        $userquery = ' AND (assign_from = ' . $userid . ' OR  master_user_id = ' . $userid . ' OR  id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ';
-        $test = DB::Select(
-        '
-			SELECT tasks.*
-
-			FROM (
-			  SELECT * FROM tasks
-			  LEFT JOIN (
-				  SELECT 
-				  chat_messages.id as message_id, 
-				  chat_messages.task_id, 
-				  chat_messages.message, 
-				  chat_messages.status as message_status, 
-				  chat_messages.sent as message_type, 
-				  chat_messages.created_at as message_created_at, 
-				  chat_messages.is_reminder AS message_is_reminder,
-				  chat_messages.user_id AS message_user_id
-				  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
-			  ) as chat_messages  ON chat_messages.task_id = tasks.id
-			) AS tasks
-			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$userquery  
-        );
-        // dd($test);
-        $activities = $activities->toArray();
-        foreach($test as $t){
-            // dump($t);
-            $a["type"] = "task";
-            $a["estimated_time"] = "N/A";
-            $a["user_id"] = $userid;
-            $a["task_id"] = $t->task_id;
-            $a["is_manual"] = 0;
-            $a["total_tracked"] = 0;
-            $a["date"] = $t->message_created_at;
-            $a["system_user_id"] = 'N/A';
-            $id = $t->id;
-			$task_module = DeveloperTaskHistory::where('developer_task_id', $id)->select('developer_tasks_history.*')->latest()->first();
-			if($task_module) {
-                $a["estimated_time"] = $task_module->estimate_minutes ?? 'N/A';
-            }
-            $activities[] = $a;
-        }
-        // dd($activities);
+        $activities[] = $activityUsers;
+        //END - DEVATSK-4300
 
         return Excel::download(new HubstaffActivityReport($activities), $user->name.'-'.request('start_date').'-To-'.request('end_date').'.xlsx');
     }

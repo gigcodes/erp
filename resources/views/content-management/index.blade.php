@@ -256,7 +256,6 @@
         });
 
 		$(document).on('click', '.preview-attached-img-btn-gmail', function (e) {     
-            console.log($(this).data('images'));
             e.preventDefault();
             var website_Id = $(this).data('id');
             if( website_Id == '' && website_Id != '0' ){
@@ -266,6 +265,7 @@
             
             const images__ =$(this).data('images')
             let html =""
+            var random = Math.floor(Math.random() * 999999);
             images__.forEach(element => {
                 html += '<div class="col-md-2 col-xs-4 text-center product-list-card mb-4 single-image-'+element.id+'" style="padding:0px 5px;margin-bottom:2px !important;">'+
                     '<div style="border: 1px solid #bfc0bf;padding:0px 5px;">'+
@@ -279,7 +279,7 @@
                                 '<input type="checkbox" class="custom-control-input select-pr-list-chk"  id="defaultUnchecked_'+element.id+'" >'+
                                 '<label class="custom-control-label" for="defaultUnchecked_'+element.id+'"></label>'+
                             '</div>'+
-                            '<a href="'+element.page_url+'" download="" data-media="" class="btn btn-md select_row attach-photo"><i class="fa fa-download"></i></a>'+
+                            '<a href="'+element.images+'" download="" data-media="'+random+'" class="btn btn-md select_row attach-photo"><i class="fa fa-download"></i></a>'+
                         '</div>'+
                     '</div>'+
                 '</div>'

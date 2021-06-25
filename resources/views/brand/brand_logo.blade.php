@@ -63,14 +63,14 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             </tr>
             @foreach($brand_data as $key => $value)
             <tr class="tr_{{$value->brands_id}}">
-                <td>{{ $key+1}}</th>
-                <td>{{ $value->brands_name }}</td>
+                <td class="index">{{ $key+1}}</th>
+                <td class="brand_name">{{ $value->brands_name }}</td>
                 @if($value->brand_logos_image != null)
-                    <td>
+                    <td class="brand_image">
                     <img src="/brand_logo/{{ $value->brand_logos_image }}"  style="height: 150px; width: 150px;display: block;margin-left: auto;margin-right: auto;" />
                     </td>
                 @else
-                    <td></td>
+                    <td class="brand_image"></td>
                 @endif
                 <td>
                     <button title="Open Images" type="button" class="btn preview-attached-img-btn btn-image no-pd" data-id="{{$value->brands_id}}">
@@ -270,10 +270,15 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             },
             success: function(response) {
                 
+                var html_content = '';
                 if(response.code == 200) {
                     toastr['success'](response.message, 'Success');
 
-                    setTimeout(function(){ location.reload(); }, 2000);
+                    html_content = "<img src='/brand_logo/"+response.brand_logo_image+"'  style='height: 150px; width: 150px;display: block;margin-left: auto;margin-right: auto;' />";
+
+                    $('.tr_'+logo_id+' .brand_image').html(html_content);
+
+                    // setTimeout(function(){ location.reload(); }, 2000);
                 }
             },
             error: function(response){
@@ -298,7 +303,10 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                     if(response.code == 200) {
                     toastr['success'](response.message, 'Success');
 
-                    setTimeout(function(){ location.reload(); }, 2000);
+                    var html_content = '';
+                    $('.tr_'+brand_id+' .brand_image').html(html_content);
+
+                    //setTimeout(function(){ location.reload(); }, 2000);
                 }
                 }
             });
