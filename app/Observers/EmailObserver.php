@@ -78,18 +78,12 @@ class EmailObserver
             for ($i = 0; $i < count($imgTags[0]); $i++) {
                 if (file_get_contents($imgTags['src'][$i]) != '') {
                     $gmail_media = new GmailDataMedia;
-                    $gmail_media->gmail_data_id = $gmail->id;
+                    $gmail_media->gmail_data_list_id = $gmail->id;
                     $gmail_media->page_url = $aTags['href'][$i];
                     $gmail_media->images = $imgTags['src'][$i];
                     $gmail_media->save();
                 }
             }
         }
-        // else{
-        //     $gmail = new GmailData;
-        //     $gmail->sender = $email->from;
-        //     $gmail->received_at = $email->created_at->format('m/d/Y');
-        //     $gmail->save();
-        // }
     }
 }
