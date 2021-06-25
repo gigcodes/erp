@@ -125,7 +125,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 <th width="10%">Merge Brands</th>
                 <th width="4%">Magento ID</th>
                 <th width="4%">Euro to Inr</th>
-                <th width="4%">Deduction%</th>
+                <th width="6%" style="word-break:break-all">Deduction%</th>
                 <th width="15%">Segment</th>
                 @foreach($category_segments as $category_segment)
                     <th width=3%">{{ $category_segment->name }}</th>
@@ -176,7 +176,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                             "brand_segment",
                             ["" => "--Select segment"] + \App\Brand::BRAND_SEGMENT,
                             $brand->brand_segment,
-                            ["class" => "form-control change-brand-segment ", "data-brand-id" => $brand->id]
+                            ["class" => "form-control change-brand-segment globalSelect2 merge_brand_close_e", "data-brand-id" => $brand->id,'data-placeholder'=>'-- Select Brand --']
                         ); ?>
                     </div>
                 </td>
@@ -191,7 +191,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                         @else
                             <input type="text" class="form-control" value="" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
                         @endif
-                        {{-- <input type="text" class="form-control" value="{{ $brand->pivot->amount }}" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"> --}}
+                        <input type="text" class="form-control" value="{{ $brand->pivot->amount }}" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})">
 
 
                     </td>
