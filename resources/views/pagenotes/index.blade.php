@@ -23,6 +23,8 @@
       <h2 class="page-heading">Page Notes</h2>
   </div>
 
+    <!-- START - Purpose : Get Page Note - DEVTASK-4289 -->
+    <form method="get" action="{{ route('pageNotes.viewList') }}">
     <div class="flex">
         <div class="col">
             <?php echo Form::text("search", request("search", null), ["class" => "form-control", "placeholder" => "Enter input here.."]); ?>
@@ -30,7 +32,10 @@
         <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
             <img src="/images/search.png" style="cursor: default;">
         </button>
+        <a href="{{route('pageNotes.viewList')}}" type="button" class="btn btn-image" id=""><img src="/images/resend2.png"></a>    
     </div>
+    </form>
+    <!-- END - DEVTASK-4289 -->
  
   <div class="col-md-12">
     <div class="pagenote-scroll"><!-- Purpose : Add Div for Scrolling - DEVTASK-4289 -->
