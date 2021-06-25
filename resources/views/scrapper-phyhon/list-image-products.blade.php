@@ -148,7 +148,7 @@
                                 <div data-interval="false" id="carousel_{{ $image['id'] }}" class="carousel slide" data-ride="carousel">
                                     <a href="#" data-toggle="tooltip" data-html="true" data-placement="top" >
                                         <div class="carousel-inner maincarousel">
-                                            <div class="item" style="display: block;"> <a data-fancybox="gallery" href="{{ urldecode(asset( 'scrappersImages/'.$image['img_name']))}}" ><img src="{{ urldecode(asset( 'brand_logo/'.$image['img_name']))}}" style="height: 100%; width: 80%; max-width:1200px; display: block;margin-left: auto;margin-right: auto;"> </a> </div>
+                                            <div class="item" style="display: block;"> <a data-fancybox="gallery" href="{{ urldecode(asset( 'scrappersImages/'.$image['img_name']))}}" ><img src="{{ urldecode(asset( 'scrappersImages/'.$image['img_name']))}}" style="height: 100%; width: 80%; max-width:1200px; display: block;margin-left: auto;margin-right: auto;"> </a> </div>
                                         </div>
                                     </a>
                                 </div>
