@@ -166,7 +166,8 @@ class RepositoryController extends Controller
         );
     }
 
-    private function updateDevTask($branchName){
+    private function findDeveloperTask($branchName)
+    {
         $devTaskId = null;
         $usIt = explode('-', $branchName);
 
@@ -179,7 +180,11 @@ class RepositoryController extends Controller
             }
         }
 
-        $devTask = DeveloperTask::find($devTaskId);
+        return  DeveloperTask::find($devTaskId);
+    }
+
+    private function updateDevTask($branchName){
+        $devTask = $this->findDeveloperTask($branchName);//DeveloperTask::find($devTaskId);
         
         \Log::info('updateDevTask call '.$branchName);
 
@@ -259,6 +264,15 @@ class RepositoryController extends Controller
                 }
             }
             if($sqlIssue) {
+                $devTask = $this->findDeveloperTask($source);
+                if($devTask) {
+                    $message =  $source.':: there is some issue while running migration please check migration or contact administrator';
+                    $requestData = new Request();
+                    $requestData->setMethod('POST');
+                    $requestData->request->add(['issue_id' => $devTask->id, 'message' => $message, 'status' => 1]);
+                    app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+                }
+
                 return redirect(url('/github/pullRequests'))->with([
                     'message' => 'Branch merged successfully but migration failed',
                     'alert-type' => 'error'
@@ -268,6 +282,14 @@ class RepositoryController extends Controller
         } catch (Exception $e) {
             \Log::error($e);
             print_r($e->getMessage());
+            $devTask = $this->findDeveloperTask($source);
+            if($devTask) {
+                $message =  $source.':: Failed to Merge please check branch has not any conflict or contact administrator';
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $requestData->request->add(['issue_id' => $devTask->id, 'message' => $message, 'status' => 1]);
+                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+            }
             return redirect(url('/github/pullRequests'))->with(
                 [
                     'message' => 'Failed to Merge please check branch has not any conflict !',
