@@ -218,6 +218,25 @@ class CacheMasterControl extends Command
                     order by day_tracked desc ");
             });
 
+            Cache::remember('hubstafftrackingnotiification', 30, function (){
+
+                $yesterdayDate = Carbon::now()->subDays(1)->format('Y-m-d');
+
+
+
+                $hubstaff_notifications = \App\Hubstaff\HubstaffActivityNotification::join("users as u", "hubstaff_activity_notifications.user_id", "u.id")->leftJoin("user_avaibilities as av", "hubstaff_activity_notifications.user_id", "av.user_id")
+                ->whereDate('start_date',$yesterdayDate)
+                ->select([
+                    "hubstaff_activity_notifications.*", 
+                    "u.name as user_name",
+                    "av.minute as daily_working_hour",
+                ])
+                ->get()->toArray();
+
+                return $hubstaff_notifications;
+
+            });
+
 
             $report->update(['end_time' => Carbon::now()]);
 
