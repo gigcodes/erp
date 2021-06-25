@@ -46,12 +46,12 @@ class ProjectFileManagerController extends Controller
 	public function listTree()
 	{
 		$directory = base_path();
-		
+		\Log::info("PROJECT_MANAGER => started to scan file directory");
 		$this->listFolderFiles($directory);
 		
 		ProjectFileManager::insert($this->dumpData);
 		
-		foreach($this->updateData as $key->$value)
+		foreach($this->updateData as $key => $value)
 		{
 			DB::table('project_file_managers')
                 ->where('id', $value['id'])
@@ -64,11 +64,23 @@ class ProjectFileManagerController extends Controller
 	{
 		//for replace base path
 		$basePath = base_path();
-		
 		foreach(new \DirectoryIterator($dir) as $fileInfo) {
 			if (!$fileInfo->isDot()) {
 				
 				if ($fileInfo->isDir()) {
+					 $exePath = [".git","vendor"];
+					 $yes = false;
+					 foreach($exePath as $exe) {
+						 if(stripos($fileInfo->getPathname(),$exe) !== false) {
+						 	$yes = true;
+						 }
+					 }
+
+					 if($yes) {
+					 	continue;
+					 }
+
+					\Log::info("PROJECT_MANAGER => started to scan file directory ".$fileInfo->getPathname());
 					$batchPathReplace = str_replace($basePath,'',$fileInfo->getPathname());
 					$parentPath = str_replace($fileInfo->getFilename(),'',$batchPathReplace);
 					$parentPath = str_replace('\\','/',$parentPath);
