@@ -759,7 +759,7 @@
                                                 <span class="text-success update_cost_msg" style="display: none;">Successfully updated</span>
                                             </div>
                                             @if(!$task->hubstaff_task_id && (auth()->user()->isAdmin() || auth()->user()->id == $task->assign_to)) 
-                                            <button style="margin-top:10px;color:black;" type="button" class="btn btn-secondary btn-xs create-hubstaff-task" title="Create Hubstaff task for User" data-id="{{$task->id}}" data-type="developer">Create D Task</button>
+                                            <button type="button" class="btn btn-xs create-hubstaff-task" title="Create Hubstaff task for User" data-id="{{$task->id}}" data-type="developer">Create D Task</button>
                                             @endif
                                             @if(!$task->lead_hubstaff_task_id && $task->master_user_id && (auth()->user()->isAdmin() || auth()->user()->id == $task->master_user_id)) 
                                             <button style="margin-top:10px;color:black;" type="button" class="btn btn-secondary btn-xs create-hubstaff-task" title="Create Hubstaff task for Master user" data-id="{{$task->id}}" data-type="lead">Create L Task</button>
