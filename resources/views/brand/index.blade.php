@@ -6,6 +6,30 @@
     padding: 6px 6px;
 }
 .small-image{max-width: 100%;max-height: 100px;}
+.align-right{
+    text-align:right;
+}
+.brand-header-row .select2-container--default{
+    width: auto !important;
+}
+    .flex{
+        display: flex;
+    }
+.brand-header-row .select2-container .select2-selection--single{
+    height: 34px !important;
+}
+.brand-header-row .btn-secondary{
+        color: #757575;
+        border: 1px solid #ccc;
+        background: #fff;
+        padding: 6px 10px;
+    }
+.brand-list .select2-container--default .select2-selection--multiple .select2-selection__rendered{
+    overflow: auto;
+}
+.brand-list .form-group{
+    margin-bottom: 0 !important;
+}
 </style>
 @endsection
 
@@ -22,12 +46,54 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             @endfor
     </select>
 </div>
-<div class="row">
-    <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Brand List (<span>{{ $brands->total() }}</span>) </h2>
+<div class="row brand-header-row">
+<div class="col-md-12 pl-0">
+    <h2 class="page-heading">Brand List (<span>{{ $brands->total() }}</span>) </h2>
+</div>
+    <div class="col-8 flex pl-0">
+        <div class="form-inline">
+            <div class="form-group">
+                <input type="number" id="product_price" step="0.01" class="form-control" placeholder="Product price">
+            </div>
+
+            <div class="form-group ml-3">
+                <select class="form-control select-multiple" id="brand" data-placeholder="Brands...">
+                    @foreach ($brands as $brand)
+                        <option value="{{ $brand->id }}" data-brand="{{ $brand }}">{{ $brand->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <button type="button" id="calculatePriceButton" class="btn btn-secondary ml-3">Calculate</button>
+        </div>
+        <div class="form-inline ml-5 pl-5">
+            <form>
+                <div class="form-group">
+                    <input type="text" value="{{ request('keyword') }}" name="keyword" id="search_text" class="form-control" placeholder="Enter keyword for search">
+                </div>
+                <button type="submit" class="btn btn-secondary ml-3">Search</button>
+            </form>
+        </div>
+
+        <div id="result-container">
+
+        </div>
+    </div>
+{{--    <div class="col-4 mt-1">--}}
+{{--        <div class="form-inline">--}}
+{{--            <form>--}}
+{{--                <div class="form-group">--}}
+{{--                    <input type="text" value="{{ request('keyword') }}" name="keyword" id="search_text" class="form-control" placeholder="Enter keyword for search">--}}
+{{--                </div>--}}
+{{--                <button type="submit" class="btn btn-secondary ml-3">Search</button>--}}
+{{--            </form>--}}
+{{--        </div>--}}
+{{--    </div>--}}
+    <div class="col-lg-4 margin-tb align-right">
+
         <div class="pull-left">
         </div>
-        <div class="pull-right">
+        <div>
             <a class="btn btn-secondary" data-toggle="collapse" href="#inProgressFilterCount" href="javascript:;">Number of brands per site</a>
             <a class="btn btn-secondary" href="{{ route('brand.create') }}">+</a>
             <a class="btn btn-secondary fetch-new" href="#">Fetch New Brands</a>
@@ -42,37 +108,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 @endif
 
 <div class="row">
-    <div class="col-12">
-        <div class="form-inline">
-            <div class="form-group">
-                <input type="number" id="product_price" step="0.01" class="form-control" placeholder="Product price">
-            </div>
 
-            <div class="form-group ml-3">
-                <select class="form-control select-multiple" id="brand" data-placeholder="Brands...">
-                    @foreach ($brands as $brand)
-                    <option value="{{ $brand->id }}" data-brand="{{ $brand }}">{{ $brand->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <button type="button" id="calculatePriceButton" class="btn btn-secondary ml-3">Calculate</button>
-        </div>
-
-        <div id="result-container">
-
-        </div>
-    </div>
-    <div class="col-12 mt-1">
-        <div class="form-inline">
-            <form>
-                <div class="form-group">
-                    <input type="text" value="{{ request('keyword') }}" name="keyword" id="search_text" class="form-control" placeholder="Enter keyword for search">
-                </div>
-                <button type="submit" class="btn btn-secondary ml-3">Search</button>
-            </form>
-        </div>
-    </div>
 <br>
 <?php 
     $bList = \App\Brand::pluck('name','id')->toArray();
@@ -80,23 +116,23 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 <div class="infinite-scroll">
     {!! $brands->links() !!}
     <div class="table-responsive mt-3">
-        <table class="table table-bordered">
+        <table class="table table-bordered brand-list">
             <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Image</th>
-                <th width="300px">Similar Brands</th>
-                <th width="160px">Merge Brands</th>
-                <th>Magento ID</th>
-                <th>Euro to Inr</th>
-                <th>Deduction%</th>
-                <th width="150px">Segment</th>
+                <th width="2%">ID</th>
+                <th width="3%">Name</th>
+                <th width="5%">Image</th>
+                <th width="8%">Similar Brands</th>
+                <th width="10%">Merge Brands</th>
+                <th width="4%">Magento ID</th>
+                <th width="4%">Euro to Inr</th>
+                <th width="4%">Deduction%</th>
+                <th width="15%">Segment</th>
                 @foreach($category_segments as $category_segment)
-                    <th width="150px">{{ $category_segment->name }}</th>
+                    <th width=3%">{{ $category_segment->name }}</th>
                 @endforeach
-                <th width="150px">Selling on</th>
-                <th>Priority</th>
-                <th width="17%">Action</th>
+                <th width="12%">Selling on</th>
+                <th width="12%">Priority</th>
+                <th width="10%">Action</th>
             </tr>
             @foreach ($brands as $key => $brand)
             <tr>
@@ -138,9 +174,9 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                         <?php
                         echo Form::select(
                             "brand_segment",
-                            ["" => "-- Select segment --"] + \App\Brand::BRAND_SEGMENT,
+                            ["" => "--Select segment"] + \App\Brand::BRAND_SEGMENT,
                             $brand->brand_segment,
-                            ["class" => "form-control change-brand-segment", "data-brand-id" => $brand->id]
+                            ["class" => "form-control change-brand-segment ", "data-brand-id" => $brand->id]
                         ); ?>
                     </div>
                 </td>
@@ -182,13 +218,13 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                     </div>       
                 </td>
                 <td>
-                    <a class="btn btn-image" href="{{ route('brand.edit',$brand->id) }}"><img src="/images/edit.png" /></a>
+                    <a style="padding:1px;" class="btn btn-image" href="{{ route('brand.edit',$brand->id) }}"><img src="/images/edit.png" /></a>
                     {!! Form::open(['method' => 'DELETE','route' => ['brand.destroy',$brand->id],'style'=>'display:inline']) !!}
-                    <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                    <button style="padding:  1px;" type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                     {!! Form::close() !!}
-                    <a class="btn btn-image btn-attach-website" href="javascript:;"><i class="fa fa-globe"></i></a>
-                    <a class="btn btn-image btn-create-remote" data-id="{{ $brand->id }}" href="javascript:;"><i class="fa fa-check-circle-o"></i></a>
-                    <a class="btn btn-image btn-activity" data-href="{{ route('brand.activities',$brand->id) }}" href="javascript:;"><i class="fa fa-info"></i></a>
+                    <a style="padding: 1px;" class="btn btn-image btn-attach-website" href="javascript:;"><i class="fa fa-globe"></i></a>
+                    <a style="padding:  1px;" class="btn btn-image btn-create-remote" data-id="{{ $brand->id }}" href="javascript:;"><i class="fa fa-check-circle-o"></i></a>
+                    <a style="padding: 1px;" class="btn btn-image btn-activity" data-href="{{ route('brand.activities',$brand->id) }}" href="javascript:;"><i class="fa fa-info"></i></a>
                 </td>
             </tr>
             @endforeach
