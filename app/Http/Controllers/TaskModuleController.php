@@ -109,7 +109,6 @@ class TaskModuleController extends Controller {
 		$data['task']['pending'] = [];
 		$data['task']['statutory_not_completed'] = [];
 		$data['task']['completed'] = [];
-
 		$status_filter = '';		
 		if($request->filter_status){
 			$status_filter = " AND status IN ('".implode("','",$request->filter_status)."')";
@@ -624,10 +623,8 @@ class TaskModuleController extends Controller {
 		}
 
 	    $task_statuses=TaskStatus::all();
-	    
-
-
-
+	     
+		
 		if ($request->ajax()) {
 			if($type == 'pending') {
 				return view( 'task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses'));
@@ -1150,7 +1147,11 @@ class TaskModuleController extends Controller {
 	
 	public function flag(Request $request)
 	{
-		$task = Task::find($request->task_id);
+		if($request->task_type == 'TASK'){
+			$task = Task::find($request->task_id);
+		}else if($request->task_type == 'DEVTASK'){
+			$task = DeveloperTask::find($request->task_id);
+		}	
 
 		if ($task->is_flagged == 0) {
 			$task->is_flagged = 1;
