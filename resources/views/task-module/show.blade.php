@@ -5,10 +5,17 @@
 @section('title', 'Tasks')
 
 @section('styles')
+   
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+   
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+   
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+   
     <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+
     <style>
         #message-wrapper {
             height: 450px;
@@ -139,6 +146,14 @@
     transform: scale(1.5); 
     }
 
+    .status-selection .btn-group {
+            padding: 0;
+            width: 100%;
+        }
+        .status-selection .multiselect {
+            width : 100%;
+        }
+
     </style>
 @endsection
 
@@ -215,7 +230,8 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-xs-12 col-md-1 pd-2">
+                    
+                    {{-- <div class="col-xs-12 col-md-1 pd-2">
                         <div class="form-group">
                             <select name="filter_status" id="filter_status" class="form-control input-sm">
                                 <option value="">Status Filter</option>
@@ -224,9 +240,15 @@
                                 @endforeach
                             </select>
                         </div>
+                    </div> --}}
+
+                    <div class="col-xs-12 col-md-1 pd-2 status-selection">
+                        <?php echo Form::select("filter_status[]",$statuseslist,request()->get('filter_status', $selectStatusList),["class" => "form-control multiselect","multiple" => true]); ?>
                     </div>
+
+
                     <div class="col-xs-12 col-md-1 pd-2">
-                        <input type="checkbox" name="flag_filter"> Flagged
+                        <input type="checkbox" checked="checked" name="flag_filter"> Flagged
                     </div>
                     <button type="button" class="btn btn-image btn-call-data"><img src="{{asset('images/filter.png')}}"/></button>
                     <button type="button" style="height: 30px;" class="btn btn-secondary cls_comm_btn priority_model_btn">Priority</button>
@@ -702,7 +724,7 @@
                                     </td>
                                     <td>
 
-                                        
+                                            
 
                                             
                                             <select id="master_user_id" class="form-control change-task-status select2" data-id="{{$task->id}}" name="master_user_id" id="user_{{$task->id}}">
@@ -1166,6 +1188,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
+
+    <script src="/js/bootstrap-multiselect.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            $(".multiselect").multiselect({
+                nonSelectedText: 'Status Filter',
+                allSelectedText: 'All',
+                includeSelectAllOption: true
+            });
+
+        });
+    </script>    
+
+
     <script>
         var taskSuggestions = {!! json_encode($search_suggestions, true) !!};
         var searchSuggestions = {!! json_encode($search_term_suggestions, true) !!};
