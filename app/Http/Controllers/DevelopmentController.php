@@ -2269,7 +2269,7 @@ class DevelopmentController extends Controller
 
                 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
 
-                MessageHelper::sendEmailOrWebhookNotification([$task->user_id],$msg);
+                MessageHelper::sendEmailOrWebhookNotification([$task->assigned_to, $task->team_lead_id, $task->tester_id],$msg);
 
             } 
         }
@@ -2296,7 +2296,7 @@ class DevelopmentController extends Controller
                 ]);
                 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
 
-                MessageHelper::sendEmailOrWebhookNotification([$task->assigned_to],$msg);
+                MessageHelper::sendEmailOrWebhookNotification([$task->assigned_to, $task->team_lead_id, $task->tester_id],$msg);
             } 
         }
         return response()->json([
@@ -2383,7 +2383,7 @@ class DevelopmentController extends Controller
 
                 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
 
-                MessageHelper::sendEmailOrWebhookNotification([$issue->assigned_to],$msg);
+                MessageHelper::sendEmailOrWebhookNotification([$issue->assigned_to, $issue->team_lead_id, $issue->tester_id],$msg);
             } 
         }
 
@@ -2714,8 +2714,7 @@ class DevelopmentController extends Controller
 
                     $message = '[ '. $loggedUser->name .' ] - #DEVTASK-' . $devTask->id .' - ' . $devTask->subject ." \n\n" . 'New attchment(s) called ' . $subject . ' has been added. Please check and give your comment or fix it if any issue.';
 
-                    MessageHelper::sendEmailOrWebhookNotification([$devTask->assigned_to], $message);
-
+                    MessageHelper::sendEmailOrWebhookNotification([$devTask->assigned_to, $devTask->team_lead_id, $devTask->tester_id], $message);
                 }
 
                 return response()->json(["code" => 200, "success" => "Done!"]);
