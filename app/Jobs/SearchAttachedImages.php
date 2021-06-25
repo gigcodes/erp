@@ -36,6 +36,7 @@ class SearchAttachedImages implements ShouldQueue
 
         $id = $this->id;
         $params = $this->req_data;
+        Log::error("SearchAttachedImages(): id: => " . $this->id . ' params: => ' . json_encode($this->req_data));
     
         $chat_message = \App\ChatMessage::where('id', $id)->first();
         Log::error("chat_message: => " . $chat_message);
