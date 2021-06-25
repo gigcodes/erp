@@ -170,6 +170,7 @@
     @include('task-module.partials.modal-task-category')
     @include('task-module.partials.modal-task-view')
     @include('task-module.partials.modal-whatsapp-group')
+    @include('task-module.partials.modal-task-bell')
 
     @include('partials.flash_messages')
 
@@ -836,6 +837,10 @@
                                     <td class="p-2">
                                         <div>
                                             <div class="row cls_action_box" style="margin:0px;">
+
+                                                
+
+
                                                 @if(auth()->user()->isAdmin())
                                                     <button type="button" class='btn btn-image whatsapp-group pd-5' data-id="{{ $task->id }}" data-toggle='modal' data-target='#whatsAppMessageModal'><img src="{{asset('images/whatsapp.png')}}" /></button>
 
@@ -843,6 +848,19 @@
 
                                                     
                                                 @endif
+
+    <button data-toggle="modal" data-target="#taskReminderModal"  
+        class='btn pd-5 task-set-reminder' 
+        data-id="{{ $task->id }}"
+        data-frequency="{{ $task->frequency ?? '0' }}"
+        data-reminder_message="{{ $task->reminder_message }}"
+        data-reminder_from="{{ $task->reminder_from }}"
+        data-reminder_last_reply="{{ $task->reminder_last_reply }}"
+    >
+        <i class="fa fa-bell" aria-hidden="true"></i>
+    </button>                                                
+
+                                    
 
                                                 @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id()  || $task->master_user_id == Auth::id())
                                                     <button type="button" title="Complete the task by user" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png"/></button>
@@ -1274,6 +1292,58 @@
                     }
                 });
             }            
+        });
+
+        $('#task_reminder_from').datetimepicker({
+            format: 'YYYY-MM-DD HH:mm'
+        });
+
+        var TaskToRemind = null
+        $(document).on('click', '.task-set-reminder', function () {
+            let taskId = $(this).data('id');
+            let frequency = $(this).data('frequency');
+            let message = $(this).data('reminder_message');
+            let reminder_from = $(this).data('reminder_from');
+            let reminder_last_reply = $(this).data('reminder_last_reply');
+
+            $('#frequency').val(frequency);
+            $('#reminder_message').val(message);
+            $("#taskReminderModal").find("#task_reminder_from").val(reminder_from);
+            if(reminder_last_reply == 1) {
+                $("#taskReminderModal").find("#reminder_last_reply").prop("checked",true);
+            }else{
+                $("#taskReminderModal").find("#reminder_last_reply_no").prop("checked",true);
+            }
+            TaskToRemind = taskId;
+        });
+
+        $(document).on('click', '.task-submit-reminder', function () {
+            var taskReminderModal = $("#taskReminderModal");
+            let frequency = $('#frequency').val();
+            let message = $('#reminder_message').val();
+            let task_reminder_from = taskReminderModal.find("#task_reminder_from").val();
+            let reminder_last_reply = (taskReminderModal.find('#reminder_last_reply').is(":checked")) ? 1 : 0;
+
+            $.ajax({
+                url: "{{action('TaskModuleController@updateTaskReminder')}}",
+                type: 'POST',
+                success: function () {
+                    toastr['success']('Reminder updated successfully!');
+                    $(".set-reminder img").css("background-color", "");
+                    if(frequency > 0)
+                    {
+                        $(".task-set-reminder img").css("background-color", "red");
+                    }
+                },
+                data: {
+                    task_id: TaskToRemind,
+                    frequency: frequency,
+                    message: message,
+                    reminder_from: task_reminder_from,
+                    reminder_last_reply: reminder_last_reply,
+                    _token: "{{ csrf_token() }}"
+                }
+            });
         });
 
 
