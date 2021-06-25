@@ -91,6 +91,9 @@ class MasterControlController extends Controller
         $latestRemarks = Cache::get('latestScrapRemarks');
         $latestRemarks = !empty($latestRemarks) ? $latestRemarks : [];
 
+        $todaytaskhistory = Cache::get('todaytaskhistory');
+        $todaytaskhistory = !empty($todaytaskhistory) ? $todaytaskhistory : [];
+
         // For ajax
         if ($request->ajax()) {
             return response()->json([
@@ -112,7 +115,8 @@ class MasterControlController extends Controller
                     'vendorReplier' => $vendorReplier,
                     'supplierReplier' => $supplierReplier,
                     'cronLastErrors' => $cronLastErrors,
-                    'latestRemarks' => $latestRemarks
+                    'latestRemarks' => $latestRemarks,
+                    'todaytaskhistory' => $todaytaskhistory,
 
                 ])->render()
             ], 200);
@@ -135,7 +139,8 @@ class MasterControlController extends Controller
           'vendorReplier' => $vendorReplier,
           'supplierReplier' => $supplierReplier,
           'cronLastErrors' => $cronLastErrors,
-          'latestRemarks' => $latestRemarks
+          'latestRemarks' => $latestRemarks,
+          'todaytaskhistory' => $todaytaskhistory
       ]);
     }
 

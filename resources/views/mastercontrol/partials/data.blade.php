@@ -535,6 +535,43 @@
                    </div> 
                 </td>
               </tr>
+              <tr>
+                <td>Task History</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="7" class="sub-table">
+                  <div class="table">
+                   <table>
+                   <tr>
+                    <tr>
+                        <th>User</th>
+                        <th>Task id</th>
+                        <th>Description</th>
+                        <th>From time</th>
+                        <th>Duration</th>
+                    </tr>
+                   </tr>
+                   <?php if(!empty($todaytaskhistory)){  $i = 1;?>
+                     <?php foreach($todaytaskhistory as $todaytaskhistory) { ?>
+                       <tr>
+                          <td>{{ $todaytaskhistory->name }}</td>
+                          <td>{{ empty($todaytaskhistory->devtaskId) ? $todaytaskhistory->task_id : $todaytaskhistory->devtaskId }}</td>
+                          <td>{{ empty($todaytaskhistory->devtaskId) ? $todaytaskhistory->task_subject : $todaytaskhistory->subject }}</td>
+                          <td>{{ $todaytaskhistory->starts_at }}</td>
+                          <td>{{ number_format($todaytaskhistory->day_tracked / 60,2,".",",") }}</td>
+                       </tr>
+                      <?php $i++; } ?>
+                    <?php } ?>
+                 </table>
+                   </div> 
+                </td>
+              </tr>
            </tbody>
         </table>
     </div>
