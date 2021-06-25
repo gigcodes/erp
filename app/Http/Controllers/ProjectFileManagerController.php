@@ -80,7 +80,7 @@ class ProjectFileManagerController extends Controller
 					 	continue;
 					 }
 
-					\Log::info("PROJECT_MANAGER => started to scan file directory ".$fileInfo->getPathname());
+					//\Log::info("PROJECT_MANAGER => started to scan file directory ".$fileInfo->getPathname());
 					$batchPathReplace = str_replace($basePath,'',$fileInfo->getPathname());
 					$parentPath = str_replace($fileInfo->getFilename(),'',$batchPathReplace);
 					$parentPath = str_replace('\\','/',$parentPath);
