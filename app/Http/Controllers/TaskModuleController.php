@@ -900,6 +900,10 @@ class TaskModuleController extends Controller {
 				$data['assign_to'] = $request->assign_to_contacts[0];
 			}
 		}
+
+		if(!empty($data['status'])) {
+			$data['status'] = 3;
+		}
 		
 
 			$task = Task::create($data);
@@ -2025,6 +2029,7 @@ class TaskModuleController extends Controller {
 			'cost'=>'sometimes|integer'
 		]);
 		$data['assign_from'] = Auth::id();
+		$data['status'] = 3;
 		
 		$taskType = $request->get("task_type");
 
@@ -2426,7 +2431,7 @@ class TaskModuleController extends Controller {
 
 			$message . "\nhas been added. \n Please check it and add your comment if any.";
 
-			MessageHelper::sendEmailOrWebhookNotification([$task->users->pluck('id')->toArray()], $message );
+			MessageHelper::sendEmailOrWebhookNotification($task->users->pluck('id')->toArray(), $message );
 
 			return response()->json(["code" => 200, "data" => [], "message" => "Done!"]);
 		} else {
