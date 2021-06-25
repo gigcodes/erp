@@ -724,11 +724,11 @@
                                             <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$task->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
                                         @endif
                                         
-                                        <div class="col-md-12 expand-col dis-none" style="padding:0px;">
+                                        <div class="col-md-12 expand-col" style="padding:0px;">
                                             <div class="d-flex">
                                             <br>
                                                 <input  type="text" placeholder="ED" class="update_approximate form-control input-sm" name="approximate" data-id="{{$task->id}}" value="{{$task->approximate}}">
-                                                <button type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
+                                                <button type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$task->id}}" data-user_id="{{$task->assign_to}}"><i class="fa fa-info-circle"></i></button>
                                                 <span class="text-success update_approximate_msg" style="display: none;">Successfully updated</span>
                                                 <input type="text" placeholder="Cost" class="update_cost form-control input-sm" name="cost" data-id="{{$task->id}}" value="{{$task->cost}}">
                                                 <span class="text-success update_cost_msg" style="display: none;">Successfully updated</span>
@@ -2767,6 +2767,7 @@
 
         $(document).on('click', '.show-time-history', function() {
             var data = $(this).data('history');
+            var userId = $(this).data('user_id');
             var issueId = $(this).data('id');
             $('#time_history_div table tbody').html('');
             $.ajax({
@@ -2802,6 +2803,10 @@
                                 </tr>'
                             );
                         });
+
+                        $('#time_history_div table tbody').append(
+                            '<input type="hidden" name="user_id" value="'+userId+'" class=" "/>'
+                        ); 
                     }
                 }
             });
