@@ -8,6 +8,12 @@
   table tr td{
     overflow-wrap: break-word;
   }
+    .page-note{
+        font-size: 14px;
+    }
+    .flex{
+        display: flex;
+    }
 </style>
 <!-- END - DEVTASK-4289 -->
   <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css">
@@ -16,11 +22,25 @@
   <div class="col-lg-12 margin-tb">
       <h2 class="page-heading">Page Notes</h2>
   </div>
+
+    <!-- START - Purpose : Get Page Note - DEVTASK-4289 -->
+    <form method="get" action="{{ route('pageNotes.viewList') }}">
+    <div class="flex">
+        <div class="col">
+            <?php echo Form::text("search", request("search", null), ["class" => "form-control", "placeholder" => "Enter input here.."]); ?>
+        </div>
+        <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
+            <img src="/images/search.png" style="cursor: default;">
+        </button>
+        <a href="{{route('pageNotes.viewList')}}" type="button" class="btn btn-image" id=""><img src="/images/resend2.png"></a>    
+    </div>
+    </form>
+    <!-- END - DEVTASK-4289 -->
  
   <div class="col-md-12">
     <div class="pagenote-scroll"><!-- Purpose : Add Div for Scrolling - DEVTASK-4289 -->
       <div class="table-responsive">
-        <table cellspacing="0" role="grid" class="page-notes table table-bordered datatable mdl-data-table dataTable" style="width:100%">
+        <table cellspacing="0" role="grid" class="page-notes table table-bordered datatable mdl-data-table dataTable page-notes" style="width:100%">
           <thead>
               <tr>
                   <th width="5%">#</th>
@@ -37,7 +57,12 @@
               <tr>
                   <td>{{$value->id}}</td>
                   <td>{{$value->category_name}}</td>
-                  <td>{!!$value->note !!}</td>
+                  @if (strlen($value->note) > 200)
+                      <td style="word-break: break-word;" data-log_message="{!!$value->note !!}" class="page-note-popup">{{ substr($value->note,0,200) }}...</td>
+                  @else
+                      <td style="word-break: break-word;">{!!$value->note !!}</td>
+                  @endif
+{{--                      <p class="m-0">{!!$value->note !!}</p>--}}
                   <td>{{$value->name}}</td>
                   <td>{{ date('m-d  H:i', strtotime($value->created_at)) }}</td>
                   <td><a href="javascript:;" data-note-id = "{{$value->id}}" class="editor_edit btn-xs btn btn-image p-2"><img src="/images/edit.png"></a><a data-note-id = "{{$value->id}}" href="javascript:;" class="editor_remove btn-xs btn btn-image p-2"><img src="/images/delete.png"></a></td>
@@ -63,13 +88,42 @@
     </div>
   </div>
 </div>
+
+
+<!--Log Messages Modal -->
+<div id="pageNotesModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Note</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="word-break: break-word;"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
 @endsection
 
 @section('scripts')
+
+
   <script src="//cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
   <script src="//cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script><!-- Purpose : Add Js for scroll - DEVTASK-4289 -->
   <script type="text/javascript">
+      $(document).on('click','.page-note-popup',function(){
+          $('#pageNotesModal').modal('show');
+          $('#pageNotesModal p').text($(this).data('log_message'));
+      })
+
     $(document).ready(function() {
       //START - Purpose : Comment Code - DEVTASK-4289
 
