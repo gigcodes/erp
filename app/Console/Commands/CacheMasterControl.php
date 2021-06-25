@@ -204,6 +204,39 @@ class CacheMasterControl extends Command
                 );
             });
 
+            Cache::remember('todaytaskhistory', 30, function (){
+                $date = "'%".date('Y-m-d')."%'";   
+
+                return DB::select("SELECT users.name, developer_tasks.subject, developer_tasks.id as devtaskId,tasks.id as task_id,tasks.task_subject as task_subject,  hubstaff_activities.starts_at, SUM(tracked) as day_tracked 
+                  FROM `users` 
+                  JOIN hubstaff_members ON hubstaff_members.user_id=users.id 
+                  JOIN hubstaff_activities ON hubstaff_members.hubstaff_user_id=hubstaff_activities.user_id 
+                  LEFT JOIN developer_tasks ON hubstaff_activities.task_id=developer_tasks.hubstaff_task_id 
+                  LEFT JOIN tasks ON hubstaff_activities.task_id=tasks.hubstaff_task_id 
+                  WHERE ( (`hubstaff_activities`.`starts_at` LIKE " . $date . ") AND (developer_tasks.id is NOT NULL or tasks.id is not null) and hubstaff_activities.task_id > 0)
+                    GROUP by hubstaff_activities.task_id
+                    order by day_tracked desc ");
+            });
+
+            Cache::remember('hubstafftrackingnotiification', 30, function (){
+
+                $yesterdayDate = Carbon::now()->subDays(1)->format('Y-m-d');
+
+
+
+                $hubstaff_notifications = \App\Hubstaff\HubstaffActivityNotification::join("users as u", "hubstaff_activity_notifications.user_id", "u.id")->leftJoin("user_avaibilities as av", "hubstaff_activity_notifications.user_id", "av.user_id")
+                ->whereDate('start_date',$yesterdayDate)
+                ->select([
+                    "hubstaff_activity_notifications.*", 
+                    "u.name as user_name",
+                    "av.minute as daily_working_hour",
+                ])
+                ->get()->toArray();
+
+                return $hubstaff_notifications;
+
+            });
+
 
             $report->update(['end_time' => Carbon::now()]);
 

@@ -420,12 +420,12 @@
                     if (response.code == 200) {
                         if(response.html != "") {
                             toastr['success'](response.message, 'success');
-                            location.reload();
+                            // location.reload();
                         }else{
                             toastr['error']('Sorry, something went wrong', 'error');
                         }
                         $(".show-listing-exe-records").modal('hide');
-                        location.reload();
+                        // location.reload();
                     }
                 }).fail(function (response) {
                     $("#loading-image").hide();
