@@ -49,9 +49,9 @@
 					  #DEVTASK-{{:prop.task_id}} => {{:prop.subject}}
 					  {{/if}}
                       {{if prop.has_flag == 1}}
-                          <button type="button" class="btn btn-image flag-task pd-5" data-id="{{:prop.task_id}}"><img src="/images/flagged.png" style=""></button>
+                          <button type="button" class="btn btn-image flag-task pd-5" data-task_type="{{:prop.type}}" data-id="{{:prop.task_id}}"><img src="/images/flagged.png" style=""></button>
                       {{else}}
-                            <button type="button" class="btn btn-image flag-task pd-5" data-id="{{:prop.task_id}}"><img src="/images/unflagged.png" style=""></button>
+                            <button type="button" class="btn btn-image flag-task pd-5" data-task_type="{{:prop.type}}" data-id="{{:prop.task_id}}"><img src="/images/unflagged.png" style=""></button>
                       {{/if}}
 					  </td>
                     <td>

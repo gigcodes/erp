@@ -108,15 +108,27 @@ class TaskModuleController extends Controller {
 		$data['task']['pending'] = [];
 		$data['task']['statutory_not_completed'] = [];
 		$data['task']['completed'] = [];
-		$status_filter = '';
+		$status_filter = '';		
 		if($request->filter_status){
-			$status_filter = ' AND status = '.$request->filter_status.' ';
+			$status_filter = " AND status IN ('".implode("','",$request->filter_status)."')";
+		}else{
+			//1 => for "done" lable status
+			$status_filter = " AND status NOT IN ('1')"; 
 		}
-		$flag_filter = ' AND is_flagged = 0 ';
-		if($request->flag_filter){
-			$flag_filter = ' ';
+	
+	
+		$flag_filter = ' ';
+
+		if($request->ajax())
+		{
+			$flag_filter = ' AND is_flagged = 0 ';
+			if($request->flag_filter){
+				$flag_filter = ' ';
+			}
 		}
+			
 		if($type == 'pending') {
+
 			$paginate = 50;
     		$page = $request->get('page', 1);
 			$offSet = ($page * $paginate) - $paginate; 
@@ -610,7 +622,7 @@ class TaskModuleController extends Controller {
 		}
 
 	    $task_statuses=TaskStatus::all();
-
+	    
 
 		if ($request->ajax()) {
 			if($type == 'pending') {
@@ -631,7 +643,10 @@ class TaskModuleController extends Controller {
 			return view( 'task-module.discussion-tasks', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses'));
 		}
 		else {
-			return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses'));
+			$statuseslist=TaskStatus::pluck('name','id')->toArray();
+			$selectStatusList=TaskStatus::whereNotIn('id',[1])->pluck('id')->toArray();
+
+			return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses','statuseslist','selectStatusList'));
 		}
 	}
 
@@ -881,6 +896,10 @@ class TaskModuleController extends Controller {
 				$data['assign_to'] = $request->assign_to_contacts[0];
 			}
 		}
+
+		if(!empty($data['status'])) {
+			$data['status'] = 3;
+		}
 		
 
 			$task = Task::create($data);
@@ -1104,7 +1123,11 @@ class TaskModuleController extends Controller {
 	
 	public function flag(Request $request)
 	{
-		$task = Task::find($request->task_id);
+		if($request->task_type == 'TASK'){
+			$task = Task::find($request->task_id);
+		}else if($request->task_type == 'DEVTASK'){
+			$task = DeveloperTask::find($request->task_id);
+		}	
 
 		if ($task->is_flagged == 0) {
 			$task->is_flagged = 1;
@@ -2006,6 +2029,7 @@ class TaskModuleController extends Controller {
 			'cost'=>'sometimes|integer'
 		]);
 		$data['assign_from'] = Auth::id();
+		$data['status'] = 3;
 		
 		$taskType = $request->get("task_type");
 
@@ -2407,7 +2431,7 @@ class TaskModuleController extends Controller {
 
 			$message . "\nhas been added. \n Please check it and add your comment if any.";
 
-			MessageHelper::sendEmailOrWebhookNotification([$task->users->pluck('id')->toArray()], $message );
+			MessageHelper::sendEmailOrWebhookNotification($task->users->pluck('id')->toArray(), $message );
 
 			return response()->json(["code" => 200, "data" => [], "message" => "Done!"]);
 		} else {
