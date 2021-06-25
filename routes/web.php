@@ -748,6 +748,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('task/{id}', 'TaskModuleController@show')->name('task.module.show');
     Route::resource('task', 'TaskModuleController');
 
+    //START - Purpose : add Route for Remind, Revise Message - DEVTASK-4354
+    Route::post('task/time/history/approve/sendMessage', 'TaskModuleController@sendReviseMessage')->name('task.time.history.approve.sendMessage');
+    Route::post('task/time/history/approve/sendRemindMessage', 'TaskModuleController@sendRemindMessage')->name('task.time.history.approve.sendRemindMessage');
+    //END - DEVTASK-4354
     
 
     Route::post('task/update/approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');

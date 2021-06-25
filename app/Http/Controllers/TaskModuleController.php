@@ -2303,6 +2303,62 @@ class TaskModuleController extends Controller {
 
 	}
 
+	//START - Purpose : Set Remined , Revise - DEVTASK-4354
+	public function sendRemindMessage(Request $request) {
+        
+        $user = User::find($request->user_id);
+        if($user){
+            $receiver_user_phone = $user->phone;
+            if($receiver_user_phone){
+                $task = Task::find($request->id);
+                $msg = 'PLS ADD ESTIMATED TIME FOR TASK  ' . '#TASK-' . $task->id . '-' . $task->subject ; 
+                $chat = ChatMessage::create([
+                    'number' => $receiver_user_phone,
+                    'user_id' => $user->id,
+                    'customer_id' => $user->id,
+                    'message' => $msg,
+                    'status' => 0, 
+                    'developer_task_id' => $request->id
+                ]);
+
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+
+                MessageHelper::sendEmailOrWebhookNotification([$task->user_id],$msg);
+
+            } 
+        }
+        return response()->json([
+            'message' => 'Remind message sent successfully',
+        ]);
+    }
+
+    public function sendReviseMessage(Request $request) {
+        
+        $user = User::find($request->user_id);
+        if($user){
+            $receiver_user_phone = $user->phone;
+            if($receiver_user_phone){
+                $task = Task::find($request->id);
+                $msg = 'TIME NOT APPROVED REVISE THE ESTIMATED TIME FOR TASK ' . '#TASK-' . $task->id . '-' . $task->subject;
+                $chat = ChatMessage::create([
+                    'number' => $receiver_user_phone,
+                    'user_id' => $user->id,
+                    'customer_id' => $user->id,
+                    'message' => $msg,
+                    'status' => 0, 
+                    'developer_task_id' => $request->id
+                ]);
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+
+                MessageHelper::sendEmailOrWebhookNotification([$task->assigned_to],$msg);
+            } 
+        }
+        return response()->json([
+            'message' => 'Revise message sent successfully',
+        ]);
+    }
+	//END - DEVTASK-4354
+
 	public function getDiscussionSubjects() {
 		$discussion_subjects = Task::where('is_statutory',3)->where('is_verified',NULL)->pluck('task_subject','id')->toArray();
 		return response()->json(["code" => 200, "discussion_subjects" => $discussion_subjects]);

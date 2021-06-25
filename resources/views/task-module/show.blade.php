@@ -248,6 +248,8 @@
                 @csrf
                 <input type="hidden" name="has_render" value="1">
                 <input type="hidden" name="from" value="task-page">
+                <!-- Purpose : Add If condition for Only Admin create Task - DEVTASK-4354 -->
+                @if(auth()->user()->isAdmin())
                 <div class="row">
                     <div class="col-xs-12 col-md-1 pd-2">
                         <div class="form-group cls_task_subject">
@@ -380,6 +382,7 @@
                     </div>
                    </div>
                 </div>
+                @endif
                 <div class="row">
                     <div class="col-xs-12 col-md-4" id="recurring-task" style="display: none;">
                         <div class="row">
@@ -2770,6 +2773,19 @@
             var userId = $(this).data('user_id');
             var issueId = $(this).data('id');
             $('#time_history_div table tbody').html('');
+
+            //START - Purpose : Display Hide Remind, Revise Button - DEVTASK-4354
+            const hasText = $(this).siblings('input').val();
+
+            if(!hasText || hasText == 0){
+                $('#time_history_modal .revise_btn').prop('disabled', true);
+                $('#time_history_modal .remind_btn').prop('disabled', false);
+            }else{
+                $('#time_history_modal .revise_btn').prop('disabled', false);
+                $('#time_history_modal .remind_btn').prop('disabled', true);
+            }
+            //END - DEVTASK-4354
+
             $.ajax({
                 url: "{{ route('task.time.history') }}",
                 data: {id: issueId},
@@ -2812,6 +2828,40 @@
             });
             $('#time_history_modal').modal('show');
         });
+
+        //START - Purpose : Remind , Revise button Events - DEVTASK-4354
+        $(document).on('click', '.remind_btn', function() {
+            var issueId = $('#approve-time-btn input[name="developer_task_id"]').val(); 
+            var userId = $('#approve-time-btn input[name="user_id"]').val();  
+
+            $('#time_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('task.time.history.approve.sendRemindMessage') }}",
+                type: 'POST',
+                data: {id: issueId, user_id: userId, _token: '{{csrf_token()}}' },
+                success: function (data) {
+                    toastr['success'](data.message, 'success');
+                }
+            });
+            $('#time_history_modal').modal('hide');
+        });
+
+        $(document).on('click', '.revise_btn', function() {
+            var issueId = $('#approve-time-btn input[name="developer_task_id"]').val(); 
+            var userId = $('#approve-time-btn input[name="user_id"]').val();  
+
+            $('#time_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('task.time.history.approve.sendMessage') }}",
+                type: 'POST',
+                data: {id: issueId, user_id: userId, _token: '{{csrf_token()}}' },
+                success: function (data) {
+                    toastr['success'](data.message, 'success');
+                }
+            });
+            $('#time_history_modal').modal('hide');
+        });
+        //END - DEVTASK-4354
 
         $(document).on("change",".select2-task-disscussion",function() {
             var $this = $(this);
