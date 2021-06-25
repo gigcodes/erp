@@ -143,20 +143,20 @@
 
                                         
 
-                                            
-                                            <select id="master_user_id" class="form-control change-task-status select2" data-id="{{$task->id}}" name="master_user_id" id="user_{{$task->id}}">
-                                                <option value="">Select...</option>
-                                                <?php $masterUser = isset($task->master_user_id) ? $task->master_user_id : 0; ?>
-                                                @if(!empty($task_statuses))
-                                                    @foreach($task_statuses as $index => $status)
-                                                        @if( $status->id == $task->status )
-                                                            <option value="{{$status->id}}" selected>{{ $status->name }}</option>
-                                                        @else
-                                                            <option value="{{$status->id}}">{{ $status->name }}</option>
-                                                        @endif
-                                                    @endforeach
-                                                @endif
-                                            </select>
+                                       
+    <select id="master_user_id" class="form-control change-task-status select2" data-id="{{$task->id}}" name="master_user_id" id="user_{{$task->id}}">
+        <option value="">Select...</option>
+        <?php $masterUser = isset($task->master_user_id) ? $task->master_user_id : 0; ?>
+        @if(!empty($task_statuses))
+            @foreach($task_statuses as $index => $status)
+                @if( $status->id == $task->status )
+                    <option value="{{$status->id}}" selected>{{ $status->name }}</option>
+                @else
+                    <option value="{{$status->id}}">{{ $status->name }}</option>
+                @endif
+            @endforeach
+        @endif
+    </select>
                                            
                                                
                                          
