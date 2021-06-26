@@ -191,7 +191,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                         @else
                             <input type="text" class="form-control" value="" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"></th>
                         @endif
-                        <input type="text" class="form-control" value="{{ $brand->pivot->amount }}" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})">
+                        <!-- <input type="text" class="form-control" value="{{ $brand->pivot->amount }}" onchange="store_amount({{ $brand->id }}, {{ $category_segment->id }})"> --> <!-- Purpose : Comment code -  DEVTASK-4410 -->
 
 
                     </td>
