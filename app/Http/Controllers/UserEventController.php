@@ -336,12 +336,12 @@ class UserEventController extends Controller
             $errors['subject'][] = 'Subject is required';
         }
 
-        if ($request->type =='learning' && empty($request->vendors)) {
-            $errors['vendor'][] = 'Please select vendor';
+        if ($request->type =='learning' && empty($request->users)) {
+            $errors['vendor'][] = 'Please select user';
         }
 
-        if ($request->type=='learning' && $request->has('vendors') && ( count($request->vendors) > 1))  {
-            $errors['vendor'][] = 'Please select one vendor';
+        if ($request->type=='learning' && $request->has('users') && ( count($request->users) > 1))  {
+            $errors['vendor'][] = 'Please select one user';
         }
 
 
@@ -434,7 +434,7 @@ class UserEventController extends Controller
         }else{
 
             $data['learning_user']       = Auth::id();
-            $data['learning_vendor']     = $request->vendors[0];
+            $data['learning_vendor']     = $request->users[0];
             $data['learning_subject']    = $subject;
             $data['learning_assignment'] = $description;
             $data['learning_duedate']    = $request->date;

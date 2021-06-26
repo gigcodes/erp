@@ -1077,6 +1077,7 @@ $(document).on('click', '.send-message', function () {
     });
     $(document).on('click', '.flag-task', function () {
         var task_id = $(this).data('id');
+        var task_type = $(this).data('task_type');
         var thiss = $(this);
 
         $.ajax({
@@ -1084,7 +1085,8 @@ $(document).on('click', '.send-message', function () {
             url: "{{ route('task.flag') }}",
             data: {
                 _token: "{{ csrf_token() }}",
-                task_id: task_id
+                task_id: task_id,
+                task_type: task_type
             },
             beforeSend: function () {
                 $(thiss).text('Flagging...');

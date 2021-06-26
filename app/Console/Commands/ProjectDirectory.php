@@ -39,7 +39,7 @@ class ProjectDirectory extends Command
      */
     public function handle()
     {
-		$cc = app()->make('App\Http\Controllers\ProjectFileManagerController');
+        $cc = app()->make('App\Http\Controllers\ProjectFileManagerController');
 		app()->call([$cc, 'listTree'], []);
 	}
 }

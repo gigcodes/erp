@@ -76,6 +76,13 @@
                         <span id="vendor_error" class="text-danger"></span>
                     </div>
                     <div class="form-group">
+                        <label for="notification-participants">Provider(user)</label>
+                        <?php echo Form::select("users[]",\App\User::all()->pluck("name","id")->toArray(),null,[
+                            "id" => "users" , "class" => "form-control selectx-users", "multiple" => true , "style" => "width:100%"
+                        ]); ?>
+                        <span id="user_error" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
                         <label for="timezone">Participants Time zone</label>
                         <select name="timezone" id="timezone" class="form-control">
                             <option value="">Select option</option>
