@@ -2518,20 +2518,47 @@ class ProductController extends Controller
         if ($request->has("limit")) {
             $perPageLimit = ($request->get("limit") == "all") ? $products->get()->count() : $request->get("limit");
         }
-        $categoryAll = Category::where('parent_id', 0)->get();
+        // $categoryAll = Category::where('parent_id', 0)->get();
+        // foreach ($categoryAll as $category) {
+        //     // dump('fitst cat');
+        //     $categoryArray1[] = array('id' => $category->id, 'value' => $category->title);
+        //     $childs = Category::where('parent_id', $category->id)->get();
+        //     foreach ($childs as $child) {
+        //         // dump('first  child');
+        //         $categoryArray1[] = array('id' => $child->id, 'value' => $category->title . ' ' . $child->title);
+        //         $grandChilds = Category::where('parent_id', $child->id)->get();
+        //         if ($grandChilds != null) {
+
+        //             foreach ($grandChilds as $grandChild) {
+        //                 // dump('first grand child');
+
+        //                 $categoryArray1[] = array('id' => $grandChild->id, 'value' => $category->title . ' ' . $child->title . ' ' . $grandChild->title);
+                        
+        //             }
+        //         }
+        //     }
+        // }
+
+        $categoryAll = Category::with('childs.childLevelSencond')->where('parent_id', 0)->get();
+
         foreach ($categoryAll as $category) {
             $categoryArray[] = array('id' => $category->id, 'value' => $category->title);
-            $childs = Category::where('parent_id', $category->id)->get();
-            foreach ($childs as $child) {
+            // $childs = Category::where('parent_id', $category->id)->get();
+            foreach ($category->childs as $child) {
                 $categoryArray[] = array('id' => $child->id, 'value' => $category->title . ' ' . $child->title);
-                $grandChilds = Category::where('parent_id', $child->id)->get();
-                if ($grandChilds != null) {
-                    foreach ($grandChilds as $grandChild) {
+                // $grandChilds = Category::where('parent_id', $child->id)->get();
+                if ($child->childLevelSencond != null) {
+                    foreach ($child->childLevelSencond as $grandChild) {
                         $categoryArray[] = array('id' => $grandChild->id, 'value' => $category->title . ' ' . $child->title . ' ' . $grandChild->title);
                     }
                 }
             }
         }
+
+
+//         dump($categoryArray1);
+//         dump($categoryArray);
+// dd('ds');
 
         if ($request->total_images) {
             $products = $products->limit($request->total_images)->get();
