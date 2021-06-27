@@ -371,6 +371,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             callback: function() {
                 $('ul.pagination').first().remove();
                 $(".select-multiple").select2();
+                initialize_select2();
             }
         });
     });
