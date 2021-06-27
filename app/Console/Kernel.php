@@ -134,6 +134,7 @@ use App\Console\Commands\productActivityStore;
 use App\Console\Commands\errorAlertMessage;
 use App\Console\Commands\InstagramHandler;
 use App\Console\Commands\SendDailyReports;
+use App\Console\Commands\SendDailyLearningReports;
 use App\Console\Commands\InsertPleskEmail;
 use App\Console\Commands\SendDailyPlannerNotification;
 use DB;
@@ -266,6 +267,7 @@ class Kernel extends ConsoleKernel
         errorAlertMessage::class,
         InstagramHandler::class,
         SendDailyReports::class,
+        SendDailyLearningReports::class,
         SendDailyPlannerNotification::class,
         InsertPleskEmail::class,
         StoreChatMessagesToAutoCompleteMessages::class,
