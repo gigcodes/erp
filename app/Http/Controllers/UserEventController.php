@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\User;
+use App\Learning;
 use App\DailyActivitiesHistories;
 use App\UserEvent\UserEvent;
 use App\UserEvent\UserEventAttendee;
@@ -335,6 +336,15 @@ class UserEventController extends Controller
             $errors['subject'][] = 'Subject is required';
         }
 
+        if ($request->type =='learning' && empty($request->users)) {
+            $errors['vendor'][] = 'Please select user';
+        }
+
+        if ($request->type=='learning' && $request->has('users') && ( count($request->users) > 1))  {
+            $errors['vendor'][] = 'Please select one user';
+        }
+
+
         if (!empty($errors)) {
             return response()->json($errors, 400);
         }
@@ -345,80 +355,121 @@ class UserEventController extends Controller
         $end = strtotime($start . ' + 1 hour');
         $start = strtotime($start);
 
+        if($request->type == 'event')
+        {
+            $userEvent = new UserEvent;
+            $userEvent->user_id = $userId;
+            $userEvent->subject = $subject;
+            $userEvent->description = ($description) ? $description : "";
+            $userEvent->date = $date;
 
-        $userEvent = new UserEvent;
-        $userEvent->user_id = $userId;
-        $userEvent->subject = $subject;
-        $userEvent->description = ($description) ? $description : "";
-        $userEvent->date = $date;
+            if (isset($time)) {
+                $start = strtotime($date . ' ' . $time);
+                $end = strtotime($date . ' ' . $time . ' + 1 hour');
+                $userEvent->start = date('Y-m-d H:i:s', $start);
+                $userEvent->end = date('Y-m-d H:i:s', $end);
+            }
 
-        if (isset($time)) {
+            $userEvent->save();
+
+            // once user event has been stored create the event in daily planner
+            $dailyActivities = new \App\DailyActivity;
+            $dailyActivities->time_slot = date("h:00a",strtotime($userEvent->start)) . " - " .date("h:00a",strtotime($userEvent->end));
+            $dailyActivities->activity  = $userEvent->subject;
+            $dailyActivities->user_id   = $userId;
+            $dailyActivities->for_date  = $date;
+            $dailyActivities->for_datetime    = $for_datetime;
+            $dailyActivities->repeat_type     = $request->repeat;
+            $dailyActivities->repeat_on       = $request->repeat_on;
+            $dailyActivities->repeat_end      = $request->ends_on;
+            $dailyActivities->repeat_end_date = $request->repeat_end_date;
+            $dailyActivities->timezone        = $request->timezone;
+            $dailyActivities->type            = 'event';
+            $dailyActivities->type_table_id   = $userEvent->id;
+            
+            if($dailyActivities->save()) {
+                $dailyActivities->parent_row = $dailyActivities->id;
+                $dailyActivities->save();
+               $userEvent->daily_activity_id =  $dailyActivities->id;
+               $userEvent->save();
+            }
+
+            // save the attendees
+            $attendees = explode(',', $contactsString);
+
+            $attendeesResponse = [];
+
+            foreach ($attendees as $attendee) {
+                $attendeeDb = new UserEventAttendee;
+                $attendeeDb->user_event_id = $userEvent->id;
+                $attendeeDb->contact = $attendee;
+                $attendeeDb->save();
+
+                $attendeesResponse[] = $attendeeDb->toArray();
+            }
+
+            $vendors = $request->get("vendors",[]);
+            if(!empty($vendors) && is_array($vendors)) {
+                foreach($vendors as $vendor) {
+                    $userEventParticipant = new UserEventParticipant;
+                    $userEventParticipant->user_event_id = $userEvent->id;
+                    $userEventParticipant->object = \App\Vendor::class;
+                    $userEventParticipant->object_id = $vendor;
+                    $userEventParticipant->save();
+                }
+            }
+            $history = [
+                'daily_activities_id' => $dailyActivities->id,
+                'title'               => 'Event create',
+                'description'         => "Event created by ".Auth::user()->name,
+            ];
+            DailyActivitiesHistories::insert( $history );
+
+            \Log::error( 'Daily activities ::',DailyActivitiesHistories::where( 'daily_activities_id', $dailyActivities->id )->get()->toArray() );
+            return response()->json([
+                "code"    => 200, 
+                'message' => 'Event added successfully',
+                'event' => $userEvent->toArray(),
+                'attendees' => $attendeesResponse
+            ]);
+        
+        }else{
+
+            $data['learning_user']       = Auth::id();
+            $data['learning_vendor']     = $request->users[0];
+            $data['learning_subject']    = $subject;
+            $data['learning_assignment'] = $description;
+            $data['learning_duedate']    = $request->date;
+
+            $learning = Learning::create($data);
+
             $start = strtotime($date . ' ' . $time);
             $end = strtotime($date . ' ' . $time . ' + 1 hour');
-            $userEvent->start = date('Y-m-d H:i:s', $start);
-            $userEvent->end = date('Y-m-d H:i:s', $end);
-        }
 
-        $userEvent->save();
+            $dailyActivities = new \App\DailyActivity;
+            $dailyActivities->time_slot = date("h:00a",strtotime($start)) . " - " .date("h:00a",strtotime($end));
+            $dailyActivities->activity  = $learning->subject;
+            $dailyActivities->user_id   = $userId;
+            $dailyActivities->for_date  = $date;
+            $dailyActivities->for_datetime    = $for_datetime;
+            $dailyActivities->repeat_type     = $request->repeat;
+            $dailyActivities->repeat_on       = $request->repeat_on;
+            $dailyActivities->repeat_end      = $request->ends_on;
+            $dailyActivities->repeat_end_date = $request->repeat_end_date;
+            $dailyActivities->timezone        = $request->timezone;
+            $dailyActivities->type            = 'learning';
+            $dailyActivities->type_table_id   = $learning->id;
 
-        // once user event has been stored create the event in daily planner
-        $dailyActivities = new \App\DailyActivity;
-        $dailyActivities->time_slot = date("h:00a",strtotime($userEvent->start)) . " - " .date("h:00a",strtotime($userEvent->end));
-        $dailyActivities->activity  = $userEvent->subject;
-        $dailyActivities->user_id   = $userId;
-        $dailyActivities->for_date  = $date;
-        $dailyActivities->for_datetime    = $for_datetime;
-        $dailyActivities->repeat_type     = $request->repeat;
-        $dailyActivities->repeat_on       = $request->repeat_on;
-        $dailyActivities->repeat_end      = $request->ends_on;
-        $dailyActivities->repeat_end_date = $request->repeat_end_date;
-        $dailyActivities->timezone        = $request->timezone;
-        
-        if($dailyActivities->save()) {
-            $dailyActivities->parent_row = $dailyActivities->id;
-            $dailyActivities->save();
-           $userEvent->daily_activity_id =  $dailyActivities->id;
-           $userEvent->save();
-        }
-
-        // save the attendees
-        $attendees = explode(',', $contactsString);
-
-        $attendeesResponse = [];
-
-        foreach ($attendees as $attendee) {
-            $attendeeDb = new UserEventAttendee;
-            $attendeeDb->user_event_id = $userEvent->id;
-            $attendeeDb->contact = $attendee;
-            $attendeeDb->save();
-
-            $attendeesResponse[] = $attendeeDb->toArray();
-        }
-
-        $vendors = $request->get("vendors",[]);
-        if(!empty($vendors) && is_array($vendors)) {
-            foreach($vendors as $vendor) {
-                $userEventParticipant = new UserEventParticipant;
-                $userEventParticipant->user_event_id = $userEvent->id;
-                $userEventParticipant->object = \App\Vendor::class;
-                $userEventParticipant->object_id = $vendor;
-                $userEventParticipant->save();
+            if($dailyActivities->save()) {
+                $dailyActivities->parent_row = $dailyActivities->id;
+                $dailyActivities->save();
             }
-        }
-        $history = [
-            'daily_activities_id' => $dailyActivities->id,
-            'title'               => 'Event create',
-            'description'         => "Event created by ".Auth::user()->name,
-        ];
-        DailyActivitiesHistories::insert( $history );
 
-        \Log::error( 'Daily activities ::',DailyActivitiesHistories::where( 'daily_activities_id', $dailyActivities->id )->get()->toArray() );
-        return response()->json([
-            "code"    => 200, 
-            'message' => 'Event added successfully',
-            'event' => $userEvent->toArray(),
-            'attendees' => $attendeesResponse
-        ]);
+            return response()->json([
+                "code"    => 200, 
+                'message' => 'Learning added successfully',
+            ]);
+        }    
     }
 
     function removeEvent(Request $request, $id)

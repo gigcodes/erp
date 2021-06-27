@@ -24,12 +24,12 @@ class HubstaffNotificationReport implements FromArray, ShouldAutoSize, WithHeadi
 
   }
 
-  	/**
+    /**
     * @return \Illuminate\Support\Collection
     */
     public function array(): array
     {
-      
+
       return $this->lists;
     }
 

@@ -535,7 +535,43 @@
                    </div> 
                 </td>
               </tr>
-
+              <tr>
+                <td>Task History</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="7" class="sub-table">
+                  <div class="table">
+                   <table>
+                   <tr>
+                    <tr>
+                        <th>User</th>
+                        <th>Task id</th>
+                        <th>Description</th>
+                        <th>From time</th>
+                        <th>Duration</th>
+                    </tr>
+                   </tr>
+                   <?php if(!empty($todaytaskhistory)){  $i = 1;?>
+                     <?php foreach($todaytaskhistory as $todaytaskhistory) { ?>
+                       <tr>
+                          <td>{{ $todaytaskhistory->name }}</td>
+                          <td>{{ empty($todaytaskhistory->devtaskId) ? $todaytaskhistory->task_id : $todaytaskhistory->devtaskId }}</td>
+                          <td>{{ empty($todaytaskhistory->devtaskId) ? $todaytaskhistory->task_subject : $todaytaskhistory->subject }}</td>
+                          <td>{{ $todaytaskhistory->starts_at }}</td>
+                          <td>{{ number_format($todaytaskhistory->day_tracked / 60,2,".",",") }}</td>
+                       </tr>
+                      <?php $i++; } ?>
+                    <?php } ?>
+                 </table>
+                   </div> 
+                </td>
+              </tr>
               <tr>
                 <td>HubStaff Notification</td>
                 <td></td>
@@ -562,15 +598,11 @@
                    </tr>
                    <?php if(!empty($hubstaffNotifications)){  $i = 1;?>
                      <?php foreach($hubstaffNotifications as $row) { 
-
                         $dwork = $row['daily_working_hour'] ? number_format($row['daily_working_hour'],2,".","") : 0;
-
                         $thours = floor($row['total_track'] / 3600);
                         $tminutes = floor(($row['total_track'] / 60) % 60);
                         $twork = $thours.':'.sprintf("%02d", $tminutes);
-
                         $difference = ( ($row['daily_working_hour'] * 60 * 60 ) - $row['total_track']);
-
                         $sing = '';
                         if($difference > 0){
                           $sign = '-';
@@ -583,7 +615,6 @@
                         
                         $hours = floor(abs($difference) / 3600);
                         $minutes = sprintf("%02d", floor((abs($difference) / 60) % 60));
-
                         ?>
 
                        <tr>
@@ -596,7 +627,7 @@
                           <td>{{ $row['actual_percentage'] }}</td>
                           <td>{{ $row['reason'] }}</td>
                           <td>{{ $row['status'] == 1 ? 'Approved' : 'Pending' }}</td>
-                          
+
                        </tr>
                       <?php $i++; } ?>
                     <?php } ?>

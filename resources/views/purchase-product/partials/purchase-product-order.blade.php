@@ -143,12 +143,12 @@ table tr td {
                             <td>{{$value->brand_name}}</td> -->
                             <td>{{$value->supplier}}</td>
                             <td>
-                                <input type="text" name="product_mrp" placeholder="MRP" class="form-control mb-3 product_mrp" value="{{ $value->mrp_price ?? $value->mrp ?? '' }}">
+                                <input type="text" name="product_mrp" placeholder="MRP" class="form-control mb-3 product_mrp" value="{{ ($value->mrp_price > 0 ? $value->mrp_price : 0) ?? ( $value->mrp > 0 ? $value->mrp : 0 ) ?? '' }}">
                                 <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_mrp" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
                                 <i class="fa fa-info-circle view_log" title="MRP Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="MRP"></i>
                             </td>
                             <td>
-                                <input type="text" name="product_discount_price" placeholder="Discounted Price" class="form-control mb-3 product_discount_price" value="{{ $value->discount_price ?? $value->price_discounted ?? '' }}">
+                                <input type="text" name="product_discount_price" placeholder="Discounted Price" class="form-control mb-3 product_discount_price" value="{{ ($value->discount_price > 0 ? $value->discount_price : 0 ) ?? ($value->price_discounted > 0 ? $value->price_discounted : 0 ) ?? '' }}">
                                 <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_discount_price" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
                                 <i class="fa fa-info-circle view_log" title="Discounted Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Discounted Price"></i>
                             </td>
@@ -158,8 +158,9 @@ table tr td {
                             $special_amt = ($value->special_price ?? $value->price_special ?? 0);
 
                             $final_special_amt = $special_amt - $discount_amt;
+
                             @endphp
-                                <input type="text" name="product_special_price" placeholder="Special Price" class="form-control mb-3 product_special_price" value="{{ $final_special_amt }}">
+                                <input type="text" name="product_special_price" placeholder="Special Price" class="form-control mb-3 product_special_price" value="{{ ($final_special_amt > 0 ? $final_special_amt : 0) }}">
                                 <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_special_price" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
                                 <i class="fa fa-info-circle view_log" title="Special Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Special Price"></i>
                             </td>
@@ -199,7 +200,7 @@ table tr td {
                                 </select>
                                 <i class="fa fa-info-circle view_log" title="Status Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Status"></i>
                             </td>
-                            <td>{{$value->created_at}}</td>
+                            <td>{{$value->created_at_date}}</td>
                             <td>
                             @php
                             $order_products_order_id = $value->order_products_order_id;
@@ -207,6 +208,8 @@ table tr td {
                             $onlyconsonants = str_replace($vowels, "", $order_products_order_id);
                             @endphp
                                 <i class="fa fa-list-ul view_full_order" data-id="{{$value->pur_pro_id}}" data-pro-order-id="{{$onlyconsonants}}" data-supplier-id="{{$value->supplier_id}}" data-order-id="{{$value->order_pro_order_id}}" aria-hidden="true"></i>
+
+                                <i class="fa fa-upload upload_data_btn pl-3" data-order-id="{{$value->order_id}}" data-pro-order-id="{{$onlyconsonants}}" data-supplier-id="{{$value->supplier_id}}" aria-hidden="true"></i>
                             </td>
                             
                         </tr>
@@ -264,7 +267,7 @@ table tr td {
 
     <!--Upload Data Modal -->
     <div class="modal fade" id="upload_data_modal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title">Upload</h5>
@@ -274,20 +277,36 @@ table tr td {
         </div>
         <div class="modal-body">
             <form method="POST" enctype="multipart/form-data">
-                <input type="hidden" name="order_product_id" class="order_product_id" value="" />
+                <!-- <input type="hidden" name="order_product_id" class="order_product_id" value="" />-->
                 <input type="hidden" name="order_id" class="order_id" value="" />
-                <div class="col-xs-12 col-sm-12 col-md-12">
+                <!-- <div class="col-xs-12 col-sm-12 col-md-12">
                     <div class="form-group">
                         <strong>Upload :</strong>
                         <input type="file" enctype="multipart/form-data" name="file[]" class="form-control upload_file_data" name="image" multiple/>
                         
                     </div>
+                </div> -->
+                <div class="table-responsive mt-2">
+                    <table class="table table-bordered log-table" style="border: 1px solid #ddd !important; color:black;table-layout:fixed">
+                        <thead>
+                            <tr>
+                                <th width="25%">Name</th>
+                                <th width="25%">SKU</th>
+                                <th width="40%">Action</th>
+                                <th width="10%" ></th>
+                            </tr>
+                        </thead>
+                        
+                        <tbody class="product_upload_data" id="product_upload_data">
+                            
+                        </tbody>
+                    </table>
                 </div>
             </form>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary upload_file_btn">Save</button>
+            <!-- <button type="button" class="btn btn-primary upload_file_btn">Save</button> -->
         </div>
         </div>
     </div>
@@ -620,7 +639,7 @@ table tr td {
                 html_content += '<th width="20%">MRP</th>';
                 html_content += '<th width="20%">Discounted Price</th>';
                 html_content += '<th width="20%">Special Price</th>';
-                html_content += '<th width="20%">Action</th>';
+                // html_content += '<th width="20%">Action</th>';
                 html_content += '</tr>';
                 html_content += '</thead>';
                 html_content += '<tbody>';
@@ -635,7 +654,7 @@ table tr td {
                     html_content += '<td>'+(value.mrp_price != null ? value.mrp_price : '')+'</td>';
                     html_content += '<td>'+(value.mrp_price_discounted != null ? value.mrp_price_discounted : '') +'</td>';
                     html_content += '<td>'+(value.mrp_price_special != null ? value.mrp_price_special: '') +'</td>';
-                    html_content += '<td><i class="fa fa-upload upload_data_btn" data-id="'+value.order_products_id+'" data-order-id="'+order_id+'" aria-hidden="true"></i></td>';
+                    // html_content += '<td><i class="fa fa-upload upload_data_btn" data-id="'+value.order_products_id+'" data-order-id="'+order_id+'" aria-hidden="true"></i></td>';
                     html_content += '</tr>';
 
                 });
@@ -655,20 +674,57 @@ table tr td {
 
     $(document).on("click",".upload_data_btn",function(e) {
 
-        var order_product_id = $(this).data('id');
+        // var order_product_id = $(this).data('id');
         var order_id = $(this).data('order-id');
-        $(".order_product_id").val(order_product_id);
+        // $(".order_product_id").val(order_product_id);
         $(".order_id").val(order_id);
         
-        $('#upload_data_modal').modal('show');
+        // $('#upload_data_modal').modal('show');
+
+        var order_products_order_id = $(this).data('pro-order-id');
+        var supplier_id = $(this).data('supplier-id');
+
+        $.ajax({
+            type: "GET",
+            url: "{{ route('purchaseproductorders.orderdata') }}",
+            data: {
+				_token: "{{ csrf_token() }}",
+                order_products_order_id:order_products_order_id,
+                supplier_id:supplier_id,
+            },
+            dataType : "json",
+            success: function (response) {
+
+                var html_content = '';
+                console.log("++++++++++++++++++++++++");
+                console.log(response);
+                $.each( response.order_data, function( key, value ) {
+                    html_content += '<tr>';
+                    html_content += '<td>'+ value.name +'</td>';
+                    html_content += '<td>'+ value.sku +'</td>';
+                    html_content += '<td><input type="file" enctype="multipart/form-data" name="file[]" class="form-control upload_file_data_'+value.order_products_id+'" name="image" multiple/></td>';
+                    html_content += '<td><button type="button" data-order-products-id='+value.order_products_id+' class="btn btn-primary upload_file_btn">Save</button><td>';
+                    html_content += '</tr>';
+                });
+
+                $("#product_upload_data").html(html_content);
+                $('#upload_data_modal').modal('show');
+            },
+            error: function () {
+                // toastr['error']('Message not sent successfully!');
+            }
+        });
     });
 
     $(document).on("click",".upload_file_btn",function(e) {
 
         var fd = new FormData();
-        var order_product_id = $(".order_product_id").val();
+        // var order_product_id = $(".order_product_id").val();
         var order_id = $(".order_id").val();
-        var files = $('.upload_file_data')[0].files;
+        // var files = $('.upload_file_data')[0].files;
+
+        var order_product_id = $(this).data('order-products-id');
+        var files = $('.upload_file_data_'+order_product_id)[0].files;
         var fileArray = []
 
         if(files.length > 0 ){
@@ -696,7 +752,7 @@ table tr td {
                     $('.ajax-loader').hide();
                     console.log(response)
                     toastr['success'](response.msg, 'Success');
-                    $('#upload_data_modal').modal('hide');
+                    // $('#upload_data_modal').modal('hide');
                 },
                 error: function () {
                     $('.ajax-loader').hide();

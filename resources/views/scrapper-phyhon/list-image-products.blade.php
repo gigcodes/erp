@@ -143,12 +143,12 @@
                         @endif --}}
                         {{-- END - DEVTASK-4271 --}}
 
-                        <div class="col-md-2 col-xs-4 text-center product-list-card mb-4 " style="padding:0px 5px;margin-bottom:2px !important;">
+                        <div class="col-md-12 col-xs-12 text-center product-list-card mb-4 " style="padding:0px 5px;margin-bottom:2px !important;">
                             <div style="border: 1px solid #bfc0bf;padding:0px 5px;">
                                 <div data-interval="false" id="carousel_{{ $image['id'] }}" class="carousel slide" data-ride="carousel">
                                     <a href="#" data-toggle="tooltip" data-html="true" data-placement="top" >
                                         <div class="carousel-inner maincarousel">
-                                            <div class="item" style="display: block;"> <a data-fancybox="gallery" href="{{ urldecode(asset( 'scrappersImages/'.$image['img_name']))}}" ><img src="{{ urldecode(asset( 'scrappersImages/'.$image['img_name']))}}" style="height: 150px; width: 150px;display: block;margin-left: auto;margin-right: auto;"> </a> </div>
+                                            <div class="item" style="display: block;"> <a data-fancybox="gallery" href="{{ urldecode(asset( 'scrappersImages/'.$image['img_name']))}}" ><img src="{{ urldecode(asset( 'scrappersImages/'.$image['img_name']))}}" style="height: 100%; width: 80%; max-width:1200px; display: block;margin-left: auto;margin-right: auto;"> </a> </div>
                                         </div>
                                     </a>
                                 </div>
@@ -175,15 +175,30 @@
 <!-- START - Purpose : Add scroll Interval - DEVTASK-4271 -->
 <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
 <script>
-    var i=0;
+$(document).ready(function() { 
+    $("#scrolltime").val('2');
+    callinterval();
+ });
+
+    var i=1;
     var scroll = true;
         var old_product;
         function start_scroll_down() { 
-            if(scroll){
-                $("html, body").animate({
-                    scrollTop: $(".infinite-scroll-data div").eq(i).offset().top
+            var img_count = $(".infinite-scroll-data img").length;
+            if(scroll && i < img_count){
+                if(i == 1)
+                {
+                    $("html, body").animate({
+                    scrollTop: $(".infinite-scroll-data div").eq(1).offset().top
+                    }, 300).delay(300); 
+                    i+=1;
+                }else{
+                    $("html, body").animate({
+                    scrollTop: $(".infinite-scroll-data div img").eq(i).offset().top
                     }, 500).delay(500); 
-                i++;
+                    i+=1;
+                }
+                
             }else{
                 console.log("no scroll")
             }
@@ -202,10 +217,20 @@
 
         $(".start-again").attr("disabled","disabled")
         $(".pause").attr("disabled",false)
-        $("html, body").animate({
+
+        if(i == 1)
+        {
+            $("html, body").animate({
             scrollTop: $(".infinite-scroll-data div").eq(i).offset().top
+            }, 300).delay(300); 
+            i+=1;
+        }else{
+            $("html, body").animate({
+            scrollTop: $(".infinite-scroll-data div img").eq(i).offset().top
             }, 500).delay(500); 
-        i++;
+            i+=1;
+        }
+        
         stop = setInterval(function(){ console.log("Running");start_scroll_down() }, $("#scrolltime").val()*1000);
     }
 
