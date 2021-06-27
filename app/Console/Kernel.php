@@ -42,6 +42,8 @@ use App\Console\Commands\SendReminderToCustomerIfTheyHaventReplied;
 use App\Console\Commands\SendReminderToDubbizlesIfTheyHaventReplied;
 use App\Console\Commands\SendReminderToSupplierIfTheyHaventReplied;
 use App\Console\Commands\SendReminderToVendorIfTheyHaventReplied;
+use App\Console\Commands\SendReminderToTaskIfTheyHaventReplied;
+use App\Console\Commands\SendReminderToDevelopmentfTheyHaventReplied;
 use App\Console\Commands\UpdateInventory;
 use App\Console\Commands\UpdateSkuInGnb;
 use App\Console\Commands\CreateScrapedProducts;
@@ -205,6 +207,8 @@ class Kernel extends ConsoleKernel
         SendReminderToCustomerIfTheyHaventReplied::class,
         SendReminderToSupplierIfTheyHaventReplied::class,
         SendReminderToVendorIfTheyHaventReplied::class,
+        SendReminderToTaskIfTheyHaventReplied::class,
+        SendReminderToDevelopmentfTheyHaventReplied::class,
         SendReminderToDubbizlesIfTheyHaventReplied::class,
         UpdateShoeAndClothingSizeFromChatMessages::class,
         UpdateCustomerSizeFromOrder::class,

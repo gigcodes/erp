@@ -1,6 +1,6 @@
 <table class="table table-bordered table-striped" style="table-layout:fixed;">
     <tr>
-        <th style="width:5%;">ID</th>
+        <th style="width:15%;">ID</th>
         <th style="width:8%;">Module</th>
         <th style="width:12%;">Subject</th>
         <th style="width:20%;">Communication</th>
