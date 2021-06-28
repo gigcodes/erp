@@ -3044,11 +3044,17 @@ class DevelopmentController extends Controller
         $task->reminder_message     = $request->get('message');
         $task->reminder_from        = $request->get('reminder_from',"0000-00-00 00:00");
         $task->reminder_last_reply  = $request->get('reminder_last_reply',0);
+        $task->last_send_reminder   = date("Y-m-d H:i:s");
         $task->save();
         
             $message = "Reminder : ".$request->get('message');
             if(optional($task->assignedUser)->phone){
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($task->assignedUser->phone, '', $message);
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
+                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+                
+                //app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($task->assignedUser->phone, $task->assignedUser->whatsapp_number, $message);
             }   
         
         return response()->json([
