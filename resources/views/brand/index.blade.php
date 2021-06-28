@@ -196,18 +196,14 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 
                     </td>
                 @endforeach 
-                <td class="show_brand" data-id="{{$brand->id}}">
-                    {{ !empty($brand->selling_on) && !empty(explode(",", $brand->selling_on)[0]) ? $storeWebsite[explode(",", $brand->selling_on)[0]] : '' }}
+                <td class="show_brand" data-id="{{$brand->id}}" style="max-width: 150px;cursor: pointer; ">
+                    <span style="word-wrap: break-word;" >{{ !empty($brand->selling_on) && !empty(explode(",", $brand->selling_on)[0]) ? strlen($storeWebsite[explode(",", $brand->selling_on)[0]]) > 10 ? substr($storeWebsite[explode(",", $brand->selling_on)[0]], 0, 10) .' ...' : $storeWebsite[explode(",", $brand->selling_on)[0]] : '' }}</span>
                     @if(!empty(explode(",", $brand->selling_on)[0]))
                     <br>
                     @endif
-                    {{ !empty($brand->selling_on) && !empty(explode(",", $brand->selling_on)[1]) ? $storeWebsite[explode(",", $brand->selling_on)[1]] : '' }}
+                    <span style="word-wrap: break-word;" >{{ !empty($brand->selling_on) && !empty(explode(",", $brand->selling_on)[1]) ? strlen($storeWebsite[explode(",", $brand->selling_on)[1]]) > 10 ? substr($storeWebsite[explode(",", $brand->selling_on)[1]], 0, 10) .' ...' : $storeWebsite[explode(",", $brand->selling_on)[1]] : '' }}</span>
                     @if(!empty(explode(",", $brand->selling_on)[1]))
-                    <br>
-                    @endif 
-                    @if(explode(",", $brand->selling_on)[0] != '')
-                    ...
-                    @endif
+                    @endif  
                     @if(explode(",", $brand->selling_on)[0] == '')
                     <a href="javascript:;" data-message="do you have fendi bags" class="btn btn-xs btn-image add-chat-phrases" title="Add phrases"><img src="/images/add.png" alt="" style="cursor: nwse-resize; width: 0px;"></a>
                     @endif
