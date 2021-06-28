@@ -198,7 +198,7 @@ class RepositoryController extends Controller
 
                 $requestData = new Request();
                 $requestData->setMethod('POST');
-                $requestData->request->add(['issue_id' => $devTaskId, 'message' => $message, 'status' => 1]);
+                $requestData->request->add(['issue_id' => $devTask->id, 'message' => $message, 'status' => 1]);
                 app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
 
                 MessageHelper::sendEmailOrWebhookNotification([$devTask->assigned_to, $devTask->team_lead_id, $devTask->tester_id] , $message .'. kindly test task in live if possible and put test result as comment in task.' );
