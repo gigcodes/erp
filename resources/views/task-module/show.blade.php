@@ -158,7 +158,7 @@
         color:green;
      }
     .red-notification { 
-        color:red;
+        color:grey;
      }   
 
     </style>
@@ -868,7 +868,7 @@
                                                     data-reminder_from="{{ ($task && !empty($task->reminder_from)) ? $task->reminder_from : '' }}"
                                                     data-reminder_last_reply="{{ ($task && !empty($task->reminder_last_reply)) ? $task->reminder_last_reply : '' }}"
                                                 >
-                                                    <i class="fa fa-bell @if(!empty($task->reminder_message)) {{ 'green-notification'  }} @else {{ 'red-notification' }} @endif" aria-hidden="true"></i>
+                                                    <i class="fa fa-bell @if(!empty($task->reminder_message) && $task->frequency > 0) {{ 'green-notification'  }} @else {{ 'red-notification' }} @endif" aria-hidden="true"></i>
                                                 </button>                                                
 
                                     
