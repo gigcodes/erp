@@ -3038,6 +3038,7 @@ class DevelopmentController extends Controller
 
     public function updateDevelopmentReminder(Request $request)
     {
+        // this is the changes related to developer task
         $task = DeveloperTask::find($request->get('development_id'));
         $task->frequency            = $request->get('frequency');
         $task->reminder_message     = $request->get('message');
