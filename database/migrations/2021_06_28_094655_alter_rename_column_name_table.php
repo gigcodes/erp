@@ -14,7 +14,7 @@ class AlterRenameColumnNameTable extends Migration
     public function up()
     {
         //
-        \DB::statement("ALTER TABLE `tasks` CHANGE `reminder_from-` `reminder_from` TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00'");
+        //\DB::statement("ALTER TABLE `tasks` CHANGE `reminder_from-` `reminder_from` TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00'");
     }
 
     /**

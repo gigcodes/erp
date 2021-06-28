@@ -14,8 +14,7 @@ class AddIndexToProductsTablee extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->index(['category']);
-
+            //$table->index(['category']);
         });
     }
 
@@ -27,8 +26,7 @@ class AddIndexToProductsTablee extends Migration
     public function down()
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->dropIndex(['category']);
-
+            //$table->dropIndex(['category']);
         });
     }
 }

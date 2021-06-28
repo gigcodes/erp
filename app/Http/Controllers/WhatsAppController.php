@@ -2469,7 +2469,7 @@ class WhatsAppController extends FindByNumberController
 
                     //START - Purpose : Email notification - DEVTASK-4359
 
-                    $message_ = ($issue->task_type_id == 1 ? "[ ". $loggedUser->name ." ] - #DEVTASK-" : "#ISSUE-"). $issue->id.' - '. $issue->subject . "\n\n" . $request->message;
+                    $message_ = ($issue->task_type_id == 1 ? "[ ". auth()->user()->name ." ] - #DEVTASK-" : "#ISSUE-"). $issue->id.' - '. $issue->subject . "\n\n" . $request->message;
 
                 
                     MessageHelper::sendEmailOrWebhookNotification([$issue->assigned_to, $issue->team_lead_id, $issue->tester_id] , $message_ );
