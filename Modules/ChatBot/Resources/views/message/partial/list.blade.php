@@ -15,6 +15,11 @@
     .chatbot .communication{
 
     }
+    @media(max-width:1400px){
+        .btns{
+padding: 3px 2px;
+        }
+    }
 </style>
 @php
     $isAdmin = Auth::user()->hasRole('Admin');
@@ -24,11 +29,11 @@
 <table class="table table-bordered chatbot page-template-{{ $page }}">
     <thead>
     <tr>
-        <th width="4%"># Name</th>
+        <th width="2%"># Name</th>
         <th width="5%">Website</th>
         <th width="11%">User input</th>
         <th width="11%">Bot Replied</th>
-        <th width="24%">Message Box</th>
+        <th width="26%">Message Box</th>
         <th width="5%">From</th>
         <th width="35%">Shortcuts</th>
         <th width="5%">Action</th>
@@ -62,15 +67,15 @@
 
         <td data-context="{{ $context }}" data-url={{ route('whatsapp.send', ['context' => $context]) }} {{ $pam->taskUser ? 'data-chat-message-reply-id='.$pam->chat_bot_id : '' }}  data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id ?? ( $pam->taskUser ? $issueID : '')}}" data-vendor-id="{{$pam->vendor_id}}" data-supplier-id="{{$pam->supplier_id}}">
             @if($pam->supplier_id > 0)
-                {{  "#".$pam->supplier_id." ".$pam->supplier_name  }}</td>
+                {{  /*"#".$pam->supplier_id." ".*/$pam->supplier_name  }}</td>
             @else
-                {{  ($pam->vendor_id > 0 ) ? "#".$pam->vendor_id." ".$pam->vendors_name : ( $pam->taskUser ? '#'.$pam->taskUser->id .' ' . $pam->taskUser->name : "#".$pam->customer_id." ".$pam->customer_name  )  }}</td>
+                {{  ($pam->vendor_id > 0 ) ? /*"#".$pam->vendor_id." ".*/$pam->vendors_name : ( $pam->taskUser ? /*'#'.$pam->taskUser->id .' ' .*/ $pam->taskUser->name : /*"#".$pam->customer_id." ".*/$pam->customer_name  )  }}</td>
             @endif
         <td>{{ $pam->website_title }}</td>
 
         <!-- Purpose : Add question - DEVTASK-4203 -->
-        @if (strlen($pam->question) > 20)
-            <td style="word-break: break-word;padding: 8px 5px;" data-log_message="{{ $pam->question }}" class="log-message-popup user-input">{{ substr($pam->question,0,20) }}...
+        @if (strlen($pam->question) > 40)
+            <td style="word-break: break-word;padding: 8px 5px;" data-log_message="{{ $pam->question }}" class="log-message-popup user-input">{{ substr($pam->question,0,34) }}...
                 @if($pam->chat_read_id == 1)
                     <a href="javascript:;" class="read-message" data-value="0" data-id="{{ $pam->chat_bot_id }}">
                         <img width="15px" title="Mark as unread" height="15px" src="/images/completed-green.png">
@@ -97,8 +102,8 @@
 {{--            {{ $pam->question }}--}}
 
 
-        @if (strlen($pam->answer) > 20)
-            <td style="word-break: break-word;padding: 8px 5px;" data-log_message="{{ $pam->answer }}" class="bot-reply-popup boat-replied">{{ substr( $pam->answer ,0,20) }}...
+        @if (strlen($pam->answer) > 40)
+            <td style="word-break: break-word;padding: 8px 5px;" data-log_message="{{ $pam->answer }}" class="bot-reply-popup boat-replied pr-0">{{ substr( $pam->answer ,0,32) }}...
             </td>
         @else
             <td class="boat-replied">{{ $pam->answer }}
@@ -107,13 +112,13 @@
 
 
         <td class="message-input">
-            <div class="row cls_textarea_subbox">
-                <div class="col-md-7 cls_remove_rightpadding">
-                    <textarea rows="1" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-customer-id="{{ $pam->customer_id }}" name="message" placeholder="Message"></textarea>
+            <div style="display: flex" class=" cls_textarea_subbox">
+                <div class="cls_remove_rightpadding">
+                    <textarea rows="2" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-customer-id="{{ $pam->customer_id }}" name="message" placeholder="Message"></textarea>
                 </div>
 
-                <div class="col-md-5 cls_remove_allpadding row-flex">
-                    <span class="pt-2 mt-1 pl-2 pr-2"><input class="" name="add_to_autocomplete" class="add_to_autocomplete" type="checkbox" value="true"></span>
+                <div class="cls_remove_allpadding row-flex">
+                    <span style="display: flex;align-items: center" class="pl-2 pr-2"><input name="add_to_autocomplete" class="m-0 add_to_autocomplete" type="checkbox" value="true"></span>
                     <button class="btn btn-xs rt btn-image send-message1" data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
                     @if($pam->vendor_id > 0 )
                         <button type="button" class="btn btn-xs rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="vendor" data-id="{{$pam->vendor_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
@@ -169,25 +174,25 @@
         </td>
         <td>
             @if($pam->approved == 0)
-            <a href="javascript:;" class="approve-message" data-id="{{ $pam->chat_id }}">
+            <a href="javascript:;" style="display: inline-block" class="approve-message btns " data-id="{{ $pam->chat_id }}">
                 <img width="15px" height="15px" src="/images/completed.png">
             </a>
             @endif
-            <a href="javascript:;" class="delete-images" data-id="{{ $pam->chat_id }}">
+            <a href="javascript:;"  style="display: inline-block" class="delete-images btns" data-id="{{ $pam->chat_id }}">
                 <img width="15px" title="Remove Images" height="15px" src="/images/do-disturb.png">
             </a>
             @if($pam->suggestion_id)
-                <a href="javascript:;" class="add-more-images" data-id="{{ $pam->chat_id }}">
+                <a href="javascript:;"  style="display: inline-block" class="add-more-images btns" data-id="{{ $pam->chat_id }}">
                     <img width="15px" title="Attach More Images" height="15px" src="/images/customer-suggestion.png">
                 </a>
             @endif
-            <a href="javascript:;" class="resend-to-bot" data-id="{{ $pam->id }}">
+            <a href="javascript:;"  style="display: inline-block" class="resend-to-bot btns" data-id="{{ $pam->id }}">
                 <img width="15px" title="Resend to bot" height="15px" src="/images/icons-refresh.png">
             </a>
             <!-- <span class="check-all" data-id="{{ $pam->chat_id }}">
               <i class="fa fa-indent" aria-hidden="true"></i>
             </span> -->
-            <a href="javascript:;" class="approve_message" data-id="{{ $pam->chat_id }}">
+            <a href="javascript:;"  style="display: inline-block" class="approve_message  btns pl-2 pt-1" data-id="{{ $pam->chat_id }}">
                 <i style="color: #686868;" class="fa fa-plus" aria-hidden="true"></i>
             </a>
         </td>
