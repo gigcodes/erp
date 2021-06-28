@@ -645,7 +645,7 @@ class TaskModuleController extends Controller {
 		}
 		else {
 			$statuseslist=TaskStatus::pluck('name','id')->toArray();
-			$selectStatusList=TaskStatus::whereNotIn('id',[1])->pluck('id')->toArray();
+			$selectStatusList=TaskStatus::pluck('id')->toArray();
 
 			return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses','statuseslist','selectStatusList'));
 		}
