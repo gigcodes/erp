@@ -3048,7 +3048,12 @@ class DevelopmentController extends Controller
         
             $message = "Reminder : ".$request->get('message');
             if(optional($task->assignedUser)->phone){
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($task->assignedUser->phone, '', $message);
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
+                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+                
+                //app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($task->assignedUser->phone, $task->assignedUser->whatsapp_number, $message);
             }   
         
         return response()->json([

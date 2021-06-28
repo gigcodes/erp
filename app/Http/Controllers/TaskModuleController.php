@@ -2821,7 +2821,7 @@ class TaskModuleController extends Controller {
    public function updateTaskReminder(Request $request)
   {
     $task = Task::find($request->get('task_id'));
-		$task->frequency            = $request->get('frequency');
+	$task->frequency            = $request->get('frequency');
     $task->reminder_message     = $request->get('message');
     $task->reminder_from        = $request->get('reminder_from',"0000-00-00 00:00");
     $task->reminder_last_reply  = $request->get('reminder_last_reply',0);
@@ -2829,7 +2829,11 @@ class TaskModuleController extends Controller {
 	
 		$message = "Reminder : ".$request->get('message');
 		if(optional($task->assignedTo)->phone){
-			app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($task->assignedTo->phone, '', $message);
+			$requestData = new Request();
+            $requestData->setMethod('POST');
+            $requestData->request->add(['task_id' => $task->id, 'message' => $message, 'status' => 1]);
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'task');	
+			//app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($task->assignedTo->phone, '', $message);
 		}	
 	
     return response()->json([
