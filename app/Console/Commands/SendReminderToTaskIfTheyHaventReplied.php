@@ -68,7 +68,7 @@ class SendReminderToTaskIfTheyHaventReplied extends Command
                         ->first();
                     $this->info("message found for task #".$task->id. "with approve status ".$message->approved);
                     if ($message) {
-                        if ($message->approved == 1) {
+                        if (!empty($message->phone) || $message->status != 2) {
                             continue;
                         }
                     }
