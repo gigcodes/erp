@@ -3,8 +3,8 @@
         color:green;
      }
     .red-notification { 
-        color:red;
-     } 
+        color:grey;
+     }   
 </style>
 <table class="table table-bordered table-striped" style="table-layout:fixed;">
     <tr>
