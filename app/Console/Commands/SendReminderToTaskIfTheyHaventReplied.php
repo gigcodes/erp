@@ -56,6 +56,7 @@ class SendReminderToTaskIfTheyHaventReplied extends Command
         if (!$tasks->isEmpty()) {
             foreach ($tasks as $task) {
                 $templateMessage = $task->reminder_message;
+                dd("started for task #".$task->id);
                 if ($task->reminder_last_reply == 0) {
                     $this->sendMessage($task->id, $templateMessage);
                     $task->last_send_reminder = date("Y-m-d H:i:s");
@@ -65,7 +66,7 @@ class SendReminderToTaskIfTheyHaventReplied extends Command
                         ->where('task_id', $task->id)
                         ->latest()
                         ->first();
-
+                    dd("message found for task #".$task->id. "with approve status ".$message->approved);
                     if ($message) {
                         if ($message->approved == 1) {
                             continue;
