@@ -51,28 +51,15 @@ class SendReminderToDevelopmentIfTheyHaventReplied extends Command
         $now = Carbon::now()->toDateTimeString();
 
         // task page logic starting from here
-        $tasks = \App\DeveloperTask::where('frequency', ">", 0)->where('reminder_message', "!=", "")->where('reminder_from', "<=", date("Y-m-d H:i:s"))->get();
+        $tasks = \App\DeveloperTask::where('frequency', ">", 0)->where('reminder_message', "!=", "")->select(["*",\DB::raw('TIMESTAMPDIFF(MINUTE, `last_send_reminder`, "' . $now . '") as diff_min')])->get();
 
         if (!$tasks->isEmpty()) {
             foreach ($tasks as $task) {
                 $templateMessage = $task->reminder_message;
-                if ($task->reminder_last_reply == 0) {
-                    $this->sendMessage($task->id, $templateMessage, $task);
-                    $task->last_send_reminder = date("Y-m-d H:i:s");
-                    $task->save();
-                } else {
-                    $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "' . $now . '") >= ' . $task->frequency)
-                        ->where('developer_task_id', $task->id)
-                        ->latest()
-                        ->first();
-
-                    if ($message) {
-                        if ($message->approved == 1) {
-                            continue;
-                        }
-                    }
-
-                    $this->sendMessage($task->id, $templateMessage, $task);
+                $this->info("started for developer #".$task->id);
+                if ($task->diff_min >= $task->frequency && ($task->reminder_from == "0000-00-00 00:00" || strtotime($task->reminder_from) >= strtotime("now"))) {
+                    $this->info("condition matched for developer #".$task->id);
+                    $this->sendMessage($task->id, $templateMessage);
                     $task->last_send_reminder = date("Y-m-d H:i:s");
                     $task->save();
                 }
@@ -103,10 +90,10 @@ class SendReminderToDevelopmentIfTheyHaventReplied extends Command
 
         $chat_message = ChatMessage::create($params);
 
-        $myRequest = new Request();
-        $myRequest->setMethod('POST');
-        $myRequest->request->add(['messageId' => $chat_message->id]);
-
-        app(WhatsAppController::class)->approveMessage('user', $myRequest);
+        \App\ChatbotReply::create([
+            'question'=> $message,
+            'replied_chat_id' => $chat_message->id,
+            'reply_from' => 'database'
+        ]);
     }
 }
