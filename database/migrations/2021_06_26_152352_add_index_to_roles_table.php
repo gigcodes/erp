@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddIndexToProductsTable extends Migration
+class AddIndexToRolesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddIndexToProductsTable extends Migration
      */
     public function up()
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->index(['category']);
+        Schema::table('roles', function (Blueprint $table) {
+            $table->index(['name','guard_name']);
 
         });
     }
@@ -26,8 +26,8 @@ class AddIndexToProductsTable extends Migration
      */
     public function down()
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->dropIndex(['category']);
+        Schema::table('roles', function (Blueprint $table) {
+            $table->dropIndex(['name','guard_name']);
 
         });
     }
