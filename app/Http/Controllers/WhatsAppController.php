@@ -2112,7 +2112,7 @@ class WhatsAppController extends FindByNumberController
 
                 /** Sent To ChatbotMessage */
                 
-                $loggedUser = $request->user();
+                $loggedUser = auth()->user();
 
                 $roles = $loggedUser->roles->pluck('name')->toArray();
 

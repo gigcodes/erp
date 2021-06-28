@@ -25,7 +25,7 @@
             data-reminder_from="{{ $issue->reminder_from }}"
             data-reminder_last_reply="{{ $issue->reminder_last_reply }}"
         >
-            <i class="fa fa-bell" aria-hidden="true"></i>
+            <i class="fa fa-bell @if(!empty($issue->reminder_message)) {{ 'green-notification'  }} @else {{ 'red-notification' }} @endif"  aria-hidden="true"></i>
         </a>     
 
         <br>
