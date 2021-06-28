@@ -17,15 +17,6 @@
                         <input type="text" name="reminder_from" id="task_reminder_from" class="form-control">
                     </div>
                     <div class="form-group">
-                        <label for="reminder_message">Check Last Message?</label>
-                        <label class="radio-inline">
-                          <input type="radio" id="reminder_last_reply" name="reminder_last_reply" value="1" checked>Yes
-                        </label>
-                        <label class="radio-inline">
-                          <input type="radio" id="reminder_last_reply_no" name="reminder_last_reply" value="0">No
-                        </label>
-                    </div>
-                    <div class="form-group">
                         <label for="reminder_message">Reminder Message</label>
                         <textarea name="reminder_message" id="reminder_message" class="form-control" rows="4"></textarea>
                     </div>
