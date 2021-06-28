@@ -57,7 +57,7 @@ class SendReminderToTaskIfTheyHaventReplied extends Command
             foreach ($tasks as $task) {
                 $templateMessage = $task->reminder_message;
                 $this->info("started for task #".$task->id ." found frequency {$task->diff_min} and task frequency {$task->frequency} and reminder from {$task->reminder_from}");
-                if ($task->diff_min >= $task->frequency && ($task->reminder_from == "0000-00-00 00:00" || strtotime($task->reminder_from) >= strtotime("now"))) {
+                if ($task->diff_min >= $task->frequency && ($task->reminder_from == "0000-00-00 00:00" || strtotime($task->reminder_from) <= strtotime("now"))) {
                     $this->info("condition matched for task #".$task->id);
                     $this->sendMessage($task->id, $templateMessage);
                     $task->last_send_reminder = date("Y-m-d H:i:s");
