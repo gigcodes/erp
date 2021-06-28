@@ -204,8 +204,10 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                     {{ !empty($brand->selling_on) && !empty(explode(",", $brand->selling_on)[1]) ? $storeWebsite[explode(",", $brand->selling_on)[1]] : '' }}
                     @if(!empty(explode(",", $brand->selling_on)[1]))
                     <br>
+                    @endif 
+                    @if(explode(",", $brand->selling_on)[0] != '')
+                    ...
                     @endif
-                    {{ !empty($brand->selling_on) ? '...' : '' }}<br>
                     @if(explode(",", $brand->selling_on)[0] == '')
                     <a href="javascript:;" data-message="do you have fendi bags" class="btn btn-xs btn-image add-chat-phrases" title="Add phrases"><img src="/images/add.png" alt="" style="cursor: nwse-resize; width: 0px;"></a>
                     @endif
