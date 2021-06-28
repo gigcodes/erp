@@ -24,7 +24,7 @@ class SendReminderToDevelopmentIfTheyHaventReplied extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Reminder send for development';
 
     /**
      * Create a new command instance.

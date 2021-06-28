@@ -24,7 +24,7 @@ class SendReminderToTaskIfTheyHaventReplied extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Reminder send for task';
 
     /**
      * Create a new command instance.
