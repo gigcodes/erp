@@ -2573,7 +2573,7 @@ class LearningModuleController extends Controller {
 			
 			LearningStatusHistory::create([
    	    		'learning_id' => $learning->id,
-   	    		'old_status'  => $learning->learning_status,
+   	    		'old_status'  => $learning->learning_status??0,
    	    		'new_status'  => $request->status_id,
    	    		'update_by'   => $request->user()->id
    	    	]);
@@ -2598,8 +2598,8 @@ class LearningModuleController extends Controller {
 	        foreach ($records as $row) {
 	        	$response [] = [
 	        		'created_date'=> $row->created_at->format('Y-m-d'),
-	        		'old_status'  => $row->oldstatus->name,
-	        		'new_status'  => $row->newstatus->name,
+	        		'old_status'  => optional($row->oldstatus)->name??'-',
+	        		'new_status'  => optional($row->newstatus)->name??'-',
 	        		'update_by'   => $row->user->name,
 	        	];
 	        }
