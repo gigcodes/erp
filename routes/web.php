@@ -783,6 +783,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::resource('learning', 'LearningModuleController');
     Route::get('learning/status/history','LearningModuleController@getStatusHistory')->name('learning/status/history');
+
+
+    Route::post('learning/due_date-change', 'LearningModuleController@saveDueDateUpdate')->name('learning-due-change');
+
+    Route::get('learning/duedate/history','LearningModuleController@getDueDateHistory')->name('learning/duedate/history');
+    
     Route::resource('learning_category','LearningCategoryController');
     Route::post('learning_category/submodule', 'LearningCategoryController@getSubModule');
     Route::post('learning/create-learning-from-shortcut', 'LearningModuleController@createLearningFromSortcut');

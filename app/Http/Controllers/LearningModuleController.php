@@ -11,7 +11,7 @@ use Carbon\Carbon;
 use App\Helpers;
 use App\User;
 use App\Task;
-use App\{Learning,LearningStatusHistory};
+use App\{Learning,LearningStatusHistory,LearningDueDateHistory};
 use App\LearningModule;
 use App\TaskStatus;
 use App\Contact;
@@ -640,9 +640,17 @@ class LearningModuleController extends Controller {
 	            $learningsListing->whereIn('learning_status', $request->get('task_status'));
 	        }
 
-	        if (!empty($request->get('overduedate'))) {
-	            $learningsListing->whereDate('learning_duedate','<',$request->get('overduedate'));
-	        }
+      if (!empty($request->get('overduedate'))) {
+          $learningsListing->whereDate('learning_duedate','<',$request->get('overduedate'));
+      }
+
+      if (!empty($request->get('module'))) {
+          $learningsListing->where('learning_module',$request->get('module'));
+      }
+
+      if (!empty($request->get('submodule'))) {
+          $learningsListing->where('learning_submodule',$request->get('submodule'));
+      }
 
 			$learningsListing = $learningsListing->latest()->get();
 
@@ -2600,6 +2608,51 @@ class LearningModuleController extends Controller {
 	        		'created_date'=> $row->created_at->format('Y-m-d'),
 	        		'old_status'  => optional($row->oldstatus)->name??'-',
 	        		'new_status'  => optional($row->newstatus)->name??'-',
+	        		'update_by'   => $row->user->name,
+	        	];
+	        }
+	        return $response;
+        }
+        return 'error';
+    }
+
+    public function saveDueDateUpdate(Request $request)
+    {
+        $learning = Learning::find($request->get('learningid'));
+        $due_date = date("Y-m-d", strtotime($request->due_date));
+        if($learning && $request->due_date) {
+            LearningDueDateHistory::create([
+	   	    		'learning_id' => $learning->id,
+	   	    		'old_duedate'  => $learning->learning_duedate??0,
+	   	    		'new_duedate'  => $due_date,
+	   	    		'update_by'   => $request->user()->id
+	   	    	]);
+        }
+
+        $learning->learning_duedate = $due_date;
+        $learning->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
+    public function getDueDateHistory(Request $request)
+    {
+        $learningid = $request->learningid;
+        
+        $records = LearningDueDateHistory::with('user')
+        		->where('learning_id', $learningid)
+        		->latest()
+        		->get();
+        
+        if($records){		
+	        $response = [];
+	        foreach ($records as $row) {
+	        	$response [] = [
+	        		'created_date'=> $row->created_at->format('Y-m-d'),
+	        		'old_duedate'  => $row->old_duedate??'-',
+	        		'new_duedate'  => $row->new_duedate??'-',
 	        		'update_by'   => $row->user->name,
 	        	];
 	        }
