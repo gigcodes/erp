@@ -799,12 +799,16 @@
                                                             <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
                                                             
                                                                 <?php 
-                                                                $pos = strpos($task->message,$task->task_subject);
-                                                                $length = strlen($task->task_subject);
-                                                                if($pos) {
-                                                                    $start = $pos + $length + 1;
-                                                                }
-                                                                else {
+                                                                if(!empty($task->message) && !empty($task->task_subject)) {
+                                                                    $pos = strpos($task->message,$task->task_subject);
+                                                                    $length = strlen($task->task_subject);
+                                                                    if($pos) {
+                                                                        $start = $pos + $length + 1;
+                                                                    }
+                                                                    else {
+                                                                        $start = 0;
+                                                                    }
+                                                                }else{
                                                                     $start = 0;
                                                                 }
                                                                 ?>
@@ -849,16 +853,16 @@
                                                     
                                                 @endif
 
-    <button data-toggle="modal" data-target="#taskReminderModal"  
-        class='btn pd-5 task-set-reminder' 
-        data-id="{{ $task->id }}"
-        data-frequency="{{ $task->frequency ?? '0' }}"
-        data-reminder_message="{{ $task->reminder_message }}"
-        data-reminder_from="{{ $task->reminder_from }}"
-        data-reminder_last_reply="{{ $task->reminder_last_reply }}"
-    >
-        <i class="fa fa-bell" aria-hidden="true"></i>
-    </button>                                                
+                                                <button data-toggle="modal" data-target="#taskReminderModal"  
+                                                    class='btn pd-5 task-set-reminder' 
+                                                    data-id="{{ $task->id }}"
+                                                    data-frequency="{{ $task->frequency ?? '0' }}"
+                                                    data-reminder_message="{{ ($task && !empty($task->reminder_message)) ? $task->reminder_message : '' }}"
+                                                    data-reminder_from="{{ ($task && !empty($task->reminder_from)) ? $task->reminder_from : '' }}"
+                                                    data-reminder_last_reply="{{ ($task && !empty($task->reminder_last_reply)) ? $task->reminder_last_reply : '' }}"
+                                                >
+                                                    <i class="fa fa-bell" aria-hidden="true"></i>
+                                                </button>                                                
 
                                     
 
