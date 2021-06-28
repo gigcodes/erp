@@ -4,13 +4,11 @@ namespace App\Console\Commands;
 
 use App\ChatMessage;
 use App\CronJobReport;
-use App\Http\Controllers\WhatsAppController;
-use App\Vendor;
 use App\DeveloperTask;
+use App\Http\Controllers\WhatsAppController;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class SendReminderToDevelopmentIfTheyHaventReplied extends Command
 {
@@ -26,7 +24,7 @@ class SendReminderToDevelopmentIfTheyHaventReplied extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Reminder send for development';
 
     /**
      * Create a new command instance.
@@ -45,92 +43,57 @@ class SendReminderToDevelopmentIfTheyHaventReplied extends Command
      */
     public function handle()
     {
-        try {
-            $report = CronJobReport::create([
-                'signature'  => $this->signature,
-                'start_time' => Carbon::now(),
-            ]);
+        $report = CronJobReport::create([
+            'signature'  => $this->signature,
+            'start_time' => Carbon::now(),
+        ]);
 
-            $now = Carbon::now()->toDateTimeString();
+        $now = Carbon::now()->toDateTimeString();
 
-            // get the latest message for this vendor excluding the auto messages like supplier and customers
-            $messagesIds = DB::table('chat_messages')
-                ->selectRaw('MAX(id) as id, vendor_id')
-                ->groupBy('vendor_id')
-                ->whereNotNull('message')
-                ->where('vendor_id', '>', '0')
-                ->where(function ($query) {
-                    $query->whereNotIn('status', [7, 8, 9]);
-                })
-                ->get();
+        // task page logic starting from here
+        $tasks = \App\DeveloperTask::where('frequency', ">", 0)->where('reminder_message', "!=", "")->select(["*",\DB::raw('TIMESTAMPDIFF(MINUTE, `last_send_reminder`, "' . $now . '") as diff_min')])->get();
 
-            foreach ($messagesIds as $messagesId) {
-                $vendor = DeveloperTask::find($messagesId->vendor_id);
-                if (!$vendor) {
-                    continue;
+        if (!$tasks->isEmpty()) {
+            foreach ($tasks as $task) {
+                $templateMessage = $task->reminder_message;
+                $this->info("started for task #".$task->id ." found frequency {$task->diff_min} and task frequency {$task->frequency} and reminder from {$task->reminder_from}");
+                if ($task->diff_min >= $task->frequency && ($task->reminder_from == "0000-00-00 00:00" || strtotime($task->reminder_from) <= strtotime("now"))) {
+                    $this->info("condition matched for developer #".$task->id);
+                    $this->sendMessage($task->id, $templateMessage);
+                    $task->last_send_reminder = date("Y-m-d H:i:s");
+                    $task->save();
                 }
-
-                $frequency = $vendor->frequency;
-                if (!($frequency >= 5)) {
-                    continue;
-                }
-
-                if($vendor->reminder_from == "0000-00-00 00:00" || strtotime($vendor->reminder_from) >= strtotime("now")) {
-                    dump('here' . $vendor->name);
-                    $templateMessage = $vendor->reminder_message;
-                    if($vendor->reminder_last_reply == 0) {
-                        //sends messahe
-                        $this->sendMessage($vendor->id, $templateMessage);
-                        dump('saving...');
-                    }else{
-                        // get the message if the interval is greater or equal to time which is set for this customer
-                        $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "' . $now . '") >= ' . $frequency)
-                            ->where('id', $messagesId->id)
-                            ->where('user_id', '>', '0')
-                            ->where('approved', '1')
-                            ->first();
-
-                        if (!$message) {
-                            continue;
-                        }
-                        //send the message
-                        $this->sendMessage($vendor->id, $templateMessage);
-                        dump('saving...');
-                    }
-                }
-                
             }
-
-            $report->update(['end_time' => Carbon::now()]);
-        } catch (\Exception $e) {
-            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
+
+        $report->update(['end_time' => Carbon::now()]);
 
     }
 
     /**
-     * @param $vendorId
+     * @param $taskId
      * @param $message
      * create chat message entry and then approve the message and send the message...
      */
-    private function sendMessage($vendorId, $message)
+    private function sendMessage($taskId, $message, $task = null)
     {
 
         $params = [
-            'number'    => null,
-            'user_id'   => 6,
-            'approved'  => 1,
-            'status'    => 1,
-            'vendor_id' => $vendorId,
-            'message'   => $message,
+            'number'            => null,
+            'user_id'           => 6,
+            'erp_user'          => ($task) ? $task->assigned_to : null,
+            'approved'          => 1,
+            'status'            => 1,
+            'developer_task_id' => $taskId,
+            'message'           => $message,
         ];
 
         $chat_message = ChatMessage::create($params);
 
-        $myRequest = new Request();
-        $myRequest->setMethod('POST');
-        $myRequest->request->add(['messageId' => $chat_message->id]);
-
-        app(WhatsAppController::class)->approveMessage('vendor', $myRequest);
+        \App\ChatbotReply::create([
+            'question'=> $message,
+            'replied_chat_id' => $chat_message->id,
+            'reply_from' => 'database'
+        ]);
     }
 }

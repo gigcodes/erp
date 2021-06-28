@@ -223,7 +223,22 @@ class SendQueuePendingChatMessages extends Command
                                 $value->is_queue = 0;
                                 $value->save();
 
-                            }
+                            } else {
+
+                                    // check message is full or not
+                                    $isSendingLimitFull = isset($this->waitingMessages[$value->vendor->whatsapp_number])
+                                    ? $this->waitingMessages[$value->vendor->whatsapp_number] : 0;
+                                    // if message queue is full then go for the next;
+                                    if ($isSendingLimitFull >= config("apiwha.message_queue_limit",100)) {
+                                        continue;
+                                    }
+
+                                    $myRequest = new Request();
+                                    $myRequest->setMethod('POST');
+                                    $myRequest->request->add(['messageId' => $value->id]);
+                                    app('App\Http\Controllers\WhatsAppController')->approveMessage('vendor', $myRequest);
+                                }
+
                         }
                     }
 

@@ -3044,6 +3044,7 @@ class DevelopmentController extends Controller
         $task->reminder_message     = $request->get('message');
         $task->reminder_from        = $request->get('reminder_from',"0000-00-00 00:00");
         $task->reminder_last_reply  = $request->get('reminder_last_reply',0);
+        $task->last_send_reminder   = date("Y-m-d H:i:s");
         $task->save();
         
             $message = "Reminder : ".$request->get('message');

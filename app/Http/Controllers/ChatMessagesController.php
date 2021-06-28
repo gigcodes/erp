@@ -346,6 +346,17 @@ class ChatMessagesController extends Controller
                     //parent image ends
                 }
             }
+
+            //START - Purpose : Get Excel sheet - DEVTASK-4236
+            $excel_attach = json_decode($chatMessage->additional_data);
+            if(!empty($excel_attach))
+            {
+                $path = $excel_attach->attachment[0];
+                $additional_data =  $path;
+            }else{
+                $additional_data = '';
+            }
+            //END - DEVTASK-4236
             
             if(isset($request->downloadMessages) && $request->downloadMessages==1){
                 if($textMessage!=''){
@@ -379,7 +390,8 @@ class ChatMessagesController extends Controller
                     'error_info' => $chatMessage->error_info,
                     'is_queue' => $chatMessage->is_queue,
                     'is_reviewed' => $chatMessage->is_reviewed,
-                    'quoted_message_id' => $chatMessage->quoted_message_id
+                    'quoted_message_id' => $chatMessage->quoted_message_id,
+                    'additional_data' => $additional_data//Purpose : Add additional data - DEVTASK-4236
                 ];
             }
         }

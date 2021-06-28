@@ -105,12 +105,12 @@ return [
                 'connection' => 'redis',
                 'queue' => ['product','magento','mageone','magetwo','magethree','supplier_products','customer_message','watson_push','email','high','image_search'],
                 'balance' => 'auto',
-                'processes' => 10,
+                'processes' => 11,
                 'tries' => 1,
                 'minProcesses' => 1,
-                'maxProcesses' => 10,
+                'maxProcesses' => 11,
                 'memory' => 2048,
-                'timeout' => 600
+                'timeout' => 3600 * 3
             ],
         ],
 
@@ -119,12 +119,12 @@ return [
                 'connection' => 'redis',
                 'queue' => ['product','magento','mageone','magetwo','magethree','supplier_products','customer_message','watson_push','email','high','image_search'],
                 'balance' => 'auto',
-                'processes' => 10,
+                'processes' => 11,
                 'tries' => 1,
                 'minProcesses' => 1,
-                'maxProcesses' => 10,
+                'maxProcesses' => 11,
                 'memory' => 2048,
-                'timeout' => 600
+                'timeout' => 3600 * 3
             ]
         ],
     ],
