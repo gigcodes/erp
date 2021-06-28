@@ -28,6 +28,8 @@ use Zend\Diactoros\Response\JsonResponse;
 use \Carbon\Carbon;
 use App\BrandLogo;
 use App\BrandWithLogo;
+use App\Category;
+use App\CategorySegmentDiscount;
 
 class BrandController extends Controller
 {

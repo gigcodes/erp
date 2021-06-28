@@ -14,7 +14,7 @@ class AddIndexToProductsTable extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->index(['category']);
+            $table->index(['has_mediables']);
 
         });
     }
@@ -27,7 +27,7 @@ class AddIndexToProductsTable extends Migration
     public function down()
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->dropIndex(['category']);
+            $table->dropIndex(['has_mediables']);
 
         });
     }

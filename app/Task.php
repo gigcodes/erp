@@ -69,7 +69,12 @@ class Task extends Model {
 		'lead_hubstaff_task_id',
 		'due_date',
 		'site_developement_id',
-		'priority_no'
+		'priority_no',
+		'frequency',
+		'message',
+		'reminder_from',
+		'reminder_last_reply',
+        'last_send_reminder'
 	];
 
 	const TASK_TYPES = [

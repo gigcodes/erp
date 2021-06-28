@@ -705,6 +705,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('meetings/show-data', 'Meeting\ZoomMeetingController@showData')->name('meetings.show.data');
     Route::get('meetings/show', 'Meeting\ZoomMeetingController@show')->name('meetings.show');
 
+
+    Route::post('task/reminder', 'TaskModuleController@updateTaskReminder');
+
     Route::get('task/time/history', 'TaskModuleController@getTimeHistory')->name('task.time.history');
     Route::get('task/categories', 'TaskModuleController@getTaskCategories')->name('task.categories');
     Route::get('task/list', 'TaskModuleController@list')->name('task.list');
@@ -1207,6 +1210,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('download-file', 'DevelopmentController@downloadFile')->name('download.file');
 
     //Route::get('deve lopment/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
+
+
+    Route::post('development/reminder', 'DevelopmentController@updateDevelopmentReminder');
+
+
     Route::get('development/list', 'DevelopmentController@issueTaskIndex')->name('development.issue.index');
     Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');

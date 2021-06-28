@@ -384,6 +384,8 @@ class UserEventController extends Controller
             $dailyActivities->repeat_end      = $request->ends_on;
             $dailyActivities->repeat_end_date = $request->repeat_end_date;
             $dailyActivities->timezone        = $request->timezone;
+            $dailyActivities->type            = 'event';
+            $dailyActivities->type_table_id   = $userEvent->id;
             
             if($dailyActivities->save()) {
                 $dailyActivities->parent_row = $dailyActivities->id;
@@ -439,7 +441,29 @@ class UserEventController extends Controller
             $data['learning_assignment'] = $description;
             $data['learning_duedate']    = $request->date;
 
-            $task = Learning::create($data);
+            $learning = Learning::create($data);
+
+            $start = strtotime($date . ' ' . $time);
+            $end = strtotime($date . ' ' . $time . ' + 1 hour');
+
+            $dailyActivities = new \App\DailyActivity;
+            $dailyActivities->time_slot = date("h:00a",strtotime($start)) . " - " .date("h:00a",strtotime($end));
+            $dailyActivities->activity  = $learning->subject;
+            $dailyActivities->user_id   = $userId;
+            $dailyActivities->for_date  = $date;
+            $dailyActivities->for_datetime    = $for_datetime;
+            $dailyActivities->repeat_type     = $request->repeat;
+            $dailyActivities->repeat_on       = $request->repeat_on;
+            $dailyActivities->repeat_end      = $request->ends_on;
+            $dailyActivities->repeat_end_date = $request->repeat_end_date;
+            $dailyActivities->timezone        = $request->timezone;
+            $dailyActivities->type            = 'learning';
+            $dailyActivities->type_table_id   = $learning->id;
+
+            if($dailyActivities->save()) {
+                $dailyActivities->parent_row = $dailyActivities->id;
+                $dailyActivities->save();
+            }
 
             return response()->json([
                 "code"    => 200, 
