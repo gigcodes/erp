@@ -195,17 +195,20 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 
 
                     </td>
-                @endforeach
-                <td>
-                    <div class="form-select">
-                        <?php
-                        echo Form::select(
-                            "attach_brands[]",
-                            ["" => "-- Select Website(s) --"] + $storeWebsite,
-                            !empty($brand->selling_on) ? explode(",", $brand->selling_on) : [],
-                            ["class" => "form-control select-multiple input-attach-brands", "multiple" => true, "data-brand-id" => $brand->id]
-                        ); ?>
-                    </div>
+                @endforeach 
+                <td class="show_brand" data-id="{{$brand->id}}">
+                    {{ !empty($brand->selling_on) && !empty(explode(",", $brand->selling_on)[0]) ? $storeWebsite[explode(",", $brand->selling_on)[0]] : '' }}
+                    @if(!empty(explode(",", $brand->selling_on)[0]))
+                    <br>
+                    @endif
+                    {{ !empty($brand->selling_on) && !empty(explode(",", $brand->selling_on)[1]) ? $storeWebsite[explode(",", $brand->selling_on)[1]] : '' }}
+                    @if(!empty(explode(",", $brand->selling_on)[1]))
+                    <br>
+                    @endif
+                    {{ !empty($brand->selling_on) ? '...' : '' }}<br>
+                    @if(explode(",", $brand->selling_on)[0] == '')
+                    <a href="javascript:;" data-message="do you have fendi bags" class="btn btn-xs btn-image add-chat-phrases" title="Add phrases"><img src="/images/add.png" alt="" style="cursor: nwse-resize; width: 0px;"></a>
+                    @endif
                 </td>
                <td>
                 <div class="form-group">
@@ -227,6 +230,35 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                     <a style="padding: 1px;" class="btn btn-image btn-activity" data-href="{{ route('brand.activities',$brand->id) }}" href="javascript:;"><i class="fa fa-info"></i></a>
                 </td>
             </tr>
+            <div class="modal fade brand_modal_{{$brand->id}}" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Attached Brands</h4>
+                            <button type="button" class="close close_modal" data-dismiss="modal" data-id="{{$brand->id}}">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-10 col-md-offset-1">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group"> 
+                                                <select name="attach_brands" class="form-control input-attach-brands select-multiple select2 attach_brands" multiple style="width:100%" data-placeholder="&nbsp-- Select Website(s) --" data-brand-id="{{$brand->id}}">
+                                                    <option value="">&nbsp-- Select Website(s) --</option>            
+                                                    @foreach($storeWebsite as $key => $w)
+                                                    <option {{!empty($brand->selling_on) && in_array($key, explode(",", $brand->selling_on)) ? 'selected' : ''}} value="{{$key}}">{{$w}}</option> 
+                                                    @endforeach
+                                                </select> 
+                                            </div>
+                                        </div>  
+                                    </div>  
+                                </div>  
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+            </div>
             @endforeach
         </table>
     </div>
@@ -563,5 +595,16 @@ $('.select2-selection__clear').remove()
            toastr['error'](response.message, 'error');
         });
     });
+
+    $(document).on('click','.show_brand', function(event){
+        $(".brand_modal_"+$(this).attr('data-id')).modal("show"); 
+    }); 
+
+    $('.modal').on('shown.bs.modal', function (e) {
+        $(".attach_brands").select2({
+            placeholder: " abc xyz"
+        });
+    })
+ 
 </script>
 @endsection
