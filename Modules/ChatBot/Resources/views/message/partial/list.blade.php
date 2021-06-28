@@ -114,11 +114,11 @@ padding: 3px 2px;
         <td class="message-input">
             <div style="display: flex" class=" cls_textarea_subbox">
                 <div class="cls_remove_rightpadding">
-                    <textarea rows="1" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-customer-id="{{ $pam->customer_id }}" name="message" placeholder="Message"></textarea>
+                    <textarea rows="2" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-customer-id="{{ $pam->customer_id }}" name="message" placeholder="Message"></textarea>
                 </div>
 
                 <div class="cls_remove_allpadding row-flex">
-                    <span class="pt-2 mt-1 pl-2 pr-2"><input class="" name="add_to_autocomplete" class="add_to_autocomplete" type="checkbox" value="true"></span>
+                    <span style="display: flex;align-items: center" class="pl-2 pr-2"><input name="add_to_autocomplete" class="m-0 add_to_autocomplete" type="checkbox" value="true"></span>
                     <button class="btn btn-xs rt btn-image send-message1" data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
                     @if($pam->vendor_id > 0 )
                         <button type="button" class="btn btn-xs rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="vendor" data-id="{{$pam->vendor_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
