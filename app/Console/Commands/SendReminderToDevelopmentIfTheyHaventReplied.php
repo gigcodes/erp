@@ -4,13 +4,11 @@ namespace App\Console\Commands;
 
 use App\ChatMessage;
 use App\CronJobReport;
-use App\Http\Controllers\WhatsAppController;
-use App\Vendor;
 use App\DeveloperTask;
+use App\Http\Controllers\WhatsAppController;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class SendReminderToDevelopmentIfTheyHaventReplied extends Command
 {
@@ -45,48 +43,43 @@ class SendReminderToDevelopmentIfTheyHaventReplied extends Command
      */
     public function handle()
     {
-        //try {
-            $report = CronJobReport::create([
-                'signature'  => $this->signature,
-                'start_time' => Carbon::now(),
-            ]);
+        $report = CronJobReport::create([
+            'signature'  => $this->signature,
+            'start_time' => Carbon::now(),
+        ]);
 
-            $now = Carbon::now()->toDateTimeString();
-            
-            // task page logic starting from here
-            $tasks = \App\DeveloperTask::where('frequency',">",0)->where('reminder_message',"!=","")->get();
+        $now = Carbon::now()->toDateTimeString();
 
-            if(!$tasks->isEmpty()) {
-                foreach($tasks as $task) {
-                    $templateMessage = $task->reminder_message;
-                    if($task->reminder_last_reply == 0) {
-                        $this->sendMessage($task->id, $templateMessage,$task);
-                        $task->last_send_reminder = date("Y-m-d H:i:s");
-                        $task->save();
-                    }else{
-                        $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "' . $now . '") >= ' . $task->frequency)
-                            ->where('developer_task_id', $task->id)
-                            ->latest()
-                            ->first();
+        // task page logic starting from here
+        $tasks = \App\DeveloperTask::where('frequency', ">", 0)->where('reminder_message', "!=", "")->where('reminder_from', "<=", date("Y-m-d H:i:s"))->get();
 
-                        if($message) {
-                           if($message->approved == 1) {
-                              continue;
-                           }
+        if (!$tasks->isEmpty()) {
+            foreach ($tasks as $task) {
+                $templateMessage = $task->reminder_message;
+                if ($task->reminder_last_reply == 0) {
+                    $this->sendMessage($task->id, $templateMessage, $task);
+                    $task->last_send_reminder = date("Y-m-d H:i:s");
+                    $task->save();
+                } else {
+                    $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "' . $now . '") >= ' . $task->frequency)
+                        ->where('developer_task_id', $task->id)
+                        ->latest()
+                        ->first();
+
+                    if ($message) {
+                        if ($message->approved == 1) {
+                            continue;
                         }
-
-                        $this->sendMessage($task->id, $templateMessage,$task);
-                        $task->last_send_reminder = date("Y-m-d H:i:s");
-                        $task->save();
                     }
+
+                    $this->sendMessage($task->id, $templateMessage, $task);
+                    $task->last_send_reminder = date("Y-m-d H:i:s");
+                    $task->save();
                 }
             }
+        }
 
-            $report->update(['end_time' => Carbon::now()]);
-        
-        /*} catch (\Exception $e) {
-            \App\CronJob::insertLastError($this->signature, $e->getMessage());
-        }*/
+        $report->update(['end_time' => Carbon::now()]);
 
     }
 
@@ -99,13 +92,13 @@ class SendReminderToDevelopmentIfTheyHaventReplied extends Command
     {
 
         $params = [
-            'number'    => null,
-            'user_id'   => 6,
-            'erp_user'  => ($task) ? $task->assigned_to : null,
-            'approved'  => 1,
-            'status'    => 1,
+            'number'            => null,
+            'user_id'           => 6,
+            'erp_user'          => ($task) ? $task->assigned_to : null,
+            'approved'          => 1,
+            'status'            => 1,
             'developer_task_id' => $taskId,
-            'message'   => $message,
+            'message'           => $message,
         ];
 
         $chat_message = ChatMessage::create($params);
