@@ -167,7 +167,7 @@
                             <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $composition->name }}" data-id="{{ $composition->id }}"><img src="/images/add.png"></button>
                         </div>
                     </td>
-                    <td class="text-center">{{ $composition->products($composition->name) }}</td>
+                    <td class="text-center">{{ $composition->product_counts_count }}</td>
                     <td>
                         <input type="text" class="col-10 compositions-from-org" data-org-name="{{ $composition->name }}" id="compo_{{ $composition->id }}" value="{{ $composition->name }}">
                         <button class="btn btn-secondary btn-sm composition-assign-update ml-2" data-id="{{ $composition->id }}" title="Update"><i class="fa fa-save"></i></button>

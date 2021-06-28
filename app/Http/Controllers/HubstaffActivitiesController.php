@@ -22,6 +22,7 @@ use App\Helpers\hubstaffTrait;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\HubstaffActivityReport;
 use App\DeveloperTaskHistory;
+use Carbon\Carbon;
 
 class HubstaffActivitiesController extends Controller
 {

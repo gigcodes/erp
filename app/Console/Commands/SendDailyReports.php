@@ -54,7 +54,7 @@ class SendDailyReports extends Command
             $now  = Carbon::now();
             $date = Carbon::now()->format('Y-m-d');
 
-            $daily_activities = DailyActivity::whereNotNull('repeat_type')->where('for_date',$date)->get();
+            $daily_activities = DailyActivity::whereNotNull('repeat_type')->where('for_date',$date)->where('type','event')->get();
             foreach ($daily_activities as $key) {
 
                 $start_date = Carbon::parse($date);
