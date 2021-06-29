@@ -38,9 +38,33 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
     </div>
 </div>
 
+
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Brand Logos </h2>
+
+        <form method="get" action="{{route('brand.logo_data')}}">
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    @php
+                        if(isset($_REQUEST['brand_name']))
+                            $brand_name = $_REQUEST['brand_name'];
+                        else
+                            $brand_name = '';
+                    @endphp
+
+                    <input name="brand_name" type="text" class="form-control" value="{{$brand_name}}"  placeholder="Brand Name" id="brand_name">
+                </div>
+                
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-image" ><img src="/images/filter.png"></button>
+                
+                    <a href="{{route('brand.logo_data')}}" type="button" class="btn btn-image" id=""><img src="/images/resend2.png"></a>    
+                </div>
+            </div>
+        </form>
+        
+
         <div class="pull-left">
             <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#upload_data_modal">
                 Add Brand Logos
@@ -58,22 +82,22 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             <tr>
                 <th width="10%">ID</th>
                 <th width="40%">Name</th>
-                <th width="40%">Logo</th>
+                <!-- <th width="40%">Logo</th> -->
                 <th width="10%">Action</th>
             </tr>
             @foreach($brand_data as $key => $value)
             <tr class="tr_{{$value->brands_id}}">
-                <td>{{ $key+1}}</th>
-                <td>{{ $value->brands_name }}</td>
+                <td class="index">{{ $key+1}}</th>
+                <td class="brand_name">{{ $value->brands_name }}</td>
                 @if($value->brand_logos_image != null)
-                    <td>
+                    <!-- <td class="brand_image">
                     <img src="/brand_logo/{{ $value->brand_logos_image }}"  style="height: 150px; width: 150px;display: block;margin-left: auto;margin-right: auto;" />
-                    </td>
+                    </td> -->
                 @else
-                    <td></td>
+                    <!-- <td class="brand_image"></td> -->
                 @endif
                 <td>
-                    <button title="Open Images" type="button" class="btn preview-attached-img-btn btn-image no-pd" data-id="{{$value->brands_id}}">
+                    <button title="Open Images" type="button" class="btn preview-attached-img-btn btn-image no-pd" data-id="{{$value->brands_id}}" data-name="{{$value->brands_name}}" >
                         <img src="/images/forward.png" style="cursor: default;">
                     </button>
                     <i class="fa fa-trash delete_logo" aria-hidden="true" data-id="{{$value->brands_id}}" ></i>
@@ -146,6 +170,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
     $(document).on('click', '.preview-attached-img-btn', function (e) {     
         e.preventDefault();
         var logo_id = $(this).data('id');
+        var brand_name = $(this).data('name');
         var origin   = window.location.origin; 
         // $('#attach-image-list-'+logo_id).html('ffff');
 
@@ -156,6 +181,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             data: {
                 _token: "{{ csrf_token() }}",
                 'logo_id': logo_id,
+                'brand_name':brand_name,
             },
             success: function(response) {
                 var html_content = '';
@@ -270,10 +296,15 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             },
             success: function(response) {
                 
+                var html_content = '';
                 if(response.code == 200) {
                     toastr['success'](response.message, 'Success');
 
-                    setTimeout(function(){ location.reload(); }, 2000);
+                    html_content = "<img src='/brand_logo/"+response.brand_logo_image+"'  style='height: 150px; width: 150px;display: block;margin-left: auto;margin-right: auto;' />";
+
+                    $('.tr_'+logo_id+' .brand_image').html(html_content);
+
+                    // setTimeout(function(){ location.reload(); }, 2000);
                 }
             },
             error: function(response){
@@ -298,7 +329,10 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                     if(response.code == 200) {
                     toastr['success'](response.message, 'Success');
 
-                    setTimeout(function(){ location.reload(); }, 2000);
+                    var html_content = '';
+                    $('.tr_'+brand_id+' .brand_image').html(html_content);
+
+                    //setTimeout(function(){ location.reload(); }, 2000);
                 }
                 }
             });

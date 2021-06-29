@@ -2269,7 +2269,7 @@ class DevelopmentController extends Controller
 
                 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
 
-                MessageHelper::sendEmailOrWebhookNotification([$task->user_id],$msg);
+                MessageHelper::sendEmailOrWebhookNotification([$task->assigned_to, $task->team_lead_id, $task->tester_id],$msg);
 
             } 
         }
@@ -2296,7 +2296,7 @@ class DevelopmentController extends Controller
                 ]);
                 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
 
-                MessageHelper::sendEmailOrWebhookNotification([$task->assigned_to],$msg);
+                MessageHelper::sendEmailOrWebhookNotification([$task->assigned_to, $task->team_lead_id, $task->tester_id],$msg);
             } 
         }
         return response()->json([
@@ -2383,7 +2383,7 @@ class DevelopmentController extends Controller
 
                 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
 
-                MessageHelper::sendEmailOrWebhookNotification([$issue->assigned_to],$msg);
+                MessageHelper::sendEmailOrWebhookNotification([$issue->assigned_to, $issue->team_lead_id, $issue->tester_id],$msg);
             } 
         }
 
@@ -2714,8 +2714,7 @@ class DevelopmentController extends Controller
 
                     $message = '[ '. $loggedUser->name .' ] - #DEVTASK-' . $devTask->id .' - ' . $devTask->subject ." \n\n" . 'New attchment(s) called ' . $subject . ' has been added. Please check and give your comment or fix it if any issue.';
 
-                    MessageHelper::sendEmailOrWebhookNotification([$devTask->assigned_to], $message);
-
+                    MessageHelper::sendEmailOrWebhookNotification([$devTask->assigned_to, $devTask->team_lead_id, $devTask->tester_id], $message);
                 }
 
                 return response()->json(["code" => 200, "success" => "Done!"]);
@@ -3036,4 +3035,30 @@ class DevelopmentController extends Controller
         }
         return 'error';
     }
+
+    public function updateDevelopmentReminder(Request $request)
+    {
+        // this is the changes related to developer task
+        $task = DeveloperTask::find($request->get('development_id'));
+        $task->frequency            = $request->get('frequency');
+        $task->reminder_message     = $request->get('message');
+        $task->reminder_from        = $request->get('reminder_from',"0000-00-00 00:00");
+        $task->reminder_last_reply  = $request->get('reminder_last_reply',0);
+        $task->last_send_reminder   = date("Y-m-d H:i:s");
+        $task->save();
+        
+            $message = "Reminder : ".$request->get('message');
+            if(optional($task->assignedUser)->phone){
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
+                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+                
+                //app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($task->assignedUser->phone, $task->assignedUser->whatsapp_number, $message);
+            }   
+        
+        return response()->json([
+          'success'
+        ]);
+      }
 }

@@ -8,6 +8,7 @@
 		        <th width="10%">Start Date</th>
 		        <th width="10%">Daily Availble hr</th>
 		        <th width="10%">Total Working hr</th>
+		        <th width="10%">Different</th>
 		        <th width="2%">Min Percentage</th>
 		        <th width="2%">Actual Percentage</th>
 		        <th width="10%">Reason</th>
@@ -25,6 +26,7 @@
 			        <td>{{:prop.start_date}}</td>
 			        <td>{{:prop.daily_working_hour}}</td>
 			        <td>{{:prop.total_working_hour}}</td>
+			        <td>{{:prop.different}}</td>
 			        <td>{{:prop.min_percentage}}</td>
 			        <td>{{:prop.actual_percentage}}</td>
 			        <td>{{:prop.reason}}</td>

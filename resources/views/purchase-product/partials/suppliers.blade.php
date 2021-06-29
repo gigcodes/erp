@@ -299,6 +299,151 @@ $(document).on('click', '.product-list-btn', function(e) {
 
     });
     //END - DEVTASK-4236
+
     
+    //START - Purpose : set value in Modal - DEVTASK-4236
+    $(document).on('click', '.btn_send_modal', function(event) {
+        let type = $(this).data('type');
+        let supplier_id = $(this).data('id');
+        var product_ids = [];
+        var order_ids = [];
+        var cus_cls = ".supplier-"+supplier_id;
+        var total = $(cus_cls).find(".select-pr-list-chk").length;
+
+        
+        for (i = 0; i < total; i++) {
+          var supplier_cls = ".supplier-"+supplier_id+" .select-pr-list-chk";
+          var $input = $(supplier_cls).eq(i);
+          var product_id = $input.data('id');
+          var order_id = $input.data('order-id');
+          if ($input.is(":checked") === true) {
+                product_ids.push(product_id);
+
+                product_ids = unique(product_ids);
+
+                order_ids.push(order_id);
+                order_ids = unique(order_ids);
+            }
+        }
+
+        $('.type').val(type);
+        $('.supplier_id').val(supplier_id);
+        $('.product_id').val(product_ids);
+        $('.order_id').val(order_ids);
+
+        if(product_ids == '')
+        {
+          $('.show_excel_send_data').css("display", "none");
+          $('.send_excel_btn').css("display", "none");
+          $('.select_product_error').css("display", "block");
+        }else{
+          $('.show_excel_send_data').css("display", "block");
+          $('.send_excel_btn').css("display", "block");
+          $('.select_product_error').css("display", "none");
+        }
+
+        $.ajax({
+            url: '{{ route("purchase-product.getallproducts") }}',
+            type: 'get',
+            data: {
+                type: type,
+                supplier_id: supplier_id,
+                // product_id:product_id,
+                // order_id:order_id,
+                product_id:JSON.stringify(product_ids),
+                order_id:JSON.stringify(order_ids),
+                _token: "{{csrf_token()}}",
+                status: 2
+            },
+            success: function(response) {
+              $("#loading-image").hide();
+              
+               if(response.code == 200)
+               {
+                  $('.additional_content').val(response.data);
+               }
+            },
+            beforeSend: function() {
+               
+                $("#loading-image").show();
+            },
+            error: function() {
+              $("#loading-image").hide();
+                
+            }
+        });
+        
+    });
+
+    $(document).on('click', '.send_excel_btn', function(event) {
+      
+        var send_options = '';
+        if($("#send_option_email").is(':checked') == true){
+            send_options = 'email';
+        }
+
+        if($("#send_option_whatsapp").is(':checked') == true){
+            send_options = 'whatsapp';
+        }
+
+        if($("#send_option_whatsapp").is(':checked') == true && $("#send_option_email").is(':checked') == true)
+        {
+            send_options = 'both';
+        }
+
+        if(send_options == '')
+        {
+            alert("Please Select Send Option");
+            return;
+        }
+
+        var type = $('.type').val();
+        var supplier_id = $('.supplier_id').val();
+        var product_id = $('.product_id').val();
+        var order_id = $('.order_id').val();
+        var content = $('.additional_content').val();
+
+        $.ajax({
+            url: '{{ route("purchase-product.send_Products_Data") }}',
+            type: 'POST',
+            data: {
+                type: type,
+                supplier_id: supplier_id,
+                product_id:product_id,
+                order_id:order_id,
+                content:content,
+                send_options : send_options,
+                _token: "{{csrf_token()}}",
+                status: 2
+            },
+            success: function(response) {
+              $("#loading-image").hide();
+              toastr['success']("Message sent successfully!", "Success");
+              $('#send_supp_modal').modal('hide');
+            },
+            beforeSend: function() {
+               
+                $("#loading-image").show();
+            },
+            error: function() {
+              $("#loading-image").hide();
+                
+            }
+        });
+
+    });
+
+    $(document).on('click', '.download_excel_url', function(event) {
+      var type = $('.type').val();
+      var supplier_id = $('.supplier_id').val();
+      var product_id = $('.product_id').val();
+      var order_id = $('.order_id').val();
+
+      window.location.href = '/purchase-product/getexcel?type='+type+'&supplier_id='+supplier_id+'&product_id='+product_id+'&order_id='+order_id;
+    
+    });
+
+   
+    //END - DEVTASK-4236
 </script>
 @endsection

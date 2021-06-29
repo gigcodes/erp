@@ -237,6 +237,11 @@ var getHtml = function(response) {
         if(message.type == "supplier")
         {
             button += "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'><i class='fa fa-repeat' aria-hidden='true'></i> (" + message.resent + ")</a>";
+
+            if(message.additional_data != '' && message.additional_data != null)
+            { 
+                button += "<a href='/purchase-product/download_excel_file/?filename="+ message.additional_data +"' title='Download Excel' class='btn btn-xs btn-secondary ml-1 download_excel' data-id='" + message.id + "'><i class='fa fa-file-excel-o' aria-hidden='true'></i></a>";
+            }
         }
         //END - DEVTASK-4236
         if(message.is_queue == 1) {
@@ -1043,7 +1048,7 @@ var id = $(this).data('id');
 $('#forward_message_id').val(id);
 });
 
-$(document).on("focusout", '.search_chat_pop', function() {
+$(document).on("keyup", '.search_chat_pop', function() {
     var value = $(this).val().toLowerCase();
     exampleFunction() ;//your function call
     // $(".speech-wrapper .bubble").filter(function() {

@@ -34,7 +34,7 @@
                         <div class="row">
 
 
-                            <div class="col">
+                            <div class="col pr-0">
                                 <?php echo Form::text("search", request("search", null), ["class" => "form-control", "placeholder" => "Enter input here.."]); ?>
                             </div>
                             <div class="col">
@@ -50,7 +50,7 @@
                             </div>
 
                             <!-- START - Purpose : Set unreplied messages - DEVATSK=4350 -->
-                            <div>
+                            <div style="display: flex;align-items: center">
                                 
                                     @if(isset($_REQUEST['unreplied_msg']) && $_REQUEST['unreplied_msg']== true)
                                         @php $check_status = 'checked'; @endphp
@@ -58,16 +58,16 @@
                                         @php $check_status = ''; @endphp
                                     @endif
                                
-                                <input type="checkbox" id="unreplied_msg" name="unreplied_msg" {{$check_status}} value="true"> Unreplied Messages
+                                <input class="mt-0 mr-2" type="checkbox" id="unreplied_msg" name="unreplied_msg" {{$check_status}} value="true"> Unreplied Messages
                             </div>
-                            <div style="margin-left: 10px;">
+                            <div style="margin-left: 20px;display: flex;align-items: center">
                                     @if(request("unread_message") == "true")
                                         @php $check_status = 'checked'; @endphp
                                     @else
                                         @php $check_status = ''; @endphp
                                     @endif
                                
-                                <input type="checkbox" id="unread_message" name="unread_message" {{$check_status}} value="true"> Unread Messages
+                                <input class="mt-0 mr-2" type="checkbox" id="unread_message" name="unread_message" {{$check_status}} value="true"> Unread Messages
                             </div>
                             <!-- END - DEVATSK=4350 -->
 

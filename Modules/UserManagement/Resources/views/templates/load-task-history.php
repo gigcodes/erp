@@ -10,10 +10,22 @@
 		   <div class="modal-body">
 
            <div class="task_hours_section" style="text-align:center;">
-                    <p style="margin:0px;text-align:right"><strong>Total Priority Task Hours:</strong>  <span>{{:userTiming.total_priority_hours}} Hours</span></p>
-                    <p style="margin:0px;text-align:right"><strong>Today Available Hours:</strong>  <span>{{:userTiming.total_available_time}} Hours</span> <a title="Add Avaibility" class="btn btn-image load-time-modals" data-id="{{:user.id}}"><i class="fa fa-clock-o fa-2x" aria-hidden="true"></i></a></p>
-                    <p style="margin:0px;"><strong>Pending Task Estimated Hours:</strong> <span>{{:userTiming.total_pending_hours}} Hours</span></><br>
-                    <p style="margin:0px;"><strong>Total Available Hours:</strong>  <span>{{:userTiming.total_avaibility_hour}} Hours</span></p>
+            <div class="row mb-2">
+            <div class="col-md-3">
+                  <p style="margin:0px;text-align:left"><strong>Total Priority Task Hours:</strong>  <span>{{:userTiming.total_priority_hours}} Hours</span></p>
+            </div>
+            <div class="col-md-3">
+                  <p style="text-align:left"><strong>Today Available Hours:</strong>  <span>{{:userTiming.total_available_time}} Hours</span> <a title="Add Avaibility" class="btn btn-image load-time-modals" data-id="{{:user.id}}"><i style="font-size: 1.5em;" class="fa fa-clock-o" aria-hidden="true"></i></a></p>
+            </div>
+            <div class="col-md-3 p-0">
+                 <p style="margin:0px;text-align:right"><strong>Pending Task Estimated Hours:</strong> <span>{{:userTiming.total_pending_hours}} Hours</span></><br>
+            </div>
+            <div class="col-md-3">
+                 <p style="margin:0px;text-align:right"><strong>Total Available Hours:</strong>  <span>{{:userTiming.total_avaibility_hour}} Hours</span></p>
+            </div>
+            </div>
+
+
             </div>
 
            
@@ -21,10 +33,10 @@
 		    <thead>
 		      <tr>
 		      	<th style="width:19%">Task</th>
-                <th style="width:10%">Status</th>
-				<th style="width:20%">Description</th>
-		      	<th style="width:45%">Approximate time</th>
-				<th style="width:25%">Action</th> 
+                <th style="width:15%">Status</th>
+				<th style="width:25%">Description</th>
+		      	<th style="width:33%">Approximate time</th>
+				<th style="width:28%">Action</th>
 			</tr>
 		    </thead>
 		    <tbody>
@@ -36,10 +48,10 @@
 					  {{else}}
 					  #DEVTASK-{{:prop.task_id}} => {{:prop.subject}}
 					  {{/if}}
-                      {{if prop.has_flag == '1'}}
-                          <button type="button" class="btn btn-image flag-task pd-5" data-id="{{:prop.task_id}}"><img src="/images/flagged.png" style=""></button>
+                      {{if prop.has_flag == 1}}
+                          <button type="button" class="btn btn-image flag-task pd-5" data-task_type="{{:prop.type}}" data-id="{{:prop.task_id}}"><img src="/images/flagged.png" style=""></button>
                       {{else}}
-                            <button type="button" class="btn btn-image flag-task pd-5" data-id="{{:prop.task_id}}"><img src="/images/unflagged.png" style=""></button>
+                            <button type="button" class="btn btn-image flag-task pd-5" data-task_type="{{:prop.type}}" data-id="{{:prop.task_id}}"><img src="/images/unflagged.png" style=""></button>
                       {{/if}}
 					  </td>
                     <td>
@@ -50,22 +62,29 @@
                                 <option value="<?php echo $value->name; ?>" data-id="<?php echo $value->id; ?>" ><?php echo $value->name; ?></option>
                             <?php } ?>
                         </select>
-                        {{:prop.status_falg}}
+<!--                        {{:prop.status_falg}}-->
                     </td>
-					<td>
-						<div class="show_hide_description">Show Description</div>
-						<div class="description_content" style="display:none">
+					<td> 
+						{{if prop.details.length > 100}}
+							<div class="description">
+								{{:prop.details.substr(0, 100)}}...
+							</div>
+						{{else}}
 							{{:prop.details}}
-						</div>
+						{{/if}}
+						
+						<div class="full_description d-none">
+						{{:prop.details}}
+						</div> 
 					</td>
 			      	<td>
 					  <div class="form-group">
 
 							<div class='input-group estimate_minutes'>
 
-                                <input style="min-width: 30px;margin-right: 3px;" type="text" data-id="{{:prop.task_id}}" data-type="{{:prop.type}}" class="form-control priority-no-field-change input-sm" name="priority_no" placeholder="Priority no" value="{{:prop.priority_no}}">
+<!--                                <input style="min-width: 30px;margin-right: 3px;" type="text" data-id="{{:prop.task_id}}" data-type="{{:prop.type}}" class="form-control priority-no-field-change input-sm" name="priority_no" placeholder="Priority no" value="{{:prop.priority_no}}">-->
 
-								<input style="min-width: 30px;" placeholder="E.minutes" value="{{:prop.approximate_time}}" type="text" class="form-control estimate-time-change" name="estimate_minutes_{{:prop.task_id}}" data-id="{{:prop.task_id}}" id="estimate_minutes_{{:prop.task_id}}" data-type={{:prop.type}}>
+								<input style="min-width: 30px;padding: 5px 10px;font-size: 12px;height: 30px;" placeholder="E.minutes" value="{{:prop.approximate_time}}" type="text" class="form-control estimate-time-change" name="estimate_minutes_{{:prop.task_id}}" data-id="{{:prop.task_id}}" id="estimate_minutes_{{:prop.task_id}}" data-type={{:prop.type}}>
 
 								<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{:prop.task_id}}" data-type={{:prop.type}}><i class="fa fa-info-circle"></i></button>
 							
@@ -77,15 +96,23 @@
                         </div>
 					  </td>
 					  <td>
-					  	<!-- input style="width: 105px;float: left;" type="text" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="" -->
+					  <div class="row">
+					    <div class="col-md-9 pr-0">
+					    	<!-- input style="width: 105px;float: left;" type="text" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="" -->
                         <input type="text" style="width: 100%;" class="form-control quick-message-field input-sm" id="getMsg{{:prop.task_id}}" name="message" placeholder="Message" value="">
                           <!-- <div class="d-flex" style="float:right;"> -->
-                          <button style="padding:2px;" class="btn btn-sm btn-image task-send-message-btn" data-type="{{:prop.type}}" data-id="{{:prop.task_id}}"><img src="/images/filled-sent.png"/></button>
+					    </div>
+					    <div class="col-md-3 pl-1">
+					      <button style="padding:2px;" class="btn btn-sm btn-image task-send-message-btn" data-type="{{:prop.type}}" data-id="{{:prop.task_id}}"><img src="/images/filled-sent.png"/></button>
                           {{if prop.type == 'TASK'}}
                           <button style="padding:2px;" type="button" class="btn btn-xs btn-image load-communication-modal" data-object="task" data-id="{{:prop.task_id}}" title="Load messages"><img src="/images/chat.png" alt="" style="cursor: nwse-resize;"></button>
 					  {{else}}
 					  <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="{{:prop.task_id}}" title="Load messages"><img src="/images/chat.png" alt="" style="cursor: nwse-resize;"></button>
 					  {{/if}}
+					    </div>
+					  </div>
+
+
                     <!-- </div> -->
 					  </td>
 				  </tr>
@@ -203,3 +230,9 @@ $(document).on('click','.load-time-modals',function(e){
 	$('.load-time-modal[data-id="'+id+'"]').trigger('click');
 })
 	</script>
+   <script>
+        $(document).on('click','.description',function(){
+            $('#logMessageModel').modal('show');
+            $('#logMessageModel p').text($(this).next().html());
+        })
+    </script>

@@ -2365,6 +2365,7 @@ $metaData = '';
             });
 
             $(".selectx-vendor").select2({tags :true});
+            $(".selectx-users").select2({tags :true});
         });
         window.token = "{{ csrf_token() }}";
 

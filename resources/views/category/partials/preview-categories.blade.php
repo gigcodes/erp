@@ -1,8 +1,8 @@
 <div class="modal-content">
-  <form class="update-reference-category-form" action="/category/new-references/save-category" method="post">
+  <form class="update-reference-category-form" action="{{!$is_auto_fix ? '/category/new-references/save-category' :'/category/new-references/save-category?is_auto_fix=true' }}" method="post">
      {!! csrf_field() !!}
      <div class="modal-header">
-        <h5 class="modal-title">List Of updated categories</h5>
+        <h5 class="modal-title"> {{!$is_auto_fix  ? 'List Of updated categories' :'Show auto fix categories'}}</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>

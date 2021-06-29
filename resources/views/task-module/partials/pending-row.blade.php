@@ -143,20 +143,20 @@
 
                                         
 
-                                            
-                                            <select id="master_user_id" class="form-control change-task-status select2" data-id="{{$task->id}}" name="master_user_id" id="user_{{$task->id}}">
-                                                <option value="">Select...</option>
-                                                <?php $masterUser = isset($task->master_user_id) ? $task->master_user_id : 0; ?>
-                                                @if(!empty($task_statuses))
-                                                    @foreach($task_statuses as $index => $status)
-                                                        @if( $status->id == $task->status )
-                                                            <option value="{{$status->id}}" selected>{{ $status->name }}</option>
-                                                        @else
-                                                            <option value="{{$status->id}}">{{ $status->name }}</option>
-                                                        @endif
-                                                    @endforeach
-                                                @endif
-                                            </select>
+                                       
+    <select id="master_user_id" class="form-control change-task-status select2" data-id="{{$task->id}}" name="master_user_id" id="user_{{$task->id}}">
+        <option value="">Select...</option>
+        <?php $masterUser = isset($task->master_user_id) ? $task->master_user_id : 0; ?>
+        @if(!empty($task_statuses))
+            @foreach($task_statuses as $index => $status)
+                @if( $status->id == $task->status )
+                    <option value="{{$status->id}}" selected>{{ $status->name }}</option>
+                @else
+                    <option value="{{$status->id}}">{{ $status->name }}</option>
+                @endif
+            @endforeach
+        @endif
+    </select>
                                            
                                                
                                          
@@ -216,7 +216,18 @@
             <div class="row cls_action_box" style="margin:0px;">
                 @if(auth()->user()->isAdmin())
                     <button type="button" class='btn btn-image whatsapp-group pd-5' data-id="{{ $task->id }}" data-toggle='modal' data-target='#whatsAppMessageModal'><img src="{{asset('images/whatsapp.png')}}" /></button>
-                @endif
+                @endif  
+
+                <button data-toggle="modal" data-target="#taskReminderModal"  
+                    class='btn pd-5 task-set-reminder' 
+                    data-id="{{ $task->id }}"
+                    data-frequency="{{ $task->frequency ?? '0' }}"
+                    data-reminder_message="{{ ($task && !empty($task->reminder_message)) ? $task->reminder_message : '' }}"
+                    data-reminder_from="{{ ($task && !empty($task->reminder_from)) ? $task->reminder_from : '' }}"
+                    data-reminder_last_reply="{{ ($task && !empty($task->reminder_last_reply)) ? $task->reminder_last_reply : '' }}"
+                >
+                    <i class="fa fa-bell @if(!empty($task->reminder_message) && $task->frequency > 0) {{ 'green-notification'  }} @else {{ 'red-notification' }} @endif" aria-hidden="true"></i>
+                </button>
 
                 @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id() || $task->master_user_id == Auth::id())
                     <button type="button" title="Complete the task by user" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png"/></button>

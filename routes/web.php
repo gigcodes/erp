@@ -15,6 +15,7 @@ use App\Helpers\TwilioHelper;
 
 Auth::routes();
 
+Route::get('/test/dummydata', 'TestingController@testingFunction');
 
 Route::get('/test/test', 'OrderController@testEmail');
 Route::get('/memory', function () {
@@ -542,6 +543,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/save-reviews', 'ContentManagementController@saveReviews')->name("content-management.save-reviews");
         Route::post('/manage/milestone-task/submit', 'ContentManagementController@submitMilestones')->name("content-management.submit-milestones");
         Route::post('/manage/attach/images', 'ContentManagementController@getAttachImages')->name("content-management.attach.images");
+        Route::get('/download/attach/images', 'ContentManagementController@downloadAttachImages')->name("content-management.download.image");
         Route::prefix('{id}')->group(function () {
             Route::get('list-documents', 'ContentManagementController@listDocuments')->name("content-management.list-documents");
             Route::prefix('remarks')->group(function () {
@@ -703,6 +705,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('meetings/show-data', 'Meeting\ZoomMeetingController@showData')->name('meetings.show.data');
     Route::get('meetings/show', 'Meeting\ZoomMeetingController@show')->name('meetings.show');
 
+
+    Route::post('task/reminder', 'TaskModuleController@updateTaskReminder');
+
     Route::get('task/time/history', 'TaskModuleController@getTimeHistory')->name('task.time.history');
     Route::get('task/categories', 'TaskModuleController@getTaskCategories')->name('task.categories');
     Route::get('task/list', 'TaskModuleController@list')->name('task.list');
@@ -748,6 +753,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('task/{id}', 'TaskModuleController@show')->name('task.module.show');
     Route::resource('task', 'TaskModuleController');
 
+    //START - Purpose : add Route for Remind, Revise Message - DEVTASK-4354
+    Route::post('task/time/history/approve/sendMessage', 'TaskModuleController@sendReviseMessage')->name('task.time.history.approve.sendMessage');
+    Route::post('task/time/history/approve/sendRemindMessage', 'TaskModuleController@sendRemindMessage')->name('task.time.history.approve.sendRemindMessage');
+    //END - DEVTASK-4354
     
 
     Route::post('task/update/approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');
@@ -1074,7 +1083,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('mastercontrol/clearAlert', 'MasterControlController@clearAlert')->name('mastercontrol.clear.alert');
     Route::resource('mastercontrol', 'MasterControlController');
 
-
+    Route::get('purchase-product/getexcel', 'PurchaseProductController@getexcel')->name('purchase-product.getexcel');//Purpose : Set route for Excel - DEVTASK-4236
+    Route::get('purchase-product/getallproducts', 'PurchaseProductController@getallproducts')->name('purchase-product.getallproducts');//Purpose : Set route for Excel - DEVTASK-4236
+    Route::post('purchase-product/send_Products_Data', 'PurchaseProductController@send_Products_Data')->name('purchase-product.send_Products_Data');//Purpose : Set route for Excel - DEVTASK-4236
+    Route::get('purchase-product/download_excel_file', 'PurchaseProductController@download_excel_file')->name('purchase-product.download_excel_file');//Purpose : Set route for Excel - DEVTASK-4236
 
 
     Route::post('purchase-product/change-status/{id}', 'PurchaseProductController@changeStatus');
@@ -1088,6 +1100,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('purchase-product/supplier-details/{order_id}', 'PurchaseProductController@getSupplierDetails');
     Route::get('purchase-product/customer-details/{type}/{order_id}', 'PurchaseProductController@getCustomerDetails');
     Route::resource('purchase-product', 'PurchaseProductController');
+
+    
 
     Route::post('purchase-product/insert_suppliers_product', 'PurchaseProductController@insert_suppliers_product')->name('purchase-product.insert_suppliers_product');
 
@@ -1201,6 +1215,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('download-file', 'DevelopmentController@downloadFile')->name('download.file');
 
     //Route::get('deve lopment/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
+
+
+    Route::post('development/reminder', 'DevelopmentController@updateDevelopmentReminder');
+
+
     Route::get('development/list', 'DevelopmentController@issueTaskIndex')->name('development.issue.index');
     Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
@@ -1452,6 +1471,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
         Route::prefix('notification')->group(function () {
             Route::get('/', 'HubstaffActivitiesController@notification')->name('hubstaff-acitivties.notification.index');
+            Route::post('/download', 'HubstaffActivitiesController@downloadNotification')->name('hubstaff-acitivties.notification.download');
             Route::get('/records', 'HubstaffActivitiesController@notificationRecords')->name('hubstaff-acitivties.notification.records');
             Route::post('/save', 'HubstaffActivitiesController@notificationReasonSave')->name('hubstaff-acitivties.notification.save-reason');
             Route::post('/change-status', 'HubstaffActivitiesController@changeStatus')->name('hubstaff-acitivties.notification.change-status');
