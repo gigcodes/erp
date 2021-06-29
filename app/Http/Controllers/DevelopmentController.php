@@ -422,6 +422,10 @@ class DevelopmentController extends Controller
             //$issues = $issues->where('developer_tasks.status', 'In Progress');
         }
 
+        if (!empty($request->get('repo_id'))) {
+            $issues = $issues->where('repository_id', $request->get('repo_id'));
+        }
+
         $whereCondition = "";
         if ($request->get('subject') != '') {
             $whereCondition = ' and message like  "%' . $request->get('subject') . '%"';
@@ -561,7 +565,11 @@ class DevelopmentController extends Controller
         }else{
             $issues = $issues->paginate(Setting::get('pagination'));
         }
+
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
+
+        $respositories = GithubRepository::all();
+
 
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
 
@@ -580,7 +588,8 @@ class DevelopmentController extends Controller
             'priority' => $priority,
             'countPlanned' => $countPlanned,
             'countInProgress' => $countInProgress,
-            'statusList' => $statusList
+            'statusList' => $statusList,
+            'respositories' => $respositories,
             // 'languages' => $languages
         ]);
     }
@@ -1209,6 +1218,7 @@ class DevelopmentController extends Controller
         $data['priority'] = 0;
         //$data[ 'submitted_by' ] = Auth::id();
         $data['hubstaff_task_id'] = 0;
+        $data['repository_id'] = $request->get('repository_id');
         // $module = $request->get('module_id');
         // if (!empty($module)) {
         //     $module = DeveloperModule::find($module);
