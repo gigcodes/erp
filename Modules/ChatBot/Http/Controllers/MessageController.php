@@ -93,13 +93,30 @@ class MessageController extends Controller
     {
         $id = request("id");
 
+
         if ($id > 0) {
 
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add(['messageId' => $id]);
 
-            app('App\Http\Controllers\WhatsAppController')->approveMessage('customer', $myRequest);
+            $chatMEssage = \app\ChatMessage::find($id);
+
+            $type = "customer";
+            if($chatMEssage->task_id > 0) {
+                $type = "task";
+            }elseif($chatMEssage->developer_tasK_id > 0) {
+                $type = "issue";
+            }elseif($chatMEssage->vendor_id > 0) {
+                $type = "vendor";
+            }elseif($chatMEssage->user_id > 0) {
+                $type = "user";
+            }elseif($chatMEssage->supplier_id > 0) {
+                $type = "supplier";
+            }
+
+
+            app('App\Http\Controllers\WhatsAppController')->approveMessage($type, $myRequest);
         }
 
         return response()->json(["code" => 200, "message" => "Messsage Send Successfully"]);

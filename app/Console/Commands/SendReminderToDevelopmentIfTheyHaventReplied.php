@@ -5,10 +5,8 @@ namespace App\Console\Commands;
 use App\ChatMessage;
 use App\CronJobReport;
 use App\DeveloperTask;
-use App\Http\Controllers\WhatsAppController;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Http\Request;
 
 class SendReminderToDevelopmentIfTheyHaventReplied extends Command
 {
@@ -51,14 +49,14 @@ class SendReminderToDevelopmentIfTheyHaventReplied extends Command
         $now = Carbon::now()->toDateTimeString();
 
         // task page logic starting from here
-        $tasks = \App\DeveloperTask::where('frequency', ">", 0)->where('reminder_message', "!=", "")->select(["*",\DB::raw('TIMESTAMPDIFF(MINUTE, `last_send_reminder`, "' . $now . '") as diff_min')])->get();
+        $tasks = \App\DeveloperTask::where('frequency', ">", 0)->where('reminder_message', "!=", "")->select(["*", \DB::raw('TIMESTAMPDIFF(MINUTE, `last_send_reminder`, "' . $now . '") as diff_min')])->get();
 
         if (!$tasks->isEmpty()) {
             foreach ($tasks as $task) {
-                $templateMessage = $task->reminder_message;
-                $this->info("started for task #".$task->id ." found frequency {$task->diff_min} and task frequency {$task->frequency} and reminder from {$task->reminder_from}");
+                $templateMessage = "#DEVTASK-{$task->id} - Reminder Message => " . $task->reminder_message;
+                $this->info("started for task #" . $task->id . " found frequency {$task->diff_min} and task frequency {$task->frequency} and reminder from {$task->reminder_from}");
                 if ($task->diff_min >= $task->frequency && ($task->reminder_from == "0000-00-00 00:00" || strtotime($task->reminder_from) <= strtotime("now"))) {
-                    $this->info("condition matched for developer #".$task->id);
+                    $this->info("condition matched for developer #" . $task->id);
                     $this->sendMessage($task->id, $templateMessage);
                     $task->last_send_reminder = date("Y-m-d H:i:s");
                     $task->save();
@@ -91,9 +89,10 @@ class SendReminderToDevelopmentIfTheyHaventReplied extends Command
         $chat_message = ChatMessage::create($params);
 
         \App\ChatbotReply::create([
-            'question'=> $message,
+            'question'        => $message,
             'replied_chat_id' => $chat_message->id,
-            'reply_from' => 'database'
+            'chat_id'         => $chat_message->id,
+            'reply_from'      => 'database',
         ]);
     }
 }
