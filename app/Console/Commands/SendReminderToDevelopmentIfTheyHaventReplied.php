@@ -58,7 +58,7 @@ class SendReminderToDevelopmentIfTheyHaventReplied extends Command
                 if ($task->diff_min >= $task->frequency && ($task->reminder_from == "0000-00-00 00:00" || strtotime($task->reminder_from) <= strtotime("now"))) {
                     $this->info("condition matched for developer #" . $task->id);
                     $this->sendMessage($task->id, $templateMessage);
-                    if($task->frequency == 1) {
+                    if ($task->frequency == 1) {
                         $task->frequency = 0;
                     }
                     $task->last_send_reminder = date("Y-m-d H:i:s");
@@ -90,12 +90,56 @@ class SendReminderToDevelopmentIfTheyHaventReplied extends Command
         ];
 
         $chat_message = ChatMessage::create($params);
-
         \App\ChatbotReply::create([
             'question'        => $message,
             'replied_chat_id' => $chat_message->id,
             'chat_id'         => $chat_message->id,
             'reply_from'      => 'reminder',
         ]);
+
+        if ($task->responsible_user_id > 0) {
+            $params['erp_user'] = $task->responsible_user_id;
+            $chat_message       = ChatMessage::create($params);
+            \App\ChatbotReply::create([
+                'question'        => $message,
+                'replied_chat_id' => $chat_message->id,
+                'chat_id'         => $chat_message->id,
+                'reply_from'      => 'reminder',
+            ]);
+        }
+
+        if ($task->master_user_id > 0) {
+            $params['erp_user'] = $task->master_user_id;
+            $chat_message       = ChatMessage::create($params);
+            \App\ChatbotReply::create([
+                'question'        => $message,
+                'replied_chat_id' => $chat_message->id,
+                'chat_id'         => $chat_message->id,
+                'reply_from'      => 'reminder',
+            ]);
+        }
+
+        if ($task->team_lead_id > 0) {
+            $params['erp_user'] = $task->team_lead_id;
+            $chat_message       = ChatMessage::create($params);
+            \App\ChatbotReply::create([
+                'question'        => $message,
+                'replied_chat_id' => $chat_message->id,
+                'chat_id'         => $chat_message->id,
+                'reply_from'      => 'reminder',
+            ]);
+        }
+
+        if ($task->tester_id > 0) {
+            $params['erp_user'] = $task->tester_id;
+            $chat_message       = ChatMessage::create($params);
+            \App\ChatbotReply::create([
+                'question'        => $message,
+                'replied_chat_id' => $chat_message->id,
+                'chat_id'         => $chat_message->id,
+                'reply_from'      => 'reminder',
+            ]);
+        }
+
     }
 }
