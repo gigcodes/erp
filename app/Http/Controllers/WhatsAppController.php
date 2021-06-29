@@ -2162,7 +2162,7 @@ class WhatsAppController extends FindByNumberController
                     $number = $number->phone;
                 
                 $chat_message = ChatMessage::create($params);
-                $this->sendWithThirdApi($number, $whatsapp, $params['message'],$chat_message->id);
+                $this->sendWithThirdApi($number, $whatsapp, $params['message'],null,$chat_message->id);
 
                 return response()->json(['message' => $chat_message]);
 
