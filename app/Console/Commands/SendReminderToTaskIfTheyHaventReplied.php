@@ -57,7 +57,7 @@ class SendReminderToTaskIfTheyHaventReplied extends Command
                 $this->info("started for task #" . $task->id . " found frequency {$task->diff_min} and task frequency {$task->frequency} and reminder from {$task->reminder_from}");
                 if ($task->diff_min >= $task->frequency && ($task->reminder_from == "0000-00-00 00:00" || strtotime($task->reminder_from) <= strtotime("now"))) {
                     $this->info("condition matched for task #" . $task->id);
-                    $this->sendMessage($task->id, $templateMessage);
+                    $this->sendMessage($task, $templateMessage);
                     if($task->frequency == 1) {
                         $task->frequency = 0;
                     }
@@ -76,15 +76,15 @@ class SendReminderToTaskIfTheyHaventReplied extends Command
      * @param $message
      * create chat message entry and then approve the message and send the message...
      */
-    private function sendMessage($taskId, $message)
+    private function sendMessage($task, $message)
     {
 
         $params = [
             'number'   => null,
-            'user_id'  => 6,
+            'user_id'  => $task->assign_to,
             'approved' => 0,
             'status'   => 1,
-            'task_id'  => $taskId,
+            'task_id'  => $task->id,
             'message'  => $message,
         ];
 
