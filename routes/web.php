@@ -1202,7 +1202,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development', 'DevelopmentController@index')->name('development.index');
     Route::post('development/task/list-by-user-id', 'DevelopmentController@taskListByUserId')->name('development.task.list.by.user.id');
     Route::post('development/task/set-priority', 'DevelopmentController@setTaskPriority')->name('development.task.set.priority');
-    Route::post('development/create', 'DevelopmentController@store')->name('development.store');
+   # Route::post('development/create', 'DevelopmentController@store')->name('development.store');
     Route::post('development/{id}/edit', 'DevelopmentController@update')->name('development.update');
     Route::post('development/{id}/verify', 'DevelopmentController@verify')->name('development.verify');
     Route::get('development/verify/view', 'DevelopmentController@verifyView')->name('development.verify.view');
@@ -1274,7 +1274,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Development
     Route::get('development', 'DevelopmentController@index')->name('development.index');
     Route::get('development/update-values', 'DevelopmentController@updateValues');
-    Route::post('development/create', 'DevelopmentController@store')->name('development.store');
+    #Route::post('development/create', 'DevelopmentController@store')->name('development.store');
     Route::post('development/{id}/edit', 'DevelopmentController@update')->name('development.update');
     Route::delete('development/{id}/destroy', 'DevelopmentController@destroy')->name('development.destroy');
 
