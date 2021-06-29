@@ -1187,6 +1187,9 @@ class DevelopmentController extends Controller
      */
     public function store(Request $request)
     {
+
+        $loggedUser = $request->user();
+
         $this->validate($request, [
             'subject' => 'sometimes|nullable|string',
             'task' => 'required|string|min:3',
@@ -1196,6 +1199,7 @@ class DevelopmentController extends Controller
             'module_id' => 'required',
 
         ]);
+        
         $data = $request->except('_token');
         $data['hubstaff_project'] = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 
@@ -1271,6 +1275,9 @@ class DevelopmentController extends Controller
         $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
 
         app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+
+        MessageHelper::sendEmailOrWebhookNotification([$task->user_id, $task->assigned_to, $task->master_user_id, $task->responsible_user_id, $task->team_lead_id, $task->tester_id], ' [ '.$loggedUser->name.' ] - '. $message);
+
         // if ($task->status == 'Done') {
         //   NotificationQueueController::createNewNotification([
         //     'message' => 'New Task to Verify',
