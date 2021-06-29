@@ -21,6 +21,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\ProductCancellationPolicie;
 class StoreWebsiteController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      * @return Response
@@ -599,6 +600,12 @@ class StoreWebsiteController extends Controller
 
         echo $content;
         die;
+    }
+
+    public function magentoUserList(Request $request)
+    {
+        $users = StoreWebsiteUsers::where('is_deleted',0)->get();
+        return response()->json(["code" => 200, "data" => $users]);
     }
 
 }

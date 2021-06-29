@@ -156,6 +156,28 @@ var page = {
         $(document).on("click",".generate-pem-file",function() {
             page.openGenerateFile();
         });
+
+        $(document).on("click",".open-store-magento-user-lising",function(href) {
+            page.openUserListing();
+            
+        });
+    },
+    openUserListing: function() {
+        var _z = {
+            url: this.config.baseUrl + "/store-website/magento-user-lising",
+            method: "get",
+        }
+        this.sendAjax(_z, 'showUserLiting');
+    },
+    showUserLiting : function(response) {
+        if(response.code == 200) {
+            var createWebTemplate = $.templates("#template-magento-user-lising");
+            var tplHtml = createWebTemplate.render(response);
+            var common =  $(".common-modal");
+                common.find(".modal-dialog").html(tplHtml);
+                common.modal("show");
+        }        
+              
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -327,10 +349,18 @@ var page = {
         
         var password = ele.parents('.subMagentoUser').find('.user-password').val();
         var websitemode = ele.parents('.subMagentoUser').find('.websiteMode').val();
+        
        
         //var password = ele.parent().parent().children('.sub-pass').children('.user-password').val();
        
         var store_id = $('#store_website_id').val();
+        
+        //use in user-lising-popup
+        if(!store_id){
+            store_id = ele.parents('.subMagentoUser').find('.store_website_id').val();
+        }
+
+
         var store_website_userid = ele.attr('data-id');
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/store-website/save-user-in-magento",
@@ -667,7 +697,7 @@ var page = {
             common.find(".modal-dialog").html(tplHtml);
             common.modal("show");
               
-    }
+    },
 }
 
 $.extend(page, common);
