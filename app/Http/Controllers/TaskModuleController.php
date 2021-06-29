@@ -2828,7 +2828,7 @@ class TaskModuleController extends Controller {
     $task->last_send_reminder   = date("Y-m-d H:i:s");
     $task->save();
 	
-		$message = "Reminder : ".$request->get('message');
+		$message = "Reminder Updated : ".$request->get('message');
 		if(optional($task->assignedTo)->phone){
 			$requestData = new Request();
             $requestData->setMethod('POST');
