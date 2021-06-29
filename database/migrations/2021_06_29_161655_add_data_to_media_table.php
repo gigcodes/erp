@@ -3,8 +3,9 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddIndexToMediaTable extends Migration
+class AddDataToMediaTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +14,7 @@ class AddIndexToMediaTable extends Migration
      */
     public function up()
     {
-        Schema::table('media', function (Blueprint $table) {
-            $table->index(['extension']);
-
-        });
+        DB::select("ALTER TABLE `media` ADD `bits` VARCHAR(68) NULL DEFAULT NULL AFTER `size`;");
     }
 
     /**
@@ -27,8 +25,7 @@ class AddIndexToMediaTable extends Migration
     public function down()
     {
         Schema::table('media', function (Blueprint $table) {
-            $table->dropIndex(['extension']);
-
+            //
         });
     }
 }

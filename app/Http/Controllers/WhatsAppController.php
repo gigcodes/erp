@@ -2143,7 +2143,7 @@ class WhatsAppController extends FindByNumberController
 
                 $prefix = null;
                 if($learning && $learning->learningUser) {
-                    $prefix = $learning->learningUser->name ." : ";
+                    $prefix = "#".$learning->id." ".$learning->learningUser->name ." : ".$learning->learning_subject. " =>";
                 }
 
                 $params['message'] = $prefix.$request->get('message');
@@ -2162,7 +2162,7 @@ class WhatsAppController extends FindByNumberController
                     $number = $number->phone;
                 
                 $chat_message = ChatMessage::create($params);
-                $this->sendWithThirdApi($number, $whatsapp, $params['message'],$chat_message->id);
+                $this->sendWithThirdApi($number, $whatsapp, $params['message'],null,$chat_message->id);
 
                 return response()->json(['message' => $chat_message]);
 
