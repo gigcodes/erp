@@ -81,7 +81,8 @@ class SendReminderToTaskIfTheyHaventReplied extends Command
 
         $params = [
             'number'   => null,
-            'user_id'  => $task->assign_to,
+            'user_id'  => 6,
+            'erp_user' => $task->assign_to,
             'approved' => 0,
             'status'   => 1,
             'task_id'  => $task->id,
