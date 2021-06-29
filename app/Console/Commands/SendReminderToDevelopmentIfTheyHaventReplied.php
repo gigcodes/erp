@@ -95,7 +95,7 @@ class SendReminderToDevelopmentIfTheyHaventReplied extends Command
             'question'        => $message,
             'replied_chat_id' => $chat_message->id,
             'chat_id'         => $chat_message->id,
-            'reply_from'      => 'database',
+            'reply_from'      => 'reminder',
         ]);
     }
 }

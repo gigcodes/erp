@@ -15,6 +15,9 @@
     .chatbot .communication{
 
     }
+    .background-grey {
+        color: grey;
+    }
     @media(max-width:1400px){
         .btns{
 padding: 3px 2px;
@@ -187,6 +190,19 @@ padding: 3px 2px;
                     <button type="button" class="btn btn-image do_not_disturb" data-id="{{$pam->customer_id}}"><img src="/images/do-disturb.png" style="cursor: nwse-resize;"></button>
                 @endif
             @endif
+
+            @if($pam->reply_from == "reminder")
+                @if($pam->task_id > 0 )
+                    <a href="javascript:;" data-id="{{$pam->task_id}}" data-type="task" class="pd-5 stop-reminder" >
+                        <i class="fa fa-bell background-grey" aria-hidden="true"></i>
+                    </a>
+                @elseif($pam->developer_task_id > 0)
+                    <a href="javascript:;" data-id="{{$pam->developer_task_id}}" data-type="developer_task" class="pd-5 stop-reminder" >
+                        <i class="fa fa-bell background-grey" aria-hidden="true"></i>
+                    </a>
+                @endif
+            @endif
+
             <a href="javascript:;"  style="display: inline-block" class="resend-to-bot btns" data-id="{{ $pam->id }}">
                 <img width="15px" title="Resend to bot" height="15px" src="/images/icons-refresh.png">
             </a>
@@ -409,7 +425,35 @@ padding: 3px 2px;
         }).fail(function(response) {
           alert('Could not update DND status');
           console.log(response);
-        })
+        });
   });
+
+    $(document).on("click",".stop-reminder",function() {
+        var id = $(this).data("id");
+        var type = $(this).data("type");
+
+        $.ajax({
+            type: "GET",
+            url: "/chatbot/messages/stop-reminder",
+            data: {
+                _token: "{{ csrf_token() }}",
+                id : id,
+                type : type
+                // do_not_disturb: option
+            },
+            beforeSend: function() {
+                //$(thiss).text('DND...');
+            },
+            dataType : "json"
+        }).done(function(response) {
+            if(response.code == 200) {
+                toastr['success'](response.messages);
+            }else{
+                toastr['error'](response.messages);
+            }
+        }).fail(function(response) {
+          toastr['error']('Could not update DND status');
+        });
+    });
 
 </script>

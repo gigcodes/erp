@@ -242,4 +242,24 @@ class MessageController extends Controller
         return response()->json(["code" => 500, "data" => [], "messages" => "Message not exist in record"]);
     }
 
+    public function stopReminder(Request $request)
+    {
+        $id = $request->get("id");
+        $type = $request->get("type");
+
+        if($type == "developer_task") {
+           $task = \App\DeveloperTask::find($id);
+        }else{
+           $task = \App\Task::find($id);
+        }
+
+        if($task) {
+            $task->frequency = 0;
+            $task->save();
+            return response()->json(["code" => 200, "data" => [], "messages" => "Reminder turned off"]);
+        }
+
+        return response()->json(["code" => 500, "data" => [], "messages" => "No task found"]);
+    }
+
 }
