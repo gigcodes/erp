@@ -175,13 +175,17 @@ padding: 3px 2px;
                 <img width="15px" height="15px" src="/images/completed.png">
             </a>
             @endif
-            <a href="javascript:;"  style="display: inline-block" class="delete-images btns" data-id="{{ $pam->chat_id }}">
-                <img width="15px" title="Remove Images" height="15px" src="/images/do-disturb.png">
-            </a>
             @if($pam->suggestion_id)
                 <a href="javascript:;"  style="display: inline-block" class="add-more-images btns" data-id="{{ $pam->chat_id }}">
                     <img width="15px" title="Attach More Images" height="15px" src="/images/customer-suggestion.png">
                 </a>
+            @endif
+            @if($pam->customer_id > 0)
+                @if($pam->customer_do_not_disturb == 1)
+                    <button type="button" class="btn btn-image do_not_disturb" data-id="{{$pam->customer_id}}"><img src="/images/do-not-disturb.png" style="cursor: nwse-resize;"></button>
+                @else
+                    <button type="button" class="btn btn-image do_not_disturb" data-id="{{$pam->customer_id}}"><img src="/images/do-disturb.png" style="cursor: nwse-resize;"></button>
+                @endif
             @endif
             <a href="javascript:;"  style="display: inline-block" class="resend-to-bot btns" data-id="{{ $pam->id }}">
                 <img width="15px" title="Resend to bot" height="15px" src="/images/icons-refresh.png">
@@ -381,6 +385,31 @@ padding: 3px 2px;
         });
     });
 
-
+    $(document).on('click', '.do_not_disturb', function() {
+        var id = $(this).data('id');
+        var thiss = $(this);
+        $.ajax({
+            type: "POST",
+            url: "{{ url('customer') }}/" + id + '/updateDND',
+            data: {
+                _token: "{{ csrf_token() }}",
+                // do_not_disturb: option
+            },
+            beforeSend: function() {
+                //$(thiss).text('DND...');
+            }
+        }).done(function(response) {
+          if (response.do_not_disturb == 1) {
+            var img_url = BASE_URL+"images/do-not-disturb.png";
+            $(thiss).html('<img src="'+img_url+'" />');
+          } else {
+            var img_url = BASE_URL+"images/do-disturb.png";
+            $(thiss).html('<img src="'+img_url+'" />');
+          }
+        }).fail(function(response) {
+          alert('Could not update DND status');
+          console.log(response);
+        })
+  });
 
 </script>
