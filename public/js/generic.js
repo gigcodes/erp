@@ -1060,6 +1060,7 @@ $(".search_chat_pop_time").datetimepicker({
     format: 'YYYY-MM-DD',
     useCurrent: false
 }).on('dp.change', function (ev) {
+    currentChatParams.data.page =1;
     exampleFunction() ;//your function call
 });
 
