@@ -128,7 +128,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 <th width="6%" style="word-break:break-all">Deduction%</th>
                 <th width="15%">Segment</th>
                 @foreach($category_segments as $category_segment)
-                    <th width=3%">{{ $category_segment->name }}</th>
+                    <th width="3%">{{ $category_segment->name }}</th>
                 @endforeach
                 <th width="12%">Selling on</th>
                 <th width="12%">Priority</th>
@@ -399,7 +399,9 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             nextSelector: '.pagination li.active + li a',
             contentSelector: 'div.infinite-scroll',
             callback: function() {
-                $('ul.pagination').first().remove();
+                setTimeout(function(){
+                    $('ul.pagination').first().remove();
+                }, 2000);
                 $(".select-multiple").select2();
                 initialize_select2();
             }
