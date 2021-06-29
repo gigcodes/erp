@@ -15,6 +15,9 @@
     .chatbot .communication{
 
     }
+    .background-grey {
+        color: grey;
+    }
     @media(max-width:1400px){
         .btns{
 padding: 3px 2px;
@@ -111,33 +114,30 @@ padding: 3px 2px;
             @endif
 
 
-        <td class="message-input">
+        <td class="message-input pr-0" style="padding-bottom: 5px">
             <div style="display: flex" class=" cls_textarea_subbox">
-                <div class="cls_remove_rightpadding">
-                    <textarea rows="2" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-customer-id="{{ $pam->customer_id }}" name="message" placeholder="Message"></textarea>
+                <div style="width: calc(100% - 35px)" class=" cls_remove_rightpadding">
+                    <textarea rows="3" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-customer-id="{{ $pam->customer_id }}" name="message" placeholder="Message"></textarea>
                 </div>
 
-                <div class="cls_remove_allpadding row-flex">
-                    <span style="display: flex;align-items: center" class="pl-2 pr-2"><input name="add_to_autocomplete" class="m-0 add_to_autocomplete" type="checkbox" value="true"></span>
+                <div style="display: flex;flex-direction: column; width: 35px" class="cls_remove_allpadding row-flex">
+                    <span style="display: flex;justify-content:  center" class="pl-2 pr-2"><input name="add_to_autocomplete" class="m-0 add_to_autocomplete" type="checkbox" value="true"></span>
                     <button class="btn btn-xs rt btn-image send-message1" data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
-                    @if($pam->vendor_id > 0 )
-                        <button type="button" class="btn btn-xs rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="vendor" data-id="{{$pam->vendor_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
-                    @elseif($context === 'task' || $context === 'issue')
-
-                        @php
-                            $context__  = $context === 'issue' ? 'developer_task' : $context;
-                        @endphp
-
-                        <button type="button" class="btn btn-xs rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="{{ $context__ }}" data-id="{{ $issueID }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    @if($pam->task_id > 0 )
+                        <button style="padding:0 !important;" type="button" class="btn btn-xs rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="task" data-id="{{$pam->task_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    @elseif($pam->developer_task_id > 0 )
+                        <button style="padding:0 !important;" type="button" class="btn btn-xs rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="developer_task" data-id="{{$pam->developer_task_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    @elseif($pam->vendor_id > 0 )
+                        <button style="padding:0 !important;" type="button" class="btn btn-xs rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="vendor" data-id="{{$pam->vendor_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                     @else
-                        <button type="button" class="btn btn-xs rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="customer" data-id="{{$pam->customer_id }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
-                        <button type="button" class="btn btn-xs rt btn-image load-communication-modal" data-object="customer" data-id="{{$pam->customer_id }}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
+                        <button  style="padding:0 !important;" type="button" class="btn btn-xs rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="customer" data-id="{{$pam->customer_id }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                        <button  style="padding:0 !important;" type="button" class="btn btn-xs rt btn-image load-communication-modal" data-object="customer" data-id="{{$pam->customer_id }}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
                     @endif
                 </div>
             </div>
         </td>
         <td class="boat-replied">{{ $pam->reply_from }}</td>
-        <td style="padding: 5px 7px;" class="communication">
+        <td style="/*padding: 5px 7px;*/" class="communication">
             <div class="row">
                 <div class="col-6 d-inline form-inline">
                     <input style="width: calc(100% - 35px)" type="text" name="category_name" placeholder="Enter New Category" class="form-control mb-2 quick_category">
@@ -174,18 +174,35 @@ padding: 3px 2px;
         </td>
         <td>
             @if($pam->approved == 0)
-            <a href="javascript:;" style="display: inline-block" class="approve-message btns " data-id="{{ $pam->chat_id }}">
+            <a href="javascript:;" style="display: inline-block" class="approve-message btns " data-id="{{ !empty($pam->chat_id) ? $pam->chat_id : $pam->id  }}">
                 <img width="15px" height="15px" src="/images/completed.png">
             </a>
             @endif
-            <a href="javascript:;"  style="display: inline-block" class="delete-images btns" data-id="{{ $pam->chat_id }}">
-                <img width="15px" title="Remove Images" height="15px" src="/images/do-disturb.png">
-            </a>
             @if($pam->suggestion_id)
                 <a href="javascript:;"  style="display: inline-block" class="add-more-images btns" data-id="{{ $pam->chat_id }}">
                     <img width="15px" title="Attach More Images" height="15px" src="/images/customer-suggestion.png">
                 </a>
             @endif
+            @if($pam->customer_id > 0)
+                @if($pam->customer_do_not_disturb == 1)
+                    <button type="button" class="btn btn-image do_not_disturb" data-id="{{$pam->customer_id}}"><img src="/images/do-not-disturb.png" style="cursor: nwse-resize;"></button>
+                @else
+                    <button type="button" class="btn btn-image do_not_disturb" data-id="{{$pam->customer_id}}"><img src="/images/do-disturb.png" style="cursor: nwse-resize;"></button>
+                @endif
+            @endif
+
+            @if($pam->reply_from == "reminder")
+                @if($pam->task_id > 0 )
+                    <a href="javascript:;" data-id="{{$pam->task_id}}" data-type="task" class="pd-5 stop-reminder" >
+                        <i class="fa fa-bell background-grey" aria-hidden="true"></i>
+                    </a>
+                @elseif($pam->developer_task_id > 0)
+                    <a href="javascript:;" data-id="{{$pam->developer_task_id}}" data-type="developer_task" class="pd-5 stop-reminder" >
+                        <i class="fa fa-bell background-grey" aria-hidden="true"></i>
+                    </a>
+                @endif
+            @endif
+
             <a href="javascript:;"  style="display: inline-block" class="resend-to-bot btns" data-id="{{ $pam->id }}">
                 <img width="15px" title="Resend to bot" height="15px" src="/images/icons-refresh.png">
             </a>
@@ -384,6 +401,59 @@ padding: 3px 2px;
         });
     });
 
+    $(document).on('click', '.do_not_disturb', function() {
+        var id = $(this).data('id');
+        var thiss = $(this);
+        $.ajax({
+            type: "POST",
+            url: "{{ url('customer') }}/" + id + '/updateDND',
+            data: {
+                _token: "{{ csrf_token() }}",
+                // do_not_disturb: option
+            },
+            beforeSend: function() {
+                //$(thiss).text('DND...');
+            }
+        }).done(function(response) {
+          if (response.do_not_disturb == 1) {
+            var img_url = "/images/do-not-disturb.png";
+            $(thiss).html('<img src="'+img_url+'" />');
+          } else {
+            var img_url = "/images/do-disturb.png";
+            $(thiss).html('<img src="'+img_url+'" />');
+          }
+        }).fail(function(response) {
+          alert('Could not update DND status');
+          console.log(response);
+        });
+  });
 
+    $(document).on("click",".stop-reminder",function() {
+        var id = $(this).data("id");
+        var type = $(this).data("type");
+
+        $.ajax({
+            type: "GET",
+            url: "/chatbot/messages/stop-reminder",
+            data: {
+                _token: "{{ csrf_token() }}",
+                id : id,
+                type : type
+                // do_not_disturb: option
+            },
+            beforeSend: function() {
+                //$(thiss).text('DND...');
+            },
+            dataType : "json"
+        }).done(function(response) {
+            if(response.code == 200) {
+                toastr['success'](response.messages);
+            }else{
+                toastr['error'](response.messages);
+            }
+        }).fail(function(response) {
+          toastr['error']('Could not update DND status');
+        });
+    });
 
 </script>

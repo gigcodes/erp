@@ -108,6 +108,15 @@
             </select>
         </div>
 
+        <div class="col-md-2 pd-sm">
+            <select class="form-control" name="repo_id" id="repo_id">
+                <option value="">Select repository</option>
+                @foreach ($respositories as $repository)
+                    <option value="{{ $repository->id }}" {{ $repository->id == request()->get('repo_id') ? 'selected' : '' }}>{{ $repository->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
         <div class="col-md-1 pd-sm">
             {{--
             @if ( isset($_REQUEST['show_resolved']) && $_REQUEST['show_resolved'] == 1 )

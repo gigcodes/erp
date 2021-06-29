@@ -128,7 +128,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 <th width="6%" style="word-break:break-all">Deduction%</th>
                 <th width="15%">Segment</th>
                 @foreach($category_segments as $category_segment)
-                    <th width=3%">{{ $category_segment->name }}</th>
+                    <th width="3%">{{ $category_segment->name }}</th>
                 @endforeach
                 <th width="12%">Selling on</th>
                 <th width="12%">Priority</th>
@@ -197,11 +197,11 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                     </td>
                 @endforeach 
                 <td class="show_brand" data-id="{{$brand->id}}" style="max-width: 150px;cursor: pointer; ">
-                    <span style="word-wrap: break-word;" >{{ !empty($brand->selling_on) && !empty(explode(",", $brand->selling_on)[0]) ? strlen($storeWebsite[explode(",", $brand->selling_on)[0]]) > 10 ? substr($storeWebsite[explode(",", $brand->selling_on)[0]], 0, 10) .' ...' : $storeWebsite[explode(",", $brand->selling_on)[0]] : '' }}</span>
+                    <span style="word-wrap: break-word;" >{{ !empty($brand->selling_on) && !empty(explode(",", $brand->selling_on)[0]) ? (strlen($storeWebsite[explode(",", $brand->selling_on)[0]]) > 10 ? substr($storeWebsite[explode(",", $brand->selling_on)[0]], 0, 10) .' ...' : $storeWebsite[explode(",", $brand->selling_on)[0]]) : '' }}</span>
                     @if(!empty(explode(",", $brand->selling_on)[0]))
                     <br>
                     @endif
-                    <span style="word-wrap: break-word;" >{{ !empty($brand->selling_on) && !empty(explode(",", $brand->selling_on)[1]) ? strlen($storeWebsite[explode(",", $brand->selling_on)[1]]) > 10 ? substr($storeWebsite[explode(",", $brand->selling_on)[1]], 0, 10) .' ...' : $storeWebsite[explode(",", $brand->selling_on)[1]] : '' }}</span>
+                    <span style="word-wrap: break-word;" >{{ !empty($brand->selling_on) && !empty(explode(",", $brand->selling_on)[1]) ? (strlen($storeWebsite[explode(",", $brand->selling_on)[1]]) > 10 ? substr($storeWebsite[explode(",", $brand->selling_on)[1]], 0, 10) .' ...' : $storeWebsite[explode(",", $brand->selling_on)[1]]) : '' }}</span>
                     @if(!empty(explode(",", $brand->selling_on)[1]))
                     @endif  
                     @if(explode(",", $brand->selling_on)[0] == '')
@@ -399,7 +399,9 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             nextSelector: '.pagination li.active + li a',
             contentSelector: 'div.infinite-scroll',
             callback: function() {
-                $('ul.pagination').first().remove();
+                setTimeout(function(){
+                    $('ul.pagination').first().remove();
+                }, 2000);
                 $(".select-multiple").select2();
                 initialize_select2();
             }
