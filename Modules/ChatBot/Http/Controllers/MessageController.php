@@ -62,7 +62,7 @@ class MessageController extends Controller
             $q->where("chat_messages.message", "!=", "");
         })->select(['cr.id as chat_bot_id','cr.is_read as chat_read_id', "chat_messages.*", "cm1.id as chat_id", "cr.question",
             "cm1.message as answer",
-            "c.name as customer_name", "v.name as vendors_name","s.supplier as supplier_name", "cr.reply_from", "cm1.approved", "sw.title as website_title"])
+            "c.name as customer_name", "v.name as vendors_name","s.supplier as supplier_name", "cr.reply_from", "cm1.approved", "sw.title as website_title","c.do_not_disturb as customer_do_not_disturb"])
             ->orderBy('cr.id', 'DESC')
             ->paginate(20);
 
