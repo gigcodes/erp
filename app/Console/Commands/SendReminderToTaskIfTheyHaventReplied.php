@@ -58,6 +58,9 @@ class SendReminderToTaskIfTheyHaventReplied extends Command
                 if ($task->diff_min >= $task->frequency && ($task->reminder_from == "0000-00-00 00:00" || strtotime($task->reminder_from) <= strtotime("now"))) {
                     $this->info("condition matched for task #" . $task->id);
                     $this->sendMessage($task->id, $templateMessage);
+                    if($task->frequency == 1) {
+                        $task->frequency = 0;
+                    }
                     $task->last_send_reminder = date("Y-m-d H:i:s");
                     $task->save();
                 }
