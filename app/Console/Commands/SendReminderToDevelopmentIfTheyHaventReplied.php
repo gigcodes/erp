@@ -83,7 +83,7 @@ class SendReminderToDevelopmentIfTheyHaventReplied extends Command
             'number'            => null,
             'user_id'           => 6,
             'erp_user'          => ($task) ? $task->assigned_to : null,
-            'approved'          => 1,
+            'approved'          => 0,
             'status'            => 1,
             'developer_task_id' => $taskId,
             'message'           => $message,
