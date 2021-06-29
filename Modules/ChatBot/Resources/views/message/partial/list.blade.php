@@ -400,10 +400,10 @@ padding: 3px 2px;
             }
         }).done(function(response) {
           if (response.do_not_disturb == 1) {
-            var img_url = BASE_URL+"images/do-not-disturb.png";
+            var img_url = "/images/do-not-disturb.png";
             $(thiss).html('<img src="'+img_url+'" />');
           } else {
-            var img_url = BASE_URL+"images/do-disturb.png";
+            var img_url = "/images/do-disturb.png";
             $(thiss).html('<img src="'+img_url+'" />');
           }
         }).fail(function(response) {
