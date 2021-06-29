@@ -143,6 +143,7 @@ class StoreWebsiteController extends Controller
     }
 
     public function saveUserInMagento(Request $request) {
+        
         $post = $request->all();
         $validator = Validator::make($post, [
             'username'   => 'required',
@@ -150,6 +151,7 @@ class StoreWebsiteController extends Controller
             'lastName'   => 'required',
             'userEmail'   => 'required',
             'password' => 'required',
+            'websitemode' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -196,6 +198,7 @@ class StoreWebsiteController extends Controller
             $getUser->last_name = $post['lastName'];
             $getUser->email = $post['userEmail'];
             $getUser->password = $post['password'];
+            $getUser->website_mode = $post['websitemode'];
             $getUser->save();
 
             $magentoHelper = new MagentoHelperv2();
@@ -208,6 +211,7 @@ class StoreWebsiteController extends Controller
             $params['email'] = $post['userEmail'];
             $params['password'] = $post['password'];
             $params['store_website_id'] = $post['store_id'];
+            $params['website_mode'] = $post['websitemode'];
             StoreWebsiteUsers::create($params);
 
             if($post['userEmail'] && $post['password']) {

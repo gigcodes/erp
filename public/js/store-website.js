@@ -324,7 +324,12 @@ var page = {
         var userEmail = ele.parents('.subMagentoUser').find('.userEmail').val();
         var firstName = ele.parents('.subMagentoUser').find('.firstName').val();
         var lastName = ele.parents('.subMagentoUser').find('.lastName').val();
-        var password = ele.parent().parent().children('.sub-pass').children('.user-password').val();
+        
+        var password = ele.parents('.subMagentoUser').find('.user-password').val();
+        var websitemode = ele.parents('.subMagentoUser').find('.websiteMode').val();
+       
+        //var password = ele.parent().parent().children('.sub-pass').children('.user-password').val();
+       
         var store_id = $('#store_website_id').val();
         var store_website_userid = ele.attr('data-id');
         var _z = {
@@ -332,6 +337,7 @@ var page = {
             method: "post",
             data : {
                 _token:$('meta[name="csrf-token"]').attr('content'),
+                websitemode:websitemode,
                 username:username,
                 userEmail:userEmail,
                 firstName:firstName,
@@ -374,10 +380,18 @@ var page = {
                       '</div>'+
                       '<div class="form-group">'+
                         '<div class="row">'+
-                             '<label class="col-sm-12" for="password">Password</label>'+
-                             '<div class="col-sm-7 sub-pass">'+
+                            '<div class="col-sm-6">'+
+                                '<labelfor="password">Password</label>'+
                                 '<input type="password" name="password" value="" class="form-control user-password" id="password" placeholder="Enter Password">'+
                              '</div>'+
+                            '<div class="col-sm-6">'+
+                                '<label for="website_mode">Website Mode</label>'+
+                                '<select name="website_mode" id="website_mode" class="form-control websiteMode"><option value="production">Production</option><option value="staging">Staging</option></select>'+
+                             '</div>'+    
+                        '</div>'+
+                      '</div>'+
+                      '<div class="form-group">'+
+                        '<div class="row">'+
                              '<div class="col-sm-5">'+
                                 '<button type="button" data-id="" class="btn btn-show-password btn-sm" style="border:1px solid">'+
                                     '<i class="fa fa-eye" aria-hidden="true"></i>'+
