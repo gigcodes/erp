@@ -1721,6 +1721,8 @@ Route::post('livechat/check-new-chat', 'LiveChatController@checkNewChat')->name(
 
 Route::get('livechat/getLiveChats', 'LiveChatController@getLiveChats')->name('livechat.get.chats');
 
+Route::get('livechat/getorderdetails', 'LiveChatController@getorderdetails')->name('livechat.getorderdetails');
+
 
 
 Route::get('/brand-review', '\App\Http\Controllers\Api\v1\BrandReviewController@index');

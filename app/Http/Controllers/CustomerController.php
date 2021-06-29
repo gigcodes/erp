@@ -2614,10 +2614,16 @@ class CustomerController extends Controller
 
     public function languageTranslate(Request $request) 
     {
-      $customer = Customer::find($request->id);
-      $customer->language = $request->language;
-      $customer->save();
-      return response()->json(['success' => 'Customer language updated'], 200);
+        if($request->language == '')
+            $language = 'en';
+        else
+            $language = $request->language;
+
+        $customer = Customer::find($request->id);
+        // $customer->language = $request->language;
+        $customer->language = $language;
+        $customer->save();
+        return response()->json(['success' => 'Customer language updated'], 200);
     }
 
     public function getLanguage(Request $request)
