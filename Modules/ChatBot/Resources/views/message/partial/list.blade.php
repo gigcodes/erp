@@ -174,7 +174,7 @@ padding: 3px 2px;
         </td>
         <td>
             @if($pam->approved == 0)
-            <a href="javascript:;" style="display: inline-block" class="approve-message btns " data-id="{{ $pam->chat_id }}">
+            <a href="javascript:;" style="display: inline-block" class="approve-message btns " data-id="{{ !empty($pam->chat_id) ? $pam->chat_id : $pam->id  }}">
                 <img width="15px" height="15px" src="/images/completed.png">
             </a>
             @endif
