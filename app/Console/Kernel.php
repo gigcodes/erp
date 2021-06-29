@@ -565,7 +565,7 @@ class Kernel extends ConsoleKernel
 		
 		$schedule->command('routes:sync')->hourly()->withoutOverlapping();
 
-		$schedule->command('command:assign_incomplete_products')->dailyAt('01:30');
+		//$schedule->command('command:assign_incomplete_products')->dailyAt('01:30');
 		$schedule->command('send:daily-reports')->dailyAt('23:00');
 
 		
