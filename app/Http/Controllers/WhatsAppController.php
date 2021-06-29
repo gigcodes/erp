@@ -2143,7 +2143,7 @@ class WhatsAppController extends FindByNumberController
 
                 $prefix = null;
                 if($learning && $learning->learningUser) {
-                    $prefix = $learning->learningUser->name ." : ";
+                    $prefix = "#".$learning->id." ".$learning->learningUser->name ." : ".$learning->learning_subject. " =>";
                 }
 
                 $params['message'] = $prefix.$request->get('message');
