@@ -372,8 +372,8 @@ class WhatsappConfigController extends Controller
 
             $ch = curl_init();
 
-            if ($whatsappConfig->number = "971508309192") {
-                $url = "http://136.244.118.102:81/get-barcode";
+            if ($whatsappConfig->is_use_own == 1) {
+                $url = "http://136.244.118.102:81/get-barcode?instanceId=".$whatsappConfig->instance_id;
             } else {
                 $url = env('WHATSAPP_BARCODE_IP') . $whatsappConfig->username . '/get-screen';
             }
@@ -388,7 +388,7 @@ class WhatsappConfigController extends Controller
             // close curl resource to free up system resources
             curl_close($ch);
 
-            if ($whatsappConfig->number = "971508309192") {
+            if ($whatsappConfig->is_use_own = 1) {
                 $content = base64_decode($output);
             }else{
                 $barcode = json_decode($output);

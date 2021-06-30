@@ -13,8 +13,8 @@
         <a href="javascript:;" data-toggle="modal" data-target="#developmentReminderModal"  
             class='pd-5 development-set-reminder' 
             data-id="{{ $issue->id }}"
-            data-frequency="{{ $issue->frequency ?? '0' }}"
-            data-reminder_message="{{ $issue->reminder_message }}"
+            data-frequency="{{ !empty($issue->reminder_message) ? $issue->frequency : '60' }}"
+            data-reminder_message="{{ !empty($issue->reminder_message) ? $issue->reminder_message : 'Plz update' }}"
             data-reminder_from="{{ $issue->reminder_from }}"
             data-reminder_last_reply="{{ $issue->reminder_last_reply }}"
         >

@@ -15,7 +15,7 @@ use App\Helpers\CompareImagesHelper;
 use Auth;
 use Symfony\Component\Process\Process;
 use \Plank\Mediable\Media;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class SearchAttachedImages implements ShouldQueue
 {
@@ -23,10 +23,12 @@ class SearchAttachedImages implements ShouldQueue
 
     protected $id;
     protected $req_data; 
+    protected $url; 
 
-    public function __construct($id, $req_data)
+    public function __construct($id, $url, $req_data)
     {
         $this->id = $id; 
+        $this->url = $url; 
         $this->req_data = $req_data; 
     }
 
@@ -35,65 +37,77 @@ class SearchAttachedImages implements ShouldQueue
         set_time_limit(0);
 
         $id = $this->id;
+        $ref_file = str_replace('|', '/', $this->url);
+        $ref_file = str_replace("'", '', $ref_file);
         $params = $this->req_data;
-        Log::error("SearchAttachedImages(): id: => " . $this->id . ' params: => ' . json_encode($this->req_data));
-    
-        $chat_message = \App\ChatMessage::where('id', $id)->first();
-        Log::error("chat_message: => " . $chat_message);
-        $media = $chat_message->getMedia(config('constants.media_tags'))[0];
-        Log::error("media: => " . $media);
-        $ref_file = public_path('uploads/') . $media->directory . '/' . $media->filename . '.' . $media->extension;
-        Log::error("ref_file: => " . $ref_file);
-        $process = Process::fromShellCommandline('find $(pwd) -maxdepth 5 -type f -not -path "*/\.*" | sort ', public_path('uploads/product'));
-        $process->run(); 
-        $files = explode("\n", $process->getOutput());
-        $first_time = true;
+        $media_array = [];
         $is_matched = false;
-        foreach($files as $key => $file){
-            $compare = Process::fromShellCommandline('compare -metric ae -fuzz XX% ' . $ref_file . ' ' . $file . ' null: 2>&1', public_path('uploads/product'));
-            $compare->run();
-            $match = $compare->getOutput() == '0' ? true : false;
-            Log::error("match: => " . $match);
-            if($match){
-                // if($file != $ref_file){
-                    $name = explode('/', $file)[count(explode('/', $file)) - 1 ];
-                    $ext = explode('.', $name)[count(explode('.', $name)) - 1];
-                    $name = str_replace('.' . $ext, '', $name);
-                    $media = Media::where('filename', $name)->first();
-                    Log::error("media: => " . $media);
-                    if($media != null){
-                        $dir = explode('/', $media->directory);
-                        if(isset($dir[2])){
-                            $is_matched = true;
-                            if($first_time){
-                                $sp = SuggestedProduct::create([
-                                    'total' => 0,
-                                    'customer_id' => $chat_message->customer_id,
-                                    'chat_message_id' => $chat_message->id,
-                                ]);
-                                $first_time = false;
-                            } 
-                            Log::error("sp: => " . $sp . ' prod_id: => ' . $dir[2]);
+        $chat_message = \App\ChatMessage::where('id', $id)->first();
+        if(@file_get_contents($ref_file)){
+            $i1 = CompareImagesHelper::createImage($ref_file);
+                
+            $i1 = CompareImagesHelper::resizeImage($i1,$ref_file);
+            
+            imagefilter($i1, IMG_FILTER_GRAYSCALE);
+            
+            $colorMean1 = CompareImagesHelper::colorMeanValue($i1);
+            
+            $bits1 = CompareImagesHelper::bits($colorMean1);
+
+            $bits = implode($bits1); 
+            $first_time = true;
+
+            $xx = 0;
+            $count = 0;
+            $compared_media = 0;
+            DB::table('media')->whereNotNull('bits')->where('bits', '!=', 0)->where('directory', 'like', '%product/%')->orderBy('id')->chunk(1000, function($medias) use ($bits, $xx, $count)
+            {
+                foreach ($medias as $k => $m)
+                {
+                    $hammeringDistance = 0;
+                    $m_bits = $m->bits;
+                    if($m_bits == '0'){
+                        continue;
+                    }
+                    for($a = 0;$a<64;$a++)
+                    {
+                        if($bits[$a] != $m_bits[$a])
+                        {
+                            $hammeringDistance++;
+                        }
+                        
+                    } 
+                    if($hammeringDistance < 10){
+                        $is_matched = true;
+                        if($first_time){
+                            $sp = SuggestedProduct::create([
+                                'total' => 0,
+                                'customer_id' => $chat_message->customer_id,
+                                'chat_message_id' => $chat_message->id,
+                            ]);
+                            $first_time = false;
+                        } 
+                        $mediable = Mediable::where('media_id', $m->id)->first();
+                        if($mediable && $mediable->mediable_id !== null){
                             SuggestedProductList::create([
                                 'customer_id' => $chat_message->customer_id,
-                                'product_id' => $dir[2],
+                                'product_id' => $mediable->mediable_id,
                                 'chat_message_id' => $chat_message->id,
                                 'suggested_products_id' => $sp->id
                             ]); 
                         }
                     }
-                // }
-            }
-        }  
+                }
+            });
+        }
 
         $user = Auth::user();
         if($is_matched){
             $msg = 'Your image find process is completed.';
         }else{
             $msg = 'Your image find process is completed, No results found';
-        }
+        } 
         app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
-        // return view('ErpCustomer::product-search', compact('matched_images'));
 
     }
 
