@@ -84,14 +84,16 @@ class SearchAttachedImages implements ShouldQueue
                             ]);
                             $first_time = false;
                         } 
-                        $mediable = Mediable::where('media_id', $m->id)->first();
-                        if($mediable && $mediable->mediable_id !== null){
-                            SuggestedProductList::create([
-                                'customer_id' => $chat_message->customer_id,
-                                'product_id' => $mediable->mediable_id,
-                                'chat_message_id' => $chat_message->id,
-                                'suggested_products_id' => $sp->id
-                            ]); 
+                        $mediables = Mediable::where('media_id', $m->id)->where('media_type', 'App\Product')->get();
+                        if(count($mediables)){
+                            foreach($mediables as $mediable){
+                                SuggestedProductList::create([
+                                    'customer_id' => $chat_message->customer_id,
+                                    'product_id' => $mediable->mediable_id,
+                                    'chat_message_id' => $chat_message->id,
+                                    'suggested_products_id' => $sp->id
+                                ]); 
+                            }
                         }
                     }
                 }
