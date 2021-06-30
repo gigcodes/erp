@@ -46,7 +46,7 @@ class BrandController extends Controller
         ->leftJoin("store_websites as sw","sw.id","swb.store_website_id")
         ->select(["brands.*",\DB::raw("group_concat(sw.id) as selling_on"),\DB::raw("LOWER(trim(brands.name)) as lower_brand")])
         ->groupBy("brands.id")
-        ->orderBy('lower_brand',"asc")->whereNull('brands.deleted_at');
+        ->orderBy('lower_brand',"asc")->whereNull('brands.deleted_at')->whereNull('sw.id');
 
         $keyword = request('keyword');
         if(!empty($keyword)) {
