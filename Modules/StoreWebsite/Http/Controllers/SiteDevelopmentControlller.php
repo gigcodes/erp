@@ -27,7 +27,7 @@ class SiteDevelopmentController extends Controller
         //Getting Website Details
         $website = StoreWebsite::find($id);
 
-        $categories = SiteDevelopmentCategory::orderBy('id', 'desc');
+        $categories = SiteDevelopmentCategory::orderBy('title', 'asc');
         if ($request->k != null) {
             $categories = $categories->where("title", "like", "%" . $request->k . "%");
         }
@@ -62,6 +62,7 @@ class SiteDevelopmentController extends Controller
         ->where("site_developments.website_id",$id)
         ->groupBy("sds.id")
         ->select(["sds.name",\DB::raw("count(sds.id) as total")])
+        ->orderBy("name","desc")
         ->get();
 
         $allUsers = User::select('id', 'name')->get();
