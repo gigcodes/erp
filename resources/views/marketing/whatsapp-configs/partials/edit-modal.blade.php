@@ -22,7 +22,7 @@
                             <input type="hidden" name="id" value="{{ $whatsAppConfig->id }}"/>
                         <div class="form-group">
                             <strong>Password:</strong>
-                            <input type="text" name="password" class="form-control" value="{{ Crypt::decrypt($whatsAppConfig->password) }}" required>
+                            <input type="text" name="password" class="form-control" value="" required>
 
                             @if ($errors->has('password'))
                                 <div class="alert alert-danger" >{{$errors->first('password')}}</div>
@@ -262,6 +262,17 @@
                              </select>
                             @if ($errors->has('status'))
                             <div class="alert alert-danger">{{$errors->first('status')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <strong>Use own:</strong>
+                             <select class="form-control" name="is_use_own">
+                                <option value="0" @if($whatsAppConfig->is_use_own == 0) selected @endif>No</option>
+                                <option value="1" @if($whatsAppConfig->is_use_own == 1) selected @endif>Yes</option>
+                             </select>
+                            @if ($errors->has('is_use_own'))
+                            <div class="alert alert-danger">{{$errors->first('is_use_own')}}</div>
                             @endif
                         </div>
 
