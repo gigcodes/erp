@@ -380,8 +380,8 @@ class ProductsCreator
         }
 
         // start to update the eu size
-        if(!empty($image->properties[ 'sizes' ])) {
-            $sizeExplode = explode(",", $image->properties[ 'sizes' ]);
+        if(!empty($product->size)) {
+            $sizeExplode = explode(",", $product->size);
             if(!empty($sizeExplode) && is_array($sizeExplode)){
                 $euSize = [];
                 $allSize = [];
@@ -391,7 +391,6 @@ class ProductsCreator
                     //find the eu size and update into the field
                     //$euSize[]  = ProductHelper::getWebsiteSize($image->size_system, $helperSize, $product->category);
                 }
-                $product->size = implode(",",$allSize);
                 $supplierSizeSystem = \App\ProductSupplier::getSizeSystem($product->id, $supplierModel->id);
                 $euSize = ProductHelper::getEuSize($product, $allSize, !empty($supplierSizeSystem) ? $supplierSizeSystem : $image->size_system);
                 $product->size_eu = implode(',', $euSize);
