@@ -60,15 +60,12 @@ class SearchAttachedImages implements ShouldQueue
             $xx = 0;
             $count = 0;
             $compared_media = 0;
-            DB::table('media')->whereNotNull('bits')->where('bits', '!=', 0)->where('directory', 'like', '%product/%')->orderBy('id')->chunk(1000, function($medias) use ($bits, $xx, $count)
+            DB::table('media')->whereNotNull('bits')->where('bits', '!=', 0)->where('bits', '!=', 1)->where('directory', 'like', '%product/%')->orderBy('id')->chunk(1000, function($medias) use ($bits, $xx, $count)
             {
                 foreach ($medias as $k => $m)
                 {
                     $hammeringDistance = 0;
-                    $m_bits = $m->bits;
-                    if($m_bits == '0'){
-                        continue;
-                    }
+                    $m_bits = $m->bits; 
                     for($a = 0;$a<64;$a++)
                     {
                         if($bits[$a] != $m_bits[$a])
@@ -87,14 +84,16 @@ class SearchAttachedImages implements ShouldQueue
                             ]);
                             $first_time = false;
                         } 
-                        $mediable = Mediable::where('media_id', $m->id)->first();
-                        if($mediable && $mediable->mediable_id !== null){
-                            SuggestedProductList::create([
-                                'customer_id' => $chat_message->customer_id,
-                                'product_id' => $mediable->mediable_id,
-                                'chat_message_id' => $chat_message->id,
-                                'suggested_products_id' => $sp->id
-                            ]); 
+                        $mediables = Mediable::where('media_id', $m->id)->where('media_type', 'App\Product')->get();
+                        if(count($mediables)){
+                            foreach($mediables as $mediable){
+                                SuggestedProductList::create([
+                                    'customer_id' => $chat_message->customer_id,
+                                    'product_id' => $mediable->mediable_id,
+                                    'chat_message_id' => $chat_message->id,
+                                    'suggested_products_id' => $sp->id
+                                ]); 
+                            }
                         }
                     }
                 }
