@@ -30,9 +30,7 @@ class ProductsCreator
         Log::channel('productUpdates')->debug("[Start] createProduct is called");
 
         // Set supplier
-        $supplierModel = Supplier::leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($image) {
-            $query->where('supplier', '=', $image->website)->orWhere('sc.scraper_name', '=', $image->website);
-        })->first();
+        $supplierModel = Supplier::first();
 
         // Do we have a supplier?
         if ($supplierModel == null) {
@@ -160,6 +158,7 @@ class ProductsCreator
                     $product->status_id = \App\Helpers\StatusHelper::$autoCrop;
                 }
             }
+
 
             // Get current sizes
             $allSize = [];
@@ -381,8 +380,8 @@ class ProductsCreator
         }
 
         // start to update the eu size
-        if(!empty($product->size)) {
-            $sizeExplode = explode(",", $product->size);
+        if(!empty($image->properties[ 'sizes' ])) {
+            $sizeExplode = explode(",", $image->properties[ 'sizes' ]);
             if(!empty($sizeExplode) && is_array($sizeExplode)){
                 $euSize = [];
                 $allSize = [];
@@ -392,6 +391,7 @@ class ProductsCreator
                     //find the eu size and update into the field
                     //$euSize[]  = ProductHelper::getWebsiteSize($image->size_system, $helperSize, $product->category);
                 }
+                $product->size = implode(",",$allSize);
                 $supplierSizeSystem = \App\ProductSupplier::getSizeSystem($product->id, $supplierModel->id);
                 $euSize = ProductHelper::getEuSize($product, $allSize, !empty($supplierSizeSystem) ? $supplierSizeSystem : $image->size_system);
                 $product->size_eu = implode(',', $euSize);
