@@ -30,10 +30,18 @@ class EmailAddressesController extends Controller
 
         $emailAddress = $query->paginate();
         $allStores    = StoreWebsite::all();
+        $allDriver    = EmailAddress::pluck('driver')->unique();
+        $allPort      = EmailAddress::pluck('port')->unique();
+        $allEncryption= EmailAddress::pluck('encryption')->unique();
+
+        //dd($allDriver);
 
         return view('email-addresses.index', [
             'emailAddress' => $emailAddress,
             'allStores'    => $allStores,
+            'allDriver'    => $allDriver,
+            'allPort'      => $allPort,
+            'allEncryption'=> $allEncryption,
         ]);
     }
 

@@ -15,6 +15,7 @@ use App\Helpers\CompareImagesHelper;
 use Auth;
 use Symfony\Component\Process\Process;
 use \Plank\Mediable\Media;
+use Illuminate\Support\Facades\DB;
 
 class SearchAttachedImages implements ShouldQueue
 {
@@ -22,10 +23,12 @@ class SearchAttachedImages implements ShouldQueue
 
     protected $id;
     protected $req_data; 
+    protected $url; 
 
-    public function __construct($id, $req_data)
+    public function __construct($id, $url, $req_data)
     {
         $this->id = $id; 
+        $this->url = $url; 
         $this->req_data = $req_data; 
     }
 
@@ -34,60 +37,76 @@ class SearchAttachedImages implements ShouldQueue
         set_time_limit(0);
 
         $id = $this->id;
+        $ref_file = str_replace('|', '/', $this->url);
+        $ref_file = str_replace("'", '', $ref_file);
         $params = $this->req_data;
-    
-        $chat_message = \App\ChatMessage::where('id', $id)->first();
-        $media = $chat_message->getMedia(config('constants.media_tags'))[0];
-        $ref_file = public_path('uploads/') . $media->directory . '/' . $media->filename . '.' . $media->extension;
-        $process = Process::fromShellCommandline('find $(pwd) -maxdepth 5 -type f -not -path "*/\.*" | sort ', public_path('uploads/product'));
-        $process->run(); 
-        $files = explode("\n", $process->getOutput());
-        $match_image_path = [];
-        $first_time = true;
+        $media_array = [];
         $is_matched = false;
-        foreach($files as $key => $file){
-            $compare = Process::fromShellCommandline('compare -metric ae -fuzz XX% ' . $ref_file . ' ' . $file . ' null: 2>&1', public_path('uploads/product'));
-            $compare->run();
-            $match = $compare->getOutput() == '0' ? true : false;
-            if($match){
-                // if($file != $ref_file){
-                    $name = explode('/', $file)[count(explode('/', $file)) - 1 ];
-                    $ext = explode('.', $name)[count(explode('.', $name)) - 1];
-                    $name = str_replace('.' . $ext, '', $name);
-                    $media = Media::where('filename', $name)->first();
-                    if($media != null){
-                        $dir = explode('/', $media->directory);
-                        if(isset($dir[2])){
-                            $is_matched = true;
-                            if($first_time){
-                                $sp = SuggestedProduct::create([
-                                    'total' => 0,
-                                    'customer_id' => $chat_message->customer_id,
-                                    'chat_message_id' => $chat_message->id,
-                                ]);
-                                $first_time = false;
-                            } 
-                            SuggestedProductList::create([
+        $chat_message = \App\ChatMessage::where('id', $id)->first();
+        if(@file_get_contents($ref_file)){
+            $i1 = CompareImagesHelper::createImage($ref_file);
+                
+            $i1 = CompareImagesHelper::resizeImage($i1,$ref_file);
+            
+            imagefilter($i1, IMG_FILTER_GRAYSCALE);
+            
+            $colorMean1 = CompareImagesHelper::colorMeanValue($i1);
+            
+            $bits1 = CompareImagesHelper::bits($colorMean1);
+
+            $bits = implode($bits1); 
+            $first_time = true;
+
+            $xx = 0;
+            $count = 0;
+            $compared_media = 0;
+            DB::table('media')->whereNotNull('bits')->where('bits', '!=', 0)->where('bits', '!=', 1)->where('directory', 'like', '%product/%')->orderBy('id')->chunk(1000, function($medias) use ($bits, $xx, $count)
+            {
+                foreach ($medias as $k => $m)
+                {
+                    $hammeringDistance = 0;
+                    $m_bits = $m->bits; 
+                    for($a = 0;$a<64;$a++)
+                    {
+                        if($bits[$a] != $m_bits[$a])
+                        {
+                            $hammeringDistance++;
+                        }
+                        
+                    } 
+                    if($hammeringDistance < 10){
+                        $is_matched = true;
+                        if($first_time){
+                            $sp = SuggestedProduct::create([
                                 'total' => 0,
                                 'customer_id' => $chat_message->customer_id,
-                                'product_id' => $dir[2],
                                 'chat_message_id' => $chat_message->id,
-                                'suggested_products_id' => $sp->id
-                            ]); 
+                            ]);
+                            $first_time = false;
+                        } 
+                        $mediables = Mediable::where('media_id', $m->id)->where('media_type', 'App\Product')->get();
+                        if(count($mediables)){
+                            foreach($mediables as $mediable){
+                                SuggestedProductList::create([
+                                    'customer_id' => $chat_message->customer_id,
+                                    'product_id' => $mediable->mediable_id,
+                                    'chat_message_id' => $chat_message->id,
+                                    'suggested_products_id' => $sp->id
+                                ]); 
+                            }
                         }
                     }
-                // }
-            }
-        }  
+                }
+            });
+        }
 
         $user = Auth::user();
         if($is_matched){
             $msg = 'Your image find process is completed.';
         }else{
             $msg = 'Your image find process is completed, No results found';
-        }
+        } 
         app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg);
-        // return view('ErpCustomer::product-search', compact('matched_images'));
 
     }
 

@@ -281,11 +281,23 @@
 			</div>
           <div class="form-group">
             <strong>Driver:</strong>
-            <input type="text" name="driver" class="form-control" value="{{ old('driver') }}" required>
+            
 
+            <!-- <input type="text" name="driver" class="form-control" value="{{ old('driver') }}" required> -->
+            
+            <Select name="driver" id="edit_driver" class="form-control required">
+              <option value = ''>Select Driver</option>
+              @foreach ($allDriver as $driver)
+                <option value="{{ $driver }}">{{ $driver }}</option>
+              @endforeach
+            </Select>
             @if ($errors->has('driver'))
               <div class="alert alert-danger">{{$errors->first('driver')}}</div>
             @endif
+
+
+
+
           </div>
           <div class="form-group">
             <strong>Host:</strong>
@@ -297,7 +309,14 @@
           </div>
           <div class="form-group">
             <strong>Port:</strong>
-            <input type="text" name="port" class="form-control" value="{{ old('port') }}" required>
+            <!-- <input type="text" name="port" class="form-control" value="{{ old('port') }}" required> -->
+
+            <Select name="port" id="edit_port" class="form-control required">
+              <option value = ''>Select Port</option>
+              @foreach ($allPort as $port)
+                <option value="{{ $port }}">{{ $port }}</option>
+              @endforeach
+            </Select>
 
             @if ($errors->has('port'))
               <div class="alert alert-danger">{{$errors->first('port')}}</div>
@@ -305,7 +324,15 @@
           </div>
           <div class="form-group">
             <strong>Encryption:</strong>
-            <input type="text" name="encryption" class="form-control" value="{{ old('encryption') }}" required>
+            
+            <!-- <input type="text" name="encryption" class="form-control" value="{{ old('encryption') }}" required> -->
+
+            <Select name="encryption" id="edit_encryption" class="form-control required">
+              <option value = ''>Select Encryption</option>
+              @foreach ($allEncryption as $encryption)
+                <option value="{{ $encryption }}">{{ $encryption }}</option>
+              @endforeach
+            </Select>
 
             @if ($errors->has('encryption'))
               <div class="alert alert-danger">{{$errors->first('encryption')}}</div>
@@ -367,14 +394,23 @@
       $('#emailAddressEditModal form').attr('action', url);
       $('#emailAddressEditModal').find('input[name="from_name"]').val(emailAddress.from_name);
       $('#emailAddressEditModal').find('input[name="from_address"]').val(emailAddress.from_address);
-      $('#emailAddressEditModal').find('input[name="driver"]').val(emailAddress.driver);
+      
+      // $('#emailAddressEditModal').find('input[name="driver"]').val(emailAddress.driver);
+
       $('#emailAddressEditModal').find('input[name="host"]').val(emailAddress.host);
-      $('#emailAddressEditModal').find('input[name="port"]').val(emailAddress.port);
-      $('#emailAddressEditModal').find('input[name="encryption"]').val(emailAddress.encryption);
+      
+      // $('#emailAddressEditModal').find('input[name="port"]').val(emailAddress.port);
+      
+      // $('#emailAddressEditModal').find('input[name="encryption"]').val(emailAddress.encryption);
+
       $('#emailAddressEditModal').find('input[name="username"]').val(emailAddress.username);
       $('#emailAddressEditModal').find('input[name="password"]').val(emailAddress.password);
 	  
 	  $('#edit_store_website_id').val(emailAddress.store_website_id).trigger('change');
+
+    $('#edit_driver').val(emailAddress.driver).trigger('change');
+    $('#edit_port').val(emailAddress.port).trigger('change');
+    $('#edit_encryption').val(emailAddress.encryption).trigger('change');
       
     });
 

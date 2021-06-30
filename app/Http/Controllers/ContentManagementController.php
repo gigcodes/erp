@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\StoreWebsite;
 use Crypt;
 use App\StoreSocialAccount;
@@ -68,6 +69,17 @@ class ContentManagementController extends Controller
         $website = StoreWebsite::where("id",$request->websiteId)->first();
         $media   = $website->getMedia('website-image-attach');
         return view('content-management.attach-images', compact('media'));
+    }
+
+    public function downloadAttachImages(Request $request)
+    {
+        $content = file_get_contents($request->image_url);
+        $random = bin2hex(random_bytes(20)).'.png';
+        $path = asset('/uploads/gmail_media/'.$random);
+
+        Storage::disk('uploads')->put('gmail_media/'.$random, $content);
+
+        return response()->json(['random' => $random,'image_path' => $path,'status' => true]);
     }
 
     public function viewAddSocialAccount() {

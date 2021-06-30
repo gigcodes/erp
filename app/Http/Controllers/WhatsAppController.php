@@ -2112,9 +2112,8 @@ class WhatsAppController extends FindByNumberController
 
                 /** Sent To ChatbotMessage */
                 
-                $loggedUser = $request->user();
-
-                $roles = $loggedUser->roles->pluck('name')->toArray();
+                $loggedUser = auth()->user();
+                $roles = ($loggedUser) ? $loggedUser->roles->pluck('name')->toArray() : [];
 
                 if(!in_array('Admin', $roles)){
                     
@@ -2123,30 +2122,36 @@ class WhatsAppController extends FindByNumberController
                         'reply' => json_encode([
                             'context' => 'task',
                             'issue_id' => $task->id,
-                            'from' => $loggedUser->id
+                            'from' => ($loggedUser) ? $loggedUser->id : "cron"
                         ]),
                         'replied_chat_id' => $chat_message->id,
                         'reply_from' => 'database'
                     ]);
                 }
                 
-                $message_ = "[ ". $loggedUser->name ." ] - #". $task->id.' - '. $task->task_subject . "\n\n" . $request->message;
+                $message_ = "[ ". @$loggedUser->name ." ] - #". $task->id.' - '. $task->task_subject . "\n\n" . $request->message;
 
                 MessageHelper::sendEmailOrWebhookNotification($task->users->pluck('id')->toArray() , $message_ );
 
             }elseif($context == 'learning'){
                 $learning = \App\Learning::find($request->issue_id);
-                if($data['user_id'] == $learning->learning_user){
+                if($data['user_id'] == $learning->learning_vendor){
                     $userId = $data['user_id'];
                 }else{
-                    $userId = $learning->learning_user;
+                    $userId = $learning->learning_vendor;
                 }
-                $params['message'] = $request->get('message');
+
+                $prefix = null;
+                if($learning && $learning->learningUser) {
+                    $prefix = "#".$learning->id." ".$learning->learningUser->name ." : ".$learning->learning_subject. " =>";
+                }
+
+                $params['message'] = $prefix.$request->get('message');
                 $params['erp_user'] = $userId;
                 $params['sent_to_user_id'] = $userId;
                 // $params['issue_id'] = $request->issue_id;
                 $params['learning_id'] = $request->issue_id;//Purpose - Add learning_id - DEVTASK-4020
-                $params['user_id'] = $data['user_id'];
+                $params['user_id'] = $userId;
                 $params['approved'] = 1;
                 $params['status'] = 2;
                 $number = User::find($userId);
@@ -2157,7 +2162,7 @@ class WhatsAppController extends FindByNumberController
                     $number = $number->phone;
                 
                 $chat_message = ChatMessage::create($params);
-                $this->sendWithThirdApi($number, $whatsapp, '',$chat_message->id);
+                $this->sendWithThirdApi($number, $whatsapp, $params['message'],null,$chat_message->id);
 
                 return response()->json(['message' => $chat_message]);
 
@@ -2271,7 +2276,7 @@ class WhatsAppController extends FindByNumberController
                     //     $userId = 1;
                     //  }
                     $admin = 0;
-                    if (!Auth::user()->isAdmin()) {
+                    if (!Auth::user() || !Auth::user()->isAdmin()) {
                         $admin = $issue->created_by;
                     }
                     $params['erp_user'] = $userId;
@@ -2359,7 +2364,7 @@ class WhatsAppController extends FindByNumberController
                         $params['developer_task_id'] = $request->get('issue_id');
                         $prefix = ($issue->task_type_id == 1) ? "#DEVTASK-" : "#ISSUE-";
                         $params['message'] = $prefix . $issue->id . '-' . $issue->subject . '=>' . $request->get('message');
-                        if (Auth::user()->id != $userId) {
+                        if (Auth::user() && Auth::user()->id != $userId) {
                             $chat_message = ChatMessage::create($params);
                             $this->sendWithThirdApi($number, $whatsapp, $params['message'],null, $chat_message->id);
                         }
@@ -2463,10 +2468,10 @@ class WhatsAppController extends FindByNumberController
 
                     //START - Purpose : Email notification - DEVTASK-4359
 
-                    $message_ = ($issue->task_type_id == 1 ? "[ ". $loggedUser->name ." ] - #DEVTASK-" : "#ISSUE-"). $issue->id.' - '. $issue->subject . "\n\n" . $request->message;
+                    $message_ = ($issue->task_type_id == 1 ? "[ ". auth()->user()->name ." ] - #DEVTASK-" : "#ISSUE-"). $issue->id.' - '. $issue->subject . "\n\n" . $request->message;
 
                 
-                    MessageHelper::sendEmailOrWebhookNotification([$issue->assigned_to] , $message_ );
+                    MessageHelper::sendEmailOrWebhookNotification([$issue->assigned_to, $issue->team_lead_id, $issue->tester_id] , $message_ );
                     //END - DEVTASK-4359
 
                     return response()->json(['message' => $chat_message]);
@@ -5110,7 +5115,8 @@ class WhatsAppController extends FindByNumberController
             if($whatsappRecord) {
                 $config[$whatsapp_number] = [
                     "instance_id" => $whatsappRecord->instance_id,
-                    "token" => $whatsappRecord->token
+                    "token" => $whatsappRecord->token,
+                    "is_use_own" => $whatsappRecord->is_use_own
                 ];
             }
         }
@@ -5122,13 +5128,16 @@ class WhatsAppController extends FindByNumberController
 
 
         // Set instanceId and token
+        $isUseOwn = false;
         if (isset($config[$whatsapp_number])) {
             $instanceId = $config[$whatsapp_number]['instance_id'];
             $token = $config[$whatsapp_number]['token'];
+            $isUseOwn = isset($config[$whatsapp_number]['is_use_own']) ? $config[$whatsapp_number]['is_use_own'] : 0;
         } else {
             \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Whatsapp config not found for number " . $whatsapp_number . " while sending to number " . $number. ' ['. json_encode($logDetail). '] ');
             $instanceId = $config[0]['instance_id'];
             $token = $config[0]['token'];
+            $isUseOwn = isset($config[0]['is_use_own']) ? $config[0]['is_use_own'] : 0;
         }
 
         if (isset($customer_id) && $message != null && $message != '') {
@@ -5147,7 +5156,7 @@ class WhatsAppController extends FindByNumberController
         }
 
         $encodedNumber = '+' . $number;
-        if($whatsapp_number == "971508309192") { 
+        if($isUseOwn == 1) { 
             $encodedNumber = $number;
         }
         
@@ -5169,8 +5178,10 @@ class WhatsAppController extends FindByNumberController
             $array['caption'] = $encodedText;
         }
 
+        $array['instanceId'] = $instanceId;
+
         // here is we call python 
-        if($whatsapp_number == "971508309192") {
+        if($isUseOwn == 1) { 
             $domain = "http://136.244.118.102:82/".$link;
         }else{
             $domain = "https://api.chat-api.com/instance$instanceId/$link?token=$token";

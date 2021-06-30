@@ -28,6 +28,8 @@ use Zend\Diactoros\Response\JsonResponse;
 use \Carbon\Carbon;
 use App\BrandLogo;
 use App\BrandWithLogo;
+use App\Category;
+use App\CategorySegmentDiscount;
 
 class BrandController extends Controller
 {
@@ -44,7 +46,7 @@ class BrandController extends Controller
         ->leftJoin("store_websites as sw","sw.id","swb.store_website_id")
         ->select(["brands.*",\DB::raw("group_concat(sw.id) as selling_on"),\DB::raw("LOWER(trim(brands.name)) as lower_brand")])
         ->groupBy("brands.id")
-        ->orderBy('lower_brand',"asc")->whereNull('brands.deleted_at');
+        ->orderBy('lower_brand',"asc")->whereNull('brands.deleted_at')->whereNull('sw.id');
 
         $keyword = request('keyword');
         if(!empty($keyword)) {
@@ -574,8 +576,14 @@ class BrandController extends Controller
             $brand_data = Brand::leftjoin('brand_with_logos','brands.id','brand_with_logos.brand_id')
             ->leftjoin('brand_logos','brand_with_logos.brand_logo_image_id','brand_logos.id')
             ->select('brands.id as brands_id','brands.name as brands_name','brand_logos.logo_image_name as brand_logos_image')
-            ->orderBy('brands.name','asc')
-            ->paginate(Setting::get('pagination'));
+            ->orderBy('brands.name','asc');
+
+            if($request->brand_name)
+            {
+                $search='%'.$request->brand_name.'%';
+                $brand_data= $brand_data->where('brands.name','like',$search);
+            }
+            $brand_data = $brand_data->paginate(Setting::get('pagination'));
             return view('brand.brand_logo', compact('brand_data'))->with('i', (request()->input('page', 1) - 1) * 10);
         }catch(\Exception $e){
             
@@ -590,7 +598,8 @@ class BrandController extends Controller
             $fileNameArray = array();
             foreach($files as $key=>$file){
                 //echo $file->getClientOriginalName();
-                $fileName = time().$key.'.'.$file->extension();
+                // $fileName = time().$key.'.'.$file->extension();
+                $fileName = $file->getClientOriginalName();
                 $fileNameArray[] = $fileName;
 
                 $params['logo_image_name'] = $fileName;
@@ -612,6 +621,7 @@ class BrandController extends Controller
             // $brand_data = BrandLogo::get();
             $brand_data = BrandLogo::leftjoin('brand_with_logos','brand_logos.id','brand_with_logos.brand_logo_image_id')
             ->select('brand_logos.id as brand_logos_id','brand_logos.logo_image_name as brand_logo_image_name','brand_with_logos.id as brand_with_logos_id','brand_with_logos.brand_logo_image_id as brand_with_logos_brand_logo_image_id','brand_with_logos.brand_id as brand_with_logos_brand_id')
+            ->where('brand_logos.logo_image_name','like','%'.$request->brand_name.'%')
             ->get();
             return response()->json(["code" => 200, "brand_logo_image"=>$brand_data]);
         }catch(\Exception $e){

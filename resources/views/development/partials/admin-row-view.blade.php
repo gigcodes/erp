@@ -16,6 +16,18 @@
         </a> -->
         <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
         <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
+            
+        <a href="javascript:;" data-toggle="modal" data-target="#developmentReminderModal"  
+            class='pd-5 development-set-reminder' 
+            data-id="{{ $issue->id }}"
+            data-frequency="{{ !empty($issue->reminder_message) ? $issue->frequency : '60' }}"
+            data-reminder_message="{{ !empty($issue->reminder_message) ? $issue->reminder_message : 'Plz update' }}"
+            data-reminder_from="{{ $issue->reminder_from }}"
+            data-reminder_last_reply="{{ $issue->reminder_last_reply }}"
+        >
+            <i class="fa fa-bell @if(!empty($issue->reminder_message) && $issue->frequency > 0) {{ 'green-notification'  }} @else {{ 'red-notification' }} @endif"  aria-hidden="true"></i>
+        </a>     
+
         <br>
         {{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}
         @if($issue->task_type_id == 1) Devtask @elseif($issue->task_type_id == 3) Issue @endif
