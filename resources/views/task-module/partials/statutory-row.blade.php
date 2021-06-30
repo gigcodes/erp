@@ -153,14 +153,6 @@
             @if ($special_task->users->contains(Auth::id()) || ($task->assign_from == Auth::id() && $task->is_private == 0) || ($task->assign_from == Auth::id() && $special_task->contacts()->count() > 0))
                 <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="/images/view.png"/></a>
             @endif
-
-            @if ($special_task->users->contains(Auth::id()) || (!$special_task->users->contains(Auth::id()) && $task->assign_from == Auth::id() && $special_task->contacts()->count() > 0))
-                @if ($task->is_private == 1)
-                    <button type="button" class="btn btn-image make-private-task pd-5" data-taskid="{{ $task->id }}"><img src="/images/private.png"/></button>
-                @else
-                    <button type="button" class="btn btn-image make-private-task pd-5" data-taskid="{{ $task->id }}"><img src="/images/not-private.png"/></button>
-                @endif
-            @endif
             <button type="button" onClick="return confirm('Are you sure you want to delete this task ?');" data-id="<?php echo $task->id; ?>" class="btn btn-image delete-task-btn pd-5"><img src="/images/delete.png"/></button>
         </div>
     </td>

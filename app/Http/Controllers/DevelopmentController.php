@@ -3064,7 +3064,7 @@ class DevelopmentController extends Controller
         $task->last_send_reminder   = date("Y-m-d H:i:s");
         $task->save();
         
-            $message = "Reminder Updated : ".$request->get('message');
+            $message = $request->get('message');
             if(optional($task->assignedUser)->phone){
                 $requestData = new Request();
                 $requestData->setMethod('POST');
