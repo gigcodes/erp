@@ -2143,7 +2143,7 @@ class WhatsAppController extends FindByNumberController
 
                 $prefix = null;
                 if($learning && $learning->learningUser) {
-                    $prefix = $learning->learningUser->name ." : ";
+                    $prefix = "#".$learning->id." ".$learning->learningUser->name ." : ".$learning->learning_subject. " =>";
                 }
 
                 $params['message'] = $prefix.$request->get('message');
@@ -5115,7 +5115,8 @@ class WhatsAppController extends FindByNumberController
             if($whatsappRecord) {
                 $config[$whatsapp_number] = [
                     "instance_id" => $whatsappRecord->instance_id,
-                    "token" => $whatsappRecord->token
+                    "token" => $whatsappRecord->token,
+                    "is_use_own" => $whatsappRecord->is_use_own
                 ];
             }
         }
@@ -5127,13 +5128,16 @@ class WhatsAppController extends FindByNumberController
 
 
         // Set instanceId and token
+        $isUseOwn = false;
         if (isset($config[$whatsapp_number])) {
             $instanceId = $config[$whatsapp_number]['instance_id'];
             $token = $config[$whatsapp_number]['token'];
+            $isUseOwn = isset($config[$whatsapp_number]['is_use_own']) ? $config[$whatsapp_number]['is_use_own'] : 0;
         } else {
             \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Whatsapp config not found for number " . $whatsapp_number . " while sending to number " . $number. ' ['. json_encode($logDetail). '] ');
             $instanceId = $config[0]['instance_id'];
             $token = $config[0]['token'];
+            $isUseOwn = isset($config[0]['is_use_own']) ? $config[0]['is_use_own'] : 0;
         }
 
         if (isset($customer_id) && $message != null && $message != '') {
@@ -5152,7 +5156,7 @@ class WhatsAppController extends FindByNumberController
         }
 
         $encodedNumber = '+' . $number;
-        if($whatsapp_number == "971508309192") { 
+        if($isUseOwn == 1) { 
             $encodedNumber = $number;
         }
         
@@ -5174,8 +5178,10 @@ class WhatsAppController extends FindByNumberController
             $array['caption'] = $encodedText;
         }
 
+        $array['instanceId'] = $instanceId;
+
         // here is we call python 
-        if($whatsapp_number == "971508309192") {
+        if($isUseOwn == 1) { 
             $domain = "http://136.244.118.102:82/".$link;
         }else{
             $domain = "https://api.chat-api.com/instance$instanceId/$link?token=$token";

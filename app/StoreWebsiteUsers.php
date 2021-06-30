@@ -8,6 +8,6 @@ class StoreWebsiteUsers extends Model
 {
     protected $table = 'store_website_users';
     protected $fillable = [
-        'store_website_id', 'email','password','username', 'first_name','last_name'
+        'store_website_id', 'email','password','username', 'first_name','last_name','website_mode'
     ];
 }

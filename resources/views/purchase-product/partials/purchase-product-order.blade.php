@@ -246,7 +246,7 @@ table tr td {
                                 <th width="30%">From</th>
                                 <th width="30%">To</th>
                                 <th width="20%">Created By</th>
-                                <th width="20%">Created By</th>
+                                <th width="20%">Created At</th>
                                 
                             </tr>
                         </thead>
@@ -625,6 +625,7 @@ table tr td {
             dataType : "json",
             success: function (response) {
 
+                if(response.order_data.length > 0){
                 var html_content = '';
                 html_content += '<tr class="expand-row-10 row_order_data_'+purchase_pro_id+'">';
                 html_content += '<td colspan="13" id="product-list-data-10"><center><p>ORDERED PRODUCTS</p></center>';
@@ -663,6 +664,12 @@ table tr td {
                 html_content += '</div>';
                 html_content += '</td>';
                 html_content += '</tr>';
+                }else{
+                    var html_content = '';
+                    html_content += '<tr class="expand-row-10 row_order_data_'+purchase_pro_id+'">';
+                    html_content += '<td colspan="13" id="product-list-data-10"><center><p>NO ANY ORDERS</p></center>';
+                    html_content += '</tr>';
+                }
 
                 $(".row_"+purchase_pro_id).after(html_content);
             },

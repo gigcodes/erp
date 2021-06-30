@@ -890,16 +890,20 @@ class PurchaseProductController extends Controller
         $order_ids = $request->order_id;
        
 
-        $products_data = Product::whereIn('id',$product_ids)->get()->toArray();
+        $products_data = Product::leftjoin('product_suppliers','product_suppliers.product_id','products.id')
+        ->select('product_suppliers.price as product_price','products.*')
+        ->whereIn('products.id',$product_ids)->groupBy("product_suppliers.sku")->get()->toArray();
         
         // $product_names = array_column($products_data, 'name');
         // $products_str = implode(", ",$product_names);
         $products_str = '';
         foreach($products_data as $key => $val)
         {
-            $products_str .= ' => Product Name : '.$val['name'].' , SKU : '.$val['sku'].' , Price : '.$val['price'];
+            $products_str .= ' => Product Name : '.$val['name'].' , SKU : '.$val['sku'].' , Price : '.$val['product_price'];
         }
         $message = 'Please check Product Order ::  '.$products_str;
+
+        // $message = str_replace("=>","=>",$message);
 
         return response()->json(["code" => 200, "data"=>$message]);
     }
@@ -918,7 +922,12 @@ class PurchaseProductController extends Controller
             $supplier = Supplier::find($supplier_id);            
             $path = "order_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_order_exports.xlsx";
             $subject = 'Product order';
+            $message_chat_data = ($content ? $content : 'Please check below product order request');
+
             $message = ($content ? $content : 'Please check below product order request');
+
+            $message = str_replace("=>","<br/> =>",$message);
+
             $product_ids = explode(",",$product_id);
             $order_ids = explode(",",$order_id);
 
@@ -953,12 +962,14 @@ class PurchaseProductController extends Controller
                 // $message = 'Please check Product Order : '.$products_str;
                 $message = ($content ? $content : 'Please check below product order request');
 
+                $message = str_replace("=>","<br/> =>",$message);
+
                 $number = ($supplier->phone ? $supplier->phone : '971569119192' );
 
                 $send_whatsapp = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($number,$supplier->whatsapp_number, $message);
             }
             
-            $message_chat = ' Order WhatsApp Message : '.$message;
+            $message_chat = ' Order WhatsApp Message : '.$message_chat_data;
             $params = [
                 'message' => $message_chat,
                 'supplier_id' => $supplier_id,
@@ -1029,7 +1040,7 @@ class PurchaseProductController extends Controller
                 
                 $order_pro_arr[] = [
                     'product_id' => '',
-                    'order_products_id' => $request->product_ids,
+                    'order_products_id' => $request->product_id,
                     'order_id'      => $rand_order_no,
                     'supplier_id' => $supplier_id,
                     'mrp_price' => $order_data_total_mrp,
@@ -1038,10 +1049,11 @@ class PurchaseProductController extends Controller
                     'created_by' => \Auth::id(),
                     'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
                     'updated_at' => \Carbon\Carbon::now()->toDateTimeString(),
-                    'order_products_order_id' => $request->order_ids,
+                    'order_products_order_id' => $request->order_id,
                 ];
             // }
             
+           
 
             PurchaseProductOrder::insert($order_pro_arr); 
 

@@ -53,11 +53,11 @@ class SendReminderToDevelopmentIfTheyHaventReplied extends Command
 
         if (!$tasks->isEmpty()) {
             foreach ($tasks as $task) {
-                $templateMessage = "#DEVTASK-{$task->id} - {$task->subject} => " . $task->reminder_message;
+                $templateMessage = "#DEVTASK-{$task->id} - {$task->subject} - " . $task->reminder_message;
                 $this->info("started for task #" . $task->id . " found frequency {$task->diff_min} and task frequency {$task->frequency} and reminder from {$task->reminder_from}");
                 if ($task->diff_min >= $task->frequency && ($task->reminder_from == "0000-00-00 00:00" || strtotime($task->reminder_from) <= strtotime("now"))) {
                     $this->info("condition matched for developer #" . $task->id);
-                    $this->sendMessage($task->id, $templateMessage);
+                    $this->sendMessage($task->id, $templateMessage,$task);
                     if ($task->frequency == 1) {
                         $task->frequency = 0;
                     }
