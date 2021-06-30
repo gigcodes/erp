@@ -890,14 +890,16 @@ class PurchaseProductController extends Controller
         $order_ids = $request->order_id;
        
 
-        $products_data = Product::whereIn('id',$product_ids)->get()->toArray();
+        $products_data = Product::join('product_suppliers','product_suppliers.product_id','products.id')
+        ->select('product_suppliers.price as product_price','products.*')
+        ->whereIn('products.id',$product_ids)->get()->toArray();
         
         // $product_names = array_column($products_data, 'name');
         // $products_str = implode(", ",$product_names);
         $products_str = '';
         foreach($products_data as $key => $val)
         {
-            $products_str .= ' => Product Name : '.$val['name'].' , SKU : '.$val['sku'].' , Price : '.$val['price'];
+            $products_str .= ' => Product Name : '.$val['name'].' , SKU : '.$val['sku'].' , Price : '.$val['product_price'];
         }
         $message = 'Please check Product Order ::  '.$products_str;
 
@@ -1029,7 +1031,7 @@ class PurchaseProductController extends Controller
                 
                 $order_pro_arr[] = [
                     'product_id' => '',
-                    'order_products_id' => $request->product_ids,
+                    'order_products_id' => $request->product_id,
                     'order_id'      => $rand_order_no,
                     'supplier_id' => $supplier_id,
                     'mrp_price' => $order_data_total_mrp,
@@ -1038,10 +1040,11 @@ class PurchaseProductController extends Controller
                     'created_by' => \Auth::id(),
                     'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
                     'updated_at' => \Carbon\Carbon::now()->toDateTimeString(),
-                    'order_products_order_id' => $request->order_ids,
+                    'order_products_order_id' => $request->order_id,
                 ];
             // }
             
+           
 
             PurchaseProductOrder::insert($order_pro_arr); 
 

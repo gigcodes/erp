@@ -101,7 +101,7 @@
               <div class="show_excel_send_data">
                 <a class="download_excel_url" style="cursor: pointer;" target="_blank" ><i class="fa fa-download" aria-hidden="true"></i> Download Excel File</a><br/><br/>
 
-                <textarea class="form-control additional_content" id="additional_content" rows="3" placeholder="Additional Content"></textarea><br/>
+                <textarea class="form-control additional_content" id="additional_content" rows="7" placeholder="Additional Content"></textarea><br/>
 
                 <input type="checkbox" id="send_option_email" name="email" value="email"> Email<br>
                 <input type="checkbox" id="send_option_whatsapp" name="whatsapp" value="whatsapp"> WhatsApp<br>
