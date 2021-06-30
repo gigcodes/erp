@@ -97,6 +97,8 @@
 	function loadTwilioDevice(token,agent) {
 		const $confirmModal = $('#receive-call-popup');
 
+		console.log("Token : "+token);
+		console.log("Agent : "+agent);
 		device = new Twilio.Device(token, {debug: true, allowIncomingWhileBusy: true, audioConstraints: {
 			mandatory: { 
 				googAutoGainControl: false 
