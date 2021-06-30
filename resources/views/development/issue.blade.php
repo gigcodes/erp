@@ -732,9 +732,6 @@
                         $('#time_history_div table tbody').append(
                             '<input type="hidden" name="user_id" value="'+userId+'" class=" "/>'
                         );
-                        $('#time_history_div table tbody').append(
-                            '<input type="hidden" name="issueId" value="'+issueId+'" class=" "/>'
-                        );
                     }
                     $('#time_history_modal').modal('show');
                 }
