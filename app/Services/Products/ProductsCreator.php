@@ -380,38 +380,43 @@ class ProductsCreator
         }
 
         // start to update the eu size
-        if(!empty($product->size)) {
-            $sizeExplode = explode(",", $product->size);
-            if(!empty($sizeExplode) && is_array($sizeExplode)){
-                $euSize = [];
-                $allSize = [];
-                foreach($sizeExplode as $sizeE){
-                    $helperSize = ProductHelper::getRedactedText($sizeE, 'composition');
+        \Log::info(print_r(["size_found",$image->properties[ 'sizes' ]],true));
+        if (is_array($image->properties[ 'sizes' ]) && count($image->properties[ 'sizes' ]) > 0) {
+            $sizes = $image->properties[ 'sizes' ];
+            $euSize = [];
+
+            // Loop over sizes and redactText
+            if (is_array($sizes) && $sizes > 0) {
+                foreach ($sizes as $size) {
+                    $helperSize = ProductHelper::getRedactedText($size, 'composition');
                     $allSize[] = $helperSize;
                     //find the eu size and update into the field
-                    //$euSize[]  = ProductHelper::getWebsiteSize($image->size_system, $helperSize, $product->category);
+                    /*$euSize[]  = ProductHelper::getWebsiteSize($image->size_system, $helperSize, $product->category);*/
                 }
-                $supplierSizeSystem = \App\ProductSupplier::getSizeSystem($product->id, $supplierModel->id);
-                $euSize = ProductHelper::getEuSize($product, $allSize, !empty($supplierSizeSystem) ? $supplierSizeSystem : $image->size_system);
-                $product->size_eu = implode(',', $euSize);
-                \App\ProductSizes::where('product_id',$product->id)->where('supplier_id',$supplierModel->id)->delete();
-                if(empty($euSize)) {
-                    $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
-                }else{
-                    foreach($euSize as $es) {
-                        \App\ProductSizes::updateOrCreate([
-                           'product_id' =>  $product->id,'quantity' => 1, 'supplier_id' => $supplierModel->id, 'size' => $es 
-                        ],[
-                           'product_id' =>  $product->id, 'quantity' => 1, 'supplier_id' => $supplierModel->id, 'size' => $es
-                        ]);
-                    }
-                }
+            }
 
-                /*if(!empty($euSize)) {
-                    $product->size_eu = implode(',', $euSize);
-                }*/
+            $product->size = implode(',', $allSize);
+            \Log::info(print_r(["size_stored_found",$product->size],true));
+            // get size system
+            $supplierSizeSystem = \App\ProductSupplier::getSizeSystem($product->id, $supplierModel->id);
+            $euSize = ProductHelper::getEuSize($product, $allSize, !empty($supplierSizeSystem) ? $supplierSizeSystem : $image->size_system);
+            $product->size_eu = implode(',', $euSize);
+            \Log::info(print_r(["size_stored_eu_found",$product->size_eu,$supplierSizeSystem ],true));
+            \App\ProductSizes::where('product_id',$product->id)->where('supplier_id',$supplierModel->id)->delete();
+            if(empty($euSize)) {
+                $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
+            }else{
+                foreach($euSize as $es) {
+                    \App\ProductSizes::updateOrCreate([
+                       'product_id' =>  $product->id,'supplier_id' => $supplierModel->id, 'size' => $es 
+                    ],[
+                       'product_id' =>  $product->id,'quantity' => 1,'supplier_id' => $supplierModel->id, 'size' => $es
+                    ]);
+                }
             }
         }
+
+
 
         $product->price = $formattedPrices[ 'price_eur' ];
         $product->price_eur_special = $formattedPrices[ 'price_eur_special' ];
@@ -423,6 +428,7 @@ class ProductsCreator
 
         try {
             $product->save();
+            \Log::info(print_r(["size_product_array",$product ],true));
             //$setProductDescAndNameLanguages = new ProductController();
             //$setProductDescAndNameLanguages->listMagento(request() ,$product->id);
             $image->product_id = $product->id;
