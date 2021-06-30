@@ -58,7 +58,7 @@ use Twilio\TwiML\VoiceResponse;
  * @package  Twiml
  * @subpackage Jwt Token
  */
-class TwilioControllerTest_1 extends FindByNumberController
+class TwilioController extends FindByNumberController
 {
 
     /**
