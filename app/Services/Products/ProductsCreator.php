@@ -380,6 +380,7 @@ class ProductsCreator
         }
 
         // start to update the eu size
+        \Log::info(print_r(["size_found",$image->properties[ 'sizes' ]],true));
         if (is_array($image->properties[ 'sizes' ]) && count($image->properties[ 'sizes' ]) > 0) {
             $sizes = $image->properties[ 'sizes' ];
             $euSize = [];
@@ -395,10 +396,12 @@ class ProductsCreator
             }
 
             $product->size = implode(',', $allSize);
+            \Log::info(print_r(["size_stored_found",$product->size],true));
             // get size system
             $supplierSizeSystem = \App\ProductSupplier::getSizeSystem($product->id, $supplierModel->id);
             $euSize = ProductHelper::getEuSize($product, $allSize, !empty($supplierSizeSystem) ? $supplierSizeSystem : $image->size_system);
             $product->size_eu = implode(',', $euSize);
+            \Log::info(print_r(["size_stored_eu_found",$product->size_eu,$supplierSizeSystem ],true));
             \App\ProductSizes::where('product_id',$product->id)->where('supplier_id',$supplierModel->id)->delete();
             if(empty($euSize)) {
                 $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
@@ -414,6 +417,7 @@ class ProductsCreator
         }
 
 
+
         $product->price = $formattedPrices[ 'price_eur' ];
         $product->price_eur_special = $formattedPrices[ 'price_eur_special' ];
         $product->price_eur_discounted = $formattedPrices[ 'price_eur_discounted' ];
@@ -424,6 +428,7 @@ class ProductsCreator
 
         try {
             $product->save();
+            \Log::info(print_r(["size_product_array",$product ],true));
             //$setProductDescAndNameLanguages = new ProductController();
             //$setProductDescAndNameLanguages->listMagento(request() ,$product->id);
             $image->product_id = $product->id;
