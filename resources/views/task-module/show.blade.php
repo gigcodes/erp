@@ -3149,7 +3149,7 @@ $(document).on("click",".btn-save-documents",function(e){
 			}
 			else {
 				toastr["success"]("Document uploaded successfully");
-				location.reload();
+				//location.reload();
 			}
 		}).fail(function (jqXHR, ajaxOptions, thrownError) {
 			toastr["error"](jqXHR.responseJSON.message);
