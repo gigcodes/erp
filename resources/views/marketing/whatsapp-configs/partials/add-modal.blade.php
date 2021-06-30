@@ -261,6 +261,16 @@
                             <div class="alert alert-danger">{{$errors->first('status')}}</div>
                             @endif
                         </div>
+                        <div class="form-group">
+                            <strong>Use own:</strong>
+                             <select class="form-control" name="is_use_own">
+                                <option value="0">No</option>
+                                <option value="1">Yes</option>
+                             </select>
+                            @if ($errors->has('is_use_own'))
+                            <div class="alert alert-danger">{{$errors->first('is_use_own')}}</div>
+                            @endif
+                        </div>
     				</div>
     				<div class="modal-footer">
     					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
