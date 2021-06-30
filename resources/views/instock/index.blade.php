@@ -442,7 +442,10 @@
           method : "get",
           dataType : "json"
         }).done(function(data) {
+          var producthistory = data.productHistory;
+            $html = '<tr><td>'+producthistory.location_name+'</td><td></td><td></td><td></td><td>'+producthistory.date_time+'</td><td>'+data.userName+'</td></tr>';
             $(".location_"+$this.data("product-id")).html("Location : " +$this.val());
+            $(document).find('.product-location-history').append($html);
             alert("Location has been updated successfully");
         }).fail(function() {
           
