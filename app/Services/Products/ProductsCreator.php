@@ -30,9 +30,7 @@ class ProductsCreator
         Log::channel('productUpdates')->debug("[Start] createProduct is called");
 
         // Set supplier
-        $supplierModel = Supplier::leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($image) {
-            $query->where('supplier', '=', $image->website)->orWhere('sc.scraper_name', '=', $image->website);
-        })->first();
+        $supplierModel = Supplier::first();
 
         // Do we have a supplier?
         if ($supplierModel == null) {
@@ -160,6 +158,7 @@ class ProductsCreator
                     $product->status_id = \App\Helpers\StatusHelper::$autoCrop;
                 }
             }
+
 
             // Get current sizes
             $allSize = [];
