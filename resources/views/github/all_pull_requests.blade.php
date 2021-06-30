@@ -53,6 +53,10 @@
             @endif
         @endif
     </div>
+    <div class="text-left">
+        <a class="btn btn-sm btn-secondary" href="/github/repos/231925646/deploy?branch=master&pull_only=1">Deploy Master</a>
+        <a class="btn btn-sm btn-secondary" href="/github/repos/231925646/deploy?branch=master&composer=true&pull_only=1">Deploy Master + Composer</a>
+    </div>
 </div>
 
 <div class="container">
