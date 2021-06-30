@@ -60,15 +60,12 @@ class SearchAttachedImages implements ShouldQueue
             $xx = 0;
             $count = 0;
             $compared_media = 0;
-            DB::table('media')->whereNotNull('bits')->where('bits', '!=', 0)->where('directory', 'like', '%product/%')->orderBy('id')->chunk(1000, function($medias) use ($bits, $xx, $count)
+            DB::table('media')->whereNotNull('bits')->where('bits', '!=', 0)->where('bits', '!=', 1)->where('directory', 'like', '%product/%')->orderBy('id')->chunk(1000, function($medias) use ($bits, $xx, $count)
             {
                 foreach ($medias as $k => $m)
                 {
                     $hammeringDistance = 0;
-                    $m_bits = $m->bits;
-                    if($m_bits == '0'){
-                        continue;
-                    }
+                    $m_bits = $m->bits; 
                     for($a = 0;$a<64;$a++)
                     {
                         if($bits[$a] != $m_bits[$a])
