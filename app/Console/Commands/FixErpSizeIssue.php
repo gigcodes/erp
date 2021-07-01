@@ -46,7 +46,7 @@ class FixErpSizeIssue extends Command
         //
         $products = Product::join("scraped_products as sp","sp.product_id","products.id")->where("products.status_id", StatusHelper::$sizeVerifyCron)->where("products.supplier_id",">",0)
         ->where(function($q) {
-            $q->where("sp.size","!=","");
+            $q->where("sp.size","!=","")->where("sp.size","!=","0");
         })->where(function($q) {
             $q->orWhereNull("products.size")->orWhere("products.size","=","");
         })
