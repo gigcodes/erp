@@ -242,7 +242,7 @@ class BrandController extends Controller
                     'store_website_id' => $request->store,
                     'type' => "error",
                     'created_by' => $user->id,
-                    'message' => $e->getMessages()
+                    'message' => $e->getMessage()
                 ]);
                 return response()->json(["code" => 200, "data" => []]);
             }
