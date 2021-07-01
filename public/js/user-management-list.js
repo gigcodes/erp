@@ -129,6 +129,15 @@ var page = {
             page.assignPermission($(this));
         });
 
+        $(document).on("click",".user-generate-pem-file",function(e) {
+            page.openGenerateFile($(this).data("userid"));
+        });
+
+        $(document).on("click",".user-pem-file-history",function(href) {
+            page.userProfileHistoryListing($(this).data("userid"));
+            
+        });
+
         $(".common-modal").on("click",".submit-role",function() {
             page.submitRole($(this));
         });
@@ -898,6 +907,31 @@ var page = {
             $("#loading-image").hide();
             toastr["error"](response.message,"");
         }
+    },
+    openGenerateFile : function(userid) {
+        var createWebTemplate = $.templates("#user-template-generate-file");
+        var tplHtml = createWebTemplate.render({userid});
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml);
+            common.modal("show");
+              
+    },
+    userProfileHistoryListing: function(userid) {
+        var _z = {
+            url: this.config.baseUrl + "/user-management/user-generate-file-listing/"+userid,
+            method: "get",
+        }
+        this.sendAjax(_z, 'showPemUserLiting');
+    },
+    showPemUserLiting : function(response) {
+        if(response.code == 200) {
+            var createWebTemplate = $.templates("#pem-file-user-history-lising");
+            var tplHtml = createWebTemplate.render(response);
+            var common =  $(".common-modal");
+                common.find(".modal-dialog").html(tplHtml);
+                common.modal("show");
+        }        
+              
     },
   
 }
