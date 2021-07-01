@@ -1207,73 +1207,79 @@ class UserManagementController extends Controller
     }
 
     public function saveUserAvaibility(Request $request) {
-        // $this->validate($request, [
-		// 	'user_id' => 'required',
-		// 	'from' => 'required',
-		// 	'to' => 'required',
-		// 	'day' => 'required',
-		// 	'status' => 'required',
-        // ]);
-        if(!$request->user_id || $request->user_id == "" || !$request->day || $request->day == "") {
+        
+        $rules = [
+			'user_id' => 'required',
+			'to' => 'required',
+			'from' => 'required|lte:to',
+			'day' => 'required',
+			'status' => 'required',
+            'availableDay' => 'required',
+            'availableHour' => 'required',
+            'note' => 'required_if:status,"0"',
+        ];
+
+        $validator = \Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+
+           $errors = $validator->errors();
+
+           $message = '';
+             foreach ($errors->getMessages() as $field => $message) {
+                 $message = $message[0];
+             }
             return response()->json([
-                "code"       => 500,
-                "error"       => 'User name and day is required'
-            ]);
-        }
-        if($request->status == 1) {
-            if(!$request->from || $request->from == "" || !$request->to || $request->to == "") {
-                return response()->json([
-                    "code"       => 500,
-                    "error"       => 'From and To is required'
-                ]);
-            }
-            if($request->to <= $request->from) {
-                return response()->json([
-                    "code"       => 500,
-                    "error"       => 'Put time in 24 hours format'
-                ]);
-            }
-        }
-        if(!$request->availableDay || $request->availableDay == "") {
-            return response()->json([
-                "code"       => 500,
-                "error"       => 'Available day is required'
-            ]);
-        }
-        if(!$request->availableMinute || $request->availableMinute == "") {
-            return response()->json([
-                "code"       => 500,
-                "error"       => 'Available day is required'
+                "code"  => 500,
+                "error" => $message
             ]);
         }
 
-        $note = trim($request->note);
-        if(!$request->status) {
-            
-            if(!$note || $note == "") {
-                return response()->json([
-                    "code"       => 500,
-                    "error"       => 'Please provide reason for absence'
-                ]);
-            }
-        }
         $nextDay = 'next '.$request->day;
-        $day = date('Y-m-d', strtotime($nextDay));
-        $user_avaibility = new UserAvaibility;
-        $user_avaibility->date = $day;
-        $user_avaibility->from = $request->from;
-        $user_avaibility->user_id = $request->user_id;
-        $user_avaibility->to = $request->to;
-        $user_avaibility->day = $request->availableDay;
-        $user_avaibility->minute = $request->availableMinute;
-        $user_avaibility->status = $request->status;
-        $user_avaibility->note = $note;
-        $user_avaibility->save();
+
+        UserAvaibility::updateOrCreate([
+            'user_id'   => $request->user_id,
+        ],[
+            'date'     => date('Y-m-d', strtotime($nextDay)),
+            'user_id'  => $request->user_id,
+            'from'     => $request->from,
+            'to'       => $request->to,
+            'day'      => $request->availableDay,
+            'minute'   => $request->availableHour,
+            'status'   => $request->status,
+            'note'     => trim($request->note)
+        ]);
+
+        // $user_avaibility = new UserAvaibility;
+        // $user_avaibility->date = $day;
+        // $user_avaibility->from = $request->from;
+        // $user_avaibility->user_id = $request->user_id;
+        // $user_avaibility->to = $request->to;
+        // $user_avaibility->day = $request->availableDay;
+        // $user_avaibility->minute = $request->availableHour;
+        // $user_avaibility->status = $request->status;
+        // $user_avaibility->note = $note;
+        // $user_avaibility->save();
+        
         return response()->json([
             "code"       => 200,
             "message"       => 'Successful'
         ]);
         
+    }
+
+    public function userAvaibilityForModal($id) {
+        
+        $avaibility = UserAvaibility::where('user_id',$id)->first();
+        
+
+        if($avaibility){
+            $avaibility['weekday'] = strtolower(date('l', strtotime($avaibility['date'])));
+        }
+
+        $avaibility['user_id'] = $id;
+        
+        return response()->json(["code" => 200,"data" => $avaibility]);
     }
 
     public function userAvaibility($id) {
