@@ -88,6 +88,7 @@ class FixErpSizeIssue extends Command
                                     'product_id' => $product->id, 'quantity' => 1, 'supplier_id' => $product->supplier_id, 'size' => $es,
                                 ]);
                             }
+                            $product->status_id = StatusHelper::$autoCrop;
                         }
 
                         $product->save();
