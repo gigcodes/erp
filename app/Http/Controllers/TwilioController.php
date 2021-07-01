@@ -190,6 +190,7 @@ class TwilioController extends FindByNumberController
      */
     public function ivr(Request $request)
     {
+
         Log::channel('customerDnd')->info('Showing user profile for IVR: ');
 
         $count = $request->get("count");
@@ -516,6 +517,9 @@ class TwilioController extends FindByNumberController
      */
     public function outgoingCall(Request $request)
     {
+
+        Log::channel('customerDnd')->info('IP: = ' . $request->ip());
+        Log::channel('customerDnd')->info('>>>>>>>>>>>>>>>>>. = ' . implode(" ",$request->all()));
         Log::channel('customerDnd')->info('Call Status: = ' . $request->get("CallStatus"));
 
         $number = $request->get("PhoneNumber");
