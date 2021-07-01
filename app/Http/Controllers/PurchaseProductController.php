@@ -887,12 +887,17 @@ class PurchaseProductController extends Controller
         $supplier_id = $request->supplier_id;
         // $product_ids = explode(",",$request->product_id);
         $product_ids = json_decode($request->product_id, true);
-        $order_ids = $request->order_id;
+        $order_ids = json_decode($request->order_id, true);
        
 
-        $products_data = Product::leftjoin('product_suppliers','product_suppliers.product_id','products.id')
+        // $products_data = Product::leftjoin('product_suppliers','product_suppliers.product_id','products.id')
+        // ->select('product_suppliers.price as product_price','products.*')
+        // ->whereIn('products.id',$product_ids)->groupBy("product_suppliers.sku")->get()->toArray();
+
+        $products_data = Product::join('order_products','order_products.product_id','products.id')
+        ->join('product_suppliers','product_suppliers.product_id','products.id')
         ->select('product_suppliers.price as product_price','products.*')
-        ->whereIn('products.id',$product_ids)->groupBy("product_suppliers.sku")->get()->toArray();
+        ->whereIn('products.id',$product_ids)->whereIn('order_products.id',$order_ids)->groupBy("order_products.sku")->get()->toArray();
         
         // $product_names = array_column($products_data, 'name');
         // $products_str = implode(", ",$product_names);
