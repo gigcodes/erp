@@ -580,8 +580,7 @@ class TaskModuleController extends Controller {
 																	// dd($tasks_query);
 																	// $users = Helpers::getUserArray(User::all());
 
-		$users                     = User::oldest()->get()->toArray();
-		$data['users']             = $users;
+		$data['users'] =  User::orderBy('name')->where('is_active',1)->get()->toArray();
 		$data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
 
 		// foreach ($data['task']['pending'] as $task) {
@@ -591,7 +590,8 @@ class TaskModuleController extends Controller {
 		// $category = '';
 		//My code start
 		$selected_user = $request->input( 'selected_user' );
-		$users         = Helpers::getUserArray( User::all() );
+		$usrlst = User::orderby('name')->where('is_active',1)->get();
+		$users  = Helpers::getUserArray($usrlst);
 		$task_categories = TaskCategory::where('parent_id', 0)->get();
 		$task_categories_dropdown = nestable(TaskCategory::where('is_approved', 1)->get()->toArray())->attr(['name' => 'category','class' => 'form-control input-sm'])
 		->selected($request->category)
