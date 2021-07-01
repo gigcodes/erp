@@ -109,6 +109,11 @@
                     <option <?php echo $excelOnly == 1 ? 'selected=selected' : '' ?> value="1">Excel only</option>
                 </select>
             </div>
+
+            <div class="form-group mb-3 col-md-2">
+                <?php echo Form::select("task_assigned_to",["" => "Select User"] + \App\User::pluck("name","id")->toArray(),null,["class" => "form-control select2"]); ?>
+            </div>
+
             <div class="form-group mb-3 col-md-2">
                 <select name="scrapers_status" class="form-control form-group">
                     @foreach(\App\Scraper::STATUS as $k => $v)
