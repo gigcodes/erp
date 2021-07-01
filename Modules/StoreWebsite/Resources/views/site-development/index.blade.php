@@ -726,9 +726,7 @@
 		prefix = $this.data("prefix");
 		var users = [userId];
 
-		if (users.length <= 0) {
-			alert('Please Select User');
-		} else if (site) {
+		if (site) {
 			$.ajax({
 				url: '/whatsapp/sendMessage/site_development',
 				dataType: "json",
@@ -790,10 +788,7 @@
 			}
 		}
 
-		console.log(users);
-		if (users.length <= 0) {
-			alert('Please Select User');
-		} else if (site) {
+		if (site) {
 			$.ajax({
 				url: '/whatsapp/sendMessage/site_development',
 				dataType: "json",
