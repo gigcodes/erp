@@ -46,10 +46,13 @@ class FixErpSizeIssue extends Command
         //
         $products = Product::join("scraped_products as sp","sp.product_id","products.id")->where("products.status_id", StatusHelper::$unknownSize)->where("products.supplier_id",">",0)
         ->where(function($q) {
-            $q->orWhereNotNull("sp.size")->orWhere("sp.size","!=","");
+            $q->where("sp.size","!=","");
+        })->where(function($q) {
+            $q->orWhereNull("products.size")->orWhere("products.size","=","");
         })
         ->select("products.*")
         ->limit(1)->get();
+
         if (!$products->isEmpty()) {
             foreach ($products as $product) {
                 $scrapedProduct = ScrapedProducts::where("product_id", $product->id)->where(function($q) {
