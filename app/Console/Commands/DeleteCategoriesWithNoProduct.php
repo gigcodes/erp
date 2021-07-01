@@ -58,7 +58,6 @@ class DeleteCategoriesWithNoProduct extends Command
                         echo "removed from  {$unKnownC} categories";
                         echo  PHP_EOL;
                     }
-                    \Log::info("last RUN". implode(",",array_filter($unKnownCategories)));
                     $unKnownCategory->references = implode(",",array_filter($unKnownCategories));
                     $unKnownCategory->save();
                 }
