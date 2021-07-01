@@ -32,7 +32,7 @@ class CategoryController extends Controller
     public function manageCategory(Request $request)
     {
         $category_segments = CategorySegment::where('status', 1)->get()->pluck('name', 'id');
-        $categories        = Category::where('parent_id', '=', 0)->get();
+        $categories        = Category::where('parent_id', '=', 0)->withCount('childs')->get();
         $allCategories     = Category::pluck('title', 'id')->all();
 
         $old = $request->old('parent_id');
@@ -763,4 +763,18 @@ if(!empty($request->show_auto_fix)){
         return response()->json(["code" => 200, "message" => "Category updated successfully"]);
     }
 
+
+    public function childCategory(Request $request)
+    {
+             $cat = Category::with('childs.childLevelSencond')->find($request->subCat);
+            $childs = $cat->childs;
+
+             if($childs){
+                 return response()->json($childs);
+             }else{
+                 return false;
+             }
+
+
+    }
 }
