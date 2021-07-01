@@ -44,7 +44,7 @@ class FixErpSizeIssue extends Command
     public function handle()
     {
         //
-        $products = Product::join("scraped_products as sp","sp.product_id","products.id")->where("products.status_id", StatusHelper::$unknownSize)->where("products.supplier_id",">",0)
+        $products = Product::join("scraped_products as sp","sp.product_id","products.id")->where("products.status_id", StatusHelper::$sizeVerifyCron)->where("products.supplier_id",">",0)
         ->where(function($q) {
             $q->where("sp.size","!=","");
         })->where(function($q) {
@@ -111,7 +111,13 @@ class FixErpSizeIssue extends Command
                         }
 
                         $product->save();
+                    }else{
+                        $product->status_id = StatusHelper::$unknownSize;
+                        $product->save();
                     }
+                }else{
+                    $product->status_id = StatusHelper::$unknownSize;
+                    $product->save();
                 }
             }
         }
