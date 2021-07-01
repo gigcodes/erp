@@ -541,6 +541,7 @@ class TwilioController extends FindByNumberController
         ]);
 
         //Change Agent Call Status - START
+        Log::channel('customerDnd')->info('AuthId: ' . $request->get("AuthId"));
         $user_id =$request->get("AuthId");
         $user_data = User::find($user_id);
         

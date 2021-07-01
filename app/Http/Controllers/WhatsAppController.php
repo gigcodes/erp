@@ -2868,7 +2868,7 @@ class WhatsAppController extends FindByNumberController
 
                 } elseif ($context == 'site_development') {
                     $chat_message = null;
-                    $users = $request->get('users', [$request->get("user_id", 0)]);
+                    $users = $request->get('users', [$request->get("user_id", 6)]);
                     if (!empty($users)) {
                         foreach ($users as $user) {
                             $user = User::find($user);

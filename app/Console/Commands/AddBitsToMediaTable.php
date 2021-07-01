@@ -44,6 +44,14 @@ class AddBitsToMediaTable extends Command
         {
             foreach ($medias as $m)
             {
+
+                if(! DB::table('mediables')->where('media_id', $m->id)->first()){
+                    dump('skip => mediable not exist' . $m->id);
+                    Media::where('id', $m->id)->update([
+                        'bits' => 1
+                    ]);
+                    continue;
+                }
                 $a = 'https://erp.theluxuryunlimited.com/' . $m->disk . '/' . $m->directory . '/' . $m->filename . '.' . $m->extension;
                 if (!@file_get_contents($a)) {
                     dump('skip => ' . $a);
