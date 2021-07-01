@@ -76,8 +76,8 @@
                 <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$issue->id}}" data-userId="{{$issue->user_id}}"><i class="fa fa-info-circle"></i></button>
             </div>
             <!-- <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}">Save</button> -->
-                @if($issue->developerTaskHistory)
-                    <span>Approved : {{$issue->developerTaskHistory ? $issue->developerTaskHistory->new_value:0  }}</span>
+                @if($issue->ApprovedDeveloperTaskHistory)
+                    <span>Approved : {{$issue->ApprovedDeveloperTaskHistory ? $issue->ApprovedDeveloperTaskHistory->new_value:0  }}</span>
                     @else 
                     <p style="color:#337ab7"><strong>Unapproved</strong> </p>
                 @endif

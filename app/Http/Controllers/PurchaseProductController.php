@@ -887,19 +887,24 @@ class PurchaseProductController extends Controller
         $supplier_id = $request->supplier_id;
         // $product_ids = explode(",",$request->product_id);
         $product_ids = json_decode($request->product_id, true);
-        $order_ids = $request->order_id;
+        $order_ids = json_decode($request->order_id, true);
        
 
-        $products_data = Product::leftjoin('product_suppliers','product_suppliers.product_id','products.id')
+        // $products_data = Product::leftjoin('product_suppliers','product_suppliers.product_id','products.id')
+        // ->select('product_suppliers.price as product_price','products.*')
+        // ->whereIn('products.id',$product_ids)->groupBy("product_suppliers.sku")->get()->toArray();
+
+        $products_data = Product::join('order_products','order_products.product_id','products.id')
+        ->join('product_suppliers','product_suppliers.product_id','products.id')
         ->select('product_suppliers.price as product_price','products.*')
-        ->whereIn('products.id',$product_ids)->groupBy("product_suppliers.sku")->get()->toArray();
+        ->whereIn('products.id',$product_ids)->whereIn('order_products.id',$order_ids)->groupBy("order_products.sku")->get()->toArray();
         
         // $product_names = array_column($products_data, 'name');
         // $products_str = implode(", ",$product_names);
         $products_str = '';
         foreach($products_data as $key => $val)
         {
-            $products_str .= ' => Product Name : '.$val['name'].' , SKU : '.$val['sku'].' , Price : '.$val['product_price'];
+            $products_str .= "\n".' => Product Name : '.$val['name'].' , SKU : '.$val['sku'].' , Price : '.$val['product_price'];
         }
         $message = 'Please check Product Order ::  '.$products_str;
 
@@ -924,15 +929,16 @@ class PurchaseProductController extends Controller
             $subject = 'Product order';
             $message_chat_data = ($content ? $content : 'Please check below product order request');
 
-            $message = ($content ? $content : 'Please check below product order request');
-
-            $message = str_replace("=>","<br/> =>",$message);
+           
 
             $product_ids = explode(",",$product_id);
             $order_ids = explode(",",$order_id);
 
             if($send_options == 'email' || $send_options == 'both')
             {
+                $message = ($content ? $content : 'Please check below product order request');
+
+                $message = str_replace("=>","<br/>"." =>",$message);
             
                 Excel::store(new EnqueryExport($product_ids,$path), $path, 'files');
             
@@ -962,7 +968,7 @@ class PurchaseProductController extends Controller
                 // $message = 'Please check Product Order : '.$products_str;
                 $message = ($content ? $content : 'Please check below product order request');
 
-                $message = str_replace("=>","<br/> =>",$message);
+                $message = str_replace("=>","\n"." =>",$message);
 
                 $number = ($supplier->phone ? $supplier->phone : '971569119192' );
 
