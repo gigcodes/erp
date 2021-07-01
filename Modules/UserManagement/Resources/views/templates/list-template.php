@@ -156,7 +156,17 @@ a {
 					<?php if(Auth::user()->isAdmin()) { ?>
 						<button title="Create database" type="button" class="btn btn-create-database pd-5" data-id="{{:prop.id}}"> <i class="fa fa-database" aria-hidden="true"></i></button>
 					<?php } ?>
-					<button title="Task acitivity" type="button" class="btn task-activity pd-5" data-id="{{:prop.id}}"><i class="fa fa-history"></i></button>
+					
+							<button title="Task acitivity" type="button" class="btn task-activity pd-5" data-id="{{:prop.id}}"><i class="fa fa-history"></i></button>
+
+							<?php if(Auth::user()->isAdmin()) { ?>
+	                <button title="generate pem file" class="btn user-generate-pem-file pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-file" aria-hidden="true"></i></button>
+
+	     <button title="Pem file History" class="btn user-pem-file-history pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-info-circle" aria-hidden="true"></i></button>
+              <?php } ?>
+
+
+					
 					</td>
 			      </tr>
 			    {{/props}}  
@@ -164,6 +174,126 @@ a {
 		</table>
 		{{:pagination}}
 	</div>
+</script>
+
+<script type="text/x-jsrender" id="user-template-generate-file">
+	<div class="modal-content">
+	   <div class="modal-header">
+	      <h5 class="modal-title">User Generate PEM file</h5>
+	      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	      	<span aria-hidden="true">&times;</span>
+	      </button>
+	   </div>
+	   <div class="modal-body">
+			<div class="row">
+				<div class="col-lg-12">
+					<form action="/user-management/user-generate-file-store" method="post">
+						<?php echo csrf_field(); ?>
+						<div class="row">
+					  		<div class="col-md-12">
+					    		<div class="form-group">
+
+					    				<input type="hidden" value={{:userid}} name="userid" id="user_id-pemfile">
+
+						         	<label for="meta_title">Meta Title</label>
+						         	<select class="form-control select2" name="for_server">
+						         		<option value="Erp-Server">Erp-Server</option>
+						         		<option value="s01">Scrap-Server-s01</option>
+						         		<option value="s02">Scrap-Server-s02</option>
+						         		<option value="s03">Scrap-Server-s03</option>
+						         		<option value="s04">Scrap-Server-s04</option>
+						         		<option value="s05">Scrap-Server-s05</option>
+						         		<option value="s06">Scrap-Server-s06</option>
+						         		<option value="s07">Scrap-Server-s07</option>
+						         		<option value="s08">Scrap-Server-s08</option>
+						         		<option value="s09">Scrap-Server-s09</option>
+						         		<option value="s10">Scrap-Server-s10</option>
+						         		<option value="s11">Scrap-Server-s11</option>
+						         		<option value="s12">Scrap-Server-s12</option>
+						         		<option value="s13">Scrap-Server-s13</option>
+						         		<option value="s14">Scrap-Server-s14</option>
+						         		<option value="s15">Scrap-Server-s15</option>
+						         		<option value="Cropper-Server">Cropper-Server</option>
+						         		<option value="BRANDS">BRANDS</option>
+						         		<option value="AVOIRCHIC">AVOIRCHIC</option>
+						         		<option value="OLABELS">OLABELS</option>
+						         		<option value="SOLOLUXURY">SOLOLUXURY</option>
+						         		<option value="SUVANDNAT">SUVANDNAT</option>
+						         		<option value="THEFITEDIT">THEFITEDIT</option>
+						         		<option value="THESHADESSHOP">THESHADESSHOP</option>
+						         		<option value="UPEAU">UPEAU</option>
+						         		<option value="VERALUSSO">VERALUSSO</option>
+						         	</select>
+						         </div>
+					        </div> 
+					        <div class="col-md-12">
+						    	<div class="form-group">
+						      		<button type="submit" class="btn btn-secondary submit-generete-file-btn">Generate</button>
+						    	</div>
+					    	</div>
+					  	</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</script>
+
+<script type="text/x-jsrender" id="pem-file-user-history-lising">
+	<div class="modal-content">
+	   <div class="modal-header">
+	      <h5 class="modal-title">User Listing</h5>
+	      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	      	<span aria-hidden="true">&times;</span>
+	      </button>
+	   </div>
+	   <div class="modal-body">
+			<div class="row mt-5">		
+				<div class="col-lg-12">
+					<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					      	<th>User Id</th>
+					        <th>Server</th>
+					        <th>Username</th>
+					        <th>Event</th>
+					        <th>Created Date</th>
+					      </tr>
+					    </thead>
+					    <tbody>
+					    	{{props data}}
+						      <tr class='subMagentoUser'>
+
+						      	<td>
+						      		<input type="hidden" class="pem_history_id"  value="{{:prop.id}}"/>
+						      		
+						      		{{:prop.user_id}}
+
+						      	</td>
+						        <td>
+						        	{{:prop.server_name}}
+						        </td>
+
+						        <td>
+						        	{{:prop.username}}
+						        </td>
+
+						        <td>
+						        	{{:prop.action}}
+						        </td>
+
+						        <td>
+						        	{{:prop.created_at}}
+						        </td>
+						       
+						      </tr>
+						    {{/props}}  
+					    </tbody>
+					</table>
+				</div>	
+			</div>
+		</div>
+	</div>	
 </script>
 
 <script type="text/x-jsrender" id="template-attached-remarks">

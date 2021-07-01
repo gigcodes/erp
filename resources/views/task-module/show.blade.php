@@ -698,7 +698,11 @@
                                             </select>
                                             @else 
                                                 @if($task->master_user_id) 
-                                                <p>{{$users[$task->master_user_id]}}</p>
+                                                    @if(isset($users[$task->master_user_id]))
+                                                        <p>{{$users[$task->master_user_id]}}</p>
+                                                    @else 
+                                                         <p>-</p>
+                                                    @endif
                                                 @endif
                                             @endif
 

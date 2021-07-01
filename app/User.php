@@ -72,7 +72,8 @@ class User extends Authenticatable
         'billing_frequency_day',
         'user_timeout',
         'mail_notification',
-        'is_auto_approval'
+        'is_auto_approval',
+        'last_mail_sent_payment',
     ];
 
     public function getIsAdminAttribute()
