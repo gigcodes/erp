@@ -899,7 +899,7 @@ class PurchaseProductController extends Controller
         $products_str = '';
         foreach($products_data as $key => $val)
         {
-            $products_str .= ' => Product Name : '.$val['name'].' , SKU : '.$val['sku'].' , Price : '.$val['product_price'];
+            $products_str .= "\n".' => Product Name : '.$val['name'].' , SKU : '.$val['sku'].' , Price : '.$val['product_price'];
         }
         $message = 'Please check Product Order ::  '.$products_str;
 
@@ -924,15 +924,16 @@ class PurchaseProductController extends Controller
             $subject = 'Product order';
             $message_chat_data = ($content ? $content : 'Please check below product order request');
 
-            $message = ($content ? $content : 'Please check below product order request');
-
-            $message = str_replace("=>","<br/> =>",$message);
+           
 
             $product_ids = explode(",",$product_id);
             $order_ids = explode(",",$order_id);
 
             if($send_options == 'email' || $send_options == 'both')
             {
+                $message = ($content ? $content : 'Please check below product order request');
+
+                $message = str_replace("=>","<br/>"." =>",$message);
             
                 Excel::store(new EnqueryExport($product_ids,$path), $path, 'files');
             
@@ -962,7 +963,7 @@ class PurchaseProductController extends Controller
                 // $message = 'Please check Product Order : '.$products_str;
                 $message = ($content ? $content : 'Please check below product order request');
 
-                $message = str_replace("=>","<br/> =>",$message);
+                $message = str_replace("=>","\n"." =>",$message);
 
                 $number = ($supplier->phone ? $supplier->phone : '971569119192' );
 
