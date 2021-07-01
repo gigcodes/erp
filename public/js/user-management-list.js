@@ -204,7 +204,12 @@ var page = {
         page.config.bodyView.on("click",".approve-user",function(e) {
             page.approveUser($(this));
         });
-        
+
+        $(document).on("click",".delete-pem-user",function(e) {
+            e.preventDefault();
+            page.deletePemUser($(this));
+        });
+
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -933,6 +938,24 @@ var page = {
         }        
               
     },
+
+    deletePemUser : function(ele) {
+        var _z = {
+            url: this.config.baseUrl + "/user-management/delete-pem-file/"+ele.data("id"),
+            method: "post"
+        }
+        this.sendAjax(_z, 'afterDeletePemUser',ele);
+    },
+
+    afterDeletePemUser : function(response,ele)  {
+        if(response.code == 200) {
+            toastr["success"](response.message);
+            ele.closest("tr").remove();
+        }else{
+            toastr["error"](response.message);
+            ele.closest("tr").remove();
+        } 
+    }
   
 }
 
@@ -1186,7 +1209,6 @@ $.views.helpers({
             alert('Please enter a date first');
         }
     });
-
 
 $('body').on('focus',".due_date_cls", function(){
         $(this).datetimepicker({

@@ -244,19 +244,21 @@ class CompositionsController extends Controller
             ])->onQueue("supplier_products");
         }
 
-        $c = Compositions::where("name", $from)->first();
-        if ($c) {
-            //once it is save let's store to the user updated attributes table as well
-            $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
-                'old_value'      => $c->replace_with,
-                'new_value'      => $to,
-                'attribute_name' => 'compositions',
-                'attribute_id'   => $c->id,
-                'user_id'        => $userId,
-            ]);
+        $c = Compositions::where("name", $from)->get();
+        if (!$c->isEmpty()) {
+            foreach($c as $b) {
+                //once it is save let's store to the user updated attributes table as well
+                $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
+                    'old_value'      => $b->replace_with,
+                    'new_value'      => $to,
+                    'attribute_name' => 'compositions',
+                    'attribute_id'   => $b->id,
+                    'user_id'        => $userId,
+                ]);
 
-            $c->replace_with = $to;
-            $c->save();
+                $b->replace_with = $to;
+                $b->save();
+            }
         }
 
         return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
