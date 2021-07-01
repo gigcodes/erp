@@ -1571,8 +1571,14 @@ class UserManagementController extends Controller
     {
 
         $server = $request->get("for_server");
+        $user   = \App\User::find($request->get('userid',0));
+        if(!$user) {
+            return false;
+        }
 
-        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh '.$server.' 2>&1';
+        $username = str_replace(" ", "_", $user->name);
+
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u '.$username.' -f add -s '.$server.' 2>&1';
 
         $allOutput   = array();
         $allOutput[] = $cmd;
@@ -1599,7 +1605,7 @@ class UserManagementController extends Controller
         UserPemfileHistory::create([
             'user_id' => $request->userid, 
             'server_name' => $server,
-            'username' => 'testing',
+            'username' => $username,
             'action' => 'add',
             'created_by' => $request->user()->id,
         ]);
@@ -1616,9 +1622,29 @@ class UserManagementController extends Controller
         die;
     }
 
-     public function userPemfileHistoryListing(Request $request)
+    public function userPemfileHistoryListing(Request $request)
     {
-        $history = UserPemfileHistory::where('user_id',$request->userid)->get();
+        $history = UserPemfileHistory::where('user_id',$request->userid)->latest()->get();
         return response()->json(["code" => 200, "data" => $history]);
+    }
+
+    public function deletePemFile(Request $request,$id)
+    {
+        $pemHistory = UserPemfileHistory::find($id);
+        if($pemHistory) {
+
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u '.$pemHistory->username.' -f delete -s '.$pemHistory->server_name.' 2>&1';
+
+            $allOutput   = array();
+            $allOutput[] = $cmd;
+            $result      = exec($cmd, $allOutput);
+            $pemHistory->delete();
+
+            return response()->json(["code" => 200, "data" => [], "message" => "Pem remove file request submitted successfully"]);
+
+        }else{
+            return response()->json(["code" => 500, "data" => [], "message" => "No request found"]);
+        }
+
     }
 }

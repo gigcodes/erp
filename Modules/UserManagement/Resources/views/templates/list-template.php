@@ -157,16 +157,12 @@ a {
 						<button title="Create database" type="button" class="btn btn-create-database pd-5" data-id="{{:prop.id}}"> <i class="fa fa-database" aria-hidden="true"></i></button>
 					<?php } ?>
 					
-							<button title="Task acitivity" type="button" class="btn task-activity pd-5" data-id="{{:prop.id}}"><i class="fa fa-history"></i></button>
+						<button title="Task acitivity" type="button" class="btn task-activity pd-5" data-id="{{:prop.id}}"><i class="fa fa-history"></i></button>
 
-							<?php if(Auth::user()->isAdmin()) { ?>
-	                <button title="generate pem file" class="btn user-generate-pem-file pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-file" aria-hidden="true"></i></button>
-
-	     <button title="Pem file History" class="btn user-pem-file-history pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-info-circle" aria-hidden="true"></i></button>
-              <?php } ?>
-
-
-					
+						<?php if(Auth::user()->isAdmin()) { ?>
+                			<button title="generate pem file" class="btn user-generate-pem-file pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-file" aria-hidden="true"></i></button>
+     						<button title="Pem file History" class="btn user-pem-file-history pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-info-circle" aria-hidden="true"></i></button>
+          				<?php } ?>
 					</td>
 			      </tr>
 			    {{/props}}  
@@ -195,7 +191,7 @@ a {
 
 					    				<input type="hidden" value={{:userid}} name="userid" id="user_id-pemfile">
 
-						         	<label for="meta_title">Meta Title</label>
+						         	<label for="meta_title">Server List</label>
 						         	<select class="form-control select2" name="for_server">
 						         		<option value="Erp-Server">Erp-Server</option>
 						         		<option value="s01">Scrap-Server-s01</option>
@@ -258,6 +254,7 @@ a {
 					        <th>Username</th>
 					        <th>Event</th>
 					        <th>Created Date</th>
+					        <th>Action</th>
 					      </tr>
 					    </thead>
 					    <tbody>
@@ -285,7 +282,8 @@ a {
 						        <td>
 						        	{{:prop.created_at}}
 						        </td>
-						       
+
+						        <td><button title="Delete user" type="button" class="btn btn-image delete-pem-user pd-5" data-id="{{:prop.id}}"><i class="fa fa-trash"></i></button></td>
 						      </tr>
 						    {{/props}}  
 					    </tbody>
