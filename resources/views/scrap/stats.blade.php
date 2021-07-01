@@ -111,7 +111,7 @@
             </div>
 
             <div class="form-group mb-3 col-md-2">
-                <?php echo Form::select("task_assigned_to",["" => "Select User"] + \App\User::pluck("name","id")->toArray(),null,["class" => "form-control select2"]); ?>
+                <?php echo Form::select("task_assigned_to",["" => "Select User"] + \App\User::pluck("name","id")->toArray(),request('task_assigned_to'),["class" => "form-control select2"]); ?>
             </div>
 
             <div class="form-group mb-3 col-md-2">
