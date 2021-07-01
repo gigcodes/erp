@@ -150,6 +150,7 @@ class BrandController extends Controller
 
     public function pushToStore(Request $request)
     {
+        $user = auth()->user();
         if ($request->brand != null && $request->store != null) {
             try
             {
@@ -172,6 +173,7 @@ class BrandController extends Controller
                                     'brand_id' => $request->brand,
                                     'store_website_id' => $request->store,
                                     'type' => "assign",
+                                    'created_by' => $user->id,
                                     'message' => "{$website->title} assigned to {$brand->name} brand."
                                 ]);
                                 
@@ -183,6 +185,7 @@ class BrandController extends Controller
                                     'brand_id' => $request->brand,
                                     'store_website_id' => $request->store,
                                     'type' => "error",
+                                    'created_by' => $user->id,
                                     'message' => "{$website->title} assigned to {$brand->name} brand failed."
                                 ]);
                                 return response()->json(["code" => 500 , "message" =>  "Brand is not pushed to store,please check history log."]);
@@ -197,16 +200,16 @@ class BrandController extends Controller
                                         'brand_id' => $request->brand,
                                         'store_website_id' => $request->store,
                                         'type' => "remove",
+                                        'created_by' => $user->id,
                                         'message' => "{$brand->name} removed from {$website->title} store."
                                     ]);
                                     return response()->json(["code" => 200 , "message" => "Brand is removed from store successfully."]);
-                                }
-                                else
-                                {
+                                }else {
                                     StoreWebsiteBrandHistory::create([
                                         'brand_id' => $request->brand,
                                         'store_website_id' => $request->store,
                                         'type' => "error",
+                                        'created_by' => $user->id,
                                         'message' => "{$brand->name} is not removed from {$website->title} store."
                                     ]);
                                     return response()->json(["code" => 500 , "message" => "Brand is not removed from store,please check history log."]);
@@ -238,6 +241,7 @@ class BrandController extends Controller
                     'brand_id' => $request->brand,
                     'store_website_id' => $request->store,
                     'type' => "error",
+                    'created_by' => $user->id,
                     'message' => $e->getMessages()
                 ]);
                 return response()->json(["code" => 200, "data" => []]);
@@ -270,7 +274,13 @@ class BrandController extends Controller
 
     public function history(Request $request){
         if ($request->brand != null && $request->store != null) {
-            $StoreWebsiteBrandHistories = StoreWebsiteBrandHistory::where("brand_id", $request->brand)->where("store_website_id", $request->store)->get();
+            
+            $StoreWebsiteBrandHistories = StoreWebsiteBrandHistory::leftJoin("users as u","u.id","store_website_brand_histories.created_by")
+            ->where("brand_id", $request->brand)
+            ->where("store_website_id", $request->store)
+            ->select(["store_website_brand_histories.*","u.name as user_name"])
+            ->get();
+
             return view("storewebsite::brand.history", compact(['StoreWebsiteBrandHistories']));
         }
         return response()->json(["code" => 200, "data" => []]);
