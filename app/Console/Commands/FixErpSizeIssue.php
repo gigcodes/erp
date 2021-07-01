@@ -50,8 +50,7 @@ class FixErpSizeIssue extends Command
         })->where(function($q) {
             $q->orWhereNull("products.size")->orWhere("products.size","=","");
         })
-        ->select("products.*")
-        ->limit(1)->get();
+        ->select("products.*")->get();
 
         if (!$products->isEmpty()) {
             foreach ($products as $product) {
