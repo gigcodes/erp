@@ -581,6 +581,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('check:landing-page')->everyMinute();
 
         $schedule->command('ScrapApi:LogCommand')->hourly();
+        $schedule->command('HubstuffActivity:Command')->daily();
 
         $schedule->command('AuthenticateWhatsapp:instance')->hourly();
         // Get tickets from Live Chat inc and put them as unread messages
