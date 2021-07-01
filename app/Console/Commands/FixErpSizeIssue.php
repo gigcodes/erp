@@ -50,16 +50,17 @@ class FixErpSizeIssue extends Command
         })->where(function($q) {
             $q->orWhereNull("products.size")->orWhere("products.size","=","");
         })
-        ->select("products.*")
+        ->select("productss.*")
         ->limit(1)->get();
 
         if (!$products->isEmpty()) {
             foreach ($products as $product) {
+                $this->info("Started for product id :" . $product->id);
                 $scrapedProduct = ScrapedProducts::where("product_id", $product->id)->where(function($q) {
                     $q->orWhereNotNull("size")->orWhere("size","!=","");
                 })->first();
                 if ($scrapedProduct) {
-                    \Log::info("Product being updated for {$product->sku} with {$scrapedProduct->size_system} and {$scrapedProduct->size}"); 
+                    $this->info("Product being updated for {$product->sku} with {$scrapedProduct->size_system} and {$scrapedProduct->size}"); 
                     if (!empty($scrapedProduct->size)) {
                         $sizes  = explode(",", $scrapedProduct->size);
                         $euSize = [];
@@ -92,8 +93,7 @@ class FixErpSizeIssue extends Command
                         $product->save();
 
                         $product->checkExternalScraperNeed();
-
-                        \Log::channel('productUpdates')->info("Saved product id :" . $product->id);
+                        $this->info("Saved product id :" . $product->id);
 
                         // check for the auto crop
                         $needToCheckStatus = [
