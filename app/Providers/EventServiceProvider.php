@@ -9,8 +9,10 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use App\Brand;
 use App\Email;
+use \Plank\Mediable\Media;
 use App\Observers\BrandObserver;
 use App\Observers\EmailObserver;
+use App\Observers\MediaObserver;
 use App\Category;
 use App\Observers\ScrappedCategoryMappingObserver;
 use App\ScrapedProducts;
@@ -92,6 +94,7 @@ class EventServiceProvider extends ServiceProvider
 
         Brand::observe(BrandObserver::class);
         Email::observe(EmailObserver::class);
+        Media::observe(MediaObserver::class);
 
         Category::observe(ScrappedCategoryMappingObserver::class);
 
