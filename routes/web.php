@@ -158,11 +158,16 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
+    
     Route::get('color-reference/used-products', 'ColorReferenceController@usedProducts');
+
+    Route::get('color-reference-fix-issue','ColorReferenceController@cmdcallcolorfix')->name('erp-color-fix-cmd');
+
     Route::get('color-reference/affected-product', 'ColorReferenceController@affectedProduct');
     Route::post('color-reference/update-color', 'ColorReferenceController@updateColor');
 
     Route::resource('color-reference', 'ColorReferenceController');
+
     Route::get('compositions/{id}/used-products', 'CompositionsController@usedProducts')->name('compositions.used-products');
     Route::get('compositions/affected-product', 'CompositionsController@affectedProduct');
     Route::post('compositions/update-composition', 'CompositionsController@updateComposition');
