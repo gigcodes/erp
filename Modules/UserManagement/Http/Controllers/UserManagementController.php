@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use App\ColdLeads;
-use App\User;
+use App\{User,UserPemfileHistory};
 use App\UserRate;
 use App\Role;
 use App\Permission;
@@ -1565,5 +1565,86 @@ class UserManagementController extends Controller
     public function systemIps(Requests $request){
         $shell_list = shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f list");
         return response()->json( ["code" => 200 , "data" => $shell_list] );
+    }
+
+    public function userGenerateStorefile(Request $request)
+    {
+
+        $server = $request->get("for_server");
+        $user   = \App\User::find($request->get('userid',0));
+        if(!$user) {
+            return false;
+        }
+
+        $username = str_replace(" ", "_", $user->name);
+
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u '.$username.' -f add -s '.$server.' 2>&1';
+
+        $allOutput   = array();
+        $allOutput[] = $cmd;
+        $result      = exec($cmd, $allOutput);
+
+        \Log::info(print_r($allOutput,true));
+
+        $string  = [];
+        if(!empty($allOutput)) {
+            $continuetoFill = false;
+            foreach($allOutput as $ao) {
+                if($ao == "-----BEGIN RSA PRIVATE KEY-----" || $continuetoFill) {
+                   $string[] = $ao;
+                   $continuetoFill = true; 
+                }
+            }
+        }
+
+        $content = implode("\n",$string);
+
+        $nameF = $server.".pem";
+
+
+        UserPemfileHistory::create([
+            'user_id' => $request->userid, 
+            'server_name' => $server,
+            'username' => $username,
+            'action' => 'add',
+            'created_by' => $request->user()->id,
+        ]);
+        
+        //header download
+        header("Content-Disposition: attachment; filename=\"" . $nameF . "\"");
+        header("Content-Type: application/force-download");
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header("Content-Type: application/x-pem-file");
+
+        echo $content;
+        die;
+    }
+
+    public function userPemfileHistoryListing(Request $request)
+    {
+        $history = UserPemfileHistory::where('user_id',$request->userid)->latest()->get();
+        return response()->json(["code" => 200, "data" => $history]);
+    }
+
+    public function deletePemFile(Request $request,$id)
+    {
+        $pemHistory = UserPemfileHistory::find($id);
+        if($pemHistory) {
+
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u '.$pemHistory->username.' -f delete -s '.$pemHistory->server_name.' 2>&1';
+
+            $allOutput   = array();
+            $allOutput[] = $cmd;
+            $result      = exec($cmd, $allOutput);
+            $pemHistory->delete();
+
+            return response()->json(["code" => 200, "data" => [], "message" => "Pem remove file request submitted successfully"]);
+
+        }else{
+            return response()->json(["code" => 500, "data" => [], "message" => "No request found"]);
+        }
+
     }
 }

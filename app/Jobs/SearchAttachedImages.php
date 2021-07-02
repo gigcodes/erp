@@ -24,12 +24,16 @@ class SearchAttachedImages implements ShouldQueue
     protected $id;
     protected $req_data; 
     protected $url; 
+    protected $first_time; 
+    protected $is_matched; 
 
     public function __construct($id, $url, $req_data)
     {
         $this->id = $id; 
         $this->url = $url; 
         $this->req_data = $req_data; 
+        $this->first_time = true; 
+        $this->is_matched = false; 
     }
 
     public function handle()
@@ -40,8 +44,6 @@ class SearchAttachedImages implements ShouldQueue
         $ref_file = str_replace('|', '/', $this->url);
         $ref_file = str_replace("'", '', $ref_file);
         $params = $this->req_data;
-        $media_array = [];
-        $is_matched = false;
         $chat_message = \App\ChatMessage::where('id', $id)->first();
         if(@file_get_contents($ref_file)){
             $i1 = CompareImagesHelper::createImage($ref_file);
@@ -55,14 +57,11 @@ class SearchAttachedImages implements ShouldQueue
             $bits1 = CompareImagesHelper::bits($colorMean1);
 
             $bits = implode($bits1); 
-            $first_time = true;
 
-            $xx = 0;
-            $count = 0;
-            $compared_media = 0;
-            DB::table('media')->whereNotNull('bits')->where('bits', '!=', 0)->where('bits', '!=', 1)->where('directory', 'like', '%product/%')->orderBy('id')->chunk(1000, function($medias) use ($bits, $xx, $count)
+            DB::table('media')->whereNotNull('bits')->where('bits', '!=', 0)->where('bits', '!=', 1)->where('directory', 'like', '%product/%')->orderBy('id')->chunk(1000, function($medias)
+             use ($bits, $chat_message)
             {
-                foreach ($medias as $k => $m)
+            foreach ($medias as $k => $m)
                 {
                     $hammeringDistance = 0;
                     $m_bits = $m->bits; 
@@ -75,16 +74,16 @@ class SearchAttachedImages implements ShouldQueue
                         
                     } 
                     if($hammeringDistance < 10){
-                        $is_matched = true;
-                        if($first_time){
+                        $this->is_matched = true;
+                        if($this->first_time){
                             $sp = SuggestedProduct::create([
                                 'total' => 0,
                                 'customer_id' => $chat_message->customer_id,
                                 'chat_message_id' => $chat_message->id,
                             ]);
-                            $first_time = false;
+                            $this->first_time = false;
                         } 
-                        $mediables = Mediable::where('media_id', $m->id)->where('media_type', 'App\Product')->get();
+                        $mediables = DB::table('mediables')->where('media_id', $m->id)->get();
                         if(count($mediables)){
                             foreach($mediables as $mediable){
                                 SuggestedProductList::create([
@@ -101,7 +100,7 @@ class SearchAttachedImages implements ShouldQueue
         }
 
         $user = Auth::user();
-        if($is_matched){
+        if($this->is_matched){
             $msg = 'Your image find process is completed.';
         }else{
             $msg = 'Your image find process is completed, No results found';

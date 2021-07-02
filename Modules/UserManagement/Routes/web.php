@@ -54,4 +54,10 @@ Route::prefix('user-management')->middleware('auth')->group(function() {
     Route::post('{id}/delete-database-access', 'UserManagementController@deleteDatabaseAccess')->name("user-management.delete-database-access");
     Route::post('{id}/choose-database', 'UserManagementController@chooseDatabase')->name("user-management.choose-database");
     Route::post('/update-status', 'UserManagementController@updateStatus');
+
+
+    Route::post('/user-generate-file-store', 'UserManagementController@userGenerateStorefile')->name("user-management.gent-file-store");
+
+    Route::get('/user-generate-file-listing/{userid}','UserManagementController@userPemfileHistoryListing')->name("user-management-pem-history-list");
+    Route::post('/delete-pem-file/{id}','UserManagementController@deletePemFile')->name("user-management-delete-pem-file");
 });
