@@ -2427,7 +2427,6 @@ class OrderController extends Controller
                                 'template'         => 'order-status-update',
                                 'additional_data'  => $order->id,
                                 'status'           => 'pre-send',
-                                'store_website_id' => ($storeWebsiteOrder) ? $storeWebsiteOrder->store_website_id : null,
                                 'is_draft'         => 0,
                             ]);
 

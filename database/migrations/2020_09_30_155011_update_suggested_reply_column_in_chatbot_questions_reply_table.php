@@ -13,9 +13,7 @@ class UpdateSuggestedReplyColumnInChatbotQuestionsReplyTable extends Migration
      */
     public function up()
     {
-        Schema::table('chatbot_questions_reply', function (Blueprint $table) {
-            $table->text('suggested_reply')->change();
-        });
+        \DB::statement("ALTER TABLE `chatbot_questions_reply` CHANGE `suggested_reply` `suggested_reply` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;");
     }
 
     /**

@@ -80,7 +80,7 @@
 							</div>
 							<div class="form-group">
 								<?php /* <label for="status">Status:</label> */?>
-								<?php echo Form::select("status", [""=>"All Status", "ignored" => "Ignored Status"], request("status"), ["class" => "form-control", "id" => "enter-status"]) ?>
+							<?php echo Form::select("status", [""=>"All Status"]+ $allStatus, request("status"), ["class" => "form-control", "id" => "enter-status"]) ?>
 							</div>
 							<div class="form-group">
 							<?php /* <label for="button">&nbsp;</label> */ ?>
@@ -726,9 +726,7 @@
 		prefix = $this.data("prefix");
 		var users = [userId];
 
-		if (users.length <= 0) {
-			alert('Please Select User');
-		} else if (site) {
+		if (site) {
 			$.ajax({
 				url: '/whatsapp/sendMessage/site_development',
 				dataType: "json",
@@ -789,10 +787,8 @@
 				users.push(value);
 			}
 		}
-		console.log(users);
-		if (users.length <= 0) {
-			alert('Please Select User');
-		} else if (site) {
+
+		if (site) {
 			$.ajax({
 				url: '/whatsapp/sendMessage/site_development',
 				dataType: "json",
@@ -808,6 +804,7 @@
 					$('#message-' + site).attr('disabled', true);
 				}
 			}).done(function(data) {
+				toastr["success"]("Message Sent successfully");//Purpose : Display success message - DEVATSK-4361
 				$('#message-' + site).attr('disabled', false);
 				$('#message-' + site).val('');
 			}).fail(function(jqXHR, ajaxOptions, thrownError) {

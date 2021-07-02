@@ -21,6 +21,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\ProductCancellationPolicie;
 class StoreWebsiteController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      * @return Response
@@ -143,6 +144,7 @@ class StoreWebsiteController extends Controller
     }
 
     public function saveUserInMagento(Request $request) {
+        
         $post = $request->all();
         $validator = Validator::make($post, [
             'username'   => 'required',
@@ -150,6 +152,7 @@ class StoreWebsiteController extends Controller
             'lastName'   => 'required',
             'userEmail'   => 'required',
             'password' => 'required',
+            'websitemode' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -196,6 +199,7 @@ class StoreWebsiteController extends Controller
             $getUser->last_name = $post['lastName'];
             $getUser->email = $post['userEmail'];
             $getUser->password = $post['password'];
+            $getUser->website_mode = $post['websitemode'];
             $getUser->save();
 
             $magentoHelper = new MagentoHelperv2();
@@ -208,6 +212,7 @@ class StoreWebsiteController extends Controller
             $params['email'] = $post['userEmail'];
             $params['password'] = $post['password'];
             $params['store_website_id'] = $post['store_id'];
+            $params['website_mode'] = $post['websitemode'];
             StoreWebsiteUsers::create($params);
 
             if($post['userEmail'] && $post['password']) {
@@ -595,6 +600,12 @@ class StoreWebsiteController extends Controller
 
         echo $content;
         die;
+    }
+
+    public function magentoUserList(Request $request)
+    {
+        $users = StoreWebsiteUsers::where('is_deleted',0)->get();
+        return response()->json(["code" => 200, "data" => $users]);
     }
 
 }

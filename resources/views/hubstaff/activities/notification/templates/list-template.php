@@ -6,12 +6,12 @@
 		      	<th width="2%"></th>
 		      	<th width="2%">User</th>
 		        <th width="10%">Start Date</th>
-		        <th width="10%">End date</th>
+		        <th width="10%">Daily Availble hr</th>
+		        <th width="10%">Total Working hr</th>
+		        <th width="10%">Different</th>
 		        <th width="2%">Min Percentage</th>
 		        <th width="2%">Actual Percentage</th>
 		        <th width="10%">Reason</th>
-		        <th width="10%">Created at</th>
-		        <th width="10%">Updated at</th>
 		        <th width="10%">Status</th>
 		        <th width="10%">Action</th>
 		      </tr>
@@ -24,12 +24,12 @@
 			      	</td>
 			      	<td>{{:prop.user_name}}</td>
 			        <td>{{:prop.start_date}}</td>
-			        <td>{{:prop.end_date}}</td>
+			        <td>{{:prop.daily_working_hour}}</td>
+			        <td>{{:prop.total_working_hour}}</td>
+			        <td>{{:prop.different}}</td>
 			        <td>{{:prop.min_percentage}}</td>
 			        <td>{{:prop.actual_percentage}}</td>
 			        <td>{{:prop.reason}}</td>
-			        <td>{{:prop.created_at}}</td>
-			        <td>{{:prop.updated_at}}</td>
 			        <td>{{if prop.status == 1}} Approved {{else}} Pending {{/if}}</td>
 			        <td>
 					<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-reason">

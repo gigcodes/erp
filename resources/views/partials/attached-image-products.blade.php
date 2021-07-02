@@ -63,6 +63,10 @@
 
                         <a href="javascript:;" class="btn btn-sm create-product-lead-dimension" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Dimensions"><i class="fa fa-delicious" aria-hidden="true"></i></a>
                         <a href="javascript:;" class="btn btn-sm create-product-lead" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Lead"><i class="fa fa-archive" aria-hidden="true"></i></a>
+
+
+                         <a href="javascript:;" class="btn btn-sm create-detail_image" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Detailed Images"><i class="fa fa-file-image-o" aria-hidden="true"></i></a>
+
                         <a href="javascript:;" class="btn btn-sm create-product-order" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Order"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i></a>
                 </div>
             </div>

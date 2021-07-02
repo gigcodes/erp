@@ -237,11 +237,11 @@
         <button type="submit" class="btn btn-secondary final-submit-record" data-status="1">Approve</button>
         <button type="submit" class="btn btn-secondary final-submit-record" data-status="2">Pending</button>
         @if(count($teamLeaders) > 0)
-            <button type="submit" class="btn btn-danger submit-record">Forword</button>
+            <button type="submit" class="btn btn-danger submit-record">Forward</button>
         @endif
     @else
-        <button type="submit" class="btn btn-danger submit-record">Forword</button> 
-        <button type="button" class="btn btn-secondary hide submit-notes">Submit notes</button> 
+        <button type="submit" class="btn btn-danger submit-record">Forward</button> 
+        <button type="button" class="btn btn-secondary submit-notes">Submit notes</button> 
     @endif
     </div>
 </form>
@@ -266,10 +266,10 @@
         } 
     });
 
-    if ($('.not_approve').length > 0) {
+    /*if ($('.not_approve').length > 0) {
           $('.submit-record').remove();
           $('.submit-notes').toggleClass('hide');
-    }
+    }*/
     
     $(document).on("click",".submit-notes",function() {
 

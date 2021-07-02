@@ -14,16 +14,18 @@
     <thead>
       <tr>
         <th scope="col">New Location Name</th>
+        <th scope="col">Instruction Message</th>
         <th scope="col">Courier Name</th>
         <th scope="col">Courier Details</th>
         <th scope="col">Date time</th>
         <th scope="col">Created by</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody class="product-location-history">
       <?php foreach($history as $h){ ?>
         <tr>
           <td><?php echo $h->location_name; ?></td>
+          <td><?php echo $h->instruction_message; ?></td>
           <td><?php echo $h->courier_name; ?></td>
           <td><?php echo $h->courier_details; ?></td>
           <td><?php echo $h->date_time; ?></td>

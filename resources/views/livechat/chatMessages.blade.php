@@ -192,7 +192,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="chat-righbox">
+                                        <div class="chat-righbox pt-3">
                                             <a href="javascript:;" title="General Info" onclick="openPopupGeneralInfo(<?php echo $chatId->id;?>)" ><i class="fa fa-info" aria-hidden="true"></i></a>
                                             &nbsp;
                                             <a href="javascript:;" title="Visited Pages" onclick="openPopupVisitedPages(<?php echo $chatId->id;?>)" ><i class="fa fa-map-marker" aria-hidden="true"></i></a>

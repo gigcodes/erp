@@ -13,6 +13,9 @@
 
 Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::get('/', 'StoreWebsiteController@index')->name("store-website.index");
+    
+    Route::get('/magento-user-lising', 'StoreWebsiteController@magentoUserList')->name("store-website.user-list");
+
     Route::get('/cancellation', 'StoreWebsiteController@cancellation')->name("store-website.cancellation");
     Route::get('/records', 'StoreWebsiteController@records')->name("store-website.records");
     Route::post('/save', 'StoreWebsiteController@save')->name("store-website.save");

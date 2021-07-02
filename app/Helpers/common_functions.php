@@ -189,6 +189,7 @@ function drop_down_frequency()
 {
     return [
         "0"    => "Disabled",
+        "1"    => "Just Once",
         "5"    => "Every 5 Minutes",
         "10"   => "Every 10 Minutes",
         "15"   => "Every 15 Minutes",
@@ -296,6 +297,17 @@ function storeERPLog($erpData)
         $erpData['response'] = json_encode($erpData['response']);
         ErpLog::create($erpData);
     }
+
+}
+function getStr($srt)
+{
+
+
+    preg_match("/\[(.*)\]/", $srt , $matches);
+    if($matches && $matches[0] !== ''){
+        return true;
+    };
+    return false;
 
 }
 

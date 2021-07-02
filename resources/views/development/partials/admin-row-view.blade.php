@@ -16,6 +16,18 @@
         </a> -->
         <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
         <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
+            
+        <a href="javascript:;" data-toggle="modal" data-target="#developmentReminderModal"  
+            class='pd-5 development-set-reminder' 
+            data-id="{{ $issue->id }}"
+            data-frequency="{{ !empty($issue->reminder_message) ? $issue->frequency : '60' }}"
+            data-reminder_message="{{ !empty($issue->reminder_message) ? $issue->reminder_message : 'Plz update' }}"
+            data-reminder_from="{{ $issue->reminder_from }}"
+            data-reminder_last_reply="{{ $issue->reminder_last_reply }}"
+        >
+            <i class="fa fa-bell @if(!empty($issue->reminder_message) && $issue->frequency > 0) {{ 'green-notification'  }} @else {{ 'red-notification' }} @endif"  aria-hidden="true"></i>
+        </a>     
+
         <br>
         {{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}
         @if($issue->task_type_id == 1) Devtask @elseif($issue->task_type_id == 3) Issue @endif
@@ -37,7 +49,8 @@
     <td class="expand-row">
     <!-- class="expand-row" -->
     <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? 'text-danger' : '' }}" style="word-break: break-all;">{{  \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}</span>
-    <input type="text" class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-bottom:5px"/>
+    <input type="text" class="form-control send-message-textbox addToAutoComplete" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-bottom:5px"/>
+    <input class="" name="add_to_autocomplete" class="add_to_autocomplete" type="checkbox" value="true">
     <?php echo Form::select("send_message_".$issue->id,[
                         "to_developer" => "Send To Developer",
                         "to_master" => "Send To Master Developer",
@@ -45,6 +58,7 @@
                         "to_tester" => "Send To Tester"
                     ],null,["class" => "form-control send-message-number", "style" => "width:30% !important;display: inline;"]); 
     ?>
+      
     <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message"  data-id="{{$issue->id}}" ><img src="/images/filled-sent.png"/></button>
 
         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="margin-top:-0%;margin-left: -3%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
@@ -59,20 +73,11 @@
         <div class="form-group">
             <div class='input-group estimate_minutes'>
                 <input style="min-width: 30px;" placeholder="E.minutes" value="{{ $issue->estimate_minutes }}" type="text" class="form-control estimate-time-change" name="estimate_minutes_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_minutes_{{$issue->id}}">
-                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
+                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$issue->id}}" data-userId="{{$issue->user_id}}"><i class="fa fa-info-circle"></i></button>
             </div>
             <!-- <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}">Save</button> -->
-            @php
-                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimation_minute')->where('is_approved',1)->first();
-                    if($time_history) {
-                        $est_time = $time_history->new_value;
-                    }
-                    else {
-                        $est_time = 0;
-                    }
-                @endphp
-                @if($est_time)
-                    <span>Approved : {{$est_time}}</span>
+                @if($issue->ApprovedDeveloperTaskHistory)
+                    <span>Approved : {{$issue->ApprovedDeveloperTaskHistory ? $issue->ApprovedDeveloperTaskHistory->new_value:0  }}</span>
                     @else 
                     <p style="color:#337ab7"><strong>Unapproved</strong> </p>
                 @endif
@@ -104,20 +109,9 @@
                 <input style="min-width: 30px;" placeholder="E.Date" value="{{ $issue->estimate_date }}" type="text" class="form-control estimate-date estimate-date-update" name="estimate_date_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_date_{{$issue->id}}">
            
                 <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-date-history" title="Show Date History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
-                @php
-                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimate_date')->where('is_approved',1)->first();
-                    if($time_history) {
-                        $est_date = $time_history->new_value;
-                    }
-                    else {
-                        $est_date = '--';
-                    }
-                @endphp
-                @if($est_date) 
-                    <span>Approved : {{$est_date}}</span>
-                @else 
-                    <p style="color:#337ab7"><strong>Unapproved</strong> </p>
-                @endif
+         
+                  <span>Approved : {{$issue->developerTaskHistory ? $issue->developerTaskHistory->new_value :'--'  }}</span>
+
             </div>
         </div>
     </td>

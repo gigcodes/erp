@@ -8,6 +8,7 @@ use App\Helpers;
 use App\Helpers\ProductHelper;
 use App\Helpers\StatusHelper;
 use App\Image;
+use App\ScrapApiLog;
 use App\Imports\ProductsImport;
 use App\Loggers\LogScraper;
 use App\Product;
@@ -189,7 +190,7 @@ class ScrapController extends Controller
     public function syncProductsFromNodeApp(Request $request)
     {
 
-        \Log::channel('scraper')->debug("##!!##" . json_encode($request->all()) . "##!!##");
+        //\Log::channel('scraper')->debug("##!!##" . json_encode($request->all()) . "##!!##");
 
         // Update request data with common mistakes
         $request = ProductHelper::fixCommonMistakesInRequest($request);
@@ -311,7 +312,6 @@ class ScrapController extends Controller
         // Get this product from scraped products
         $scrapedProduct = ScrapedProducts::where('sku', $sku)->where('website', $request->get('website'))->first();
         $images         = $request->get('images') ?? [];
-
         if ($scrapedProduct) {
             // Add scrape statistics
             // $scrapStatistics = new ScrapStatistics();
@@ -751,7 +751,7 @@ class ScrapController extends Controller
      */
     public function saveFromNewSupplier(Request $request)
     {
-        \Log::channel('scraper')->debug("\n##!EXTERNAL-SCRAPER!##\n" . json_encode($request->all()) . "\n##!EXTERNAL-SCRAPER!##\n");
+        //\Log::channel('scraper')->debug("\n##!EXTERNAL-SCRAPER!##\n" . json_encode($request->all()) . "\n##!EXTERNAL-SCRAPER!##\n");
         
         // Overwrite website
         //$request->website = 'internal_scraper';
@@ -2253,12 +2253,15 @@ class ScrapController extends Controller
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             
             $response = curl_exec($curl);
-
+            
             curl_close($curl);
             
             if (!empty($response)) {
+                
                 $response = json_decode($response);
+                
                 \Log::info(print_r($response,true));
+                
                 if((isset($response->status) && $response->status == "Didn't able to find file of given scrapper") || empty($response->log)) {
                     echo "Sorry , no log was return from server";
                     die;
@@ -2268,7 +2271,17 @@ class ScrapController extends Controller
                         header('Content-Description: File Transfer');
                         header("Content-type: application/octet-stream");
                         header("Content-disposition: attachment; filename= ".$file."");
-                        echo base64_decode($response->log);
+                        $log = base64_decode($response->log);
+
+                        if (!empty($log)) {
+
+                            $api_log = new ScrapApiLog;
+                            $api_log->scraper_id = $scraper->id;
+                            $api_log->server_id = $request->server_id;
+                            $api_log->log_messages = $log;
+                            $api_log->save();
+                        }
+
                     }
                 }
             } else {

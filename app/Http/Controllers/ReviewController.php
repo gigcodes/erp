@@ -21,6 +21,7 @@ use App\User;
 use Auth;
 use InstagramAPI\Instagram;
 use App\ReviewBrandList;
+use App\Scraper;
 
 Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
@@ -38,8 +39,11 @@ class ReviewController extends Controller
     public function index(Request $request)
     {
 
+      $serverIds = Scraper::groupBy('server_id')->where('server_id', '!=', null)->pluck('server_id');
+
       $filter_platform = $request->platform ?? '';
       $filter_posted_date = $request->posted_date ?? '';
+      $filter_brand = $request->brand ?? '';
       $users_array = Helpers::getUserArray(User::all());
 
       // $revs = Review::all();
@@ -91,7 +95,17 @@ class ReviewController extends Controller
       //   });
       // })
       $review_schedules = DB::table('brand_reviews')->orderBy('created_at','ASC');
+      if($filter_brand){
+          $review_schedules->where('brand',$filter_brand);
+      }
+      if($filter_posted_date){
+          $review_schedules->whereDate('created_at',$filter_posted_date);
+      }
+      
+      $review_schedules_count = $review_schedules->count();
+
       $review_schedules = $review_schedules->latest()->paginate(Setting::get('pagination'), ['*'], 'review-page');
+
 
       $posted_reviews = $posted_reviews->latest()->paginate(Setting::get('pagination'), ['*'], 'posted-page');
       $complaints = $complaints->where('thread_type', 'thread')->latest()->paginate(Setting::get('pagination'), ['*'], 'complaints-page');
@@ -107,15 +121,18 @@ class ReviewController extends Controller
         'accounts'            => $accounts,
         'customers'           => $customers,
         'review_schedules'    => $review_schedules,
+        'review_schedules_count'    => $review_schedules_count,
         'posted_reviews'      => $posted_reviews,
         'complaints'      => $complaints,
         'filter_platform'     => $filter_platform,
         'filter_posted_date'  => $filter_posted_date,
+        'filter_brand'  => $filter_brand,
         'users_array'  => $users_array,
         'accounts_array'  => $accounts_array,
         'instagram_dm_reviews' => $instagram_dm_reviews,
         'brand_list' => $brand_list,
-        'countries' => $countries
+        'countries' => $countries,
+        'serverIds' => $serverIds
       ]);
     }
 
@@ -552,6 +569,37 @@ class ReviewController extends Controller
         ], $file);
 
         return redirect()->back()->with('message', "Message sent to @$username by @".$account->last_name);
+    }
+
+    public function restartScript(Request $request)
+    {
+        $serverId = $request->serverId;
+
+        $url = 'http://'.$serverId.'.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
+        
+        $curl = curl_init();
+        
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        
+        $response = curl_exec($curl);
+
+        $err      = curl_error($curl);
+
+        curl_close($curl);
+
+        if(!empty($err)) {
+           return response()->json(["code" => 500, "message" => "Could not fetch response from server"]);
+        }
+        
+
+        $response = json_decode($response);
+        
+        if (isset($response->message)) {
+            return response()->json(["code" => 200, "message" => $response->message]);
+        } else {
+            return response()->json(["code" => 500, "message" => "Check if Server is running"]);
+        }
     }
 
 }

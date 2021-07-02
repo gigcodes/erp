@@ -125,14 +125,6 @@
           <a href="{{ route('task.show', $task->id) }}" class="btn btn-image" href=""><img src="/images/view.png" /></a>
           @endif
 
-          @if ($special_task->users->contains(Auth::id()) || (!$special_task->users->contains(Auth::id()) && $task->assign_from == Auth::id() && $special_task->contacts()->count() > 0))
-          @if ($task->is_private == 1)
-          <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/private.png" /></button>
-          @else
-          <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/not-private.png" /></button>
-          @endif
-          @endif
-
           @if ($task->is_flagged == 1)
           <button type="button" class="btn btn-image flag-task" data-id="{{ $task->id }}"><img src="/images/flagged.png" /></button>
           @else

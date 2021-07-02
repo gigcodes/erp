@@ -211,11 +211,18 @@ class SupplierController extends Controller
                   ORDER BY last_communicated_at DESC, status DESC
               ');
         }
-        $suppliers_all = Supplier::where(function ($query) {
-            $query->whereNotNull('email')->orWhereNotNull('default_email');
-        })->get();
-        // print_r($suppliers_all);
 
+        $suppliers_all = null;
+
+        if($request->supplier_filter){
+
+            $suppliers_all = Supplier::where(function ($query) {
+                $query->whereNotNull('email')->orWhereNotNull('default_email');
+            })->whereIn('id',$request->supplier_filter)->get();
+        }
+        // $suppliers_all = Supplier::whererIn([2712,2713,2715])->get();  
+        // print_r($suppliers_all);
+// dd($suppliers_all);
         $currentPage  = LengthAwarePaginator::resolveCurrentPage();
         $perPage      = Setting::get('pagination');
         $currentItems = array_slice($suppliers, $perPage * ($currentPage - 1), $perPage);
@@ -233,7 +240,8 @@ class SupplierController extends Controller
         //SELECT supplier_status_id, COUNT(*) AS number_of_products FROM suppliers WHERE supplier_status_id IN (SELECT id from supplier_status) GROUP BY supplier_status_id
         $statistics = DB::select('SELECT supplier_status_id, ss.name, COUNT(*) AS number_of_products FROM suppliers s LEFT join supplier_status ss on ss.id = s.supplier_status_id WHERE supplier_status_id IN (SELECT id from supplier_status) GROUP BY supplier_status_id');
 
-        $brands           = Brand::whereNotNull('magento_id')->get()->all();
+        // $brands           = Brand::whereNotNull('magento_id')->get()->all();
+        // $brands= null;
         $scrapedBrandsRaw = Supplier::whereNotNull('scraped_brands_raw')->get()->all();
         $rawBrands        = array();
         foreach ($scrapedBrandsRaw as $key => $value) {
@@ -241,13 +249,18 @@ class SupplierController extends Controller
             array_push($rawBrands, array_unique(array_filter(explode(",", $value->scraped_brands))));
         }
         $scrapedBrands = array_unique(array_reduce($rawBrands, 'array_merge', []));
+
+
+
         $data          = Setting::where('type', "ScrapeBrandsRaw")->get()->first();
+        // dd($data);
         if (!empty($data)) {
             $selectedBrands = json_decode($data->val, true);
         } else {
             $selectedBrands = [];
         }
 
+        // dd($);
         $whatsappConfigs = WhatsappConfig::where('provider', 'LIKE', '%Chat-API%')->get();
 
         //Get All Product Supplier
@@ -258,9 +271,9 @@ class SupplierController extends Controller
         /* echo "<pre>";
         print_r($allSupplierPriceRanges);
         exit; */
-        $reply_categories = ReplyCategory::all();
+        $reply_categories = ReplyCategory::with('supplier')->get();
         $sizeSystem       = \App\SystemSize::pluck('name', 'id')->toArray();
-        
+
 
         return view('suppliers.index', [
             'suppliers'              => $suppliers,
@@ -280,7 +293,7 @@ class SupplierController extends Controller
             'count'                  => $supplierscnt,
             'statistics'             => $statistics,
             'total'                  => 0,
-            'brands'                 => $brands,
+            // 'brands'                 => $brands,
             'scrapedBrands'          => $scrapedBrands,
             'selectedBrands'         => $selectedBrands,
             'whatsappConfigs'        => $whatsappConfigs,

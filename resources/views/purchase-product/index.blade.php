@@ -229,7 +229,9 @@
                     @php
                     $order_product = \App\OrderProduct::find($order->order_product_id);
                     @endphp
-                    <i title="Add Supplier for this product" class="fa fa-user-plus add_supplier" aria-hidden="true" data-product_id="{{$order_product->product->id}}" data-product_name="{{$order_product->product->name}}"></i>
+
+                    
+
                 </td>
               <td class="expand-row table-hover-cell">
                 <div class="d-flex">
@@ -268,7 +270,11 @@
               </select>
 
               </td>
-              <td>{{ $order->balance_amount }}</td>
+              <td>{{-- $order->balance_amount --}}
+                @if ($order_product && $order_product->product)
+              <i title="Add Supplier for this product" class="fa fa-user-plus add_supplier" aria-hidden="true" data-product_id="{{$order_product->product->id}}" data-product_name="{{$order_product->product->name}}"></i>
+              @endif
+              </td>
 
             </tr>
           @endforeach

@@ -23,10 +23,11 @@ class SiteDevelopmentController extends Controller
 //
     public function index($id = null, Request $request)
     {
+
         //Getting Website Details
         $website = StoreWebsite::find($id);
 
-        $categories = SiteDevelopmentCategory::orderBy('id', 'desc');
+        $categories = SiteDevelopmentCategory::orderBy('title', 'asc');
         if ($request->k != null) {
             $categories = $categories->where("title", "like", "%" . $request->k . "%");
         }
@@ -56,11 +57,12 @@ class SiteDevelopmentController extends Controller
 
         $allStatus = \App\SiteDevelopmentStatus::pluck("name", "id")->toArray();
 
-
+//dd($allStatus);
         $statusCount = \App\SiteDevelopment::join("site_development_statuses as sds","sds.id","site_developments.status")
         ->where("site_developments.website_id",$id)
         ->groupBy("sds.id")
         ->select(["sds.name",\DB::raw("count(sds.id) as total")])
+        ->orderBy("name","desc")
         ->get();
 
         $allUsers = User::select('id', 'name')->get();
@@ -349,7 +351,7 @@ class SiteDevelopmentController extends Controller
     {
         $response = \App\StoreDevelopmentRemark::join("users as u","u.id","store_development_remarks.user_id")->where("store_development_id",$id)
         ->select(["store_development_remarks.*",\DB::raw("u.name as created_by")])
-        ->orderBy("store_development_remarks.created_at","desc")
+        ->orderBy("store_development_remarks.remarks","asc")
         ->get();
         return response()->json(["code" => 200 , "data" => $response]);
     }
@@ -364,7 +366,7 @@ class SiteDevelopmentController extends Controller
 
         $response = \App\StoreDevelopmentRemark::join("users as u","u.id","store_development_remarks.user_id")->where("store_development_id",$id)
         ->select(["store_development_remarks.*",\DB::raw("u.name as created_by")])
-        ->orderBy("store_development_remarks.created_at","desc")
+        ->orderBy("store_development_remarks.remarks","asc")
         ->get();
         return response()->json(["code" => 200 , "data" => $response]);
 

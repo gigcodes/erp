@@ -134,6 +134,15 @@
                             </select>
                         </div>
                     </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
+                            <strong>Auto Approval:</strong>
+                            <select class="form-control"  name="is_auto_approval">
+                                <option value="0" {{ $user->is_auto_approval == 0 ? 'selected' : '' }}>No</option>
+                                <option value="1" {{ $user->is_auto_approval == 1 ? 'selected' : '' }}>Yes</option>
+                            </select>
+                        </div>
+                    </div>
 
                     @if ($user->hasRole('Customer Care'))
                         <div class="col-xs-12 col-sm-12 col-md-12">

@@ -2,7 +2,7 @@
     @foreach ($inventory_data as $row => $data)
       <tr>
           <td><input type="checkbox" class="selected-product-ids" name="selected_product_ids[]" value="{{ $data['id'] }}"></td>
-          <td>{{ $data['id'] }}</td>
+          <td >   <a  title="show status history" class="btn  show-scraped-product des-pd" style="color:#337ab7;">{{ $data['id'] }}</a></td>
           <td>
             <span id="sku_long_string_{{$data['id']}}" style="display: none">{{ $data['sku'] }}</span>
             <a href="/products/{{ $data['id'] }}">
@@ -53,6 +53,8 @@
           </td>
           <td class="medias-data" data='@if(isset($data['medias']))@json($data['medias'])@endif' style="display:none"></td>
           <td class="status-history" data='@if(isset($data['status_history']))@json($data['status_history'])@endif' style="display:none"></td>
+
+          <td class="product-inventory" data='@if(isset($data->many_scraped_products))@json($data->many_scraped_products)@endif' style="display:none"></td>
           <!-- <td class="inventory-history" data='@if(isset($data['inventory_history']))@json($data['inventory_history'])@endif' style="display:none"></td> -->
       </tr>
     @endforeach

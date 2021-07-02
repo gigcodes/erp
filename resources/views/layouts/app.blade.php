@@ -12,7 +12,7 @@ $metaData = '';
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <?php 
+    <?php
         if(isset($metaData->page_title) && $metaData->page_title!='') {
             $title = $metaData->page_title;
         }else{
@@ -28,13 +28,13 @@ $metaData = '';
     <!-- CSRF Token -->
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
+
     @if(isset($metaData->page_description) && $metaData->page_description!='')
         <meta name="description" content="{{ $metaData->page_description }}">
     @else
         <meta name="description" content="{{ config('app.name') }}">
     @endif
-    
+
 
     {{-- <title>{{ config('app.name', 'ERP for Sololuxury') }}</title> --}}
 
@@ -177,7 +177,6 @@ $metaData = '';
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.css">
     <link rel="stylesheet" href="{{ url('css/global_custom.css') }}">
-
     @yield("styles")
 
     <script>
@@ -369,7 +368,7 @@ $metaData = '';
 
                     <!-- Right Side Of Navbar -->
 
-                    <ul id="navs" class="navbar-nav ml-auto " style="text-align: center;flex-grow: 1;justify-content: space-between">
+                    <ul id="navs" class="navbar-nav ml-auto " style="display:flex;text-align: center;flex-grow: 1;justify-content: space-between">
 
                         <!-- Authentication Links -->
 
@@ -389,7 +388,7 @@ $metaData = '';
 
                         @else
 
-                        <?php 
+                        <?php
 
                         //getting count of unreach notification
                         $unread = 0;
@@ -403,7 +402,7 @@ $metaData = '';
 
                             }
                         }
-                        
+
 
 
                         /* ?>
@@ -508,7 +507,7 @@ $metaData = '';
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Quick Sell<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('quicksell.index') }}">Quick Sell</a>
-                                                
+
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -529,6 +528,8 @@ $metaData = '';
                                                 <a class="dropdown-item" href="{{ route('supplier.count') }}">Supplier Category Count</a>
                                                 <a class="dropdown-item" href="{{ route('supplier.brand.count') }}">Supplier Brand Count</a>
                                                 <a class="dropdown-item" href="{{ url('price-comparison-scraper') }}">Price comparison</a>
+                                                <a class="dropdown-item" href="{{ url('scrap/servers/statistics') }}">Scrap server statistics</a>
+
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -563,6 +564,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'ordered') }}">Ordered Grid</a>
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'delivered') }}">Delivered Grid</a>
                                             <a class="dropdown-item" href="{{ route('purchase.grid', 'non_ordered') }}">Non Ordered Grid</a>
+                                            <a class="dropdown-item" href="{{ route('purchaseproductorders.list') }}">Purchase Product Orders</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -577,9 +579,6 @@ $metaData = '';
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('supplier/category/permission') }}">Supplier Category <br> Permission</a></a>
-                                        </li>
-                                        <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ route('supplier.discount.files') }}">Supplier Discount Files</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -603,6 +602,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
                                             <a class="dropdown-item" href="{{ action('DubbizleController@index') }}">Dubzzle</a>
                                             <a class="dropdown-item" href="{{ route('log-scraper.index') }}">Scraper log</a>
+                                            <a class="dropdown-item" href="{{ route('log-scraper.api') }}">Scraper Api log</a>
                                             <a class="dropdown-item" href="{{ route('scrap-brand') }}">Scrap Brand</a>
                                         </li>
                                     </ul>
@@ -644,7 +644,7 @@ $metaData = '';
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('api-log-list') }}">Laravel API Log</a>
                                         </li>
-                                       
+
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('LaravelLogController@liveLogs') }}">Live Laravel Log</a>
                                         </li>
@@ -881,6 +881,11 @@ $metaData = '';
                                 <li class="nav-item">
                                     <a id="navbarDropdown" class="" href="{{ route('keywordassign.index') }}" role="button">Keyword Assign</a>
                                 </li>
+                                {{-- START - Purpose : Add new Menu Keyword Response Logs - DEVTASK-4233 --}}
+                                <li class="nav-item">
+                                    <a id="navbarDropdown" class="" href="{{ route('keywordreponse.logs') }}" role="button">Keyword Response Logs</a>
+                                </li>
+                                {{-- END - DEVTASK-4233 --}}
                                 <li class="nav-item">
                                     <a id="navbarDropdown" class="" href="{{ route('purchase-product.index') }}" role="button">Purchase</a>
                                 </li>
@@ -1307,11 +1312,11 @@ $metaData = '';
                                  <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Google Web Master<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                  
+
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('googlewebmaster.index')}}">Sites</a>
                                         </li>
-                                      
+
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -1399,26 +1404,32 @@ $metaData = '';
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('erp-log') }}">ERP Log</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('whatsapp.log') }}">Whatsapp Log</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('horizon') }}">Jobs</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li id="product-template" class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product Templates <span class="caret"></span></a>
+                            <ul class="dropdown-menu multi-level">
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('templates') }}">Templates</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('product.templates') }}">List</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('templates.type') }}">New List</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ action('ProductTemplatesController@imageIndex') }}">Processed Image</a>
+                                </li>
                             </ul>
                         </li>
 
-                            <li id="product-template" class="nav-item dropdown ">
-                                <a  href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product Templates <span class="caret"></span></a>
-                                <ul class="dropdown-menu multi-level">
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('templates') }}">Templates</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('product.templates') }}">List</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ route('templates.type') }}">New List</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ action('ProductTemplatesController@imageIndex') }}">Processed Image</a>
-                                    </li>
-                                </ul>
-                            </li>
 
                             @if(auth()->user()->isAdmin())
                                 <li id="queues" class="nav-item dropdown">
@@ -1909,6 +1920,23 @@ $metaData = '';
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('brand.logo_data')}}">Brand Logos</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('missing-brands.index')}}">Missing Brands</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('brand/size/chart')}}">Brand Size Chart</a>
+                                        </li>
+                                        @if(auth()->user()->checkPermission('category-edit'))
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('color-reference.index')}}">Color Reference</a>
+                                        </li>
+                                        @endif
+                                        <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{url('/kb/')}}" target="_blank">Knowledge Base</a>
                                         </li>
                                         <li class="nav-item dropdown">
@@ -1935,7 +1963,9 @@ $metaData = '';
                                     </ul>
                                 </li>
 
-                                <!------    System Menu     !-------->
+                              
+                         <!------    System Menu     !-------->
+
                                 <li class="nav-item dropdown dropdown-submenu">
                                     {{--                                        <a href="#" class="nav-link dropdown-item dropdown-items" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin Menu <span class="caret"></span></a>--}}
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">Admin Menu <span class="caret"></span></a>
@@ -1977,6 +2007,7 @@ $metaData = '';
                                     <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>
                                 </a>
                             </li>
+                     
 
                             <li>
                                 <a id="message-chat-data-box" class="quick-icon">
@@ -2108,9 +2139,10 @@ $metaData = '';
         @include('partials.modals.quick-development-task')
         @include('partials.modals.quick-instruction-notes')
         @include('partials.modals.quick-user-event-notification')
-        @include('partials.modals.quick-chatbox-window')
+
         @include('partials.modals.quick-zoom-meeting-window')
         @include('partials.modals.quick-create-task-window')
+        @include('partials.modals.quick-notes') {{-- Purpose : Import notes modal - DEVTASK-4289 --}}
         @php
             $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
             $key = \App\LivechatincSetting::first();
@@ -2119,6 +2151,7 @@ $metaData = '';
         <input type="hidden" id="live_chat_key" value="@if(isset($key)){{ $key->key}}@else @endif">
         @include('partials.chat')
         @endif
+        @include('partials.modals.quick-chatbox-window')
         @endif
 {{--        @if(Auth::check())--}}
 {{--            <!---start section for the sidebar toggle -->--}}
@@ -2229,20 +2262,17 @@ $metaData = '';
                             </div>
                             <div class="card-body contacts_body">
                                 @php
-
                                 $chatIds = \App\CustomerLiveChat::with('customer')->orderBy('seen','asc')
                                 ->orderBy('status','desc')
                                 ->get();
-
                                 $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
-
                                 @endphp
                                 <ul class="contacts" id="customer-list-chat">
                                     @foreach ($chatIds as $chatId)
-                                    @php
-                                    $customer = $chatId->customer;
-                                    $customerInital = substr($customer->name, 0, 1);
-                                    @endphp
+                                        @php
+                                        $customer = $chatId->customer;
+                                        $customerInital = substr($customer->name, 0, 1);
+                                        @endphp
                                     <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
                                         <div class="d-flex bd-highlight">
                                             <div class="img_cont">
@@ -2368,7 +2398,7 @@ $metaData = '';
         <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content" id="create-manual-payment-content">
-              
+
             </div>
         </div>
     </div>
@@ -2417,7 +2447,10 @@ $metaData = '';
     <script type="text/javascript" src="{{asset('js/jquery.cookie.js')}}"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+
+    <script type="text/javascript" src="{{url('js/jquery-ui.js')}}"></script>
     <script type="text/javascript" src="{{url('js/custom_global_script.js')}}"></script>
+
     <script>
         $(document).ready(function() {
             //$.cookie('auto_refresh', '0', { path: '/{{ Request::path() }}' });
@@ -2435,7 +2468,7 @@ $metaData = '';
             $(document).on("click",".auto-refresh-run-btn",function() {
                 let autoRefresh = $.cookie('auto_refresh');
                 if(autoRefresh == 0) {
-                   alert("Auto refresh has been enable for this page"); 
+                   alert("Auto refresh has been enable for this page");
                    $.cookie('auto_refresh', '1', { path: '/{{ Request::path() }}' });
                    $(".auto-refresh-run-btn").find("i").removeClass("refresh-btn-stop").addClass("refresh-btn-start");
                 }else{
@@ -2447,10 +2480,12 @@ $metaData = '';
 
             $('#editor-note-content').richText();
             $('#editor-instruction-content').richText();
+
+            $('#editor-notes-content').richText();//Purpose : Add Text content - DEVTASK-4289
+
             $('#notification-date').datetimepicker({
                 format: 'YYYY-MM-DD'
             });
-
 
             $('#notification-time').datetimepicker({
                 format: 'HH:mm'
@@ -2461,6 +2496,7 @@ $metaData = '';
             });
 
             $(".selectx-vendor").select2({tags :true});
+            $(".selectx-users").select2({tags :true});
         });
         window.token = "{{ csrf_token() }}";
 
@@ -2492,6 +2528,46 @@ $metaData = '';
             //$('.help-button-wrapper').toggleClass('expanded');
             //$('.instruction-notes-list-rt').toggleClass('dis-none');
         });
+
+        //START - Purpose : Open Modal - DEVTASK-4289
+        $('.create_notes_btn').on('click', function() {
+            $("#quick_notes_modal").modal("show");
+        });
+
+        $('.btn_save_notes').on('click', function(e) {
+            e.preventDefault();
+            var data = $('#editor-notes-content').val();
+
+            if($(data).text() == ''){
+                toastr['error']('Note Is Required');
+                return false;
+            }
+
+
+            var url  = window.location.href;
+            $.ajax({
+                type: "POST",
+                url: "{{ route('notesCreate') }}",
+                data: {
+                    data: data,
+                    url : url,
+                    _token: "{{ csrf_token() }}",
+                },
+                dataType: "json",
+                success: function(data) {
+                    if(data.code == 200)
+                    {
+                        toastr['success'](data.message, 'success');
+                        $("#quick_notes_modal").modal("hide");
+                    }
+
+                },
+                error : function(xhr, status, error) {
+
+                }
+            });
+        });
+        //END - DEVTASK-4289
 
         $('.notification-button').on('click', function() {
             $("#quick-user-event-notification-modal").modal("show");
@@ -2572,17 +2648,24 @@ $metaData = '';
            openChatBox(false);
         });
 
-        $('.chat-button').on('click', function () {
-            $('.chat-button-wrapper').toggleClass('expanded');
-            $('.page-chat-list-rt').toggleClass('dis-none');
-            if($('.chat-button-wrapper').hasClass('expanded')){
-                chatBoxOpen = true;
-                openChatBox(true);
-            }else{
-                chatBoxOpen = false;
-                openChatBox(false);
-            }
+        $('.chat_btn').on('click', function (e) {
+            e.preventDefault();
+           $("#quick-chatbox-window-modal").modal("show");
+           chatBoxOpen = true;
+           openChatBox(true);
         });
+
+        // $('.chat-button').on('click', function () {
+        //     $('.chat-button-wrapper').toggleClass('expanded');
+        //     $('.page-chat-list-rt').toggleClass('dis-none');
+        //     if($('.chat-button-wrapper').hasClass('expanded')){
+        //         chatBoxOpen = true;
+        //         openChatBox(true);
+        //     }else{
+        //         chatBoxOpen = false;
+        //         openChatBox(false);
+        //     }
+        // });
 
         var notesBtn = $(".save-user-notes");
 
@@ -2952,10 +3035,10 @@ $metaData = '';
             }
             else {
                 // $('select.select2-discussion').select2({tags: true});
-                $("select.select2-discussion").empty().trigger('change'); 
+                $("select.select2-discussion").empty().trigger('change');
             }
-            
-            
+
+
         });
 
         $(document).on('change', '#keyword_category', function () {
