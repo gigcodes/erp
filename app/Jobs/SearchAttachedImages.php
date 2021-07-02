@@ -105,4 +105,9 @@ class SearchAttachedImages implements ShouldQueue
 
     }
 
+    public function tags()
+    {
+        return ['search_images'];
+    }
+
 }
