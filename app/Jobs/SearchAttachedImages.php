@@ -5,16 +5,12 @@ namespace App\Jobs;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Http\Request;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use App\Library\Product\ProductSearch;
 use App\SuggestedProductList;
 use App\SuggestedProduct;
 use App\Helpers\CompareImagesHelper;
 use Auth;
-use Symfony\Component\Process\Process;
-use \Plank\Mediable\Media;
 use Illuminate\Support\Facades\DB;
 
 class SearchAttachedImages implements ShouldQueue
@@ -26,6 +22,7 @@ class SearchAttachedImages implements ShouldQueue
     protected $url; 
     protected $first_time; 
     protected $is_matched; 
+    protected $suggested_product; 
 
     public function __construct($id, $url, $req_data)
     {
@@ -34,6 +31,7 @@ class SearchAttachedImages implements ShouldQueue
         $this->req_data = $req_data; 
         $this->first_time = true; 
         $this->is_matched = false; 
+        $this->suggested_product = false; 
     }
 
     public function handle()
@@ -76,23 +74,21 @@ class SearchAttachedImages implements ShouldQueue
                     if($hammeringDistance < 10){
                         $this->is_matched = true;
                         if($this->first_time){
-                            $sp = SuggestedProduct::create([
+                            $this->suggested_product = SuggestedProduct::create([
                                 'total' => 0,
                                 'customer_id' => $chat_message->customer_id,
                                 'chat_message_id' => $chat_message->id,
                             ]);
                             $this->first_time = false;
                         } 
-                        $mediables = DB::table('mediables')->where('media_id', $m->id)->get();
-                        if(count($mediables)){
-                            foreach($mediables as $mediable){
-                                SuggestedProductList::create([
-                                    'customer_id' => $chat_message->customer_id,
-                                    'product_id' => $mediable->mediable_id,
-                                    'chat_message_id' => $chat_message->id,
-                                    'suggested_products_id' => $sp->id
-                                ]); 
-                            }
+                        $mediable = DB::table('mediables')->where('media_id', $m->id)->where('mediable_type', 'App\Product')->first();
+                        if($mediable){
+                            SuggestedProductList::create([
+                                'customer_id' => $chat_message->customer_id,
+                                'product_id' => $mediable->mediable_id,
+                                'chat_message_id' => $chat_message->id,
+                                'suggested_products_id' => $this->suggested_product !== null ? $this->suggested_product->id : null
+                            ]); 
                         }
                     }
                 }
