@@ -67,7 +67,7 @@ class errorAlertMessage extends Command
                         $message = "You have error which matched the keyword  '".$logKeyword->text."'";
                         $message .=" | ".$value;
 
-                        $hasAssignedIssue = DeveloperTask::where("subject", $message)->where("is_resolved", 0)->first();
+                        $hasAssignedIssue = DeveloperTask::where("subject", $message)->whereDate("created_at",date("Y-m-d"))->where("is_resolved", 0)->first();
 
                         if (!$hasAssignedIssue) {
                             $requestData = new Request();
