@@ -3,7 +3,7 @@
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
-     <link rel="stylesheet" type="text/css" href="{{ asset('css/rcrop.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/rcrop.min.css') }}">
     <style type="text/css">
         .dis-none {
             display: none;
@@ -32,13 +32,13 @@
             z-index: 60;
         }
         .cropper{
-            padding: 30px; 
-            border: 1px solid; 
-            margin: 10px; 
+            padding: 30px;
+            border: 1px solid;
+            margin: 10px;
             background: #f1f1f1;
         }
 
-        
+
     </style>
 @endsection
 
@@ -48,20 +48,20 @@
     </div>
     <div id="crop-image">
         <div class="cropper">
-            <form  method="POST" action="{{route('google.search.crop.post')}}" id="cropImageSend">
-            <img id="image_crop" width="100%">
+            <form id="cropImageSend">
+                <img id="image_crop" width="100%">
                 {{ csrf_field() }}
-            <div class="col text-center">
-            <select name="type" id="crop-type" class="form-control">
-                <option value="0">Select Crop Type</option>
-                <option value="8">8</option>
-            </select>
-            <input type="hidden" name="product_id" id="product-id">
-            <input type="hidden" name="media_id" id="media_id">
-            <button type="button" class="btn btn-default" onclick="sendImageMessageCrop()">Crop Image</button>
-            <button type="button" class="btn btn-default" onclick="hideCrop()">Close</button>
-            </div>
-          </form>    
+                <div class="col text-center">
+                    <select name="type" id="crop-type" class="form-control">
+                        <option value="0">Select Crop Type</option>
+                        <option value="8">8</option>
+                    </select>
+                    <input type="hidden" name="product_id" id="product-id">
+                    <input type="hidden" name="media_id" id="media_id">
+                    <button type="button" class="btn btn-default" onclick="sendImageMessageCrop()">Crop Image</button>
+                    <button type="button" class="btn btn-default" onclick="hideCrop()">Close</button>
+                </div>
+            </form>
         </div>
     </div>
     <div class="row">
@@ -160,37 +160,95 @@
         <form method="POST" action="{{route('google.search.crop')}}" id="theForm">
             {{ csrf_field() }}
             <div class="row">
-                @foreach ($products as $product)
 
-                    <div class="col-md-3 col-xs-6 text-left" style="border: 1px solid #cccccc;">
-                        <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt="" id="img{{ $product->id }}" data-media="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->id : ''}}"/>
-                        <p>Status : {{ ucwords(\App\Helpers\StatusHelper::getStatus()[$product->status_id]) }}</p>
-                        <p>Brand : {{ isset($product->brands) ? $product->brands->name : "" }}</p>
-                        <p>Transit Status : {{ $product->purchase_status }}</p>
-                        <p>Location : {{ ($product->location) ? $product->location : "" }}</p>
-                        <p>Sku : {{ $product->sku }}</p>
-                        <p>Id : {{ $product->id }}</p>
-                        <p>Size : {{ $product->size}}</p>
-                        <p>Price ({{ $product->currency }}) : {{ $product->price }}</p>
-                        <p>Price (INR) : {{ $product->price_inr }}</p>
-                        <p>Price Special (INR) : {{ $product->price_special }}</p>
-                        <input type="checkbox" class="select-product-edit" name="product_id" value="{{ $product->id }}" style="margin: 10px !important;">
-                        @if($product->status_id == 26)<a href="{{ route('products.show', $product->id) }}" target="_blank" class="btn btn-secondary">Verify</a>@endif
+
+                <div class="col-md-12 margin-tb">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" style="table-layout:fixed;">
+                            <thead>
+                            <th style="width:8%">Id</th>
+                            <th style="width:7% ; height: 10%">Image</th>
+                            <th style="width:10%">Sku</th>
+                            <th style="width:20%">Price</th>
+                            <th style="width:20%">Status</th>
+                            <th style="width:20%">Action</th>
+                            </thead>
+                            <tbody class="infinite-scroll-data">
+
+                            @foreach ($products as $product)
+
+                                <tr>
+
+
+                                    <td>{{ $product->id }}</td>
+                                    <td>
+                                        <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt="" id="img{{ $product->id }}" data-media="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->id : ''}}"/>
+                                    </td>
+                                    <td>
+                                        {{ $product->sku }}
+                                    </td>
+                                    <td>
+                                        {{ $product->price }}
+                                    </td>
+                                    <td>
+                                        {{ ucwords(\App\Helpers\StatusHelper::getStatus()[$product->status_id]) }}
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="select-product-edit" name="product_id" value="{{ $product->id }}" style="margin: 10px !important;">
+                                        @if($product->status_id == 26)<a href="{{ route('products.show', $product->id) }}" target="_blank" class="btn btn-secondary">Verify</a>@endif
+                                        <button type="button" class="btn btn-image my-3" id="sendImageMessage" onclick="sendImage()"><img src="/images/filled-sent.png"/></button>
+
+                                    </td>
+
+                                </tr>
+
+
+                            @endforeach
+
+
+                            </tbody>
+                        </table>
                     </div>
-                @endforeach
-            </div>
-            </form>
-            <div class="row">
-                <div class="col text-center">
-                    <button type="button" class="btn btn-image my-3" id="sendImageMessage" onclick="sendImage()"><img src="/images/filled-sent.png"/></button>
                 </div>
+
+
+
+                {{--                @foreach ($products as $product)--}}
+
+                {{--                    --}}
+                {{--                    <div class="col-md-3 col-xs-6 text-left" style="border: 1px solid #cccccc;">--}}
+                {{--                        <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt="" id="img{{ $product->id }}" data-media="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->id : ''}}"/>--}}
+                {{--                        <p>Status : {{ ucwords(\App\Helpers\StatusHelper::getStatus()[$product->status_id]) }}</p>--}}
+                {{--                        <p>Brand : {{ isset($product->brands) ? $product->brands->name : "" }}</p>--}}
+                {{--                        <p>Transit Status : {{ $product->purchase_status }}</p>--}}
+                {{--                        <p>Location : {{ ($product->location) ? $product->location : "" }}</p>--}}
+                {{--                        <p>Sku : {{ $product->sku }}</p>--}}
+                {{--                        <p>Id : {{ $product->id }}</p>--}}
+                {{--                        <p>Size : {{ $product->size}}</p>--}}
+                {{--                        <p>Price ({{ $product->currency }}) : {{ $product->price }}</p>--}}
+                {{--                        <p>Price (INR) : {{ $product->price_inr }}</p>--}}
+                {{--                        <p>Price Special (INR) : {{ $product->price_special }}</p>--}}
+                {{--                        <input type="checkbox" class="select-product-edit" name="product_id" value="{{ $product->id }}" style="margin: 10px !important;">--}}
+                {{--                        @if($product->status_id == 26)<a href="{{ route('products.show', $product->id) }}" target="_blank" class="btn btn-secondary">Verify</a>@endif--}}
+                {{--                    </div>--}}
+                {{--                    --}}
+                {{--                    --}}
+                {{--                    --}}
+                {{--                    --}}
+                {{--                @endforeach--}}
+
+
+
             </div>
-        
+        </form>
+
+
+
         {!! $products->appends(Request::except('page'))->links() !!}
     </div>
 
     @include('google_search_image.partials.get-products-by-image')
-    
+
 @endsection
 
 @section('scripts')
@@ -339,30 +397,58 @@
         }
 
         function sendImageMessageCrop(){
-             crop = $('#crop-type').val();
-             if(crop == 0){
-                document.getElementById("cropImageSend").submit();
-             }
-             else{
+            $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+            crop = $('#crop-type').val();
+            if(crop == 0){
+                var formData = $('#cropImageSend').serialize();
+
+                $.ajax({
+                    url: "{{route('google.search.crop.post')}}",
+                    type: 'POST',
+                    data: formData,
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                        toastr.error("please wait");
+
+                    },
+                    success: function (response) {
+                        $("#loading-image").hide();
+                        if (response.status == true) {
+                            toastr.success(response.message);
+                            hideCrop();
+                        }else{
+                            toastr.error(response.message);
+                        }
+
+                    },
+                });
+
+                // document.getElementById("cropImageSend").submit();
+            }
+            else{
                 id = $('#product-id').val();
                 sequence = crop;
                 $.ajax({
-                        url: "{{ route('google.crop.sequence') }}",
-                        type: 'POST',
-                        beforeSend: function () {
-                            $("#loading-image").show();
-                        },
-                        success: function (response) {
-                            $("#loading-image").hide();
-                            history.back();
-                        },
-                        data: {
-                            id: id,
-                            sequence : sequence,
-                            _token: "{{ csrf_token() }}",
-                        }
-                    });
-             }
+                    url: "{{ route('google.crop.sequence') }}",
+                    type: 'POST',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    success: function (response) {
+                        $("#loading-image").hide();
+                        history.back();
+                    },
+                    data: {
+                        id: id,
+                        sequence : sequence,
+                        _token: "{{ csrf_token() }}",
+                    }
+                });
+            }
         }
     </script>
 @endsection
