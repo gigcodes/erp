@@ -22,6 +22,7 @@ class SearchAttachedImages implements ShouldQueue
     protected $url; 
     protected $first_time; 
     protected $is_matched; 
+    protected $suggested_product; 
 
     public function __construct($id, $url, $req_data)
     {
@@ -30,6 +31,7 @@ class SearchAttachedImages implements ShouldQueue
         $this->req_data = $req_data; 
         $this->first_time = true; 
         $this->is_matched = false; 
+        $this->suggested_product = false; 
     }
 
     public function handle()
@@ -72,7 +74,7 @@ class SearchAttachedImages implements ShouldQueue
                     if($hammeringDistance < 10){
                         $this->is_matched = true;
                         if($this->first_time){
-                            $sp = SuggestedProduct::create([
+                            $this->suggested_product = SuggestedProduct::create([
                                 'total' => 0,
                                 'customer_id' => $chat_message->customer_id,
                                 'chat_message_id' => $chat_message->id,
@@ -85,7 +87,7 @@ class SearchAttachedImages implements ShouldQueue
                                 'customer_id' => $chat_message->customer_id,
                                 'product_id' => $mediable->mediable_id,
                                 'chat_message_id' => $chat_message->id,
-                                'suggested_products_id' => $sp->id
+                                'suggested_products_id' => $this->suggested_product !== null ? $this->suggested_product->id : null
                             ]); 
                         }
                     }
