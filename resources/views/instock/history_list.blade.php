@@ -1,3 +1,15 @@
+<style>
+  .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th{
+    border: 1px solid #ddd;
+  }
+  .table-bordered{
+    border:none !important;
+  }
+  .line-border{
+    /*border: 1px solid #dee2e6;*/
+    /*border-radius: 4px;*/
+  }
+</style>
 <div class="col-md-12">
   <div class="form-group mr-3">
       <select data-placeholder="Select location" data-product-id="{{ $product->id }}" class="form-control location-change-product" name="location">
@@ -10,7 +22,8 @@
     </div>
 </div> 
 <div class="col-md-12">
-  <table class="table">
+  <div class="line-border">
+  <table class="table table-bordered">
     <thead>
       <tr>
         <th scope="col">New Location Name</th>
@@ -34,4 +47,5 @@
       <?php } ?>
       </tbody>
   </table>
+  </div>
 </div> 
