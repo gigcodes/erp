@@ -20,7 +20,7 @@ Route::get('/test/dummydata', 'TestingController@testingFunction');
 Route::get('/test/test', 'OrderController@testEmail');
 Route::get('/memory', function () {
     return view('memory');
-})->name('memory');
+})->name('memory'); 
 
 Route::get('/test/pushProduct', 'TmpTaskController@testPushProduct');
 Route::get('/test/fixBrandPrice', 'TmpTaskController@fixBrandPrice');
@@ -3088,6 +3088,33 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/admin-menu/db-query/update', 'DBQueryController@update')->name('admin.databse.menu.direct.dbquery.update');
 });
 
+Route::middleware('auth')->prefix('totem_new')->group(function() {
+
+    Route::get('/', 'TasksController@dashboard')->name('totem.dashboard');
+
+    Route::group(['prefix' => 'tasks'], function () {
+        Route::get('/', 'TasksController@index')->name('totem.tasks.all');
+
+        Route::get('create', 'TasksController@create')->name('totem.task.create');
+        Route::post('create', 'TasksController@store');
+
+        Route::get('export', 'ExportTasksController@index')->name('totem.tasks.export');
+        Route::post('import', 'ImportTasksController@index')->name('totem.tasks.import');
+
+        Route::get('{task}', 'TasksController@view')->name('totem.task.view');
+
+        Route::get('{task}/edit', 'TasksController@edit')->name('totem.task.edit');
+        Route::post('{task}/edit', 'TasksController@update');
+
+        Route::delete('{task}', 'TasksController@destroy')->name('totem.task.delete');
+
+        Route::post('status', 'ActiveTasksController@store')->name('totem.task.activate');
+        Route::delete('status/{id}', 'ActiveTasksController@destroy')->name('totem.task.deactivate');
+
+        Route::get('{task}/execute', 'ExecuteTasksController@index')->name('totem.task.execute');
+    });
+
+});
 
 Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('customers', 'Select2Controller@customers')->name('select2.customer');
