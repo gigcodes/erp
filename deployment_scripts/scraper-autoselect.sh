@@ -43,7 +43,7 @@ function scraper_restart_list
 			then
 				server=`echo $status|cut -d' ' -f1`
 				pid=`echo $status|cut -d' ' -f2`
-#				ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com "kill -9 $pid" < /dev/null
+				ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com "kill -9 $pid" < /dev/null
 				sed -i "/$scrap/d" /opt/scrap_status
 				echo "$scrap restart" >> /tmp/scrap_restart
 			fi
@@ -69,7 +69,7 @@ function scraper_restart
 		scraper=`echo $scraperjs|cut -d'.' -f1`
 		server=`cat /tmp/scrap_memory|sort -n -k2|head -n1|cut -d' ' -f1`
 		echo $server $scraper
-#		ssh ConnectTimeout=5 root@s$server.theluxuryunlimited.com "nohup node /root/scraper_nodejs/commands/completeScraps/$scraper.js &> /root/logs/$scraper-$day.log &"
+		ssh ConnectTimeout=5 root@s$server.theluxuryunlimited.com "nohup node /root/scraper_nodejs/commands/completeScraps/$scraper.js &> /root/logs/$scraper-$day.log &"
 		if [ $? -eq 0 ]
 		then
 	                ssh ConnectTimeout=5 root@s$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep $scraperjs|grep -v grep|awk -v var=$server '{print var, \$1 , \$2/3600 , \$4}'" >> /opt/scrap_status 2>/dev/null
@@ -80,7 +80,5 @@ function scraper_restart
 }
 
 scraper_status
-echo "test"
-sleep 10
 scraper_restart_list
 scraper_restart
