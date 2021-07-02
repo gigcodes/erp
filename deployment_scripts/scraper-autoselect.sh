@@ -68,17 +68,23 @@ function scraper_restart
 		scraper_memory < /dev/null
 		scraper=`echo $scraperjs|cut -d'.' -f1`
 		server=`cat /tmp/scrap_memory|sort -n -k2|head -n1|cut -d' ' -f1`
+		minmemory=`cat /tmp/scrap_memory|sort -n -k2|head -n1|cut -d' ' -f2|cut -d'.' -f1`
+		if [ $minmmeory -gt 95 ]
+		then
+			echo "No server has free memory more than 5%"
+			exit
+		fi
 		echo $server $scraper
-		ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "nohup node /root/scraper_nodejs/commands/completeScraps/$scraper.js &> /root/logs/$scraper-$day.log &"
+		ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "nohup node /root/scraper_nodejs/commands/completeScraps/$scraper.js &> /root/logs/$scraper-$day.log &" < /dev/null
 		if [ $? -eq 0 ]
 		then
-	                ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep $scraperjs|grep -v grep|awk -v var=$server '{print var, \$1 , \$2/3600 , \$4}'" >> /opt/scrap_status 2>/dev/null
+	                ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep $scraperjs|grep -v grep|awk -v var=$server '{print var, \$1 , \$2/3600 , \$4}'" >> /opt/scrap_status 2>/dev/null < /dev/null 
 		fi
-		echo "Wait for 10 Seconds before starting another scrapper"
-		sleep 10
+		echo "Wait for 30 Seconds before starting another scrapper"
+		sleep 30
 	done < /tmp/scrap_restart
 }
 
 scraper_status
 scraper_restart_list
-scraper_restart
+scraper_restart < /dev/null
