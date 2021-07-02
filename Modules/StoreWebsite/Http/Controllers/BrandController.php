@@ -126,6 +126,10 @@ class BrandController extends Controller
             $query->where("brands.name","like","%".$request->keyword."%");
         }
 
+        if($request->brandid != null) {
+            $query->where("brands.id",$request->brandid);
+        }
+
         if($request->has('no-inventory')) {
             $query->having('counts', '=', 0);
         } else {
@@ -136,6 +140,9 @@ class BrandController extends Controller
 
         $brands = $query->get();
 
+
+        $brandList = Brand::has('products')->orderBy('name','asc')->pluck('name','id');
+
         $storeWebsite = \App\StoreWebsite::all();
         $appliedQ      = \App\StoreWebsiteBrand::all();
         $apppliedResult = [];
@@ -145,7 +152,7 @@ class BrandController extends Controller
             }
         }
 
-        return view("storewebsite::brand.index", compact(['title', 'brands', 'storeWebsite','apppliedResult']));
+        return view("storewebsite::brand.index", compact(['title', 'brands', 'storeWebsite','apppliedResult','brandList']));
     }
 
     public function pushToStore(Request $request)
