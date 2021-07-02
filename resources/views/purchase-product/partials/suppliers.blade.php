@@ -443,7 +443,73 @@ $(document).on('click', '.product-list-btn', function(e) {
     
     });
 
-   
+    $(document).on('click', '.btn_set_template', function(event) {
+        let type = $(this).data('type');
+        let supplier_id = $(this).data('id');
+        $('.type_template').val(type);
+        $('.supplier_id_template').val(supplier_id);
+
+        $.ajax({
+            url: '{{ route("purchase-product.get_template") }}',
+            type: 'GET',
+            data: {
+                type: type,
+                supplier_id: supplier_id,
+                _token: "{{csrf_token()}}",
+            },
+            success: function(response) {
+              $("#loading-image").hide();
+              
+              $('.template_data').val(response.template_data);
+            },
+            beforeSend: function() {
+              
+                $("#loading-image").show();
+            },
+            error: function() {
+              $("#loading-image").hide();
+                
+            }
+        });
+    });
+
+    $(document).on('click', '.send_template_btn', function(event) {
+      
+        var type = $('.type_template').val();
+        var supplier_id = $('.supplier_id_template').val();
+        var template_data = $('.template_data').val();
+        template_data = template_data.trim();
+
+        if(template_data == '') {
+            alert("Please Enter Template Content");
+            return;
+        }
+
+        $.ajax({
+            url: '{{ route("purchase-product.set_template") }}',
+            type: 'POST',
+            data: {
+                type: type,
+                supplier_id: supplier_id,
+                template_data: template_data,
+                _token: "{{csrf_token()}}",
+            },
+            success: function(response) {
+              $("#loading-image").hide();
+              toastr['success']("Template Updated Successfully!", "Success");
+              $('#set_template_modal').modal('hide');
+            },
+            beforeSend: function() {
+              
+                $("#loading-image").show();
+            },
+            error: function() {
+              $("#loading-image").hide();
+                
+            }
+        });
+
+    });
     //END - DEVTASK-4236
 </script>
 @endsection
