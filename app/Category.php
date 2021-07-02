@@ -96,7 +96,13 @@ class Category extends Model
 
     }
 
-     public static function getCategoryIdByKeyword( $keyword, $gender=null, $genderAlternative=null )
+
+        public function categorySegmentId()
+        {
+            return $this->hasOne(CategorySegment::class,'id','category_segment_id');
+        }
+
+        public static function getCategoryIdByKeyword( $keyword, $gender=null, $genderAlternative=null )
     {
         // Set gender
         if ( empty( $gender ) ) {

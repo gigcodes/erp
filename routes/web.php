@@ -420,7 +420,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('settings/updateAutomatedMessages', 'SettingController@updateAutoMessages')->name('settings.update.automessages');
     Route::resource('settings', 'SettingController');
     
-    Route::get('category/childCategories', 'CategoryController@childCategory')->name('category.child-category');
+    Route::get('category/child-categories', 'CategoryController@childCategory')->name('category.child-category');
+    Route::get('category/edit-category', 'CategoryController@childEditCategory')->name('category.child-edit-category');
+    Route::post('category/{edit}/edit-category', 'CategoryController@updateCategory')->name('category.child-update-category');
 
     Route::get('category/references/used-products', 'CategoryController@usedProducts');
     Route::post('category/references/update-reference', 'CategoryController@updateReference');
@@ -878,6 +880,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
     Route::get('category', 'CategoryController@manageCategory')->name('category');
+    Route::get('category-11', 'CategoryController@manageCategory11')->name('category');
     Route::post('add-category', 'CategoryController@addCategory')->name('add.category');
     Route::post('category/{category}/edit', 'CategoryController@edit')->name('category.edit');
     Route::post('category/remove', 'CategoryController@remove')->name('category.remove');
