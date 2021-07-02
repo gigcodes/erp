@@ -178,6 +178,7 @@ var page = {
         });
 
         page.config.bodyView.on("click",".load-time-modal",function(e) {
+            
             page.timeModalOpen($(this));
         });
 
@@ -779,12 +780,20 @@ var page = {
     },
     timeModalOpen : function(ele) {
         var user_id = ele.data("id");
+        var _z = {
+            url: this.config.baseUrl + "/user-management/user-avl-list/"+ele.data("id"),
+            method: "get",
+        }
+        this.sendAjax(_z, 'resultTimeModal');
+    },
+    resultTimeModal : function(response) {
+        
         var communicationHistoryTemplate = $.templates("#template-add-time");
-        var tplHtml = communicationHistoryTemplate.render();
+        var tplHtml = communicationHistoryTemplate.render(response);
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
-        $("#time_user_id").val(user_id);
+        //$("#time_user_id").val(user_id);
 
     },
     taskTimeModalOpen : function(ele) {
@@ -835,7 +844,6 @@ var page = {
         this.sendAjax(_z, "saveTimeResult");
     },
     saveTimeResult : function(response) {
-        console.log(response);
         if(response.code  == 200) {
             toastr['success']('Avaibility saved successfully', 'success');
             page.loadFirst();
