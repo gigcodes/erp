@@ -27,6 +27,7 @@ use App\Team;
 use App\DeveloperTask;
 use App\UserAvaibility;
 use App\PermissionRequest;
+use App\UserSysyemIp;
 use DB;
 use Hash;
 use Illuminate\Support\Arr;
@@ -42,7 +43,12 @@ class UserManagementController extends Controller
         $title = "User management";
         $permissionRequest = PermissionRequest::count();
         $statusList = \DB::table("task_statuses")->select("name","id")->get()->toArray();
-        return view('usermanagement::index', compact('title','permissionRequest','statusList'));
+
+        $usersystemips = UserSysyemIp::with('user')->get();
+        
+        $userlist = User::orderBy('name')->where('is_active',1)->get();
+
+        return view('usermanagement::index', compact('title','permissionRequest','statusList','usersystemips','userlist'));
     }
 
     public function permissionRequest( Request $request ){
