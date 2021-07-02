@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelper;
 use App\Brand; 
+use App\Category; 
 use App\StoreWebsiteBrandHistory;
 
 class BrandController extends Controller
@@ -126,8 +127,8 @@ class BrandController extends Controller
             $query->where("brands.name","like","%".$request->keyword."%");
         }
 
-        if($request->brandid != null) {
-            $query->where("brands.id",$request->brandid);
+        if($request->category_id != null) {
+            $query->where("products.category",$request->category_id);
         }
 
         if($request->has('no-inventory')) {
@@ -141,7 +142,7 @@ class BrandController extends Controller
         $brands = $query->get();
 
 
-        $brandList = Brand::has('products')->orderBy('name','asc')->pluck('name','id');
+        $categories = Category::join('products', 'products.category', '=', 'categories.id')->orderBy('categories.title','asc')->pluck('categories.title','categories.id');
 
         $storeWebsite = \App\StoreWebsite::all();
         $appliedQ      = \App\StoreWebsiteBrand::all();
@@ -152,7 +153,7 @@ class BrandController extends Controller
             }
         }
 
-        return view("storewebsite::brand.index", compact(['title', 'brands', 'storeWebsite','apppliedResult','brandList']));
+        return view("storewebsite::brand.index", compact(['title', 'brands', 'storeWebsite','apppliedResult','categories']));
     }
 
     public function pushToStore(Request $request)

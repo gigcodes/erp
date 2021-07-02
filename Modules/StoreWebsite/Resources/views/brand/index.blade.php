@@ -64,9 +64,9 @@
 								</div>
 
 								<div class="form-group ">
-									<label for="brandid">Category</label>
+									<label for="category_id">Category</label>
 											
-									<?php echo Form::select("brandid",$brandList,request("brandid"),["class"=> "form-control select2","placeholder" => "Select brand"]) ?>
+									<?php echo Form::select("category_id",$categories,request("category_id"),["class"=> "form-control select2","placeholder" => "Select Category"]) ?>
 								</div>
 
 							  	<div class="form-group">
