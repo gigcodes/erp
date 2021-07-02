@@ -27,6 +27,7 @@ use App\Team;
 use App\DeveloperTask;
 use App\UserAvaibility;
 use App\PermissionRequest;
+use App\UserSysyemIp;
 use DB;
 use Hash;
 use Illuminate\Support\Arr;
@@ -42,7 +43,12 @@ class UserManagementController extends Controller
         $title = "User management";
         $permissionRequest = PermissionRequest::count();
         $statusList = \DB::table("task_statuses")->select("name","id")->get()->toArray();
-        return view('usermanagement::index', compact('title','permissionRequest','statusList'));
+
+        $usersystemips = UserSysyemIp::with('user')->get();
+        
+        $userlist = User::orderBy('name')->where('is_active',1)->get();
+
+        return view('usermanagement::index', compact('title','permissionRequest','statusList','usersystemips','userlist'));
     }
 
     public function permissionRequest( Request $request ){
@@ -1207,73 +1213,79 @@ class UserManagementController extends Controller
     }
 
     public function saveUserAvaibility(Request $request) {
-        // $this->validate($request, [
-		// 	'user_id' => 'required',
-		// 	'from' => 'required',
-		// 	'to' => 'required',
-		// 	'day' => 'required',
-		// 	'status' => 'required',
-        // ]);
-        if(!$request->user_id || $request->user_id == "" || !$request->day || $request->day == "") {
+        
+        $rules = [
+			'user_id' => 'required',
+			'to' => 'required',
+			'from' => 'required|lte:to',
+			'day' => 'required',
+			'status' => 'required',
+            'availableDay' => 'required',
+            'availableHour' => 'required',
+            'note' => 'required_if:status,"0"',
+        ];
+
+        $validator = \Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+
+           $errors = $validator->errors();
+
+           $message = '';
+             foreach ($errors->getMessages() as $field => $message) {
+                 $message = $message[0];
+             }
             return response()->json([
-                "code"       => 500,
-                "error"       => 'User name and day is required'
-            ]);
-        }
-        if($request->status == 1) {
-            if(!$request->from || $request->from == "" || !$request->to || $request->to == "") {
-                return response()->json([
-                    "code"       => 500,
-                    "error"       => 'From and To is required'
-                ]);
-            }
-            if($request->to <= $request->from) {
-                return response()->json([
-                    "code"       => 500,
-                    "error"       => 'Put time in 24 hours format'
-                ]);
-            }
-        }
-        if(!$request->availableDay || $request->availableDay == "") {
-            return response()->json([
-                "code"       => 500,
-                "error"       => 'Available day is required'
-            ]);
-        }
-        if(!$request->availableMinute || $request->availableMinute == "") {
-            return response()->json([
-                "code"       => 500,
-                "error"       => 'Available day is required'
+                "code"  => 500,
+                "error" => $message
             ]);
         }
 
-        $note = trim($request->note);
-        if(!$request->status) {
-            
-            if(!$note || $note == "") {
-                return response()->json([
-                    "code"       => 500,
-                    "error"       => 'Please provide reason for absence'
-                ]);
-            }
-        }
         $nextDay = 'next '.$request->day;
-        $day = date('Y-m-d', strtotime($nextDay));
-        $user_avaibility = new UserAvaibility;
-        $user_avaibility->date = $day;
-        $user_avaibility->from = $request->from;
-        $user_avaibility->user_id = $request->user_id;
-        $user_avaibility->to = $request->to;
-        $user_avaibility->day = $request->availableDay;
-        $user_avaibility->minute = $request->availableMinute;
-        $user_avaibility->status = $request->status;
-        $user_avaibility->note = $note;
-        $user_avaibility->save();
+
+        UserAvaibility::updateOrCreate([
+            'user_id'   => $request->user_id,
+        ],[
+            'date'     => date('Y-m-d', strtotime($nextDay)),
+            'user_id'  => $request->user_id,
+            'from'     => $request->from,
+            'to'       => $request->to,
+            'day'      => $request->availableDay,
+            'minute'   => $request->availableHour,
+            'status'   => $request->status,
+            'note'     => trim($request->note)
+        ]);
+
+        // $user_avaibility = new UserAvaibility;
+        // $user_avaibility->date = $day;
+        // $user_avaibility->from = $request->from;
+        // $user_avaibility->user_id = $request->user_id;
+        // $user_avaibility->to = $request->to;
+        // $user_avaibility->day = $request->availableDay;
+        // $user_avaibility->minute = $request->availableHour;
+        // $user_avaibility->status = $request->status;
+        // $user_avaibility->note = $note;
+        // $user_avaibility->save();
+        
         return response()->json([
             "code"       => 200,
             "message"       => 'Successful'
         ]);
         
+    }
+
+    public function userAvaibilityForModal($id) {
+        
+        $avaibility = UserAvaibility::where('user_id',$id)->first();
+        
+
+        if($avaibility){
+            $avaibility['weekday'] = strtolower(date('l', strtotime($avaibility['date'])));
+        }
+
+        $avaibility['user_id'] = $id;
+        
+        return response()->json(["code" => 200,"data" => $avaibility]);
     }
 
     public function userAvaibility($id) {
@@ -1571,8 +1583,14 @@ class UserManagementController extends Controller
     {
 
         $server = $request->get("for_server");
+        $user   = \App\User::find($request->get('userid',0));
+        if(!$user) {
+            return false;
+        }
 
-        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh '.$server.' 2>&1';
+        $username = str_replace(" ", "_", $user->name);
+
+        $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u '.$username.' -f add -s '.$server.' 2>&1';
 
         $allOutput   = array();
         $allOutput[] = $cmd;
@@ -1599,7 +1617,7 @@ class UserManagementController extends Controller
         UserPemfileHistory::create([
             'user_id' => $request->userid, 
             'server_name' => $server,
-            'username' => 'testing',
+            'username' => $username,
             'action' => 'add',
             'created_by' => $request->user()->id,
         ]);
@@ -1616,9 +1634,29 @@ class UserManagementController extends Controller
         die;
     }
 
-     public function userPemfileHistoryListing(Request $request)
+    public function userPemfileHistoryListing(Request $request)
     {
-        $history = UserPemfileHistory::where('user_id',$request->userid)->get();
+        $history = UserPemfileHistory::where('user_id',$request->userid)->latest()->get();
         return response()->json(["code" => 200, "data" => $history]);
+    }
+
+    public function deletePemFile(Request $request,$id)
+    {
+        $pemHistory = UserPemfileHistory::find($id);
+        if($pemHistory) {
+
+            $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'pem-generate.sh -u '.$pemHistory->username.' -f delete -s '.$pemHistory->server_name.' 2>&1';
+
+            $allOutput   = array();
+            $allOutput[] = $cmd;
+            $result      = exec($cmd, $allOutput);
+            $pemHistory->delete();
+
+            return response()->json(["code" => 200, "data" => [], "message" => "Pem remove file request submitted successfully"]);
+
+        }else{
+            return response()->json(["code" => 500, "data" => [], "message" => "No request found"]);
+        }
+
     }
 }

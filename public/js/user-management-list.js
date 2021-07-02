@@ -178,6 +178,7 @@ var page = {
         });
 
         page.config.bodyView.on("click",".load-time-modal",function(e) {
+            
             page.timeModalOpen($(this));
         });
 
@@ -204,7 +205,12 @@ var page = {
         page.config.bodyView.on("click",".approve-user",function(e) {
             page.approveUser($(this));
         });
-        
+
+        $(document).on("click",".delete-pem-user",function(e) {
+            e.preventDefault();
+            page.deletePemUser($(this));
+        });
+
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -774,12 +780,20 @@ var page = {
     },
     timeModalOpen : function(ele) {
         var user_id = ele.data("id");
+        var _z = {
+            url: this.config.baseUrl + "/user-management/user-avl-list/"+ele.data("id"),
+            method: "get",
+        }
+        this.sendAjax(_z, 'resultTimeModal');
+    },
+    resultTimeModal : function(response) {
+        
         var communicationHistoryTemplate = $.templates("#template-add-time");
-        var tplHtml = communicationHistoryTemplate.render();
+        var tplHtml = communicationHistoryTemplate.render(response);
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
-        $("#time_user_id").val(user_id);
+        //$("#time_user_id").val(user_id);
 
     },
     taskTimeModalOpen : function(ele) {
@@ -830,7 +844,6 @@ var page = {
         this.sendAjax(_z, "saveTimeResult");
     },
     saveTimeResult : function(response) {
-        console.log(response);
         if(response.code  == 200) {
             toastr['success']('Avaibility saved successfully', 'success');
             page.loadFirst();
@@ -933,6 +946,24 @@ var page = {
         }        
               
     },
+
+    deletePemUser : function(ele) {
+        var _z = {
+            url: this.config.baseUrl + "/user-management/delete-pem-file/"+ele.data("id"),
+            method: "post"
+        }
+        this.sendAjax(_z, 'afterDeletePemUser',ele);
+    },
+
+    afterDeletePemUser : function(response,ele)  {
+        if(response.code == 200) {
+            toastr["success"](response.message);
+            ele.closest("tr").remove();
+        }else{
+            toastr["error"](response.message);
+            ele.closest("tr").remove();
+        } 
+    }
   
 }
 
@@ -1186,7 +1217,6 @@ $.views.helpers({
             alert('Please enter a date first');
         }
     });
-
 
 $('body').on('focus',".due_date_cls", function(){
         $(this).datetimepicker({
