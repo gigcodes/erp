@@ -1311,7 +1311,7 @@ class GoogleSearchImageController extends Controller
         $image_search = GoogleSearchImage::where('user_id',\Auth::id())
                         ->leftjoin('products as p','p.id','=','google_search_images.product_id')
                         ->select('google_search_images.*','p.name as product_name')
-                        ->paginate(3);
+                        ->paginate(30);
         $data['image_search'] = $image_search;
 
         return view('google_search_image.search_image_list',$data);
