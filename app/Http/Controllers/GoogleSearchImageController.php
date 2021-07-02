@@ -297,11 +297,14 @@ class GoogleSearchImageController extends Controller
                 }
             };
             
+            return response()->json(['status' => true, 'message' => "Search Successfully"]);
             
             // Return view
-            return view('google_search_image.details', compact(['productImage', 'product_id', 'product']));
+            // return view('google_search_image.details', compact(['productImage', 'product_id', 'product']));
         } else {
-            return redirect(route('google.search.image'))->with('message', 'Please Select Products');
+            return response()->json(['status' => false, 'message' => "Please Select Products"]);
+
+            // return redirect(route('google.search.image'))->with('message', 'Please Select Products');
         }
 
         abort(403, 'Sorry , it looks like there is no result from the request.');
@@ -1301,6 +1304,17 @@ class GoogleSearchImageController extends Controller
             return response('success', 200);
         }
 
+    }
+
+    public function searchImageList(){
+        $data['title'] = "Google Search Images";
+        $image_search = GoogleSearchImage::where('user_id',\Auth::id())
+                        ->leftjoin('products as p','p.id','=','google_search_images.product_id')
+                        ->select('google_search_images.*','p.name as product_name')
+                        ->paginate(3);
+        $data['image_search'] = $image_search;
+
+        return view('google_search_image.search_image_list',$data);
     }
 
 }

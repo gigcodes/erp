@@ -855,6 +855,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/update-product-status', 'GoogleSearchImageController@updateProductStatus')->name('google.product.status');
         Route::post('product-by-image', 'GoogleSearchImageController@getProductFromImage')->name('google.product.image');
     });
+    Route::post('/product-search-image', 'GoogleSearchImageController@searchImageList')->name('google.search.product.image');
 
     Route::prefix('search-image')->group(function () {
         Route::get('/', 'GoogleSearchImageController@product')->name('google.search.product');

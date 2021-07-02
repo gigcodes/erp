@@ -48,7 +48,7 @@
     </div>
     <div id="crop-image">
         <div class="cropper">
-            <form  method="POST" action="{{route('google.search.crop.post')}}" id="cropImageSend">
+            <form id="cropImageSend">
                 <img id="image_crop" width="100%">
                 {{ csrf_field() }}
                 <div class="col text-center">
@@ -397,9 +397,37 @@
         }
 
         function sendImageMessageCrop(){
+            $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
             crop = $('#crop-type').val();
             if(crop == 0){
-                document.getElementById("cropImageSend").submit();
+                var formData = $('#cropImageSend').serialize();
+
+                $.ajax({
+                    url: "{{route('google.search.crop.post')}}",
+                    type: 'POST',
+                    data: formData,
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                        toastr.error("please wait");
+
+                    },
+                    success: function (response) {
+                        $("#loading-image").hide();
+                        if (response.status == true) {
+                            toastr.success(response.message);
+                            hideCrop();
+                        }else{
+                            toastr.error(response.message);
+                        }
+
+                    },
+                });
+
+                // document.getElementById("cropImageSend").submit();
             }
             else{
                 id = $('#product-id').val();
