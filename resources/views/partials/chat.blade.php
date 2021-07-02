@@ -46,7 +46,7 @@ border-radius: 0 0 15px 15px !important;
 
 .type_msg{
 	background-color: white !important;
-	border:0 !important;
+	/*border:0 !important;*/
 	color:black !important;
 	height: 60px !important;
 	overflow-y: auto;
