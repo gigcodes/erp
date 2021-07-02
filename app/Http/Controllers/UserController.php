@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
+use App\UserSysyemIp;
 use App\UserLogin;
 use App\Setting;
 use App\Helpers;
@@ -705,15 +706,31 @@ class UserController extends Controller
 
 	public function addSystemIp(Request $request){
 		if($request->ip){
-			shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f add -i ".$request->ip." -c ".$request->get("comment",""));
+			
+			$shell_cmd = shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f add -i ".$request->ip." -c ".$request->get("comment",""));
+
+			UserSysyemIp::create([
+				'index_txt'  => $shell_cmd['index']??'null',
+				'ip'         => $request->ip,
+				'user_id'    => $request->user_id??null,
+				'other_user_name' => $request->other_user_name??null,
+				'notes'      => $request->comment??null,
+			]);
+
 			return response()->json( ["code" => 200 , "data" => "Success"] );
 		}
 		return response()->json( ["code" => 500 , "data" => "Error occured!"] );
 	}
 
 	public function deleteSystemIp(Request $request){
-		if($request->index){
-			shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f delete -n ".$request->index);
+		if($request->usersystemid){
+			
+			$row = UserSysyemIp::where('id',$request->usersystemid)->first();
+
+			shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f delete -n ".$row->index??'');
+	
+			$row->delete();			
+		
 			return response()->json( ["code" => 200 , "data" => "Success"] );
 		}
 		return response()->json( ["code" => 500 , "data" => "Error occured!"] );
