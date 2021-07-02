@@ -13,9 +13,13 @@ class DropForeignInstructionTable extends Migration
      */
     public function up()
     {
-        Schema::table('instructions', function (Blueprint $table) {
-            $table->dropForeign(['order_id']);
-        });
+        try {
+            Schema::table('instructions', function (Blueprint $table) {
+                $table->dropForeign(['order_id']);
+            });
+        } catch (\Exception $e) {
+            
+        }
     }
 
     /**
