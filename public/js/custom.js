@@ -717,3 +717,49 @@ var customerSearch = function() {
   $( document ).ready(function() {
     //checkQueueIsStucked();
   });
+$(window).on('load', function(){
+
+setTimeout(function(){
+
+
+$(window).on('resize', function data(){
+    var win = $(this);
+    if (win.width() <= 1370) {
+        var element3 = document.getElementById("developments");
+        document.getElementById('nav_dots').appendChild(element3);
+        $(element3).addClass('dropdown-submenu')
+    }else{
+        var element123 = document.getElementById("developments");
+        document.getElementById('navs').appendChild(element123);
+        $(element123).removeClass('dropdown-submenu')
+    }
+
+
+    if (win.width() <= 1545) {
+        var element2 = document.getElementById("product-template");
+        document.getElementById('nav_dots').appendChild(element2);
+        $(element2).addClass('dropdown-submenu')
+    }else{
+
+        var element122 = document.getElementById("product-template");
+        document.getElementById('navs').appendChild(element122);
+        $(element122).removeClass('dropdown-submenu')
+    }
+    if (win.innerWidth() <= 1590 ) {
+
+        var element = document.getElementById("queues");
+        document.getElementById('nav_dots').appendChild(element);
+        $(element).addClass('dropdown-submenu')
+    }else{
+        var element12 = document.getElementById("queues");
+        document.getElementById('navs').appendChild(element12);
+        $(element12).removeClass('dropdown-submenu')
+
+    }
+
+});
+}, 150);
+});
+// window.onload = function() {
+//     data();
+// };

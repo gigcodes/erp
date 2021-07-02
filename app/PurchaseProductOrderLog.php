@@ -8,6 +8,6 @@ class PurchaseProductOrderLog extends Model
 {
     //
     protected $fillable = [
-        'purchase_product_order_id', 'header_name', 'replace_from', 'replace_to','created_by'
+        'purchase_product_order_id', 'order_products_id', 'header_name', 'replace_from', 'replace_to','created_by'
     ];
 }
