@@ -1257,7 +1257,7 @@ ul.navbar-nav {
 }
 
 .btn-secondary:hover {
-  color: #fff !important;
+  /*color: #fff !important;*/
 }
 
 .btn-image img {
@@ -1358,7 +1358,7 @@ ul.navbar-nav {
 }
 
 .table-hover-cell:hover {
-  background-color: #eee;
+  background-color: transparent;
 }
 
 .task-border-success {
@@ -1911,7 +1911,6 @@ table{
 #quick-sidebars .fa-stack{
     height: 1.7em;
 }
-
 
 
 
