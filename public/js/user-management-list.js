@@ -129,6 +129,15 @@ var page = {
             page.assignPermission($(this));
         });
 
+        $(document).on("click",".user-generate-pem-file",function(e) {
+            page.openGenerateFile($(this).data("userid"));
+        });
+
+        $(document).on("click",".user-pem-file-history",function(href) {
+            page.userProfileHistoryListing($(this).data("userid"));
+            
+        });
+
         $(".common-modal").on("click",".submit-role",function() {
             page.submitRole($(this));
         });
@@ -195,7 +204,12 @@ var page = {
         page.config.bodyView.on("click",".approve-user",function(e) {
             page.approveUser($(this));
         });
-        
+
+        $(document).on("click",".delete-pem-user",function(e) {
+            e.preventDefault();
+            page.deletePemUser($(this));
+        });
+
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -899,6 +913,49 @@ var page = {
             toastr["error"](response.message,"");
         }
     },
+    openGenerateFile : function(userid) {
+        var createWebTemplate = $.templates("#user-template-generate-file");
+        var tplHtml = createWebTemplate.render({userid});
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml);
+            common.modal("show");
+              
+    },
+    userProfileHistoryListing: function(userid) {
+        var _z = {
+            url: this.config.baseUrl + "/user-management/user-generate-file-listing/"+userid,
+            method: "get",
+        }
+        this.sendAjax(_z, 'showPemUserLiting');
+    },
+    showPemUserLiting : function(response) {
+        if(response.code == 200) {
+            var createWebTemplate = $.templates("#pem-file-user-history-lising");
+            var tplHtml = createWebTemplate.render(response);
+            var common =  $(".common-modal");
+                common.find(".modal-dialog").html(tplHtml);
+                common.modal("show");
+        }        
+              
+    },
+
+    deletePemUser : function(ele) {
+        var _z = {
+            url: this.config.baseUrl + "/user-management/delete-pem-file/"+ele.data("id"),
+            method: "post"
+        }
+        this.sendAjax(_z, 'afterDeletePemUser',ele);
+    },
+
+    afterDeletePemUser : function(response,ele)  {
+        if(response.code == 200) {
+            toastr["success"](response.message);
+            ele.closest("tr").remove();
+        }else{
+            toastr["error"](response.message);
+            ele.closest("tr").remove();
+        } 
+    }
   
 }
 
@@ -1153,9 +1210,8 @@ $.views.helpers({
         }
     });
 
-
 $('body').on('focus',".due_date_cls", function(){
         $(this).datetimepicker({
-                format: 'YYYY-MM-DD HH:mm'
+                format: 'YYYY-MM-DD'
             }); 
 });

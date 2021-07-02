@@ -2254,21 +2254,14 @@ class ScrapController extends Controller
             
             $response = curl_exec($curl);
             
-            
             curl_close($curl);
             
             if (!empty($response)) {
-                $api_log = new ScrapApiLog;
-                $api_log->scraper_id = $scraper->id;
-                $api_log->server_id = $request->server_id;
-                $api_log->log_messages = substr($response, 1, -1);
-                $api_log->save();
                 
                 $response = json_decode($response);
-
+                
                 \Log::info(print_r($response,true));
-
-
+                
                 if((isset($response->status) && $response->status == "Didn't able to find file of given scrapper") || empty($response->log)) {
                     echo "Sorry , no log was return from server";
                     die;
@@ -2278,17 +2271,23 @@ class ScrapController extends Controller
                         header('Content-Description: File Transfer');
                         header("Content-type: application/octet-stream");
                         header("Content-disposition: attachment; filename= ".$file."");
-                        echo base64_decode($response->log);
+                        $log = base64_decode($response->log);
+
+                        if (!empty($log)) {
+
+                            $api_log = new ScrapApiLog;
+                            $api_log->scraper_id = $scraper->id;
+                            $api_log->server_id = $request->server_id;
+                            $api_log->log_messages = $log;
+                            $api_log->save();
+                        }
+
                     }
                 }
-                $data['logs'] = ScrapApiLog::where('scraper_id',$scraper->id)->get();
-                return view('scrap.scrap_api_log',$data);
             } else {
                 abort(404);
             }
         }
-        // $data['logs'] = ScrapApiLog::get();
-        // return view('scrap.scrap_api_log',$data);
     }
 
     /**

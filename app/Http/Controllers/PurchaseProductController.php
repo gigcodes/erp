@@ -27,6 +27,7 @@ use App\Product;
 use App\SupplierOrderInquiryData;
 use App\PurchaseProductOrder;
 use App\PurchaseProductOrderLog;
+use App\PurchaseProductOrderImage;
 use App\Setting;
 
 class PurchaseProductController extends Controller
@@ -395,6 +396,16 @@ class PurchaseProductController extends Controller
 
             $send_whatsapp = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($number,$supplier->whatsapp_number, $message);
 
+             //START - purpose : Add in ChatMessage -DEVTASK-4236
+             $message_chat = ' Inquiry WhatsApp Message : '.$message;
+             $params = [
+                 'message' => $message_chat,
+                 'supplier_id' => $supplier_id,
+                 'additional_data' => json_encode(['attachment' => [$path]]),//Purpose : Add Excel sheet path - DEVTASK-4236
+                 'user_id' => \Auth::id(),
+             ];
+             $chatMessage = ChatMessage::create($params);
+             //END -DEVTASK-4236
 
             $getInquiryData = SupplierOrderInquiryData::where('type',$type)->get()->toArray();
 
@@ -465,6 +476,17 @@ class PurchaseProductController extends Controller
 
             $send_whatsapp = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($number,$supplier->whatsapp_number, $message);
 
+            //START - purpose : Add in ChatMessage -DEVTASK-4236
+            $message_chat = ' Order WhatsApp Message : '.$message;
+            $params = [
+                'message' => $message_chat,
+                'supplier_id' => $supplier_id,
+                'additional_data' => json_encode(['attachment' => [$path]]),//Purpose : Add Excel sheet path - DEVTASK-4236
+                'user_id' => \Auth::id(),
+            ];
+            $chatMessage = ChatMessage::create($params);
+            //END -DEVTASK-4236
+
             $getInquiryData = SupplierOrderInquiryData::where('type',$type)->get()->toArray();
 
             $pro_data_arr = array();
@@ -494,21 +516,54 @@ class PurchaseProductController extends Controller
             // END - DEVTASK-4048
 
             //START - Purpose : Get Order data - DEVTASK-4236
+            
             $order_products_data = OrderProduct::whereIn('id',$order_ids)->get();
 
-            $order_pro_arr = [];
-            foreach ($order_products_data as $key => $val)
+            $order_products_data_arr = OrderProduct::whereIn('id',$order_ids)->get()->toArray();
+            $all_product_id = array_column($order_products_data_arr, 'product_id');
+
+            $order_data = OrderProduct::
+            // leftjoin('products','order_products.product_id','products.id')
+            // ->leftjoin('brands','brands.id','products.brand')
+            join('product_suppliers','product_suppliers.product_id','order_products.product_id')
+            ->whereIn('order_products.id',$order_ids)
+            ->where('product_suppliers.supplier_id',$supplier_id)
+            ->select('product_suppliers.price as mrp','product_suppliers.price_special as price_special','product_suppliers.price_discounted as price_discounted','order_products.order_id as order_id')
+            ->get();
+            
+
+            
+            $order_data_total_mrp = 0;
+            $order_data_total_price_discount = 0;
+            $order_data_total_price_special = 0;
+            foreach($order_data as $key => $val)
             {
+                $order_data_total_mrp += $val->mrp;
+                $order_data_total_price_discount += $val->price_discounted;
+                $order_data_total_price_special += $val->price_special;
+            }
+
+            $order_pro_arr = [];
+
+            // foreach ($order_products_data as $key => $val)
+            // {
+                $rand_order_no = rand(999,9999).'0'.rand(99,999);
+                
                 $order_pro_arr[] = [
-                    'product_id' => $val->product_id,
-                    'order_products_id' => $val->id,
-                    'order_id'      => $val->order_id,
+                    'product_id' => '',
+                    'order_products_id' => $request->product_ids,
+                    'order_id'      => $rand_order_no,
                     'supplier_id' => $supplier_id,
+                    'mrp_price' => $order_data_total_mrp,
+                    'discount_price' => $order_data_total_price_discount,
+                    'special_price' => $order_data_total_price_special,
                     'created_by' => \Auth::id(),
                     'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
                     'updated_at' => \Carbon\Carbon::now()->toDateTimeString(),
+                    'order_products_order_id' => $request->order_ids,
                 ];
-            }
+            // }
+            
 
             PurchaseProductOrder::insert($order_pro_arr); 
 
@@ -581,17 +636,30 @@ class PurchaseProductController extends Controller
     public function purchaseproductorders(Request $request)
     {
         try{
-            $purchar_product_order = PurchaseProductOrder::
-            join('order_products','purchase_product_orders.order_products_id','order_products.id')
-            ->join('products','products.id','order_products.product_id')
-            ->join('product_suppliers','product_suppliers.product_id','products.id')
-            ->join('brands','brands.id','products.brand')
-            ->select('order_products.*','products.*','product_suppliers.*','purchase_product_orders.*','purchase_product_orders.id as pur_pro_id','product_suppliers.price as mrp','brands.name as brand_name')
-            ->groupBy('order_products.id')
-            ->orderBy('purchase_product_orders.id','DESC')
-            ->paginate(Setting::get('pagination'));
+            $suppliers_all = '';
+            // $purchar_product_order = PurchaseProductOrder::
+            // join('order_products','purchase_product_orders.order_products_id','order_products.id')
+            // ->join('products','products.id','order_products.product_id')
+            // ->join('product_suppliers','product_suppliers.product_id','products.id')
+            // ->join('suppliers','suppliers.id','purchase_product_orders.supplier_id')
+            // ->leftjoin('brands','brands.id','products.brand')
+            // ->select('order_products.*','products.*','product_suppliers.*','purchase_product_orders.*','purchase_product_orders.id as pur_pro_id','product_suppliers.price as mrp','brands.name as brand_name','purchase_product_orders.order_products_id as order_pro_order_id','suppliers.supplier as supplier_name');
+           
+            $purchar_product_order = PurchaseProductOrder::join('suppliers','purchase_product_orders.supplier_id','suppliers.id');
+           
+            if($request->order_id) {
+                $purchar_product_order =  $purchar_product_order->where('purchase_product_orders.order_id',$request->order_id);
+            }
 
-            return view('purchase-product.partials.purchase-product-order',compact('purchar_product_order','request'));
+            if($request->supplier_id) {
+                $purchar_product_order =  $purchar_product_order->where('purchase_product_orders.supplier_id',$request->supplier_id);
+                $suppliers_all = Supplier::where('id',$request->supplier_id)->first();
+            }
+
+            $purchar_product_order =  $purchar_product_order->select('purchase_product_orders.*','suppliers.*','purchase_product_orders.id as pur_pro_id','purchase_product_orders.created_at as created_at_date');
+            $purchar_product_order =  $purchar_product_order->orderBy('purchase_product_orders.id','DESC')->paginate(Setting::get('pagination'));
+
+            return view('purchase-product.partials.purchase-product-order',compact('purchar_product_order','request','suppliers_all'));
         }catch(\Exception $e){
             
         }
@@ -637,8 +705,8 @@ class PurchaseProductController extends Controller
                 PurchaseProductOrder::where('id',$purchase_pro_id)->update($update);
 
                 $params['header_name'] = 'Payment Details';
-                $params['replace_from'] = 'Payment Currency : '.$get_data->payment_currency.' Payment Amount : '.$get_data->payment_amount.' Payment Mode : '.$get_data->payment_mode;
-                $params['replace_to'] = 'Payment Currency : '.$payment_currency.' Payment Amount : '.$payment_amount.' Payment Mode : '.$payment_mode;
+                $params['replace_from'] = 'Payment Currency : '.$get_data->payment_currency.'<br/> Payment Amount : '.$get_data->payment_amount.' <br/> Payment Mode : '.$get_data->payment_mode;
+                $params['replace_to'] = 'Payment Currency : '.$payment_currency.' <br/> Payment Amount : '.$payment_amount.' <br/> Payment Mode : '.$payment_mode;
 
                 $log = PurchaseProductOrderLog::create($params);
 
@@ -689,7 +757,7 @@ class PurchaseProductController extends Controller
 
                 $log = PurchaseProductOrderLog::create($params);
 
-                return response()->json(['messages' => 'Status Updated successfully' ,'code' => 200]);
+                return response()->json(['messages' => 'MRP Updated successfully' ,'code' => 200]);
             }
             else if($from == 'discount_price'){
                 $discount_price = $request->discount_price;
@@ -704,7 +772,7 @@ class PurchaseProductController extends Controller
 
                 $log = PurchaseProductOrderLog::create($params);
 
-                return response()->json(['messages' => 'Status Updated successfully' ,'code' => 200]);
+                return response()->json(['messages' => 'Discount Updated successfully' ,'code' => 200]);
             }
             else if($from == 'special_price'){
                 $special_price = $request->special_price;
@@ -719,7 +787,7 @@ class PurchaseProductController extends Controller
 
                 $log = PurchaseProductOrderLog::create($params);
 
-                return response()->json(['messages' => 'Status Updated successfully' ,'code' => 200]);
+                return response()->json(['messages' => 'Special Price Updated successfully' ,'code' => 200]);
             }
 
             
@@ -749,10 +817,14 @@ class PurchaseProductController extends Controller
     public function purchaseproductorders_orderdata(Request $request)
     {
         try{
+            $order_products_order_id_arr = explode(",",$request->order_products_order_id);
 
             $order_data = OrderProduct::join('products','order_products.product_id','products.id')
-            ->join('brands','brands.id','products.brand')
-            ->where('order_products.order_id',$request->order_id)
+            ->leftjoin('brands','brands.id','products.brand')
+            ->join('product_suppliers','product_suppliers.product_id','products.id')
+            ->whereIn('order_products.id',$order_products_order_id_arr)
+            ->where('product_suppliers.supplier_id',$request->supplier_id)
+            ->select('products.*','order_products.id as order_products_id','brands.name as brands_name','product_suppliers.price as mrp_price','product_suppliers.price_discounted as mrp_price_discounted','product_suppliers.price_special as mrp_price_special')
             ->get();
 
             return response()->json(['order_data' => $order_data ,'code' => 200]);
@@ -760,6 +832,247 @@ class PurchaseProductController extends Controller
         }catch(\Exception $e){
             
         }
+    }
+
+    public function purchaseproductorders_saveuploads(Request $request)
+    {
+        // dd($request->all());
+        try{
+           
+            $order_product_id = $request->order_product_id;
+            $order_id = $request->order_id;
+            $files = $request->file('file');
+            $fileNameArray = array();
+            foreach($files as $key=>$file){
+                //echo $file->getClientOriginalName();
+                $fileName = time().$key.'.'.$file->extension();
+                $fileNameArray[] = $fileName;
+
+                $params['order_product_id'] = $order_product_id;
+                $params['order_id'] = $order_id;
+                $params['file_name'] = $fileName;
+                $params['user_id'] = \Auth::id();
+
+                $log = PurchaseProductOrderImage::create($params);
+                
+                $file->move(public_path('purchase_product_orders'), $fileName);
+            }
+            return response()->json(["code" => 200, "msg" => "files uploaded successfully","data"=>$fileNameArray]);
+            
+        }catch(\Exception $e){
+
+        }
+    }
+    
+    public function getexcel(Request $request)
+    { 
+        $supplier_id = $request->supplier_id;
+        $product_ids = $request->product_id;
+        $order_ids = $request->order_id;
+
+        $supplier = Supplier::find($supplier_id);            
+        $path = Carbon::now()->format('Y-m-d-H-m-s') . "_order_exports.xlsx";
+        $subject = 'Product order';
+        $message = 'Please check below product order request';
+        $product_ids = explode(",",$product_ids);
+        $order_ids = explode(",",$order_ids);
+        
+        return Excel::download(new EnqueryExport($product_ids,$path),Carbon::now()->format('Y-m-d-H-m-s') . "_order_exports.xlsx");
+       
+        
+    }
+
+    public function getallproducts(Request $request)
+    {
+        $supplier_id = $request->supplier_id;
+        // $product_ids = explode(",",$request->product_id);
+        $product_ids = json_decode($request->product_id, true);
+        $order_ids = json_decode($request->order_id, true);
+       
+
+        // $products_data = Product::leftjoin('product_suppliers','product_suppliers.product_id','products.id')
+        // ->select('product_suppliers.price as product_price','products.*')
+        // ->whereIn('products.id',$product_ids)->groupBy("product_suppliers.sku")->get()->toArray();
+
+        $products_data = Product::join('order_products','order_products.product_id','products.id')
+        ->join('product_suppliers','product_suppliers.product_id','products.id')
+        ->select('product_suppliers.price as product_price','products.*')
+        ->whereIn('products.id',$product_ids)->whereIn('order_products.id',$order_ids)->groupBy("order_products.sku")->get()->toArray();
+        
+        // $product_names = array_column($products_data, 'name');
+        // $products_str = implode(", ",$product_names);
+        $products_str = '';
+        foreach($products_data as $key => $val)
+        {
+            $products_str .= "\n".' => Product Name : '.$val['name'].' , SKU : '.$val['sku'].' , Price : '.$val['product_price'];
+        }
+        $message = 'Please check Product Order ::  '.$products_str;
+
+        // $message = str_replace("=>","=>",$message);
+
+        return response()->json(["code" => 200, "data"=>$message]);
+    }
+
+    public function send_Products_Data(Request $request)
+    {
+        $type = $request->type;
+        $supplier_id = $request->supplier_id;
+        $product_id = $request->product_id;
+        $order_id = $request->order_id;
+        $content = $request->content;
+        $send_options = $request->send_options;
+
+        if($type == 'order' && $send_options != '') {
+            
+            $supplier = Supplier::find($supplier_id);            
+            $path = "order_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_order_exports.xlsx";
+            $subject = 'Product order';
+            $message_chat_data = ($content ? $content : 'Please check below product order request');
+
+           
+
+            $product_ids = explode(",",$product_id);
+            $order_ids = explode(",",$order_id);
+
+            if($send_options == 'email' || $send_options == 'both')
+            {
+                $message = ($content ? $content : 'Please check below product order request');
+
+                $message = str_replace("=>","<br/>"." =>",$message);
+            
+                Excel::store(new EnqueryExport($product_ids,$path), $path, 'files');
+            
+                $emailClass = (new PurchaseExport($path, $subject, $message))->build();
+
+                $email             = Email::create([
+                    'model_id'         => $supplier_id,
+                    'model_type'       => Supplier::class,
+                    'from'             => 'buying@amourint.com',
+                    'to'               => $supplier->email,
+                    'subject'          => $subject,
+                    'message'          => $message,
+                    'template'         => 'purchase-simple',
+                    'additional_data'  => json_encode(['attachment' => [$path]]),
+                    'status'           => 'pre-send',
+                    'is_draft'         => 0,
+                ]);
+
+                \App\Jobs\SendEmail::dispatch($email);
+            }
+
+            if($send_options == 'whatsapp' || $send_options == 'both')
+            {
+                $products_data = Product::whereIn('id',$product_ids)->get()->toArray();
+                $product_names = array_column($products_data, 'name');
+                $products_str = implode(", ",$product_names);
+                // $message = 'Please check Product Order : '.$products_str;
+                $message = ($content ? $content : 'Please check below product order request');
+
+                $message = str_replace("=>","\n"." =>",$message);
+
+                $number = ($supplier->phone ? $supplier->phone : '971569119192' );
+
+                $send_whatsapp = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($number,$supplier->whatsapp_number, $message);
+            }
+            
+            $message_chat = ' Order WhatsApp Message : '.$message_chat_data;
+            $params = [
+                'message' => $message_chat,
+                'supplier_id' => $supplier_id,
+                'additional_data' => json_encode(['attachment' => [$path]]),
+                'user_id' => \Auth::id(),
+            ];
+            $chatMessage = ChatMessage::create($params);
+           
+
+            $getInquiryData = SupplierOrderInquiryData::where('type',$type)->get()->toArray();
+
+            $pro_data_arr = array();
+            foreach($getInquiryData as $key => $value){
+                $pro_data_arr[$value['type']][$value['product_id']] = $value;
+            }   
+
+
+            $product_id = array_column($getInquiryData, 'product_id');
+
+            $pro_arr = [];
+            foreach ($product_ids as $key => $val)
+            {
+                if (!in_array($val, $product_id))
+                {
+                    $pro_arr[] = [
+                        'supplier_id' => $supplier_id,
+                        'product_id' => $val,
+                        'type' => $type,
+                        'count_number' => '1'
+                    ];
+
+                }
+            }
+
+            SupplierOrderInquiryData::insert($pro_arr);
+            
+            $order_products_data = OrderProduct::whereIn('id',$order_ids)->get();
+
+            $order_products_data_arr = OrderProduct::whereIn('id',$order_ids)->get()->toArray();
+            $all_product_id = array_column($order_products_data_arr, 'product_id');
+
+            $order_data = OrderProduct::
+            // leftjoin('products','order_products.product_id','products.id')
+            // ->leftjoin('brands','brands.id','products.brand')
+            join('product_suppliers','product_suppliers.product_id','order_products.product_id')
+            ->whereIn('order_products.id',$order_ids)
+            ->where('product_suppliers.supplier_id',$supplier_id)
+            ->select('product_suppliers.price as mrp','product_suppliers.price_special as price_special','product_suppliers.price_discounted as price_discounted','order_products.order_id as order_id')
+            ->get();
+            
+
+            
+            $order_data_total_mrp = 0;
+            $order_data_total_price_discount = 0;
+            $order_data_total_price_special = 0;
+            foreach($order_data as $key => $val)
+            {
+                $order_data_total_mrp += $val->mrp;
+                $order_data_total_price_discount += $val->price_discounted;
+                $order_data_total_price_special += $val->price_special;
+            }
+
+            $order_pro_arr = [];
+
+            // foreach ($order_products_data as $key => $val)
+            // {
+                $rand_order_no = rand(999,9999).'0'.rand(99,999);
+                
+                $order_pro_arr[] = [
+                    'product_id' => '',
+                    'order_products_id' => $request->product_id,
+                    'order_id'      => $rand_order_no,
+                    'supplier_id' => $supplier_id,
+                    'mrp_price' => $order_data_total_mrp,
+                    'discount_price' => $order_data_total_price_discount,
+                    'special_price' => $order_data_total_price_special,
+                    'created_by' => \Auth::id(),
+                    'created_at' => \Carbon\Carbon::now()->toDateTimeString(),
+                    'updated_at' => \Carbon\Carbon::now()->toDateTimeString(),
+                    'order_products_order_id' => $request->order_id,
+                ];
+            // }
+            
+           
+
+            PurchaseProductOrder::insert($order_pro_arr); 
+
+            //END - DEVTASK-4236
+    
+            return response()->json(['message' => 'Successfull','code' => 200]);
+        }
+    }
+    
+    public function download_excel_file(Request $request)
+    {
+        $file = $request->filename;
+        return response()->download(storage_path('/app/files/'. $file));
     }
     //END - DEVTASK-4236
     

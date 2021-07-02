@@ -603,15 +603,16 @@ class CategoryController extends Controller
 
     public function fixAutoSuggested(Request $request)
     {
-        
-        $scrapped_category_mapping = ScrappedCategoryMapping::select('id', 'name')
-        ->whereNull('category_id');
 
-        if($request->show_skipeed_btn_value == 'false'){
-            $scrapped_category_mapping->where('is_skip',0);
-        }
+        $scrapped_category_mapping = ScrappedCategoryMapping::select('id', 'name','category_id');
 
-        $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination'));
+if(!empty($request->show_auto_fix)){
+    $scrapped_category_mapping->whereNotNull('category_id')->where('is_auto_skip',0);
+}else{
+    $scrapped_category_mapping->whereNull('category_id');
+
+}
+        $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination')    );
 
         $links = [];
 
@@ -621,15 +622,23 @@ class CategoryController extends Controller
 
                 $filter = \App\Category::updateCategoryAuto($category->name);
 
-                $links[] = [
-                    "from_id" => $category->id,
-                    "from" => $category->name,
-                    "to"   => ($filter) ? $filter->id : null,
-                ];
+                if(isset($request->show_auto_fix) &&  $request->show_auto_fix){
+                        $links[] = [
+                            "from_id" => $category->id,
+                            "from" => $category->name,
+                            "to"   =>  $category->category_id ,
+                        ];
+                }else{
+                    $links[] = [
+                        "from_id" => $category->id,
+                        "from" => $category->name,
+                        "to"   => ($filter) ? $filter->id : null,
+                    ];
+                }
             }
         }
-
-        $view = (string) view("category.partials.preview-categories", compact('links'));
+        $is_auto_fix = !empty($request->show_auto_fix) ? true : false;
+        $view = (string) view("category.partials.preview-categories", compact('links','is_auto_fix'));
         return response()->json(["code" => 200, "html" => $view]);
 
     }
@@ -637,40 +646,13 @@ class CategoryController extends Controller
     public function fixAutoSuggestedString(Request $request)
     {
 
-        // $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
-        // $unKnownCategories = explode(',', $unKnownCategory->references);
-        // $unKnownCategories = array_unique($unKnownCategories);
-
-        // $input             = preg_quote($request->get('search'), '~');
-        // $unKnownCategories = preg_grep('~' . $input . '~', $unKnownCategories);
-
-        // //$unKnownCategories[] = "woman/small gg marmont shoulder bag";
-        // //$unKnownCategories[] = "women/clothing/tops/tops/alexander mcqueen flounced top";
-        // //$unKnownCategories[] = "men/bags/business and travel bags/prada document holder in saffiano";
-        
-        // $unKnownCategories = $this->paginate($unKnownCategories,50);
-        // $unKnownCategories->setPath($request->url());
-
-
-        // $links = [];
-        // if (!$unKnownCategories->isEmpty()) {
-        //     foreach ($unKnownCategories as $i => $unkc) {
-        //         $filter = \App\Category::updateCategoryAutoSpace($unkc);
-        //         $links[] = [
-        //             "from" => $unkc,
-        //             "to"   => ($filter) ? $filter->id : null,
-        //         ];
-        //     }
-        // }
-
-        // $view = (string) view("category.partials.preview-categories", compact('links'));
         $loeggedUser = $request->user();
 
         $scrapped_category_mapping = ScrappedCategoryMapping::select('id', 'name')
         ->whereNull('category_id');
 
         if($request->show_skipeed_btn_value == 'false') {
-            $scrapped_category_mapping->where('is_skip', 0);
+            $scrapped_category_mapping->whereNull('category_id');
         }
 
         $scrapped_category_mapping = $scrapped_category_mapping->get();
@@ -681,8 +663,6 @@ class CategoryController extends Controller
             foreach ($scrapped_category_mapping as $k => $category) {
 
                 $filter = \App\Category::updateCategoryAuto($category->name);
-
-                // "to"   => ($filter) ? $filter->id : null,
                 if ($filter) {
                     $links[$category->id] = ($filter) ? $filter->id : null;
                 }
@@ -715,7 +695,8 @@ class CategoryController extends Controller
 
                   $isUpdtaed =   $scrappedCategory->update([
                         'category_id' => $selectedCategory->id,
-                        'is_skip' => 1
+                        'is_skip' => 1,
+                        'is_auto_fix'=>1,
                     ]);
                 if($isUpdtaed){
                     $count++;
@@ -767,7 +748,8 @@ class CategoryController extends Controller
 
                     $scrappedCategory->update([
                         'category_id' => $selectedCategory->id,
-                        'is_skip' => 1
+                        'is_skip' => 0,
+                        'is_auto_skip'=>!empty( $request->is_auto_fix )? 1:0
                     ]);
 
                 }else{

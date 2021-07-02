@@ -556,6 +556,7 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
                                             <a class="dropdown-item" href="{{ action('DubbizleController@index') }}">Dubzzle</a>
                                             <a class="dropdown-item" href="{{ route('log-scraper.index') }}">Scraper log</a>
+                                            <a class="dropdown-item" href="{{ route('log-scraper.api') }}">Scraper Api log</a>
                                             <a class="dropdown-item" href="{{ route('scrap-brand') }}">Scrap Brand</a>
                                         </li>
                                     </ul>
@@ -1361,7 +1362,7 @@ $metaData = '';
                                     <a class="dropdown-item" href="{{ route('whatsapp.log') }}">Whatsapp Log</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('jobs.list') }}">Jobs</a>
+                                    <a class="dropdown-item" href="{{ url('horizon') }}">Jobs</a>
                                 </li>
                             </ul>
                         </li>
@@ -1392,6 +1393,11 @@ $metaData = '';
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('message-queue.approve') }}">Message Queue Approval</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{route('message.counter')}}">Message Counter</a>
+                                    </li>
+
+
                                 </ul>
                             </li>
                         @endif
@@ -1812,6 +1818,9 @@ $metaData = '';
                                             <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
                                         </li>
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('brand.logo_data')}}">Brand Logos</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('missing-brands.index')}}">Missing Brands</a>
                                         </li>
                                         <li class="nav-item dropdown">
@@ -1989,7 +1998,7 @@ $metaData = '';
         @include('partials.modals.quick-development-task')
         @include('partials.modals.quick-instruction-notes')
         @include('partials.modals.quick-user-event-notification')
-        @include('partials.modals.quick-chatbox-window')
+        
         @include('partials.modals.quick-zoom-meeting-window')
         @include('partials.modals.quick-create-task-window')
         @include('partials.modals.quick-notes') {{-- Purpose : Import notes modal - DEVTASK-4289 --}}
@@ -2001,6 +2010,7 @@ $metaData = '';
         <input type="hidden" id="live_chat_key" value="@if(isset($key)){{ $key->key}}@else @endif">
         @include('partials.chat')
         @endif
+        @include('partials.modals.quick-chatbox-window')
         @endif
         @if(Auth::check())
             <!---start section for the sidebar toggle -->
@@ -2093,7 +2103,7 @@ $metaData = '';
 
     <div class="chat-button-wrapper">
         <div class="chat-button-float">
-            <button class="chat-button">
+            <button class="chat-button chat_btn">
                 <img src="/images/chat.png" class="img-responsive"/>
                 <span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span>
             </button>
@@ -2355,6 +2365,7 @@ $metaData = '';
             });
 
             $(".selectx-vendor").select2({tags :true});
+            $(".selectx-users").select2({tags :true});
         });
         window.token = "{{ csrf_token() }}";
 
@@ -2506,17 +2517,24 @@ $metaData = '';
            openChatBox(false);
         });
 
-        $('.chat-button').on('click', function () {
-            $('.chat-button-wrapper').toggleClass('expanded');
-            $('.page-chat-list-rt').toggleClass('dis-none');
-            if($('.chat-button-wrapper').hasClass('expanded')){
-                chatBoxOpen = true;
-                openChatBox(true);
-            }else{
-                chatBoxOpen = false;
-                openChatBox(false);
-            }
+        $('.chat_btn').on('click', function (e) {
+            e.preventDefault();
+           $("#quick-chatbox-window-modal").modal("show");
+           chatBoxOpen = true;
+           openChatBox(true);
         });
+
+        // $('.chat-button').on('click', function () {
+        //     $('.chat-button-wrapper').toggleClass('expanded');
+        //     $('.page-chat-list-rt').toggleClass('dis-none');
+        //     if($('.chat-button-wrapper').hasClass('expanded')){
+        //         chatBoxOpen = true;
+        //         openChatBox(true);
+        //     }else{
+        //         chatBoxOpen = false;
+        //         openChatBox(false);
+        //     }
+        // });
 
         var notesBtn = $(".save-user-notes");
 

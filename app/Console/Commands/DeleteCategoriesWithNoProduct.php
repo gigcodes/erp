@@ -38,6 +38,8 @@ class DeleteCategoriesWithNoProduct extends Command
      */
     public function handle()
     {
+        set_time_limit(0);
+        ini_set("memory_limit", "-1");
         $unKnownCategory  = Category::where('title', 'LIKE', '%Unknown Category%')->first();
         $neededCategories = [];
         if ($unKnownCategory) {

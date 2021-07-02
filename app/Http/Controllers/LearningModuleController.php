@@ -11,7 +11,7 @@ use Carbon\Carbon;
 use App\Helpers;
 use App\User;
 use App\Task;
-use App\Learning;
+use App\{Learning,LearningStatusHistory,LearningDueDateHistory};
 use App\LearningModule;
 use App\TaskStatus;
 use App\Contact;
@@ -622,7 +622,42 @@ class LearningModuleController extends Controller {
 			return view( 'learning-module.discussion-tasks', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'learning_module_dropdown', 'learning_submodule_dropdown', 'priority','openTask','type','title','task_statuses'));
 		}
 		else {
-			return view( 'learning-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'learning_module_dropdown', 'learning_submodule_dropdown', 'priority','openTask','type','title','task_statuses'));
+
+			$statusList = \DB::table("task_statuses")->pluck("name", "id")->toArray();
+
+			$learningsListing = Learning::query();
+
+			if(!empty($request->get('user_id'))){
+				$learningsListing->where('learning_user',$request->get('user_id'));
+			}
+
+			if(!empty($request->get('subject'))){
+				$subject = $request->get('subject');
+				$learningsListing->where('learning_subject','LIKE', "%$subject%");
+			}
+
+			if (!empty($request->get('task_status'))) {
+	            $learningsListing->whereIn('learning_status', $request->get('task_status'));
+	        }
+
+      if (!empty($request->get('overduedate'))) {
+          $learningsListing->whereDate('learning_duedate','<',$request->get('overduedate'));
+      }
+
+      if (!empty($request->get('module'))) {
+          $learningsListing->where('learning_module',$request->get('module'));
+      }
+
+      if (!empty($request->get('submodule'))) {
+          $learningsListing->where('learning_submodule',$request->get('submodule'));
+      }
+
+			$learningsListing = $learningsListing->latest()->get();
+
+
+
+
+			return view( 'learning-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'learning_module_dropdown', 'learning_submodule_dropdown', 'priority','openTask','type','title','task_statuses','learningsListing','statusList'));
 		}
 	}
 
@@ -2543,9 +2578,86 @@ class LearningModuleController extends Controller {
 		}
 
 		if($request->status_id){
+			
+			LearningStatusHistory::create([
+   	    		'learning_id' => $learning->id,
+   	    		'old_status'  => $learning->learning_status??0,
+   	    		'new_status'  => $request->status_id,
+   	    		'update_by'   => $request->user()->id
+   	    	]);
+
 			$learning->learning_status = $request->status_id;
 			$learning->save();
 			return response()->json(["message" => "Status Updated Successfully"]);
 		}
    }
+
+   public function getStatusHistory(Request $request)
+    {
+        $learningid = $request->learningid;
+        
+        $records = LearningStatusHistory::with('oldstatus','newstatus','user')
+        		->where('learning_id', $learningid)
+        		->latest()
+        		->get();
+        
+        if($records){		
+	        $response = [];
+	        foreach ($records as $row) {
+	        	$response [] = [
+	        		'created_date'=> $row->created_at->format('Y-m-d'),
+	        		'old_status'  => optional($row->oldstatus)->name??'-',
+	        		'new_status'  => optional($row->newstatus)->name??'-',
+	        		'update_by'   => $row->user->name,
+	        	];
+	        }
+	        return $response;
+        }
+        return 'error';
+    }
+
+    public function saveDueDateUpdate(Request $request)
+    {
+        $learning = Learning::find($request->get('learningid'));
+        $due_date = date("Y-m-d", strtotime($request->due_date));
+        if($learning && $request->due_date) {
+            LearningDueDateHistory::create([
+	   	    		'learning_id' => $learning->id,
+	   	    		'old_duedate'  => $learning->learning_duedate??0,
+	   	    		'new_duedate'  => $due_date,
+	   	    		'update_by'   => $request->user()->id
+	   	    	]);
+        }
+
+        $learning->learning_duedate = $due_date;
+        $learning->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
+    public function getDueDateHistory(Request $request)
+    {
+        $learningid = $request->learningid;
+        
+        $records = LearningDueDateHistory::with('user')
+        		->where('learning_id', $learningid)
+        		->latest()
+        		->get();
+        
+        if($records){		
+	        $response = [];
+	        foreach ($records as $row) {
+	        	$response [] = [
+	        		'created_date'=> $row->created_at->format('Y-m-d'),
+	        		'old_duedate'  => $row->old_duedate??'-',
+	        		'new_duedate'  => $row->new_duedate??'-',
+	        		'update_by'   => $row->user->name,
+	        	];
+	        }
+	        return $response;
+        }
+        return 'error';
+    }
 }

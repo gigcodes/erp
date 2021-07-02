@@ -43,6 +43,8 @@ use Response;
 use Storage;
 use App\MeetingAndOtherTime;
 use App\Helpers\HubstaffTrait;
+use App\ChatMessage;
+use App\Helpers\MessageHelper;
 
 class DevelopmentController extends Controller
 {
@@ -420,6 +422,10 @@ class DevelopmentController extends Controller
             //$issues = $issues->where('developer_tasks.status', 'In Progress');
         }
 
+        if (!empty($request->get('repo_id'))) {
+            $issues = $issues->where('repository_id', $request->get('repo_id'));
+        }
+
         $whereCondition = "";
         if ($request->get('subject') != '') {
             $whereCondition = ' and message like  "%' . $request->get('subject') . '%"';
@@ -469,7 +475,10 @@ class DevelopmentController extends Controller
 
         // Set variables with modules and users
         $modules = DeveloperModule::all();
-        $users = Helpers::getUserArray(User::all());
+        
+        $usrlst = User::orderBy('name')->where('is_active',1)->get();
+        $users = Helpers::getUserArray($usrlst);
+
         // $statusList = \DB::table("developer_tasks")->where("status", "!=", "")->groupBy("status")->select("status")->pluck("status", "status")->toArray();
 
         $statusList = \DB::table("task_statuses")->select("name")->pluck("name", "name")->toArray();
@@ -559,7 +568,11 @@ class DevelopmentController extends Controller
         }else{
             $issues = $issues->paginate(Setting::get('pagination'));
         }
+
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
+
+        $respositories = GithubRepository::all();
+
 
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
 
@@ -578,7 +591,8 @@ class DevelopmentController extends Controller
             'priority' => $priority,
             'countPlanned' => $countPlanned,
             'countInProgress' => $countInProgress,
-            'statusList' => $statusList
+            'statusList' => $statusList,
+            'respositories' => $respositories,
             // 'languages' => $languages
         ]);
     }
@@ -697,18 +711,17 @@ class DevelopmentController extends Controller
             $task_csv = [];
             $task_csv['id'] = $value->id;
             $task_csv['Subject'] = $value->subject;
-            $task_csv['communication'] = $value->message;
-            $task_csv['Developer'] = $value->team_lead_id;
-            $task_csv['Approved estimated time'] = $value->estimate_time;
+            $task_csv['Communication'] = $value->message;
+            $task_csv['Developer'] = (!empty($users[$value->assigned_to]) ? $users[$value->assigned_to] : 'Unassigned' );
+            $task_csv['Approved Time'] = $value->estimate_minutes;
             $task_csv['Status'] = $value->status;
-
             $startTime = Carbon::parse($value->start_time);
             $endTime = Carbon::parse($value->end_time);
-            $totalDuration = $endTime->diffForHumans($startTime);
-
-            $task_csv['Tracked Time'] = date('h:i:s',strtotime($value->start_time))." to ".date('h:i:s',strtotime($value->end_time));
-            $task_csv['Difference'] = $totalDuration;
+            $totalDuration = $endTime->diffInMinutes($startTime);
+            $task_csv['Tracked Time'] = $totalDuration;
+            $task_csv['Difference'] = ($totalDuration-$value->estimate_minutes > 0 ? $totalDuration-$value->estimate_minutes : "+".abs($totalDuration-$value->estimate_minutes));
             array_push($tasks_csv,$task_csv);
+
         }
         
         $this->outputCsv('download-task-summaries.csv', $tasks_csv);
@@ -1186,6 +1199,9 @@ class DevelopmentController extends Controller
      */
     public function store(Request $request)
     {
+
+        $loggedUser = $request->user();
+
         $this->validate($request, [
             'subject' => 'sometimes|nullable|string',
             'task' => 'required|string|min:3',
@@ -1195,6 +1211,7 @@ class DevelopmentController extends Controller
             'module_id' => 'required',
 
         ]);
+        
         $data = $request->except('_token');
         $data['hubstaff_project'] = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 
@@ -1204,6 +1221,7 @@ class DevelopmentController extends Controller
         $data['priority'] = 0;
         //$data[ 'submitted_by' ] = Auth::id();
         $data['hubstaff_task_id'] = 0;
+        $data['repository_id'] = $request->get('repository_id');
         // $module = $request->get('module_id');
         // if (!empty($module)) {
         //     $module = DeveloperModule::find($module);
@@ -1215,6 +1233,29 @@ class DevelopmentController extends Controller
         //     }
         // }
         $task = DeveloperTask::create($data);
+
+        //check the assinged user in any team ?
+        if($request->assigned_to > 0 && empty($task->team_lead_id)) {
+            $teamUser = \App\TeamUser::where("user_id",$task->assigned_to)->first();
+            if($teamUser) {
+                $team = $teamUser->team;
+                if($team) {
+                    $task->team_lead_id = $team->user_id;
+                    $task->save();
+                }
+            }else{
+                $isTeamLeader = \App\Team::where("user_id",$task->assigned_to)->first();
+                if($isTeamLeader) {
+                    $task->team_lead_id = $task->assigned_to;
+                    $task->save();
+                }
+            }
+
+        }
+
+
+
+
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
                 $media = MediaUploader::fromSource($image)
@@ -1247,6 +1288,9 @@ class DevelopmentController extends Controller
         $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
 
         app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+
+        MessageHelper::sendEmailOrWebhookNotification([$task->user_id, $task->assigned_to, $task->master_user_id, $task->responsible_user_id, $task->team_lead_id, $task->tester_id], ' [ '.$loggedUser->name.' ] - '. $message);
+
         // if ($task->status == 'Done') {
         //   NotificationQueueController::createNewNotification([
         //     'message' => 'New Task to Verify',
@@ -2201,21 +2245,29 @@ class DevelopmentController extends Controller
             $history = DeveloperTaskHistory::find($request->approve_time);
             $history->is_approved = 1;
             $history->save();
-
             $user = User::find($request->user_id);
             if($user){
                 $receiver_user_phone = $user->phone;
                 if($receiver_user_phone){
-                $task = DeveloperTask::find($request->developer_task_id);
-                $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' .  $request->approve_time . ' MINS';
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false);
+                    $task = DeveloperTask::find($request->developer_task_id);
+                    $time = $history->new_value !== null ? $history->new_value : $history->old_value;
+                    $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' .  $time . ' MINS'; 
+                    $chat = ChatMessage::create([
+                        'number' => $receiver_user_phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
+                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
                 } 
             } 
+    }else{
+            return response()->json([
+                'message' => 'Only admin can approve'
+            ],500);
         }
-        
-        return response()->json([
-            'message' => 'Only admin can approve'
-        ],500);
     }
 
     public function sendRemindMessage(Request $request) {
@@ -2226,7 +2278,19 @@ class DevelopmentController extends Controller
             if($receiver_user_phone){
                 $task = DeveloperTask::find($request->id);
                 $msg = 'PLS ADD ESTIMATED TIME FOR TASK  ' . '#DEVTASK-' . $task->id . '-' . $task->subject ; 
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false);
+                $chat = ChatMessage::create([
+                    'number' => $receiver_user_phone,
+                    'user_id' => $user->id,
+                    'customer_id' => $user->id,
+                    'message' => $msg,
+                    'status' => 0, 
+                    'developer_task_id' => $request->id
+                ]);
+
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+
+                MessageHelper::sendEmailOrWebhookNotification([$task->assigned_to, $task->team_lead_id, $task->tester_id],$msg);
+
             } 
         }
         return response()->json([
@@ -2242,7 +2306,17 @@ class DevelopmentController extends Controller
             if($receiver_user_phone){
                 $task = DeveloperTask::find($request->id);
                 $msg = 'TIME NOT APPROVED REVISE THE ESTIMATED TIME FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject;
-                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false);
+                $chat = ChatMessage::create([
+                    'number' => $receiver_user_phone,
+                    'user_id' => $user->id,
+                    'customer_id' => $user->id,
+                    'message' => $msg,
+                    'status' => 0, 
+                    'developer_task_id' => $request->id
+                ]);
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+
+                MessageHelper::sendEmailOrWebhookNotification([$task->assigned_to, $task->team_lead_id, $task->tester_id],$msg);
             } 
         }
         return response()->json([
@@ -2307,26 +2381,32 @@ class DevelopmentController extends Controller
         }
         if(Auth::user()->isAdmin()){
             $user = User::find($issue->user_id);
-            if($user){
-                $receiver_user_phone = $user->phone;
-                if($receiver_user_phone){
-                    $msg = 'TIME ESTIMATED BY ADMIN FOR TASK ' . '#DEVTASK-' . $issue->id . '-' .$issue->subject . ' ' .  $request->estimate_minutes . ' MINS';
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false);
-                } 
-            }
-        }else{
-            $users = User::get();
-            foreach($users as $user){
-                if($user->isAdmin()){
-                    $receiver_user_phone = $user->phone;
-                    if($receiver_user_phone){
-                        $msg = 'TIME ESTIMATED BY USER FOR TASK ' . '#DEVTASK-' . $issue->id . '-' .$issue->subject . ' ' .  $request->estimate_minutes . ' MINS';
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false);
-                    } 
-                }
-            }
+            $msg = 'TIME ESTIMATED BY ADMIN FOR TASK ' . '#DEVTASK-' . $issue->id . '-' .$issue->subject . ' ' .  $request->estimate_minutes . ' MINS';
+        }else{ 
+            $user = User::find($issue->master_user_id); 
+            $msg = 'TIME ESTIMATED BY USER FOR TASK ' . '#DEVTASK-' . $issue->id . '-' .$issue->subject . ' ' .  $request->estimate_minutes . ' MINS';
         }
-        
+
+        if($user){
+
+            $receiver_user_phone = $user->phone;
+
+            if($receiver_user_phone){
+                $chat = ChatMessage::create([
+                    'number' => $receiver_user_phone,
+                    'user_id' => $user->id,
+                    'customer_id' => $user->id,
+                    'message' => $msg,
+                    'status' => 0, 
+                    'developer_task_id' => $request->issue_id
+                ]);
+
+                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+
+                MessageHelper::sendEmailOrWebhookNotification([$issue->assigned_to, $issue->team_lead_id, $issue->tester_id],$msg);
+            } 
+        }
+
         $issue->estimate_minutes = $request->get('estimate_minutes');
         $issue->save();
 
@@ -2573,7 +2653,8 @@ class DevelopmentController extends Controller
     {
         $status = "ok";
         // Get all developers
-        $users = Helpers::getUserArray(User::role('Developer')->get());
+        $userlst = User::role('Developer')->orderby('name','asc')->where('is_active',1)->get();
+        $users = Helpers::getUserArray($userlst);
         //$users = Helpers::getUsersByRoleName('Developer');
         // Get all task types
         $tasksTypes = TaskTypes::all();
@@ -2630,6 +2711,8 @@ class DevelopmentController extends Controller
         $id = $request->get("developer_task_id", 0);
         $subject = $request->get("subject", null);
 
+        $loggedUser = $request->user();
+
         if ($id > 0 && !empty($subject)) {
 
             $devTask = DeveloperTask::find($id);
@@ -2642,12 +2725,17 @@ class DevelopmentController extends Controller
                 $devDocuments->save();
 
                 if ($request->hasfile('files')) {
+
                     foreach ($request->file('files') as $files) {
                         $media = MediaUploader::fromSource($files)
                             ->toDirectory('developertask/' . floor($devTask->id / config('constants.image_per_folder')))
                             ->upload();
                         $devDocuments->attachMedia($media, config('constants.media_tags'));
                     }
+
+                    $message = '[ '. $loggedUser->name .' ] - #DEVTASK-' . $devTask->id .' - ' . $devTask->subject ." \n\n" . 'New attchment(s) called ' . $subject . ' has been added. Please check and give your comment or fix it if any issue.';
+
+                    MessageHelper::sendEmailOrWebhookNotification([$devTask->assigned_to, $devTask->team_lead_id, $devTask->tester_id], $message);
                 }
 
                 return response()->json(["code" => 200, "success" => "Done!"]);
@@ -2968,4 +3056,30 @@ class DevelopmentController extends Controller
         }
         return 'error';
     }
+
+    public function updateDevelopmentReminder(Request $request)
+    {
+        // this is the changes related to developer task
+        $task = DeveloperTask::find($request->get('development_id'));
+        $task->frequency            = $request->get('frequency');
+        $task->reminder_message     = $request->get('message');
+        $task->reminder_from        = $request->get('reminder_from',"0000-00-00 00:00");
+        $task->reminder_last_reply  = $request->get('reminder_last_reply',0);
+        $task->last_send_reminder   = date("Y-m-d H:i:s");
+        $task->save();
+        
+            $message = $request->get('message');
+            if(optional($task->assignedUser)->phone){
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
+                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+                
+                //app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($task->assignedUser->phone, $task->assignedUser->whatsapp_number, $message);
+            }   
+        
+        return response()->json([
+          'success'
+        ]);
+      }
 }

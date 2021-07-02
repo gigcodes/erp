@@ -87,7 +87,8 @@ use Tickets;
 use App\Email;
 use App\EmailAddress;
 use App\EmailNotificationEmailDetails;//Purpose : Add Modal - DEVTASK-4359
-
+use App\Mails\Manual\PurchaseExport;//Purpose : Add Modal - DEVTASK-4236
+use App\Helpers\MessageHelper;
 class WhatsAppController extends FindByNumberController
 {
 
@@ -1037,7 +1038,6 @@ class WhatsAppController extends FindByNumberController
         $isReplied = false;
         // Log incoming webhook
         \Log::channel('chatapi')->debug('Webhook: ' . json_encode($data));
-
         // Check for ack
         if (array_key_exists('ack', $data)) {
             ChatMessage::handleChatApiAck($data);
@@ -1987,6 +1987,7 @@ class WhatsAppController extends FindByNumberController
         $data['number'] = $request->get('number');
         // $params['status'] = 1;
 
+        $loggedUser = $request->user();
 
         if($request->add_autocomplete == "true"){
 
@@ -2111,9 +2112,8 @@ class WhatsAppController extends FindByNumberController
 
                 /** Sent To ChatbotMessage */
                 
-                $loggedUser = $request->user();
-
-                $roles = $loggedUser->roles->pluck('name')->toArray();
+                $loggedUser = auth()->user();
+                $roles = ($loggedUser) ? $loggedUser->roles->pluck('name')->toArray() : [];
 
                 if(!in_array('Admin', $roles)){
                     
@@ -2122,26 +2122,36 @@ class WhatsAppController extends FindByNumberController
                         'reply' => json_encode([
                             'context' => 'task',
                             'issue_id' => $task->id,
-                            'from' => $loggedUser->id
+                            'from' => ($loggedUser) ? $loggedUser->id : "cron"
                         ]),
                         'replied_chat_id' => $chat_message->id,
                         'reply_from' => 'database'
                     ]);
                 }
                 
+                $message_ = "[ ". @$loggedUser->name ." ] - #". $task->id.' - '. $task->task_subject . "\n\n" . $request->message;
+
+                MessageHelper::sendEmailOrWebhookNotification($task->users->pluck('id')->toArray() , $message_ );
+
             }elseif($context == 'learning'){
                 $learning = \App\Learning::find($request->issue_id);
-                if($data['user_id'] == $learning->learning_user){
+                if($data['user_id'] == $learning->learning_vendor){
                     $userId = $data['user_id'];
                 }else{
-                    $userId = $learning->learning_user;
+                    $userId = $learning->learning_vendor;
                 }
-                $params['message'] = $request->get('message');
+
+                $prefix = null;
+                if($learning && $learning->learningUser) {
+                    $prefix = "#".$learning->id." ".$learning->learningUser->name ." : ".$learning->learning_subject. " =>";
+                }
+
+                $params['message'] = $prefix.$request->get('message');
                 $params['erp_user'] = $userId;
                 $params['sent_to_user_id'] = $userId;
                 // $params['issue_id'] = $request->issue_id;
                 $params['learning_id'] = $request->issue_id;//Purpose - Add learning_id - DEVTASK-4020
-                $params['user_id'] = $data['user_id'];
+                $params['user_id'] = $userId;
                 $params['approved'] = 1;
                 $params['status'] = 2;
                 $number = User::find($userId);
@@ -2152,7 +2162,7 @@ class WhatsAppController extends FindByNumberController
                     $number = $number->phone;
                 
                 $chat_message = ChatMessage::create($params);
-                $this->sendWithThirdApi($number, $whatsapp, '',$chat_message->id);
+                $this->sendWithThirdApi($number, $whatsapp, $params['message'],null,$chat_message->id);
 
                 return response()->json(['message' => $chat_message]);
 
@@ -2242,6 +2252,7 @@ class WhatsAppController extends FindByNumberController
                     $issue = DeveloperTask::find($request->get('issue_id'));
 
                     $userId = $issue->assigned_to;
+
                     if ($sendTo == "to_master") {
                         if ($issue->master_user_id) {
                             $userId = $issue->master_user_id;
@@ -2265,7 +2276,7 @@ class WhatsAppController extends FindByNumberController
                     //     $userId = 1;
                     //  }
                     $admin = 0;
-                    if (!Auth::user()->isAdmin()) {
+                    if (!Auth::user() || !Auth::user()->isAdmin()) {
                         $admin = $issue->created_by;
                     }
                     $params['erp_user'] = $userId;
@@ -2353,7 +2364,7 @@ class WhatsAppController extends FindByNumberController
                         $params['developer_task_id'] = $request->get('issue_id');
                         $prefix = ($issue->task_type_id == 1) ? "#DEVTASK-" : "#ISSUE-";
                         $params['message'] = $prefix . $issue->id . '-' . $issue->subject . '=>' . $request->get('message');
-                        if (Auth::user()->id != $userId) {
+                        if (Auth::user() && Auth::user()->id != $userId) {
                             $chat_message = ChatMessage::create($params);
                             $this->sendWithThirdApi($number, $whatsapp, $params['message'],null, $chat_message->id);
                         }
@@ -2456,47 +2467,11 @@ class WhatsAppController extends FindByNumberController
                     }
 
                     //START - Purpose : Email notification - DEVTASK-4359
-                    $user_data = User::where('id',Auth::user()->id)->first();
 
-                    if($user_data->mail_notification = 1)
-                    {
-                        $get_emails = EmailNotificationEmailDetails::where('user_id',Auth::user()->id)->first();
+                    $message_ = ($issue->task_type_id == 1 ? "[ ". auth()->user()->name ." ] - #DEVTASK-" : "#ISSUE-"). $issue->id.' - '. $issue->subject . "\n\n" . $request->message;
 
-                        if($get_emails != null)
-                        {
-
-                            $prefix = ($issue->task_type_id == 1) ? "#DEVTASK-" : "#ISSUE-";
-
-                            $subject = $prefix . $issue->id . '-' . $issue->subject;
-
-                            $mail_arr = explode(",",$get_emails->emails);
-                        
-                            if(count($mail_arr) > 0)
-                            {
-                                $from_address      = \Config::get("mail.from.address");
-
-                                foreach($mail_arr as $key => $mail_id){
-
-                                    $email = \App\Email::create([
-                                        'model_id'         => $issue->id, //Issue_id
-                                        'model_type'       => \App\DeveloperTask::class,
-                                        'from'             => $from_address,
-                                        'to'               => $mail_id,
-                                        'subject'          => $subject,
-                                        'message'          => $prefix . $issue->id . '-' . $issue->subject.' => '.$request->get('message'),
-                                        'template'         => 'customer-simple',
-                                        'additional_data'  => '',
-                                        'status'           => 'pre-send',
-                                        'store_website_id' => null,
-                                        'is_draft' => 0,
-                                    ]);
-
-                                    \App\Jobs\SendEmail::dispatch($email);
-                                }
-                            }
-                        }
-                    }
-
+                
+                    MessageHelper::sendEmailOrWebhookNotification([$issue->assigned_to, $issue->team_lead_id, $issue->tester_id] , $message_ );
                     //END - DEVTASK-4359
 
                     return response()->json(['message' => $chat_message]);
@@ -2550,6 +2525,11 @@ class WhatsAppController extends FindByNumberController
                         'last_communicated_message_at' => Carbon::now(),
                         'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
                     ]);
+
+                    
+                    $message_ = ($issue->task_type_id == 1 ? "[ ". $loggedUser->name ." ]- #DEVTASK-" : "#ISSUE-"). $issue->id.' - '. $issue->subject . "\n\n" . $request->message;
+
+                    $this->sendEmailOrWebhookNotification([$userId] , $message_ );
 
                     return response()->json(['message' => $chat_message]);
 
@@ -2888,7 +2868,7 @@ class WhatsAppController extends FindByNumberController
 
                 } elseif ($context == 'site_development') {
                     $chat_message = null;
-                    $users = $request->get('users', [$request->get("user_id", 0)]);
+                    $users = $request->get('users', [$request->get("user_id", 6)]);
                     if (!empty($users)) {
                         foreach ($users as $user) {
                             $user = User::find($user);
@@ -3184,6 +3164,8 @@ class WhatsAppController extends FindByNumberController
             $isNeedToBeSend = true;
         }
 
+        $isNeedToBeSend = true;
+
         if ($request->images) {
             $imagesDecoded = json_decode($request->images, true);
             if (!empty($request->send_pdf) && $request->send_pdf == 1) {
@@ -3247,12 +3229,10 @@ class WhatsAppController extends FindByNumberController
                             $media = Media::find($image_key);
                             if($media) {
                                 $mediable = \App\Mediables::where('media_id',$media->id)->where('mediable_type','App\Product')->first();
-                                $data['media_url'] = $media->getUrl();
+                                //$data['media_url'] = $media->getUrl();
                                 try{
                                     if($iimg != 0) {
                                         $chat_message = ChatMessage::create($data);
-                                    }else{
-                                        ChatMessage::where('id', $chat_message->id)->update(['media_url' => $media->getUrl()]);
                                     }
                                     $chat_message->attachMedia($media, config('constants.media_tags'));
                                     if($mediable) {
@@ -3280,12 +3260,10 @@ class WhatsAppController extends FindByNumberController
                         if(!$medias->isEmpty()) {
                             foreach($medias as $iimg => $media) {
                                 $mediable = \App\Mediables::where('media_id',$media->id)->where('mediable_type','App\Product')->first();
-                                $data['media_url'] = $media->getUrl();
+                                //$data['media_url'] = $media->getUrl();
                                 try{
                                     if($iimg != 0) {
                                         $chat_message = ChatMessage::create($data);
-                                    }else{
-                                        ChatMessage::where('id', $chat_message->id)->update(['media_url' => $media->getUrl()]);
                                     }
                                     $chat_message->attachMedia($media, config('constants.media_tags'));
                                     // if this message is not first then send to the client
@@ -4116,7 +4094,6 @@ class WhatsAppController extends FindByNumberController
                     }
                 }
                 if ($context == 'customer') {
-                    \Log::channel('whatsapp')->info('My TEst Run');
                     $supplierDetails = Customer::find($message->supplier_id);
                     $language = $supplierDetails->language;
                     if ($language != null) {
@@ -5138,7 +5115,8 @@ class WhatsAppController extends FindByNumberController
             if($whatsappRecord) {
                 $config[$whatsapp_number] = [
                     "instance_id" => $whatsappRecord->instance_id,
-                    "token" => $whatsappRecord->token
+                    "token" => $whatsappRecord->token,
+                    "is_use_own" => $whatsappRecord->is_use_own
                 ];
             }
         }
@@ -5150,13 +5128,16 @@ class WhatsAppController extends FindByNumberController
 
 
         // Set instanceId and token
+        $isUseOwn = false;
         if (isset($config[$whatsapp_number])) {
             $instanceId = $config[$whatsapp_number]['instance_id'];
             $token = $config[$whatsapp_number]['token'];
+            $isUseOwn = isset($config[$whatsapp_number]['is_use_own']) ? $config[$whatsapp_number]['is_use_own'] : 0;
         } else {
             \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Whatsapp config not found for number " . $whatsapp_number . " while sending to number " . $number. ' ['. json_encode($logDetail). '] ');
             $instanceId = $config[0]['instance_id'];
             $token = $config[0]['token'];
+            $isUseOwn = isset($config[0]['is_use_own']) ? $config[0]['is_use_own'] : 0;
         }
 
         if (isset($customer_id) && $message != null && $message != '') {
@@ -5175,7 +5156,7 @@ class WhatsAppController extends FindByNumberController
         }
 
         $encodedNumber = '+' . $number;
-        if($whatsapp_number == "971508309192") { 
+        if($isUseOwn == 1) { 
             $encodedNumber = $number;
         }
         
@@ -5197,15 +5178,14 @@ class WhatsAppController extends FindByNumberController
             $array['caption'] = $encodedText;
         }
 
+        $array['instanceId'] = $instanceId;
+
         // here is we call python 
-        if($whatsapp_number == "971508309192") {
+        if($isUseOwn == 1) { 
             $domain = "http://136.244.118.102:82/".$link;
         }else{
             $domain = "https://api.chat-api.com/instance$instanceId/$link?token=$token";
         }
-
-        \Log::info("Whatsapp send message => ".json_encode([$domain,$array]));
-
 
         $curl = curl_init();
 
@@ -5225,9 +5205,7 @@ class WhatsAppController extends FindByNumberController
         ));
 
         $response = curl_exec($curl);
-        \Log::info(print_r(["Whatsapp send message Response",$response],true));
         $err = curl_error($curl);
-        \Log::info(print_r(["Whatsapp send message error",$err],true));
 
         // $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
@@ -5489,6 +5467,49 @@ class WhatsAppController extends FindByNumberController
             }
 
 
+        }
+
+        if($chat_message->supplier_id != "")
+        {
+            $supplier = Supplier::find($chat_message->supplier_id);
+         
+            if ($supplier) {
+
+                if ($chat_message->message != '') {
+                    $this->sendWithThirdApi($supplier->phone, $supplier->whatsapp_number, $chat_message->message, null, $chat_message->id);
+                }
+
+                if ($chat_message->additional_data != '') {
+                   $additional_data_arr =  json_decode($chat_message->additional_data);
+                   $path = $additional_data_arr->attachment[0];
+                   $subject = 'Product order';
+                    $message = 'Please check below product order request';
+                   if($path != '')
+                   {
+                        $emailClass = (new PurchaseExport($path, $subject, $message))->build();
+
+                        $email             = Email::create([
+                            'model_id'         => $supplier->id,
+                            'model_type'       => Supplier::class,
+                            'from'             => 'buying@amourint.com',
+                            'to'               => $supplier->email,
+                            'subject'          => $subject,
+                            'message'          => $message,
+                            'template'         => 'purchase-simple',
+                            'additional_data'  => json_encode(['attachment' => [$path]]),
+                            'status'           => 're-send',
+                            'is_draft'         => 0,
+                        ]);
+            
+                        \App\Jobs\SendEmail::dispatch($email);
+                   }
+                }
+
+                $chat_message->update([
+                    'resent' => $chat_message->resent + 1
+                ]);
+
+            }
         }
 
         return response()->json([
@@ -5884,6 +5905,5 @@ class WhatsAppController extends FindByNumberController
         $data = AutoCompleteMessage::where('message', 'like', ''. $request->keyword . '%')->pluck('message')->toArray();
         return response()->json(['data' => $data]);
     }
-
 
 }

@@ -109,6 +109,11 @@
                     <option <?php echo $excelOnly == 1 ? 'selected=selected' : '' ?> value="1">Excel only</option>
                 </select>
             </div>
+
+            <div class="form-group mb-3 col-md-2">
+                <?php echo Form::select("task_assigned_to",["" => "Select User"] + \App\User::pluck("name","id")->toArray(),request('task_assigned_to'),["class" => "form-control select2"]); ?>
+            </div>
+
             <div class="form-group mb-3 col-md-2">
                 <select name="scrapers_status" class="form-control form-group">
                     @foreach(\App\Scraper::STATUS as $k => $v)
@@ -1096,7 +1101,7 @@
                     $.each(response.data, function (index, value) {
                         //Purpose : Add Index - DEVTASK-4219
                         var i = index + 1;
-                        html += '<tr><td>' + i + '</td><td>' + value.scraper_name + '</td><td class="remark_created_at">' + moment(value.created_at).format('DD-M H:mm') + '</td><td>'+ value.inventory+'</td><td>'+(value.last_date?  moment(value.last_date).format('D-MMM-YYYY'):'-')  +'</td><td class="remark_posted_by" >' + value.user_name + '</td><td class="remark_text">' + value.remark + '</td>';
+                        html += '<tr><td>' + i + '</td><td>' + value.scraper_name + '</td><td class="remark_created_at">' + moment(value.created_at).format('DD-M H:mm') + '</td><td>'+ value.inventory+'</td><td>'+(value.last_date?  moment(value.last_date).format('D-MMM-YYYY'):'-')  +'</td><td>'+ (value.log_messages?  value.log_messages.substr(0,19)+ (value.log_messages.length>19 ?   '...' : '  '):'-')+'</td><td class="remark_posted_by" >' + value.user_name + '</td><td class="remark_text">' + value.remark + '</td>';
 
                         //START - Purpose : Send Remark - DEVTASK-4219
                         if(value.user_name != '')

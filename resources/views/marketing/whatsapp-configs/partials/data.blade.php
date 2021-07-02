@@ -12,7 +12,7 @@
 <tr>
  
   <td>{{ $whatsAppConfig->username }}</td>
-  <td>{{ Crypt::decrypt($whatsAppConfig->password) }}</td>
+  <td></td>
   <td>{{ $whatsAppConfig->number }}</td>
   <td>{{ $whatsAppConfig->provider }}</td>
   <td>{{ $whatsAppConfig->frequency }}</td>
@@ -26,6 +26,7 @@
   <td>{{ $whatsAppConfig->recharge_date }}</td> -->
   <td>@if($whatsAppConfig->status == 1) Active @elseif($whatsAppConfig->status == 2) Blocked @elseif($whatsAppConfig->status == 3)  Scan Barcode @else Inactive @endif</td>
   <td>{{ $whatsAppConfig->created_at->format('d-m-Y') }}</td>
+  <td>{{ $whatsAppConfig->instance_id }}</td>
   <td>
     <button onclick="changewhatsAppConfig({{ $whatsAppConfig->id }})" class="btn btn-secondary btn-sm">Edit</button>
     @if(Auth::user()->hasRole('Admin'))

@@ -19,18 +19,18 @@
     <br>
     <div class="col-lg-12 margin-tb">
     	<div class="row">
-	    	<div class="col col-md-9">
+	    	<div class="col col-md-6">
 		    	<div class="row">
 	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action">
 		  				<img src="/images/add.png" style="cursor: default;">
 		  			</button>
 		  		</div>
 		    </div>
-		    <div class="col">
+		    <div class="col-md-6">
 		    	<div class="h" style="margin-bottom:10px;">
-		    		<form class="form-inline message-search-handler" method="post">
+		    		<form class="form-inline message-search-handler" action="{{route('hubstaff-acitivties.notification.download')}}"  method="post">
 					  <div class="row">
-			  			<div class="form-group">
+			  			<div class="form-group mr-2">
 						    <label for="keyword">Keyword:</label>
 						    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
 					  	</div>
@@ -49,7 +49,10 @@
 					  			<img src="/images/search.png" style="cursor: default;">
 					  		</button>
 					  	</div>	
-					  </div>	
+					  </div>
+					  <div class="form-group ml-5">
+                        <button type="submit" name="submit" value="report_download" title="Download report" class="btn btn-sm btn-secondary"><i class="fa fa-file-excel-o"></i>Download report</button>
+                      </div>	
 					</form>	
 		    	</div>
 		    </div>

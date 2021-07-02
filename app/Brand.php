@@ -150,4 +150,10 @@ class Brand extends Model
             return '';
         }
     }
+
+    // public function categorySegment()
+    // {
+    //     return $this->belongsToMany(CategorySegment::class,'category_segment_discounts','category_segment_id','brand_id')->withPivot('amount');
+    // }
+
 }

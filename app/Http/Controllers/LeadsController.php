@@ -845,7 +845,7 @@ class LeadsController extends Controller
             ->leftJoin("categories as cat", "cat.id", "erp_leads.category_id")
             ->leftJoin("brands as br", "br.id", "erp_leads.brand_id")
             ->orderBy("erp_leads.id", "desc")
-            ->select(["erp_leads.*", "products.name as product_name", "cat.title as cat_title", "br.name as brand_name", "els.name as status_name", "c.name as customer_name", "c.id as customer_id"]);
+            ->select(["erp_leads.*", "products.name as product_name", "cat.title as cat_title", "br.name as brand_name", "els.name as status_name", "c.name as customer_name", "c.id as customer_id", "c.whatsapp_number as customer_whatsapp_number"]);
 
 
         /*$term = $request->get('term');
