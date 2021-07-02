@@ -69,7 +69,7 @@ function scraper_restart
 		scraper=`echo $scraperjs|cut -d'.' -f1`
 		server=`cat /tmp/scrap_memory|sort -n -k2|head -n1|cut -d' ' -f1`
 		minmemory=`cat /tmp/scrap_memory|sort -n -k2|head -n1|cut -d' ' -f2|cut -d'.' -f1`
-		if [ $minmmeory -gt 95 ]
+		if [ $minmemory -gt 95 ]
 		then
 			echo "No server has free memory more than 5%"
 			exit
