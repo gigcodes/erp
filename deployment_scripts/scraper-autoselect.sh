@@ -49,7 +49,7 @@ function scraper_restart_list
 			fi
 		else
 			scrapfile=`echo $scrap|cut -d'.' -f1`
-			logfile=`find /mnt/volume_blr1_03/websites/logs/ -mmin -720 -iname '$scrapfile-*.log'|wc -l`
+			logfile=`find /mnt/volume_blr1_03/websites/logs/ -mmin -720 -iname "$scrapfile-*.log"|wc -l`
 			if [ $logfile -eq 0 ]
 			then
 				echo "$scrap" >> /tmp/scrap_restart
