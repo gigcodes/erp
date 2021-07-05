@@ -8,7 +8,9 @@ use Studio\Totem\Task;
 use Studio\Totem\Totem;
 use Studio\Totem\Contracts\TaskInterface;
 use Studio\Totem\Http\Requests\TaskRequest;
-
+use Studio\Totem\Http\Controllers\ExportTasksController;
+use File;
+use function storage_path;
 class TasksController extends Controller
 {
     
@@ -26,6 +28,10 @@ class TasksController extends Controller
                     $query->where('description', 'LIKE', '%'.request('q').'%');
                 })
                 ->paginate(20),
+            'task'          => null,
+            'commands'      => Totem::getCommands(),
+            'timezones'     => timezone_identifiers_list(),
+            'frequencies'   => Totem::frequencies(),
         ]);
     } 
 
@@ -43,21 +49,24 @@ class TasksController extends Controller
     {
         Task::store($request->all());
 
-        return redirect()
-            ->route('totem.tasks.all')
-            ->with('success', trans('totem::messages.success.create'));
+        return response()->json([
+            'status' => true,
+            'message' => 'Task Created Successfully.'
+        ]);
     } 
 
     public function view(Task $task)
     {
-        return view('totem.tasks.view', [
+        return response()->json([
             'task'  => $task,
+            'results'  => $task->results->count() > 0 ? number_format(  $task->results->sum('duration') / (1000 * $task->results->count()) , 2) : '0',
+            'CronExpression'  => $task->getCronExpression() ?? null
         ]);
     }
 
     public function edit(Task $task)
     {
-        return view('totem.tasks.form', [
+        return response()->json([
             'task'          => $task,
             'commands'      => Totem::getCommands(),
             'timezones'     => timezone_identifiers_list(),
@@ -69,17 +78,62 @@ class TasksController extends Controller
     {
         $task = Task::update($request->all(), $task);
 
-        return redirect()->route('totem.task.view', $task)
-            ->with('task', $task)
-            ->with('success', trans('totem.messages.success.update'));
+        return response()->json([
+            'status' => true,
+            'message' => 'Task Updated Successfully.'
+        ]); 
     }
  
-    public function destroy(Task $task)
+    public function destroy($task, Request $request)
     {
-        Task::destroy($task);
+        if($task){
+            $task->delete();
+            return response()->json([
+                'status' => true,
+                'message' => 'Task Deleted Successfully.'
+            ]);    
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'Task Not Founf.'
+            ]);
+        }
+    } 
+ 
+    public function status($task, Request $request)
+    {
+        if($task){
+            if($task->is_active){
+                DB::table('crontasks')->where('id', $task->id)->update([
+                    'is_active' => 1
+                ]);
+                $msg = 'Task Activated Successfully.';
+            }else{
+                DB::table('crontasks')->where('id', $task->id)->update([
+                    'is_active' => 0
+                ]);
+                $msg = 'Task Deactivated Successfully.';
+            }
+            return response()->json([
+                'status' => true,
+                'message' => $msg
+            ]);    
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'Task Not Found.'
+            ]);
+        }
+    } 
+ 
+    public function execute(Task $task)
+    {
+        File::put(storage_path('tasks.json'), Task::all()->toJson());
 
-        return redirect()
-            ->route('totem.tasks.all')
-            ->with('success', trans('totem.messages.success.delete'));
+        return response()
+            ->download(storage_path('tasks.json'), 'tasks.json')
+            ->deleteFileAfterSend(true);
     }
+
+
 }

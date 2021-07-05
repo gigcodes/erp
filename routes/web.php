@@ -3106,12 +3106,11 @@ Route::middleware('auth')->prefix('totem_new')->group(function() {
         Route::get('{task}/edit', 'TasksController@edit')->name('totem.task.edit');
         Route::post('{task}/edit', 'TasksController@update');
 
-        Route::delete('{task}', 'TasksController@destroy')->name('totem.task.delete');
+        Route::post('{task}/delete', 'TasksController@destroy')->name('totem.task.delete');
 
-        Route::post('status', 'ActiveTasksController@store')->name('totem.task.activate');
-        Route::delete('status/{id}', 'ActiveTasksController@destroy')->name('totem.task.deactivate');
+        Route::post('{task}/status', 'TasksController@status')->name('totem.task.status'); 
 
-        Route::get('{task}/execute', 'ExecuteTasksController@index')->name('totem.task.execute');
+        // Route::get('{task}/execute', 'TasksController@execute')->name('totem.task.execute'); // done
     });
 
 });

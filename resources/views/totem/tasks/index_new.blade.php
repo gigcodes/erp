@@ -86,7 +86,10 @@ table tr td {
                         <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
                         <a href="{{ route('totem.tasks.all') }}" class="fa fa-refresh" aria-hidden="true"></a>
                     </div>
-                </form>
+                    <button type="button" class="btn btn-default btn-sm add-remark" data-toggle="modal" data-target="#addEditTaskModal">
+                        <span class="glyphicon glyphicon-th-plus"></span> Add Task
+                    </button>
+                </form> 
             </div>
         </div>
     </div>	
@@ -134,12 +137,12 @@ table tr td {
                                     <span class="uk-float-right uk-hidden@s uk-text-muted">Next Run</span>
                                 </td>
                                 <td class="uk-text-center@m">
-                                    <a style="padding:1px;" class="btn  d-inline btn-image view-task" href="#" data-id="{{$task->id}}" id="link" title="View log"><img src="/images/view.png" style="cursor: nwse-resize; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn  d-inline btn-image view-task" href="#" data-id="{{$task->id}}" id="link" title="View log"><img src="/images/edit.png" style="cursor: nwse-resize; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn  d-inline btn-image view-task" href="#" data-id="{{$task->id}}" id="link" title="View log"><img src="/images/delete.png" style="cursor: nwse-resize; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn  d-inline btn-image view-task" href="#" data-id="{{$task->id}}" id="link" title="View log"><img src="/images/send.png" style="cursor: nwse-resize; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn  d-inline btn-image view-task" href="#" data-id="{{$task->id}}" id="link" title="View log"><img src="/images/{{ $task->is_active ? 'flagged' : 'flagged-green'}}.png" style="cursor: nwse-resize; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn  d-inline btn-image view-task" href="#" data-id="{{$task->id}}" id="link" title="View log"><img src="/images/history.png" style="cursor: nwse-resize; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn  d-inline btn-image view-task" href="#" data-id="{{$task->id}}" id="link" title="view task"><img src="/images/view.png" style="cursor: pointer; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn  d-inline btn-image edit-task" href="#" data-id="{{$task->id}}" id="link" title="edit task"><img src="/images/edit.png" style="cursor: pointer; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn  d-inline btn-image delete-task" href="#" data-id="{{$task->id}}" id="link" title="delete task"><img src="/images/delete.png" style="cursor: pointer; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn  d-inline btn-image execute-task" href="#" data-id="{{$task->id}}" id="link" title="execute Task"><img src="/images/send.png" style="cursor: pointer; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn  d-inline btn-image active-task" href="#" data-id="{{$task->id}}" id="link" title="task status"><img src="/images/{{ $task->is_active ? 'flagged-green' : 'flagged'}}.png" style="cursor: pointer; width: 0px;"></a>
+                                    <!-- <a style="padding:1px;" class="btn  d-inline btn-image view-task" href="#" data-id="{{$task->id}}" id="link" title=""><img src="/images/history.png" style="cursor: pointer; width: 0px;"></a> -->
                                 </td>
                             </tr>
                             @endforeach
@@ -152,24 +155,407 @@ table tr td {
         </div>
     </div>
 
+
+    <div class="modal fade" id="view_task_modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Task details</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form method="POST" enctype="multipart/form-data">
+                <div class="table-responsive mt-2">
+                    <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;">
+                        <thead>
+                        <tr>
+                            <th width="5%">Description</th>
+                            <th width="5%">Command</th>
+                            <th width="5%">Parameters</th> 
+                            <th width="5%">Cron Expression</th> 
+                            <th width="5%">Timezone</th> 
+                            <th width="5%">Created At</th> 
+                            <th width="5%">Updated At</th> 
+                            <th width="5%">Email Notification</th> 
+                            <th width="5%">SMS Notification</th> 
+                            <th width="5%">Slack Notification</th> 
+                            <th width="5%">Average Run Time</th> 
+                            <th width="5%">Next Run Schedule</th>  
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>  
+            </form>
+            <br>
+            <h4 class="modal-title notes d-none">Notes</h4>
+
+                <li class="dont_overlap d-none">
+                    <span class="uk-float-left">Doesn't Overlap with another instance of this task</span><br>
+                </li>
+                <li class="run_in_maintenance d-none">
+                    <span class="uk-float-left">Runs in maintenance mode</span><br>
+                </li>
+                <li class="run_on_one_server d-none">
+                    <span class="uk-float-left">Runs on a single server<br>
+                </li>
+        
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+        </div>
+    </div>
+    </div>
+
+    <div id="addFrequencyModal" class="modal fade" role="dialog" style="z-index: 999999999">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Add Frequency</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <select id="frequency" class="form-control select2" placeholder="Select a type of frequency">
+                            @foreach (collect($frequencies) as $key => $frequency)
+                                <option value="{{ json_encode($frequency) }}">{{$frequency['label']}}</option>
+                            @endforeach
+                        </select>
+                    </div>   
+                </div>  
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-default add_freq">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>  
+
+
+
+    <div id="addEditTaskModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Create Task</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <form class="taskForm" action="/" method="POST">
+                    <div class="modal-body">
+                        @csrf
+                        <div class="form-group">
+                            <label>Description</label><i class="fa fa-info-circle" title="Provide a descriptive name for your task"></i>
+                            <input class="form-control" placeholder="e.g. Daily Backups" name="description" id="description" value="" type="text">
+                            <p class="d-none"></p>
+                        </div>
+                        <div class="form-group">
+                            <label>Command</label><i class="fa fa-info-circle" title="Select an artisan command to schedule"></i>
+                            <select id="command" name="command" class="form-control select2" placeholder="Click here to select one of the available commands">
+                                <option value="">Select a command</option>
+                                @forelse ($commands as $k => $command)
+                                <optgroup label="{{$command->getName()}}">
+                                    <option value="{{$command->getName()}}">
+                                        {{$command->getDescription()}}
+                                    </option>
+                                </optgroup>
+                                <p class="d-none"></p>
+                                @empty
+                                @endforelse
+                            </select>
+                        </div>  
+                        <div class="form-group">
+                            <label>Parameters (Optional)</label><i class="fa fa-info-circle" title="Command parameters required to run the selected command"></i>
+                            <input class="form-control" placeholder="e.g. --type=all for options or name=John for arguments" name="parameters" id="parameters" value="" type="text">
+                            <p class="d-none"></p>
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <label>Timezone</label><i class="fa fa-info-circle" title="Select a timezone for your task. App timezone is selected by default"></i>
+                            <select id="timezone" name="timezone" class="form-control select2" placeholder="Select a timezone">
+                                @foreach ($timezones as $key => $timezone)
+                                    <option value="{{$timezone}}">
+                                        {{$timezone}}
+                                    </option>
+                                <p class="d-none"></p>
+                                @endforeach
+                            </select>
+                        </div> 
+                        <div class="form-group">
+                            <label>Type</label><i class="fa fa-info-circle" title="Choose whether to define a cron expression or to add frequencies"></i><br>
+                            <label>
+                                <input type="radio" name="type" value="expression"> Expression
+                            </label>
+                            <label>
+                                <input type="radio" name="type" value="frequency"> Frequencies
+                            </label>
+                        </div> 
+                        <div class="form-group">
+                            <label>CRON EXPRESSION</label><i class="fa fa-info-circle" title="Add a cron expression for your task"></i><br>
+                            <input class="form-control" placeholder="e.g * * * * * to run this task all the time" name="expression" id="expression" value="" type="text">
+                         </div> 
+                        <div class="form-group">
+                            <label>FREQUENCIES</label><i class="fa fa-info-circle" title="Add frequencies to your task. These frequencies will be converted into a cron expression while scheduling the task"></i><br>
+                            <button type="button" class="btn btn-default btn-sm add-remark" data-toggle="modal" data-target="#addFrequencyModal">Add Frequency</button>
+                            <table class="uk-table uk-table-divider uk-margin-remove">
+                                <thead>
+                                    <tr>
+                                        <th>Frequency</th> 
+                                        <th>Parameters</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="freq">
+                                    <td class="default_td">No Frequencies Found</td>
+                                </tbody>
+                            </table>
+                        </div> 
+
+                        <hr> 
+                        <div class="form-group">
+                            <label>Email Notification (optional)</label><i class="fa fa-info-circle" title="Add an email address to receive notifications when this task gets executed. Leave empty if you do not wish to receive email notifications"></i>
+                            <input id="email" class="form-control" placeholder="e.g. john.doe@name.tld" name="notification_email_address" value="" type="text">
+                            <p class="d-none"></p>
+                        </div>
+                        <div class="form-group">
+                            <label>SMS Notification (optional)</label><i class="fa fa-info-circle" title="Add a phone number to receive SMS notifications. Leave empty if you do not wish to receive sms notifications"></i>
+                            <input  id="phone" placeholder="e.g. 18701234567" class="form-control" name="notification_phone_number" value="" type="text">
+                            <p class="d-none"></p>
+                        </div>
+                        <div class="form-group">
+                            <label>Slack Notification (optional)</label><i class="fa fa-info-circle" title="Add a slack web hook url to recieve slack notifications. Phone numbers should include country code and are digits only. Leave empty if you do not wish to receive slack notifications"></i>
+                            <input  id="slack" placeholder="e.g. https://hooks.slack.com/TXXXXX/BXXXXX/XXXXXXXXXX" class="form-control" name="notification_slack_webhook" value="" type="text">
+                            <p class="d-none"></p>
+                        </div> 
+                        <hr>
+                        <div class="form-group">
+                            <label>Miscellaneous Options</label>
+                            <br>
+                            <input type="hidden" name="dont_overlap" id="dont_overlap" value="0" {{old('dont_overlap', $task->dont_overlap) ? '' : 'checked'}}>
+                            <input type="checkbox" name="dont_overlap" id="dont_overlap" value="1" {{old('dont_overlap', $task->dont_overlap) ? 'checked' : ''}}>Don't Overlap
+                            <i class="fa fa-info-circle" title="Add a slack web hook url to recieve slack notifications. Phone numbers should include country code and are digits only. Leave empty if you do not wish to receive slack notifications"></i>
+                            <br>
+                            
+                            <input type="hidden" name="dont_overlap" id="dont_overlap" value="0" {{old('dont_overlap', $task->dont_overlap) ? '' : 'checked'}}>
+                            <input type="checkbox" name="dont_overlap" id="dont_overlap" value="1" {{old('dont_overlap', $task->dont_overlap) ? 'checked' : ''}}>Run in maintenance mode
+                            <i class="fa fa-info-circle" title="Add a slack web hook url to recieve slack notifications. Phone numbers should include country code and are digits only. Leave empty if you do not wish to receive slack notifications"></i>
+                            <br>
+                            
+                            <input type="hidden" name="dont_overlap" id="dont_overlap" value="0" {{old('dont_overlap', $task->dont_overlap) ? '' : 'checked'}}>
+                            <input type="checkbox" name="dont_overlap" id="dont_overlap" value="1" {{old('dont_overlap', $task->dont_overlap) ? 'checked' : ''}}>Run on a single server
+                            <i class="fa fa-info-circle" title="Add a slack web hook url to recieve slack notifications. Phone numbers should include country code and are digits only. Leave empty if you do not wish to receive slack notifications"></i>
+                             
+                            <p class="d-none"></p>
+                        </div>  
+                        <hr>
+                        <div class="form-group">
+                            <label>Cleanup Options</label><i class="fa fa-info-circle" title="Determine if an over-abundance of results will be removed after a set limit or age. Set non-zero value to enable."></i>
+                            <input class="form-control" name="auto_cleanup_num" value="0" type="number"><br>
+                                    <label>
+                                        <input type="radio" name="auto_cleanup_type" value="days" {{old('auto_cleanup_type', $task->auto_cleanup_type) !== 'results' ? '' : 'checked'}}> Days
+                                    </label><br>
+                                    <label>
+                                        <input type="radio" name="auto_cleanup_type" value="results" {{old('auto_cleanup_type', $task->auto_cleanup_type) === 'results' ? '' : 'checked'}}> Results
+                                    </label>
+                            <p class="d-none"></p>
+                        </div>  
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-default">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+      </div>  
+
 @endsection
 @section('scripts')
 
 <script type="text/javascript"> 
- $(document).on("click",".view-task",function(e) {
+    $(document).on("click",".view-task",function(e) {
+        $.ajax({
+            type: "GET",
+            url: "/totem_new/tasks/"+$(this).data('id'), 
+            dataType : "json",
+            success: function (response) {
+                console.log('Task => ', response.task);
+                var html_content = '';
+                html_content += '<tr class="supplier-10">';      
+                html_content += '<td>' + response.task.description.substring(0, 80) + '</td>';
+                html_content += '<td>' + response.task.command + '</td>';
+                var parameters = response.task.parameters != null ? response.task.parameters : 'N/A';
+                html_content += '<td>' + parameters + '</td>';
+                html_content += '<td>' + response.CronExpression + '</td>'; 
+                html_content += '<td>' + response.task.timezone + '</td>';
+                html_content += '<td>' + response.task.created_at + '</td>';
+                html_content += '<td>' + response.task.updated_at + '</td>';
+                var notification_email_address = response.task.notification_email_address == null ? 'N/A' : response.task.notification_email_address;
+                html_content += '<td>' + notification_email_address + '</td>';
+                var notification_phone_number = response.task.notification_phone_number == null ? 'N/A' : response.task.notification_phone_number;
+                html_content += '<td>' + notification_phone_number + '</td>';
+                var notification_slack_webhook = response.task.notification_slack_webhook == null ? 'N/A' : response.task.notification_slack_webhook;
+                html_content += '<td>' + notification_slack_webhook + '</td>';
+                html_content += '<td>' + response.results + ' seconds' + '</td>';
+                html_content += '<td>' + response.task.upcoming + '</td>';
+                html_content += '</tr>';
 
-    var url = $(this).data('url');
-    $.ajax({
-        type: "GET",
-        url: url, 
-        dataType : "json",
-        success: function (response) {
+                if(response.task.dont_overlap || response.task.run_in_maintenance || response.task.run_on_one_server){
+                    $("#view_task_modal .notes").removeClass('d-none');                   
+                }
+
+                if(response.task.dont_overlap){
+                    $("#view_task_modal .dont_overlap").removeClass('d-none');                   
+                }
+
+                if(response.task.run_in_maintenance){
+                    $("#view_task_modal .run_in_maintenance").removeClass('d-none');                   
+                }
+
+                if(response.task.run_on_one_server){
+                    $("#view_task_modal .run_on_one_server").removeClass('d-none');                   
+                }
+                $("#view_task_modal tbody").html(html_content);                   
+                $('#view_task_modal').modal('show');   
+            },
+            error: function () {
+                toastr['error']('Something went wrong!');
+            }
+        });
+    }); 
+
+    $(document).on("click",".execute-task",function(e) {
+        $.ajax({
+            type: "GET",
+            url: "/totem/tasks/"+$(this).data('id')+"/execute", 
+            dataType : "json",
+            success: function (response) {
+                toastr['success']('Task executed successfully!');
+                console.log(response);
+            },
+            error: function () {
+                toastr['error']('Something went wrong!');
+            }
+        });
+    }); 
+
+    $(document).on("click",".delete-task",function(e) {
+        if(confirm('Do you really want to delete this task?')){
+            $.ajax({
+            type: "POST",
+            url: "/totem_new/tasks/"+$(this).data('id')+"/delete", 
+            data: {
+				_token: "{{ csrf_token() }}", 
+            }, 
+            dataType : "json",
+            success: function (response) {
+                if(response.status){
+                    toastr['success'](response.message);
+                }else{
+                    toastr['error'](response.message);
+                }
+                setTimeout(function(){
+                    window.location.reload(1);
+                }, 1000);
             
-        },
-        error: function () {
-            // toastr['error']('Message not sent successfully!');
+            },
+            error: function () {
+                toastr['error']('Something went wrong!');
+            }
+        });
         }
-    });
-    });
+    }); 
+
+    $(document).on("click",".active-task",function(e) {
+        $.ajax({
+            type: "POST",
+            url: "/totem_new/tasks/"+$(this).data('id')+"/status", 
+            data: {
+				_token: "{{ csrf_token() }}", 
+            }, 
+            dataType : "json",
+            success: function (response) {
+                if(response.status){
+                    toastr['success'](response.message);
+                }else{
+                    toastr['error'](response.message);
+                }
+                setTimeout(function(){
+                    window.location.reload(1);
+                }, 1000);
+            
+            },
+            error: function () {
+                toastr['error']('Something went wrong!');
+            }
+        });
+    });  
+
+    $(document).on("click",".edit-task",function(e) {
+        $.ajax({
+            type: "GET",
+            url: "/totem_new/tasks/"+$(this).data('id')+"/edit",  
+            dataType : "json",
+            success: function (response) {
+                console.log(response);
+                if(response.status){
+                    toastr['success'](response.message);
+                }else{
+                    toastr['error'](response.message);
+                }
+            },
+            error: function () {
+                toastr['error']('Something went wrong!');
+            }
+        });
+    }); 
+
+    $('#frequency').change(function(){
+        $('.added_params').remove();
+        let params = JSON.parse($(this).val());
+        if(params.parameters){
+            console.log(params);
+            let html = '';
+            for(let i=0; i<params.parameters.length; i++){
+                html += `
+                <div class="form-group added_params">
+                    <input type="text" value="" name="${params.parameters[i].name}" placeholder="${params.parameters[i].label}" class="form-control">
+                </div> 
+                `;
+            }
+            $(this).closest('.modal-body').append(html);
+        }
+    }); 
+
+    $('.add_freq').click(function(){
+        $('.default_td').remove();
+        let freq_type = JSON.parse($('#addFrequencyModal').find('select').val()).label;
+        let input_fields = $('#addFrequencyModal').find('input');
+        for(let i=0; i<input_fields.length; i++){
+            alert($(input_fields[i]).val());
+            let tr = `
+                    <tr>
+                    <input type="hidden" name="frequencies[${i}][interval]" value="${$(input_fields[i]).val()}">
+                    <input type="hidden" name="frequencies[${i}][label]" value="${$(input_fields[i]).val()}">
+
+                    <td data-id="${i}">${freq_type}</td>
+                    <td data-id="${i}">${$(input_fields[i]).val()}</td>
+                    <td>
+                        <a class="remove_td_${i}">
+                            <i class="fa fa-window-close"></i>
+                        </a>
+                    </td>
+                    </tr>
+            `;
+            console.log(tr);
+            $('.freq').append(tr);
+        }
+    }); 
+ 
 </script>
 @endsection
