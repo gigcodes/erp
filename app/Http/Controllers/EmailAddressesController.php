@@ -8,6 +8,8 @@ use App\StoreWebsite;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
+use App\Exports\EmailFailedReport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EmailAddressesController extends Controller
 {
@@ -164,6 +166,7 @@ class EmailAddressesController extends Controller
         return response()->json(['data' => $history]);
     }
 
+
     public function getRelatedAccount(Request $request)
     {
         $adsAccounts  = \App\GoogleAdsAccount::where("account_name", $request->id)->get();
@@ -219,5 +222,60 @@ class EmailAddressesController extends Controller
 
         return view("email-addresses.partials.task", compact('accounts'));
 
+    }
+
+    public function getErrorEmailHistory(Request $request)
+    {
+        $EmailHistory = EmailRunHistories::has('email_address')
+            ->where('is_success', 0)
+            ->whereDate('created_at', Carbon::today())
+            ->with('email_address')
+            ->get();
+        
+        $history = '';
+        
+        if (sizeof($EmailHistory) > 0) {
+            foreach ($EmailHistory as $row) {
+                $status  = ($row->is_success == 0) ? "Failed" : "Success";
+                $message = $row->message??'-';
+                $history .= '<tr>
+                <td>' . $row->id . '</td>
+                <td>' . optional($row->email_address)->from_name . '</td>
+                <td>' . $status . '</td>
+                <td>' . $message . '</td>
+                <td>' . $row->created_at->format('Y-m-d H:i:s') . '</td>
+                </tr>';
+            }
+        } else {
+            $history .= '<tr>
+                    <td colspan="5">
+                        No Result Found
+                    </td>
+                </tr>';
+        }
+
+        return response()->json(['data' => $history]);
+    }
+
+    public function downloadFailedHistory(Request $request){
+
+        $histories = EmailRunHistories::has('email_address')
+            ->where('is_success', 0)
+            ->whereDate('created_at', Carbon::today())
+            ->with('email_address')
+            ->get();
+
+        $recordsArr = []; 
+        foreach($histories as $row){
+            $recordsArr[] = [
+                'id'         => $row->id,
+                'from_name'  => optional($row->email_address)->from_name,
+                'status'     => ($row->is_success == 0) ? "Failed" : "Success",
+                'message'    => $row->message??'-',
+                'created_at' => $row->created_at->format('Y-m-d H:i:s'),
+            ];
+        }
+        $filename = 'Report-Email-failed'.'.csv';
+        return Excel::download(new EmailFailedReport($recordsArr),$filename);
     }
 }
