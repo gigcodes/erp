@@ -180,6 +180,10 @@
             </form>
         </div>
     </div>
+
+    @include("partials.customer-new-ticket")
+    
+    
 @endsection
 
 @section('scripts')
