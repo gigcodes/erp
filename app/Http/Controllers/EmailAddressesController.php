@@ -21,7 +21,9 @@ class EmailAddressesController extends Controller
     public function index(Request $request)
     {
         $query = EmailAddress::query();
+        
         $query->select('email_addresses.*', DB::raw('(SELECT is_success FROM email_run_histories WHERE email_address_id = email_addresses.id Order by id DESC LIMIT 1) as is_success'));
+
         $columns = ['from_name', 'from_address', 'driver', 'host', 'port', 'encryption'];
 
         if ($request->keyword) {
@@ -226,24 +228,24 @@ class EmailAddressesController extends Controller
 
     public function getErrorEmailHistory(Request $request)
     {
-        $EmailHistory = EmailRunHistories::has('email_address')
-            ->where('is_success', 0)
-            ->whereDate('created_at', Carbon::today())
-            ->with('email_address')
+        $histories = EmailAddress::whereHas('history_last_message',function($query){
+                $query->where('is_success', 0);
+            })
+            ->with('history_last_message')
             ->get();
         
         $history = '';
         
-        if (sizeof($EmailHistory) > 0) {
-            foreach ($EmailHistory as $row) {
-                $status  = ($row->is_success == 0) ? "Failed" : "Success";
-                $message = $row->message??'-';
+        if($histories) {
+            foreach ($histories as $row) {
+                $status  = ($row->history_last_message->is_success == 0) ? "Failed" : "Success";
+                $message = $row->history_last_message->message??'-';
                 $history .= '<tr>
-                <td>' . $row->id . '</td>
-                <td>' . optional($row->email_address)->from_name . '</td>
+                <td>' . $row->history_last_message->id . '</td>
+                <td>' . $row->from_name . '</td>
                 <td>' . $status . '</td>
                 <td>' . $message . '</td>
-                <td>' . $row->created_at->format('Y-m-d H:i:s') . '</td>
+                <td>' . $row->history_last_message->created_at->format('Y-m-d H:i:s') . '</td>
                 </tr>';
             }
         } else {
@@ -259,20 +261,21 @@ class EmailAddressesController extends Controller
 
     public function downloadFailedHistory(Request $request){
 
-        $histories = EmailRunHistories::has('email_address')
-            ->where('is_success', 0)
-            ->whereDate('created_at', Carbon::today())
-            ->with('email_address')
+        
+        $histories = EmailAddress::whereHas('history_last_message',function($query){
+                $query->where('is_success', 0);
+            })
+            ->with('history_last_message')
             ->get();
 
         $recordsArr = []; 
         foreach($histories as $row){
             $recordsArr[] = [
-                'id'         => $row->id,
-                'from_name'  => optional($row->email_address)->from_name,
-                'status'     => ($row->is_success == 0) ? "Failed" : "Success",
-                'message'    => $row->message??'-',
-                'created_at' => $row->created_at->format('Y-m-d H:i:s'),
+                'id'         => $row->history_last_message->id,
+                'from_name'  => $row->from_name,
+                'status'     => ($row->history_last_message->is_success == 0) ? "Failed" : "Success",
+                'message'    => $row->history_last_message->message??'-',
+                'created_at' => $row->history_last_message->created_at->format('Y-m-d H:i:s'),
             ];
         }
         $filename = 'Report-Email-failed'.'.csv';
