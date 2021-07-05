@@ -27,20 +27,20 @@
         @include("partials.flash_messages")
         <div class="col-lg-12 margin-tb">
             <div>
-                <table class="table table-bordered" style="table-layout:fixed;">
+                <table class="table table-bordered" style="table-layout:fixed;" style="width: 100%">
                     <tr>
                         <th style="width:5%;">Sr No</th>
-                        <th style="width:30%;">Product Id</th>
-                        <th style="width:20%;">Search Image</th>
+                        <th style="width:10%;">Product Id</th>
                         <th style="width:35%;">Product Name</th>
-                        <th style="width:10%;">Action</th>
+                        <th style="width:20%;">Search Image</th>
+                        <th style="width:30%;">Action</th>
                     </tr>
                     @foreach ($image_search as $key => $img_src)
                         <tr>
                             <td>{{ ++$key }}</td>
                             <td>{{ $img_src->product_id }}</td>
-                            <td><img src="{{ asset('uploads/'.$img_src->crop_image) }}" style="cursor: default; height: 100px;"></td>
                             <td>{{ $img_src->product_name }}</td>
+                            <td><img src="{{ asset('uploads/'.$img_src->crop_image) }}" style="cursor: default; height: 100px;"></td>
                             <td>
                                 <div class="d-flex">
                                     <button title="Open Images" type="button" class="btn preview-attached-img-btn btn-image no-pd" data-id="{{ $img_src->id }}" data-images="{{ $img_src->googleSearchRelatedImages }}">

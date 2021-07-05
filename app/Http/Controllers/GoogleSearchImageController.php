@@ -294,11 +294,13 @@ class GoogleSearchImageController extends Controller
                         $google_img->save();
 
                     }
+                }else{
+                    return response()->json(['status' => false, 'message' => "Image Not Found"]);
                 }
             };
-            
+
             return response()->json(['status' => true, 'message' => "Search Successfully"]);
-            
+
             // Return view
             // return view('google_search_image.details', compact(['productImage', 'product_id', 'product']));
         } else {
