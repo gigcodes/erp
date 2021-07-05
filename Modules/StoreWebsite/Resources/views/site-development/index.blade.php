@@ -368,11 +368,11 @@
 					<table class="table table-bordered" style="table-layout:fixed;">
 						<thead>
 							<tr>
-								<th style="width:5%;">Sl no</th>
+								<th style="width:4%;">S no</th>
 								<th style="width:20%;">Category</th>
-								<th style="width:15%;">By</th>
-								<th style="width:30%;">Remarks</th>
-								<th style="width:30%;">Communication</th>
+								<th style="width:21%;">By</th>
+								<th style="width:27%;">Remarks</th>
+								<th style="width:28%;">Communication</th>
 							</tr>
 						</thead>
 						<tbody class="latest-remarks-list-view">
@@ -1004,8 +1004,7 @@
 
 			$("#remark-area-list").find("#remark-field").data("id", id);
 			$("#remark-area-list").find(".remark-action-list-view").html(html);
-			$("#remark-area-list").modal("show");
-			$("#latest-remarks-modal").modal("hide");
+			$("#remark-area-list").modal("show").css('z-index',1051);
 			//$this.closest("tr").remove();
 		}).fail(function(jqXHR, ajaxOptions, thrownError) {
 			toastr["error"]("Oops,something went wrong");
