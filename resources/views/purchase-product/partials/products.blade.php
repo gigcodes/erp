@@ -100,7 +100,10 @@
               <input type="hidden" name="product_id" class="product_id" />
               <input type="hidden" name="order_id" class="order_id" />
               <div class="show_excel_send_data">
-                <a class="download_excel_url" style="cursor: pointer;" target="_blank" ><i class="fa fa-download" aria-hidden="true"></i> Download Excel File</a><br/><br/>
+                <a class="download_excel_url" style="cursor: pointer;" target="_blank" ><i class="fa fa-download" aria-hidden="true"></i> Download Excel File</a>
+                <br/><br/>
+                <a class="edit_excel_file" style="cursor: pointer;" target="_blank" ><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit Excel File</a>
+                <br/><br/>
 
                 <textarea class="form-control additional_content" id="additional_content" rows="7" placeholder="Additional Content"></textarea><br/>
 
