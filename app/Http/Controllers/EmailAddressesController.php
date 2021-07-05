@@ -64,14 +64,16 @@ class EmailAddressesController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'from_name'    => 'required|string|max:255',
-            'from_address' => 'required|string|max:255',
-            'driver'       => 'required|string|max:255',
-            'host'         => 'required|string|max:255',
-            'port'         => 'required|string|max:255',
-            'encryption'   => 'required|string|max:255',
-            'username'     => 'required|string|max:255',
-            'password'     => 'required|string|max:255',
+            'from_name'      => 'required|string|max:255',
+            'from_address'   => 'required|string|max:255',
+            'driver'         => 'required|string|max:255',
+            'host'           => 'required|string|max:255',
+            'port'           => 'required|string|max:255',
+            'encryption'     => 'required|string|max:255',
+            'username'       => 'required|string|max:255',
+            'password'       => 'required|string|max:255',
+            'recovery_phone' => 'required|string|max:255',
+            'recovery_email' => 'required|string|max:255',
         ]);
 
         $data = $request->except('_token');
@@ -102,14 +104,16 @@ class EmailAddressesController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'from_name'    => 'required|string|max:255',
-            'from_address' => 'required|string|max:255',
-            'driver'       => 'required|string|max:255',
-            'host'         => 'required|string|max:255',
-            'port'         => 'required|string|max:255',
-            'encryption'   => 'required|string|max:255',
-            'username'     => 'required|string|max:255',
-            'password'     => 'required|string|max:255',
+            'from_name'      => 'required|string|max:255',
+            'from_address'   => 'required|string|max:255',
+            'driver'         => 'required|string|max:255',
+            'host'           => 'required|string|max:255',
+            'port'           => 'required|string|max:255',
+            'encryption'     => 'required|string|max:255',
+            'username'       => 'required|string|max:255',
+            'password'       => 'required|string|max:255',
+            'recovery_phone' => 'required|string|max:255',
+            'recovery_email' => 'required|string|max:255',
         ]);
 
         $data = $request->except('_token');
@@ -139,7 +143,10 @@ class EmailAddressesController extends Controller
         $EmailHistory = EmailRunHistories::where('email_run_histories.email_address_id', $request->id)
             ->whereDate('email_run_histories.created_at', Carbon::today())
             ->join('email_addresses', 'email_addresses.id', 'email_run_histories.email_address_id')
-            ->select(['email_run_histories.*', 'email_addresses.from_name'])->get();
+            ->select(['email_run_histories.*', 'email_addresses.from_name'])
+            ->latest()
+            ->get();
+
         $history = '';
         if (sizeof($EmailHistory) > 0) {
             foreach ($EmailHistory as $runHistory) {

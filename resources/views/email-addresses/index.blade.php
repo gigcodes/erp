@@ -45,6 +45,8 @@
             <th>ID</th>
             <th>From Name</th>
             <th>From Address</th>
+            <th>Recovery Phone</th>
+            <th>Recovery Email</th>
             <th>Driver</th>
             <th>Host</th>
             <th>Port</th>
@@ -66,6 +68,12 @@
               </td>
               <td>
                   {{ $server->from_address }}
+              </td>
+              <td>
+                  {{ $server->recovery_phone }}
+              </td>
+              <td>
+                  {{ $server->recovery_email }}
               </td>
               <td>
                   {{ $server->driver }}
@@ -134,6 +142,27 @@
               <div class="alert alert-danger">{{$errors->first('from_address')}}</div>
             @endif
           </div>
+
+
+          <div class="form-group">
+            <strong>Recovery Phone:</strong>
+            <input type="text" name="recovery_phone" class="form-control" value="{{ old('recovery_phone') }}" required>
+
+            @if ($errors->has('recovery_phone'))
+              <div class="alert alert-danger">{{$errors->first('recovery_phone')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Recovery Email:</strong>
+            <input type="text" name="recovery_email" class="form-control" value="{{ old('recovery_email') }}" required>
+
+            @if ($errors->has('recovery_email'))
+              <div class="alert alert-danger">{{$errors->first('recovery_email')}}</div>
+            @endif
+          </div>
+
+
 			<div class="form-group">
             	<strong>Store Website:</strong>
 				<Select name="store_website_id" class="form-control">
@@ -267,6 +296,28 @@
               <div class="alert alert-danger">{{$errors->first('from_address')}}</div>
             @endif
           </div>
+
+
+          <div class="form-group">
+            <strong>Recovery Phone:</strong>
+            <input type="text" name="recovery_phone" class="form-control" value="{{ old('recovery_phone') }}" required>
+
+            @if ($errors->has('recovery_phone'))
+              <div class="alert alert-danger">{{$errors->first('recovery_phone')}}</div>
+            @endif
+          </div>
+
+
+          <div class="form-group">
+            <strong>Recovery Email:</strong>
+            <input type="text" name="recovery_email" class="form-control" value="{{ old('recovery_email') }}" required>
+
+            @if ($errors->has('recovery_email'))
+              <div class="alert alert-danger">{{$errors->first('recovery_email')}}</div>
+            @endif
+          </div>
+
+
 		  <div class="form-group">
             	<strong>Store Website:</strong>
 				<Select name="store_website_id" id="edit_store_website_id" class="form-control">
@@ -405,6 +456,9 @@
 
       $('#emailAddressEditModal').find('input[name="username"]').val(emailAddress.username);
       $('#emailAddressEditModal').find('input[name="password"]').val(emailAddress.password);
+
+      $('#emailAddressEditModal').find('input[name="recovery_phone"]').val(emailAddress.recovery_phone);
+      $('#emailAddressEditModal').find('input[name="recovery_email"]').val(emailAddress.recovery_email);
 	  
 	  $('#edit_store_website_id').val(emailAddress.store_website_id).trigger('change');
 

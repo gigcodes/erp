@@ -1589,6 +1589,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     
 
     Route::resource('email-addresses', 'EmailAddressesController');
+    
     Route::post('email/getemailhistory/{id}', 'EmailAddressesController@getEmailAddressHistory');
     Route::get('email/get-related-account/{id}', 'EmailAddressesController@getRelatedAccount');
     Route::post('supplier/block', 'SupplierController@block')->name('supplier.block');

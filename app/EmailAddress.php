@@ -34,6 +34,8 @@ class EmailAddress extends Model
     'username',
     'password',
     'store_website_id',
+    'recovery_phone',
+    'recovery_email',
   ];
   
    public function website()
