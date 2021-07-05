@@ -2,7 +2,8 @@
 @if($type == 'inquiry')
 <button class="btn btn-secondary btn-xs pull-right btn-send" data-type="{{$type}}" data-id="{{$supplier_id}}">Send</button>
 @elseif($type == 'order')
-<button class="btn btn-secondary btn-xs pull-right btn_send_modal" data-toggle="modal" data-target="#send_supp_modal" data-type="{{$type}}" data-id="{{$supplier_id}}">Send</button>
+<button class="btn btn-secondary btn-xs btn-secondary pull-right btn_send_modal" data-toggle="modal" data-target="#send_supp_modal" data-type="{{$type}}" data-id="{{$supplier_id}}">Send</button>
+<button class="btn btn-secondary btn-xs btn-secondary pull-right btn_set_template mr-1" data-toggle="modal" data-target="#set_template_modal" data-type="{{$type}}" data-id="{{$supplier_id}}">Template</button>
 @endif
 <div class="table-responsive mt-2">
       <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;table-layout:fixed">
@@ -99,7 +100,10 @@
               <input type="hidden" name="product_id" class="product_id" />
               <input type="hidden" name="order_id" class="order_id" />
               <div class="show_excel_send_data">
-                <a class="download_excel_url" style="cursor: pointer;" target="_blank" ><i class="fa fa-download" aria-hidden="true"></i> Download Excel File</a><br/><br/>
+                <a class="download_excel_url" style="cursor: pointer;" target="_blank" ><i class="fa fa-download" aria-hidden="true"></i> Download Excel File</a>
+                <br/><br/>
+                <a class="edit_excel_file" style="cursor: pointer;" target="_blank" ><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit Excel File</a>
+                <br/><br/>
 
                 <textarea class="form-control additional_content" id="additional_content" rows="7" placeholder="Additional Content"></textarea><br/>
 
@@ -111,6 +115,34 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary send_excel_btn">Send</button>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="set_template_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Template</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form> 
+      <div class="modal-body">
+             
+              <input type="hidden" name="type" class="type_template" />
+              <input type="hidden" name="supplier_id" class="supplier_id_template" />
+             
+              <textarea class="form-control template_data" id="template_data" rows="7" placeholder="Template">{product_data}</textarea><br/>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary send_template_btn">save</button>
       </div>
       </form>
     </div>
