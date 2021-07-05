@@ -411,8 +411,9 @@
                     type: 'POST',
                     data: formData,
                     beforeSend: function () {
+                        hideCrop();
                         $("#loading-image").show();
-                        toastr.error("please wait");
+                        // toastr.error("please wait");
 
                     },
                     success: function (response) {
