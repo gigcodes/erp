@@ -656,7 +656,7 @@ class Product extends Model
 
     public function many_scraped_products()
     {
-        return $this->hasMany('App\ScrapedProducts', 'product_id', 'id');
+        return $this->hasMany('App\ScrapedProducts', 'sku', 'sku');
     }
 
     public function user()
