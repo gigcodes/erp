@@ -25,7 +25,7 @@ class MediaObserver
     public static function updateBits($media)
     { 
         $ref_file = $media->getUrl(); 
-        if(@file_get_contents($ref_file)){
+        if(@file_get_contents($ref_file) && $media->aggregate_type == "image"){
             $i1 = CompareImagesHelper::createImage($ref_file);
             $i1 = CompareImagesHelper::resizeImage($i1,$ref_file);
             imagefilter($i1, IMG_FILTER_GRAYSCALE);

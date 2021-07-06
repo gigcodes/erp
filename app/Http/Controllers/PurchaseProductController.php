@@ -30,6 +30,11 @@ use App\PurchaseProductOrderLog;
 use App\PurchaseProductOrderImage;
 use App\Setting;
 use App\SupplierOrderTemplate;
+use App\PurchaseProductOrderExcelFile;
+use App\Imports\CustomerNumberImport;
+use File;
+use App\Exports\FileExcelExport;
+use App\PurchaseProductOrderExcelFileVersion;
 
 class PurchaseProductController extends Controller
 {
@@ -1256,7 +1261,254 @@ class PurchaseProductController extends Controller
             return response()->json(['message' => 'Successfull','code' => 200]);
         }
     }
+
+    public function edit_excel_file(Request $request)
+    {
+        $type = $request->type;
+        $supplier_id = $request->supplier_id;
+        $product_id = $request->product_id;
+        $order_id = $request->order_id;
+
+        $supplier = Supplier::find($supplier_id);            
+        $path = "order_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_order_exports.xlsx";
+       
+        $product_ids = explode(",",$product_id);
+        $order_ids = explode(",",$order_id);
+
+        Excel::store(new EnqueryExport($product_ids,$order_ids,$path), $path, 'files');
+
+        $params = [
+            'excel_path' => $path,
+            'supplier_id' => $supplier_id,
+            'created_by' => \Auth::id(),
+        ];
+
+        $add_rec = PurchaseProductOrderExcelFile::create($params);
+
+        $add_rec_id = $add_rec->id;
+
+        return response()->json(['message' => 'Successfull','code' => 200,'excel_id' => $add_rec_id]);
+    }
+
+    public function open_excel_file(Request $request,$excel_id,$version = null)
+    {
+
+        if($version)
+        {
+            $log = PurchaseProductOrderExcelFileVersion::where('excel_id',$excel_id)->where('file_version',$version)->first();
+            $id          = $log->excel_id;
+            $name = $log->file_name;
+        }else{
+            $log = PurchaseProductOrderExcelFile::find($excel_id);
+            $id = $excel_id;
+            $name        = $log->excel_path;
+        }
+
+       
+
+        $isExists = File::exists(storage_path('app/files/') . $name);
+        $info  = '';
+        if( $isExists == true)
+        {
+            $info        = new \SplFileInfo(storage_path('app/files/') . $name);
+        }
+        
+
+        $file_found = '';
+        
+
+        if($info == ''){
+            $file_found = 'not_found';
+           
+        }
+
+        $excel_array = Excel::toArray(new CustomerNumberImport, $info);
+
+
+        $filter_arr = array();
+
+        foreach ($excel_array as $key => $item)
+        {
+            foreach ($item as $kk => $vv)
+            {
+               
+                foreach ($vv as $k => $v)
+                {
+                    if($kk != 0)
+                    $filter_arr['sheet_'.$key.'_'.$kk][$k] = $v;
+                    
+                }
+            }
+        }
+
+
+        $version_excel = PurchaseProductOrderExcelFileVersion::where('excel_id',$id)->orderBy('id', 'ASC')->get();
+
+        $version_excel_data = array();
+        if(!empty($version_excel))
+        {
+            foreach ($version_excel as $key => $item)
+            {
+                $version_excel_data[] = $item;
+            }
+        }
+
+        return view('purchase-product.partials.open_excel_file',compact('excel_array','filter_arr','file_found','name','id','version_excel_data','version'));
+
+    }
+
+    public function update_excel_sheet(Request $request)
+    {
+        $form_data = json_decode($request->form_data, true);	
+       
+        $file_name = $request->file_name;
+
+        $log_excel_imports_id = $request->log_excel_imports_id;
+        
+        $file_name_data = explode("/",$file_name);
+
+        if(count($file_name_data) > 1)
+            $location = $file_name_data[0].'/';
+        else
+            $location = '';
+
+        
+        if($form_data){
+            $head  = 0;
+            $excel_data = array();
+            $checkbox_arr = array();
+            foreach ($form_data as $key => $item)
+            {
+                if($item['name'] == "checkbox")
+                {
+                    $checkbox_arr[] = $item['value'];
+                }else{
+                    if($item['name'] == '0' || $item['name'] == 'head_0')
+                    {
+                        $head++;
+                    }
+                    $data = explode("_",$item['name']);
+                    if($data[0] == "head")
+                    {
+                        $excel_data[$head][] =  $item['value'];
+                    }else{
+                        $excel_data[$head][] =  $item['value'];
+                    }
+                }
+            }
+        }
+
+        foreach($checkbox_arr as $k1 => $v1)
+        {
+            unset($excel_data[$v1]);
+        }
+
+        $path = $location . Carbon::now()->format('Y-m-d-H-m-s') . "_order_exports.xlsx";
+
+        $total_sheet = array();
+        
+        Excel::store(new FileExcelExport($excel_data,$total_sheet,$path), $path, 'files');
+
+
+        $get_record = PurchaseProductOrderExcelFileVersion::where('excel_id',$log_excel_imports_id)->count();
+
+        
+        $data['excel_id'] = $log_excel_imports_id;
+
+        if($get_record == 0){
+            $first_v_data['file_name'] = $file_name;
+            $first_v_data['file_version'] = 1;
+            $first_v_data['excel_id'] = $log_excel_imports_id;
+            $create_first_version = PurchaseProductOrderExcelFileVersion::create($first_v_data);
+
+            // $path_data = explode(".",$path);
+
+            $data['file_name'] = $path;
+            $data['file_version'] = 2;
+            $create_version = PurchaseProductOrderExcelFileVersion::create($data);
+        }
+        else{
+            // $path_data = explode(".",$path);
+            $data['file_name'] = $path;
+            $data['file_version'] = $get_record + 1;
+
+            $create_version = PurchaseProductOrderExcelFileVersion::create($data);
+        }
+
+        return response()->json(['message' => 'Excel File Updated Successfully','code' => 200], 200);
+    }
+
+    public function get_excel_data_supplier_wise(Request $request)
+    {
+        $supplier_id =  $request->supplier_id;
+
+        $get_data = PurchaseProductOrderExcelFile::where('supplier_id',$supplier_id)->orderBy('id', 'DESC')->get();
+
+        $get_version_data = PurchaseProductOrderExcelFileVersion::get();
+
+        $get_version_data_arr = array();
+        foreach($get_version_data as $key => $val){
+            $get_version_data_arr[$val['excel_id']][] = $val['file_version'];
+        }
+
+
+        $get_final_arr = array();
+        foreach($get_data as $key => $val){
+            
+            $get_final_arr[$key]['excel_name'] = $val['id'];
+            
+            if (array_key_exists($val['id'],$get_version_data_arr))
+            {
+                $get_final_arr[$key]['excel_version'] = $get_version_data_arr[$val['id']];
+            }
+        }
+
+        // dd($get_final_arr);
+
+
+        return response()->json(['code' => 200,'get_final_arr' => $get_final_arr ], 200);
+    }
     
+    public function send_excel_file(Request $request)
+    {
+        $supplier_id =  $request->supplier_id;
+        $excel_id =  $request->excel_id;
+        $version =  $request->version;
+        
+
+        $supplier = Supplier::find($supplier_id);
+        
+        if($version != 'no'){
+            $data = PurchaseProductOrderExcelFileVersion::where('excel_id',$excel_id)->where('file_version',$version)->first();
+            $path = $data->file_name;
+        }else{
+            $data = PurchaseProductOrderExcelFile::where('id',$excel_id)->first();
+            $path = $data->excel_path;
+        }
+        
+        $subject = 'Product order';
+        $message = 'Please check below product order request';
+    
+        $emailClass = (new PurchaseExport($path, $subject, $message))->build();
+
+        $email             = Email::create([
+            'model_id'         => $supplier_id,
+            'model_type'       => Supplier::class,
+            'from'             => 'buying@amourint.com',
+            'to'               => $supplier->email,
+            'subject'          => $subject,
+            'message'          => $message,
+            'template'         => 'purchase-simple',
+            'additional_data'  => json_encode(['attachment' => [$path]]),
+            'status'           => 'pre-send',
+            'is_draft'         => 0,
+        ]);
+
+        \App\Jobs\SendEmail::dispatch($email);
+        
+        return response()->json(['code' => 200,'message' => 'Email Send Successfully' ], 200);
+    }
+
     public function download_excel_file(Request $request)
     {
         $file = $request->filename;
@@ -1277,12 +1529,21 @@ class PurchaseProductController extends Controller
 
     public function set_template(Request $request)
     {
-        $params = [
+        // $params = [
+        //     'supplier_id' => $request->supplier_id,
+        //     'template' => $request->template_data,
+        //     'user_id' => \Auth::id(),
+        // ];
+
+        // $set_template = SupplierOrderTemplate::create($params);
+
+        $storeWebsiteProduct = \App\SupplierOrderTemplate::updateOrCreate([
+            "supplier_id" => $request->supplier_id,
+        ], [
             'supplier_id' => $request->supplier_id,
             'template' => $request->template_data,
             'user_id' => \Auth::id(),
-        ];
-        $set_template = SupplierOrderTemplate::create($params);
+        ]);
 
         return response()->json(['message' => 'Template Updated Successfully','code' => 200]);
     }

@@ -860,6 +860,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/update-product-status', 'GoogleSearchImageController@updateProductStatus')->name('google.product.status');
         Route::post('product-by-image', 'GoogleSearchImageController@getProductFromImage')->name('google.product.image');
     });
+    Route::get('/product-search-image', 'GoogleSearchImageController@searchImageList')->name('google.search.product.image');
 
     Route::prefix('search-image')->group(function () {
         Route::get('/', 'GoogleSearchImageController@product')->name('google.search.product');
@@ -1101,6 +1102,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('purchase-product/download_excel_file', 'PurchaseProductController@download_excel_file')->name('purchase-product.download_excel_file');//Purpose : Set route for Excel - DEVTASK-4236
     Route::post('purchase-product/set_template', 'PurchaseProductController@set_template')->name('purchase-product.set_template');//Purpose : Set route for Template - DEVTASK-4236
     Route::get('purchase-product/get_template', 'PurchaseProductController@get_template')->name('purchase-product.get_template');//Purpose : Set route for Template - DEVTASK-4236
+    Route::post('purchase-product/edit_excel_file', 'PurchaseProductController@edit_excel_file')->name('purchase-product.edit_excel_file');//Purpose : Set route for Excel - DEVTASK-4236
+    Route::get('purchase-product/openfile/{excel_id?}/{version?}', 'PurchaseProductController@open_excel_file')->name('purchase-product.openfile');
+    Route::post('purchase-product/update_excel_sheet', 'PurchaseProductController@update_excel_sheet')->name('purchase-product.update_excel_sheet');
+    Route::get('purchase-product/get_excel_data_supplier_wise', 'PurchaseProductController@get_excel_data_supplier_wise')->name('purchase-product.get_excel_data_supplier_wise');
+    Route::post('purchase-product/send_excel_file', 'PurchaseProductController@send_excel_file')->name('purchase-product.send_excel_file');
 
 
     Route::post('purchase-product/change-status/{id}', 'PurchaseProductController@changeStatus');
@@ -1594,11 +1600,21 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     
 
     Route::resource('email-addresses', 'EmailAddressesController');
+    
+    Route::post('email/geterroremailhistory', 'EmailAddressesController@getErrorEmailHistory');
+
+    Route::get('email/failed/download/history', 'EmailAddressesController@downloadFailedHistory')->name('email.failed.download');
+
     Route::post('email/getemailhistory/{id}', 'EmailAddressesController@getEmailAddressHistory');
+    
     Route::get('email/get-related-account/{id}', 'EmailAddressesController@getRelatedAccount');
+    
     Route::post('supplier/block', 'SupplierController@block')->name('supplier.block');
+    
     Route::post('supplier/saveImage', 'SupplierController@saveImage')->name('supplier.image');;
+    
     Route::post('supplier/change-status', 'SupplierController@changeStatus');
+    
     Route::post('supplier/change/category', 'SupplierController@changeCategory')->name('supplier/change/category');
     Route::post('supplier/change/status', 'SupplierController@changeSupplierStatus')->name('supplier/change/status');
     Route::post('supplier/change/subcategory', 'SupplierController@changeSubCategory')->name('supplier/change/subcategory');
