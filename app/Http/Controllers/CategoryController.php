@@ -819,6 +819,8 @@ class CategoryController extends Controller
             $category->title       = $request->input('title');
             $category->magento_id  = $request->input('magento_id');
             $category->show_all_id = $request->input('show_all_id');
+            $category->need_to_check_measurement = $request->need_to_check_measurement ? 1 :0;
+            $category->need_to_check_size = $request->need_to_check_size ? 1 :0;
             if ($request->has('category_segment_id')) {
                 $category->category_segment_id = $request->category_segment_id;
             }

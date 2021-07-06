@@ -426,7 +426,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('category/references/used-products', 'CategoryController@usedProducts');
     Route::post('category/references/update-reference', 'CategoryController@updateReference');
-    Route::get('category/references', 'CategoryController@mapCategory');
+    Route::get('category/references', 'CategoryController@mapCategory')->name('category.map-category');
     Route::post('category/references', 'CategoryController@saveReferences');
     Route::post('category/references/affected-product', 'CategoryController@affectedProduct');
     Route::post('category/references/affected-product-new', 'CategoryController@affectedProductNew');

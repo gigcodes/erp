@@ -1113,8 +1113,7 @@ class Product extends Model
             }
             
             $this->save();
-        }else if ((empty($this->lmeasurement) && empty($this->hmeasurement) && empty($this->dmeasurement) && !empty($parentcate)) 
-            && (in_array($this->category,self::BAGS_CATEGORY_IDS) || in_array($parentcate,self::BAGS_CATEGORY_IDS))
+        }else if (!($this->category > 0 && $this->categories && $this->categories->need_to_check_measurement)
         ) {
             $this->status_id = StatusHelper::$unknownMeasurement;
             $this->sub_status_id = null;
@@ -1131,7 +1130,7 @@ class Product extends Model
 
             // if validation pass and status is still external scraper then remove and put for the auto crop
             if($this->status_id == StatusHelper::$requestForExternalScraper) {
-                if(empty($this->size_eu)) {
+                if(!($this->category > 0 && $this->categories && $this->categories->need_to_check_size)) {
                    $this->status_id =  StatusHelper::$unknownSize;
                    $this->sub_status_id = null;
                    $this->save();

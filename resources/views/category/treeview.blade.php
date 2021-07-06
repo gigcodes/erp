@@ -4,9 +4,19 @@
         {{-- <button id="show-sub1">click</button> --}}
 
         {{-- <div class="container"> --}}
+            <div class="row my-4">
+                <div class="col-lg-12 margin-tb">
+                    <div class="">
+                        <h2 class="page-heading text-center"> Category </h2>
+                    </div>
+                </div>
+            </div>
 
-        <div class="d-flex justify-content-end">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#category-popup">
+
+        <div class="d-flex justify-content-between mb-3 mx-4">
+
+            <a href="{{ route('category.map-category') }}" class="btn btn-secondary my-0">Edit References</a>
+            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#category-popup">
                 Add category
             </button>
         </div>
@@ -17,7 +27,7 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h3>Add New Category</h3>
+                        <h4>Add New Category</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -54,16 +64,18 @@
                             {!! Form::text('show_all_id', old('show_all_id'), ['class' => 'form-control', 'placeholder' => 'Enter Show All Id']) !!}
                             <span class="text-danger">{{ $errors->first('show_all_id') }}</span> --}}
 
-                            <label for="category_show_all_id">Show all Id:</label>
+                            <label for="category_show_all_id">Show All Id:</label>
                             <input type="text" class="form-control" id="category_show_all_id" name="show_all_id"
                                 placeholder="Enter Show All Id" required>
 
                         </div>
 
                         <div class="form-group">
+                            <label for="cat_category_segment_id">Select Category Segment:</label>
+
                             {{-- {!! Form::label('Category Segment:') !!}
                             {!! Form::select('category_segment_id', $category_segments, old('category_segment_id'), ['class' => 'form-control', 'placeholder' => 'Select Category Segment']) !!} --}}
-                            <select name="category_segment_id" id="category_segment_id">
+                            <select class="form-control" name="category_segment_id" id="category_segment_id">
                                 <option>Select Category Segment</option>
                                 @foreach ($category_segments as $k=> $catSeg)
                                 
@@ -79,11 +91,21 @@
                             <?php echo $allCategoriesDropdown; ?>
                             <span class="text-danger">{{ $errors->first('parent_id') }}</span>
                         </div>
-
+                        <div class="d-flex justify-content-between form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
+                            <div>
+                                <input type="checkbox" id="need_to_check_measurement" name="need_to_check_measurement" value="1">
+                                <label for="need_to_check_measurement"> Need to Check Measurement</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="need_to_check_size" name="need_to_check_size" value="1">
+                                <label for="need_to_check_size"> Need to Check Size</label>
+                            </div>
+                        </div>
+                        
 
                         <div class="form-group d-flex justify-content-between">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button class="btn btn-primary">Create</button>
+                            <button class="btn btn-secondary">Create</button>
                         </div>
                     </form>
                     </div>
@@ -97,7 +119,7 @@
             <div class="modal-dialog" role="document">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLongTitle">Edit category</h5>
+                  <h4 class="modal-title" id="exampleModalLongTitle">Edit category</h4>
                   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                   </button>
@@ -117,7 +139,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="edit_category_show_all_id">Show all Id:</label>
+                            <label for="edit_category_show_all_id">Show All Id:</label>
                             <input type="text" class="form-control" id="edit_category_show_all_id" name="show_all_id"
                                 placeholder="Enter Show All Id">
                         </div>
@@ -127,7 +149,7 @@
                             {{-- <input type="text" class="form-control" id="cat_category_segment_id" name="category_segment_id"
                                 placeholder="Enter Show All Id"> --}}
                      {{-- {{ dd($category_segments) }}    --}}
-                            <select name="category_segment_id" id="edit_category_segment_id">
+                            <select class="form-control" class="form-control" name="category_segment_id" id="edit_category_segment_id">
                                 <option>Select Category Segment</option>
                                 @foreach ($category_segments as $k=> $catSeg)
                                 
@@ -137,9 +159,25 @@
                         
                         </div>
 
+                        <div class="form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
+                            {!! Form::label('Category:') !!}
+                            {{-- {!! Form::select('parent_id',$allCategories, old('parent_id'), ['class'=>'form-control', 'placeholder'=>'Select Category']) !!} --}}
+                            <?php echo $allCategoriesDropdown; ?>
+                            <span class="text-danger">{{ $errors->first('parent_id') }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
+                            <div>
+                                <input type="checkbox" id="edit_need_to_check_measurement" name="need_to_check_measurement" >
+                                <label for="edit_need_to_check_measurement"> Need to Check Measurement</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="edit_need_to_check_size" name="need_to_check_size" >
+                                <label for="edit_need_to_check_size"> Need to Check Size</label>
+                            </div>
+                        </div>  
                         <div class="form-group d-flex justify-content-between">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary edit-category-submit-btn" >Edit</button>
+                            <button type="submit" class="btn btn-secondary edit-category-submit-btn" >Edit</button>
                         </div>
 
                     </form>
@@ -148,32 +186,32 @@
               </div>
             </div>
           </div>
-
-
-        <div class="table-responsive mt-3">
-            <table class="table table-bordered">
+          
+          <div class="col-md-12 margin-tb">
+            <div class="table-responsive">
+                <table class="table table-bordered" style="table-layout:fixed;">
                 <tr>
-                    <th width="10%">ID</th>
-                    <th width="40%">Name</th>
-                    <!-- <th width="40%">Logo</th> -->
-                    <th width="10%">Created At</th>
-                    <th width="10%">Action</th>
+                    <th  style="width: 10%">Id</th>
+                    <th style="width: 50%" >Name</th>
+                    <!-- <th style="width: 10%" width="40%">Logo</th> -->
+                    <th style="width: 20%" >Created At</th>
+                    <th style="width: 20%" >Action</th>
                 </tr>
 
                 @foreach ($categories as $key => $cat)
                     <tr class="parent-cat">
-                        <td class="index">{{ $key + 1 }}</td>
-                        <td class="brand_name" data-id="{{ $cat->title }}">{{ $cat->title }}
+                        <td class="index font-weight-bold">{{ $key + 1 }}</td>
+                        <td class="brand_name font-weight-bold" data-id="{{ $cat->title }}">{{ $cat->title }}
                             ({{ count($cat->childs) }})</td>
-                        <td class="created_at">{{ $cat->created_at }}</td>
+                        <td class="created_at font-weight-bold">{{ $cat->created_at }}</td>
 
                         <td>
                             <button type="button" class="btn  no-pd show-sub-category" data-id="{{ $cat->id }}"
                                 data-name="{{ $cat->id }}">
-                                <img src="/images/forward.png" style="cursor: default;" width="16px">
+                                <img src="/images/forward.png" style="cursor: pointer;" width="16px">
                             </button>
                             <button type="button" class="btn category_edit_popup" data-id="{{ $cat->id }}">
-                                <img src="/images/edit.png" style="cursor: default; width: 16px;">
+                                <img src="/images/edit.png" style="cursor: pointer; width: 16px;">
                             </button>
                         </td>   
                     </tr>
@@ -188,7 +226,7 @@
                 </tr> --}}
                 @endforeach
             </table>
-            {{-- </div> --}}
+            </div>
         </div>
 
         <script type="text/javascript">
@@ -216,25 +254,25 @@
 
 
                                 let html =
-                                    '<td colspan="4"><h5 class="text-center">Child category</h5><table style="width:100%; ">';
+                                    '<td colspan="4" class="px-5"><h5 class="text-center">Child category</h5><table style="width:100%; ">';
 
                                 response.forEach((element, key) => {
                                     html += `
         
                                         <tr class="parent-cat" colspan="4">
                                     
-                                            <td class="index"> ${key+1} </td>
-                                            <td class="brand_name" data-id="${element.id}">${element.title} (${element.child_level_sencond.length})</td>
-                                            <td class="created_at">${element.created_at}</td>
+                                            <td class="index" style="width: 10%"> ${key+1} </td>
+                                            <td class="brand_name  style="width: 50%" data-id="${element.id}">${element.title} (${element.child_level_sencond.length})</td>
+                                            <td class="created_at" style="width: 20%">${element.created_at}</td>
                                         
-                                            <td>
+                                            <td  style="width: 20%">
                                                 <button type="button" class="btn  no-pd show-sub-category"
                                                             data-id="${ element.id }" data-name="${ element.id }">
-                                                            <img src="/images/forward.png" style="cursor: default;" width="16px">
+                                                            <img src="/images/forward.png" style="cursor: pointer" width="16px">
                                                 </button>
                                                 <button type="button" class="btn  category_edit_popup" data-id="${element.id}"
                                                 >
-                                                    <img src="/images/edit.png" style="cursor: default; width: 16px;">
+                                                    <img src="/images/edit.png" style="cursor: pointer; width: 16px;">
                                                 </button>
                                             </td>
                                         </tr>
@@ -277,11 +315,14 @@
                         'dataId': dataId,
                     },
                     success: function(response) {
-                        console.log(response,'respose')
+                    console.log(response,'respose')
                     edited_data_id = response.id
                     $('#edit_title_category').val(response.title)
                     $('#edit_category_magento_id').val(response.magento_id)
-                    $('#edit_category_show_all_id').val(response.category_segment_id?.id ?? null);
+                    $('#edit_category_show_all_id').val(response.show_all_id);
+                    $('#edit_category_segment_id').val(response.category_segment_id?.id ?? null);
+                    $('#edit_need_to_check_measurement').attr('checked', response.need_to_check_measurement ? true :false);
+                    $('#edit_need_to_check_size').attr('checked', response.need_to_check_size? true: false);
                     $('#editCategoryModal').modal('show')
                     },
                     error: function(response) {
@@ -306,7 +347,8 @@
                     dataType: "json",
                     data:$('#edit-category-form').serialize() ,
                     success: function(response) {
-                        $('#editCategoryModal').modal('hide')
+                        location.reload()
+                        // $('#editCategoryModal').modal('hide')
                     },
                     error: function(response) {
                     }
