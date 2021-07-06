@@ -78,13 +78,14 @@ class SendQueuePendingChatMessagesGroup extends Command
 
 
          $numberList = [$this->argument('number')];
-
+         \Log::info("send:queue-pending-chat-group-messages ".$this->argument('number')." : Number found while sending request from the group ".$this->argument('number'));
 
 
 
         // get the status for approval
         $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();
         $limit          = ChatMessage::getQueueLimit();
+        \Log::info("send:queue-pending-chat-group-messages ".$this->argument('number')." : Message is approve {$approveMessage} and limit found as  ".json_encode($limit));
 
         // if message is approve then only need to run the queue
         if ($approveMessage == 1) {
@@ -100,6 +101,8 @@ class SendQueuePendingChatMessagesGroup extends Command
                 }
             }
 
+            \Log::info("send:queue-pending-chat-group-messages ".$this->argument('number')." : waiting limit is as below  ".json_encode($this->waitingMessages));
+
 
             if (!empty($numberList)) {
                 $groups = ChatMessage::where('is_queue', ">", 0)->where("group_id", ">", 0)->groupBy("group_id")->pluck("group_id")->toArray();
@@ -109,6 +112,7 @@ class SendQueuePendingChatMessagesGroup extends Command
 
 
                     $sendLimit = isset($limit[$number]) ? $limit[$number] : 0;
+                    \Log::info("send:queue-pending-chat-group-messages ".$this->argument('number')." : sending limit found ".$sendLimit);
                     foreach ($groups as $group) {
                         // get the group list first
                         $chatMessage = ChatMessage::where('is_queue', ">", 0)
@@ -118,6 +122,8 @@ class SendQueuePendingChatMessagesGroup extends Command
                             ->select("chat_messages.*")
                             ->limit($sendLimit)
                             ->get();
+
+                        \Log::info("send:queue-pending-chat-group-messages ".$this->argument('number')." : Chat Message found  ".$chatMessage->count());    
 
                         if (!$chatMessage->isEmpty()) {
                             
@@ -157,6 +163,8 @@ class SendQueuePendingChatMessagesGroup extends Command
                                     // check message is full or not
                                     $isSendingLimitFull = isset($this->waitingMessages[$value->customer->whatsapp_number])
                                     ? $this->waitingMessages[$value->customer->whatsapp_number] : 0;
+
+                                    \Log::info("send:queue-pending-chat-group-messages ".$this->argument('number')." : Sending limit  ".$isSendingLimitFull." < ".config("apiwha.message_queue_limit", 100));    
                                     // if message queue is full then go for the next;
                                     if ($isSendingLimitFull >= config("apiwha.message_queue_limit", 100)) {
                                         continue;
