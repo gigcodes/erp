@@ -162,7 +162,7 @@ class WhatsappConfigController extends Controller
 
         $requestData = $request->all();
 
-        $defaultFor = implode(",", $requestData['default_for']);
+        $defaultFor = implode(",", isset($requestData['default_for']) ? $requestData['default_for'] : "");
 
         $data                        = $request->except('_token', 'id', 'default_for');
         $data['password']            = Crypt::encrypt($request->password);
