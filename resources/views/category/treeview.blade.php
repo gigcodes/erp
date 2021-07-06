@@ -1,182 +1,364 @@
-{{--<!DOCTYPE html>
-<html>
-<head>
-    <title>Category</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-
-</head>
-<body>
-<div class="container">
-</div>
-<script src="{{asset('js/treeview.js')}}"></script>
-</body>
-</html>--}}
-
     @extends('layouts.app')
 
     @section('content')
+        {{-- <button id="show-sub1">click</button> --}}
 
-    <link href="{{ asset('css/treeview.css') }}" rel="stylesheet">
-    <div class="panel panel-primary">
-        <div class="panel-heading">Manage Category</div>
-        <div class="panel-body">
-
-            @if ($message = Session::get('success'))
-                <div class="alert alert-success alert-block">
-                    <button type="button" class="close" data-dismiss="alert">×</button>
-                    <strong>{{ $message }}</strong>
+        {{-- <div class="container"> --}}
+            <div class="row my-4">
+                <div class="col-lg-12 margin-tb">
+                    <div class="">
+                        <h2 class="page-heading text-center"> Category </h2>
+                    </div>
                 </div>
-            @endif
+            </div>
 
-            <div class="row">
-                <div class="col-md-6">
-                    <h3>
-                        <img style="width: 15px;" src="{{ asset('images/edit.png') }}" alt="">
-                        <a href="{{ action('CategoryController@mapCategory') }}">Edit References</a>
-                    </h3>
-                    <h3>Category List</h3>
-                    <ul id="tree1">
-                        @foreach($categories as $category)
-                            <li>
-                                {{ $category->title }} ({{$category->id}}) <a href="javascript:;" data-id="{{ $category->id }}" data-name="{{ $category->title }}" data-simply-duty-code="{{ $category->simplyduty_code }}" class="edit-modal-window"><i class="fa fa-edit"></i></a> 
-                                @if(count($category->childs))
-                                    @include('category.manageChild',['childs' => $category->childs])
-                                @endif
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-                <div class="col-md-6">
-                        <h3>Add New Category</h3>
 
-                        {!! Form::open(['route'=>'add.category']) !!}
+        <div class="d-flex justify-content-between mb-3 mx-4">
 
+            <a href="{{ route('category.map-category') }}" class="btn btn-secondary my-0">Edit References</a>
+            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#category-popup">
+                Add category
+            </button>
+        </div>
+
+        <!-- Add category modal -->
+        <div class="modal fade" id="category-popup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4>Add New Category</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+
+                        {{-- {!! Form::open(['route' => 'a'dd.category'']) !!} --}}
+                    <form  method="POST" action="{{ route('add.category') }}">
+                        @csrf
                         <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
-                            {!! Form::label('Title:') !!}
-                            {!! Form::text('title', old('title'), ['class'=>'form-control', 'placeholder'=>'Enter Title']) !!}
-                            <span class="text-danger">{{ $errors->first('title') }}</span>
+                            {{-- {!! Form::label('Title:') !!}
+                            {!! Form::text('title', old('title'), ['class' => 'form-control', 'placeholder' => 'Enter Title']) !!}
+                            <span class="text-danger">{{ $errors->first('title') }}</span> --}}
+                            <label for="title_category">New Title</label>
+                            <input type="text" class="form-control" id="title_category" name="title" placeholder="Enter title" required >
+
+
                         </div>
 
                         <div class="form-group {{ $errors->has('magento_id') ? 'has-error' : '' }}">
-                            {!! Form::label('Magento Id:') !!}
-                            {!! Form::text('magento_id', old('magento_id'), ['class'=>'form-control', 'placeholder'=>'Enter Magento Id']) !!}
-                            <span class="text-danger">{{ $errors->first('magento_id') }}</span>
+                            {{-- {!! Form::label('Magento Id:') !!}
+                            {!! Form::text('magento_id', old('magento_id'), ['class' => 'form-control', 'placeholder' => 'Enter Magento Id']) !!}
+                            <span class="text-danger">{{ $errors->first('magento_id') }}</span> --}}
+
+                            <label for="category_magento_id">Magento Id:</label>
+                            <input type="text" class="form-control" id="category_magento_id" name="magento_id"
+                                placeholder="Enter Magento Id" required>
                         </div>
 
 
                         <div class="form-group {{ $errors->has('show_all_id') ? 'has-error' : '' }}">
-                            {!! Form::label('Show all Id:') !!}
-                            {!! Form::text('show_all_id', old('show_all_id'), ['class'=>'form-control', 'placeholder'=>'Enter Show All Id']) !!}
-                            <span class="text-danger">{{ $errors->first('show_all_id') }}</span>
+                            {{-- {!! Form::label('Show all Id:') !!}
+                            {!! Form::text('show_all_id', old('show_all_id'), ['class' => 'form-control', 'placeholder' => 'Enter Show All Id']) !!}
+                            <span class="text-danger">{{ $errors->first('show_all_id') }}</span> --}}
+
+                            <label for="category_show_all_id">Show All Id:</label>
+                            <input type="text" class="form-control" id="category_show_all_id" name="show_all_id"
+                                placeholder="Enter Show All Id" required>
+
                         </div>
 
                         <div class="form-group">
-                            {!! Form::label('Category Segment:') !!}
-                            {!! Form::select('category_segment_id', $category_segments, old('category_segment_id'), ['class'=>'form-control', 'placeholder'=>'Select Category Segment']) !!}
+                            <label for="cat_category_segment_id">Select Category Segment:</label>
+
+                            {{-- {!! Form::label('Category Segment:') !!}
+                            {!! Form::select('category_segment_id', $category_segments, old('category_segment_id'), ['class' => 'form-control', 'placeholder' => 'Select Category Segment']) !!} --}}
+                            <select class="form-control" name="category_segment_id" id="category_segment_id">
+                                <option>Select Category Segment</option>
+                                @foreach ($category_segments as $k=> $catSeg)
+                                
+                                <option value="{{ $k }}">{{ $catSeg }}</option>
+                                @endforeach
+                            </select>
+
                         </div>
 
                         <div class="form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
                             {!! Form::label('Category:') !!}
-                            {{--                        {!! Form::select('parent_id',$allCategories, old('parent_id'), ['class'=>'form-control', 'placeholder'=>'Select Category']) !!}--}}
+                            {{-- {!! Form::select('parent_id',$allCategories, old('parent_id'), ['class'=>'form-control', 'placeholder'=>'Select Category']) !!} --}}
                             <?php echo $allCategoriesDropdown; ?>
                             <span class="text-danger">{{ $errors->first('parent_id') }}</span>
                         </div>
-
-
-                        <div class="form-group">
-                            <button class="btn btn-secondary">+</button>
-                        </div>
-
-                        {!! Form::close() !!}
-
-                        <h3>Modify Category</h3>
-                        @if ($message = Session::get('error-remove'))
-                            <div class="alert alert-danger alert-block">
-                                <button type="button" class="close" data-dismiss="alert">×</button>
-                                <strong>{{ $message }}</strong>
+                        <div class="d-flex justify-content-between form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
+                            <div>
+                                <input type="checkbox" id="need_to_check_measurement" name="need_to_check_measurement" value="1">
+                                <label for="need_to_check_measurement"> Need to Check Measurement</label>
                             </div>
-                        @endif
-                        @if ($message = Session::get('success-remove'))
-                            <div class="alert alert-success alert-block">
-                                <button type="button" class="close" data-dismiss="alert">×</button>
-                                <strong>{{ $message }}</strong>
+                            <div>
+                                <input type="checkbox" id="need_to_check_size" name="need_to_check_size" value="1">
+                                <label for="need_to_check_size"> Need to Check Size</label>
                             </div>
-                        @endif
-                        {!! Form::open(['route'=>'category.remove']) !!}
-                        <div class="form-group">
-                            {!! Form::label('Category:') !!}
-			                <?php echo $allCategoriesDropdownEdit; ?>
-                            <span class="text-danger">{{ $errors->first('parent_id') }}</span>
                         </div>
-                        <div class="form-group">
-                            <button id="btn-edit-cat" class="btn btn-image"><img src="/images/edit.png" /></button>
-                            <button id="btn-delete-cat" class="btn btn-image"><img src="/images/delete.png" /></button>
+                        
+
+                        <div class="form-group d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button class="btn btn-secondary">Create</button>
                         </div>
-                        {!! Form::close() !!}
+                    </form>
+                    </div>
+                 
                 </div>
             </div>
+        </div>
 
+        {{-- Edit modal --}}
+        <div class="modal fade" id="editCategoryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="exampleModalLongTitle">Edit category</h4>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                    <form class="edit-category-form" id="edit-category-form" name="edit-category-form" method="POST" action="" >
+                        @csrf
+                        <div class="form-group">
+                            <label for="edit_title_category">New Title</label>
+                            <input type="text" class="form-control" id="edit_title_category" name="title" placeholder="Enter title"  required>
+                        </div>
 
+                        <div class="form-group">
+                            <label for="edit_category_magento_id">Magento Id:</label>
+                            <input type="number" class="form-control" id="edit_category_magento_id" name="magento_id"
+                            placeholder="Enter Magento Id" required>
+                        </div>
 
-            <div class="row">
+                        <div class="form-group">
+                            <label for="edit_category_show_all_id">Show All Id:</label>
+                            <input type="text" class="form-control" id="edit_category_show_all_id" name="show_all_id"
+                                placeholder="Enter Show All Id">
+                        </div>
 
+                        <div class="form-group">
+                            <label for="cat_category_segment_id">Select Category Segment</label>
+                            {{-- <input type="text" class="form-control" id="cat_category_segment_id" name="category_segment_id"
+                                placeholder="Enter Show All Id"> --}}
+                     {{-- {{ dd($category_segments) }}    --}}
+                            <select class="form-control" class="form-control" name="category_segment_id" id="edit_category_segment_id">
+                                <option>Select Category Segment</option>
+                                @foreach ($category_segments as $k=> $catSeg)
+                                
+                                <option value="{{ $k }}">{{ $catSeg }}</option>
+                                @endforeach
+                            </select>
+                        
+                        </div>
 
+                        <div class="form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
+                            {!! Form::label('Category:') !!}
+                            {{-- {!! Form::select('parent_id',$allCategories, old('parent_id'), ['class'=>'form-control', 'placeholder'=>'Select Category']) !!} --}}
+                            <?php echo $allCategoriesDropdown; ?>
+                            <span class="text-danger">{{ $errors->first('parent_id') }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
+                            <div>
+                                <input type="checkbox" id="edit_need_to_check_measurement" name="need_to_check_measurement" >
+                                <label for="edit_need_to_check_measurement"> Need to Check Measurement</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="edit_need_to_check_size" name="need_to_check_size" >
+                                <label for="edit_need_to_check_size"> Need to Check Size</label>
+                            </div>
+                        </div>  
+                        <div class="form-group d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-secondary edit-category-submit-btn" >Edit</button>
+                        </div>
+
+                    </form>
+                </div>
+               
+              </div>
             </div>
+          </div>
+          
+          <div class="col-md-12 margin-tb">
+            <div class="table-responsive">
+                <table class="table table-bordered" style="table-layout:fixed;">
+                <tr>
+                    <th  style="width: 10%">Id</th>
+                    <th style="width: 50%" >Name</th>
+                    <!-- <th style="width: 10%" width="40%">Logo</th> -->
+                    <th style="width: 20%" >Created At</th>
+                    <th style="width: 20%" >Action</th>
+                </tr>
 
+                @foreach ($categories as $key => $cat)
+                    <tr class="parent-cat">
+                        <td class="index font-weight-bold">{{ $key + 1 }}</td>
+                        <td class="brand_name font-weight-bold" data-id="{{ $cat->title }}">{{ $cat->title }}
+                            ({{ count($cat->childs) }})</td>
+                        <td class="created_at font-weight-bold">{{ $cat->created_at }}</td>
+
+                        <td>
+                            <button type="button" class="btn  no-pd show-sub-category" data-id="{{ $cat->id }}"
+                                data-name="{{ $cat->id }}">
+                                <img src="/images/forward.png" style="cursor: pointer;" width="16px">
+                            </button>
+                            <button type="button" class="btn category_edit_popup" data-id="{{ $cat->id }}">
+                                <img src="/images/edit.png" style="cursor: pointer; width: 16px;">
+                            </button>
+                        </td>   
+                    </tr>
+                    <tr class="add-childs">
+                    </tr>
+                    {{-- <tr class="expand-{{$cat->brands_id}} hidden">
+                    {{-- <tr class="expand-{{$cat->brands_id}} hidden">
+                    
+                    <td colspan="4" id="attach-image-list-{{$cat->brands_id}}" >
+                        
+                    </td>
+                </tr> --}}
+                @endforeach
+            </table>
+            </div>
         </div>
-    </div>
-    <div id="edit-category-modal" class="modal fade" role="dialog">
-      <div class="modal-dialog">
-        <!-- Modal content-->
-        <div class="modal-content">
-          <div class="modal-header">
-              <h4 class="modal-title"></h4>
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-          </div>
-          <div class="modal-body">
-            <form method="post" action="/category/save-form" id="category-save-form">
-              {{csrf_field()}}
-              <input type="hidden" name="id" value="" id="category-id"> 
-              <input type="text" class="form-control" placeholder="Entery HS code" name="simplyduty_code" value="" id="simplyduty-code-field">
-              <button type="button" class="btn btn-secondary btn-block mt-2" id="save-form">Save</button>`
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <script src="{{asset('js/treeview.js')}}"></script>
-    <script type="text/javascript">
-       $(document).on("click",".edit-modal-window",function(e) {
-            var modal = $("#edit-category-modal");
-            var $this = $(this);
-            modal.find(".modal-title").html("Edit " + $this.data("name"));
-            modal.find("#category-id").val($this.data("id"));
-            modal.find("#simplyduty-code-field").val($this.data("simply-duty-code"));
-            modal.modal("show");
-       });
 
-       $(document).on("click","#save-form",function() {
-            var form = $(this).closest("form");
-            $.ajax({
-                type: 'POST',
-                url: "/category/save-form",
-                data: form.serialize(),
-                beforeSend : function() {
-                    $("#loading-image").show();
-                },
-                dataType:"json"
-              }).done(function(response) {
-                    $("#loading-image").hide();
-                    toastr["success"](response.message);
-              }).fail(function(response) {
-                    $("#loading-image").hide();
-                    toastr["error"]("Oops,something went wrong");
-              });
-       });
+        <script type="text/javascript">
 
-    </script>
+            $(document).on('click', '.show-sub-category', function(e) {
+                var subCat = $(this).data('name');
+                $this = $(this)
+
+                $this.hasClass('show_child') ? $this.removeClass('show_child') : $this.addClass('show_child')
+
+                if ($this.hasClass('show_child')) {
+
+                    $.ajax({
+                        url: "{{ route('category.child-category') }}",
+                        method: 'GET',
+                        dataType: "json",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            'subCat': subCat,
+                        },
+                        success: function(response) {
+                            console.log(response, 'aaaaaaaaaaaaaa')
+
+                            if (response.length) {
+
+
+                                let html =
+                                    '<td colspan="4" class="px-5"><h5 class="text-center">Child category</h5><table style="width:100%; ">';
+
+                                response.forEach((element, key) => {
+                                    html += `
+        
+                                        <tr class="parent-cat" colspan="4">
+                                    
+                                            <td class="index" style="width: 10%"> ${key+1} </td>
+                                            <td class="brand_name  style="width: 50%" data-id="${element.id}">${element.title} (${element.child_level_sencond.length})</td>
+                                            <td class="created_at" style="width: 20%">${element.created_at}</td>
+                                        
+                                            <td  style="width: 20%">
+                                                <button type="button" class="btn  no-pd show-sub-category"
+                                                            data-id="${ element.id }" data-name="${ element.id }">
+                                                            <img src="/images/forward.png" style="cursor: pointer" width="16px">
+                                                </button>
+                                                <button type="button" class="btn  category_edit_popup" data-id="${element.id}"
+                                                >
+                                                    <img src="/images/edit.png" style="cursor: pointer; width: 16px;">
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr class="add-childs"> 
+                                                    
+                                                </tr>   
+`
+                                });
+                                html += '</table></td>'
+                                $this.closest('.parent-cat').next('.add-childs:first').html(html)
+                            } else {
+                                let html =
+                                    ' <td colspan="4"> <h5 class="text-center"> No child category available for this<h5> </td>'
+                                $this.closest('.parent-cat').next('.add-childs:first').html(html)
+
+                            }
+
+                        },
+                        error: function(response) {
+                        }
+                    });
+                } else {
+                    $this.closest('.parent-cat').next('.add-childs:first').empty()
+                }
+
+            });
+
+
+            let edited_data_id = null
+            $(document).on('click', '.category_edit_popup', function(e) {
+                e.preventDefault()
+                const dataId = $(this).data('id')
+
+                $.ajax({
+                    url: "{{ route('category.child-edit-category') }}",
+                    method: 'GET',
+                    dataType: "json",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        'dataId': dataId,
+                    },
+                    success: function(response) {
+                    console.log(response,'respose')
+                    edited_data_id = response.id
+                    $('#edit_title_category').val(response.title)
+                    $('#edit_category_magento_id').val(response.magento_id)
+                    $('#edit_category_show_all_id').val(response.show_all_id);
+                    $('#edit_category_segment_id').val(response.category_segment_id?.id ?? null);
+                    $('#edit_need_to_check_measurement').attr('checked', response.need_to_check_measurement ? true :false);
+                    $('#edit_need_to_check_size').attr('checked', response.need_to_check_size? true: false);
+                    $('#editCategoryModal').modal('show')
+                    },
+                    error: function(response) {
+                    }
+                });
+
+            })
+
+     
+
+            $(document).on('submit', '#edit-category-form', function(e) {
+
+                e.preventDefault()
+                const dataId = edited_data_id ?? null
+                console.log(dataId)
+                const form_data=  $('#edit-category-form').serialize();
+                console.log(dataId,'dataid')
+               
+                $.ajax({
+                    url: '/category/'+ dataId + '/edit-category',
+                    method: 'POST',
+                    dataType: "json",
+                    data:$('#edit-category-form').serialize() ,
+                    success: function(response) {
+                        location.reload()
+                        // $('#editCategoryModal').modal('hide')
+                    },
+                    error: function(response) {
+                    }
+                });
+
+
+
+
+            })
+
+        
+        </script>
     @endsection
