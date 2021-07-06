@@ -8,6 +8,9 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Email Addresses List</h2>
             <div class="pull-right">
+                
+                <button class="btn btn-secondary ml-3 error-email-history">View Errors</button>
+
                 <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#emailAddressModal">+</button>
             </div>
         </div>
@@ -99,7 +102,9 @@
               <td>@if($server->is_success == 1) {{ 'Success' }} @elseif(isset($server->is_success)) {{'Error'}} @else {{'-'}} @endif</td>
               <td>
                   <button type="button" class="btn btn-image edit-email-addresses d-inline"  data-toggle="modal" data-target="#emailAddressEditModal" data-email-addresses="{{ json_encode($server) }}"><img src="/images/edit.png" /></button>
+                  
                   <button type="button" class="btn btn-image view-email-history d-inline" data-id="{{ $server->id }}"><img width="2px;" src="/images/view.png"/></button>
+
                   {!! Form::open(['method' => 'DELETE','route' => ['email-addresses.destroy', $server->id],'style'=>'display:inline']) !!}
                     <button type="submit" class="btn btn-image d-inline"><img src="/images/delete.png" /></button>
                   {!! Form::close() !!}
@@ -264,6 +269,42 @@
 			</div>
 		</div>
 	</div>
+
+</div><div id="ErrorHistoryModal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        
+        <h4 class="modal-title">Email Error History</h4>
+        
+        <a class="btn btn-secondary ml-3" href="{{ route('email.failed.download') }}">Download</a>
+
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      
+      </div>
+      <div class="modal-body">
+        <div class="table-responsive mt-3">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>From Name</th>
+                <th>Status</th>
+                <th>Message</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+            </tbody>
+          </table>
+        </div>
+      </div>    
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="emailAddressEditModal" class="modal fade" role="dialog">
@@ -484,6 +525,28 @@
           // Show data in modal
           $('#EmailRunHistoryModal tbody').html(response.data);
           $('#EmailRunHistoryModal').modal('show');
+
+          $("#loading-image").hide();
+        }).fail(function(errObj) {
+          $("#loading-image").hide();
+        });
+    });
+
+    $(document).on('click', '.error-email-history', function(e) {
+        $.ajax({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: '/email/geterroremailhistory',
+          dataType: 'json',
+          type: 'post',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done( function(response) {
+          // Show data in modal
+          $('#ErrorHistoryModal tbody').html(response.data);
+          $('#ErrorHistoryModal').modal('show');
 
           $("#loading-image").hide();
         }).fail(function(errObj) {
