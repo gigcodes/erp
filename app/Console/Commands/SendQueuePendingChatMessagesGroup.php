@@ -65,7 +65,7 @@ class SendQueuePendingChatMessagesGroup extends Command
      */
     public function handle()
     {
-        $tempSettingData = DB::table('settings')->where('name','is_queue_sending_limit')->get();
+        $tempSettingData = \DB::table('settings')->where('name','is_queue_sending_limit')->get();
 
 
         //try {
