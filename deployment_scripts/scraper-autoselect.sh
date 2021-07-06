@@ -81,7 +81,7 @@ function scraper_restart
 	                ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep $scraperjs|grep -v grep|awk -v var=$server '{print var, \$1 , \$2/3600 , \$4}'" >> /opt/scrap_status 2>/dev/null < /dev/null 
 			date=`date +'%F-%T'`
 			day=`date +'%d'`
-			echo "$scraper s$server $date Endtime-$scraper-$day-s$server" >> /opt/scrap_history
+			echo "$scraper s$server $date Processing-$scraper-$day-s$server" >> /opt/scrap_history
 		fi
 		echo "Wait for 30 Seconds before starting another scrapper"
 		sleep 30
