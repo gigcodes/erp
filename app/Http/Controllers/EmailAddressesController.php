@@ -8,6 +8,8 @@ use App\StoreWebsite;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
+use App\Exports\EmailFailedReport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EmailAddressesController extends Controller
 {
@@ -19,7 +21,9 @@ class EmailAddressesController extends Controller
     public function index(Request $request)
     {
         $query = EmailAddress::query();
+        
         $query->select('email_addresses.*', DB::raw('(SELECT is_success FROM email_run_histories WHERE email_address_id = email_addresses.id Order by id DESC LIMIT 1) as is_success'));
+
         $columns = ['from_name', 'from_address', 'driver', 'host', 'port', 'encryption'];
 
         if ($request->keyword) {
@@ -164,6 +168,7 @@ class EmailAddressesController extends Controller
         return response()->json(['data' => $history]);
     }
 
+
     public function getRelatedAccount(Request $request)
     {
         $adsAccounts  = \App\GoogleAdsAccount::where("account_name", $request->id)->get();
@@ -219,5 +224,61 @@ class EmailAddressesController extends Controller
 
         return view("email-addresses.partials.task", compact('accounts'));
 
+    }
+
+    public function getErrorEmailHistory(Request $request)
+    {
+        $histories = EmailAddress::whereHas('history_last_message',function($query){
+                $query->where('is_success', 0);
+            })
+            ->with('history_last_message')
+            ->get();
+        
+        $history = '';
+        
+        if($histories) {
+            foreach ($histories as $row) {
+                $status  = ($row->history_last_message->is_success == 0) ? "Failed" : "Success";
+                $message = $row->history_last_message->message??'-';
+                $history .= '<tr>
+                <td>' . $row->history_last_message->id . '</td>
+                <td>' . $row->from_name . '</td>
+                <td>' . $status . '</td>
+                <td>' . $message . '</td>
+                <td>' . $row->history_last_message->created_at->format('Y-m-d H:i:s') . '</td>
+                </tr>';
+            }
+        } else {
+            $history .= '<tr>
+                    <td colspan="5">
+                        No Result Found
+                    </td>
+                </tr>';
+        }
+
+        return response()->json(['data' => $history]);
+    }
+
+    public function downloadFailedHistory(Request $request){
+
+        
+        $histories = EmailAddress::whereHas('history_last_message',function($query){
+                $query->where('is_success', 0);
+            })
+            ->with('history_last_message')
+            ->get();
+
+        $recordsArr = []; 
+        foreach($histories as $row){
+            $recordsArr[] = [
+                'id'         => $row->history_last_message->id,
+                'from_name'  => $row->from_name,
+                'status'     => ($row->history_last_message->is_success == 0) ? "Failed" : "Success",
+                'message'    => $row->history_last_message->message??'-',
+                'created_at' => $row->history_last_message->created_at->format('Y-m-d H:i:s'),
+            ];
+        }
+        $filename = 'Report-Email-failed'.'.csv';
+        return Excel::download(new EmailFailedReport($recordsArr),$filename);
     }
 }

@@ -419,9 +419,14 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('settings/update', 'SettingController@update');
     Route::post('settings/updateAutomatedMessages', 'SettingController@updateAutoMessages')->name('settings.update.automessages');
     Route::resource('settings', 'SettingController');
+    
+    Route::get('category/child-categories', 'CategoryController@childCategory')->name('category.child-category');
+    Route::get('category/edit-category', 'CategoryController@childEditCategory')->name('category.child-edit-category');
+    Route::post('category/{edit}/edit-category', 'CategoryController@updateCategory')->name('category.child-update-category');
+
     Route::get('category/references/used-products', 'CategoryController@usedProducts');
     Route::post('category/references/update-reference', 'CategoryController@updateReference');
-    Route::get('category/references', 'CategoryController@mapCategory');
+    Route::get('category/references', 'CategoryController@mapCategory')->name('category.map-category');
     Route::post('category/references', 'CategoryController@saveReferences');
     Route::post('category/references/affected-product', 'CategoryController@affectedProduct');
     Route::post('category/references/affected-product-new', 'CategoryController@affectedProductNew');
@@ -876,6 +881,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
     Route::get('category', 'CategoryController@manageCategory')->name('category');
+    Route::get('category-11', 'CategoryController@manageCategory11')->name('category');
     Route::post('add-category', 'CategoryController@addCategory')->name('add.category');
     Route::post('category/{category}/edit', 'CategoryController@edit')->name('category.edit');
     Route::post('category/remove', 'CategoryController@remove')->name('category.remove');
@@ -1594,11 +1600,21 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     
 
     Route::resource('email-addresses', 'EmailAddressesController');
+    
+    Route::post('email/geterroremailhistory', 'EmailAddressesController@getErrorEmailHistory');
+
+    Route::get('email/failed/download/history', 'EmailAddressesController@downloadFailedHistory')->name('email.failed.download');
+
     Route::post('email/getemailhistory/{id}', 'EmailAddressesController@getEmailAddressHistory');
+    
     Route::get('email/get-related-account/{id}', 'EmailAddressesController@getRelatedAccount');
+    
     Route::post('supplier/block', 'SupplierController@block')->name('supplier.block');
+    
     Route::post('supplier/saveImage', 'SupplierController@saveImage')->name('supplier.image');;
+    
     Route::post('supplier/change-status', 'SupplierController@changeStatus');
+    
     Route::post('supplier/change/category', 'SupplierController@changeCategory')->name('supplier/change/category');
     Route::post('supplier/change/status', 'SupplierController@changeSupplierStatus')->name('supplier/change/status');
     Route::post('supplier/change/subcategory', 'SupplierController@changeSubCategory')->name('supplier/change/subcategory');
@@ -2873,6 +2889,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('missing-brands/multi-reference', 'MissingBrandController@multiReference')->name('missing-brands.multi-reference');
     Route::post('missing-brands/automatic-merge', 'MissingBrandController@automaticMerge')->name('missing-brands.automatic-merge');
 
+
+    //subcategory route
 
 });
 

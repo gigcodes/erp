@@ -180,6 +180,10 @@
             </form>
         </div>
     </div>
+
+    @include("partials.customer-new-ticket")
+    
+    
 @endsection
 
 @section('scripts')
@@ -205,7 +209,7 @@
                 },
                 dataType: "json",
                 success: function (response) {
-                    $this.html('Remove from DND');
+                    $this.html('<img src="/images/do-disturb.png"/>');
                     $this.removeClass('add_to_dnd').addClass('remove_from_dnd')
                 },
                 error: function () {
@@ -230,7 +234,7 @@
                 },
                 dataType: "json",
                 success: function (response) {
-                    $this.html('Add to DND');
+                    $this.html('<img src="/images/do-not-disturb.png"/>');
                     $this.removeClass('remove_from_dnd').addClass('add_to_dnd')
                 },
                 error: function () {
@@ -564,6 +568,39 @@
                 console.log(response);
             });
         });
+
+
+    $(document).on("change",".quickComment",function() {
+        var $this = $(this);
+        $this.closest("tr").find(".send-message-textbox").val($this.val());
+    });
+
+    $(document).on('click', '.add_to_customer_dnd', function() {
+            var id = $(this).data('id');
+            var thiss = $(this);
+            $.ajax({
+                type: "POST",
+                url: "/customer/" + id + '/updateDND',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+              if (response.do_not_disturb == 1) {
+                $(thiss).html('<img src="/images/do-not-disturb.png" />');
+              } else {
+                $(thiss).html('<img src="/images/do-disturb.png" />');
+              }
+            }).fail(function(response) {
+               $("#loading-image").hide();
+              alert('Could not update DND status');
+              console.log(response);
+            })
+      });
+
 
     </script>
 @endsection
