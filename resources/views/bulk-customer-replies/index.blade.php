@@ -108,15 +108,7 @@
                                 <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}" class="customer_message"></td>
                                 <td>{{ $key+1 }}</td>
                                 <td>{{ $customer->name }}<br>
-                                    @if(count($customer->dnd) == 0)
-                                    <span data-customer_id="{{$customer->id}}" class="add_to_dnd" style="cursor:pointer;font-size:12px">
-                                        Add to DND
-                                    </span>
-                                    @else
-                                    <span data-customer_id="{{$customer->id}}" class="remove_from_dnd" style="cursor:pointer;font-size:12px">
-                                         Remove from DND
-                                    </span>
-                                    @endif
+                                    
                                 </td>
                                 <td>
 
@@ -180,6 +172,10 @@
             </form>
         </div>
     </div>
+
+    @include("partials.customer-new-ticket")
+    
+    
 @endsection
 
 @section('scripts')
@@ -205,7 +201,7 @@
                 },
                 dataType: "json",
                 success: function (response) {
-                    $this.html('Remove from DND');
+                    $this.html('<img src="/images/do-disturb.png"/>');
                     $this.removeClass('add_to_dnd').addClass('remove_from_dnd')
                 },
                 error: function () {
@@ -230,7 +226,7 @@
                 },
                 dataType: "json",
                 success: function (response) {
-                    $this.html('Add to DND');
+                    $this.html('<img src="/images/do-not-disturb.png"/>');
                     $this.removeClass('remove_from_dnd').addClass('add_to_dnd')
                 },
                 error: function () {
@@ -564,6 +560,13 @@
                 console.log(response);
             });
         });
+
+
+    $(document).on("change",".quickComment",function() {
+        var $this = $(this);
+        $this.closest("tr").find(".send-message-textbox").val($this.val());
+    });
+
 
     </script>
 @endsection
