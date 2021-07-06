@@ -108,7 +108,15 @@
                                 <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}" class="customer_message"></td>
                                 <td>{{ $key+1 }}</td>
                                 <td>{{ $customer->name }}<br>
-                                    
+                                    @if(count($customer->dnd) == 0)
+                                    <span data-customer_id="{{$customer->id}}" class="add_to_dnd" style="cursor:pointer;font-size:12px">
+                                        Add to DND
+                                    </span>
+                                    @else
+                                    <span data-customer_id="{{$customer->id}}" class="remove_from_dnd" style="cursor:pointer;font-size:12px">
+                                         Remove from DND
+                                    </span>
+                                    @endif
                                 </td>
                                 <td>
 
@@ -566,6 +574,32 @@
         var $this = $(this);
         $this.closest("tr").find(".send-message-textbox").val($this.val());
     });
+
+    $(document).on('click', '.add_to_customer_dnd', function() {
+            var id = $(this).data('id');
+            var thiss = $(this);
+            $.ajax({
+                type: "POST",
+                url: "/customer/" + id + '/updateDND',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+              if (response.do_not_disturb == 1) {
+                $(thiss).html('<img src="/images/do-not-disturb.png" />');
+              } else {
+                $(thiss).html('<img src="/images/do-disturb.png" />');
+              }
+            }).fail(function(response) {
+               $("#loading-image").hide();
+              alert('Could not update DND status');
+              console.log(response);
+            })
+      });
 
 
     </script>
