@@ -16,9 +16,10 @@ class CategorySegment extends Model
     }
 
 
-    // public function brandsSegmenets()
-    // {
-    //     $this->belongsToMany(Brand::class,'category_segment_discounts','brand_id','category_segment_id')->withPivot('amount');
-    // }
+    public function category()
+    {   
+        return $this->hasMany(Category::class,'category_segment_id','id');
+    }
+
 
 }

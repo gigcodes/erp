@@ -154,11 +154,11 @@ class scrapperPhyhon extends Controller
                 $list =  Website::where('id',$webStore->website_id)->first();
                 $website_id = $list->id;
         if( $webStore ){
-            $website_store_views = \App\WebsiteStoreView::where('website_store_id',$webStore->id)->first();
+            // $website_store_views = \App\WebsiteStoreView::where('website_store_id',$webStore->id)->first();
 //            dd($list->store_website_id);
 //            dd($list->store_website_id);
                 if( $website_store_views ){
-                    $images = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$website_store_views->code)->get()->toArray();
+                    $images = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$request->code)->get()->toArray();
                 }
             }
 

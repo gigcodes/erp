@@ -1,6 +1,6 @@
 while read line
 do
-	echo "$line"|grep Endtime
+	echo "$line"|grep Processing
 	if [ $? -eq 0 ]
 	then
 		scraper=`echo "$line"|cut -d' ' -f1`
@@ -10,7 +10,7 @@ do
 		if [ $? -ne 0 ]
 		then
 			endtime=`stat -c '%y' /mnt/volume_blr1_03/websites/logs/$server/$scraper-$day.log|cut -d'.' -f1|tr ' ' '-'`
-			sed -i "s/Endtime-$scraper-$day-$server/$endtime/" /opt/scrap_history
+			sed -i "s/Processing-$scraper-$day-$server/$endtime/" /opt/scrap_history
 		fi
 	fi
 done < /opt/scrap_history

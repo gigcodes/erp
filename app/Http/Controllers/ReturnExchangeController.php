@@ -223,6 +223,12 @@ class ReturnExchangeController extends Controller
             $returnExchange = $returnExchange->where("w.title", "like", "%" . $params["website"] . "%");
         }
 
+        $loggedInUser = auth()->user();
+        $isInCustomerService = $loggedInUser->isInCustomerService();
+        if($isInCustomerService) {
+            $returnExchange = $returnExchange->where('c.user_id',$loggedInUser->id);
+        }
+
         $returnExchange = $returnExchange->select([
             "return_exchanges.*",
             "c.name as customer_name",
