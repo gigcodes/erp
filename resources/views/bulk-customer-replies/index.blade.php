@@ -80,7 +80,7 @@
                         <tr>
                             <th style="width:1%">Pick</th>
                             <th style="width:2%">S.N</th>
-                            <th style="width:6%">Customer ({{count($searchedKeyword->customers)}})</th>
+                            <th style="width:6%">Customer ({{count($customers)}})</th>
                             <th style="width:12%">Whatsapp num</th>
                             <th style="width:23%">Shortcuts</th>
                             <th style="width:23%">Next Action</th>
@@ -99,10 +99,10 @@
                                 </div>
                             </td>
                         </tr>
-                        @php
-                            $searchWithPagination = $searchedKeyword->customers()->paginate(20);
-                        @endphp
-                        @foreach($searchWithPagination as $key=>$customer)
+{{--                        @php--}}
+{{--                            $searchWithPagination = $customers;--}}
+{{--                        @endphp--}}
+                        @foreach($customers as $key => $customer)
 <!--                            --><?php //dump($customer->dnd); ?>
                             <tr data-customer_id="{{ $customer->id }}" class="customer-id-remove-class">
                                 <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}" class="customer_message"></td>
@@ -135,7 +135,7 @@
                             </tr>
                         @endforeach
                     </table>
-                    {!! $searchWithPagination->appends(request()->query())->links() !!}
+                    {!! $customers->appends(request()->query())->links() !!}
 
                 </form>
 
