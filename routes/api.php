@@ -96,6 +96,8 @@ Route::post('{client}/{numberFrom}/competitor','FacebookController@saveCompetito
 //Scrapped facebook users
 Route::post('facebook/scrape-user','FacebookController@apiPost');
 
+Route::post('facebook/post', 'FacebookController@facebookPost');
+
 Route::get('duty/v1/get-currencies', 'SimplyDutyCurrencyController@sendCurrencyJson');
 Route::get('duty/v1/get-countries', 'SimplyDutyCountryController@sendCountryJson');
 Route::post('duty/v1/calculate', 'SimplyDutyCalculationController@calculate');
