@@ -3128,3 +3128,9 @@ Route::prefix('select2')->middleware('auth')->group(function () {
 });
 
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');
+
+
+Route::prefix('message-queue-history')->middleware('auth')->group(static function () {
+    Route::get('/', 'MessageQueueHistoryController@index')->name('message-queue-history.index'); 
+    Route::get('/records', 'MessageQueueHistoryController@records')->name("message-queue-history.records"); 
+});
