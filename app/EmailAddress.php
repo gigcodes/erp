@@ -41,5 +41,15 @@ class EmailAddress extends Model
        return $this->hasOne(StoreWebsite::class,'id','store_website_id');
     }
 
+    public function email_run_history()
+    {
+       return $this->hasMany(EmailRunHistories::class,'email_address_id','id');
+    }
+
+    public function history_last_message()
+    {
+       return $this->hasOne(EmailRunHistories::class,'email_address_id','id')->latest();
+    }
+
 
 }
