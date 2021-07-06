@@ -62,6 +62,9 @@ table tr td {
     cursor: pointer;
     color:#000;
 }
+.red{
+    color: red
+}
 </style>
 @endsection
 
@@ -109,40 +112,39 @@ table tr td {
                             <th width="5%">Next Run</th>
                             <th width="5%">Action</th> 
                             @foreach($tasks as $key => $task)
-                            <tr class="{{$task->is_active ?: 'uk-text-danger'}}">
+                            <tr class="{{$task->is_active ? '' : 'red' }}">
                                 <td>{{$task->id}}</td>
                                 <td>
-                                    <a href="{{route('totem.task.view', $task)}}">
+                                    <a href="{{route('totem.task.view', $task->id)}}" >
                                         {{str_limit($task->description, 30)}}
                                     </a>
-                                    <span class="uk-float-right uk-hidden@s uk-text-muted">Command</span>
+                                    <!-- <span class="uk-float-right uk-hidden@s uk-text-muted">Command</span> -->
                                 </td>
                                 <td>
                                     {{ number_format(  $task->averageRuntime / 1000 , 2 ) }} seconds
-                                    <span class="uk-float-right uk-hidden@s uk-text-muted">Avg. Runtime</span>
+                                    <!-- <span class="uk-float-right uk-hidden@s uk-text-muted">Avg. Runtime</span> -->
                                 </td>
                                 @if($last = $task->lastResult)
                                     <td>
                                         {{$last->ran_at->toDateTimeString()}}
-                                        <span class="uk-float-right uk-hidden@s uk-text-muted">Last Run</span>
+                                        <!-- <span class="uk-float-right uk-hidden@s uk-text-muted">Last Run</span> -->
                                     </td>
                                 @else
                                     <td>
                                         N/A
-                                        <span class="uk-float-right uk-hidden@s uk-text-muted">Last Run</span>
+                                        <!-- <span class="uk-float-right uk-hidden@s uk-text-muted">Last Run</span> -->
                                     </td>
                                 @endif
                                 <td>
                                     {{$task->upcoming}}
-                                    <span class="uk-float-right uk-hidden@s uk-text-muted">Next Run</span>
+                                    <!-- <span class="uk-float-right uk-hidden@s uk-text-muted">Next Run</span> -->
                                 </td>
                                 <td class="uk-text-center@m">
-                                    <a style="padding:1px;" class="btn  d-inline btn-image view-task" href="#" data-id="{{$task->id}}" id="link" title="view task"><img src="/images/view.png" style="cursor: pointer; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn  d-inline btn-image edit-task" href="#" data-id="{{$task->id}}" id="link" title="edit task"><img src="/images/edit.png" style="cursor: pointer; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn  d-inline btn-image delete-task" href="#" data-id="{{$task->id}}" id="link" title="delete task"><img src="/images/delete.png" style="cursor: pointer; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn  d-inline btn-image execute-task" href="#" data-id="{{$task->id}}" id="link" title="execute Task"><img src="/images/send.png" style="cursor: pointer; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn  d-inline btn-image active-task" href="#" data-id="{{$task->id}}" id="link" title="task status"><img src="/images/{{ $task->is_active ? 'flagged-green' : 'flagged'}}.png" style="cursor: pointer; width: 0px;"></a>
-                                    <!-- <a style="padding:1px;" class="btn  d-inline btn-image view-task" href="#" data-id="{{$task->id}}" id="link" title=""><img src="/images/history.png" style="cursor: pointer; width: 0px;"></a> -->
+                                    <a style="padding:1px;" class="btn d-inline btn-image view-task" href="#" data-id="{{$task->id}}" id="link" title="view task"><img src="/images/view.png" style="cursor: pointer; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image edit-task" href="#" data-id="{{$task->id}}" id="link" title="edit task"><img src="/images/edit.png" style="cursor: pointer; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image delete-task" href="#" data-id="{{$task->id}}" id="link" title="delete task"><img src="/images/delete.png" style="cursor: pointer; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image execute-task" href="#" data-id="{{$task->id}}" id="link" title="execute Task"><img src="/images/send.png" style="cursor: pointer; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image active-task" href="#" data-id="{{$task->id}}" id="link" title="task status"><img src="/images/{{ $task->is_active ? 'flagged-green' : 'flagged'}}.png" style="cursor: pointer; width: 0px;"></a>
                                 </td>
                             </tr>
                             @endforeach
@@ -293,15 +295,15 @@ table tr td {
                                 <input type="radio" name="type" value="expression"> Expression
                             </label>
                             <label>
-                                <input type="radio" name="type" value="frequency"> Frequencies
+                                <input type="radio" name="type" value="frequency" checked> Frequencies
                             </label>
                         </div> 
-                        <div class="form-group">
+                        <div class="form-group cron_expression d-none">
                             <label>CRON EXPRESSION</label><i class="fa fa-info-circle" title="Add a cron expression for your task"></i><br>
                             <input class="form-control" placeholder="e.g * * * * * to run this task all the time" name="expression" id="expression" value="" type="text">
                          </div> 
-                        <div class="form-group">
-                            <label>FREQUENCIES</label><i class="fa fa-info-circle" title="Add frequencies to your task. These frequencies will be converted into a cron expression while scheduling the task"></i><br>
+                        <div class="form-group frequencies">
+                            <label>FREQUENCIES</label><i class="fa fa-info-circle" title="Add   to your task. These frequencies will be converted into a cron expression while scheduling the task"></i><br>
                             <button type="button" class="btn btn-default btn-sm add-remark" data-toggle="modal" data-target="#addFrequencyModal">Add Frequency</button>
                             <table class="uk-table uk-table-divider uk-margin-remove">
                                 <thead>
@@ -336,18 +338,18 @@ table tr td {
                         <div class="form-group">
                             <label>Miscellaneous Options</label>
                             <br>
-                            <input type="hidden" name="dont_overlap" id="dont_overlap" value="0" {{old('dont_overlap', $task->dont_overlap) ? '' : 'checked'}}>
-                            <input type="checkbox" name="dont_overlap" id="dont_overlap" value="1" {{old('dont_overlap', $task->dont_overlap) ? 'checked' : ''}}>Don't Overlap
+                            <input type="hidden" name="dont_overlap" id="dont_overlap" value="0" checked>
+                            <input type="checkbox" name="dont_overlap" id="dont_overlap" value="1" >Don't Overlap
                             <i class="fa fa-info-circle" title="Add a slack web hook url to recieve slack notifications. Phone numbers should include country code and are digits only. Leave empty if you do not wish to receive slack notifications"></i>
                             <br>
                             
-                            <input type="hidden" name="dont_overlap" id="dont_overlap" value="0" {{old('dont_overlap', $task->dont_overlap) ? '' : 'checked'}}>
-                            <input type="checkbox" name="dont_overlap" id="dont_overlap" value="1" {{old('dont_overlap', $task->dont_overlap) ? 'checked' : ''}}>Run in maintenance mode
+                            <input type="hidden" name="run_in_maintenance" id="run_in_maintenance" value="0" checked>
+                            <input type="checkbox" name="run_in_maintenance" id="run_in_maintenance" value="1" >Run in maintenance mode
                             <i class="fa fa-info-circle" title="Add a slack web hook url to recieve slack notifications. Phone numbers should include country code and are digits only. Leave empty if you do not wish to receive slack notifications"></i>
                             <br>
                             
-                            <input type="hidden" name="dont_overlap" id="dont_overlap" value="0" {{old('dont_overlap', $task->dont_overlap) ? '' : 'checked'}}>
-                            <input type="checkbox" name="dont_overlap" id="dont_overlap" value="1" {{old('dont_overlap', $task->dont_overlap) ? 'checked' : ''}}>Run on a single server
+                            <input type="hidden" name="run_on_one_server" id="run_on_one_server" value="0" checked>
+                            <input type="checkbox" name="run_on_one_server" id="run_on_one_server" value="1" >Run on a single server
                             <i class="fa fa-info-circle" title="Add a slack web hook url to recieve slack notifications. Phone numbers should include country code and are digits only. Leave empty if you do not wish to receive slack notifications"></i>
                              
                             <p class="d-none"></p>
@@ -367,7 +369,7 @@ table tr td {
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-default">Submit</button>
+                        <button type="button" class="btn btn-default submit_btn">Submit</button>
                     </div>
                 </form>
             </div>
@@ -462,7 +464,6 @@ table tr td {
                 setTimeout(function(){
                     window.location.reload(1);
                 }, 1000);
-            
             },
             error: function () {
                 toastr['error']('Something went wrong!');
@@ -488,32 +489,12 @@ table tr td {
                 setTimeout(function(){
                     window.location.reload(1);
                 }, 1000);
-            
             },
             error: function () {
                 toastr['error']('Something went wrong!');
             }
         });
-    });  
-
-    $(document).on("click",".edit-task",function(e) {
-        $.ajax({
-            type: "GET",
-            url: "/totem_new/tasks/"+$(this).data('id')+"/edit",  
-            dataType : "json",
-            success: function (response) {
-                console.log(response);
-                if(response.status){
-                    toastr['success'](response.message);
-                }else{
-                    toastr['error'](response.message);
-                }
-            },
-            error: function () {
-                toastr['error']('Something went wrong!');
-            }
-        });
-    }); 
+    });   
 
     $('#frequency').change(function(){
         $('.added_params').remove();
@@ -532,30 +513,160 @@ table tr td {
         }
     }); 
 
-    $('.add_freq').click(function(){
-        $('.default_td').remove();
-        let freq_type = JSON.parse($('#addFrequencyModal').find('select').val()).label;
-        let input_fields = $('#addFrequencyModal').find('input');
-        for(let i=0; i<input_fields.length; i++){
-            alert($(input_fields[i]).val());
-            let tr = `
-                    <tr>
-                    <input type="hidden" name="frequencies[${i}][interval]" value="${$(input_fields[i]).val()}">
-                    <input type="hidden" name="frequencies[${i}][label]" value="${$(input_fields[i]).val()}">
-
-                    <td data-id="${i}">${freq_type}</td>
-                    <td data-id="${i}">${$(input_fields[i]).val()}</td>
-                    <td>
-                        <a class="remove_td_${i}">
-                            <i class="fa fa-window-close"></i>
-                        </a>
-                    </td>
-                    </tr>
-            `;
-            console.log(tr);
-            $('.freq').append(tr);
+    $('input[name="type"]').change(function(){
+        if($(this).val() == 'expression'){
+            $('.cron_expression').removeClass('d-none');
+            $('.frequencies').addClass('d-none');
+        }else{
+            $('.frequencies').removeClass('d-none');
+            $('.cron_expression').addClass('d-none');
         }
     }); 
+
+    $(document).on('click', '.remove_td', function(){
+        $(this).closest('tr').remove();
+    });
+
+    var freq = 0;
+    $('.add_freq').click(function(){
+        $('.default_td').remove();
+        let freq_type = JSON.parse($('#addFrequencyModal').find('select').val());
+        let input_fields = $('#addFrequencyModal').find('input');
+        let tr = `
+                    <tr> 
+                    <td data-id="${freq}">${freq_type.label}
+                        <input type="hidden" name="frequencies[${freq}][interval]" value="${freq_type.interval}">
+                        <input type="hidden" name="frequencies[${freq}][label]" value="${freq_type.label}">
+                    </td>
+                    <td data-id="${freq}">
+                    `;
+        for(let i=0; i<input_fields.length; i++){
+            tr += `${i!=0 ? ',' : ''} ${$(input_fields[i]).val()}
+                        <input type="hidden" name="frequencies[${freq}][parameters][${i}][name]" value="${$(input_fields[i]).attr('name')}">
+                        <input type="hidden" name="frequencies[${freq}][parameters][${i}][value]" value="${$(input_fields[i]).val()}">
+                    `;
+        }
+        if(input_fields.length == 0){
+            tr += `No Parameters`; 
+        }
+        tr += ` </td>
+                <td>
+                    <a class="remove_td">
+                        <i class="fa fa-window-close"></i>
+                    </a>
+                </td>
+                </tr>`;
+        $('.freq').append(tr);
+        freq++;
+        $('#addFrequencyModal').modal('hide');   
+    }); 
+
+    $('.submit_btn').click(function(){
+        $('.error').remove();
+        var form_data =  $('.taskForm').serialize();
+        $.ajax({
+            type: "POST",
+            url: "/totem/tasks/create",  
+            data: form_data,
+            dataType : "json",
+            success: function (response) {
+                if(response.status){
+                    toastr['success'](response.message);
+                }else{
+                    toastr['error'](response.message);
+                }
+                setTimeout(function(){
+                    window.location.reload(1);
+                }, 1000);
+            },
+            error: function (response) {
+                if(response.status == 200){
+                    toastr['success']('Task Created Successfully.');
+                    setTimeout(function(){
+                        window.location.reload(1);
+                    }, 1000);
+                }else{
+                    let errors = response.responseJSON.errors;
+                    for (var key in errors) {
+                        if($(`input[name="${key}"]`).length == 0){
+                            let error = `<p class="error" style="color:red;margin-top:-15px">${errors[key][0]}</p>`;
+                            $(`select[name="${key}"]`).parent().after(error);
+                        }else{
+                            let error = `<p class="error" style="color:red">${errors[key][0]}</p>`;
+                            $(`input[name="${key}"]`).after(error);
+                        }
+                        if(key == 'frequencies'){
+                            let error = `<p class="error" style="color:red;margin-top:-15px">${errors[key][0]}</p>`;
+                            $('.frequencies').after(error);
+                        }
+                    }
+                    toastr['error']('Something went wrong!');
+                }
+            }
+        });
+
+    });
+
+    $('.edit-task').click(function(){
+        $.ajax({
+            type: "GET",
+            url: "/totem_new/tasks/"+$(this).data('id'),  
+            dataType : "json",
+            success: function (response) {
+                let task_fields = response  .task;
+                console.log(task_fields, 132);
+                for (var key in task_fields) {
+                    if($(`input[name="${key}"]`).length != 0){
+                        $(`input[name="${key}"]`).val(task_fields[key]);
+                    }else if($(`select[name="${key}"]`).length != 0){
+                        $(`select[name="${key}"]`).val(task_fields[key]);
+                    }
+                    if(key == 'frequencies'){
+                        if(task_fields[key].length){
+                            $('.default_td').remove();
+                        }
+                        for(let i=0; i<task_fields[key].length; i++){
+                            let interval = task_fields[key][i].interval; 
+                            let label = task_fields[key][i].label; 
+                            let parameters = task_fields[key][i].parameters; 
+                            let tr = `
+                                        <tr> 
+                                        <td data-id="${i}">${label}
+                                            <input type="hidden" name="frequencies[${i}][interval]" value="${interval}">
+                                            <input type="hidden" name="frequencies[${i}][label]" value="${label}">
+                                        </td>
+                                        <td data-id="${i}">
+                                        `;
+                            for(let i=0; i<task_fields[key][i].parameters; i++){
+                                tr += `${i!=0 ? ',' : ''} ${$(task_fields[i]).val()}
+                                            <input type="hidden" name="frequencies[${i}][parameters][${i}][name]" value="${$(task_fields[i]).attr('name')}">
+                                            <input type="hidden" name="frequencies[${i}][parameters][${i}][value]" value="${$(task_fields[i]).val()}">
+                                        `;
+                            }
+                            if(task_fields[key][i].parameters.length == 0){
+                                tr += `No Parameters`; 
+                            }
+                            tr += ` </td>
+                                    <td>
+                                        <a class="remove_td">
+                                            <i class="fa fa-window-close"></i>
+                                        </a>
+                                    </td>
+                                    </tr>`;
+                            $('.freq').append(tr);
+                        }
+                    }
+                    $('#addEditTaskModal').modal('show');  
+                }
+            },
+            error: function (response) { 
+                console.log(response);
+                if(response.status != 200){      
+                    toastr['error']('Something went wrong!');
+                }
+            }
+        });
+    });
  
 </script>
 @endsection
