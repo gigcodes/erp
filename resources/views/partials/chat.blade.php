@@ -456,7 +456,11 @@ function pingSock() {
 var currentChatId = 0;
 var chatTimerObj = false;
 function openChatBox(show){
+	console.log("openChatBox");
+	console.log(show);
 	if(show){
+
+		console.log("Open Socket >>>");
 		//open socket
 		if(currentChatId != 0){
 			runWebSocket(currentChatId);
@@ -466,6 +470,8 @@ function openChatBox(show){
 		getCustDetails();
 	}
 	else{
+		console.log("Close Socket >>>");
+
 		clearTimeout(chatTimerObj);
 		clearTimeout(pingTimerObj);
 		// Close the connection, if open.
@@ -477,6 +483,12 @@ function openChatBox(show){
 
 $(window).on("blur focus", function(e) {
     var prevType = $(this).data("prevType");
+
+	console.log("blur focus");
+	console.log("prevType : "+prevType);
+	console.log("e.type : "+e.type);
+	console.log("chatBoxOpen : "+chatBoxOpen);
+
     if (prevType != e.type) {
         switch (e.type) {
             case "blur":
@@ -486,6 +498,7 @@ $(window).on("blur focus", function(e) {
                 break;
             case "focus":
             	if(chatBoxOpen){
+
             		openChatBox(true);
             	}
                 break;
