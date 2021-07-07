@@ -77,13 +77,13 @@ table tr td {
 
     <div class="row">
         <div class="col-12" style="padding:0px;">
-            <h2 class="page-heading">Tasks</h2>
+            <h2 class="page-heading text-center">Tasks</h2>
         </div>
          <div class="col-10" style="padding-left:0px;">
             <div >
                 <form class="form-inline" action="" method="GET">
                     <div class="form-group col-md-2 pd-3">
-                        <input style="width:100%;" id="totem__search__form" name="q" type="text" class="form-control" value="{{ isset($_REQUEST['search']) ? $_REQUEST['search'] : '' }}" placeholder="Search...">
+                        <input style="width:100%;" id="totem__search__form" name="q" type="text" class="form-control" value="{{ isset($_REQUEST['q']) ? $_REQUEST['q'] : '' }}" placeholder="Search...">
                     </div> 
                     <div class="form-group col-md-1 pd-3">
                         <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
@@ -111,13 +111,16 @@ table tr td {
                             <th width="5%">Last Run</th>
                             <th width="5%">Next Run</th>
                             <th width="5%">Action</th> 
+                        </tr>    
+                    </thead>
+                    <tbody> 
                             @foreach($tasks as $key => $task)
                             <tr class="{{$task->is_active ? '' : 'red' }}">
                                 <td>{{$task->id}}</td>
                                 <td>
-                                    <a href="{{route('totem.task.view', $task->id)}}" >
+                                    <!-- <a href="{{route('totem.task.view', $task->id)}}" > -->
                                         {{str_limit($task->description, 30)}}
-                                    </a>
+                                    <!-- </a> -->
                                     <!-- <span class="uk-float-right uk-hidden@s uk-text-muted">Command</span> -->
                                 </td>
                                 <td>
@@ -140,19 +143,20 @@ table tr td {
                                     <!-- <span class="uk-float-right uk-hidden@s uk-text-muted">Next Run</span> -->
                                 </td>
                                 <td class="uk-text-center@m">
-                                    <a style="padding:1px;" class="btn d-inline btn-image view-task" href="#" data-id="{{$task->id}}" id="link" title="view task"><img src="/images/view.png" style="cursor: pointer; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn d-inline btn-image edit-task" href="#" data-id="{{$task->id}}" id="link" title="edit task"><img src="/images/edit.png" style="cursor: pointer; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn d-inline btn-image delete-task" href="#" data-id="{{$task->id}}" id="link" title="delete task"><img src="/images/delete.png" style="cursor: pointer; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn d-inline btn-image execute-task" href="#" data-id="{{$task->id}}" id="link" title="execute Task"><img src="/images/send.png" style="cursor: pointer; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn d-inline btn-image active-task" href="#" data-id="{{$task->id}}" id="link" title="task status"><img src="/images/{{ $task->is_active ? 'flagged-green' : 'flagged'}}.png" style="cursor: pointer; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image view-task" href="#" data-id="{{$task->id}}" title="view task" data-expression="{{$task->getCronExpression()}}"><img src="/images/view.png" style="cursor: pointer; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image edit-task" href="#" data-id="{{$task->id}}" title="edit task"><img src="/images/edit.png" style="cursor: pointer; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image delete-tasks" href="#" data-id="{{$task->id}}" title="delete task"><img src="/images/delete.png" style="cursor: pointer; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image execute-task" href="#" data-id="{{$task->id}}" title="execute Task"><img src="/images/send.png" style="cursor: pointer; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image active-task" href="#" data-id="{{$task->id}}" title="task status" data-active="{{$task->is_active}}"><img src="/images/{{ $task->is_active ? 'flagged-green' : 'flagged'}}.png"  style="cursor: pointer; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image execution-history" href="#" data-id="{{$task->id}}" title="task execution history" data-results="{{json_encode($task->results()->orderByDesc('created_at')->get())}}"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
                                 </td>
                             </tr>
                             @endforeach
-                    </thead>
-                    
-                    <tbody> 
                     </tbody>
                 </table>
+                @if(!count($tasks))
+                <h5 class="text-center">No Tasks found</h5>
+                @endif
 	        </div>
         </div>
     </div>
@@ -239,8 +243,39 @@ table tr td {
     </div>  
 
 
+    <div class="modal fade" id="view_execution_history" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">EXECUTION RESULTS</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="table-responsive mt-2">
+                <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;">
+                    <thead>
+                    <tr>
+                        <th width="5%">Executes At</th>
+                        <th width="5%">Duration</th>
+                        <th width="5%">Status</th>  
+                    </tr>
+                    </thead>
 
-    <div id="addEditTaskModal" class="modal fade" role="dialog">
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>  
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+        </div>
+    </div>
+    </div>
+
+    <div id="addEditTaskModal" class="modal fade" role="dialog" data-id = ''>
         <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content">
@@ -359,10 +394,10 @@ table tr td {
                             <label>Cleanup Options</label><i class="fa fa-info-circle" title="Determine if an over-abundance of results will be removed after a set limit or age. Set non-zero value to enable."></i>
                             <input class="form-control" name="auto_cleanup_num" value="0" type="number"><br>
                                     <label>
-                                        <input type="radio" name="auto_cleanup_type" value="days" {{old('auto_cleanup_type', $task->auto_cleanup_type) !== 'results' ? '' : 'checked'}}> Days
+                                        <input type="radio" name="auto_cleanup_type" value="days" checked> Days
                                     </label><br>
                                     <label>
-                                        <input type="radio" name="auto_cleanup_type" value="results" {{old('auto_cleanup_type', $task->auto_cleanup_type) === 'results' ? '' : 'checked'}}> Results
+                                        <input type="radio" name="auto_cleanup_type" value="results"> Results
                                     </label>
                             <p class="d-none"></p>
                         </div>  
@@ -376,24 +411,48 @@ table tr td {
         </div>
       </div>  
 
+
+      <div id="showResultModal" class="modal fade" role="dialog" style="z-index: 999999999">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Output</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <h5></h5>
+                </div>  
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>  
 @endsection
 @section('scripts')
 
 <script type="text/javascript"> 
+    var freq = 0;
+    $('#addEditTaskModal').on('hidden.bs.modal', function (e) {
+        $(this).attr('data-id', '');
+        $('#addEditTaskModal .modal-title').html('Create task');
+        $('.freq').html('<tr><td class="default_td">No Frequencies Found</td></tr>');
+    });
+
     $(document).on("click",".view-task",function(e) {
+        let expression = $(this).attr('data-expression');
         $.ajax({
             type: "GET",
             url: "/totem_new/tasks/"+$(this).data('id'), 
             dataType : "json",
             success: function (response) {
-                console.log('Task => ', response.task);
                 var html_content = '';
                 html_content += '<tr class="supplier-10">';      
                 html_content += '<td>' + response.task.description.substring(0, 80) + '</td>';
                 html_content += '<td>' + response.task.command + '</td>';
                 var parameters = response.task.parameters != null ? response.task.parameters : 'N/A';
                 html_content += '<td>' + parameters + '</td>';
-                html_content += '<td>' + response.CronExpression + '</td>'; 
+                html_content += '<td>' + expression + '</td>'; 
                 html_content += '<td>' + response.task.timezone + '</td>';
                 html_content += '<td>' + response.task.created_at + '</td>';
                 html_content += '<td>' + response.task.updated_at + '</td>';
@@ -431,22 +490,48 @@ table tr td {
         });
     }); 
 
+    $(document).on("click",".execution-history",function(e) {
+        let results = JSON.parse($(this).attr('data-results'));
+        var html_content = '';
+        for(let i=0; i< results.length; i++){ 
+            html_content += '<tr>'; 
+            html_content += '<td>' + results[i].ran_at + '</td>';
+            html_content += '<td>' + (results[i].duration / 1000 , 2).toFixed(2) + ' seconds</td>';
+            html_content += `<td id="show-result" data-output="${results[i].result}"><i class="fa fa-info-circle"></i></td>`;
+            html_content += '</tr>';
+        }
+        if(results.length == 0){
+            html_content += '<tr class="text-center"><td colspan="3"><h5>' + 'Not executed yet.' + '</h5></td></tr>';
+        }
+        $("#view_execution_history tbody").html(html_content);                   
+        $('#view_execution_history').modal('show'); 
+    });
+
+    $(document).on("click",".show-result",function(e) {
+        let results = $(this).attr('data-output'); 
+        $("#showResultModal .modal-body h5").html(results);                   
+        $('#showResultModal').modal('show'); 
+    });
+
     $(document).on("click",".execute-task",function(e) {
+        thiss = $(this);
+        thiss.html(`<img src="/images/loading_new.gif" style="cursor: pointer; width: 0px;">`);
         $.ajax({
             type: "GET",
             url: "/totem/tasks/"+$(this).data('id')+"/execute", 
             dataType : "json",
             success: function (response) {
                 toastr['success']('Task executed successfully!');
-                console.log(response);
+                thiss.html(`<img src="/images/send.png" style="cursor: pointer; width: 0px;">`);
             },
             error: function () {
                 toastr['error']('Something went wrong!');
+                thiss.html(`<img src="/images/send.png" style="cursor: pointer; width: 0px;">`);
             }
         });
     }); 
 
-    $(document).on("click",".delete-task",function(e) {
+    $(document).on("click",".delete-tasks",function(e) {
         if(confirm('Do you really want to delete this task?')){
             $.ajax({
             type: "POST",
@@ -473,10 +558,12 @@ table tr td {
     }); 
 
     $(document).on("click",".active-task",function(e) {
+        let active = $(this).attr('data-active');
         $.ajax({
             type: "POST",
             url: "/totem_new/tasks/"+$(this).data('id')+"/status", 
             data: {
+                active: active,
 				_token: "{{ csrf_token() }}", 
             }, 
             dataType : "json",
@@ -500,7 +587,6 @@ table tr td {
         $('.added_params').remove();
         let params = JSON.parse($(this).val());
         if(params.parameters){
-            console.log(params);
             let html = '';
             for(let i=0; i<params.parameters.length; i++){
                 html += `
@@ -527,7 +613,6 @@ table tr td {
         $(this).closest('tr').remove();
     });
 
-    var freq = 0;
     $('.add_freq').click(function(){
         $('.default_td').remove();
         let freq_type = JSON.parse($('#addFrequencyModal').find('select').val());
@@ -563,17 +648,18 @@ table tr td {
 
     $('.submit_btn').click(function(){
         $('.error').remove();
+        let url = $('#addEditTaskModal').attr('data-id') == '' ? '/totem/tasks/create' : `/totem/tasks/${$('#addEditTaskModal').attr('data-id')}/edit`
         var form_data =  $('.taskForm').serialize();
         $.ajax({
             type: "POST",
-            url: "/totem/tasks/create",  
+            url: url,  
             data: form_data,
             dataType : "json",
             success: function (response) {
-                if(response.status){
-                    toastr['success'](response.message);
+                if(response.task){
+                    toastr['success']('Task Updated Successfully.');
                 }else{
-                    toastr['error'](response.message);
+                    toastr['error']('Something went wrong!');
                 }
                 setTimeout(function(){
                     window.location.reload(1);
@@ -608,13 +694,15 @@ table tr td {
     });
 
     $('.edit-task').click(function(){
+        freq = 0;
+        $('#addEditTaskModal').attr('data-id', $(this).data('id'));
+        $('#addEditTaskModal .modal-title').html('Edit task');
         $.ajax({
             type: "GET",
             url: "/totem_new/tasks/"+$(this).data('id'),  
             dataType : "json",
             success: function (response) {
                 let task_fields = response  .task;
-                console.log(task_fields, 132);
                 for (var key in task_fields) {
                     if($(`input[name="${key}"]`).length != 0){
                         $(`input[name="${key}"]`).val(task_fields[key]);
@@ -631,16 +719,16 @@ table tr td {
                             let parameters = task_fields[key][i].parameters; 
                             let tr = `
                                         <tr> 
-                                        <td data-id="${i}">${label}
-                                            <input type="hidden" name="frequencies[${i}][interval]" value="${interval}">
-                                            <input type="hidden" name="frequencies[${i}][label]" value="${label}">
+                                        <td data-id="${freq}">${label}
+                                            <input type="hidden" name="frequencies[${freq}][interval]" value="${interval}">
+                                            <input type="hidden" name="frequencies[${freq}][label]" value="${label}">
                                         </td>
-                                        <td data-id="${i}">
+                                        <td data-id="${freq}">
                                         `;
-                            for(let i=0; i<task_fields[key][i].parameters; i++){
-                                tr += `${i!=0 ? ',' : ''} ${$(task_fields[i]).val()}
-                                            <input type="hidden" name="frequencies[${i}][parameters][${i}][name]" value="${$(task_fields[i]).attr('name')}">
-                                            <input type="hidden" name="frequencies[${i}][parameters][${i}][value]" value="${$(task_fields[i]).val()}">
+                            for(let j=0; j<task_fields[key][i].parameters; j++){
+                                tr += `${j!=0 ? ',' : ''} ${$(task_fields[i]).val()}
+                                            <input type="hidden" name="frequencies[${freq}][parameters][${j}][name]" value="${$(task_fields[j]).attr('name')}">
+                                            <input type="hidden" name="frequencies[${freq}][parameters][${j}][value]" value="${$(task_fields[j]).val()}">
                                         `;
                             }
                             if(task_fields[key][i].parameters.length == 0){
@@ -654,13 +742,13 @@ table tr td {
                                     </td>
                                     </tr>`;
                             $('.freq').append(tr);
+                            freq++;
                         }
                     }
                     $('#addEditTaskModal').modal('show');  
                 }
             },
             error: function (response) { 
-                console.log(response);
                 if(response.status != 200){      
                     toastr['error']('Something went wrong!');
                 }

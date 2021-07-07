@@ -59,8 +59,7 @@ class TasksController extends Controller
     {
         return response()->json([
             'task'  => $task,
-            'results'  => $task->results->count() > 0 ? number_format(  $task->results->sum('duration') / (1000 * $task->results->count()) , 2) : '0',
-            'CronExpression'  => $task->getCronExpression() ?? null
+            'results'  => $task->results->count() > 0 ? number_format(  $task->results->sum('duration') / (1000 * $task->results->count()) , 2) : '0', 
         ]);
     }
 
@@ -103,16 +102,16 @@ class TasksController extends Controller
     public function status($task, Request $request)
     {
         if($task){
-            if($task->is_active){
-                DB::table('crontasks')->where('id', $task->id)->update([
-                    'is_active' => 1
-                ]);
-                $msg = 'Task Activated Successfully.';
-            }else{
+            if($request->active == 1){
                 DB::table('crontasks')->where('id', $task->id)->update([
                     'is_active' => 0
                 ]);
                 $msg = 'Task Deactivated Successfully.';
+            }else{
+                $x = DB::table('crontasks')->where('id', $task->id)->update([
+                    'is_active' => 1
+                ]);
+                $msg = 'Task Activated Successfully.';
             }
             return response()->json([
                 'status' => true,
