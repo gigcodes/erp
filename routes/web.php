@@ -406,17 +406,27 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Auto Replies
     Route::post('autoreply/{id}/updateReply', 'AutoReplyController@updateReply');
+
     Route::post('autoreply/delete-chat-word', 'AutoReplyController@deleteChatWord');
+    
     Route::get('autoreply/replied-chat/{id}', 'AutoReplyController@getRepliedChat');
+    
     Route::post('autoreply/save-group', 'AutoReplyController@saveGroup')->name('autoreply.save.group');
+    
     Route::post('autoreply/save-group/phrases', 'AutoReplyController@saveGroupPhrases')->name('autoreply.save.group.phrases');
+    
     Route::post('autoreply/save-by-question', 'AutoReplyController@saveByQuestion');
+    
     Route::post('autoreply/delete-most-used-phrases', 'AutoReplyController@deleteMostUsedPharses')->name("chatbot.delete-most-used-pharses");
+    
     Route::get('autoreply/get-phrases', 'AutoReplyController@getPhrases');
+    
     Route::post('autoreply/phrases/reply', 'AutoReplyController@getPhrasesReply')->name('autoreply.group.phrases.reply');
+    
     Route::get('autoreply/phrases/reply-response', 'AutoReplyController@getPhrasesReplyResponse')->name('autoreply.group.phrases.reply.response');
 
     Route::resource('autoreply', 'AutoReplyController');
+    
     Route::get('most-used-words', 'AutoReplyController@mostUsedWords')->name("chatbot.mostUsedWords");
     Route::get('most-used-phrases', 'AutoReplyController@mostUsedPhrases')->name("chatbot.mostUsedPhrases");
 
