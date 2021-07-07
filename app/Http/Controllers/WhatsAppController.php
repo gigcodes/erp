@@ -5209,8 +5209,9 @@ class WhatsAppController extends FindByNumberController
             $domain = "https://api.chat-api.com/instance$instanceId/$link?token=$token";
         }
 
+        \Log::channel('chatapi')->debug('cUrl_url:' . $domain . "\nMessage: " . $message. "\nCUSTOMREQUEST: " . 'POST' ."\nPostFields: " . json_encode($array) . "\nFile:" . $file . "\n" . ' ['. json_encode($logDetail). '] ');
         $curl = curl_init();
-
+        
         curl_setopt_array($curl, array(
             CURLOPT_URL => $domain,
             CURLOPT_RETURNTRANSFER => true,
