@@ -93,6 +93,15 @@
 			  </div>
 			  <div class="form-row">
 		         <div class="form-group col-md-4">
+		            <label for="inputState">Disable Push?</label>
+		            <select name="disable_push" id="inputState" class="form-control">
+		               <option {{if data && data.disable_push == 0}}selected{{/if}} value="0">No</option>
+		               <option {{if data && data.disable_push == 1}}selected{{/if}} value="1">Yes</option>
+		            </select>
+		         </div>
+			  </div>
+			  <div class="form-row">
+		         <div class="form-group col-md-4">
 		            <label for="website_source">Website source?</label>
 		            <select name="website_source" id="website_source" class="form-control">
 		               <option {{if data && data.website_source == "magento"}}selected{{/if}} value="magento">Magento</option>

@@ -387,9 +387,9 @@ const instance_1 = AccountsSDK.init({
 			console.log(error)
 		} 
 		if (data) {
-			//console.log("User authorized!");
+			console.log("User authorized!");
 			accessToken = data.access_token;
-			console.log(accessToken)
+			console.log("accessToken "+accessToken)
 			// setTimeout(instance_1, data.expires_in);
 			try{
 				$.ajax({
@@ -398,8 +398,9 @@ const instance_1 = AccountsSDK.init({
 					dataType: 'json',
 					data: {accessToken: accessToken ,'seconds' : data.expires_in, "_token": "{{ csrf_token() }}"},
 				})
-				.done(function() {
+				.done(function(e) {
 					console.log("AccessToken Saved In Session");
+					console.log(e);
 				})
 				.fail(function() {
 					console.log("Cannot Save AccessToken In Session");
@@ -417,7 +418,10 @@ const instance_1 = AccountsSDK.init({
 function runWebSocket(chatId) {
 	websocket = new WebSocket(wsUri);
 
+	console.log("runWebSocket : "+websocket);
+
 	websocket.onopen = function(evt) {
+		console.log("runWebSocket onopen : ");
 		pingSock();
 		websocket.send('{ "action": "login", "payload": { "token": "Bearer ' + accessToken + '" }}');
 	};
@@ -442,6 +446,7 @@ function runWebSocket(chatId) {
 
 var pingTimerObj = false;
 function pingSock() {
+	console.log("pingSock");
 	if (!websocket) return;
 	if (websocket.readyState !== 1) return;
 	websocket.send('{ "action": "ping" }');
@@ -451,7 +456,12 @@ function pingSock() {
 var currentChatId = 0;
 var chatTimerObj = false;
 function openChatBox(show){
+	console.log("openChatBox");
+	console.log(show);
+	console.log("currentChatId :"+currentChatId);
 	if(show){
+
+		console.log("Open Socket >>>");
 		//open socket
 		if(currentChatId != 0){
 			runWebSocket(currentChatId);
@@ -461,6 +471,8 @@ function openChatBox(show){
 		getCustDetails();
 	}
 	else{
+		console.log("Close Socket >>>");
+
 		clearTimeout(chatTimerObj);
 		clearTimeout(pingTimerObj);
 		// Close the connection, if open.
@@ -472,6 +484,12 @@ function openChatBox(show){
 
 $(window).on("blur focus", function(e) {
     var prevType = $(this).data("prevType");
+
+	console.log("blur focus");
+	console.log("prevType : "+prevType);
+	console.log("e.type : "+e.type);
+	console.log("chatBoxOpen : "+chatBoxOpen);
+
     if (prevType != e.type) {
         switch (e.type) {
             case "blur":
@@ -481,6 +499,7 @@ $(window).on("blur focus", function(e) {
                 break;
             case "focus":
             	if(chatBoxOpen){
+
             		openChatBox(true);
             	}
                 break;
@@ -558,6 +577,9 @@ function getCustomerInfoOnLoad(){
 	    	$('#chatAdditionalInfo').html('');
 	    	$('#chatTechnology').html('');
 		}
+
+
+		console.log("threadId :"+data.threadId);
 
 		if(data.threadId != ''){
 			currentChatId = data.threadId;
@@ -727,6 +749,10 @@ function getChats(id){
 				$('#chatAdditionalInfo').html('');
 				$('#chatTechnology').html('');
 			}
+
+
+			console.log("threadId :: :"+data.data.threadId);
+
 
 			currentChatId = data.data.threadId;
 
