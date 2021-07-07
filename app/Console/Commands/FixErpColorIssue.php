@@ -47,9 +47,7 @@ class FixErpColorIssue extends Command
                 $q->where("sp.color", "!=", "")->where("sp.color", "!=", "0");
             })->where(function ($q) {
             $q->orWhereNull("products.color")->orWhere("products.color", "=", "");
-        })
-            ->limit(10)
-            ->select("products.*")->get();   
+        })->select("products.*")->get();   
 
         if (!$products->isEmpty()) {
             foreach ($products as $product) {
