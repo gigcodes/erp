@@ -55,6 +55,7 @@ use Auth;
 use App\QuickSellGroup;
 use GuzzleHttp\Client as GuzzleClient;
 use Plank\Mediable\Media as PlunkMediable;
+use App\CustomerAddressData;
 
 class CustomerController extends Controller
 {
@@ -2687,5 +2688,50 @@ class CustomerController extends Controller
         $type = @$request->type;
         return view('customers.quickcustomer', ['customers'=>$results[0],'nextActionArr'=>$nextActionArr,'type'=>$type]);
     }
+
+
+    //START - Purpose : Add Customer Data - DEVTASK-19932
+    public function add_customer_data(Request $request)
+    {
+       dd($request->all());
+        if(!empty($request->customer_data))
+        {
+            $email = $request->customer_data['email'];
+            
+            if($email != '')
+            {
+
+                $find_customer = Customer::where('email',$email)->first();
+
+                if($find_customer)
+                {
+                    foreach($request->customer_data['address'] as $key => $value)
+                    {
+                        $params[] = [
+                            'customer_id' => $find_customer->id,
+                            'address_1' => $value['address_1'],
+                            'address_2' => $value['address_2'],
+                            'address_3' => $value['address_3'],
+                            'country' => $value['country'],
+                            'city' => $value['city'],
+                            'state' => $value['state'],
+                            'postcode' => $value['postcode'],
+                            'created_at' => \Carbon\Carbon::now(),
+                            'updated_at' => \Carbon\Carbon::now(),
+
+                        ];
+                    }
+
+                    CustomerAddressData::insert($params);
+
+                    return response()->json(["code" => 2000 ,"message" => "Data Added successfully"]); 
+
+                }else{
+                    return response()->json(["code" => 404 ,"message" => "Not Exist!"]);
+                }
+            }
+        }
+    }
+    //END - DEVTASK-19932
    
 }
