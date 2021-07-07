@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use app\ColorNamesReference;
+use App\ColorNamesReference;
 use App\Helpers\StatusHelper;
 use App\Product;
 use App\ScrapedProducts;
@@ -47,20 +47,22 @@ class FixErpColorIssue extends Command
                 $q->where("sp.color", "!=", "")->where("sp.color", "!=", "0");
             })->where(function ($q) {
             $q->orWhereNull("products.color")->orWhere("products.color", "=", "");
-        })
-            ->limit(10)
-            ->select("products.*")->get();   
+        })->select("products.*")->get();   
+
+        //\Log::info("fix-erp-color-issue: Fetch product end found product => ". $products->count());
 
         if (!$products->isEmpty()) {
             foreach ($products as $product) {
                 $this->info("Started for product id :" . $product->id);
+                //\Log::info("fix-erp-color-issue: started for product => ". $product->id);
                 $scrapedProduct = ScrapedProducts::where("product_id", $product->id)->where(function ($q) {
                     $q->orWhereNotNull("color")->orWhere("color", "!=", "");
                 })->first();
+                //\Log::info("fix-erp-color-issue: scraped product found status => ". ($scrapedProduct) ? "yes" : "no");
                 if ($scrapedProduct) {
                     $this->info("Started for product id :" . $product->id. " and find the scraped product");
 
-                    $color = ColorNamesReference::getColorRequest(
+                    $color = \App\ColorNamesReference::getColorRequest(
                         $scrapedProduct->color,
                         $scrapedProduct->url,
                         $scrapedProduct->title,
@@ -68,7 +70,7 @@ class FixErpColorIssue extends Command
                     );
 
                     $this->info("Started for product id :" . $product->id. " and find the color =>".$color);
-
+                    //\Log::info("fix-erp-color-issue: scraped product color match start => ". $color);
                     if ($color) {
                         // check for the auto crop
                         $product->color    = $color;
@@ -86,11 +88,14 @@ class FixErpColorIssue extends Command
                         }
                         $product->save();
                         $product->checkExternalScraperNeed();
+                        //\Log::info("fix-erp-color-issue: scraped product color match finish => ". $product->status_id);
                     } else {
+                        //\Log::info("fix-erp-color-issue: scraped product no color found => ". $product->status_id);
                         $product->status_id = StatusHelper::$unknownColor;
                         $product->save();
                     }
                 } else {
+                    //\Log::info("fix-erp-color-issue: scraped product no color found condition no#2 => ". $product->status_id);
                     $product->status_id = StatusHelper::$unknownColor;
                     $product->save();
                 }

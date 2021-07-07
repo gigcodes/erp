@@ -2246,8 +2246,9 @@ class DevelopmentController extends Controller
             $history->is_approved = 1;
             $history->save();
             $user = User::find($request->user_id);
-            if($user){
-                $receiver_user_phone = $user->phone;
+            $admin = Auth::user();
+            if($admin && $user){
+                $receiver_user_phone = $admin->phone;
                 if($receiver_user_phone){
                     $task = DeveloperTask::find($request->developer_task_id);
                     $time = $history->new_value !== null ? $history->new_value : $history->old_value;
@@ -2260,7 +2261,7 @@ class DevelopmentController extends Controller
                         'status' => 0, 
                         'developer_task_id' => $request->developer_task_id
                     ]);
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $admin->whatsapp_number, $msg, false, $chat->id);
                 } 
             } 
     }else{

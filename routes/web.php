@@ -3121,29 +3121,18 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/admin-menu/db-query/update', 'DBQueryController@update')->name('admin.databse.menu.direct.dbquery.update');
 });
 
-Route::middleware('auth')->prefix('totem_new')->group(function() {
+Route::middleware('auth')->prefix('totem')->group(function() {
 
     Route::get('/', 'TasksController@dashboard')->name('totem.dashboard');
 
     Route::group(['prefix' => 'tasks'], function () {
         Route::get('/', 'TasksController@index')->name('totem.tasks.all');
 
-        Route::get('create', 'TasksController@create')->name('totem.task.create');
-        Route::post('create', 'TasksController@store');
-
-        Route::get('export', 'ExportTasksController@index')->name('totem.tasks.export');
-        Route::post('import', 'ImportTasksController@index')->name('totem.tasks.import');
-
         Route::get('{task}', 'TasksController@view')->name('totem.task.view');
-
-        Route::get('{task}/edit', 'TasksController@edit')->name('totem.task.edit');
-        Route::post('{task}/edit', 'TasksController@update');
 
         Route::post('{task}/delete', 'TasksController@destroy')->name('totem.task.delete');
 
         Route::post('{task}/status', 'TasksController@status')->name('totem.task.status'); 
-
-        // Route::get('{task}/execute', 'TasksController@execute')->name('totem.task.execute'); // done
     });
 
 });

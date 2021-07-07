@@ -40,6 +40,9 @@ class ChatMessagesController extends Controller
             case 'customer':
                 $object = Customer::find($request->object_id);
                 break;
+            case 'hubstuff':
+                $object = User::find($request->object_id);
+                break;
             case 'user':
                 $object = User::find($request->object_id);
                 break;

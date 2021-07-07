@@ -70,6 +70,25 @@
   	</div>	
 </div>
 
+<div id="chat-list-history" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Communication</h4>
+				<input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+				<input type="hidden" id="chat_obj_type" name="chat_obj_type">
+				<input type="hidden" id="chat_obj_id" name="chat_obj_id">
+				<button type="submit" class="btn btn-default downloadChatMessages">Download</button>
+			</div>
+			<div class="modal-body" style="background-color: #999999;">
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 @include("hubstaff.activities.notification.templates.list-template")
 @include("hubstaff.activities.notification.templates.create-website-template")
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
@@ -83,6 +102,60 @@
 	page.init({
 		bodyView : $("#common-page-layout"),
 		baseUrl : "<?php echo url("/"); ?>"
+	});
+</script>
+<script>
+	$(document).on('click', '.send-message1', function () {
+		var thiss = $(this);
+		var data = new FormData();
+		var hubstuff_id = $(this).data('hubstuffid');
+
+		var message = $("#messageid_"+hubstuff_id).val();
+
+		data.append("hubstuff_id", hubstuff_id);
+		data.append("message", message);
+		data.append("status", 1);
+
+		if (message.length > 0) {
+			if (!$(thiss).is(':disabled')) {
+				$.ajax({
+					url: BASE_URL+'/whatsapp/sendMessage/hubstuff',
+					type: 'POST',
+					"dataType": 'json',           // what to expect back from the PHP script, if anything
+					"cache": false,
+					"contentType": false,
+					"processData": false,
+					"data": data,
+					beforeSend: function () {
+						$(thiss).attr('disabled', true);
+					}
+				}).done(function (response) {
+					//thiss.closest('tr').find('.message-chat-txt').html(thiss.siblings('textarea').val());
+					if(message.length > 30)
+					{
+						var res_msg = message.substr(0, 27)+"..."; 
+						$("#message-chat-txt-"+hubstuff_id).html(res_msg);
+						$("#message-chat-fulltxt-"+hubstuff_id).html(message);    
+					}
+					else
+					{
+						$("#message-chat-txt-"+hubstuff_id).html(message); 
+						$("#message-chat-fulltxt-"+hubstuff_id).html(message);      
+					}
+					
+					$("#messageid_"+hubstuff_id).val('');
+					
+					$(thiss).attr('disabled', false);
+				}).fail(function (errObj) {
+					$(thiss).attr('disabled', false);
+
+					// alert("Could not send message");
+					console.log(errObj);
+				});
+			}
+		} else {
+			alert('Please enter a message first');
+		}
 	});
 </script>
 @endsection
