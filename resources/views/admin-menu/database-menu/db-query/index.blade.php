@@ -49,7 +49,8 @@
     </div> -->
     
     <div class="col-xs-2 text-left save_class d-none">
-        <button type="submit" class="btn btn-secondary save_change_btn">Update </button>
+        <button type="submit" class="btn btn-secondary save_change_btn">Update</button>
+        <button type="submit" class="btn btn-secondary delete_btn">Delete</button>
     </div>
     <br><br><br>
     <div class="container_" style="margin: 0 30px">
@@ -162,6 +163,52 @@ $('.save_change_btn').click(function(){
             if(confirm('Do You really want to run the following query? \n' + response.sql)){
                 $.ajax({
                     url: '{{route('admin.databse.menu.direct.dbquery.update')}}',
+                    data: {
+                        sql: response.sql
+                    },
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                    success: function(response){
+                        if(response.error == ''){
+                            toastr["success"]('Database updated successfully !');
+                        }else{
+                            toastr["error"](response.error.errorInfo[2]);
+                        }
+                    }
+                });
+                
+            }
+        }
+    });
+});
+
+
+
+$('.delete_btn').click(function(){
+    let is_input_empty = 1;
+    $(".right_bar input").each(function(){
+        if($(this).val() != '') is_input_empty = 0;
+    });
+    // if(is_input_empty){
+    //     if(!confirm('You are about to DESTROY a complete table! Do you really want to drop table ?')){
+    //         return false;
+    //     };
+    // }
+
+    let form_data = $('.db_query').serialize();
+    $.ajax({
+        url: '{{route('admin.databse.menu.direct.dbquery.delete.confirm')}}',
+        data: form_data,
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+        success: function(response){
+            if(confirm('Do You really want to run the following query? \n' + response.sql)){
+                $.ajax({
+                    url: '{{route('admin.databse.menu.direct.dbquery.delete')}}',
                     data: {
                         sql: response.sql
                     },

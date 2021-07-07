@@ -54,7 +54,7 @@ class DBQueryController extends Controller
             if(strpos($key, 'where_') !== false && $val !== null){
                 $key = str_replace('where_', '', $key);
                 $sql_query .= $where_query_exist ? ' AND ' : '';
-                $sql_query .= $key . ' ' . $request->criteriaColumnOperators["'".$key."'"] . ' "' . $val . '"';
+                $sql_query .= $key . ' = ' . $request->criteriaColumnOperators["'".$key."'"] . ' "' . $val . '"';
                 $where_query_exist = 1;
             }
         }
@@ -66,7 +66,46 @@ class DBQueryController extends Controller
             'data' => $request->all(),
         ]);
     }
+
+
+    public function deleteConfirm(Request $request)
+    {
+        $sql_query = 'DELETE from ' . $request->table_name;
+
+        $data = $request->all();
+        $where_query_exist = 0; 
+        $sql_query .= ' WHERE ';
+        $sql_query = str_replace(',  WHERE', ' WHERE', $sql_query);
+        foreach($data as $key => $val){ 
+            if(strpos($key, 'where_') !== false && $val !== null){
+                $key = str_replace('where_', '', $key);
+                $sql_query .= $where_query_exist ? ' AND ' : '';
+                $sql_query .= $key . ' = ' . $request->criteriaColumnOperators["'".$key."'"] . ' "' . $val . '"';
+                $where_query_exist = 1;
+            }
+        }
+        !$where_query_exist ? $sql_query .= '1 ;' : $sql_query .= ' ;'; 
+        
+        return response()->json([
+            'status' => true,
+            'sql' => $sql_query,
+            'data' => $request->all(),
+        ]);
+    }
     public function update(Request $request)
+    {
+        try{
+            $sql = DB::select($request->sql);
+        }catch(\Exception $e){
+            $error = $e;
+        }
+
+        return response()->json([
+            'status' => isset($error) ? false : true,
+            'error' => $error ?? '',
+        ]);
+    }
+    public function delete(Request $request)
     {
         try{
             $sql = DB::select($request->sql);
