@@ -118,29 +118,22 @@ table tr td {
                             <tr class="{{$task->is_active ? '' : 'red' }}">
                                 <td>{{$task->id}}</td>
                                 <td>
-                                    <!-- <a href="{{route('totem.task.view', $task->id)}}" > -->
                                         {{str_limit($task->description, 30)}}
-                                    <!-- </a> -->
-                                    <!-- <span class="uk-float-right uk-hidden@s uk-text-muted">Command</span> -->
                                 </td>
                                 <td>
                                     {{ number_format(  $task->averageRuntime / 1000 , 2 ) }} seconds
-                                    <!-- <span class="uk-float-right uk-hidden@s uk-text-muted">Avg. Runtime</span> -->
                                 </td>
                                 @if($last = $task->lastResult)
                                     <td>
                                         {{$last->ran_at->toDateTimeString()}}
-                                        <!-- <span class="uk-float-right uk-hidden@s uk-text-muted">Last Run</span> -->
                                     </td>
                                 @else
                                     <td>
                                         N/A
-                                        <!-- <span class="uk-float-right uk-hidden@s uk-text-muted">Last Run</span> -->
                                     </td>
                                 @endif
                                 <td>
                                     {{$task->upcoming}}
-                                    <!-- <span class="uk-float-right uk-hidden@s uk-text-muted">Next Run</span> -->
                                 </td>
                                 <td class="uk-text-center@m">
                                     <a style="padding:1px;" class="btn d-inline btn-image view-task" href="#" data-id="{{$task->id}}" title="view task" data-expression="{{$task->getCronExpression()}}"><img src="/images/view.png" style="cursor: pointer; width: 0px;"></a>
@@ -443,7 +436,7 @@ table tr td {
         let expression = $(this).attr('data-expression');
         $.ajax({
             type: "GET",
-            url: "/totem_new/tasks/"+$(this).data('id'), 
+            url: "/totem/tasks/"+$(this).data('id'), 
             dataType : "json",
             success: function (response) {
                 var html_content = '';
@@ -507,7 +500,7 @@ table tr td {
         $('#view_execution_history').modal('show'); 
     });
 
-    $(document).on("click",".show-result",function(e) {
+    $(document).on("click","#show-result",function(e) {
         let results = $(this).attr('data-output'); 
         $("#showResultModal .modal-body h5").html(results);                   
         $('#showResultModal').modal('show'); 
@@ -535,7 +528,7 @@ table tr td {
         if(confirm('Do you really want to delete this task?')){
             $.ajax({
             type: "POST",
-            url: "/totem_new/tasks/"+$(this).data('id')+"/delete", 
+            url: "/totem/tasks/"+$(this).data('id')+"/delete", 
             data: {
 				_token: "{{ csrf_token() }}", 
             }, 
@@ -561,7 +554,7 @@ table tr td {
         let active = $(this).attr('data-active');
         $.ajax({
             type: "POST",
-            url: "/totem_new/tasks/"+$(this).data('id')+"/status", 
+            url: "/totem/tasks/"+$(this).data('id')+"/status", 
             data: {
                 active: active,
 				_token: "{{ csrf_token() }}", 
@@ -699,7 +692,7 @@ table tr td {
         $('#addEditTaskModal .modal-title').html('Edit task');
         $.ajax({
             type: "GET",
-            url: "/totem_new/tasks/"+$(this).data('id'),  
+            url: "/totem/tasks/"+$(this).data('id'),  
             dataType : "json",
             success: function (response) {
                 let task_fields = response  .task;
@@ -755,6 +748,6 @@ table tr td {
             }
         });
     });
- 
+
 </script>
 @endsection
