@@ -172,4 +172,11 @@ class ColorReferenceController extends Controller
 
         return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
     }
+
+    public function cmdcallcolorfix(Request $request)
+    {
+         \Artisan::call('fix-erp-color-issue');
+
+        return redirect()->back();
+    }
 }

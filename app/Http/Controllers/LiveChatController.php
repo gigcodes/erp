@@ -157,6 +157,23 @@ class LiveChatController extends Controller
 
                     // Create chat message
                     $chatMessage = ChatMessage::create($params);
+
+                    //STRAT - Purpose : Add record in chatbotreplay - DEVTASK-18280
+                    if($messageStatus != 2)
+                    {
+                        \App\ChatbotReply::create([
+                            'question'        => $message,
+                            'reply' => json_encode([
+                                'context' => 'chatbot',
+                                'issue_id' => $chatDetails->chat_id,
+                                'from' => "chatbot"
+                            ]),
+                            'replied_chat_id' => $chatMessage->id,
+                            'reply_from'      => 'chatbot',
+                        ]);
+                    }
+                    //END - DEVTASK-18280
+
                     // if customer found then send reply for it
                     if (!empty($customerDetails) && $message != '') {
                         WatsonManager::sendMessage($customerDetails, $message, '', $message_application_id);
@@ -350,7 +367,7 @@ class LiveChatController extends Controller
             $message = TranslationHelper::translate('en', $language, $message);
         }
 
-if(isset($request->messageId)){
+        if(isset($request->messageId)){
                 $chatMessages = ChatMessage::where('id', $request->messageId)->first();
                 if ($chatMessages != null) {
                     $chatMessages->approved = 1;

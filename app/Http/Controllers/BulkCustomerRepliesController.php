@@ -35,20 +35,66 @@ class BulkCustomerRepliesController extends Controller
         if ($request->get('keyword_filter')) {
             $keyword = $request->get('keyword_filter');
 
-            $searchedKeyword = BulkCustomerRepliesKeyword::with(['customers' => function($q)use($request){
-                $q->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id,whatsapp_number, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id  GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id')
+//            $searchedKeyword = BulkCustomerRepliesKeyword::with(['customers' => function($q)use($request){
+//                $q->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id,whatsapp_number, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id  GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id')
+//                ->groupBy('customers.id')
+//                ->orderBy('max_id','desc');
+//
+//                if($request->dnd_enabled !== 'all'){
+//                    $q->doesntHave('dnd');
+//                }else{
+//                    $q->has('dnd');
+//                }
+//
+//            }])->with('customers.dnd')
+//            ->where('value', $keyword)
+//            ->first();
+//dd($searchedKeyword);
+            $searchedKeyword = BulkCustomerRepliesKeyword::where('value', $keyword)->first();
+
+            $customerids = Customer::whereHas('bulkMessagesKeywords', function($q) use($keyword){
+                $q->where('value', $keyword);
+            });
+
+            if($request->dnd_enabled === '0'){
+
+                $customerids = $customerids->whereHas('dnd');
+            }else if ($request->dnd_enabled === '1'){
+                $customerids = $customerids->whereDoesntHave('dnd');
+            }else{
+
+            }
+            $customerids = $customerids->pluck('id')->toArray();
+
+            $customers = Customer::leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id,whatsapp_number, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id  GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id')
                 ->groupBy('customers.id')
-                ->orderBy('max_id','desc');
+                ->whereIn('id', $customerids);
 
-                if($request->dnd_enabled !== 'all'){
-                    $q->doesntHave('dnd');
-                }else{
-                    $q->has('dnd');
-                }
 
-            }])->with('customers.dnd')
-            ->where('value', $keyword)
-            ->first();
+
+            $customers = $customers->orderBy('max_id','desc')->paginate(20);
+
+
+
+//dd($customers);
+//            $searchedKeyword = BulkCustomerRepliesKeyword::with(['customers' => function($q)use($request){
+//
+//                $q->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id,whatsapp_number, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id  GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id')
+//                    ->groupBy('customers.id')
+//                    ->orderBy('max_id','desc');
+//                if($request->dnd_enabled !== 'all'){
+//
+//                    $q->whereHas('dnd');
+//                }else{
+//                    $q->whereDoesntHave('dnd');
+//                }
+//
+//
+//            }, 'customers.dnd'])
+//                ->where('value', $keyword)
+//                ->first();
+
+//            dd($searchedKeyword);
 
         }
 
@@ -70,7 +116,7 @@ class BulkCustomerRepliesController extends Controller
         $chatbotKeywords = \App\ChatbotKeyword::all();
         // dd($chatbotKeywords);
 // dd($searchedKeyword);
-        return view('bulk-customer-replies.index', compact('keywords','autoKeywords', 'searchedKeyword', 'nextActionArr','groups','pdfList','reply_categories','settingShortCuts','users_array','whatsappNos','chatbotKeywords'));
+        return view('bulk-customer-replies.index', compact('customers','keywords','autoKeywords', 'searchedKeyword', 'nextActionArr','groups','pdfList','reply_categories','settingShortCuts','users_array','whatsappNos','chatbotKeywords'));
     }
 
     public function updateWhatsappNo(Request $request)
