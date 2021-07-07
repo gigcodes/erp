@@ -39,28 +39,42 @@ class DeleteCategoriesWithNoProduct extends Command
     public function handle()
     {
         set_time_limit(0);
+        
         ini_set("memory_limit", "-1");
+        
         $unKnownCategory  = Category::where('title', 'LIKE', '%Unknown Category%')->first();
-        $neededCategories = [];
+        
         if ($unKnownCategory) {
-            $unKnownCategories = explode(',', $unKnownCategory->references);
-            $unKnownCategories = array_unique($unKnownCategories);
-            if (!empty($unKnownCategories)) {
-                foreach ($unKnownCategories as $unKnownC) {
+        
+            $unKnownCatArr = array_unique(explode(',', $unKnownCategory->references));
+            
+            if (!empty($unKnownCatArr)) {
+                
+                $storeUnUserCategory = [];
+                
+                foreach ($unKnownCatArr as $key => $unKnownC) {
+                    
                     $count = \App\Category::ScrapedProducts($unKnownC);
                     if ($count > 1) {
-                        //$neededCategories[] = $unKnownC;
-                        echo "Added in  {$unKnownC} categories";
-                        echo  PHP_EOL;
+                    
+                        // echo "Added in  {$unKnownC} categories";
+                        // echo  PHP_EOL;
+                    
                     }else{
-                        $key = array_search ($unKnownC, $unKnownCategories);
-                        unset($unKnownCategories[$key]);
-                        echo "removed from  {$unKnownC} categories";
-                        echo  PHP_EOL;
+                        $storeUnUserCategory[] = $unKnownC;
+
+                        //$key = array_search ($unKnownC, $unKnownCatArr);
+                        
+                        unset($unKnownCatArr[$key]);
+                        
+                        // echo "removed from  {$unKnownC} categories";
+                        // echo  PHP_EOL;
                     }
-                    $unKnownCategory->references = implode(",",array_filter($unKnownCategories));
-                    $unKnownCategory->save();
                 }
+
+                $unKnownCategory->references      = implode(',',array_filter($unKnownCatArr));
+                $unKnownCategory->ignore_category = implode(',',array_filter($storeUnUserCategory));
+                $unKnownCategory->save();
             }
         }
     }
