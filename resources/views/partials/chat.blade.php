@@ -458,6 +458,7 @@ var chatTimerObj = false;
 function openChatBox(show){
 	console.log("openChatBox");
 	console.log(show);
+	console.log("currentChatId :"+currentChatId);
 	if(show){
 
 		console.log("Open Socket >>>");
@@ -576,6 +577,9 @@ function getCustomerInfoOnLoad(){
 	    	$('#chatAdditionalInfo').html('');
 	    	$('#chatTechnology').html('');
 		}
+
+
+		console.log("threadId :"+data.threadId);
 
 		if(data.threadId != ''){
 			currentChatId = data.threadId;
@@ -745,6 +749,10 @@ function getChats(id){
 				$('#chatAdditionalInfo').html('');
 				$('#chatTechnology').html('');
 			}
+
+
+			console.log("threadId :: :"+data.data.threadId);
+
 
 			currentChatId = data.data.threadId;
 
