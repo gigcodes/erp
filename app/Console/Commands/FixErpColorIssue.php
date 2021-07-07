@@ -2,14 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\ProductHelper;
+use app\ColorNamesReference;
 use App\Helpers\StatusHelper;
 use App\Product;
-use App\ProductSizes;
-use App\ProductSupplier;
 use App\ScrapedProducts;
 use Illuminate\Console\Command;
-use app\ColorNamesReference;
 
 class FixErpColorIssue extends Command
 {
@@ -45,22 +42,24 @@ class FixErpColorIssue extends Command
     public function handle()
     {
         //
-        $products = Product::join("scraped_products as sp","sp.product_id","products.id")->where("products.status_id", StatusHelper::$sizeVerifyCron)->where("products.supplier_id",">",0)
-        ->where(function($q) {
-            $q->where("sp.color","!=","")->where("sp.color","!=","0");
-        })->where(function($q) {
-            $q->orWhereNull("products.color")->orWhere("products.color","=","");
+        $products = Product::join("scraped_products as sp", "sp.product_id", "products.id")->where("products.status_id", StatusHelper::$unknownColor)->where("products.supplier_id", ">", 0)
+            ->where(function ($q) {
+                $q->where("sp.color", "!=", "")->where("sp.color", "!=", "0");
+            })->where(function ($q) {
+            $q->orWhereNull("products.color")->orWhere("products.color", "=", "");
         })
-        ->select("products.*")->get();
+            ->limit(10)
+            ->select("products.*")->get();   
 
         if (!$products->isEmpty()) {
             foreach ($products as $product) {
                 $this->info("Started for product id :" . $product->id);
-                $scrapedProduct = ScrapedProducts::where("product_id", $product->id)->where(function($q) {
-                    $q->orWhereNotNull("color")->orWhere("color","!=","");
+                $scrapedProduct = ScrapedProducts::where("product_id", $product->id)->where(function ($q) {
+                    $q->orWhereNotNull("color")->orWhere("color", "!=", "");
                 })->first();
                 if ($scrapedProduct) {
-                    
+                    $this->info("Started for product id :" . $product->id. " and find the scraped product");
+
                     $color = ColorNamesReference::getColorRequest(
                         $scrapedProduct->color,
                         $scrapedProduct->url,
@@ -68,9 +67,11 @@ class FixErpColorIssue extends Command
                         $scrapedProduct->description
                     );
 
-                    if($color)
-                    {
+                    $this->info("Started for product id :" . $product->id. " and find the color =>".$color);
+
+                    if ($color) {
                         // check for the auto crop
+                        $product->color    = $color;
                         $needToCheckStatus = [
                             StatusHelper::$requestForExternalScraper,
                             StatusHelper::$unknownComposition,
@@ -84,11 +85,12 @@ class FixErpColorIssue extends Command
                             $product->status_id = StatusHelper::$autoCrop;
                         }
                         $product->save();
-                    }else{
+                        $product->checkExternalScraperNeed();
+                    } else {
                         $product->status_id = StatusHelper::$unknownColor;
                         $product->save();
                     }
-                }else{
+                } else {
                     $product->status_id = StatusHelper::$unknownColor;
                     $product->save();
                 }
