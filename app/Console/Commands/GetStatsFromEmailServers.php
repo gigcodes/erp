@@ -49,7 +49,8 @@ class GetStatsFromEmailServers extends Command
                     if($list->service && isset($list->service->name) ){
                         if($list->service->name == 'AcelleMail'){
 
-                            $url = "http://165.232.42.174/api/v1/campaigns/".$mailEmail->api_template_id."?api_token=".getenv('ACELLE_MAIL_API_TOKEN');
+                            // $url = "http://165.232.42.174/api/v1/campaigns/".$mailEmail->api_template_id."?api_token=".getenv('ACELLE_MAIL_API_TOKEN');
+                            $url = "http://165.232.42.174/api/v1/campaigns/".$mailEmail->api_template_id."?api_token=".config('env.ACELLE_MAIL_API_TOKEN');
 
                             $ch = curl_init();
 
