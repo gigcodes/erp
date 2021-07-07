@@ -74,7 +74,7 @@
 						@endphp
 						<div class="form-group">
     						<strong>Default For:</strong>
-    						<select class="form-control" name="default_for[]" multiple>
+    						<select class="form-control select-multiple-default_for" name="default_for[]" multiple>
 								
     							<option value="1" @if(in_array(1,$defaultForArr)) selected @endif>Customer</option>
     							<option value="2" @if(in_array(2,$defaultForArr)) selected @endif>Vendor</option>

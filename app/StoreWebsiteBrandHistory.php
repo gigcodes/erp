@@ -18,7 +18,12 @@ class StoreWebsiteBrandHistory extends Model
      * @SWG\Property(property="updated_at",type="datetime")
      */
     protected $fillable = [
-        'brand_id','store_website_id','type','message','created_at', 'updated_at'
+        'brand_id','store_website_id','type','message','created_by','created_at', 'updated_at'
     ];
+
+    public function user()
+    {
+        return $this->hasOne(\App\User::class,'id','created_by');
+    }
 
 }

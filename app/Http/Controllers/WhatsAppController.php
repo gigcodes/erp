@@ -2014,6 +2014,10 @@ class WhatsAppController extends FindByNumberController
         } elseif ($context == 'supplier') {
             $data['supplier_id'] = $request->supplier_id;
             $module_id = $request->supplier_id;
+        } elseif ($context == 'chatbot') { //Purpose : Add Chatbotreplay - DEVTASK-18280
+            $data['customer_id'] = $request->customer_id;
+            $module_id = $request->customer_id;
+            \App\ChatMessage::updatedUnreadMessage($request->customer_id, $data["status"]);
         } else {
             if ($context == 'vendor') {
                 $data['vendor_id'] = $request->vendor_id;
@@ -2868,7 +2872,7 @@ class WhatsAppController extends FindByNumberController
 
                 } elseif ($context == 'site_development') {
                     $chat_message = null;
-                    $users = $request->get('users', [$request->get("user_id", 0)]);
+                    $users = $request->get('users', [$request->get("user_id", 6)]);
                     if (!empty($users)) {
                         foreach ($users as $user) {
                             $user = User::find($user);
@@ -3047,6 +3051,24 @@ class WhatsAppController extends FindByNumberController
             }
         }
         //END - DEVTASK-4203
+
+        //STRAT - Purpose : Add record in chatbotreplay - DEVTASK-18280
+        if($context == 'chatbot')
+        {
+            if($request->chat_reply_message_id){
+                $messageReply = \App\ChatbotReply::find($request->chat_reply_message_id);
+
+                if($messageReply){
+                    
+                    $messageReply->chat_id = $chat_message->id;
+                    
+                    $messageReply->save();
+
+                }
+            }
+            return response()->json(['message' => $chat_message]);
+        }
+         //END - DEVTASK-18280
 
         if ($context == 'customer') {
 

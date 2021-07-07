@@ -475,7 +475,10 @@ class DevelopmentController extends Controller
 
         // Set variables with modules and users
         $modules = DeveloperModule::all();
-        $users = Helpers::getUserArray(User::all());
+        
+        $usrlst = User::orderBy('name')->where('is_active',1)->get();
+        $users = Helpers::getUserArray($usrlst);
+
         // $statusList = \DB::table("developer_tasks")->where("status", "!=", "")->groupBy("status")->select("status")->pluck("status", "status")->toArray();
 
         $statusList = \DB::table("task_statuses")->select("name")->pluck("name", "name")->toArray();
@@ -2651,7 +2654,8 @@ class DevelopmentController extends Controller
     {
         $status = "ok";
         // Get all developers
-        $users = Helpers::getUserArray(User::role('Developer')->get());
+        $userlst = User::role('Developer')->orderby('name','asc')->where('is_active',1)->get();
+        $users = Helpers::getUserArray($userlst);
         //$users = Helpers::getUsersByRoleName('Developer');
         // Get all task types
         $tasksTypes = TaskTypes::all();

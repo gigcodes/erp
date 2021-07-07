@@ -119,9 +119,13 @@
                         </form>
                     </div>
                     @if( auth()->user()->isAdmin() )
+                       
                         <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 permission-request">Permission request ( {{$permissionRequest}} )</button>
+                       
                         <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 erp-request">ERP IPs</button>
+                       
                         <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 system-request" data-toggle="modal" data-target="#system-request">System IPs</button>
+                       
                         <button class="btn btn-secondary btn-xs pull-right today-history"> All user task </button>
                     @endif
                     
@@ -151,6 +155,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
+                <button type="button" class="btn btn-default permission-delete-grant">Delete All</button>
                 <div class="col-md-12" id="permission-request">
                     <table class="table fixed_header">
                         <thead>
@@ -248,6 +253,7 @@
                     
                     @php
                         $shell_list = shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f list");
+
                         $final_array = [];
                         if($shell_list != ''){
                             $lines=explode(PHP_EOL,$shell_list);
@@ -260,16 +266,32 @@
                         }
                     @endphp
                     <input type="text" name="add-ip" class="form-control col-md-3" placeholder="Add IP here...">
-                    <input type="text" name="ip_comment" class="form-control col-md-3" style="margin-left: 10px" placeholder="Add comment...">
+
+                    <div>
+                        <select class="form-control col-md-3 ml-3" name="user_id" id="ipusers">
+                            <option>Select user</option>
+                            @foreach($userlist as $user)
+                                <option value="{{ $user->id}}">{{ $user->name}}</option>
+                            @endforeach
+                            <option value="other">Other</option>
+                        </select>
+
+                        <input type="text" name="other_user_name" id="other_user_name" class="form-control col-md-3 ml-3" style="display:none;" placeholder="other name">
+                    </div>    
+                    
+                    <input type="text" name="ip_comment" class="form-control col-md-3 ml-3" placeholder="Add comment...">
+
                     <button class="btn-success btn addIp ml-3 mb-5">Add</button>
+
                     <table class="table table-bordered">
                         <tr>
                             <th>Index</th>
                             <th>IP</th>
+                            <th>User</th>
                             <th>Comment</th>
                             <th>Action</th>
                         </tr>
-                        @if(!empty($final_array))
+                        <!-- @if(!empty($final_array))
                             @foreach(array_reverse($final_array) as $values)
                                 <tr>
                                     <td>{{ isset($values[0]) ? $values[0] : "" }}</td>
@@ -278,7 +300,24 @@
                                     <td><button class="btn-warning btn deleteIp" data-index="{{ $values[0]}}">Delete</button></td>
                                 </tr>
                             @endforeach
-                        @endif
+                        @endif -->
+
+                            @foreach($usersystemips as $row)
+                                <tr>
+                                    <td>{{ $row->index_txt }}</td>
+                                    
+                                    <td>{{ $row->ip }}</td>
+                                    
+                                    <td>{{ $row->user_id ? $row->user->name : $row->other_user_name }}</td>
+                                    
+                                    <td>{{ $row->notes }}</td>
+
+                                    <td>
+                                        <button class="btn-warning btn deleteIp" data-usersystemid="{{ $row->id}}">Delete</button>
+                                    </td>
+                                </tr>
+                            @endforeach
+
                     </table>
                 </div>
             </div>
@@ -461,9 +500,25 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
 <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
 <script type="text/javascript">
- $('#due-datetime').datetimepicker({
-            format: 'YYYY-MM-DD HH:mm'
-}); 
+
+    $( document ).ready(function() {
+        $('#ipusers').change(function() {
+            var selected = $(this).val();
+            if(selected == 'other'){
+              $('#other_user_name').show();
+            }
+            else{
+              $('#other_user_name').hide();
+            }
+        });
+    });    
+
+
+     $('#due-datetime').datetimepicker({
+                format: 'YYYY-MM-DD HH:mm'
+     }); 
+
+     
 
      // $(document).on("click",".permission-request",function() {
      //    $('#permission-request').modal();
@@ -628,7 +683,13 @@
             $.ajax({
                 url: '/users/add-system-ip',
                 type: 'GET',
-                data : { _token: "{{ csrf_token() }}",ip: $('input[name="add-ip"]').val(),comment: $('input[name="ip_comment"]').val()},
+                data : { 
+                    _token: "{{ csrf_token() }}",
+                    ip: $('input[name="add-ip"]').val(),
+                    user_id: $('#ipusers').val(),
+                    other_user_name : $('input[name="other_user_name"]').val(),
+                    comment: $('input[name="ip_comment"]').val()
+                },
                 dataType: 'json',
                 beforeSend: function () {
                     $("#loading-image").show();
@@ -636,6 +697,7 @@
                 success: function(result){
                     $("#loading-image").hide();
                     toastr["success"]("IP added successfully");
+                    location.reload();
                 },
                 error: function (){
                     $("#loading-image").hide();
@@ -648,17 +710,19 @@
     });
     $(document).on("click",".deleteIp",function(e) {
         e.preventDefault();
+        var btn = $(this);
         $.ajax({
             url: '/users/delete-system-ip',
             type: 'GET',
-            data : { _token: "{{ csrf_token() }}",index: $(this).data('index')},
+            data : { _token: "{{ csrf_token() }}",usersystemid: $(this).data('usersystemid')},
             dataType: 'json',
             beforeSend: function () {
                 $("#loading-image").show();
             },
             success: function(result){
+                btn.parents('tr').remove();
                 $("#loading-image").hide();
-                toastr["success"]("IP added successfully");
+                toastr["success"]("IP Deteted successfully");
             },
             error: function (){
                 $("#loading-image").hide();
@@ -684,6 +748,31 @@
             success: function(result){
                 $("#loading-image").hide();
                 if(result.code == 200) {
+                    toastr["success"](result.data,"");
+                }else{
+                    toastr["error"](result.data,"");
+                }
+            },
+            error: function (){
+                $("#loading-image").hide();
+            }
+        });
+    });
+
+    $(document).on("click",".permission-delete-grant",function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/user-management/request-delete',
+            type: 'POST',
+            data : { _token: "{{ csrf_token() }}"},
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                if(result.code == 200) {
+                    $("#permission-request").find(".show-list-records").html('');
                     toastr["success"](result.data,"");
                 }else{
                     toastr["error"](result.data,"");

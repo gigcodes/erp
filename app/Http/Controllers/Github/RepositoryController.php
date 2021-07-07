@@ -95,26 +95,31 @@ class RepositoryController extends Controller
     {
         $source = 'master';
         $destination = Input::get('branch');
+        $pullOnly = request('pull_only',0);
 
         $url = "https://api.github.com/repositories/" . $repoId . "/merges";
 
         try {
             // Merge master into branch
-            $this->client->post(
-                $url,
-                [
-                    RequestOptions::BODY => json_encode([
-                        'base' => $destination,
-                        'head' => $source,
-                    ])
-                ]
-            );
-            echo 'done';
-            //Artisan::call('github:load_branch_state');
-            if($source == 'master'){
-                $this->updateBranchState($repoId, $destination);
-            }else if($destination == 'master'){
-                $this->updateBranchState($repoId, $source);
+            if(empty($pullOnly) || $pullOnly != 1) {
+
+                $this->client->post(
+                    $url,
+                    [
+                        RequestOptions::BODY => json_encode([
+                            'base' => $destination,
+                            'head' => $source,
+                        ])
+                    ]
+                );
+                echo 'done';
+                //Artisan::call('github:load_branch_state');
+                if($source == 'master'){
+                    $this->updateBranchState($repoId, $destination);
+                }else if($destination == 'master'){
+                    $this->updateBranchState($repoId, $source);
+                }
+
             }
 
             // Deploy branch

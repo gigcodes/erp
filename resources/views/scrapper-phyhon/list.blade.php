@@ -157,6 +157,7 @@
                 <th style="width:20%">Id</th>
                 <th style="width:20%">Website</th>
                 <th style="width:45%">Name</th>
+                <th style="width:45%">Language</th>
                 <th style="width:20%">Action</th>
                 </thead>
                 <tbody class="infinite-scroll-data">
