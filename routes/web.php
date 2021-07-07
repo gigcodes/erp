@@ -20,7 +20,7 @@ Route::get('/test/dummydata', 'TestingController@testingFunction');
 Route::get('/test/test', 'OrderController@testEmail');
 Route::get('/memory', function () {
     return view('memory');
-})->name('memory');
+})->name('memory'); 
 
 Route::get('/test/pushProduct', 'TmpTaskController@testPushProduct');
 Route::get('/test/fixBrandPrice', 'TmpTaskController@fixBrandPrice');
@@ -158,11 +158,16 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
+    
     Route::get('color-reference/used-products', 'ColorReferenceController@usedProducts');
+
+    Route::get('color-reference-fix-issue','ColorReferenceController@cmdcallcolorfix')->name('erp-color-fix-cmd');
+
     Route::get('color-reference/affected-product', 'ColorReferenceController@affectedProduct');
     Route::post('color-reference/update-color', 'ColorReferenceController@updateColor');
 
     Route::resource('color-reference', 'ColorReferenceController');
+
     Route::get('compositions/{id}/used-products', 'CompositionsController@usedProducts')->name('compositions.used-products');
     Route::get('compositions/affected-product', 'CompositionsController@affectedProduct');
     Route::post('compositions/update-composition', 'CompositionsController@updateComposition');
@@ -3116,6 +3121,32 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/admin-menu/db-query/update', 'DBQueryController@update')->name('admin.databse.menu.direct.dbquery.update');
 });
 
+Route::middleware('auth')->prefix('totem_new')->group(function() {
+
+    Route::get('/', 'TasksController@dashboard')->name('totem.dashboard');
+
+    Route::group(['prefix' => 'tasks'], function () {
+        Route::get('/', 'TasksController@index')->name('totem.tasks.all');
+
+        Route::get('create', 'TasksController@create')->name('totem.task.create');
+        Route::post('create', 'TasksController@store');
+
+        Route::get('export', 'ExportTasksController@index')->name('totem.tasks.export');
+        Route::post('import', 'ImportTasksController@index')->name('totem.tasks.import');
+
+        Route::get('{task}', 'TasksController@view')->name('totem.task.view');
+
+        Route::get('{task}/edit', 'TasksController@edit')->name('totem.task.edit');
+        Route::post('{task}/edit', 'TasksController@update');
+
+        Route::post('{task}/delete', 'TasksController@destroy')->name('totem.task.delete');
+
+        Route::post('{task}/status', 'TasksController@status')->name('totem.task.status'); 
+
+        // Route::get('{task}/execute', 'TasksController@execute')->name('totem.task.execute'); // done
+    });
+
+});
 
 Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('customers', 'Select2Controller@customers')->name('select2.customer');
