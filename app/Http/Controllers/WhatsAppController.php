@@ -2008,6 +2008,12 @@ class WhatsAppController extends FindByNumberController
             $module_id = $request->customer_id;
             //update if the customer message is going to send then update all old message to read
             \App\ChatMessage::updatedUnreadMessage($request->customer_id, $data["status"]);
+
+            // update message for chatbot request->customer_id
+            if(!empty($data["status"]) && !in_array($data["status"], \App\ChatMessage::AUTO_REPLY_CHAT)) {
+                \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.replied_chat_id', '=', 'c.id')->where('c.customer_id', $request->customer_id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
+                \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.chat_id', '=', 'c.id')->where('c.customer_id', $request->customer_id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
+            }
         } elseif ($context == "purchase") {
             $data['purchase_id'] = $request->purchase_id;
             $module_id = $request->purchase_id;
@@ -2035,6 +2041,13 @@ class WhatsAppController extends FindByNumberController
                 if ($request->get('message')) {
                     $data['message'] = $request->get('message');
                 }
+
+                // update message for chatbot request->vendor_id
+                if(!empty($data["status"]) && !in_array($data["status"], \App\ChatMessage::AUTO_REPLY_CHAT)) {
+                    \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.replied_chat_id', '=', 'c.id')->where('c.vendor_id', $request->vendor_id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
+                    \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.chat_id', '=', 'c.id')->where('c.vendor_id', $request->vendor_id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
+                }
+
             } elseif ($context == 'task') {
                 $data['task_id'] = $request->task_id;
                 $task = Task::find($request->task_id);
@@ -2135,6 +2148,12 @@ class WhatsAppController extends FindByNumberController
                         'replied_chat_id' => $chat_message->id,
                         'reply_from' => 'database'
                     ]);
+                }
+
+                // update message for chatbot request->vendor_id
+                if(!empty($data["status"]) && !in_array($data["status"], \App\ChatMessage::AUTO_REPLY_CHAT)) {
+                    \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.replied_chat_id', '=', 'c.id')->where('c.task_id', $task->id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
+                    \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.chat_id', '=', 'c.id')->where('c.task_id', $task->id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
                 }
                 
                 $message_ = "[ ". @$loggedUser->name ." ] - #". $task->id.' - '. $task->task_subject . "\n\n" . $request->message;
@@ -2441,6 +2460,12 @@ class WhatsAppController extends FindByNumberController
                         'last_communicated_message_at' => Carbon::now(),
                         'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
                     ]);
+
+                    // update message for chatbot request->vendor_id
+                    if(!empty($data["status"]) && !in_array($data["status"], \App\ChatMessage::AUTO_REPLY_CHAT)) {
+                        \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.replied_chat_id', '=', 'c.id')->where('c.developer_task_id', $issue->id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
+                        \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.chat_id', '=', 'c.id')->where('c.developer_task_id', $issue->id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
+                    }
 
                     if ($sendTo == "to_master") {
                         
