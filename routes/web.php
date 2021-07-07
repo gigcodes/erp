@@ -395,6 +395,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
     Route::resource('reply', 'ReplyController');
+    
     Route::post('reply/chatbot/questions', 'ReplyController@chatBotQuestionT')->name('reply.create.chatbot_questions');
     Route::post('reply/category/store', 'ReplyController@categoryStore')->name('reply.category.store');
 

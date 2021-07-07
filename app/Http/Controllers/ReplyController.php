@@ -17,13 +17,24 @@ class ReplyController extends Controller
     //  $this->middleware('permission:reply-edit',[ 'only' => 'index','create','store','destroy','update','edit']);
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        $reply_categories = ReplyCategory::all();
 
-      $replies = Reply::oldest()->whereNull('deleted_at')->paginate(Setting::get('pagination'));
-      $reply_categories = ReplyCategory::all();
-  		return view('reply.index',compact('replies','reply_categories'))
-  					->with('i', (request()->input('page', 1) - 1) * 10);
+        $replies = Reply::oldest();
+
+            if(!empty($request->keyword)){
+                $replies->where('reply', 'LIKE','%'.$request->keyword.'%');
+            }
+             
+            if(!empty($request->category_id)){
+                $replies->where('category_id',$request->category_id);
+            }    
+
+            $replies = $replies->paginate(Setting::get('pagination'));
+  	
+        return view('reply.index',compact('replies','reply_categories'))
+        ->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
     /**
@@ -33,11 +44,11 @@ class ReplyController extends Controller
      */
     public function create()
     {
-      $data['reply'] = '';
-      $data['model'] = '';
-  		$data['category_id'] = '';
-      $data['modify'] = 0;
-      $data['reply_categories'] = ReplyCategory::all();
+        $data['reply'] = '';
+        $data['model'] = '';
+        $data['category_id'] = '';
+        $data['modify'] = 0;
+        $data['reply_categories'] = ReplyCategory::all();
 
   		return view('reply.form',$data);
     }
@@ -51,14 +62,14 @@ class ReplyController extends Controller
     public function store(Request $request, Reply $reply)
     {
 
-      $this->validate($request,[
-        'reply'       => 'required|string',
+        $this->validate($request,[
+            'reply'       => 'required|string',
   			'category_id' => 'required|numeric',
   			'model'       => 'required'
   		]);
 
   		$data = $request->except('_token','_method');
-      $data['reply'] = trim($data['reply']);
+        $data['reply'] = trim($data['reply']);
   		$reply->create($data);
 
       if ($request->ajax()) {
