@@ -395,6 +395,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
     Route::resource('reply', 'ReplyController');
+    
     Route::post('reply/chatbot/questions', 'ReplyController@chatBotQuestionT')->name('reply.create.chatbot_questions');
     Route::post('reply/category/store', 'ReplyController@categoryStore')->name('reply.category.store');
 
@@ -756,6 +757,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/addRemarkStatutory', 'TaskModuleController@addRemark')->name('task.addRemarkStatutory');
 
     Route::get('task/{id}', 'TaskModuleController@show')->name('task.module.show');
+    
     Route::resource('task', 'TaskModuleController');
 
     //START - Purpose : add Route for Remind, Revise Message - DEVTASK-4354
@@ -3128,3 +3130,13 @@ Route::prefix('select2')->middleware('auth')->group(function () {
 });
 
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');
+
+
+//Magento Product Error
+
+Route::prefix('magento-product-error')->middleware('auth')->group(static function () {
+    Route::get('/', 'MagentoProductPushErrors@index')->name('magento-productt-errors.index'); 
+    Route::get('/records', 'MagentoProductPushErrors@records')->name("magento-productt-errors.records"); 
+
+    Route::post('/loadfiled', 'MagentoProductPushErrors@getLoadDataValue'); 
+});

@@ -57,10 +57,18 @@
 								    <label for="keyword">Keyword:</label>
 								    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
 							  	</div>
+								
 								<div class="form-group">
 									<label for="no-inventory">No Inventory</label>
 									<input type="checkbox" name="no-inventory" value="1" {{ request()->has('no-inventory') ? 'checked' : '' }} />
 								</div>
+
+								<div class="form-group ">
+									<label for="category_id">Category</label>
+											
+									<?php echo Form::select("category_id",$categories,request("category_id"),["class"=> "form-control select2","placeholder" => "Select Category"]) ?>
+								</div>
+
 							  	<div class="form-group">
 							  		<label for="button">&nbsp;</label>
 							  		<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">

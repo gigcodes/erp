@@ -186,8 +186,19 @@
               </div>
             </div>
           </div>
-          
           <div class="col-md-12 margin-tb">
+              @if ($message = Session::get('error-remove'))
+              <div class="alert alert-danger alert-block py-1">
+                  <button type="button" class="close" data-dismiss="alert">×</button>
+                  <strong>{{ $message }}</strong>
+              </div>
+          @endif
+          @if ($message = Session::get('success-remove'))
+              <div class="alert alert-success alert-block py-1">
+                  <button type="button" class="close" data-dismiss="alert">×</button>
+                  <strong>{{ $message }}</strong>
+              </div>
+          @endif
             <div class="table-responsive">
                 <table class="table table-bordered" style="table-layout:fixed;">
                 <tr>
@@ -210,9 +221,17 @@
                                 data-name="{{ $cat->id }}">
                                 <img src="/images/forward.png" style="cursor: pointer;" width="16px">
                             </button>
-                            <button type="button" class="btn category_edit_popup" data-id="{{ $cat->id }}">
+                            <button type="submit" class="btn category_edit_popup" data-id="{{ $cat->id }}">
                                 <img src="/images/edit.png" style="cursor: pointer; width: 16px;">
                             </button>
+                            <form style="display: inline-block" action="{{ route('category.remove') }}" method="POST" class="category_deleted">
+                                @csrf
+                                <input type="text" name="edit_cat" value={{ $cat->id }} hidden>
+                                <button type="submit" class="btn" data-id="{{ $cat->id }}">
+                                <img src="/images/delete.png" style="cursor: pointer; width: 16px;">
+                                    </button>
+                            </form>
+
                         </td>   
                     </tr>
                     <tr class="add-childs">
@@ -274,6 +293,13 @@
                                                 >
                                                     <img src="/images/edit.png" style="cursor: pointer; width: 16px;">
                                                 </button>
+                                                <form style="display: inline-block" action="{{ route('category.remove') }}" method="POST" class="category_deleted">
+                                                    @csrf
+                                                    <input type="text" name="edit_cat" value="${element.id}" hidden>
+                                                    <button type="submit" class="btn" data-id="${element.id}">
+                                                    <img src="/images/delete.png" style="cursor: pointer; width: 16px;">
+                                                        </button>
+                                                </form>
                                             </td>
                                         </tr>
                                         <tr class="add-childs"> 
@@ -347,15 +373,46 @@
                     dataType: "json",
                     data:$('#edit-category-form').serialize() ,
                     success: function(response) {
-                        location.reload()
-                        // $('#editCategoryModal').modal('hide')
+                        // location.reload()
+                        toastr["success"]('Category update successfully');
+                        $('#editCategoryModal').modal('hide')
+
                     },
                     error: function(response) {
+                        toastr["error"]("Oops,something went wrong");
+
                     }
                 });
 
+            })
 
+            $(document).on('submit', '.category_deleted', function(e) {
+                e.preventDefault()
+             
+                const form_data=  $(this).serialize();
+                // console.log(form_data,'dataid')
+               
+                $.ajax({
+                    url: 'category/remove',
+                    method: 'POST',
+                    dataType: "json",
+                    data:$(this).serialize() ,
+                    success: function(response) {
+                        console.log(response)
+                        
+                        // location.reload()
+                        if(response['error-remove']){
+                            toastr["error"](response['error-remove']);
 
+                        }
+                        if(response['success-remove'])
+                        toastr["success"](response['success-remove']);
+                        // $('#editCategoryModal').modal('hide')
+                    },
+                    error: function(response) {
+                            toastr["error"]("Oops,something went wrong");
+                    }
+                });
 
             })
 
