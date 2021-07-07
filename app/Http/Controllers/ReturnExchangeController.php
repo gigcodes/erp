@@ -892,4 +892,41 @@ class ReturnExchangeController extends Controller
         return response()->json(["code" => 500, "data" => [], "message" => "No data found"]);
     }
 
+
+    public function downloadRefundPdf(Request $request)
+    {
+        
+        $return = \App\ReturnExchange::find(6);
+        if ($return) {
+
+            $customer   = $return->customer;
+
+            if($customer){
+
+                if ($customer->store_website_id > 0) {
+                  
+                    $template = \App\MailinglistTemplate::getIntializeRefund($customer->store_website_id);
+                } else {
+                    $template = \App\MailinglistTemplate::getIntializeRefund();
+                }
+
+                if ($template) {
+                    if (!empty($template->mail_tpl)) {
+                        // need to fix the all email address
+                       $html_temp = view('maileclipsetemplates.refundDefaultRequest', compact(
+                                'customer','return'
+                            ));
+                            $pdf = new Dompdf();
+                            $pdf->loadHtml($html_temp);
+                            $pdf->render();
+                            $pdf->stream('orders.pdf');
+
+                    }
+                }
+            }
+
+        }
+
+    }
+
 }

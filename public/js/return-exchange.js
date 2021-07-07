@@ -119,6 +119,12 @@ var msQueue = {
             msQueue.resendMail($(this).data("id"));
         });
 
+        $(document).on("click",".resend-refund-pdf-download",function(e){
+            e.preventDefault();
+            // msQueue.resendMail($(this).data("id"));
+        msQueue.downloadPdf($(this).data("id"));
+        });
+
         $(".select2").select2({tags:true});
 
         $(window).scroll(function() {
@@ -371,6 +377,16 @@ var msQueue = {
     afterSendEmail : function(response) {
         $("#loading-image").hide();
         toastr['success']("Email send successfully");
+    },
+    downloadPdf : function(id){
+        var _z = {
+            url: this.config.baseUrl + "/return-exchange/"+id+"/download-pdf",
+            method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "afterSendEmail");
     }
 }
 
