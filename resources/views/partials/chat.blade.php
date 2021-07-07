@@ -387,9 +387,9 @@ const instance_1 = AccountsSDK.init({
 			console.log(error)
 		} 
 		if (data) {
-			//console.log("User authorized!");
+			console.log("User authorized!");
 			accessToken = data.access_token;
-			console.log(accessToken)
+			console.log("accessToken "+accessToken)
 			// setTimeout(instance_1, data.expires_in);
 			try{
 				$.ajax({
@@ -398,8 +398,9 @@ const instance_1 = AccountsSDK.init({
 					dataType: 'json',
 					data: {accessToken: accessToken ,'seconds' : data.expires_in, "_token": "{{ csrf_token() }}"},
 				})
-				.done(function() {
+				.done(function(e) {
 					console.log("AccessToken Saved In Session");
+					console.log(e);
 				})
 				.fail(function() {
 					console.log("Cannot Save AccessToken In Session");
@@ -417,7 +418,10 @@ const instance_1 = AccountsSDK.init({
 function runWebSocket(chatId) {
 	websocket = new WebSocket(wsUri);
 
+	console.log("runWebSocket : "+websocket);
+
 	websocket.onopen = function(evt) {
+		console.log("runWebSocket onopen : ");
 		pingSock();
 		websocket.send('{ "action": "login", "payload": { "token": "Bearer ' + accessToken + '" }}');
 	};
@@ -442,6 +446,7 @@ function runWebSocket(chatId) {
 
 var pingTimerObj = false;
 function pingSock() {
+	console.log("pingSock");
 	if (!websocket) return;
 	if (websocket.readyState !== 1) return;
 	websocket.send('{ "action": "ping" }');
