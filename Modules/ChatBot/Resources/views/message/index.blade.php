@@ -302,6 +302,7 @@
             var typeId = tr.data('customer-id');
             var chatMessageReplyId = tr.data('chat-message-reply-id')
             var type = tr.data("context");
+            var data_chatbot_id = tr.data('chatbot-id');
 
             console.log(type);
 
@@ -353,6 +354,30 @@
             }
             //END - DEVTASK-4203
 
+             //STRAT - Purpose : send message - DEVTASK-18280
+            else if(type === 'chatbot'){
+                data.append('customer_id', typeId);
+                data.append("message", message);
+                data.append("status", 1)
+                data.append("chat_reply_message_id", data_chatbot_id)
+
+                id = typeId;
+                var scrolled=0;
+                $.ajax({
+                    url: "{{ route('livechat.send.message') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: { id : id ,
+                        message : message,
+                        from:'chatbot_replay',
+                    _token: "{{ csrf_token() }}" 
+                    },
+                })
+                .done(function(data) {
+                    
+                })
+            }
+            //END - DEVTASK-18280
 
             var add_autocomplete  = thiss.closest(".cls_textarea_subbox").find("[name=add_to_autocomplete]").is(':checked') ;
             data.append("add_autocomplete", add_autocomplete);

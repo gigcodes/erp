@@ -124,6 +124,26 @@ class CategoryController extends Controller
         $category_instance = new Category();
         $category          = $category_instance->find($request->input('edit_cat'));
 
+        if($request->ajax()){
+            if (Category::isParent($category->id)) {
+                return response()->json(['error-remove'=> 'Can\'t delete Parent category. Please delete all the childs first']);
+            }
+    
+            if (Category::hasProducts($category->id)) {
+                return response()->json(['error-remove'=> 'Can\'t delete category is associated with products. Please remove all the association first']);
+            }
+    
+            if ($category->id == 1) {
+                return response()->json(['error-remove'=> 'Can\'t be delete']);
+            }
+
+            $title = $category->title;
+            $category->delete();
+
+            return response()->json(['success-remove'=> $title . 'category Deleted']);
+
+        }
+
         if (Category::isParent($category->id)) {
             return back()->with('error-remove', 'Can\'t delete Parent category. Please delete all the childs first');
         }
@@ -139,7 +159,7 @@ class CategoryController extends Controller
         $title = $category->title;
         $category->delete();
 
-        return back()->with('success-remove', $title . ' category Deleted');
+        return back()->with('success-remove', $title . 'Category Deleted');
     }
 
     public static function getCategoryTree($id)
