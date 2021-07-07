@@ -56,11 +56,13 @@ class BulkCustomerRepliesController extends Controller
                 $q->where('value', $keyword);
             });
 
-            if($request->dnd_enabled !== 'all'){
+            if($request->dnd_enabled === '0'){
 
                 $customerids = $customerids->whereHas('dnd');
-            }else{
+            }else if ($request->dnd_enabled === '1'){
                 $customerids = $customerids->whereDoesntHave('dnd');
+            }else{
+
             }
             $customerids = $customerids->pluck('id')->toArray();
 
