@@ -63,6 +63,7 @@
             <option value="all" {{ app('request')->dnd_enabled === 'all' ? 'selected' : '' }} >DND: ALL</option>
             
             <option value="0" {{ app('request')->dnd_enabled === null || app('request')->dnd_enabled === '0' ? 'selected' : '' }} >DND: Disabled</option>
+            <option value="1" {{ app('request')->dnd_enabled === null || app('request')->dnd_enabled === '1' ? 'selected' : '' }} >DND: Enabled</option>
         </select>
          
         <input name="keyword_filter" type="hidden" value="{{ app('request')->keyword_filter }}">

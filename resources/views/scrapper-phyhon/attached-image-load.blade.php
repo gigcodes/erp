@@ -1,19 +1,19 @@
 @foreach ($websites as $list)
-    <tr>
-        <td>{{ \Carbon\Carbon::parse($list->created_at)->format('d-m-y') }} </td>
-        <td>{{ $list->id }}</td>
-        <td>{{ $list->storeWebsite->website ?? '' }}</td>
-        <td>{{ $list->name }}</td>
-        <td></td>
+    {{-- <tr> --}}
+        {{-- <td>{{ \Carbon\Carbon::parse($list->created_at)->format('d-m-y') }} </td> --}}
+        {{-- <td>{{ $list->id }}</td> --}}
+        {{-- <td>{{ $list->storeWebsite->website ?? '' }}</td> --}}
+        {{-- <td>{{ $list->name }}</td> --}}
+        {{-- <td></td> --}}
 
-        <td>
-            <button title="Open Images" type="button" class="btn preview-attached-img-btn btn-image no-pd"
-                data-suggestedproductid="{{ $list->id }}">
-                <img src="/images/forward.png" style="cursor: default;">
-            </button>
+        {{-- <td> --}}
+            {{-- <button title="Open Images" type="button" class="btn preview-attached-img-btn btn-image no-pd" --}}
+                {{-- data-suggestedproductid="{{ $list->id }}"> --}}
+                {{-- <img src="/images/forward.png" style="cursor: default;"> --}}
+            {{-- </button> --}}
             {{-- <button title="Send Images" type="button" class="btn btn-image sendImageMessage no-pd" data-id="{{$list->id}}" data-suggestedproductid="{{$list->id}}"><img src="/images/filled-sent.png" /></button> --}}
-        </td>
-    </tr>
+        {{-- </td> --}}
+    {{-- </tr> --}}
 
 
     @if (!$list->stores)
@@ -39,12 +39,12 @@
 
             @foreach ($store->storeViewMany as $item)
                 
-                <tr class="expand-{{ $list->id }} hidden">
+                <tr class="expand-{{ $list->id }}">
                     <td>{{ \Carbon\Carbon::parse($store->created_at)->format('d-m-y') }}</td>
                     <td>{{ $store->id }}</td>
                     <td>{{ $list->storeWebsite->website ?? '' }}</td>
                     <td>{{ $store->name }}</td>
-                    <td>{{ $item->name }}</td>
+                    <td>{{ $item->name }}({{ $item->code }})</td>
 
                     <td>
 
