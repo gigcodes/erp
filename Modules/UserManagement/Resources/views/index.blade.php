@@ -13,15 +13,12 @@
     #payment-table_filter {
         text-align: right;
     }
-
     .activity-container {
         margin-top: 3px;
     }
-
     .elastic {
         transition: height 0.5s;
     }
-
     .activity-table-wrapper {
         position: absolute;
         width: calc(100% - 50px);
@@ -122,9 +119,16 @@
                         </form>
                     </div>
                     @if( auth()->user()->isAdmin() )
-                        <button class="btn btn-secondary btn-xs pull-right mt-0 permission-request">Permission request ( {{$permissionRequest}} )</button>
+                       
+                        <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 permission-request">Permission request ( {{$permissionRequest}} )</button>
+                       
+                        <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 erp-request">ERP IPs</button>
+                       
+                        <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 system-request" data-toggle="modal" data-target="#system-request">System IPs</button>
+                       
                         <button class="btn btn-secondary btn-xs pull-right today-history"> All user task </button>
                     @endif
+                    
                 </div>
             </div>
         </div>  
@@ -151,6 +155,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
+                <button type="button" class="btn btn-default permission-delete-grant">Delete All</button>
                 <div class="col-md-12" id="permission-request">
                     <table class="table fixed_header">
                         <thead>
@@ -172,7 +177,156 @@
         </div>
     </div>
 </div>
+<div id="status-history" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Status History</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12" id="permission-request">
+                    <table class="table fixed_header">
+                        <thead>
+                            <tr>
+                                <th>Index</th>
+                                <th>Actioned By</th>
+                                <th>Change Status To</th>
+                            </tr>
+                        </thead>
+                         <tbody class="show-list-records" >
+                         </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
+
+<div id="erp-request" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">User Login IPs</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12" id="permission-request">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>User Email</th>
+                                <th>IP</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                         <tbody class="show-list-records" >
+                         </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="system-request" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">System IPs</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12" id="permission-request">
+                    
+                    @php
+                        $shell_list = shell_exec("bash " . getenv('DEPLOYMENT_SCRIPTS_PATH'). "/webaccess-firewall.sh -f list");
+
+                        $final_array = [];
+                        if($shell_list != ''){
+                            $lines=explode(PHP_EOL,$shell_list);
+                            $final_array = [];
+                            foreach($lines as $line){
+                                $values = [];
+                                $values=explode(' ',$line);
+                                array_push($final_array,$values);
+                            }
+                        }
+                    @endphp
+                    <input type="text" name="add-ip" class="form-control col-md-3" placeholder="Add IP here...">
+
+                    <div>
+                        <select class="form-control col-md-3 ml-3" name="user_id" id="ipusers">
+                            <option>Select user</option>
+                            @foreach($userlist as $user)
+                                <option value="{{ $user->id}}">{{ $user->name}}</option>
+                            @endforeach
+                            <option value="other">Other</option>
+                        </select>
+
+                        <input type="text" name="other_user_name" id="other_user_name" class="form-control col-md-3 ml-3" style="display:none;" placeholder="other name">
+                    </div>    
+                    
+                    <input type="text" name="ip_comment" class="form-control col-md-3 ml-3" placeholder="Add comment...">
+
+                    <button class="btn-success btn addIp ml-3 mb-5">Add</button>
+
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Index</th>
+                            <th>IP</th>
+                            <th>User</th>
+                            <th>Comment</th>
+                            <th>Action</th>
+                        </tr>
+                        <!-- @if(!empty($final_array))
+                            @foreach(array_reverse($final_array) as $values)
+                                <tr>
+                                    <td>{{ isset($values[0]) ? $values[0] : "" }}</td>
+                                    <td>{{ isset($values[1]) ? $values[1] : "" }}</td>
+                                    <td>{{ isset($values[2]) ? $values[2] : "" }}</td>
+                                    <td><button class="btn-warning btn deleteIp" data-index="{{ $values[0]}}">Delete</button></td>
+                                </tr>
+                            @endforeach
+                        @endif -->
+
+                            @foreach($usersystemips as $row)
+                                <tr>
+                                    <td>{{ $row->index_txt }}</td>
+                                    
+                                    <td>{{ $row->ip }}</td>
+                                    
+                                    <td>{{ $row->user_id ? $row->user->name : $row->other_user_name }}</td>
+                                    
+                                    <td>{{ $row->notes }}</td>
+
+                                    <td>
+                                        <button class="btn-warning btn deleteIp" data-usersystemid="{{ $row->id}}">Delete</button>
+                                    </td>
+                                </tr>
+                            @endforeach
+
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div id="user-task-activity" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <!-- Modal content-->
@@ -279,6 +433,7 @@
                         <table class="table">
                             <thead>
                                 <tr>
+                                    <th>User</th>
                                     <th>Task id</th>
                                     <th>Description</th>
                                     <th>From time</th>
@@ -297,7 +452,24 @@
         </div>
     </div>
 </div>
+<div id="logMessageModel" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
 
+    <!-- Modal content-->
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Task description</h4> 
+        </div>
+        <div class="modal-body">
+            <p style="word-break: break-word;"></p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+
+    </div>
+</div>
 @include('common.commonEmailModal')
 @include("usermanagement::templates.list-template")
 @include("usermanagement::templates.create-solution-template")
@@ -328,9 +500,25 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
 <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
 <script type="text/javascript">
- $('#due-datetime').datetimepicker({
-            format: 'YYYY-MM-DD HH:mm'
-}); 
+
+    $( document ).ready(function() {
+        $('#ipusers').change(function() {
+            var selected = $(this).val();
+            if(selected == 'other'){
+              $('#other_user_name').show();
+            }
+            else{
+              $('#other_user_name').hide();
+            }
+        });
+    });    
+
+
+     $('#due-datetime').datetimepicker({
+                format: 'YYYY-MM-DD HH:mm'
+     }); 
+
+     
 
      // $(document).on("click",".permission-request",function() {
      //    $('#permission-request').modal();
@@ -350,10 +538,11 @@
             success: function(result){
                 $("#loading-image").hide();
                 if(result.code == 200) {
-                    console.log( result.data );
+                    console.log( result.data[0] );
                     var t = '';
-                    $.each(result.data,function(k,v) {
+                    $.each(result.data[0],function(k,v) {
                         t += `<tr><td>`+v.user_name+`</td>`;
+                        t += `<td>`+v.devtaskId+`</td>`;
                         t += `<td>`+v.task+`</td>`;
                         t += `<td>`+v.date+`</td>`;
                         t += `<td>`+v.tracked+`</td></tr>`;
@@ -446,6 +635,102 @@
         });
     });
 
+    $(document).on("click",".erp-request",function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/users/loginips',
+            type: 'GET',
+            data : { _token: "{{ csrf_token() }}"},
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                if(result.code == 200) {
+                    var t = '';
+                    $.each(result.data,function(k,v) {
+                        button = status='';
+                        if(v.is_active){
+                            status = 'Active';
+                            button = '<button type="button" class="btn btn-warning ml-3 statusChange" data-status="Inactive" data-id="'+v.id+'">Inactive</button>';
+                        }else{
+                            status = 'Inactive';
+                            button = '<button type="button" class="btn btn-success ml-3 statusChange" data-status="Active" data-id="'+v.id+'">Active</button>';
+                        }
+                        t += `<tr><td>`+v.created_at+`</td>`;
+                        t += `<td>`+v.email+`</td>`;
+                        t += `<td>`+v.ip+`</td>`;
+                        t += `<td>`+status+`</td>`;
+                        t += `<td>`+button+`</td>`;
+                    });
+                    if( t == '' ){
+                        t = '<tr><td colspan="5" class="text-center">No data found</td></tr>';
+                    }
+                }
+                $("#erp-request").find(".show-list-records").html(t);
+                $("#erp-request").modal("show");
+            },
+            error: function (){
+                $("#loading-image").hide();
+            }
+        });
+    });
+
+    $(document).on("click",".addIp",function(e) {
+        e.preventDefault();
+        if($('input[name="add-ip"]').val() != ''){
+            $.ajax({
+                url: '/users/add-system-ip',
+                type: 'GET',
+                data : { 
+                    _token: "{{ csrf_token() }}",
+                    ip: $('input[name="add-ip"]').val(),
+                    user_id: $('#ipusers').val(),
+                    other_user_name : $('input[name="other_user_name"]').val(),
+                    comment: $('input[name="ip_comment"]').val()
+                },
+                dataType: 'json',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function(result){
+                    $("#loading-image").hide();
+                    toastr["success"]("IP added successfully");
+                    location.reload();
+                },
+                error: function (){
+                    $("#loading-image").hide();
+                    toastr["Error"]("An error occured!");
+                }
+            });
+        }else{
+            alert('please enter IP');
+        }
+    });
+    $(document).on("click",".deleteIp",function(e) {
+        e.preventDefault();
+        var btn = $(this);
+        $.ajax({
+            url: '/users/delete-system-ip',
+            type: 'GET',
+            data : { _token: "{{ csrf_token() }}",usersystemid: $(this).data('usersystemid')},
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                btn.parents('tr').remove();
+                $("#loading-image").hide();
+                toastr["success"]("IP Deteted successfully");
+            },
+            error: function (){
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    });
+
     $(document).on("click",".permission-grant",function(e) {
         e.preventDefault();
         var permission = $(this).data('id');
@@ -463,6 +748,31 @@
             success: function(result){
                 $("#loading-image").hide();
                 if(result.code == 200) {
+                    toastr["success"](result.data,"");
+                }else{
+                    toastr["error"](result.data,"");
+                }
+            },
+            error: function (){
+                $("#loading-image").hide();
+            }
+        });
+    });
+
+    $(document).on("click",".permission-delete-grant",function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/user-management/request-delete',
+            type: 'POST',
+            data : { _token: "{{ csrf_token() }}"},
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                if(result.code == 200) {
+                    $("#permission-request").find(".show-list-records").html('');
                     toastr["success"](result.data,"");
                 }else{
                     toastr["error"](result.data,"");
@@ -816,6 +1126,190 @@ $(document).on('click', '.send-message', function () {
                 alert('Please enter a message first');
             }
         });
+    $(document).on("click",".status-history",function(e) {
+        $.ajax({
+            url: '/user-management/'+$(this).data('id')+'/status-history',
+            type: 'POST',
+            data : { _token: "{{ csrf_token() }}"},
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                if(result.code == 200) {
+                    //console.log( result.data );
+                    var t = '';
+                    var count = 0;
+                    $.each(result.data,function(k,v) {
+                        t += `<tr><td>`+parseInt(count+1)+`</td>`;
+                        t += `<td>`+v.status+`</td>`;
+                        t += `<td>`+v.name+`</td>`;
+                        t += `</tr>`;
+                    });
+                    if( t == '' ){
+                        t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
+                    }
+                    $("#status-history").find(".show-list-records").html(t);
+                    $("#status-history").modal("show");
+                    //toastr["success"]('No record found');
+                    //show-list-records
+                    //
+                }else{
+                    toastr["error"]('No record found');
+                }
+            },
+            error: function (){
+                $("#loading-image").hide();
+            }
+        });
+    });
+    $(document).on('click', '.flag-task', function () {
+        var task_id = $(this).data('id');
+        var task_type = $(this).data('task_type');
+        var thiss = $(this);
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('task.flag') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                task_id: task_id,
+                task_type: task_type
+            },
+            beforeSend: function () {
+                $(thiss).text('Flagging...');
+            }
+        }).done(function (response) {
+            if (response.is_flagged == 1) {
+                // var badge = $('<span class="badge badge-secondary">Flagged</span>');
+                //
+                // $(thiss).parent().append(badge);
+                $(thiss).html('<img src="/images/flagged.png" />');
+            } else {
+                $(thiss).html('<img src="/images/unflagged.png" />');
+                // $(thiss).parent().find('.badge').remove();
+            }
+
+            // $(thiss).remove();
+        }).fail(function (response) {
+            $(thiss).html('<img src="/images/unflagged.png" />');
+
+            alert('Could not flag task!');
+
+            console.log(response);
+        });
+    });
+    $(document).on('click', '.task-send-message-btn', function () {
+            var thiss = $(this);
+            var data = new FormData();
+            var task_id = $(this).data('id');
+            // var message = $(this).siblings('input').val();
+            var message = $('#getMsg'+task_id).val();
+            data.append("task_id", task_id);
+            data.append("message", message);
+            data.append("status", 1);
+
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        url: '/whatsapp/sendMessage/task',
+                        type: 'POST',
+                        "dataType": 'json',           // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function () {
+                            $(thiss).attr('disabled', true);
+                        }
+                    }).done(function (response) {
+                        $(thiss).siblings('input').val('');
+                        $('#getMsg'+task_id).val('');
+
+                        // if (cached_suggestions) {
+                        //     suggestions = JSON.parse(cached_suggestions);
+
+                        //     if (suggestions.length == 10) {
+                        //         suggestions.push(message);
+                        //         suggestions.splice(0, 1);
+                        //     } else {
+                        //         suggestions.push(message);
+                        //     }
+                        //     localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                        //     cached_suggestions = localStorage['message_suggestions'];
+
+                        //     console.log('EXISTING');
+                        //     console.log(suggestions);
+                        // } else {
+                        //     suggestions.push(message);
+                        //     localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                        //     cached_suggestions = localStorage['message_suggestions'];
+
+                        //     console.log('NOT');
+                        //     console.log(suggestions);
+                        // }
+
+                        // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+                        //   .done(function( data ) {
+                        //
+                        //   }).fail(function(response) {
+                        //     console.log(response);
+                        //     alert(response.responseJSON.message);
+                        //   });
+
+                        $(thiss).attr('disabled', false);
+                        toastr["success"]('Message sent successfully.');
+                    }).fail(function (errObj) {
+                        $(thiss).attr('disabled', false);
+                        toastr["error"]('An erro occured! please try again later.');
+                        alert("Could not send message");
+                        console.log(errObj);
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+        });
+    //
+    $(document).on('click','.load-task-modal',function(){
+        setTimeout(function(){
+            $('.task-modal-userid').attr('data-id',$(this).data('id'));
+            $.each($('.data-status'),function(i,item){
+                var value = $(this).data('status');
+                $.each($(this).children('option'),function(is,items){
+                    if($(this).attr('value') == value || $(this).data('id') == value){
+                       $(this).attr('selected','selected');
+                    }
+                })
+                //console.log($(this).data('status'));
+            });
+        },3000);
+
+    });
+
+    $(document).on('click','.statusChange',function(event){
+        event.preventDefault();
+        $.ajax({
+           type: "post",
+           url: '{{ action("UserController@statusChange") }}',
+           data: {
+             _token: "{{ csrf_token() }}",
+             status: $(this).attr('data-status'),
+             id: $(this).attr('data-id')
+           },
+           beforeSend: function() {
+             $(this).attr('disabled', true);
+             // $(element).text('Approving...');
+           }
+        }).done(function( data ) {
+          toastr["success"]("Status updated!", "Message")
+          window.location.reload();
+        }).fail(function(response) {
+           alert(response.responseJSON.message);
+           toastr["error"](error.responseJSON.message);
+        });
+      });
 </script>
 
 @endsection

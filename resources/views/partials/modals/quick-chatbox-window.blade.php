@@ -101,12 +101,17 @@
                                     <div class="card-footer">
                                         <div class="input-group">
                                             @if(isset($customer))
-                                                <div class="input-group-append">
+                                                <!-- <div class="input-group-append">
                                                     <a class="btn btn-image px-1 send-attached-images">
                                                         <img src="/images/attach.png"/>
                                                     </a>
-                                                </div>
+                                                </div> -->
                                             @endif
+
+                                            <div class="input-group-append">
+                                                <span class="input-group-text attach_btn" onclick="sendImage()"><i class="fa fa-paperclip"></i></span>
+                                                <input type="file" id="imgupload" style="display:none" />
+                                            </div>
                                             <input type="hidden" id="message-id" name="message-id" />
                                             <textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
                                             <div class="input-group-append">
@@ -116,6 +121,10 @@
                                     </div>
                                 </div>
                             </div>
+                           
+                        </div>
+                        <div class="card-body " id="customer_order_details">
+
                         </div>
                     </div>
                     <div class="col-md-3 customer-info">
@@ -170,7 +179,7 @@
     </div>
 </div>
 
-<script src="https://cdn.livechatinc.com/accounts/accounts-sdk.min.js"></script>
+<!-- <script src="https://cdn.livechatinc.com/accounts/accounts-sdk.min.js"></script>
 <script>
 $(document).on("click",".quick_approve_add_live",function() {
     var messageId = $(this).attr('id');
@@ -192,16 +201,20 @@ $(document).on("click",".quick_approve_add_live",function() {
         alert('Chat Not Active');
     });
 });
+
+console.log($('#live_chat_key').val());
+
 var accessToken = '';
 var websocket = false;
 var client_id = $('#live_chat_key').val();
 var wsUri = "wss://api.livechatinc.com/v3.1/agent/rtm/ws";
 const instance = AccountsSDK.init({
     client_id: client_id,
-    // response_type: "code",
+    response_type: "token",
     onIdentityFetched: (error, data) => {
         if (error){
-            console.log(error)
+            console.log('++++ error >>>');
+            console.log(error);
         } 
         if (data) {
             //console.log("User authorized!");
@@ -618,6 +631,6 @@ checkChatCount();
 $(document).on("click",".send-attached-images",function() {
     var messageId = $('#message-id').val();
     location.href = "/attachImages/live-chat/"+messageId;
-});
+}); -->
 
 </script>

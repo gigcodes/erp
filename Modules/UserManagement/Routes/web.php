@@ -14,7 +14,11 @@
 
 Route::prefix('user-management')->middleware('auth')->group(function() {
     Route::get('/', 'UserManagementController@index')->name("user-management.index");
+    
     Route::post('/request-list', 'UserManagementController@permissionRequest')->name("user-management.permission.request");
+
+    Route::post('/request-delete', 'UserManagementController@deletePermissionRequest')->name("user-management.permission.delete.request.");
+
     Route::post('/task-activity', 'UserManagementController@taskActivity')->name("user-management.task.activity");
     Route::post('today-task-history', 'UserManagementController@todayTaskHistory')->name("user-management.today.task.history");
     Route::post('modifiy-permission', 'UserManagementController@modifiyPermission')->name("user-management.modifiy.permission");
@@ -36,8 +40,14 @@ Route::prefix('user-management')->middleware('auth')->group(function() {
     Route::get('/paymentInfo/{id}', 'UserManagementController@paymentInfo')->name("user-management.payment-info");
     Route::get('payments/{id}', 'UserManagementController@userPayments')->name("user-management.payments");
     Route::post('payments/{id}', 'UserManagementController@savePayments')->name("user-management.savePayments");
+    
+    
+    Route::get('user-avaibility/{id}', 'UserManagementController@getPendingandAvalHour')->name("user-management.task-hours");
+
     Route::post('user-avaibility/submit-time', 'UserManagementController@saveUserAvaibility')->name("user-management.user-avaibility.submit-time");
-    Route::get('user-avaibility/{id}', 'UserManagementController@userAvaibility')->name("user-management.user-avaibility");
+
+    Route::get('user-avl-list/{id}', 'UserManagementController@userAvaibilityForModal')->name("user-management.user-avl-list");
+
     Route::post('user-avaibility/{id}', 'UserManagementController@userAvaibilityUpdate')->name("user-management.update-user-avaibility");
     Route::post('approve-user/{id}', 'UserManagementController@approveUser')->name("user-management.approve-user");
     Route::post('/add-new-method', 'UserManagementController@addPaymentMethod')->name("user-management.add-payment-method");
@@ -47,9 +57,17 @@ Route::prefix('user-management')->middleware('auth')->group(function() {
     Route::get('/records', 'UserManagementController@records')->name("user-management.records");
     Route::get('/user-details/{id}', 'UserManagementController@GetUserDetails')->name("user-management.user-details");
     Route::get('task-hours/{id}', 'UserManagementController@getPendingandAvalHour')->name("user-management.task-hours");
+    Route::get('/system-ips', 'UserManagementController@systemIps');
     Route::get('{id}/get-database', 'UserManagementController@getDatabase')->name("user-management.get-database");
     Route::post('{id}/create-database', 'UserManagementController@createDatabaseUser')->name("user-management.create-database");
     Route::post('{id}/assign-database-table', 'UserManagementController@assignDatabaseTable')->name("user-management.assign-database-table");
     Route::post('{id}/delete-database-access', 'UserManagementController@deleteDatabaseAccess')->name("user-management.delete-database-access");
     Route::post('{id}/choose-database', 'UserManagementController@chooseDatabase')->name("user-management.choose-database");
+    Route::post('/update-status', 'UserManagementController@updateStatus');
+
+
+    Route::post('/user-generate-file-store', 'UserManagementController@userGenerateStorefile')->name("user-management.gent-file-store");
+
+    Route::get('/user-generate-file-listing/{userid}','UserManagementController@userPemfileHistoryListing')->name("user-management-pem-history-list");
+    Route::post('/delete-pem-file/{id}','UserManagementController@deletePemFile')->name("user-management-delete-pem-file");
 });

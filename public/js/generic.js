@@ -180,7 +180,7 @@ var getHtml = function(response) {
         if (message.error_status == 1) {
             button += '<i title="'+message.error_info+'" class="fa fa-exclamation-triangle" aria-hidden="true"></i>';
         }
-        if (message.type == "task" || message.type == "customer" || message.type == "vendor") {
+        if (message.type == "task" || message.type == "customer" || message.type == "vendor" || message.type == "user") {
 
             if (message.status == 0 || message.status == 5 || message.status == 6) {
                 if (message.status == 0) {
@@ -209,6 +209,13 @@ var getHtml = function(response) {
                          }
                      }
                      button += '&nbsp;<button title="Forward" class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
+                     var image_url = message.media_url;
+                     if(image_url == null){
+                        if(message.media.length != 0){
+                            image_url = message.media[0].image;
+                        }
+                     }
+                     button += '&nbsp;<button title="Search Product Image" data-media-url="\''+image_url+'\'" data-id="'+message.id+'" class="btn btn-xs btn-secondary search-image"><i class="fa fa-search" aria-hidden="true"></i></button>';
                 }
 
 
@@ -232,6 +239,17 @@ var getHtml = function(response) {
             button += "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'><i class='fa fa-repeat' aria-hidden='true'></i> (" + message.resent + ")</a>";
         }
         button += '<a title="Remove" href="javascript:;" class="btn btn-xs btn-secondary ml-1 delete-message" data-id="' + message.id + '"><i class="fa fa-trash" aria-hidden="true"></i></a>';
+        //START - Purpose : Add resend button - DEVTASK-4236
+        if(message.type == "supplier")
+        {
+            button += "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'><i class='fa fa-repeat' aria-hidden='true'></i> (" + message.resent + ")</a>";
+
+            if(message.additional_data != '' && message.additional_data != null)
+            { 
+                button += "<a href='/purchase-product/download_excel_file/?filename="+ message.additional_data +"' title='Download Excel' class='btn btn-xs btn-secondary ml-1 download_excel' data-id='" + message.id + "'><i class='fa fa-file-excel-o' aria-hidden='true'></i></a>";
+            }
+        }
+        //END - DEVTASK-4236
         if(message.is_queue == 1) {
            button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>';
         }
@@ -1036,7 +1054,7 @@ var id = $(this).data('id');
 $('#forward_message_id').val(id);
 });
 
-$(document).on("focusout", '.search_chat_pop', function() {
+$(document).on("keyup", '.search_chat_pop', function() {
     var value = $(this).val().toLowerCase();
     exampleFunction() ;//your function call
     // $(".speech-wrapper .bubble").filter(function() {
@@ -1048,6 +1066,7 @@ $(".search_chat_pop_time").datetimepicker({
     format: 'YYYY-MM-DD',
     useCurrent: false
 }).on('dp.change', function (ev) {
+    currentChatParams.data.page =1;
     exampleFunction() ;//your function call
 });
 

@@ -243,10 +243,10 @@ class PlanController extends Controller
     public function planActionStore(Request $request){
         $data = Plan::where('id' ,$request->id)->first();
         if($data){
-            $data->strength = $request->strength;
-            $data->weakness = $request->weakness;
-            $data->opportunity = $request->opportunity;
-            $data->threat = $request->threat;
+            $data->strength = $request->strength."\n";
+            $data->weakness = $request->weakness."\n";
+            $data->opportunity = $request->opportunity."\n";
+            $data->threat = $request->threat."\n";
             $data->save();
             return response()->json(["code" => 200,"message" => 'Your data saved sucessfully.']);
         }

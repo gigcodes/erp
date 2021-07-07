@@ -219,16 +219,17 @@ class FetchAllEmails extends Command
 
                             $message = trim($textContent);
 
-                            $reply = (new EmailParser())->parse($message) ;
+                            $reply = (new EmailParser())->parse($message);
 
                             $fragment = current($reply->getFragments());
-                            
+
                             $pattern = '(On[^abc,]*, (Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)\s+\d{1,2},\s+\d{4}, (1[0-2]|0?[1-9]):([0-5][0-9]) ([AaPp][Mm]))';
 
                             $reply = strip_tags($fragment);
 
-                            $reply = preg_replace( $pattern, " ", $reply );
-                            
+                            $reply = preg_replace($pattern, " ", $reply);
+
+                            $mailFound = false;
                             if ($reply) {
                                 $customer = \App\Customer::where('email', $from)->first();
                                 if (!empty($customer)) {
@@ -246,11 +247,55 @@ class FetchAllEmails extends Command
                                         'dubizzle_id' => null,
                                         'vendor_id'   => null,
                                         'customer_id' => $customer->id,
-                                        'is_email'    => 1
+                                        'is_email'    => 1,
                                     ];
                                     $messageModel = \App\ChatMessage::create($params);
                                     \App\Helpers\MessageHelper::whatsAppSend($customer, $reply, null, null, $isEmail = true);
-                                    \App\Helpers\MessageHelper::sendwatson($customer, $reply, null, $messageModel, $params , $isEmail = true);
+                                    \App\Helpers\MessageHelper::sendwatson($customer, $reply, null, $messageModel, $params, $isEmail = true);
+                                    $mailFound = true;
+                                }
+
+                                if (!$mailFound) {
+                                    $vandor = \App\Vendor::where('email', $from)->first();
+                                    if ($vandor) {
+                                        $params = [
+                                            'number'      => $vandor->phone,
+                                            'message'     => $reply,
+                                            'media_url'   => null,
+                                            'approved'    => 0,
+                                            'status'      => 0,
+                                            'contact_id'  => null,
+                                            'erp_user'    => null,
+                                            'supplier_id' => null,
+                                            'task_id'     => null,
+                                            'dubizzle_id' => null,
+                                            'vendor_id'   => $vandor->id,
+                                            'is_email'    => 1,
+                                        ];
+                                        $messageModel = \App\ChatMessage::create($params);
+                                        $mailFound = true;
+                                    }
+                                }
+
+                                if (!$mailFound) {
+                                    $supplier = \App\Supplier::where('email', $from)->first();
+                                    if ($supplier) {
+                                        $params = [
+                                            'number'      => $supplier->phone,
+                                            'message'     => $reply,
+                                            'media_url'   => null,
+                                            'approved'    => 0,
+                                            'status'      => 0,
+                                            'contact_id'  => null,
+                                            'erp_user'    => null,
+                                            'supplier_id' => $supplier->id,
+                                            'task_id'     => null,
+                                            'dubizzle_id' => null,
+                                            'is_email'    => 1,
+                                        ];
+                                        $messageModel = \App\ChatMessage::create($params);
+                                        $mailFound = true;
+                                    }
                                 }
                             }
                         }

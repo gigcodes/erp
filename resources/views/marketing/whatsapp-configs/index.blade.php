@@ -86,8 +86,9 @@
             <th style="width: 3% !important;">Pay</th>
             <th style="width: 14% !important;">Rech</th> -->
             <th style="width: 1% !important;">Sts</th>
-            <th style="width: 10% !important;">Started At</th>
-            <th style="width: 22% !important;">Actions</th>
+            <th style="width: 5% !important;">Started At</th>
+            <th style="width: 5% !important;">Instance Id</th>
+            <th style="width: 12% !important;">Actions</th>
           </tr>
 
           <tr>
@@ -110,8 +111,9 @@
             <th style="width: 3% !important;"></th>
             <th style="width: 3% !important;"></th> -->
             <th style="width: 1% !important;"></th>
-            <th style="width: 10% !important;"></th>
-            <th style="width: 22% !important;"></th>   
+            <th style="width: 5% !important;"></th>
+            <th style="width: 5% !important;"></th>   
+            <th style="width: 12% !important;"></th>   
             </th>
           </tr>
         </thead>
@@ -139,6 +141,8 @@
     <script>
 
         $(document).ready(function() {
+            $(".select-multiple-default_for").multiselect();
+            
             $(".select-multiple").multiselect();
             $(".select-multiple2").select2();
         });

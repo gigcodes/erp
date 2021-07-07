@@ -9,7 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 class ProductSupplier extends Model
 {
 	public $timestamps = false;
-    //
+
+	protected $guarded = [];
 
 	public function supplier()
 	{

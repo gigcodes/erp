@@ -15,7 +15,62 @@
      }
      .small-field-btn {
         padding: 0px 13px;
-     }   
+     }
+     .composition .select2-container{
+         max-width: 100%;
+         width: 100% !important;
+     }
+    .composition  .btn-group-sm>.btn, .btn-sm {
+        padding: 3px 8px !important;
+    }
+    .composition .small-field-btn {
+        padding: 2px 7px !important;
+    }
+    .composition .btn {
+        display: inline-block;
+        padding: 3px 8px !important;
+    }
+    .composition input[type="text"]{
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        height: 34px;
+    }
+    .btn.compositions{
+        padding: 4px 12px !important;
+    }
+    .composition .select2-container .select2-selection--single, .compositions .select2-container .select2-selection--single{
+        height: 34px !important;
+        border: 1px solid #ccc !important;
+    }
+    .composition .select2-container--default .select2-selection--single .select2-selection__rendered, .compositions .select2-container--default .select2-selection--single .select2-selection__rendered{
+        line-height: 32px !important;
+    }
+    .composition .composition-assign-update, .composition .small-field-btn{
+        background: #fff;
+        padding: 0 3px !important;
+    }
+    .composition .composition-assign-update i,.composition .small-field-btn i{
+        color: #757575;
+        font-size: 18px;
+    }
+    .compositions .btn-secondary{
+        color: #757575;
+        border: 1px solid #ccc;
+        background: #fff;
+    }
+    .change-data input {
+        height: 30px !important;
+    }
+    @media(max-width:1400px){
+        .change-data input{
+            /*width: 100%;*/
+            /*max-width: 100%;*/
+            /*flex: 0 0 100%;*/
+            /*margin-top: 15px !important;*/
+            height: 30px !important;
+            width: 150px !important;
+        }
+    }
 </style>
 <div class="row">
     <div class="col-md-12">
@@ -28,44 +83,48 @@
             </div>
          </div>   
     @endif
-    <div class="col-md-6 mt-5">
-        {!! Form::open(["class" => "form-inline" , "route" => 'compositions.store',"method" => "POST"]) !!}    
+</div>
+  <div class="row change-data">
+      <div class="col-md-6 mt-5">
+          {!! Form::open(["class" => "form-inline" , "route" => 'compositions.store',"method" => "POST"]) !!}
           <div class="form-group">
-            <label for="name">Name:</label>
-            <input type="text" name="name" class="form-control" id="name" placeholder="Enter Name" value="{{ old('name') ? old('name') : request('name') }}"/>
+              <label for="name">Name:</label>
+              <input type="text" name="name" class="form-control" id="name" placeholder="Enter Name" value="{{ old('name') ? old('name') : request('name') }}"/>
           </div>
           <div class="form-group ml-2">
-            <label for="replace_with">Erp Name:</label>
-            <input type="text" name="replace_with" class="form-control" placeholder="Enter Erp Name" value="{{ old('replace_with') ? old('replace_with') : request('replace_with') }}" id="replace_with">
+              <label for="replace_with">Erp Name:</label>
+              <input type="text" name="replace_with" class="form-control" placeholder="Enter Erp Name" value="{{ old('replace_with') ? old('replace_with') : request('replace_with') }}" id="replace_with">
           </div>
-          <button type="submit" class="btn btn-default ml-2 small-field-btn">Submit</button>
-        </form>
-    </div>
-    <div class="col-md-6 mt-5">
-        {!! Form::open(["class" => "form-inline" , "route" => 'compositions.replace',"method" => "POST"]) !!}    
+          <button type="submit" class="btn btn-default ml-2 small-field-btn compositions">Submit</button>
+          </form>
+      </div>
+      <div class="col-md-6 mt-5">
+          {!! Form::open(["class" => "form-inline" , "route" => 'compositions.replace',"method" => "POST"]) !!}
           <div class="form-group">
-            <label for="name">Keyword:</label>
-            <input type="text" name="name" class="form-control" id="name" placeholder="Enter Name" value=""/>
+              <label for="name">Keyword:</label>
+              <input type="text" name="name" class="form-control" id="name" placeholder="Enter Name" value=""/>
           </div>
           <div class="form-group ml-2">
-            <label for="replace_with">Replace With:</label>
-            <input type="text" name="replace_with" class="form-control" placeholder="Enter Erp Name" value="" id="">
+              <label for="replace_with">Replace With:</label>
+              <input type="text" name="replace_with" class="form-control" placeholder="Enter Erp Name" value="" id="">
           </div>
-          <button type="submit" class="btn btn-default ml-2 small-field-btn">Replace</button>
-        </form>
-    </div>
+          <button type="submit" class="btn btn-default ml-2 small-field-btn compositions">Replace</button>
+          </form>
+      </div>
+  </div>
+<div class="row">
     <div class="col-md-4 mt-5">
         {!! Form::open(["class" => "form-inline" , "route" => 'compositions.index',"method" => "GET"]) !!}    
-          <div class="form-group">
+          <div class="form-group change-data">
             <input type="text" name="keyword" class="form-control" id="name" placeholder="Enter keyword" value="{{ old('keyword') ? old('keyword') : request('keyword') }}"/>
           </div>
           <div class="form-group ml-2">
             <input type="checkbox" name="with_ref" class="form-control" id="with_ref" @if(request('with_ref') == 1) checked="checked" @endif value="1"/> With Ref
           </div>
-          <button type="submit" class="btn btn-default ml-2 small-field-btn"><i class="fa fa-search"></i></button>
+          <button type="submit" class="btn btn-default ml-2 small-field-btn "><i class="fa fa-search"></i></button>
         </form>
     </div>
-    <div class="col-md-8 mt-5">
+    <div class="col-md-8 mt-5 compositions">
         <div class="form-group small-field">
             <?php echo Form::select(
                 'replace_with', 
@@ -77,34 +136,42 @@
             <a target="__blank" href="{{ route('compositions.delete.unused') }}">
                 <button type="button" class="btn btn-secondary delete-not-used">Delete not used</button>
             </a>
+                <button class="btn btn-secondary approve-all">Approve all</button>
         </div>
     </div>
-    <div class="col-md-2 mt-2">
-        <button class="btn btn-secondary approve-all">Approve all</button>
-        
-    </div>
+{{--    <div class="col-md-2 mt-2">--}}
+{{--        <button class="btn btn-secondary approve-all">Approve all</button>--}}
+{{--        --}}
+{{--    </div>--}}
     <div class="col-md-12 mt-5">
-        <table class="table table-bordered">
+        <table class="table table-bordered composition">
             <tr>
-                <th width="10%"><input type="checkbox" class="check-all-btn">&nbsp;SN</th>
-                <th width="30%">Composition</th>
+                <th width="3%" ><span><input type="checkbox" class="check-all-btn mr-2">&nbsp;</span></th>
+                <th width="7%" >SN</th>
+                <th width="25%">Composition</th>
                 <th width="5%">Pro Count</th>
-                <th width="35%">Erp Composition</th>
-                <th width="20%">Action</th>
+                <th width="30%">Original</th>
+                <th width="20%">Erp Composition</th>
+                <th width="10%">Action</th>
             </tr>
             @foreach($compositions as $key=>$composition)
                 <tr>
-                    <td><input type="checkbox" name="composition[]" value="{{ $composition->id }}" class="composition-checkbox">&nbsp;{{ $composition->id }} </td>
+                    <td><input type="checkbox" name="composition[]" value="{{ $composition->id }}" class="composition-checkbox mr-2"></td>
+                    <td>{{ $composition->id }} </td>
                     <td>
                         <div class="d-flex">
                             <input type="text" class="col-10" id="{{ $composition->id }}" value="{{ $composition->name }}"> 
-                            <button class="btn btn-secondary btn-sm composition-name-update" data-id="{{ $composition->id }}" title="Update"><i class="fa fa-save"></i></button>
+                            <!-- <button class="btn btn-secondary btn-sm composition-name-update" data-id="{{ $composition->id }}" title="Update"><i class="fa fa-save"></i></button> -->
 
                             <span class="call-used-product d-none"  data-id="{{ $composition->id }}" data-type="name">{{ $composition->name }}</span> 
                             <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $composition->name }}" data-id="{{ $composition->id }}"><img src="/images/add.png"></button>
                         </div>
                     </td>
-                    <td>{{ $composition->products($composition->name) }}</td>
+                    <td class="text-center">{{ $composition->product_counts_count }}</td>
+                    <td>
+                        <input type="text" class="col-10 compositions-from-org" data-org-name="{{ $composition->name }}" id="compo_{{ $composition->id }}" value="{{ $composition->name }}">
+                        <button class="btn btn-secondary btn-sm composition-assign-update ml-2" data-id="{{ $composition->id }}" title="Update"><i class="fa fa-save"></i></button>
+                    </td>
                     <td>
                         <div class="form-group small-field">
                             <select name="replace_with" class="form-control change-list-compostion select2" style="width:400px" data-name="{{$composition->name}}" id="select{{$composition->id}}" data-id="{{ $composition->id }}">
@@ -118,8 +185,7 @@
                                         $selected = false;
                                         $optionSelected = null;
                                         $itemArr  = array_filter(explode(' ', preg_replace("/[^a-zA-Z]+/", " ", $item)));
-                                        $exitsArr = array_filter(explode(' ', preg_replace("/[^a-zA-Z]+/", " ", $composition->name)));
-                                        
+                                        $exitsArr = array_filter(explode(' ', preg_replace("/[^a-zA-Z]+/", " ", $composition->replace_with)));
                                         if($exitsArr){
                                             if( sizeof( $exitsArr ) > 2 ){
                                                 if( in_array( $exitsArr[2], $itemArr) && $selected == false ){
@@ -131,13 +197,18 @@
                                                     $selected = true; 
                                                     $optionSelected =  'selected'; 
                                                 }
+
+                                                if($composition->name == $item) {
+                                                   $selected = true; 
+                                                   $optionSelected =  'selected';  
+                                                }
                                             }
                                         }
                                     @endphp
                                     <option value="{{ $item }}" {{ $optionSelected }} > {{ $item }} </option>
                                 @endforeach
                             </select>
-                            <button class="btn btn-secondary btn-xs change-selectbox" data-id="{{$composition->id}}"><i class="fa fa-save"></i></button>
+                            <!-- <button class="btn btn-secondary btn-xs change-selectbox" data-id="{{$composition->id}}"><i class="fa fa-save"></i></button> -->
                         </div>
                     </td>
                     <td>
@@ -392,6 +463,36 @@
 
             $(document).on("click",".check-all-btn",function() {
                 $(".composition-checkbox").trigger("click");
+            });
+
+            $(document).on("click",".composition-assign-update",function() {
+                var $this = $(this);
+                $.ajax({
+                    type: 'GET',
+                    url: '/compositions/affected-product',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        from : $this.closest("td").find(".compositions-from-org").data("org-name"),
+                        to : $this.closest("td").find(".compositions-from-org").val()
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        if(response.html != "") {
+                            $(".show-listing-exe-records").find('.modal-dialog').html(response.html);
+                            $(".show-listing-exe-records").modal('show');
+                        }else{
+                            //toastr['error']('Sorry no product founds', 'error');
+                        }
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    console.log("Sorry, something went wrong");
+                });
             });
 
             $(document).on('click','.update-composition-selected',function() {

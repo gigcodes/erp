@@ -177,21 +177,39 @@
 		</thead>
 		<tbody>
 			@foreach($messageData as $data)
+			@php
+				$media = $chat_array[$data->customer_id];
+				$medias = explode(",",$media);
+			@endphp
 			<tr>
 				<td><input class="approve-sel-checkbox" type="checkbox" value="{{$data->lead_id}}"></td>
 				<td>{{$data->cust_id}}</td>
 				<td>{{$data->name}}</td>
 				<td>{{$data->phone}}</td>
-				<td>{{$data->lead_id}}</td>
-				<td>{{$data->message}}</td>
+				@if(array_key_exists($data->customer_id,$lead_group_array))
+					<td>{{$lead_group_array[$data->customer_id]}}</td>
+				@else
+					<td>-</td>
+				@endif
+
+				@if(array_key_exists($data->customer_id,$message_array))
+					<td>{{$message_array[$data->customer_id]}}</td>
+				@else
+					<td>-</td>
+				@endif
+				
+				{{-- <td>{{$data->message}}</td> --}}
 				<td>
-					@foreach($data->getMedia(config("constants.attach_image_tag")) as $media)
-					<img width="75px" heigh="75px" src="{{ $media->getUrl() }}">
+					@foreach($medias as $media)
+						@php
+							$chat = App\ChatMessage::find($media);
+						@endphp
+						<img width="75px" heigh="75px" src="{{$chat->media_url}}">
 					@endforeach
 				</td>
 				<td>{{$data->created_at}}</td>
-				<td style="width:300px"><input type="button" id="approve-lead-group" data-lead-id="{{$data->lead_id}}" value="approve" onsubmit="return false" />
-				<button title="Remove Multiple products" type="button" class="btn btn-xs btn-secondary remove-leads mr-3" data-id="{{$data->chatid}}"><i class="fa fa-trash" aria-hidden="true"></i></button>
+				<td style="width:300px"><input type="button" id="approve-lead-group" data-lead-id="{{$lead_group_array[$data->customer_id]}}" value="approve" onsubmit="return false" />
+				<button title="Remove Multiple products" type="button" class="btn btn-xs btn-secondary remove-leads mr-3" data-id="{{$chat_array[$data->customer_id]}}"><i class="fa fa-trash" aria-hidden="true"></i></button>
 				<button title="Send Images" type="button" class="btn btn-image send-message no-pd" data-id="{{$data->cust_id}}"><img src="../images/filled-sent.png" /></button>
 
 				</td>
@@ -208,15 +226,15 @@
   $(document).on("click", ".remove-leads", function (event) {
 	event.preventDefault();
 	var $this = $(this);
-	var lead_id = $(this).data("id");
+	var chat_id = $(this).data("id");
             $.ajax({
-                url: '/lead-queue/records/'+lead_id+'/delete',
+                url: "{{ route('lead-queue.delete.record') }}",
                 type: 'get',
                 dataType: 'json',
-                // data: {
-                //     _token: "{{ csrf_token() }}",
-                //     products: JSON.stringify(product_array)
-                // },
+                data: {
+                    _token: "{{ csrf_token() }}",
+					chat_id: chat_id,
+                },
                 // beforeSend: function () {  
                 //     $("#loading-image").show();
                 // },

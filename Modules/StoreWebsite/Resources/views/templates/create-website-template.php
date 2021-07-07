@@ -93,6 +93,15 @@
 			  </div>
 			  <div class="form-row">
 		         <div class="form-group col-md-4">
+		            <label for="inputState">Disable Push?</label>
+		            <select name="disable_push" id="inputState" class="form-control">
+		               <option {{if data && data.disable_push == 0}}selected{{/if}} value="0">No</option>
+		               <option {{if data && data.disable_push == 1}}selected{{/if}} value="1">Yes</option>
+		            </select>
+		         </div>
+			  </div>
+			  <div class="form-row">
+		         <div class="form-group col-md-4">
 		            <label for="website_source">Website source?</label>
 		            <select name="website_source" id="website_source" class="form-control">
 		               <option {{if data && data.website_source == "magento"}}selected{{/if}} value="magento">Magento</option>
@@ -132,12 +141,25 @@
 							</div>
 						</div>
 				      </div>
+				      <div class="form-group">
+					  	<div class="row">
+					  		<div class="col-sm-6">
+				      	 	    <label for="password">Password</label>
+							    <input type="password" name="password" value="{{if prop}}{{:prop.password}}{{/if}}" class="form-control user-password" id="password" placeholder="Enter Password">
+							</div>
+							<div class="col-sm-6">
+				      	 	    <label for="website_mode">Website Mode</label>
+				      	 	    <select name="website_mode" id="website_mode" class="form-control websiteMode">
+					               
+       <option {{if prop.website_mode == 'production' }}selected {{/if}} value="production">Production</option>
+       
+       <option {{if prop.website_mode == 'staging' }} selected {{/if}} value="staging">Staging</option>
+					            </select>
+							</div>
+						</div>
+				      </div>
 					  <div class="form-group">
 					  	<div class="row">
-					         <label class="col-sm-12" for="password">Password</label>
-					         <div class="col-sm-7 sub-pass">
-					         	<input type="password" name="password" value="{{if prop}}{{:prop.password}}{{/if}}" class="form-control user-password" id="password" placeholder="Enter Password">
-					         </div>
 					         <div class="col-sm-5">
 					         	<button type="button" data-id="" class="btn btn-show-password btn-sm" style="border:1px solid">
 					        		<i class="fa fa-eye" aria-hidden="true"></i>
@@ -182,12 +204,23 @@
 							</div>
 						</div>
 				      </div>
+				      <div class="form-group">
+					  	<div class="row">
+					  		<div class="col-sm-6">
+			      	 	    	<label for="password">Password</label>
+					         	<input type="password" name="password" value="" class="form-control user-password" id="password" placeholder="Enter Password">
+							</div>
+							<div class="col-sm-6">
+								<label for="website_mode">Website Mode</label>
+				      	 	    <select name="website_mode" id="website_mode" class="form-control websiteMode">
+					               <option value="production">Production</option>
+					               <option value="staging">Staging</option>
+					            </select>
+							</div>
+						</div>
+				      </div>
 					  <div class="form-group">
 					  	<div class="row">
-					         <label class="col-sm-12" for="password">Password</label>
-					         <div class="col-sm-7 sub-pass">
-					         	<input type="password" name="password" value="" class="form-control user-password" id="password" placeholder="Enter Password">
-					         </div>
 					         <div class="col-sm-5">
 					         	<button type="button" data-id="" class="btn btn-show-password btn-sm" style="border:1px solid">
 					        		<i class="fa fa-eye" aria-hidden="true"></i>

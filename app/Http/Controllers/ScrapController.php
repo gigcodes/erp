@@ -8,6 +8,7 @@ use App\Helpers;
 use App\Helpers\ProductHelper;
 use App\Helpers\StatusHelper;
 use App\Image;
+use App\ScrapApiLog;
 use App\Imports\ProductsImport;
 use App\Loggers\LogScraper;
 use App\Product;
@@ -189,7 +190,7 @@ class ScrapController extends Controller
     public function syncProductsFromNodeApp(Request $request)
     {
 
-        \Log::channel('scraper')->debug("##!!##" . json_encode($request->all()) . "##!!##");
+        //\Log::channel('scraper')->debug("##!!##" . json_encode($request->all()) . "##!!##");
 
         // Update request data with common mistakes
         $request = ProductHelper::fixCommonMistakesInRequest($request);
@@ -311,7 +312,6 @@ class ScrapController extends Controller
         // Get this product from scraped products
         $scrapedProduct = ScrapedProducts::where('sku', $sku)->where('website', $request->get('website'))->first();
         $images         = $request->get('images') ?? [];
-
         if ($scrapedProduct) {
             // Add scrape statistics
             // $scrapStatistics = new ScrapStatistics();
@@ -336,6 +336,7 @@ class ScrapController extends Controller
                 $scrapedProduct->price_eur = (float) $request->get('price');
             }
             $scrapedProduct->discounted_price  = $request->get('discounted_price');
+            $scrapedProduct->discounted_percentage = (float) $request->get('discounted_percentage',0.00);
             $scrapedProduct->original_sku      = trim($request->get('sku'));
             $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
             $scrapedProduct->validated         = empty($errorLog["error"]) ? 1 : 0;
@@ -378,6 +379,7 @@ class ScrapController extends Controller
             $scrapedProduct->properties       = $propertiesExt;
             $scrapedProduct->currency         = ProductHelper::getCurrency($request->get('currency'));
             $scrapedProduct->price            = (float) $request->get('price');
+            $scrapedProduct->discounted_percentage = (float) $request->get('discounted_percentage',0.00);
             if ($request->get('currency') == 'EUR') {
                 $scrapedProduct->price_eur = (float) $request->get('price');
             }
@@ -749,7 +751,7 @@ class ScrapController extends Controller
      */
     public function saveFromNewSupplier(Request $request)
     {
-        \Log::channel('scraper')->debug("\n##!EXTERNAL-SCRAPER!##\n" . json_encode($request->all()) . "\n##!EXTERNAL-SCRAPER!##\n");
+        //\Log::channel('scraper')->debug("\n##!EXTERNAL-SCRAPER!##\n" . json_encode($request->all()) . "\n##!EXTERNAL-SCRAPER!##\n");
         
         // Overwrite website
         //$request->website = 'internal_scraper';
@@ -2008,7 +2010,7 @@ class ScrapController extends Controller
                 if (count($matches) == 2 || count($matches) == 1 || count($matches) == 0) {
                     return response()->json(["code" => 200, "message" => "Script Is Not Running"]);
                 } else {
-                    return response()->json(["code" => 200, "message" => "Script Is Running"]);
+                    return response()->json(["code" => 200, "message" => "Script Is Running \n" . json_decode($response)->Process[0]->duration]);
                 }
 
             } else {
@@ -2073,24 +2075,32 @@ class ScrapController extends Controller
 
     public function saveChildScraper(Request $request)
     {
-        $scraper = Scraper::where('scraper_name', $request->scraper_name)->whereNull('parent_id')->first();
+        $scrperEx = explode("#",$request->scraper_name);
+        
+        $scraper = Scraper::whereNull('parent_id');
+        
+        if(!empty($scrperEx[0])) {
+            $scraper = $scraper->where('scraper_name', $scrperEx[0]); 
+        }
+
+        if(!empty($scrperEx[1])) {
+            $scraper = $scraper->where('id', $scrperEx[1]); 
+        } 
+
+        $scraper = $scraper->first();
+
         //dd($scraper);
         if ($scraper) {
             $parentId                 = $scraper->id;
-            $checkIfChildScraperExist = Scraper::where('parent_id', $parentId)->where('scraper_name', $request->name)->first();
-            if (!$checkIfChildScraperExist) {
-                $scraperChild                  = new Scraper;
-                $scraperChild->scraper_name    = $request->name;
-                $scraperChild->supplier_id     = $scraper->supplier_id;
-                $scraperChild->parent_id       = $parentId;
-                $scraperChild->run_gap         = $request->run_gap;
-                $scraperChild->start_time      = $request->start_time;
-                $scraperChild->scraper_made_by = $request->scraper_made_by;
-                $scraperChild->server_id       = $request->server_id;
-                $scraperChild->save();
-            } else {
-                return redirect()->back()->with('message', 'Scraper Already Exist');
-            }
+            $scraperChild                  = new Scraper;
+            $scraperChild->scraper_name    = $request->name;
+            $scraperChild->supplier_id     = $scraper->supplier_id;
+            $scraperChild->parent_id       = $parentId;
+            $scraperChild->run_gap         = $request->run_gap;
+            $scraperChild->start_time      = $request->start_time;
+            $scraperChild->scraper_made_by = $request->scraper_made_by;
+            $scraperChild->server_id       = $request->server_id;
+            $scraperChild->save();
             return redirect()->back()->with('message', 'Child Scraper Saved');
         }
         return redirect()->back()->with('message', 'Scraper Not Found');
@@ -2243,12 +2253,15 @@ class ScrapController extends Controller
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             
             $response = curl_exec($curl);
-
+            
             curl_close($curl);
             
             if (!empty($response)) {
+                
                 $response = json_decode($response);
+                
                 \Log::info(print_r($response,true));
+                
                 if((isset($response->status) && $response->status == "Didn't able to find file of given scrapper") || empty($response->log)) {
                     echo "Sorry , no log was return from server";
                     die;
@@ -2258,7 +2271,17 @@ class ScrapController extends Controller
                         header('Content-Description: File Transfer');
                         header("Content-type: application/octet-stream");
                         header("Content-disposition: attachment; filename= ".$file."");
-                        echo base64_decode($response->log);
+                        $log = base64_decode($response->log);
+
+                        if (!empty($log)) {
+
+                            $api_log = new ScrapApiLog;
+                            $api_log->scraper_id = $scraper->id;
+                            $api_log->server_id = $request->server_id;
+                            $api_log->log_messages = $log;
+                            $api_log->save();
+                        }
+
                     }
                 }
             } else {

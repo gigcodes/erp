@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\StoreWebsite;
 use Crypt;
 use App\StoreSocialAccount;
@@ -47,6 +48,8 @@ class ContentManagementController extends Controller
 
         $websites = $websites->get();
 
+        $gmail_data = \App\GmailDataList::get();
+
         foreach($websites as $w) {
             // $media = $w->getMedia('website-image-attach');
             // dd( $media );
@@ -58,7 +61,7 @@ class ContentManagementController extends Controller
             $w->instagramAccount = StoreSocialAccount::where('platform','instagram')->where('store_website_id',$w->id)->first();
 
         }
-        return view('content-management.index', compact('title','websites'));
+        return view('content-management.index', compact('title','websites','gmail_data'));
     }
 
     public function getAttachImages(Request $request)
@@ -66,6 +69,17 @@ class ContentManagementController extends Controller
         $website = StoreWebsite::where("id",$request->websiteId)->first();
         $media   = $website->getMedia('website-image-attach');
         return view('content-management.attach-images', compact('media'));
+    }
+
+    public function downloadAttachImages(Request $request)
+    {
+        $content = file_get_contents($request->image_url);
+        $random = bin2hex(random_bytes(20)).'.png';
+        $path = asset('/uploads/gmail_media/'.$random);
+
+        Storage::disk('uploads')->put('gmail_media/'.$random, $content);
+
+        return response()->json(['random' => $random,'image_path' => $path,'status' => true]);
     }
 
     public function viewAddSocialAccount() {

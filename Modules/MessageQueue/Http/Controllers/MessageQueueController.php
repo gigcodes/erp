@@ -3,10 +3,14 @@
 namespace Modules\MessageQueue\Http\Controllers;
 
 use App\ChatMessage;
+use App\Exports\MessageCounterExport;
+use App\Exports\ReportExport;
 use App\Services\Whatsapp\ChatApi\ChatApi;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use DB;
+use Excel;
 
 class MessageQueueController extends Controller
 {
@@ -21,6 +25,7 @@ class MessageQueueController extends Controller
         ]);
 
         $sendingLimit  = ChatMessage::getQueueLimit();
+        $sendingTime  = ChatMessage::getQueueTime();
         $sendStartTime = ChatMessage::getStartTime();
         $sendEndTime   = ChatMessage::getEndTime();
 
@@ -44,7 +49,7 @@ class MessageQueueController extends Controller
             ->groupBy("c.whatsapp_number")
             ->select(\DB::raw("count(*) as total_message"), "c.whatsapp_number")->get();
 
-        return view('messagequeue::index', compact('groupList', 'sendingLimit', 'sendStartTime', 'sendEndTime', 'waitingMessages', 'countQueue'));
+        return view('messagequeue::index', compact('groupList', 'sendingLimit', 'sendStartTime', 'sendEndTime', 'waitingMessages', 'countQueue','sendingTime'));
     }
 
     /**
@@ -76,8 +81,101 @@ class MessageQueueController extends Controller
 
     }
 
+
+    public function message_counter()
+    {
+
+        $groupList = ChatMessage::pendingQueueGroupList([
+            "is_queue" => 1,
+        ]);
+
+        $sendingLimit  = ChatMessage::getQueueLimit();
+        $sendingTime  = ChatMessage::getQueueTime();
+        $sendStartTime = ChatMessage::getStartTime();
+        $sendEndTime   = ChatMessage::getEndTime();
+
+        $allWhatsappNo = config("apiwha.instances");
+
+        $waitingMessages = [];
+        //if(env("APP_ENV") != "local") {
+        if (!empty($allWhatsappNo)) {
+            foreach ($allWhatsappNo as $no => $dataInstance) {
+                $no                   = ($no == 0) ? $dataInstance["number"] : $no;
+                $chatApi              = new ChatApi;
+                $waitingMessage       = $chatApi->waitingLimit($no);
+                $waitingMessages[$no] = $waitingMessage;
+            }
+        }
+        //}
+
+        $countQueue = ChatMessage::join("customers as c", "c.id", "chat_messages.customer_id")
+            ->where("is_queue", ">", 0)
+            ->where("customer_id", ">", 0)
+            ->groupBy("c.whatsapp_number")
+            ->select(\DB::raw("count(*) as total_message"), "c.whatsapp_number")->get();
+
+
+        $messageCounter = $this->getMessgeCounterDetail();
+
+
+        return view('messagequeue::message_counter', compact('messageCounter','groupList', 'sendingLimit', 'sendStartTime', 'sendEndTime', 'waitingMessages', 'countQueue','sendingTime'));
+
+    }
+
+
+
+
+    public function export_counter()
+    {
+       $tempData = $this->getMessgeCounterDetail();
+
+       $header = array(
+
+           'Number',
+           'Counter',
+           'Date',
+       );
+
+
+       $data = [];
+       foreach ($tempData as $list)
+       {
+           $row = null;
+           $row[] = "[".$list->number."]";
+           $row[] = (int)$list->counter;
+           $row[] =  date('Y-m-d', strtotime($list->time));
+           $data[] = $row;
+       }
+
+//       dd($data);
+
+        return Excel::download(new MessageCounterExport($header,$data), 'Counter_report.csv');
+
+
+
+
+    }
+
+
+    private function getMessgeCounterDetail()
+    {
+
+        $data = null;
+        $tempData = DB::table('message_queue_history')->get();
+
+        foreach ($tempData as $list)
+        {
+            $data[] = $list;
+        }
+
+        return $data;
+
+    }
+
+
     public function approved(Request $request)
     {
+
 
         $groupIdApprove = ChatMessage::where('group_id', $request->group_id)->update(["is_queue" => 1]);
         return response()->json(["code" => 200, "message" => "Approved Successfully"]);
@@ -233,6 +331,20 @@ class MessageQueueController extends Controller
                 ["val" => $endTime]
             );
         }
+
+        return response()->json(["code" => 200, "message" => "Done!"]);
+
+    }
+
+    public function updateTime(Request $request)
+    {
+        $limit     = $request->get("message_sending_time", []);
+        
+
+        \App\Setting::updateOrCreate(
+            ["name" => "is_queue_sending_time"],
+            ["val" => json_encode($limit), "type" => "str"]
+        );
 
         return response()->json(["code" => 200, "message" => "Done!"]);
 

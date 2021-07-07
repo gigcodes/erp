@@ -95,4 +95,66 @@ class FacebookController extends Controller
         ], 200);
     } 
 
+
+    public function facebookPost(Request $request)
+    {
+        // Get raw body
+        $file = $request->file('file');
+
+        $f = File::get($file);
+
+        $payLoad = json_decode($f);
+
+        // NULL? No valid JSON
+        if ($payLoad == null) {
+            return response()->json([
+                'error' => 'Invalid json'
+            ], 400);
+        }
+
+        // Process input
+        if (is_array($payLoad) && count($payLoad) > 0) {
+            $payLoad = json_decode(json_encode($payLoad), true);
+
+            // Loop over posts
+            foreach ($payLoad as $postJson) {
+
+                if(isset($postJson['Followers'])){
+                    
+                    $inf = ScrapInfluencer::where('name',$postJson['Owner'])->first();
+                    if($inf == null){
+                        $influencer              = new ScrapInfluencer;
+                        $influencer->name        = $postJson['Owner'];
+                        $influencer->url         = $postJson['URL'];
+                        $influencer->followers   = $postJson['Followers'];
+                        $influencer->following   = $postJson['Following'];
+                        $influencer->posts       = $postJson['Posts'];
+                        $influencer->description = $postJson['Bio'];
+                        
+                        $influencer->profile_pic = $postJson['profile_pic'];
+                        $influencer->friends     = $postJson['friends'];
+                        $influencer->cover_photo = $postJson['cover_photo'];
+                        $influencer->interests   = $postJson['interests'];
+                        $influencer->work_at     = $postJson['work_at'];
+
+
+
+                        if(isset($postJson['keyword'])){
+                            $influencer->keyword = $postJson['keyword'];
+                        }
+                        $influencer->save();
+                    }
+                }else{
+                    //
+                }
+                
+            }
+        }
+
+        // Return
+        return response()->json([
+            'ok'
+        ], 200);
+    }
+
 }

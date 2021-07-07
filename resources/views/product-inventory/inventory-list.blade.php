@@ -13,7 +13,7 @@
     padding:2px;
 }
 table.table.table-bordered.infinite-scroll th:nth-child(2),table.table.table-bordered.infinite-scroll td:nth-child(2){
-    width: 50px !important;
+    width: 80px !important;
 }
 table{
     table-layout: fixed;
@@ -56,16 +56,50 @@ table tr td{
             {!! Form::text('term',request("term"), ['placeholder' => 'Search by product, sku, brand, category','class' => 'form-control','style' => 'width: 100%;']) !!}
         </div>
         <div class="form-group mr-pd col-md-2">
-            {!! Form::select('brand_names[]',$brands_names, request("brand_names",[]), ['data-placeholder' => 'Select a Brand','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
+            <select class="form-control globalSelect2" data-placeholder="Select a Brand" data-ajax="{{ route('select2.brands',['sort'=>true]) }}"
+            name="brand_names[]" multiple>
+            <option value="">Select a Brand</option>
+
+                @if ($selected_brand)        
+                    @foreach($selected_brand as $brand)
+                                    <option value="{{ $brand->id }}" selected>{{ $brand->name }}</option>
+                    @endforeach
+                @endif
+            </select>
+
         </div>
         <div class="form-group mr-pd col-md-2">
-            {!! $products_categories !!}
+            {{-- {!! $products_categories !!} --}}
+
+            <select class="form-control globalSelect2" data-placeholder="Select a Category" data-ajax="{{ route('select2.categories') }}"
+                name="product_categories[]" multiple>
+                <option value="">Select a Category</option>
+    
+                    @if ($selected_categories)        
+                        @foreach($selected_categories as $category   )
+                                        <option value="{{ $category->id }}" selected>{{ $category->title }}</option>
+                        @endforeach
+                    @endif
+            </select>
+
         </div>
         <div class="form-group mr-pd col-md-2">
             {!! Form::select('in_stock',["" => "--All--" , "1" => "In Stock", "2" => "Out Of Stock"], request("in_stock",null), ['data-placeholder' => 'Select a In Stock','class' => 'form-control']) !!}
         </div>
         <div class="form-group mr- mb-3 col-md-3">
-            {!! Form::select('supplier[]',$supplier_list, request("supplier",[]), ['data-placeholder' => 'Select a Supplier','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
+            {{-- {!! Form::select('supplier[]',$supplier_list, request("supplier",[]), ['data-placeholder' => 'Select a Supplier','class' => 'form-control select-multiple2', 'multiple' => true]) !!} --}}
+
+            <select class="form-control globalSelect2" data-placeholder="Select a Supplier" data-ajax="{{ route('select2.suppliers',['sort'=>true]) }}"
+                name="supplier[]" multiple>
+                {{-- <option value="">Select a Brand</option> --}}
+    
+                    @if ($selected_supplier)        
+                        @foreach($selected_supplier as $supplier )
+                                        <option value="{{ $supplier->id }}" selected>{{ $supplier->supplier }}</option>
+                        @endforeach
+                    @endif
+                </select>
+
         </div>
         <!-- <div class="form-group mr-3 mb-3">
                 {!! Form::select('product_sku[]',$products_sku, request("product_sku",[]), ['data-placeholder' => 'Select a Sku','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
@@ -93,6 +127,10 @@ table tr td{
                     <span class="glyphicon glyphicon-calendar"></span>
                 </span>
             </div>
+        </div>
+        <div class="form-group mr-3 mb-3">
+            <input type="text" name="discounted_percentage_min" class="form-control" placeholder="discounted min. %" value="{{ request('discounted_percentage_min','') }}">
+            <input type="text" name="discounted_percentage_max" class="form-control" placeholder="discounted max. %" value="{{ request('discounted_percentage_max','') }}">
         </div>
         <div class="form-group mr-pd col-md-1">
             <button type="submit" class="btn btn-secondary"><i class="fa fa-filter"></i>Filter</button>
@@ -131,6 +169,7 @@ table tr td{
                 <th width="10%">Name</th>
                 <th width="12%">Category / Brand</th>
                 <th width="10%">Price</th>
+                <th width="10%">Discount %</th>
                 <!-- <th width="15%">Brand</th> -->
                 <th width="10%">Supplier</th>
                 <th width="8%">Color</th>
@@ -139,8 +178,8 @@ table tr td{
                 <th width="10%">Size system</th>
                 <th width="10%">Size</th>
                 <th width="10%">Size(IT)</th>
-                <th width="10%">Status</th>
-                <th width="10%">Sub Status</th>
+                <th width="8%">Status</th>
+                <th width="9%">Sub Status</th>
                 <th width="10%">Created Date</th>
                 <th width="10%">Actions</th>
             </tr>
@@ -173,6 +212,18 @@ table tr td{
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Status History</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+    </div>
+</div>
+<div id="product-invetories" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="max-width:100% !important;width:90%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Scraped Products</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
@@ -300,7 +351,7 @@ table tr td{
                     <tbody>
                         @foreach($scrappedReportData as $value)
                         <tr>
-                            <td>{{$value->supplier}}</td>
+                            <td>{{$value->website}}</td>
                             <td>{{$value->missing_category}}</td>
                             <td>{{$value->missing_color}}</td>
                             <td>{{$value->missing_composition}}</td>
@@ -422,6 +473,66 @@ table tr td{
         $('#status-history-modal .modal-body').html(result)
 
         $('#status-history-modal').modal('show')
+    })
+
+
+    //show-scraped-product
+    $('body').delegate('.show-scraped-product', 'click', function() {
+
+        let data = $(this).parent().parent().find('.product-inventory').attr('data')
+        // console.log(data)
+        let result = '';
+
+        if (data != '[]') {
+            data = JSON.parse(data)
+            console.log(data)
+            result += '<table class="table table-bordered">';
+            result += '<thead><th>Id</th><th>Sku</th><th>Name</th><th>Category / Brand</th><th>Price</th><th>Discount %</th><th>Supplier</th><th>Color</th><th>Composition</th><th>Size system</th><th>Size</th><th>Created Date</th></thead>';
+            result += '<tbody>';
+            for (let value in data) {
+                result += '<tr>';
+                result += "<td>" + (data[value].id ? data[value].id :'-' )+ "</td>"
+                result += "<td>" + (data[value].sku ? data[value].sku :'-' )+ "</td>"
+                result += "<td>" + (data[value].title ? data[value].title : '-') + "</td>"
+                result += "<td>" + (data[value].categories ? data[value].categories :'-') +'/'+(data[value].brand['name'] ? data[value].brand['name'] :'-') + "</td>"
+                result += "<td>" + (data[value].price ? data[value].price :'-' )+ "</td>"
+                result += "<td>" + (data[value].discounted_percentage ? data[value].discounted_percentage :'0') + "</td>"
+                result += "<td>" +  (data[value].supplier  ? data[value].supplier :'-')+ "</td>"
+                result += "<td>" + (data[value].color ? data[value].color: '-' )+ "</td>"
+                result += "<td>" + (data[value].composition ? data[value].composition :'-') + "</td>"
+                result += "<td>" + (data[value].size_system ? data[value].size_system :'-') + "</td>"
+                result += "<td>" +( data[value].size ? data[value].size :'-') + "</td>"
+                result += "<td>" + (data[value].created_at ? data[value].created_at :'-') + "</td>"
+                result += '</tr>';
+            }
+            result += '</tbody>';
+            result += '</table>';
+            // for (let value in data) {
+            //     result += '<tr>';
+            //     result += "<td>" + ( data[value].id ? data[value].id :'-') + "</td>"
+            //     result += "<td>" +  data[value].sku  + "</td>"
+            //     result += "<td>" +  data[value].title  + "</td>"
+            //     result += "<td>" +  data[value].categories  +'/'+ data[value].brand['name']  + "</td>"
+            //     result += "<td>" +  data[value].price  + "</td>"
+            //     result += "<td>" +  data[value].discounted_percentage  + "</td>"
+            //     result += "<td>" +   data[value].supplier + "</td>"
+            //     result += "<td>" +  data[value].color + "</td>"
+            //     result += "<td>" +  data[value].composition  + "</td>"
+            //     result += "<td>" +  data[value].size_system  + "</td>"
+            //     result += "<td>" +  data[value].size  + "</td>"
+            //     result += "<td>" +  data[value].created_at  + "</td>"
+            //     result += '</tr>';
+            // }
+            // result += '</tbody>';
+            // result += '</table>';
+
+        } else {
+            result = '<h3>This Product dont have status history</h3>';
+        }
+
+        $('#product-invetories .modal-body').html(result)
+
+        $('#product-invetories').modal('show')
     })
 
 

@@ -138,6 +138,35 @@ class scrapperPhyhon extends Controller
         return view('scrapper-phyhon.list', compact('websites','query','allWebsites','request'));
     }
 
+
+
+    public function listImages(Request $request){
+
+        $store_id = $request->id;
+//        $list =  Website::where('id',$website_id)->first();
+//dd($list, $website_id);
+        $oldDate = null;
+        $count   = 0;
+        $images = [];
+        // dd( $list->store_website_id );
+
+            $webStore = \App\WebsiteStore::where('id',$store_id)->first();
+                $list =  Website::where('id',$webStore->website_id)->first();
+                $website_id = $list->id;
+        if( $webStore ){
+            $website_store_views = \App\WebsiteStoreView::where('website_store_id',$webStore->id)->first();
+//            dd($list->store_website_id);
+//            dd($list->store_website_id);
+                if( $website_store_views ){
+                    $images = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$request->code)->get()->toArray();
+                }
+            }
+
+
+        return view('scrapper-phyhon.list-image-products', compact('images', 'website_id'));
+
+    }
+
     public function setDefaultStore(int $website=0,int $store=0,$checked=0)
     {
         if($website && $store)

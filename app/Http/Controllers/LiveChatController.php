@@ -26,12 +26,17 @@ class LiveChatController extends Controller
     //Webhook
     public function incoming(Request $request)
     {
+        \Log::channel('chatapi')->info('-- incoming >>');
+
         \Log::channel('chatapi')->info($request->getContent());
         $receivedJson = json_decode($request->getContent());
 
         if (isset($receivedJson->event_type)) {
+            \Log::channel('chatapi')->info('--1111 >>');
             //When customer Starts chat
             if ($receivedJson->event_type == 'chat_started') {
+
+                \Log::channel('chatapi')->info('-- chat_started >>');
                 ///Getting the chat
                 $chat = $receivedJson->chat;
 
@@ -72,6 +77,7 @@ class LiveChatController extends Controller
                     $customer->name  = $name;
                     $customer->email = $email;
                     $customer->phone = null;
+                    $customer->language = 'en';
                     $customer->save();
                 }
 
@@ -79,8 +85,11 @@ class LiveChatController extends Controller
         }
 
         if (isset($receivedJson->action)) {
+            \Log::channel('chatapi')->info('--2222 >>');
             //Incomg Event
             if ($receivedJson->action == 'incoming_event') {
+
+                \Log::channel('chatapi')->info('-- incoming_event >>');
 
                 //Chat Details
                 $chatDetails = $receivedJson->payload;
@@ -97,6 +106,8 @@ class LiveChatController extends Controller
                     $customerLiveChat->update();
                 }
                 if ($chatDetails->event->type == 'message') {
+
+                    \Log::channel('chatapi')->info('-- message >>');
 
                     $message   = $chatDetails->event->text;
                     $author_id = $chatDetails->event->author_id;
@@ -145,6 +156,23 @@ class LiveChatController extends Controller
 
                     // Create chat message
                     $chatMessage = ChatMessage::create($params);
+
+                    //STRAT - Purpose : Add record in chatbotreplay - DEVTASK-18280
+                    if($messageStatus != 2)
+                    {
+                        \App\ChatbotReply::create([
+                            'question'        => $message,
+                            'reply' => json_encode([
+                                'context' => 'chatbot',
+                                'issue_id' => $chatDetails->chat_id,
+                                'from' => "chatbot"
+                            ]),
+                            'replied_chat_id' => $chatMessage->id,
+                            'reply_from'      => 'chatbot',
+                        ]);
+                    }
+                    //END - DEVTASK-18280
+
                     // if customer found then send reply for it
                     if (!empty($customerDetails) && $message != '') {
                         WatsonManager::sendMessage($customerDetails, $message, '', $message_application_id);
@@ -153,6 +181,8 @@ class LiveChatController extends Controller
                 }
 
                 if ($chatDetails->event->type == 'file') {
+
+                    \Log::channel('chatapi')->info('-- file >>');
 
                     $author_id = $chatDetails->event->author_id;
 
@@ -217,7 +247,9 @@ class LiveChatController extends Controller
                 // Add to chat_messages if we have a customer
             }
 
-            if ($receivedJson->action == 'incoming_chat_thread') {
+            if ($receivedJson->action == 'incoming_chat') {
+
+                \Log::channel('chatapi')->info('-- incoming_chat >>');
 
                 $chat   = $receivedJson->payload->chat;
                 $chatId = $chat->id;
@@ -292,6 +324,7 @@ class LiveChatController extends Controller
                     $customer->language = $customer_language;
                     $customer->phone = null;
                     $customer->store_website_id = $websiteId;
+                    $customer->language = 'en';
                     $customer->save();
 
                     //Save Customer with Chat ID
@@ -333,7 +366,7 @@ class LiveChatController extends Controller
             $message = TranslationHelper::translate('en', $language, $message);
         }
 
-if(isset($request->messageId)){
+        if(isset($request->messageId)){
                 $chatMessages = ChatMessage::where('id', $request->messageId)->first();
                 if ($chatMessages != null) {
                     $chatMessages->approved = 1;
@@ -479,6 +512,85 @@ if(isset($request->messageId)){
         echo $response;
     }
 
+    public function getorderdetails(Request $request)
+    {
+        $customer_id = $request->customer_id;
+
+        $customer = $this->findCustomerById($customer_id);
+
+        if ($customer){
+                $orders = (new \App\Order())->newQuery()->with('customer')->leftJoin("store_website_orders as swo","swo.order_id","orders.id")
+                    ->leftJoin("order_products as op","op.order_id","orders.id")
+                    ->leftJoin("products as p","p.id","op.product_id")
+                    ->leftJoin("brands as b","b.id","p.brand")->groupBy("orders.id")
+                    ->where('customer_id',$customer->id)
+                    ->select(["orders.*",\DB::raw("group_concat(b.name) as brand_name_list"),"swo.website_id"])->orderBy('created_at','desc')->get();
+                list($leads_total,$leads) = $this->getLeadsInformation($customer->id);
+                $exchanges_return = $customer->return_exchanges;
+                if ($orders->count()){
+                    foreach ($orders as &$value){
+                        $value->storeWebsite = $value->storeWebsiteOrder ? ($value->storeWebsiteOrder->storeWebsite??'N/A') : 'N/A';
+                        $value->order_date =  \Carbon\Carbon::parse($value->order_date)->format('d-m-y');
+                        $totalBrands = explode(",",$value->brand_name_list);
+                        $value->brand_name_list = (count($totalBrands) > 1) ? "Multi" : $value->brand_name_list;
+                        $value->status = \App\Helpers\OrderHelper::getStatusNameById($value->order_status_id);
+                    }
+                }
+            return [
+                true,
+                [
+                    'orders_total'=>$orders->count(),
+                    'leads_total'=>$leads_total,
+                    'exchanges_return_total'=>$exchanges_return->count(),
+                    'exchanges_return'=>$exchanges_return,
+                    'leads'=>$leads,
+                    'orders'=>$orders,
+                    'customer'=>$customer
+                ]
+            ];
+        }
+        return array(FALSE, FALSE);
+    }
+
+    protected function findCustomerById($customer_id)
+    {
+        return Customer::where('id', '=', $customer_id)->first();
+    }
+
+    private function getLeadsInformation($id){
+        $source = \App\ErpLeads::leftJoin('products', 'products.id', '=', 'erp_leads.product_id')
+            ->leftJoin("customers as c","c.id","erp_leads.customer_id")
+            ->leftJoin("erp_lead_status as els","els.id","erp_leads.lead_status_id")
+            ->leftJoin("categories as cat","cat.id","erp_leads.category_id")
+            ->leftJoin("brands as br","br.id","erp_leads.brand_id")
+            ->where('erp_leads.customer_id',$id)
+            ->orderBy("erp_leads.id","desc")
+            ->select(["erp_leads.*","products.name as product_name","cat.title as cat_title","br.name as brand_name","els.name as status_name","c.name as customer_name","c.id as customer_id"]);
+
+
+        $total = $source->count();
+        $source = $source->get();
+
+        foreach ($source as $key => $value) {
+            $source[$key]->media_url = null;
+            $media = $value->getMedia(config('constants.media_tags'))->first();
+            if ($media) {
+                $source[$key]->media_url = $media->getUrl();
+            }
+
+            if (empty($source[$key]->media_url) && $value->product_id) {
+                $product = \App\Product::find($value->product_id);
+                $media = $product->getMedia(config('constants.media_tags'))->first();
+                if ($media) {
+                    $source[$key]->media_url = $media->getUrl();
+                }
+            }
+        }
+
+        return [$total,$source];
+    }
+
+
     public function getChats(Request $request)
     {
         $chatId = $request->id;
@@ -510,25 +622,50 @@ if(isset($request->messageId)){
         $customerInital = substr($name, 0, 1);
         if (count($messages) != 0) {
             foreach ($messages as $message) {
-                if ($message->user_id != 0) {
-                    // Finding Agent
-                    $agent       = User::where('email', $message->user_id)->first();
-                    $agentInital = substr($agent->name, 0, 1);
-                    if(!$message->approved){
-                        $vals = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-end mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"> ' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div></div></div>';
-                    }else{
-                        $vals = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-end mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"> ' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span> </div></div>';
-                    }
-                    $messagess[] = $vals;
-                     //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+                
+                $agent       = Customer::where('id', $message->customer_id)->first();
+                $agentInital = substr($agent->name, 0, 1);
+
+                if ($message->status == 2) {
+                    $type = 'end';
                 } else {
-                    if(!$message->approved){
-                        $vals = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div></div></div>';
-                    }else{
-                        $vals = '<div  data-chat-id="'.$message->id.'" class="d-flex justify-content-start sss mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span></div></div>';
-                     //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+                    $type = 'start';
+                }
+
+                if ($message->hasMedia(config('constants.media_tags'))) {
+                    foreach ($message->getMedia(config('constants.media_tags')) as $image) {
+                       
+
+                        if(!$message->approved){
+                            $vals =  '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span><div class="d-flex mb-4"><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div><div class="msg_cotainer_send"><img src="' . $image->getUrl() . '" class="rounded-circle-livechat user_img_msg"></div></div>';
+                        }else{
+                            $vals = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div><div class="msg_cotainer_send"><img src="' . $image->getUrl() . '" class="rounded-circle-livechat user_img_msg"></div></div>';
+                        }
+                        $messagess[] = $vals;
+
                     }
-                    $messagess[] = $vals;
+                }else
+                {
+                    if ($message->user_id != 0) {
+                        // Finding Agent
+                        $agent       = User::where('email', $message->user_id)->first();
+                        $agentInital = substr($agent->name, 0, 1);
+                        if(!$message->approved){
+                            $vals = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"> ' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div></div></div>';
+                        }else{
+                            $vals = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"> ' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span> </div></div>';
+                        }
+                        $messagess[] = $vals;
+                        //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+                    } else {
+                        if(!$message->approved){
+                            $vals = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div></div></div>';
+                        }else{
+                            $vals = '<div  data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' sss mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span></div></div>';
+                        //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+                        }
+                        $messagess[] = $vals;
+                    }
                 }
             }
 
@@ -557,6 +694,8 @@ if(isset($request->messageId)){
                 $messages = $messages->where('id',">", $lastMessageId);
             }
             $messages = $messages->get();
+
+            
             //getting customer name from chat
             $customer       = Customer::findorfail($chatId);
             $name           = $customer->name;
@@ -569,8 +708,10 @@ if(isset($request->messageId)){
                 foreach ($messages as $message) {
 
                     if ($message->user_id != 0) {
+                    // if ($message->customer_id != 0) {    
                         // Finding Agent
-                        $agent       = User::where('email', $message->user_id)->first();
+                        $agent       = Customer::where('id', $message->customer_id)->first();
+                        // $agent       = User::where('email', $message->user_id)->first();
                         $agentInital = substr($agent->name, 0, 1);
 
                         if ($message->hasMedia(config('constants.media_tags'))) {

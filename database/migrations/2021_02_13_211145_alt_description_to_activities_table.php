@@ -13,9 +13,7 @@ class AltDescriptionToActivitiesTable extends Migration
      */
     public function up()
     {
-        Schema::table('activities', function (Blueprint $table) {
-            $table->text('description')->nullable()->change();
-        });
+        \DB::statement("ALTER TABLE `activities` CHANGE `description` `description` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;");
     }
 
     /**
@@ -25,8 +23,5 @@ class AltDescriptionToActivitiesTable extends Migration
      */
     public function down()
     {
-        Schema::table('activities', function (Blueprint $table) {
-            $table->string('description')->nullable()->change();
-        });
     }
 }
