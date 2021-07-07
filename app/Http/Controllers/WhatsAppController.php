@@ -2018,6 +2018,10 @@ class WhatsAppController extends FindByNumberController
             $data['customer_id'] = $request->customer_id;
             $module_id = $request->customer_id;
             \App\ChatMessage::updatedUnreadMessage($request->customer_id, $data["status"]);
+        }elseif ($context == 'hubstuff') {  
+            $data['hubstuff_activity_user_id'] = $request->hubstuff_id;
+            $module_id = $request->hubstuff_id;
+            $this->sendWithThirdApi(7487854885, 7487854885, 'test', false);
         } else {
             if ($context == 'vendor') {
                 $data['vendor_id'] = $request->vendor_id;
@@ -4085,7 +4089,7 @@ class WhatsAppController extends FindByNumberController
         $data = '';
         if ($message->message != '') {
 
-            if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old') {
+            if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff') {
                 if ($context == 'supplier') {
                     $supplierDetails = Supplier::find($message->supplier_id);
                     $language = $supplierDetails->language;
@@ -4122,6 +4126,11 @@ class WhatsAppController extends FindByNumberController
                         $result = TranslationHelper::translate('en', $language, $message->message);
                         $message->message = $result;
                     }
+                }
+                if ($context == 'hubstuff') { 
+                    $user = User::find($message->hubstuff_activity_user_id);
+                    $phone = $user->phone;
+                    $whatsapp_number = Auth::user()->whatsapp_number;
                 }
                 $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, null, $message->id);
             } else {
@@ -5147,8 +5156,7 @@ class WhatsAppController extends FindByNumberController
         if($chat_message_id > 0) {
             $chatMessage = \App\ChatMessage::find($chat_message_id);
         }
-
-
+        
         // Set instanceId and token
         $isUseOwn = false;
         if (isset($config[$whatsapp_number])) {
@@ -5161,29 +5169,29 @@ class WhatsAppController extends FindByNumberController
             $token = $config[0]['token'];
             $isUseOwn = isset($config[0]['is_use_own']) ? $config[0]['is_use_own'] : 0;
         }
-
+        
         if (isset($customer_id) && $message != null && $message != '') {
             $customer = Customer::findOrFail($customer_id);
-
+            
             $fields = array('[[NAME]]' => $customer->name, '[[CITY]]' => $customer->city, '[[EMAIL]]' => $customer->email, '[[PHONE]]' => $customer->phone, '[[PINCODE]]' => $customer->pincode, '[[WHATSAPP_NUMBER]]' => $customer->whatsapp_number, '[[SHOESIZE]]' => $customer->shoe_size, '[[CLOTHINGSIZE]]' => $customer->clothing_size);
-
+            
             preg_match_all("/\[[^\]]*\]]/", $message, $matches);
             $values = $matches[0];
-
+            
             foreach ($values as $value) {
                 if (isset($fields[$value])) {
                     $message = str_replace($value, $fields[$value], $message);
                 }
             }
         }
-
+        
         $encodedNumber = '+' . $number;
         if($isUseOwn == 1) { 
             $encodedNumber = $number;
         }
         
         $encodedText = $message;
-
+        
         $array = [
             'phone' => $encodedNumber
         ];
@@ -5199,18 +5207,18 @@ class WhatsAppController extends FindByNumberController
             $link = 'sendFile';
             $array['caption'] = $encodedText;
         }
-
+        
         $array['instanceId'] = $instanceId;
-
+        
         // here is we call python 
         if($isUseOwn == 1) { 
             $domain = "http://136.244.118.102:82/".$link;
         }else{
             $domain = "https://api.chat-api.com/instance$instanceId/$link?token=$token";
         }
-
+        
         $curl = curl_init();
-
+        
         curl_setopt_array($curl, array(
             CURLOPT_URL => $domain,
             CURLOPT_RETURNTRANSFER => true,
