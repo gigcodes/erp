@@ -28,13 +28,16 @@ class RepositoryController extends Controller
     function __construct()
     {
         $this->client = new Client([
-            'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
+            'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
         ]);
     }
 
     private function refreshGithubRepos()
     {
-        $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/repos?per_page=100";
+        // $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/repos?per_page=100";
+        $url = "https://api.github.com/orgs/" . config('env.GITHUB_ORG_ID') . "/repos?per_page=100";
+
         $response = $this->client->get($url);
 
         $repositories = json_decode($response->getBody()->getContents());
