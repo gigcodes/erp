@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use app\ColorNamesReference;
+use App\ColorNamesReference;
 use App\Helpers\StatusHelper;
 use App\Product;
 use App\ScrapedProducts;
@@ -64,7 +64,7 @@ class FixErpColorIssue extends Command
                 if ($scrapedProduct) {
                     $this->info("Started for product id :" . $product->id. " and find the scraped product");
 
-                    $color = ColorNamesReference::getColorRequest(
+                    $color = \App\ColorNamesReference::getColorRequest(
                         $scrapedProduct->color,
                         $scrapedProduct->url,
                         $scrapedProduct->title,
