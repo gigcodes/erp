@@ -51,6 +51,11 @@ class PushToMagento implements ShouldQueue
         if (!$website->website_source || $website->website_source == '') {
             ProductPushErrorLog::log('', $product->id, 'Website Source not found', 'error', $website->id, null , null, $this->log->id);
         }
+
+        if ($website->disable_push == 1) {
+            ProductPushErrorLog::log('', $product->id, 'Website is disable for push product', 'error', $website->id, null , null, $this->log->id);
+        }
+
         if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
             MagentoHelper::callHelperForProductUpload($product, $website,$this->log);
         } else {
