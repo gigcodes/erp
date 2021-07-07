@@ -559,7 +559,8 @@ class BrandController extends Controller
                     $media = MediaUploader::fromSource($files)
                     ->toDirectory('brands')
                     ->upload();
-                    Brand::where('id', $brand_found[0]->id)->update(['brand_image' => env('APP_URL').'/brands/'.$image_name]);
+                    // Brand::where('id', $brand_found[0]->id)->update(['brand_image' => env('APP_URL').'/brands/'.$image_name]);
+                    Brand::where('id', $brand_found[0]->id)->update(['brand_image' => config('env.APP_URL').'/brands/'.$image_name]);
                 }
             }
             return response()->json(["code" => 200, "success" => "Brand images updated"]);

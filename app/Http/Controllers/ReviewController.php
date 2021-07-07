@@ -575,7 +575,8 @@ class ReviewController extends Controller
     {
         $serverId = $request->serverId;
 
-        $url = 'http://'.$serverId.'.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
+        // $url = 'http://'.$serverId.'.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
+        $url = 'http://'.$serverId.'.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
         
         $curl = curl_init();
         

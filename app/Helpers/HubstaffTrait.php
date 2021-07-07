@@ -114,7 +114,8 @@ trait hubstaffTrait
         try {
             $response = $this->doHubstaffOperationWithAccessToken(
                 function ($accessToken) use ($startTime, $endTime, $startId, $userIds) {
-                    $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $startTime . '&time_slot[stop]=' . $endTime . '&page_start_id=' . $startId;
+                    // $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $startTime . '&time_slot[stop]=' . $endTime . '&page_start_id=' . $startId;
+                    $url = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $startTime . '&time_slot[stop]=' . $endTime . '&page_start_id=' . $startId;
 
                     $q = [];
                     if (!empty($userIds)) {

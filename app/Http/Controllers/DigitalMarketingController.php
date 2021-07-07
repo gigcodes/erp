@@ -415,7 +415,8 @@ class DigitalMarketingController extends Controller
         $records = [];
         $records["id"] = $id;
         $records["components"] = \App\DigitalMarketingPlatformFile::where("digital_marketing_platform_id",$id)->get()->transform(function($files){
-            $files->downloadUrl = env("APP_URL")."/digital_marketing/".$files->file_name;
+            // $files->downloadUrl = env("APP_URL")."/digital_marketing/".$files->file_name;
+            $files->downloadUrl = config('env.APP_URL')."/digital_marketing/".$files->file_name;
             $files->user = \App\User::find($files->user_id)->name;
             return $files;
         });
@@ -428,7 +429,8 @@ class DigitalMarketingController extends Controller
         $records = [];
         $records["id"] = $id;
         $records["components"] = \App\DigitalMarketingSolutionFile::where("digital_marketing_solution_id",$id)->get()->transform(function($files){
-            $files->downloadUrl = env("APP_URL")."/digital_marketing/".$files->file_name;
+            // $files->downloadUrl = env("APP_URL")."/digital_marketing/".$files->file_name;
+            $files->downloadUrl = config('env.APP_URL')."/digital_marketing/".$files->file_name;
             $files->user = \App\User::find($files->user_id)->name;
             return $files;
         });
