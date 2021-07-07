@@ -198,7 +198,8 @@
                         if(!isset($date)) {
                             $date = date("Y-m-d");
                         }
-                        echo '<th>'.$date.' <button style="padding-right:0px;" type="button" class="btn btn-xs show-scraper-history" title="Show Scraper server history"  data-date="'.$date.'"><i class="fa fa-info-circle"></i></button></th>';
+                        echo '<th>'.$date.' <button style="padding-right:0px;" type="button" class="btn btn-xs show-scraper-history" title="Show Scraper server history"  data-date="'.$date.'"><i class="fa fa-info-circle"></i></button>
+                        <button style="padding-right:0px;" type="button" class="btn btn-xs show-scraper-process" title="Show Scraper process history"  data-date="'.$date.'"><i class="fa fa-gear"></i></button></th>';
                         $date = date("Y-m-d",strtotime('-1 day', strtotime($date)));
                         # code...
                     } ?>
@@ -1718,8 +1719,6 @@
             });
         });
 
-        
-
         $(document).on("click",".show-scraper-history",function (e){
             e.preventDefault();
             var date = $(this).data("date");
@@ -1734,6 +1733,28 @@
                 $("#loading-image").hide();
                 var model  = $("#show-content-model-table");
                 model.find(".modal-title").html("Server status history");
+                model.find(".modal-body").html(response);
+                model.modal("show");
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+
+        $(document).on("click",".show-scraper-process",function (e){
+            e.preventDefault();
+            var date = $(this).data("date");
+            $.ajax({
+                url: '/scrap/server-status-process',
+                type: 'GET',
+                data: {date: date},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Server process history");
                 model.find(".modal-body").html(response);
                 model.modal("show");
             }).fail(function() {

@@ -2036,6 +2036,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('get-last-errors', 'ScrapStatisticsController@getLastErrors');
     Route::get('log-details', 'ScrapStatisticsController@logDetails')->name('scrap.log-details');
     Route::get('server-status-history', 'ScrapStatisticsController@serverStatusHistory');
+    Route::get('server-status-process', 'ScrapStatisticsController@serverStatusProcess');
     Route::get('get-server-scraper-timing', 'ScrapStatisticsController@getScraperServerTiming');
     Route::get('position-history', 'ScrapStatisticsController@positionHistory');
     Route::post('position-history-download', 'ScrapStatisticsController@positionHistorydownload');//Purpose : Download  Position History Route - DEVTASK-4086
