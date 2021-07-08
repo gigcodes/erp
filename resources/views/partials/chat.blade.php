@@ -567,6 +567,7 @@ function getCustomerInfoOnLoad(){
 		data: { _token: "{{ csrf_token() }}" },
 	})
 	.done(function(data) {
+		console.log("data :"+data.threadId);
 		var customerInfo = data.customerInfo;
 		if(customerInfo!=''){
 			customerInfoSetter(customerInfo);

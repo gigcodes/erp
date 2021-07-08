@@ -128,7 +128,8 @@ class WhatsappLogsController extends Controller
                     $data = [];
                     $date = substr($row, 1, 19);
                     $data['date'] = $date;
-                    $message = substr($row, 155, strlen($row));
+                    // $message = substr($row, 155, strlen($row));
+                    $message = substr($row, 35, strlen($row));
                     $data['error_message1'] = $message;
                     $data['error_message2'] = '';
                     array_push($array, $data);

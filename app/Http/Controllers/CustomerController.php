@@ -2693,36 +2693,67 @@ class CustomerController extends Controller
     //START - Purpose : Add Customer Data - DEVTASK-19932
     public function add_customer_data(Request $request)
     {
-       dd($request->all());
+        // dd($request->all());
         if(!empty($request->customer_data))
         {
             $email = $request->customer_data['email'];
+            $website_id =  $request->customer_data['website_id'];
             
             if($email != '')
             {
 
-                $find_customer = Customer::where('email',$email)->first();
+                $find_customer = Customer::where('email',$email)->where('store_website_id',$website_id)->first();
 
                 if($find_customer)
                 {
                     foreach($request->customer_data['address'] as $key => $value)
                     {
-                        $params[] = [
-                            'customer_id' => $find_customer->id,
-                            'address_1' => $value['address_1'],
-                            'address_2' => $value['address_2'],
-                            'address_3' => $value['address_3'],
-                            'country' => $value['country'],
-                            'city' => $value['city'],
-                            'state' => $value['state'],
-                            'postcode' => $value['postcode'],
-                            'created_at' => \Carbon\Carbon::now(),
-                            'updated_at' => \Carbon\Carbon::now(),
+                        if($value['entity_id'] != '')
+                            $check_record = CustomerAddressData::where('customer_id',$find_customer->id)->where('entity_id',$value['entity_id'])->first();
+                        
+                        if($check_record)
+                        {
+                            if(isset($value['is_deleted']) && $value['is_deleted'] == 1)
+                            {
+                                CustomerAddressData::where('customer_id',$find_customer->id)
+                                ->where('entity_id',$value['entity_id'])
+                                ->delete();
+                            }else{
+                                CustomerAddressData::where('customer_id',$find_customer->id)
+                                ->where('entity_id',$value['entity_id'])
+                                ->update(
+                                    [
+                                        'address_1' => $value['address_1'],
+                                        'address_2' => $value['address_2'],
+                                        'address_3' => $value['address_3'],
+                                        'country' => $value['country'],
+                                        'city' => $value['city'],
+                                        'state' => $value['state'],
+                                        'postcode' => $value['postcode'],
+                                        'updated_at' => \Carbon\Carbon::now(),
+                                    ]
+                                );
+                            }
+                        }else{    
+                            $params[] = [
+                                'customer_id' => $find_customer->id,
+                                'entity_id' => $value['entity_id'],
+                                'address_1' => $value['address_1'],
+                                'address_2' => $value['address_2'],
+                                'address_3' => $value['address_3'],
+                                'country' => $value['country'],
+                                'city' => $value['city'],
+                                'state' => $value['state'],
+                                'postcode' => $value['postcode'],
+                                'created_at' => \Carbon\Carbon::now(),
+                                'updated_at' => \Carbon\Carbon::now(),
 
-                        ];
+                            ];
+                        }
                     }
 
-                    CustomerAddressData::insert($params);
+                    if(!empty($params))
+                        CustomerAddressData::insert($params);
 
                     return response()->json(["code" => 2000 ,"message" => "Data Added successfully"]); 
 

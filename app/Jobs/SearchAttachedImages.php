@@ -12,6 +12,7 @@ use App\SuggestedProduct;
 use App\Helpers\CompareImagesHelper;
 use Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SearchAttachedImages implements ShouldQueue
 {
@@ -36,6 +37,7 @@ class SearchAttachedImages implements ShouldQueue
 
     public function handle()
     {
+        Log::error('SearchAttachedImages() : id => ' . $this->id . ' url => ' . $this->url . ' request => ' . json_encode($this->req_data));
         set_time_limit(0);
 
         $id = $this->id;
@@ -43,6 +45,7 @@ class SearchAttachedImages implements ShouldQueue
         $ref_file = str_replace("'", '', $ref_file);
         $params = $this->req_data;
         $chat_message = \App\ChatMessage::where('id', $id)->first();
+        Log::error(' ref_file => ' . $ref_file . ' chat_message => ' . json_encode($chat_message));
         if(@file_get_contents($ref_file)){
             $i1 = CompareImagesHelper::createImage($ref_file);
                 
@@ -55,7 +58,7 @@ class SearchAttachedImages implements ShouldQueue
             $bits1 = CompareImagesHelper::bits($colorMean1);
 
             $bits = implode($bits1); 
-
+            Log::error('bits => ' . $bits);
             DB::table('media')->whereNotNull('bits')->where('bits', '!=', 0)->where('bits', '!=', 1)->where('directory', 'like', '%product/%')->orderBy('id')->chunk(1000, function($medias)
              use ($bits, $chat_message)
             {
@@ -71,18 +74,22 @@ class SearchAttachedImages implements ShouldQueue
                         }
                         
                     } 
+                    Log::error(' bits => ' . $bits . ' m_bits => ' . $m_bits  . ' hammeringDistance => ' . $hammeringDistance . ' media => ' . $m->id );
                     if($hammeringDistance < 10){
                         $this->is_matched = true;
+                        Log::error('matched_media => ' . json_encode($m)); 
                         if($this->first_time){
                             $this->suggested_product = SuggestedProduct::create([
                                 'total' => 0,
                                 'customer_id' => $chat_message->customer_id,
                                 'chat_message_id' => $chat_message->id,
                             ]);
+                            Log::error('$this->suggested_product => ' . json_encode($this->suggested_product)); 
                             $this->first_time = false;
                         } 
                         $mediable = DB::table('mediables')->where('media_id', $m->id)->where('mediable_type', 'App\Product')->first();
                         if($mediable){
+                            Log::error('mediable => ' . json_encode($mediable)); 
                             SuggestedProductList::create([
                                 'customer_id' => $chat_message->customer_id,
                                 'product_id' => $mediable->mediable_id,
