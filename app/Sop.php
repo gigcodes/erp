@@ -8,5 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Sop extends Model
 {
-    //
+    protected $table ="sops";
+     protected $fillable = ['name','content'];
+ 
 }
