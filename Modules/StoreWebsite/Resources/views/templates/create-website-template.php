@@ -115,70 +115,78 @@
 		      </div>
 		      <div class="MainMagentoUser">
 		      	{{if totaluser != 0}}
-		      	{{props userdata}}
-			      <div class="subMagentoUser" style="border:1px solid #ccc;padding: 15px;margin-bottom:5px">
-					  <div class="form-group">
-					  	<div class="row">
-					  		<div class="col-sm-6">
-				      	 	    <label for="username">Username</label>
-							    <input type="text" name="username" value="{{if prop}}{{:prop.username}}{{/if}}" class="form-control userName" id="username" placeholder="Enter Username" readonly>
+		      		{{props userdata}}
+				      <div class="subMagentoUser" style="border:1px solid #ccc;padding: 15px;margin-bottom:5px">
+						  <div class="form-group">
+						  	<div class="row">
+						  		<div class="col-sm-6">
+					      	 	    <label for="username">Username</label>
+								    <input type="text" name="username" value="{{if prop}}{{:prop.username}}{{/if}}" class="form-control userName" id="username" placeholder="Enter Username" readonly>
+								</div>
+								<div class="col-sm-6">
+					      	 	    <label for="userEmail">Email</label>
+								    <input type="email" name="userEmail" value="{{if prop}}{{:prop.email}}{{/if}}" class="form-control userEmail" id="userEmail" placeholder="Enter Email">
+								</div>
 							</div>
-							<div class="col-sm-6">
-				      	 	    <label for="userEmail">Email</label>
-							    <input type="email" name="userEmail" value="{{if prop}}{{:prop.email}}{{/if}}" class="form-control userEmail" id="userEmail" placeholder="Enter Email">
+					      </div>
+					      <div class="form-group">
+						  	<div class="row">
+						  		<div class="col-sm-6">
+					      	 	    <label for="firstName">First Name</label>
+								    <input type="text" name="firstName" value="{{if prop}}{{:prop.first_name}}{{/if}}" class="form-control firstName" id="firstName" placeholder="Enter First Name">
+								</div>
+								<div class="col-sm-6">
+					      	 	    <label for="lastName">Last Name</label>
+								    <input type="text" name="lastName" value="{{if prop}}{{:prop.last_name}}{{/if}}" class="form-control lastName" id="lastName" placeholder="Enter Last Name">
+								</div>
 							</div>
-						</div>
-				      </div>
-				      <div class="form-group">
-					  	<div class="row">
-					  		<div class="col-sm-6">
-				      	 	    <label for="firstName">First Name</label>
-							    <input type="text" name="firstName" value="{{if prop}}{{:prop.first_name}}{{/if}}" class="form-control firstName" id="firstName" placeholder="Enter First Name">
+					      </div>
+					      <div class="form-group">
+						  	<div class="row">
+						  		<div class="col-sm-6">
+					      	 	    <label for="password">Password</label>
+								    <input type="password" name="password" value="{{if prop}}{{:prop.password}}{{/if}}" class="form-control user-password" id="password" placeholder="Enter Password">
+								</div>
+								<div class="col-sm-6">
+					      	 	    <label for="website_mode">Website Mode</label>
+					      	 	    <select name="website_mode" id="website_mode" class="form-control websiteMode">
+						               
+									       <option {{if prop.website_mode == 'production' }}selected {{/if}} value="production">Production</option>
+									       
+									       <option {{if prop.website_mode == 'staging' }} selected {{/if}} value="staging">Staging</option>
+									</select>
+								</div>
 							</div>
-							<div class="col-sm-6">
-				      	 	    <label for="lastName">Last Name</label>
-							    <input type="text" name="lastName" value="{{if prop}}{{:prop.last_name}}{{/if}}" class="form-control lastName" id="lastName" placeholder="Enter Last Name">
-							</div>
-						</div>
-				      </div>
-				      <div class="form-group">
-					  	<div class="row">
-					  		<div class="col-sm-6">
-				      	 	    <label for="password">Password</label>
-							    <input type="password" name="password" value="{{if prop}}{{:prop.password}}{{/if}}" class="form-control user-password" id="password" placeholder="Enter Password">
-							</div>
-							<div class="col-sm-6">
-				      	 	    <label for="website_mode">Website Mode</label>
-				      	 	    <select name="website_mode" id="website_mode" class="form-control websiteMode">
-					               
-       <option {{if prop.website_mode == 'production' }}selected {{/if}} value="production">Production</option>
-       
-       <option {{if prop.website_mode == 'staging' }} selected {{/if}} value="staging">Staging</option>
-					            </select>
-							</div>
-						</div>
-				      </div>
-					  <div class="form-group">
-					  	<div class="row">
-					         <div class="col-sm-5">
-					         	<button type="button" data-id="" class="btn btn-show-password btn-sm" style="border:1px solid">
-					        		<i class="fa fa-eye" aria-hidden="true"></i>
-					        	</button>
-						        <button type="button" data-id="" class="btn btn-copy-password btn-sm" style="border:1px solid">
-					        		<i class="fa fa-clone" aria-hidden="true"></i>
-					        	</button>
-						        <button type="button" data-id="{{>prop.id}}" class="btn btn-edit-magento-user btn-sm" style="border:1px solid">
-					        		<i class="fa fa-check" aria-hidden="true"></i>
-					        	</button>
-					        	<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-magento-user btn-sm" style="border:1px solid">
-					        		<i class="fa fa-trash" aria-hidden="true"></i>
-					        	</button>
-					         </div>
-					     </div>
-				      </div>
-			  	  </div>
+					      </div>
+						  <div class="form-group">
+						  	<div class="row">
+						         <div class="col-sm-5">
+						         	<button type="button" data-id="" class="btn btn-show-password btn-sm" style="border:1px solid">
+						        		<i class="fa fa-eye" aria-hidden="true"></i>
+						        	</button>
+							        <button type="button" data-id="" class="btn btn-copy-password btn-sm" style="border:1px solid">
+						        		<i class="fa fa-clone" aria-hidden="true"></i>
+						        	</button>
+							        
+						        	{{if prop.is_deleted}}
+						        		In Active
+						        	{{else}}
+						        		
+						        		<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-magento-user btn-sm" style="border:1px solid">
+						        			<i class="fa fa-check" aria-hidden="true"></i>
+						        		</button>
+
+
+						        		<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-magento-user btn-sm" style="border:1px solid">
+						        		<i class="fa fa-trash" aria-hidden="true"></i>
+						        		</button>
+						        	{{/if}}	
+						         </div>
+						     </div>
+					      </div>
+				  	  </div>
 			  	  {{/props}} 
-			  	  {{else}}
+			  	{{else}}
 			  	  <div class="subMagentoUser" style="border:1px solid #ccc;padding: 15px;margin-bottom:5px">
 					  <div class="form-group">
 					  	<div class="row">
