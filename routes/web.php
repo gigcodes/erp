@@ -49,7 +49,7 @@ Route::get('/productsearcher/list', 'ProductSearcherController@sList')->name('pr
 Route::post('/productselection/email-set', 'ProductSelectionController@emailTplSet')->name('productselection.email.set');
 // adding chat contro
 
-Route::get('sop', 'ProductController@showSOP');
+
 
 Route::get('/mageOrders', 'MagentoController@get_magento_orders');
 
@@ -345,8 +345,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('facebook-posts/create', 'FacebookPostController@create')->name('facebook-posts.create');
     Route::resource('facebook-posts', 'FacebookPostController');
 
-
-
     Route::resource('sales', 'SaleController');
     Route::resource('stock', 'StockController');
     Route::post('stock/track/package', 'StockController@trackPackage')->name('stock.track.package');
@@ -357,7 +355,16 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('stock/private/viewing/upload', 'StockController@privateViewingUpload')->name('stock.private.viewing.upload');
     Route::post('stock/private/viewing/{id}/updateStatus', 'StockController@privateViewingUpdateStatus')->name('stock.private.viewing.updateStatus');
     Route::post('stock/private/viewing/{id}/updateOfficeBoy', 'StockController@updateOfficeBoy')->name('stock.private.viewing.updateOfficeBoy');
-    Route::post('sop', 'ProductController@saveSOP');
+  
+  
+    Route::post('sop', 'ProductController@saveSOP')->name('sop.add');
+    // Route::get('sop', 'ProductController@showSOP')->name('sop.post');
+    Route::get('sop', 'ProductController@getdata')->name('sop.post');
+    Route::get('sopdata', 'ProductController@getdata')->name('sop.index');
+    Route::delete('sopdel/{id}', 'ProductController@destroyname')->name('sopdel.destroyname');
+    Route::get('sop/edit', 'ProductController@edit')->name('editName');
+    Route::post('update', 'ProductController@update')->name('updateName');
+    Route::get('sop/search', 'ProductController@searchsop');
 
     Route::get('product/delete-image', 'ProductController@deleteImage')->name('product.deleteImages');
 
