@@ -42,7 +42,8 @@ class TaskModuleController extends Controller {
 	use hubstaffTrait;
 
 	public function __construct() {
-		$this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+		// $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+		$this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
 	}
 
 	public function index( Request $request ) {
@@ -580,8 +581,7 @@ class TaskModuleController extends Controller {
 																	// dd($tasks_query);
 																	// $users = Helpers::getUserArray(User::all());
 
-		$users                     = User::oldest()->get()->toArray();
-		$data['users']             = $users;
+		$data['users'] =  User::orderBy('name')->where('is_active',1)->get()->toArray();
 		$data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
 
 		// foreach ($data['task']['pending'] as $task) {
@@ -591,7 +591,8 @@ class TaskModuleController extends Controller {
 		// $category = '';
 		//My code start
 		$selected_user = $request->input( 'selected_user' );
-		$users         = Helpers::getUserArray( User::all() );
+		$usrlst = User::orderby('name')->where('is_active',1)->get();
+		$users  = Helpers::getUserArray($usrlst);
 		$task_categories = TaskCategory::where('parent_id', 0)->get();
 		$task_categories_dropdown = nestable(TaskCategory::where('is_approved', 1)->get()->toArray())->attr(['name' => 'category','class' => 'form-control input-sm'])
 		->selected($request->category)
@@ -1018,7 +1019,9 @@ class TaskModuleController extends Controller {
 
 			  app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
 			  
-			  $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			//   $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			  $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+
 			  $assignedUser = HubstaffMember::where('user_id', $request->input('assign_to'))->first();
 			  // $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
 	  
@@ -1103,7 +1106,8 @@ class TaskModuleController extends Controller {
             if ($hubstaffUserId) {
                 $body['assignee_id'] = $hubstaffUserId;
             } else {
-                $body['assignee_id'] = getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID');
+                // $body['assignee_id'] = getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID');
+				$body['assignee_id'] = config('env.HUBSTAFF_DEFAULT_ASSIGNEE_ID');
             }
 
             $response = $httpClient->post(
@@ -2262,7 +2266,9 @@ class TaskModuleController extends Controller {
 
 
 		if($created) {
-			$hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			// $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			$hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+
 			$assignedUser = HubstaffMember::where('user_id', $assignedUserId)->first();
 	  
 			  $hubstaffUserId = null;
@@ -2427,7 +2433,8 @@ class TaskModuleController extends Controller {
 
 		$issue->save();
 		
-		$hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+		// $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+		$hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 
         $assignedUser = HubstaffMember::where('user_id', $masterUserId)->first();
 
@@ -2644,7 +2651,8 @@ class TaskModuleController extends Controller {
 			else {
 				$user_id = $task->master_user_id; 
 			}
-			$hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			// $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			$hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 		
 			$assignedUser = HubstaffMember::where('user_id', $user_id)->first();
 		

@@ -779,7 +779,8 @@ class ProductInventoryController extends Controller
 		$instruction->assigned_from = \Auth::user()->id;
 		$instruction->assigned_to = $params["assign_to"];
 		$instruction->product_id = $params["product_id"];
-		$instruction->order_id = isset($params["order_id"]) ? $params["order_id"] : 0;
+		// $instruction->order_id = isset($params["order_id"]) ? $params["order_id"] : 0;
+		$instruction->order_id = isset($params["order_id"]) ? $params["order_id"] : null;
 		$instruction->save();
 
 

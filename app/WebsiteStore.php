@@ -45,4 +45,9 @@ class WebsiteStore extends Model
     {
         return $this->hasOne(\App\Website::class, 'platform_id','platform_id');
     }
+
+    public function storeViewMany()
+    {
+        return $this->hasMany(\App\WebsiteStoreView::class);
+    }
 }

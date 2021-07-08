@@ -209,7 +209,13 @@ var getHtml = function(response) {
                          }
                      }
                      button += '&nbsp;<button title="Forward" class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
-                     button += '&nbsp;<button title="Search Product Image" data-media-url="\''+message.media_url+'\'" data-id="'+message.id+'" class="btn btn-xs btn-secondary search-image"><i class="fa fa-search" aria-hidden="true"></i></button>';
+                     var image_url = message.media_url;
+                     if(image_url == null){
+                        if(message.media.length != 0){
+                            image_url = message.media[0].image;
+                        }
+                     }
+                     button += '&nbsp;<button title="Search Product Image" data-media-url="\''+image_url+'\'" data-id="'+message.id+'" class="btn btn-xs btn-secondary search-image"><i class="fa fa-search" aria-hidden="true"></i></button>';
                 }
 
 

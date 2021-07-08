@@ -26,6 +26,7 @@
   <td>{{ $whatsAppConfig->recharge_date }}</td> -->
   <td>@if($whatsAppConfig->status == 1) Active @elseif($whatsAppConfig->status == 2) Blocked @elseif($whatsAppConfig->status == 3)  Scan Barcode @else Inactive @endif</td>
   <td>{{ $whatsAppConfig->created_at->format('d-m-Y') }}</td>
+  <td>{{ $whatsAppConfig->instance_id }}</td>
   <td>
     <button onclick="changewhatsAppConfig({{ $whatsAppConfig->id }})" class="btn btn-secondary btn-sm">Edit</button>
     @if(Auth::user()->hasRole('Admin'))
@@ -40,8 +41,11 @@
     @endif
     <button class="btn btn-link" onclick="deleteChrome({{ $whatsAppConfig->id }})" data-toggle="tooltip" data-placement="top" title="Delete Chrome Config"><i class="fa fa-trash"></i></button>
     <button class="btn btn-link" onclick="restartScript({{ $whatsAppConfig->id }})" data-toggle="tooltip" data-placement="top" title="Delete Chrome Config"><i class="fa fa-refresh"></i></button>
-    
-    
+    @if($whatsAppConfig->is_use_own == 1)
+      <button class="btn btn-link" onclick="logoutScript({{ $whatsAppConfig->id }})" data-toggle="tooltip" data-placement="top" title="Logout script">
+        <i class="fa fa-sign-out"></i>
+      </button>
+    @endif
   </td>
 </tr>
 

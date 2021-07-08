@@ -1947,7 +1947,9 @@ class ScrapController extends Controller
                 $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
 
-            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=' . $name . '.js';
+            // $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=' . $name . '.js';
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/restart-script?filename=' . $name . '.js';
+
             //dd($url);
             //sample url
             //localhost:8085/restart-script?filename=biffi.js
@@ -1993,7 +1995,8 @@ class ScrapController extends Controller
                 $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
 
-            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
+            // $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
 
             //sample url
             //localhost:8085/restart-script?filename=biffi.js
@@ -2030,7 +2033,8 @@ class ScrapController extends Controller
                 $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
  
-            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
+            // $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js';
 
             $curl = curl_init();
             curl_setopt($curl, CURLOPT_URL, $url);
@@ -2058,7 +2062,9 @@ class ScrapController extends Controller
                 $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
 
-            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/kill-scraper?filename=' . $name . '.js'; 
+            // $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/kill-scraper?filename=' . $name . '.js'; 
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/kill-scraper?filename=' . $name . '.js'; 
+
             $curl = curl_init();
             curl_setopt($curl, CURLOPT_URL, $url);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -2245,7 +2251,8 @@ class ScrapController extends Controller
                 $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
 
-            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/send-position?website=' . $name;
+            // $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/send-position?website=' . $name;
+            $url = 'http://' . $request->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/send-position?website=' . $name;
 
             $curl = curl_init();
             

@@ -110,6 +110,10 @@ class ScrapStatisticsController extends Controller
             $activeSuppliers->where("scraper_type", $scrapeType);
         }
 
+        if($request->task_assigned_to > 0) {
+            $activeSuppliers->whereRaw('scrapers.id IN (SELECT scraper_id FROM developer_tasks WHERE assigned_to = '.$request->task_assigned_to.' and scraper_id > 0)');
+        }
+
         $activeSuppliers = $activeSuppliers->orderby('scrapers.flag', 'desc')->orderby('s.supplier', 'asc');
 
         $ids = $activeSuppliers->pluck('supplier_id')->toArray();
@@ -1071,6 +1075,13 @@ class ScrapStatisticsController extends Controller
         $statusHistory = \App\ScraperServerStatusHistory::whereDate("created_at", $request->date)->latest()->get();
 
         return view("scrap.partials.status-history", compact('statusHistory'));
+    }
+
+    public function serverStatusProcess(Request $request)
+    {
+        $statusHistory = \App\ScraperProcess::whereDate("created_at", $request->date)->latest()->get();
+
+        return view("scrap.partials.process-status-history", compact('statusHistory'));
     }
 
     public function getScraperServerTiming(Request $request)

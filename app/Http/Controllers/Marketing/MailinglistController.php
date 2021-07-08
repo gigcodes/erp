@@ -56,7 +56,8 @@ class MailinglistController extends Controller
                     CURLOPT_CUSTOMREQUEST => "POST",
                     CURLOPT_POSTFIELDS => json_encode($data),
                     CURLOPT_HTTPHEADER => array(
-                        "api-key: ".getenv('SEND_IN_BLUE_API'),
+                        // "api-key: ".getenv('SEND_IN_BLUE_API'),
+                        "api-key: ".config('env.SEND_IN_BLUE_API'),
                         "Content-Type: application/json"
                     ),
                 ));
@@ -84,7 +85,8 @@ class MailinglistController extends Controller
                 $curl = curl_init();
 
                 curl_setopt_array($curl, array(
-                  CURLOPT_URL => "http://165.232.42.174/api/v1/lists?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
+                //   CURLOPT_URL => "http://165.232.42.174/api/v1/lists?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
+                CURLOPT_URL => "http://165.232.42.174/api/v1/lists?api_token=".config('env.ACELLE_MAIL_API_TOKEN'),
                   CURLOPT_RETURNTRANSFER => true,
                   CURLOPT_ENCODING => "",
                   CURLOPT_MAXREDIRS => 10,
@@ -313,7 +315,8 @@ class MailinglistController extends Controller
 
         if($list->service && isset($list->service->name) ){
             if($list->service->name == 'AcelleMail'){
-                $url = "http://165.232.42.174/api/v1/subscribers/email/'.$email.'?api_token=".getenv('ACELLE_MAIL_API_TOKEN');
+                // $url = "http://165.232.42.174/api/v1/subscribers/email/'.$email.'?api_token=".getenv('ACELLE_MAIL_API_TOKEN');
+                $url = "http://165.232.42.174/api/v1/subscribers/email/'.$email.'?api_token=".config('env.ACELLE_MAIL_API_TOKEN');
                 $headers = array('Content-Type: application/json');
                 $curl = curl_init();
                 curl_setopt($curl, CURLOPT_URL, $url);
@@ -336,7 +339,8 @@ class MailinglistController extends Controller
                 $curl = curl_init();
 
                 curl_setopt_array($curl, array(
-                  CURLOPT_URL => "http://165.232.42.174/api/v1/lists/".$id."/subscribers/store?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
+                //   CURLOPT_URL => "http://165.232.42.174/api/v1/lists/".$id."/subscribers/store?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
+                CURLOPT_URL => "http://165.232.42.174/api/v1/lists/".$id."/subscribers/store?api_token=".config('env.ACELLE_MAIL_API_TOKEN'),
                   CURLOPT_RETURNTRANSFER => true,
                   CURLOPT_ENCODING => "",
                   CURLOPT_MAXREDIRS => 10,
@@ -352,7 +356,8 @@ class MailinglistController extends Controller
                 $response = json_decode($response);
                 //dd($response);
                 //subscribe to emial
-                $url =  "http://165.232.42.174/api/v1/lists/".$id."/subscribers/".$response->subscriber_uid."/subscribe?api_token=".getenv('ACELLE_MAIL_API_TOKEN');
+                // $url =  "http://165.232.42.174/api/v1/lists/".$id."/subscribers/".$response->subscriber_uid."/subscribe?api_token=".getenv('ACELLE_MAIL_API_TOKEN');
+                $url =  "http://165.232.42.174/api/v1/lists/".$id."/subscribers/".$response->subscriber_uid."/subscribe?api_token=".config('env.ACELLE_MAIL_API_TOKEN');
                 $headers = array('Content-Type: application/json');
                 $curl = curl_init();
                 curl_setopt($curl, CURLOPT_URL, $url);
@@ -386,7 +391,8 @@ class MailinglistController extends Controller
             CURLOPT_CUSTOMREQUEST => "POST",
             CURLOPT_POSTFIELDS => json_encode($data),
             CURLOPT_HTTPHEADER => array(
-                "api-key: ".getenv('SEND_IN_BLUE_API'),
+                // "api-key: ".getenv('SEND_IN_BLUE_API'),
+                "api-key: ".config('env.SEND_IN_BLUE_API'),
                 "Content-Type: application/json"
             ),
         ));
@@ -407,7 +413,8 @@ class MailinglistController extends Controller
                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                     CURLOPT_CUSTOMREQUEST => "DELETE",
                     CURLOPT_HTTPHEADER => array(
-                        "api-key: ".getenv('SEND_IN_BLUE_API'),
+                        // "api-key: ".getenv('SEND_IN_BLUE_API'),
+                        "api-key: ".config('env.SEND_IN_BLUE_API'),
                         "Content-Type: application/json"
                     ),
                 ));
@@ -427,7 +434,8 @@ class MailinglistController extends Controller
                     CURLOPT_CUSTOMREQUEST => "POST",
                     CURLOPT_POSTFIELDS => json_encode($data),
                     CURLOPT_HTTPHEADER => array(
-                        "api-key: ".getenv('SEND_IN_BLUE_API'),
+                        // "api-key: ".getenv('SEND_IN_BLUE_API'),
+                        "api-key: ".config('env.SEND_IN_BLUE_API'),
                         "Content-Type: application/json"
                     ),
                 ));
@@ -470,7 +478,8 @@ class MailinglistController extends Controller
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "DELETE",
             CURLOPT_HTTPHEADER => array(
-                "api-key: ".getenv('SEND_IN_BLUE_API'),
+                // "api-key: ".getenv('SEND_IN_BLUE_API'),
+                "api-key: ".config('env.SEND_IN_BLUE_API'),
                 "Content-Type: application/json"
             ),
         ));
@@ -506,7 +515,8 @@ class MailinglistController extends Controller
                 $curl = curl_init();
 
                 curl_setopt_array($curl, array(
-                  CURLOPT_URL => "http://165.232.42.174/api/v1/lists/".$list->remote_id."/delete?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
+                //   CURLOPT_URL => "http://165.232.42.174/api/v1/lists/".$list->remote_id."/delete?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
+                CURLOPT_URL => "http://165.232.42.174/api/v1/lists/".$list->remote_id."/delete?api_token=".config('env.ACELLE_MAIL_API_TOKEN'),
                   CURLOPT_RETURNTRANSFER => true,
                   CURLOPT_ENCODING => "",
                   CURLOPT_MAXREDIRS => 10,
@@ -532,7 +542,8 @@ class MailinglistController extends Controller
                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                     CURLOPT_CUSTOMREQUEST => "DELETE",
                     CURLOPT_HTTPHEADER => array(
-                        "api-key: ".getenv('SEND_IN_BLUE_API'),
+                        // "api-key: ".getenv('SEND_IN_BLUE_API'),
+                        "api-key: ".config('env.SEND_IN_BLUE_API'),
                         "Content-Type: application/json"
                     ),
                 ));
@@ -599,7 +610,8 @@ class MailinglistController extends Controller
             CURLOPT_CUSTOMREQUEST => "POST",
             CURLOPT_POSTFIELDS => json_encode($data),
             CURLOPT_HTTPHEADER => array(
-                "api-key: ".getenv('SEND_IN_BLUE_API'),
+                // "api-key: ".getenv('SEND_IN_BLUE_API'),
+                "api-key: ".config('env.SEND_IN_BLUE_API'),
                 "Content-Type: application/json"
             ),
         ));
@@ -620,7 +632,8 @@ class MailinglistController extends Controller
                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                     CURLOPT_CUSTOMREQUEST => "DELETE",
                     CURLOPT_HTTPHEADER => array(
-                        "api-key: ".getenv('SEND_IN_BLUE_API'),
+                        // "api-key: ".getenv('SEND_IN_BLUE_API'),
+                        "api-key: ".config('env.SEND_IN_BLUE_API'),
                         "Content-Type: application/json"
                     ),
                 ));
@@ -640,7 +653,8 @@ class MailinglistController extends Controller
                     CURLOPT_CUSTOMREQUEST => "POST",
                     CURLOPT_POSTFIELDS => json_encode($data),
                     CURLOPT_HTTPHEADER => array(
-                        "api-key: ".getenv('SEND_IN_BLUE_API'),
+                        // "api-key: ".getenv('SEND_IN_BLUE_API'),
+                        "api-key: ".config('env.SEND_IN_BLUE_API'),
                         "Content-Type: application/json"
                     ),
                 ));

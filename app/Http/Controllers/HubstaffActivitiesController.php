@@ -98,12 +98,19 @@ class HubstaffActivitiesController extends Controller
             }else{
                 $sign = '';
             }
-
-
+                $admin = null;
+            if (\Auth::user()->hasRole('Admin')) {
+                $admin = 1;
+            }
 
             $hours = floor(abs($difference) / 3600);
             $minutes = sprintf("%02d", floor((abs($difference) / 60) % 60));
 
+            $latest_message = \App\ChatMessage::where('user_id',$row->id)->latest('message')->first();
+            $latest_msg = $latest_message->message;
+            if(strlen($latest_message->message) > 20){
+                $latest_msg = substr($latest_message->message, 0, 20).'...';
+            }
             $recordsArr[] = [
 
                 'id' => $row->id,
@@ -116,6 +123,9 @@ class HubstaffActivitiesController extends Controller
                 'actual_percentage' => $row->actual_percentage,
                 'reason' => $row->reason,
                 'status' => $row->status,
+                'is_admin' => $admin,
+                'is_hod_crm' => "user",
+                'latest_message' => $latest_msg,
                 
             ];
        }   
@@ -230,8 +240,23 @@ class HubstaffActivitiesController extends Controller
         return response()->json(["code" => 500, "data" => [], "message" => "Requested id is not in database"]);
     }
 
-    public function getActivityUsers(Request $request)
+    public function getActivityUsers(Request $request, $params = null)
     {   
+        if($params !== null){
+            $params = $params->request->all();
+             
+            $request->activity_command = $params['activity_command']; 
+            $request->user_id = $params['user_id']; 
+            $request->user = $params['user']; 
+            $request->developer_task_id = $params['developer_task_id']; 
+            $request->task_id = $params['task_id']; 
+            $request->task_status = $params['task_status']; 
+            $request->start_date = $params['start_date']; 
+            $request->end_date = $params['end_date']; 
+            $request->status = $params['status'];
+            $request->submit = $params['submit']; 
+            Auth::login($request->user);
+        }
 
         //START - Purpose : Comment code - DEVATSK-4300
         // if( request('submit') ==  'report_download'){
@@ -600,14 +625,13 @@ class HubstaffActivitiesController extends Controller
 
             }
         }
-
         //START - Purpose : set data for download  - DEVATSK-4300
-        if( request('submit') ==  'report_download'){
+        if( $request->submit ==  'report_download' ){
            return $this->downloadExcelReport($activityUsers);
 
         }
         //END - DEVATSK-4300
-
+        
         
         $status = $request->status;
         return view("hubstaff.activities.activity-users", compact('title', 'status', 'activityUsers', 'start_date', 'end_date', 'users', 'user_id', 'task_id'));
@@ -616,7 +640,6 @@ class HubstaffActivitiesController extends Controller
     //Purpose : Add activityUsers parameter - DEVATSK-4300
      public function downloadExcelReport($activityUsers){
 
-        // dd(request()->all());
         // $query = HubstaffActivity::join('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=', request('start_date'))->whereDate('hubstaff_activities.starts_at', '<=', request('end_date'));
         
         // $query->leftJoin('developer_tasks','hubstaff_activities.task_id','developer_tasks.hubstaff_task_id');
@@ -676,7 +699,6 @@ class HubstaffActivitiesController extends Controller
         //     }
         //     $activities[] = $a;
         // }
-        // // dd($activities);
 
         //START - Purpose : Get User Data - DEVATSK-4300 
         if(request('user_id')){
@@ -686,7 +708,6 @@ class HubstaffActivitiesController extends Controller
         }
         $activities[] = $activityUsers;
         //END - DEVATSK-4300
-
         return Excel::download(new HubstaffActivityReport($activities), $user->name.'-'.request('start_date').'-To-'.request('end_date').'.xlsx');
     }
     public function downloadExcelReportOld($activityUsers, $users)
@@ -1452,7 +1473,8 @@ class HubstaffActivitiesController extends Controller
         }
         $timeReceived = 0;
         try {
-            $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+            // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+            $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
 
             $now = time();
 
