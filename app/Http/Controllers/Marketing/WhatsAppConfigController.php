@@ -162,7 +162,7 @@ class WhatsappConfigController extends Controller
 
         $requestData = $request->all();
 
-        $defaultFor = implode(",", $requestData['default_for']);
+        $defaultFor = implode(",", isset($requestData['default_for']) ? $requestData['default_for'] : []);
 
         $data                        = $request->except('_token', 'id', 'default_for');
         $data['password']            = Crypt::encrypt($request->password);
@@ -564,5 +564,30 @@ class WhatsappConfigController extends Controller
         } catch (Exception $e) {
             $e->getMessage();
         }
+    }
+
+    public function logoutScript(Request $request)
+    {
+        $id = $request->id;
+        $whatsappConfig = WhatsappConfig::find($id);
+        $ch = curl_init();
+        if ($whatsappConfig->is_use_own == 1) {
+            $url = "http://136.244.118.102:81/logout?instanceId=".$whatsappConfig->instance_id;
+            curl_setopt($ch, CURLOPT_URL, $url);
+            //return the transfer as a string
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            // $output contains the output string
+            $output = curl_exec($ch);
+            // close curl resource to free up system resources
+            curl_close($ch);
+            $response = json_decode($output);
+            if ($response) {
+                return Response::json(array('success' => true, 'message' => 'Logout Script called'));
+            } else {
+                return Response::json(array('error' => true));
+            }
+        }
+
+        return Response::json(array('error' => true));
     }
 }

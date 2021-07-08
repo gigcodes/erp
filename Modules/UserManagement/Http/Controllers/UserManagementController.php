@@ -56,6 +56,11 @@ class UserManagementController extends Controller
         return response()->json( ["code" => 200 , "data" => $history] );
     }
 
+    public function deletePermissionRequest( Request $request ){
+        $history = PermissionRequest::query()->delete();
+        return response()->json( ["code" => 200 , "data" => 'Permission Deleted Successfully'] );
+    }
+
     public function todayTaskHistory(Request $request)
     {
         $date = "'%".date('Y-m-d')."%'";   
@@ -751,14 +756,28 @@ class UserManagementController extends Controller
 
     public function getPermission($id) {
         $user = User::find($id);
-		$permission = Permission::orderBy('name', 'asc')->pluck('name', 'id')->all();
+		//$permission = Permission::orderBy('name', 'asc')->pluck('name', 'id')->all();
+        
+        $permission = Permission::leftJoin('permission_user', function($join) use ($user)
+            {
+                $join->on('permissions.id', '=', 'permission_user.permission_id');
+                $join->where('permission_user.user_id', '=', $user->id);
+            })
+            ->select('permissions.name', 'permissions.id','permission_user.user_id')
+            ->orderBy('permission_user.user_id','DESC')
+            ->get()->toArray();
+
+            //->pluck('name','id');
+
+            //->pluck('permissions.name', 'permissions.id');
+
         $userPermission = $user->permissions->pluck('name', 'id')->all();
         
         return response()->json([
             "code"       => 200,
             "user"       => $user,
-            "userPermission"       => $userPermission,
-            "permissions"       => $permission
+            "userPermission" => $userPermission,
+            "permissions"    => $permission
         ]);
     }
 

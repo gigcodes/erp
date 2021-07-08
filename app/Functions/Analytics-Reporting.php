@@ -41,7 +41,8 @@ function initializeReportingAnalytics()
 function getReport($analytics) {
 
   // Replace with your view ID, for example XXXX.
-  $VIEW_ID = env('ANALYTICS_VIEW_ID');
+  // $VIEW_ID = env('ANALYTICS_VIEW_ID');
+  $VIEW_ID = config('env.ANALYTICS_VIEW_ID');
 
   // Create the DateRange object.
   $dateRange = new Google_Service_AnalyticsReporting_DateRange();

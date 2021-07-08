@@ -4009,7 +4009,8 @@ return response()->json($sop);
         imagefill($canvasImage, 0, 0, $gray);
 
         imagecopy($canvasImage, $thumb, (1000 - $thumbWidth) / 2, (1000 - $thumbHeight) / 2, 0, 0, $thumbWidth, $thumbHeight);
-        $url = env('APP_URL');
+        // $url = env('APP_URL');
+        $url = config('env.APP_URL');
         $path = str_replace($url, '', $img);
 
         imagejpeg($canvasImage, public_path() . '/' . $path);
@@ -5505,7 +5506,8 @@ return response()->json($sop);
     {
         $product = Product::find($product_id);
         
-        $def_cust_id = getenv('DEFAULT_CUST_ID');
+        // $def_cust_id = getenv('DEFAULT_CUST_ID');
+        $def_cust_id = config('env.DEFAULT_CUST_ID');
 
         $customers = \App\Customer::find($def_cust_id);
 

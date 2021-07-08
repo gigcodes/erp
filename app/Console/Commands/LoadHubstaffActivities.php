@@ -40,7 +40,8 @@ class LoadHubstaffActivities extends Command
     {
         parent::__construct();
         $this->client = new Client();
-        $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+        // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+        $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
     }
 
     /**
@@ -110,7 +111,9 @@ class LoadHubstaffActivities extends Command
         try {
             $response = $this->doHubstaffOperationWithAccessToken(
                 function ($accessToken) use ($start, $stop) {
-                    $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $start . '&time_slot[stop]=' . $stop;
+                    // $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $start . '&time_slot[stop]=' . $stop;
+                    $url = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $start . '&time_slot[stop]=' . $stop;
+
                     echo $url . PHP_EOL;
                     return $this->client->get(
                         $url,

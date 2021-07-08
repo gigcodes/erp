@@ -13,9 +13,10 @@ class AlterTableSiteDevelopmentsTable extends Migration
      */
     public function up()
     {
-        Schema::table('site_developments',function(Blueprint $table) {
+        /*Schema::table('site_developments',function(Blueprint $table) {
             $table->string('title')->nullable()->change();
-        });
+        });*/
+        \DB::statement('ALTER TABLE `site_developments` CHANGE `title` `title` VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;');
     }
 
     /**

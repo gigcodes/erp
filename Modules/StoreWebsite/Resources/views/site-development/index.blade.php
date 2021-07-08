@@ -719,38 +719,31 @@
 	});
 
 	$(document).on('click', '.send-message-site-quick', function() {
-		var $this = $(this);
-		site = $(this).data("id");
-		category = $(this).data("category");
-		message = $this.closest("td").find(".quick-message-field").val();
-		userId = $this.data("user");
-		prefix = $this.data("prefix");
-		var users = [userId];
-
-		if (site) {
-			$.ajax({
-				url: '/whatsapp/sendMessage/site_development',
-				dataType: "json",
-				type: 'POST',
-				data: {
-					'site_development_id': site,
-					'message': prefix + ' => ' + message,
-					'users': users,
-					"_token": "{{ csrf_token() }}",
-					'status': 2
-				},
-				beforeSend: function() {
-					$this.closest("td").find(".quick-message-field").attr('disabled', true);
-				}
-			}).done(function(data) {
-				$this.closest("td").find(".quick-message-field").attr('disabled', false);
-				$this.closest("td").find(".quick-message-field").val('');
-			}).fail(function(jqXHR, ajaxOptions, thrownError) {
-				alert('No response from server');
-			});
-		} else {
-			alert('Site is not saved please enter value or select User');
-		}
+		$this = $(this);
+		var id = $(this).data("id");
+		var val = $(this).siblings('input').val();
+		
+		$.ajax({
+			url: '/site-development/' + id + '/remarks',
+			type: 'POST',
+			headers: {
+				'X-CSRF-TOKEN': "{{ csrf_token() }}"
+			},
+			data: {
+				remark: val
+			},
+			beforeSend: function() {
+				$("#loading-image").show();
+			}
+		}).done(function(response) {
+			$("#loading-image").hide();
+			$this.siblings('input').val("");
+			$('#latest-remarks-modal').modal('hide');
+			toastr["success"]("Remarks fetched successfully");
+		}).fail(function(jqXHR, ajaxOptions, thrownError) {
+			toastr["error"]("Oops,something went wrong");
+			$("#loading-image").hide();
+		});
 	});
 
 	$(document).on('click', '.send-message-site', function() {

@@ -158,7 +158,7 @@ class scrapperPhyhon extends Controller
 //            dd($list->store_website_id);
 //            dd($list->store_website_id);
                 if( $website_store_views ){
-                    $images = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$website_store_views->code)->get()->toArray();
+                    $images = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$request->code)->get()->toArray();
                 }
             }
 

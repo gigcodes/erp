@@ -98,12 +98,19 @@ class HubstaffActivitiesController extends Controller
             }else{
                 $sign = '';
             }
-
-
+                $admin = null;
+            if (\Auth::user()->hasRole('Admin')) {
+                $admin = 1;
+            }
 
             $hours = floor(abs($difference) / 3600);
             $minutes = sprintf("%02d", floor((abs($difference) / 60) % 60));
 
+            $latest_message = \App\ChatMessage::where('user_id',$row->id)->latest('message')->first();
+            $latest_msg = $latest_message->message;
+            if(strlen($latest_message->message) > 20){
+                $latest_msg = substr($latest_message->message, 0, 20).'...';
+            }
             $recordsArr[] = [
 
                 'id' => $row->id,
@@ -116,6 +123,9 @@ class HubstaffActivitiesController extends Controller
                 'actual_percentage' => $row->actual_percentage,
                 'reason' => $row->reason,
                 'status' => $row->status,
+                'is_admin' => $admin,
+                'is_hod_crm' => "user",
+                'latest_message' => $latest_msg,
                 
             ];
        }   
@@ -1463,7 +1473,8 @@ class HubstaffActivitiesController extends Controller
         }
         $timeReceived = 0;
         try {
-            $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+            // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+            $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
 
             $now = time();
 

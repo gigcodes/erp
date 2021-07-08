@@ -43,7 +43,8 @@ class LearningModuleController extends Controller {
 	use hubstaffTrait;
 
 	public function __construct() {
-		$this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+		// $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+		$this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
 	}
 
 	public function index( Request $request ) {
@@ -1001,7 +1002,9 @@ class LearningModuleController extends Controller {
 
 			  app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
 			  
-			  $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			//   $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			  $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+
 			  $assignedUser = HubstaffMember::where('user_id', $request->input('assign_to'))->first();
 			  // $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
 	  
@@ -1086,7 +1089,8 @@ class LearningModuleController extends Controller {
             if ($hubstaffUserId) {
                 $body['assignee_id'] = $hubstaffUserId;
             } else {
-                $body['assignee_id'] = getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID');
+                // $body['assignee_id'] = getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID');
+				$body['assignee_id'] = config('env.HUBSTAFF_DEFAULT_ASSIGNEE_ID');
             }
 
             $response = $httpClient->post(
@@ -2177,7 +2181,8 @@ class LearningModuleController extends Controller {
 
 		$issue->save();
 		
-		$hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+		// $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+		$hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 
         $assignedUser = HubstaffMember::where('user_id', $masterUserId)->first();
 
@@ -2362,7 +2367,8 @@ class LearningModuleController extends Controller {
 			else {
 				$user_id = $task->master_user_id; 
 			}
-			$hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			// $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			$hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 		
 			$assignedUser = HubstaffMember::where('user_id', $user_id)->first();
 		

@@ -157,6 +157,7 @@
                 <th style="width:20%">Id</th>
                 <th style="width:20%">Website</th>
                 <th style="width:45%">Name</th>
+                <th style="width:45%">Language</th>
                 <th style="width:20%">Action</th>
                 </thead>
                 <tbody class="infinite-scroll-data">
@@ -511,36 +512,36 @@
         });
 
 
-        $(document).on('click', '.preview-attached-img-btn', function (e) {     
-            console.log('load product');
-            e.preventDefault();
-            var customer_id = $(this).data('id');
-            var suggestedproductid = $(this).data('suggestedproductid');
-            // $.ajax({
-            //     url: '/attached-images-grid/get-products/attach/'+suggestedproductid+'/'+customer_id,
-            //     data: $('#searchForm').serialize(),
-            //     dataType: 'html',
-            // }).done(function (data) {
-            //     $('#attach-image-list-'+suggestedproductid).html(data);
-            // }).fail(function () {
-            //     alert('Error searching for products');
-            // });
+        // $(document).on('click', '.preview-attached-img-btn', function (e) {     
+        //     console.log('load product');
+        //     e.preventDefault();
+        //     var customer_id = $(this).data('id');
+        //     var suggestedproductid = $(this).data('suggestedproductid');
+        //     // $.ajax({
+        //     //     url: '/attached-images-grid/get-products/attach/'+suggestedproductid+'/'+customer_id,
+        //     //     data: $('#searchForm').serialize(),
+        //     //     dataType: 'html',
+        //     // }).done(function (data) {
+        //     //     $('#attach-image-list-'+suggestedproductid).html(data);
+        //     // }).fail(function () {
+        //     //     alert('Error searching for products');
+        //     // });
             
-            var expand = $('.expand-'+suggestedproductid);
-            $(expand).toggleClass('hidden');
+        //     var expand = $('.expand-'+suggestedproductid);
+        //     $(expand).toggleClass('hidden');
 
-            //to hide image area
-            $(expand).each(function(){
+        //     //to hide image area
+        //     $(expand).each(function(){
 
-                var imageArea=$(this).find('.show-scrape-images').attr('data-suggestedproductid');
+        //         var imageArea=$(this).find('.show-scrape-images').attr('data-suggestedproductid');
 
-                $('.expand-images-'+imageArea).addClass('hidden');
+        //         $('.expand-images-'+imageArea).addClass('hidden');
 
 
-            })
+        //     })
            
 
-        });
+        // });
 
 
         // function to show scrape images
