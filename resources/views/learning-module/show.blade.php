@@ -76,7 +76,8 @@
     else
         $isAdmin = false;
     ?>
-<div class="row mb-2">
+    
+    <div class="row mb-2">
         <div class="col-xs-12">
             <form action="{{ action('LearningModuleController@createLearningFromSortcut') }}" method="POST" id="taskCreateForm">
                 @csrf
@@ -326,7 +327,15 @@
             </div>
 
             <div class="col-md-2 pd-sm">
-                <input type="text" name="subject" placeholder="Subject" class="form-control" value="{{ request()->get('subject') }}">
+                <!-- <input type="text" name="subject" placeholder="Subject" class="form-control" value="{{ request()->get('subject') }}"> -->
+
+                <select class="form-control" name="subject">
+                    <option value="">Select Subject</option>
+                    @foreach ($subjectList as $subject)
+                        <option {{ request()->get('subject') == $subject ? 'selected' : '' }} value="{{ $subject }}">{{ $subject }}</option>
+                    @endforeach
+                </select>
+
             </div>
 
             
@@ -346,7 +355,7 @@
              <div class="col-md-2 pd-sm">
                 <select class="form-control updateModule" name="module">
                     <option value="">Select Module</option>
-                    @foreach(App\LearningModule::where('parent_id',0)->get() as $module)
+                    @foreach(App\LearningModule::where('parent_id',0)->orderBy('title')->get() as $module)
                         <option value="{{ $module->id }}" {{ request()->get('module') == $module->id ? 'selected' : '' }}>{{ $module->title }}</option>
                     @endforeach
                 </select>
@@ -355,7 +364,7 @@
             <div class="col-md-2 pd-sm">
                 <select class="form-control" name="submodule">
                     <option value="">Select SubModule</option>
-                    @foreach(App\LearningModule::where('parent_id','!=',0)->get() as $submodule)
+                    @foreach(App\LearningModule::where('parent_id','!=',0)->orderBy('title')->get() as $submodule)
                         <option class="submodule" {{ request()->get('submodule') == $submodule->id ? 'selected' : '' }} value="{{ $submodule->id }}">{{ $submodule->title }}</option>
                     @endforeach
                 </select>
