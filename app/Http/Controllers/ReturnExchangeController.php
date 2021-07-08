@@ -19,6 +19,9 @@ use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Requests\CreateCouponRequest;
+use Dompdf\Dompdf;
+use Qoraiche\MailEclipse\MailEclipse;
+
 
 class ReturnExchangeController extends Controller
 {
@@ -895,38 +898,18 @@ class ReturnExchangeController extends Controller
 
     public function downloadRefundPdf(Request $request)
     {
-        
-        $return = \App\ReturnExchange::find(6);
-        if ($return) {
+        $return = \App\ReturnExchange::findOrFail($request->id);
 
-            $customer   = $return->customer;
+        $customer   = $return->customer;
 
             if($customer){
-
-                if ($customer->store_website_id > 0) {
-                  
-                    $template = \App\MailinglistTemplate::getIntializeRefund($customer->store_website_id);
-                } else {
-                    $template = \App\MailinglistTemplate::getIntializeRefund();
-                }
-
-                if ($template) {
-                    if (!empty($template->mail_tpl)) {
-                        // need to fix the all email address
-                       $html_temp = view('maileclipsetemplates.refundDefaultRequest', compact(
+                            $html_temp = view('maileclipse::templates.initializeRefundRequetDefault', compact(
                                 'customer','return'
                             ));
                             $pdf = new Dompdf();
                             $pdf->loadHtml($html_temp);
                             $pdf->render();
-                            $pdf->stream('orders.pdf');
-
-                    }
-                }
+                            $pdf->stream('refund.pdf');
             }
-
-        }
-
     }
-
 }

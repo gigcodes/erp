@@ -379,14 +379,7 @@ var msQueue = {
         toastr['success']("Email send successfully");
     },
     downloadPdf : function(id){
-        var _z = {
-            url: this.config.baseUrl + "/return-exchange/"+id+"/download-pdf",
-            method: "get",
-            beforeSend : function() {
-                $("#loading-image").show();
-            }
-        }
-        this.sendAjax(_z, "afterSendEmail");
+        window.location.replace(this.config.baseUrl + "/return-exchange/"+id+"/download-pdf");
     }
 }
 
