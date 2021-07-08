@@ -101,9 +101,11 @@ class WhatsAppController extends FindByNumberController
     public function __construct()
     {
         $this->githubClient = new GuzzleClient([
-            'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
+            'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
         ]);
-        $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+        // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+        $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
     }
     /**
      * Incoming message URL for whatsApp
@@ -2849,7 +2851,8 @@ class WhatsAppController extends FindByNumberController
                                             if ($request->customerId != null) {
                                                 $customer = Customer::findorfail($request->customerId);
                                                 if (!empty($request->send_pdf)) {
-                                                    $file = env('APP_URL') . '/pdf/' . $random . '.pdf';
+                                                    // $file = env('APP_URL') . '/pdf/' . $random . '.pdf';
+                                                    $file = config('env.APP_URL') . '/pdf/' . $random . '.pdf';
                                                 }
                                                 $data['customer_id'] = $customer->id;
                                                 $chat_message = ChatMessage::create($data);
@@ -3896,7 +3899,8 @@ class WhatsAppController extends FindByNumberController
 
                     $botReply          = \App\ChatbotReply::where( 'chat_id', $message->id)->get();
                     $storeEmailAddress = EmailAddress::whereNotNull('store_website_id')->where( 'store_website_id', $customer->store_website_id )->first();
-                    $from_address      = env('MAIL_FROM_ADDRESS');
+                    // $from_address      = env('MAIL_FROM_ADDRESS');
+                    $from_address      = config('env.MAIL_FROM_ADDRESS');
 
                     $subject = null;
                     $message_body = $message->message;
@@ -5241,7 +5245,9 @@ class WhatsAppController extends FindByNumberController
         }else{
             $domain = "https://api.chat-api.com/instance$instanceId/$link?token=$token";
         }
-        
+
+        \Log::channel('chatapi')->debug('cUrl_url:' . $domain . "\nMessage: " . $message. "\nCUSTOMREQUEST: " . 'POST' ."\nPostFields: " . json_encode($array) . "\nFile:" . $file . "\n" . ' ['. json_encode($logDetail). '] ');
+
         $curl = curl_init();
         
         curl_setopt_array($curl, array(
@@ -5771,7 +5777,9 @@ class WhatsAppController extends FindByNumberController
             ]);
 
 
-            $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+            // $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+            $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+
 			  $assignedUser = HubstaffMember::where('user_id', $user->id)->first();	  
 			  $hubstaffUserId = null;
 			  if ($assignedUser) {
@@ -5812,7 +5820,8 @@ class WhatsAppController extends FindByNumberController
         $data['hubstaff_task_id'] = 0;
         $data['assigned_by'] = $default_user_id;
         $data['status'] = 'In Progress';
-        $data['hubstaff_project'] = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+        // $data['hubstaff_project'] = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+        $data['hubstaff_project'] = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
         $task = DeveloperTask::create($data);
 
         // CREATE GITHUB REPOSITORY BRANCH
@@ -5886,7 +5895,8 @@ class WhatsAppController extends FindByNumberController
             if ($hubstaffUserId) {
                 $body['assignee_id'] = $hubstaffUserId;
             } else {
-                $body['assignee_id'] = getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID');
+                // $body['assignee_id'] = getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID');
+                $body['assignee_id'] = config('env.HUBSTAFF_DEFAULT_ASSIGNEE_ID');
             }
             $response = $httpClient->post(
                 $url,
