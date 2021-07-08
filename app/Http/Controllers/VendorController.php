@@ -47,7 +47,8 @@ class VendorController extends Controller
   public function __construct()
   {
     // $this->middleware('permission:vendor-all');
-    $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+    // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+    $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
   }
 
   public function updateReminder(Request $request)
@@ -1195,7 +1196,8 @@ class VendorController extends Controller
   private function changeHubstaffUserRoleApi($hubstaff_member_id) {
     try {
       $tokens = $this->getTokens();
-      $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/update_members';
+      // $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/update_members';
+      $url = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/update_members';
       $client = new GuzzleHttpClient();
       $body = array(
         'members' => array(
@@ -1264,7 +1266,8 @@ class VendorController extends Controller
     // }
     try {
       $tokens = $this->getTokens();
-      $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/invites';
+      // $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/invites';
+      $url = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/invites';
       $client = new GuzzleHttpClient();
       $response = $client->post(
         $url,

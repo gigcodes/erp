@@ -31,8 +31,10 @@ class ZoomMeetingDeleteRecordings extends Command
     public function __construct()
     {
         parent::__construct();
-        $this->zoomkey    = env('ZOOM_API_KEY');
-        $this->zoomsecret = env('ZOOM_API_SECRET');
+        // $this->zoomkey    = env('ZOOM_API_KEY');
+        // $this->zoomsecret = env('ZOOM_API_SECRET');
+        $this->zoomkey = config('env.ZOOM_API_KEY');
+        $this->zoomsecret = config('env.ZOOM_API_SECRET');
     }
 
     /**

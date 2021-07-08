@@ -155,6 +155,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
+                <button type="button" class="btn btn-default permission-delete-grant">Delete All</button>
                 <div class="col-md-12" id="permission-request">
                     <table class="table fixed_header">
                         <thead>
@@ -747,6 +748,31 @@
             success: function(result){
                 $("#loading-image").hide();
                 if(result.code == 200) {
+                    toastr["success"](result.data,"");
+                }else{
+                    toastr["error"](result.data,"");
+                }
+            },
+            error: function (){
+                $("#loading-image").hide();
+            }
+        });
+    });
+
+    $(document).on("click",".permission-delete-grant",function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/user-management/request-delete',
+            type: 'POST',
+            data : { _token: "{{ csrf_token() }}"},
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function(result){
+                $("#loading-image").hide();
+                if(result.code == 200) {
+                    $("#permission-request").find(".show-list-records").html('');
                     toastr["success"](result.data,"");
                 }else{
                     toastr["error"](result.data,"");

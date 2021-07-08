@@ -51,6 +51,11 @@ class ScrapInfluencer extends Model
         'comment_id',
         'comment',
         'comment_profile_pic_url',
-        'comment_posted_at'
+        'comment_posted_at',
+        'profile_pic',
+        'friends',
+        'cover_photo',
+        'interests',
+        'work_at',
     ];
 }
