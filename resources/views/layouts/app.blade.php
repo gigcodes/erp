@@ -1442,6 +1442,9 @@ $metaData = '';
                                         <li class="nav-item">
                                             <a class="dropdown-item" href="{{ route('message-queue.approve') }}">Message Queue Approval</a>
                                         </li>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item" href="{{ route('message-queue-history.index') }}">Queue History</a>
+                                        </li>
                                     </ul>
                                 </li>
                             @endif

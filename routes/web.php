@@ -20,7 +20,7 @@ Route::get('/test/dummydata', 'TestingController@testingFunction');
 Route::get('/test/test', 'OrderController@testEmail');
 Route::get('/memory', function () {
     return view('memory');
-})->name('memory'); 
+})->name('memory');
 
 Route::get('/test/pushProduct', 'TmpTaskController@testPushProduct');
 Route::get('/test/fixBrandPrice', 'TmpTaskController@fixBrandPrice');
@@ -158,7 +158,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
-    
+
     Route::get('color-reference/used-products', 'ColorReferenceController@usedProducts');
 
     Route::get('color-reference-fix-issue','ColorReferenceController@cmdcallcolorfix')->name('erp-color-fix-cmd');
@@ -407,7 +407,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
     Route::resource('reply', 'ReplyController');
-    
+
     Route::post('reply/chatbot/questions', 'ReplyController@chatBotQuestionT')->name('reply.create.chatbot_questions');
     Route::post('reply/category/store', 'ReplyController@categoryStore')->name('reply.category.store');
 
@@ -779,7 +779,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/addRemarkStatutory', 'TaskModuleController@addRemark')->name('task.addRemarkStatutory');
 
     Route::get('task/{id}', 'TaskModuleController@show')->name('task.module.show');
-    
+
     Route::resource('task', 'TaskModuleController');
 
     //START - Purpose : add Route for Remind, Revise Message - DEVTASK-4354
@@ -3159,7 +3159,7 @@ Route::middleware('auth')->prefix('totem')->group(function() {
 
         Route::post('{task}/delete', 'TasksController@destroy')->name('totem.task.delete');
 
-        Route::post('{task}/status', 'TasksController@status')->name('totem.task.status'); 
+        Route::post('{task}/status', 'TasksController@status')->name('totem.task.status');
     });
 
 });
@@ -3182,8 +3182,13 @@ Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->nam
 //Magento Product Error
 
 Route::prefix('magento-product-error')->middleware('auth')->group(static function () {
-    Route::get('/', 'MagentoProductPushErrors@index')->name('magento-productt-errors.index'); 
-    Route::get('/records', 'MagentoProductPushErrors@records')->name("magento-productt-errors.records"); 
+    Route::get('/', 'MagentoProductPushErrors@index')->name('magento-productt-errors.index');
+    Route::get('/records', 'MagentoProductPushErrors@records')->name("magento-productt-errors.records");
 
-    Route::post('/loadfiled', 'MagentoProductPushErrors@getLoadDataValue'); 
+    Route::post('/loadfiled', 'MagentoProductPushErrors@getLoadDataValue');
+});
+
+Route::prefix('message-queue-history')->middleware('auth')->group(static function () {
+    Route::get('/', 'MessageQueueHistoryController@index')->name('message-queue-history.index');
+    Route::get('/records', 'MessageQueueHistoryController@records')->name("message-queue-history.records");
 });
