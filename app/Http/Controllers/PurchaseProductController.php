@@ -1343,4 +1343,24 @@ class PurchaseProductController extends Controller
     {
         //
     }
+
+
+    public function getOrderProductImages(Request $request)
+    {
+        $products = Product::whereIn('id', explode(',', $request->product_ids) )
+                            ->withTrashed()
+                            ->get();
+        $image_array = [];                    
+        foreach($products as $product){
+            if ($product->hasMedia(config('constants.media_tags'))){
+                $productImages = $product->getMedia(config('constants.media_tags'));
+                foreach($productImages as $img){
+                    $image_array[] = $img;
+                }
+            }
+        }
+        return response()->json([
+            'images' => $image_array
+        ]);
+    }
 }
