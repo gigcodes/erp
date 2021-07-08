@@ -36,4 +36,9 @@ class WebsiteStoreView extends Model
     {
         return $this->hasMany(\App\scraperImags::class, 'website_id', 'code');
     }
+
+    public function websiteStoreHasOne()
+    {
+        return $this->belongsTo(\App\WebsiteStore::class);
+    }
 }

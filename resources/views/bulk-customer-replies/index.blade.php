@@ -63,6 +63,7 @@
             <option value="all" {{ app('request')->dnd_enabled === 'all' ? 'selected' : '' }} >DND: ALL</option>
             
             <option value="0" {{ app('request')->dnd_enabled === null || app('request')->dnd_enabled === '0' ? 'selected' : '' }} >DND: Disabled</option>
+            <option value="1" {{ app('request')->dnd_enabled === null || app('request')->dnd_enabled === '1' ? 'selected' : '' }} >DND: Enabled</option>
         </select>
          
         <input name="keyword_filter" type="hidden" value="{{ app('request')->keyword_filter }}">
@@ -80,7 +81,7 @@
                         <tr>
                             <th style="width:1%">Pick</th>
                             <th style="width:2%">S.N</th>
-                            <th style="width:6%">Customer ({{count($searchedKeyword->customers)}})</th>
+                            <th style="width:6%">Customer ({{count($customers)}})</th>
                             <th style="width:12%">Whatsapp num</th>
                             <th style="width:23%">Shortcuts</th>
                             <th style="width:23%">Next Action</th>
@@ -99,10 +100,10 @@
                                 </div>
                             </td>
                         </tr>
-                        @php
-                            $searchWithPagination = $searchedKeyword->customers()->paginate(20);
-                        @endphp
-                        @foreach($searchWithPagination as $key=>$customer)
+{{--                        @php--}}
+{{--                            $searchWithPagination = $customers;--}}
+{{--                        @endphp--}}
+                        @foreach($customers as $key => $customer)
 <!--                            --><?php //dump($customer->dnd); ?>
                             <tr data-customer_id="{{ $customer->id }}" class="customer-id-remove-class">
                                 <td><input type="checkbox" name="customers[]" value="{{ $customer->id }}" class="customer_message"></td>
@@ -135,7 +136,7 @@
                             </tr>
                         @endforeach
                     </table>
-                    {!! $searchWithPagination->appends(request()->query())->links() !!}
+                    {!! $customers->appends(request()->query())->links() !!}
 
                 </form>
 
@@ -180,6 +181,10 @@
             </form>
         </div>
     </div>
+
+    @include("partials.customer-new-ticket")
+    
+    
 @endsection
 
 @section('scripts')
@@ -205,7 +210,7 @@
                 },
                 dataType: "json",
                 success: function (response) {
-                    $this.html('Remove from DND');
+                    $this.html('<img src="/images/do-disturb.png"/>');
                     $this.removeClass('add_to_dnd').addClass('remove_from_dnd')
                 },
                 error: function () {
@@ -230,7 +235,7 @@
                 },
                 dataType: "json",
                 success: function (response) {
-                    $this.html('Add to DND');
+                    $this.html('<img src="/images/do-not-disturb.png"/>');
                     $this.removeClass('remove_from_dnd').addClass('add_to_dnd')
                 },
                 error: function () {
@@ -564,6 +569,39 @@
                 console.log(response);
             });
         });
+
+
+    $(document).on("change",".quickComment",function() {
+        var $this = $(this);
+        $this.closest("tr").find(".send-message-textbox").val($this.val());
+    });
+
+    $(document).on('click', '.add_to_customer_dnd', function() {
+            var id = $(this).data('id');
+            var thiss = $(this);
+            $.ajax({
+                type: "POST",
+                url: "/customer/" + id + '/updateDND',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+              if (response.do_not_disturb == 1) {
+                $(thiss).html('<img src="/images/do-not-disturb.png" />');
+              } else {
+                $(thiss).html('<img src="/images/do-disturb.png" />');
+              }
+            }).fail(function(response) {
+               $("#loading-image").hide();
+              alert('Could not update DND status');
+              console.log(response);
+            })
+      });
+
 
     </script>
 @endsection

@@ -35,8 +35,8 @@
                     {{props permissions}}
                            <li style="list-style-type: none;">
                             <a>
-                            <input type="checkbox" name="permissions[]" value="{{>key}}" {{:~isPermissionSelected(prop)}}>
-                            <strong>{{>prop}}</strong></a>
+                            <input type="checkbox" name="permissions[]" value="{{>prop.id}}" {{:~isPermissionSelected(prop.name)}}>
+                            <strong>{{>prop.name}}</strong></a>
                             </li>
                         {{/props}} 
                     </ul>

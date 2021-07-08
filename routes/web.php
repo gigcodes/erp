@@ -20,7 +20,7 @@ Route::get('/test/dummydata', 'TestingController@testingFunction');
 Route::get('/test/test', 'OrderController@testEmail');
 Route::get('/memory', function () {
     return view('memory');
-})->name('memory');
+})->name('memory'); 
 
 Route::get('/test/pushProduct', 'TmpTaskController@testPushProduct');
 Route::get('/test/fixBrandPrice', 'TmpTaskController@fixBrandPrice');
@@ -49,7 +49,7 @@ Route::get('/productsearcher/list', 'ProductSearcherController@sList')->name('pr
 Route::post('/productselection/email-set', 'ProductSelectionController@emailTplSet')->name('productselection.email.set');
 // adding chat contro
 
-Route::get('sop', 'ProductController@showSOP');
+
 
 Route::get('/mageOrders', 'MagentoController@get_magento_orders');
 
@@ -158,11 +158,16 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
+    
     Route::get('color-reference/used-products', 'ColorReferenceController@usedProducts');
+
+    Route::get('color-reference-fix-issue','ColorReferenceController@cmdcallcolorfix')->name('erp-color-fix-cmd');
+
     Route::get('color-reference/affected-product', 'ColorReferenceController@affectedProduct');
     Route::post('color-reference/update-color', 'ColorReferenceController@updateColor');
 
     Route::resource('color-reference', 'ColorReferenceController');
+
     Route::get('compositions/{id}/used-products', 'CompositionsController@usedProducts')->name('compositions.used-products');
     Route::get('compositions/affected-product', 'CompositionsController@affectedProduct');
     Route::post('compositions/update-composition', 'CompositionsController@updateComposition');
@@ -345,8 +350,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('facebook-posts/create', 'FacebookPostController@create')->name('facebook-posts.create');
     Route::resource('facebook-posts', 'FacebookPostController');
 
-
-
     Route::resource('sales', 'SaleController');
     Route::resource('stock', 'StockController');
     Route::post('stock/track/package', 'StockController@trackPackage')->name('stock.track.package');
@@ -357,7 +360,16 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('stock/private/viewing/upload', 'StockController@privateViewingUpload')->name('stock.private.viewing.upload');
     Route::post('stock/private/viewing/{id}/updateStatus', 'StockController@privateViewingUpdateStatus')->name('stock.private.viewing.updateStatus');
     Route::post('stock/private/viewing/{id}/updateOfficeBoy', 'StockController@updateOfficeBoy')->name('stock.private.viewing.updateOfficeBoy');
-    Route::post('sop', 'ProductController@saveSOP');
+  
+  
+    Route::post('sop', 'ProductController@saveSOP')->name('sop.add');
+    // Route::get('sop', 'ProductController@showSOP')->name('sop.post');
+    Route::get('sop', 'ProductController@getdata')->name('sop.post');
+    Route::get('sopdata', 'ProductController@getdata')->name('sop.index');
+    Route::delete('sopdel/{id}', 'ProductController@destroyname')->name('sopdel.destroyname');
+    Route::get('sop/edit', 'ProductController@edit')->name('editName');
+    Route::post('update', 'ProductController@update')->name('updateName');
+    Route::get('sop/search', 'ProductController@searchsop');
 
     Route::get('product/delete-image', 'ProductController@deleteImage')->name('product.deleteImages');
 
@@ -395,22 +407,33 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
     Route::resource('reply', 'ReplyController');
+    
     Route::post('reply/chatbot/questions', 'ReplyController@chatBotQuestionT')->name('reply.create.chatbot_questions');
     Route::post('reply/category/store', 'ReplyController@categoryStore')->name('reply.category.store');
 
     // Auto Replies
     Route::post('autoreply/{id}/updateReply', 'AutoReplyController@updateReply');
+
     Route::post('autoreply/delete-chat-word', 'AutoReplyController@deleteChatWord');
+    
     Route::get('autoreply/replied-chat/{id}', 'AutoReplyController@getRepliedChat');
+    
     Route::post('autoreply/save-group', 'AutoReplyController@saveGroup')->name('autoreply.save.group');
+    
     Route::post('autoreply/save-group/phrases', 'AutoReplyController@saveGroupPhrases')->name('autoreply.save.group.phrases');
+    
     Route::post('autoreply/save-by-question', 'AutoReplyController@saveByQuestion');
+    
     Route::post('autoreply/delete-most-used-phrases', 'AutoReplyController@deleteMostUsedPharses')->name("chatbot.delete-most-used-pharses");
+    
     Route::get('autoreply/get-phrases', 'AutoReplyController@getPhrases');
+    
     Route::post('autoreply/phrases/reply', 'AutoReplyController@getPhrasesReply')->name('autoreply.group.phrases.reply');
+    
     Route::get('autoreply/phrases/reply-response', 'AutoReplyController@getPhrasesReplyResponse')->name('autoreply.group.phrases.reply.response');
 
     Route::resource('autoreply', 'AutoReplyController');
+    
     Route::get('most-used-words', 'AutoReplyController@mostUsedWords')->name("chatbot.mostUsedWords");
     Route::get('most-used-phrases', 'AutoReplyController@mostUsedPhrases')->name("chatbot.mostUsedPhrases");
 
@@ -419,9 +442,14 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('settings/update', 'SettingController@update');
     Route::post('settings/updateAutomatedMessages', 'SettingController@updateAutoMessages')->name('settings.update.automessages');
     Route::resource('settings', 'SettingController');
+    
+    Route::get('category/child-categories', 'CategoryController@childCategory')->name('category.child-category');
+    Route::get('category/edit-category', 'CategoryController@childEditCategory')->name('category.child-edit-category');
+    Route::post('category/{edit}/edit-category', 'CategoryController@updateCategory')->name('category.child-update-category');
+
     Route::get('category/references/used-products', 'CategoryController@usedProducts');
     Route::post('category/references/update-reference', 'CategoryController@updateReference');
-    Route::get('category/references', 'CategoryController@mapCategory');
+    Route::get('category/references', 'CategoryController@mapCategory')->name('category.map-category');
     Route::post('category/references', 'CategoryController@saveReferences');
     Route::post('category/references/affected-product', 'CategoryController@affectedProduct');
     Route::post('category/references/affected-product-new', 'CategoryController@affectedProductNew');
@@ -751,6 +779,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/addRemarkStatutory', 'TaskModuleController@addRemark')->name('task.addRemarkStatutory');
 
     Route::get('task/{id}', 'TaskModuleController@show')->name('task.module.show');
+    
     Route::resource('task', 'TaskModuleController');
 
     //START - Purpose : add Route for Remind, Revise Message - DEVTASK-4354
@@ -876,6 +905,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
     Route::get('category', 'CategoryController@manageCategory')->name('category');
+    Route::get('category-11', 'CategoryController@manageCategory11')->name('category');
     Route::post('add-category', 'CategoryController@addCategory')->name('add.category');
     Route::post('category/{category}/edit', 'CategoryController@edit')->name('category.edit');
     Route::post('category/remove', 'CategoryController@remove')->name('category.remove');
@@ -1096,6 +1126,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('purchase-product/download_excel_file', 'PurchaseProductController@download_excel_file')->name('purchase-product.download_excel_file');//Purpose : Set route for Excel - DEVTASK-4236
     Route::post('purchase-product/set_template', 'PurchaseProductController@set_template')->name('purchase-product.set_template');//Purpose : Set route for Template - DEVTASK-4236
     Route::get('purchase-product/get_template', 'PurchaseProductController@get_template')->name('purchase-product.get_template');//Purpose : Set route for Template - DEVTASK-4236
+    Route::post('purchase-product/edit_excel_file', 'PurchaseProductController@edit_excel_file')->name('purchase-product.edit_excel_file');//Purpose : Set route for Excel - DEVTASK-4236
+    Route::get('purchase-product/openfile/{excel_id?}/{version?}', 'PurchaseProductController@open_excel_file')->name('purchase-product.openfile');
+    Route::post('purchase-product/update_excel_sheet', 'PurchaseProductController@update_excel_sheet')->name('purchase-product.update_excel_sheet');
+    Route::get('purchase-product/get_excel_data_supplier_wise', 'PurchaseProductController@get_excel_data_supplier_wise')->name('purchase-product.get_excel_data_supplier_wise');
+    Route::post('purchase-product/send_excel_file', 'PurchaseProductController@send_excel_file')->name('purchase-product.send_excel_file');
 
 
     Route::post('purchase-product/change-status/{id}', 'PurchaseProductController@changeStatus');
@@ -1479,6 +1514,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::prefix('hubstaff-activities')->group(function () {
 
+        Route::get('/report', 'HubstaffActivitiesController@activityReport')->name('hubstaff-acitivtity.report');
+        Route::get('/report-download', 'HubstaffActivitiesController@activityReportDownload')->name('hubstaff-acitivtity-report.download');
+
         Route::prefix('notification')->group(function () {
             Route::get('/', 'HubstaffActivitiesController@notification')->name('hubstaff-acitivties.notification.index');
             Route::post('/download', 'HubstaffActivitiesController@downloadNotification')->name('hubstaff-acitivties.notification.download');
@@ -1590,11 +1628,21 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     
 
     Route::resource('email-addresses', 'EmailAddressesController');
+    
+    Route::post('email/geterroremailhistory', 'EmailAddressesController@getErrorEmailHistory');
+
+    Route::get('email/failed/download/history', 'EmailAddressesController@downloadFailedHistory')->name('email.failed.download');
+
     Route::post('email/getemailhistory/{id}', 'EmailAddressesController@getEmailAddressHistory');
+    
     Route::get('email/get-related-account/{id}', 'EmailAddressesController@getRelatedAccount');
+    
     Route::post('supplier/block', 'SupplierController@block')->name('supplier.block');
+    
     Route::post('supplier/saveImage', 'SupplierController@saveImage')->name('supplier.image');;
+    
     Route::post('supplier/change-status', 'SupplierController@changeStatus');
+    
     Route::post('supplier/change/category', 'SupplierController@changeCategory')->name('supplier/change/category');
     Route::post('supplier/change/status', 'SupplierController@changeSupplierStatus')->name('supplier/change/status');
     Route::post('supplier/change/subcategory', 'SupplierController@changeSubCategory')->name('supplier/change/subcategory');
@@ -2009,6 +2057,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('get-last-errors', 'ScrapStatisticsController@getLastErrors');
     Route::get('log-details', 'ScrapStatisticsController@logDetails')->name('scrap.log-details');
     Route::get('server-status-history', 'ScrapStatisticsController@serverStatusHistory');
+    Route::get('server-status-process', 'ScrapStatisticsController@serverStatusProcess');
     Route::get('get-server-scraper-timing', 'ScrapStatisticsController@getScraperServerTiming');
     Route::get('position-history', 'ScrapStatisticsController@positionHistory');
     Route::post('position-history-download', 'ScrapStatisticsController@positionHistorydownload');//Purpose : Download  Position History Route - DEVTASK-4086
@@ -2395,6 +2444,9 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('whatsapp-config/get-screen', 'WhatsappConfigController@getScreen')->name('whatsapp.config.screen');
     Route::get('whatsapp-config/delete-chrome', 'WhatsappConfigController@deleteChromeData')->name('whatsapp.config.delete');
     Route::get('whatsapp-config/restart-script', 'WhatsappConfigController@restartScript')->name('whatsapp.restart.script');
+    Route::get('whatsapp-config/logout-script', 'WhatsappConfigController@logoutScript')->name('whatsapp.restart.logout-script');
+    Route::get('whatsapp-config/get-status', 'WhatsappConfigController@getStatus')->name('whatsapp.restart.get-status');
+
     Route::get('whatsapp-config/blocked-number', 'WhatsappConfigController@blockedNumber')->name('whatsapp.block.number');
 
     Route::post('whatsapp-queue/switchBroadcast', 'BroadcastController@switchBroadcast')->name('whatsapp.config.switchBroadcast');
@@ -2806,6 +2858,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function (
         Route::get('/product', 'ReturnExchangeController@product')->name('return-exchange.product');
         Route::post('/update', 'ReturnExchangeController@update')->name('return-exchange.update');
         Route::get('/resend-email', 'ReturnExchangeController@resendEmail')->name('return-exchange.resend-email');
+        Route::get('/download-pdf', 'ReturnExchangeController@downloadRefundPdf')->name('return-exchange.download-pdf');
     });
 });
 
@@ -2869,6 +2922,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('missing-brands/multi-reference', 'MissingBrandController@multiReference')->name('missing-brands.multi-reference');
     Route::post('missing-brands/automatic-merge', 'MissingBrandController@automaticMerge')->name('missing-brands.automatic-merge');
 
+
+    //subcategory route
 
 });
 
@@ -3089,9 +3144,26 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/admin-menu/db-query', 'DBQueryController@index')->name('admin.databse.menu.direct.dbquery');
     Route::post('/admin-menu/db-query/get-columns', 'DBQueryController@columns')->name('admin.databse.menu.direct.dbquery.columns');
     Route::post('/admin-menu/db-query/confirm', 'DBQueryController@confirm')->name('admin.databse.menu.direct.dbquery.confirm');
+    Route::post('/admin-menu/db-query/delete/confirm', 'DBQueryController@deleteConfirm')->name('admin.databse.menu.direct.dbquery.delete.confirm');
     Route::post('/admin-menu/db-query/update', 'DBQueryController@update')->name('admin.databse.menu.direct.dbquery.update');
+    Route::post('/admin-menu/db-query/delete', 'DBQueryController@delete')->name('admin.databse.menu.direct.dbquery.delete');
 });
 
+Route::middleware('auth')->prefix('totem')->group(function() {
+
+    Route::get('/', 'TasksController@dashboard')->name('totem.dashboard');
+
+    Route::group(['prefix' => 'tasks'], function () {
+        Route::get('/', 'TasksController@index')->name('totem.tasks.all');
+
+        Route::get('{task}', 'TasksController@view')->name('totem.task.view');
+
+        Route::post('{task}/delete', 'TasksController@destroy')->name('totem.task.delete');
+
+        Route::post('{task}/status', 'TasksController@status')->name('totem.task.status'); 
+    });
+
+});
 
 Route::prefix('select2')->middleware('auth')->group(function () {
     Route::get('customers', 'Select2Controller@customers')->name('select2.customer');
@@ -3106,3 +3178,13 @@ Route::prefix('select2')->middleware('auth')->group(function () {
 });
 
 Route::get('whatsapp-log', 'Logging\WhatsappLogsController@getWhatsappLog')->name('whatsapp.log');
+
+
+//Magento Product Error
+
+Route::prefix('magento-product-error')->middleware('auth')->group(static function () {
+    Route::get('/', 'MagentoProductPushErrors@index')->name('magento-productt-errors.index'); 
+    Route::get('/records', 'MagentoProductPushErrors@records')->name("magento-productt-errors.records"); 
+
+    Route::post('/loadfiled', 'MagentoProductPushErrors@getLoadDataValue'); 
+});

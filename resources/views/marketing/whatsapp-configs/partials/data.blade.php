@@ -41,8 +41,11 @@
     @endif
     <button class="btn btn-link" onclick="deleteChrome({{ $whatsAppConfig->id }})" data-toggle="tooltip" data-placement="top" title="Delete Chrome Config"><i class="fa fa-trash"></i></button>
     <button class="btn btn-link" onclick="restartScript({{ $whatsAppConfig->id }})" data-toggle="tooltip" data-placement="top" title="Delete Chrome Config"><i class="fa fa-refresh"></i></button>
-    
-    
+    @if($whatsAppConfig->is_use_own == 1)
+      <button class="btn btn-link" onclick="logoutScript({{ $whatsAppConfig->id }})" data-toggle="tooltip" data-placement="top" title="Logout script">
+        <i class="fa fa-sign-out"></i>
+      </button>
+    @endif
   </td>
 </tr>
 

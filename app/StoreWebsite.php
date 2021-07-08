@@ -55,6 +55,7 @@ class StoreWebsite extends Model
         'website',
         'description',
         'is_published',
+        'disable_push',
         'deleted_at',
         'created_at',
         'updated_at',
