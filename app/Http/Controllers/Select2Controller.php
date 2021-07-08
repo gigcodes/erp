@@ -139,7 +139,7 @@ class Select2Controller extends Controller
             });
         }
 
-        $users = $users->paginate(30);
+        $users = $users->orderBy('name','asc')->paginate(30);
 
         $result['total_count'] = $users->total();
         $result['incomplete_results'] = $users->nextPageUrl() !== null;
@@ -173,7 +173,7 @@ class Select2Controller extends Controller
             });
         }
 
-        $users = $users->paginate(30);
+        $users = $users->orderBy('name','asc')->paginate(30);
 
         $result['total_count'] = $users->total();
         $result['incomplete_results'] = $users->nextPageUrl() !== null;

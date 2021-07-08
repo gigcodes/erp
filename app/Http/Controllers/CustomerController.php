@@ -56,6 +56,7 @@ use App\QuickSellGroup;
 use GuzzleHttp\Client as GuzzleClient;
 use Plank\Mediable\Media as PlunkMediable;
 use App\CustomerAddressData;
+use App\StoreWebsite;
 
 class CustomerController extends Controller
 {
@@ -2693,24 +2694,30 @@ class CustomerController extends Controller
     //START - Purpose : Add Customer Data - DEVTASK-19932
     public function add_customer_data(Request $request)
     {
-        // dd($request->all());
-        if(!empty($request->customer_data))
-        {
-            $email = $request->customer_data['email'];
-            $website_id =  $request->customer_data['website_id'];
-            
-            if($email != '')
-            {
 
+        if($request->email)
+        {
+            $email = $request->email;
+            $website = $request->website;
+
+            $website_data = StoreWebsite::where('website',$website)->first();
+
+            if($website_data)
+                $website_id = $website_data->id;
+            else
+                $website_id = '';
+
+            if($email != '' && $website_id != ''){
                 $find_customer = Customer::where('email',$email)->where('store_website_id',$website_id)->first();
 
                 if($find_customer)
                 {
-                    foreach($request->customer_data['address'] as $key => $value)
+                    foreach($request->post() as $key => $value)
                     {
-                        if($value['entity_id'] != '')
+
+                        if($value['entity_id'] != "")
                             $check_record = CustomerAddressData::where('customer_id',$find_customer->id)->where('entity_id',$value['entity_id'])->first();
-                        
+
                         if($check_record)
                         {
                             if(isset($value['is_deleted']) && $value['is_deleted'] == 1)
@@ -2723,45 +2730,126 @@ class CustomerController extends Controller
                                 ->where('entity_id',$value['entity_id'])
                                 ->update(
                                     [
-                                        'address_1' => $value['address_1'],
-                                        'address_2' => $value['address_2'],
-                                        'address_3' => $value['address_3'],
-                                        'country' => $value['country'],
-                                        'city' => $value['city'],
-                                        'state' => $value['state'],
-                                        'postcode' => $value['postcode'],
+                                        'parent_id' => ($value['parent_id'] ?? ''),
+                                        'address_type' => ($value['address_type'] ?? ''),
+                                        'region' => ($value['region'] ?? ''),
+                                        'region_id' => ($value['region_id'] ?? ''),
+                                        'postcode' => ($value['postcode'] ?? ''),
+                                        'firstname' => ($value['firstname'] ?? ''),
+                                        'middlename' => ($value['middlename'] ?? ''),
+                                        'company' => ($value['company'] ?? ''),
+                                        'country_id' => ($value['country_id'] ?? ''),
+                                        'telephone' => ($value['telephone'] ?? ''),
+                                        'prefix' => ($value['prefix'] ?? ''),
+                                        'street' => ($value['street'] ?? ''),
                                         'updated_at' => \Carbon\Carbon::now(),
                                     ]
                                 );
                             }
-                        }else{    
+                        }else{   
+
                             $params[] = [
                                 'customer_id' => $find_customer->id,
-                                'entity_id' => $value['entity_id'],
-                                'address_1' => $value['address_1'],
-                                'address_2' => $value['address_2'],
-                                'address_3' => $value['address_3'],
-                                'country' => $value['country'],
-                                'city' => $value['city'],
-                                'state' => $value['state'],
-                                'postcode' => $value['postcode'],
+                                'entity_id' => ($value['entity_id'] ?? ''),
+                                'parent_id' => ($value['parent_id'] ?? ''),
+                                'address_type' => ($value['address_type'] ?? ''),
+                                'region' => ($value['region'] ?? ''),
+                                'region_id' => ($value['region_id'] ?? ''),
+                                'postcode' => ($value['postcode'] ?? ''),
+                                'firstname' => ($value['firstname'] ?? ''),
+                                'middlename' => ($value['middlename'] ?? ''),
+                                'company' => ($value['company'] ?? ''),
+                                'country_id' => ($value['country_id'] ?? ''),
+                                'telephone' => ($value['telephone'] ?? ''),
+                                'prefix' => ($value['prefix'] ?? ''),
+                                'street' => ($value['street'] ?? ''),
                                 'created_at' => \Carbon\Carbon::now(),
                                 'updated_at' => \Carbon\Carbon::now(),
 
                             ];
+                            
                         }
                     }
 
                     if(!empty($params))
-                        CustomerAddressData::insert($params);
+                         CustomerAddressData::insert($params);
 
-                    return response()->json(["code" => 2000 ,"message" => "Data Added successfully"]); 
-
+                    return response()->json(["code" => 200]); 
                 }else{
                     return response()->json(["code" => 404 ,"message" => "Not Exist!"]);
                 }
+            }else{
+                return response()->json(["code" => 404 ,"message" => "Website Not Found!"]);
             }
         }
+        // if(!empty($request->customer_data))
+        // {
+        //     $email = $request->customer_data['email'];
+        //     $website_id =  $request->customer_data['website_id'];
+            
+        //     if($email != '')
+        //     {
+
+        //         $find_customer = Customer::where('email',$email)->where('store_website_id',$website_id)->first();
+
+        //         if($find_customer)
+        //         {
+        //             foreach($request->customer_data['address'] as $key => $value)
+        //             {
+        //                 if($value['entity_id'] != '')
+        //                     $check_record = CustomerAddressData::where('customer_id',$find_customer->id)->where('entity_id',$value['entity_id'])->first();
+                        
+        //                 if($check_record)
+        //                 {
+        //                     if(isset($value['is_deleted']) && $value['is_deleted'] == 1)
+        //                     {
+        //                         CustomerAddressData::where('customer_id',$find_customer->id)
+        //                         ->where('entity_id',$value['entity_id'])
+        //                         ->delete();
+        //                     }else{
+        //                         CustomerAddressData::where('customer_id',$find_customer->id)
+        //                         ->where('entity_id',$value['entity_id'])
+        //                         ->update(
+        //                             [
+        //                                 'address_1' => $value['address_1'],
+        //                                 'address_2' => $value['address_2'],
+        //                                 'address_3' => $value['address_3'],
+        //                                 'country' => $value['country'],
+        //                                 'city' => $value['city'],
+        //                                 'state' => $value['state'],
+        //                                 'postcode' => $value['postcode'],
+        //                                 'updated_at' => \Carbon\Carbon::now(),
+        //                             ]
+        //                         );
+        //                     }
+        //                 }else{    
+        //                     $params[] = [
+        //                         'customer_id' => $find_customer->id,
+        //                         'entity_id' => $value['entity_id'],
+        //                         'address_1' => $value['address_1'],
+        //                         'address_2' => $value['address_2'],
+        //                         'address_3' => $value['address_3'],
+        //                         'country' => $value['country'],
+        //                         'city' => $value['city'],
+        //                         'state' => $value['state'],
+        //                         'postcode' => $value['postcode'],
+        //                         'created_at' => \Carbon\Carbon::now(),
+        //                         'updated_at' => \Carbon\Carbon::now(),
+
+        //                     ];
+        //                 }
+        //             }
+
+        //             if(!empty($params))
+        //                 CustomerAddressData::insert($params);
+
+        //             return response()->json(["code" => 2000 ,"message" => "Data Added successfully"]); 
+
+        //         }else{
+        //             return response()->json(["code" => 404 ,"message" => "Not Exist!"]);
+        //         }
+        //     }
+        // }
     }
     //END - DEVTASK-19932
    
