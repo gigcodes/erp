@@ -404,10 +404,14 @@ class LearningModuleController extends Controller {
 			$learningsListing = $learningsListing->latest()->get();
 
 
-			$last_record_learning = Learning::latest()->first();
+			$last_record_learning = Learning::with('learningUser')->latest()->first();
+
+			// echo "<pre>";
+			// print_r($last_record_learning->toArray());
+			// exit;
 
 
-			return view( 'learning-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'learning_module_dropdown', 'learning_submodule_dropdown', 'priority','openTask','type','title','task_statuses','learningsListing','statusList','subjectList'));
+			return view( 'learning-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'learning_module_dropdown', 'learning_submodule_dropdown', 'priority','openTask','type','title','task_statuses','learningsListing','statusList','subjectList','last_record_learning'));
 		}
 	}
 
