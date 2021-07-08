@@ -55,7 +55,7 @@ class DeleteCategoriesWithNoProduct extends Command
                 foreach ($unKnownCatArr as $key => $unKnownC) {
                     
                     $count = \App\Category::ScrapedProducts($unKnownC);
-                    if ($count > 1) {
+                    if ($count > 0) {
                     
                         // echo "Added in  {$unKnownC} categories";
                         // echo  PHP_EOL;
