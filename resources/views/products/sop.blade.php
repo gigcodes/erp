@@ -27,10 +27,10 @@
         <div class="col-md-12">
             <h2 class="page-heading"> ListingApproved - SOP</h2>
         </div>
-        <div class="col-lg-12 margin-tb">
+        <div class="col-lg-12 margin-tb" >
 
             <div class="pull-left">
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 0px;">
                     <div class="row">
                         <form method="get" action="{{ route('sop.post') }}">
                             <div class="flex">
@@ -111,10 +111,10 @@
                         <tr>
                             <th width="5%">ID</th>
 
-                            <th width="25%">Name</th>
-                            <th width="25%">Content</th>
-                            <th width="15%">Created at</th>
-                            <th width="15%">Updated at</th>
+                            <th width="20%">Name</th>
+                            <th width="50%">Content</th>
+                            <th width="10%">Created at</th>
+                           
                             <th width="15%">Action</th>
                         </tr>
                     </thead>
@@ -128,8 +128,8 @@
                                 <td class="sop_table_name">{{ $value->name }}</td>
                                 <td>{!! $value->content !!}</td>
 
-                                <td>{{ date('m-d  H:i', strtotime($value->created_at)) }}</td>
-                                <td>{{ date('m-d  H:i', strtotime($value->updated_at)) }}</td>
+                                <td>{{ date('d-m-yy', strtotime($value->created_at)) }}</td>
+                              
                                 <td>
                                    
                                     <a href="javascript:;" data-id="{{ $value->id }}"
@@ -217,16 +217,27 @@
                     if (response) {
                         //    $("#NameTable tbody").append('<tr><td>'+response.id+'</td><td>'+ response.name +'</td><td>'+ response.content +'</td><td>'+ response.created_at +'</td><td>'+ response.updated_at +'</td><td></td></tr>');
 
-                        $("#NameTable tbody").append(`<tr><td>${response.id}</td><td> ${response.name} </td><td> ${response.content} </td><td> ${response.created_at} </td><td> ${response.updated_at} </td><td>
+                        // $("#NameTable tbody").append(`<tr><td>${response.id}</td><td> ${response.name} </td><td> ${response.content} </td><td> ${response.only_date} </td><td>
                                 
-                                <a href="javascript:;" data-id = "${response.id}" class="editor_edit btn-xs btn btn-image p-2">
-                                            <img src="/images/edit.png"></a>
+                        //         <a href="javascript:;" data-id = "${response.id}" class="editor_edit btn-xs btn btn-image p-2">
+                        //                     <img src="/images/edit.png"></a>
                                            
 
-                                        <a class="btn btn-image deleteRecord" data-id="${response.id}" ><img src="/images/delete.png" /></a>
+                        //                 <a class="btn btn-image deleteRecord" data-id="${response.id}" ><img src="/images/delete.png" /></a>
                                 
                                 
-                                </td></tr>`);
+                        //         </td></tr>`);
+
+                        $("#NameTable tbody").append('<tr><td>'+response.sop.id+'</td><td> '+response.sop.name+' </td><td> '+response.sop.content+' </td><td> '+response.only_date+' </td><td>'+
+                                
+                                '<a href="javascript:;" data-id = "'+response.sop.id+'" class="editor_edit btn-xs btn btn-image p-2">'+
+                                            '<img src="/images/edit.png"></a>'+
+                                           
+
+                                        '<a class="btn btn-image deleteRecord" data-id="'+response.sop.id+'" ><img src="/images/delete.png" /></a>'+
+                                
+                                
+                                '</td></tr>');
 
                         // CKEDITOR.instances['content'].getData('ssfasd')
                         $("#FormModal")[0].reset();

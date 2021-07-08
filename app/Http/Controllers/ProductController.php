@@ -3741,7 +3741,6 @@ class ProductController extends Controller
 
     }
 
-
     public function destroyname($id){
         $usersop =Sop::findOrFail($id);
         $usersop->delete();
@@ -3764,10 +3763,12 @@ class ProductController extends Controller
             $sop->content = $request->get('content');
             $sop->save();
         }
+        // $sop->created_at = date('dd-mm-yy', strtotime($sop->created_at));
+        $only_date = $sop->created_at->todatestring();
 
         // $sop->content = $request->get('content');
         // $sop->save();
-return response()->json($sop);
+return response()->json(['only_date' => $only_date,'sop' => $sop]);
         // return redirect()->back()->with('message', 'Updated successfully!');
     }
 
