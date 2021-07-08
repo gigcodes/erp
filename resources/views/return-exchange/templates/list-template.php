@@ -102,6 +102,9 @@
             			<button type="button" class="btn resend-confirmation-email no_pd" data-id="{{>prop.customer_id}}">
             				<i class="fa fa-paper-plane" aria-hidden="true"></i>
             			</button>
+            			<button type="button" class="btn resend-refund-pdf-download no_pd" data-id="{{>prop.id}}">
+								<i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+					    </button>
 						</div>
 			        </td>
 			      </tr>
