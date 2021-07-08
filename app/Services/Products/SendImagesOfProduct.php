@@ -52,7 +52,7 @@ class SendImagesOfProduct
                         $this->log[] = "Total product found for message : ".$return['total_product'];
                     }
                 }catch(\Exception $e) {
-                    $this->log[] = "Exception found erro thrown : ".$e->getMessage();
+                    $this->log[] = "Exception found erro thrown : ".$e->getMessage(). " ".$e->getTraceAsString();
                 }
             }else{
                 $this->log[] = "No brand and category matched for the message"; 
