@@ -101,7 +101,7 @@ class BulkCustomerRepliesController extends Controller
         $groups           = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
         $pdfList = [];
         $nextActionArr = DB::table('customer_next_actions')->pluck('name', 'id');
-        $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('id', 'DESC')->get();
+        $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('name')->get();
         $settingShortCuts = [
             "image_shortcut"      => \App\Setting::get('image_shortcut'),
             "price_shortcut"      => \App\Setting::get('price_shortcut'),
