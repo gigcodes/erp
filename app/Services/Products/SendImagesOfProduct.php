@@ -53,10 +53,12 @@ class SendImagesOfProduct
             }else{
                 $this->log[] = "No brand and category matched for the message"; 
             }
-
-            $addKeyword->comment = implode("\n\r",$this->log);
-            $addKeyword->save();
+        }else{
+            $this->log[] = "Message type is not message or empty message";
         }
+
+        $addKeyword->comment = implode("\n\r",$this->log);
+        $addKeyword->save();
 
         //$addKeyword
     }
