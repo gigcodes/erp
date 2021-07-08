@@ -5246,7 +5246,21 @@ class WhatsAppController extends FindByNumberController
             $domain = "https://api.chat-api.com/instance$instanceId/$link?token=$token";
         }
 
-        \Log::channel('chatapi')->debug('cUrl_url:' . $domain . "\nMessage: " . $message. "\nCUSTOMREQUEST: " . 'POST' ."\nPostFields: " . json_encode($array) . "\nFile:" . $file . "\n" . ' ['. json_encode($logDetail). '] ');
+        // \Log::channel('chatapi')->debug('cUrl_url:' . $domain . "\nMessage: " . $message. "\nCUSTOMREQUEST: " . 'POST' ."\nPostFields: " . json_encode($array) . "\nFile:" . $file . "\n" . ' ['. json_encode($logDetail). '] ');
+
+        $customerrequest_arr['CUSTOMREQUEST'] = 'POST';
+        $message_arr['message'] = $message;
+        $file_arr['file'] = $file;
+
+        $log_data = [
+            'Message_Data' => $message_arr,
+            'Customer_request_data' => $customerrequest_arr,
+            'PostFields' => $array,
+            'file_data' => $file_arr,
+            'logDetail_data' => $logDetail,
+        ];
+
+        \Log::channel('chatapi')->debug('cUrl_url:{"' . $domain . " } \nMessage: ".json_encode($log_data) );
 
         $curl = curl_init();
         
@@ -5284,7 +5298,19 @@ class WhatsAppController extends FindByNumberController
             return false;
         } else {
             // Log curl response
-            \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: " . $message . "\nFile:" . $file . "\n" . ' ['. json_encode($logDetail). '] ');
+
+            // \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: " . $message . "\nFile:" . $file . "\n" . ' ['. json_encode($logDetail). '] ');
+            $customerrequest_arr['CUSTOMREQUEST'] = 'POST';
+            $message_arr1['message'] = $message;
+            $file_arr1['file'] = $file;
+
+            $log_data_send = [
+                'Message_Data' => $message_arr1,
+                'file_data' => $file_arr1,
+                'logDetail_data' => $logDetail,
+            ];
+    
+            \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: ".json_encode($log_data_send) );
 
             // Json decode response into result
             $result = json_decode($response, true);
