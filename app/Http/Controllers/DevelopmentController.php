@@ -476,7 +476,7 @@ class DevelopmentController extends Controller
         // });
 
         // Set variables with modules and users
-        $modules = DeveloperModule::all();
+        $modules = DeveloperModule::orderBy('name')->get();
         
         $usrlst = User::orderBy('name')->where('is_active',1)->get();
         $users = Helpers::getUserArray($usrlst);
@@ -809,11 +809,13 @@ class DevelopmentController extends Controller
         $issues = $issues->select("developer_tasks.*","chat_messages.message");
 
         // Set variables with modules and users
-        $modules = DeveloperModule::all();
-        $users = Helpers::getUserArray(User::all());
+        $modules = DeveloperModule::orderBy('name')->get();
+
+        $users = Helpers::getUserArray(User::orderBy('name')->get());
+        
         // $statusList = \DB::table("developer_tasks")->where("status", "!=", "")->groupBy("status")->select("status")->pluck("status", "status")->toArray();
 
-        $statusList = \DB::table("task_statuses")->select("name")->pluck("name", "name")->toArray();
+        $statusList = \DB::table("task_statuses")->select("name")->orderBy('name')->pluck("name", "name")->toArray();
 
         $statusList = array_merge([
             "" => "Select Status",
@@ -2668,8 +2670,10 @@ class DevelopmentController extends Controller
         // Get all task types
         $tasksTypes = TaskTypes::all();
         $moduleNames = [];
+        
         // Get all modules
-        $modules = DeveloperModule::all();
+        $modules = DeveloperModule::orderBy('name')->get();
+
         // Loop over all modules and store them
         foreach ($modules as $module) {
             $moduleNames[$module->id] = $module->name;
@@ -2678,7 +2682,11 @@ class DevelopmentController extends Controller
         // this is the ID for erp
         $defaultRepositoryId = 231925646;
         $respositories = GithubRepository::all();
-        $statusList = \DB::table("task_statuses")->select("name")->pluck("name", "name")->toArray();
+        $statusList = \DB::table("task_statuses")
+                    ->orderBy('name')
+                    ->select("name")
+                    ->pluck("name", "name")
+                    ->toArray();
 
         $statusList = array_merge([
             "" => "Select Status",

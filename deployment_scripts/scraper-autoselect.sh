@@ -9,7 +9,7 @@ rm /tmp/scrap_* /opt/scrap_status
 ####################    Get all running Scraper details in all servers #######
 function scraper_status
 {
-	for server in 0{1..9} {10..20}
+	for server in 0{1..6}
 	do
 	        ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep command|grep -v externalScraper|grep -v grep|awk -v var=$server '{print var, \$1 , \$2/3600 , \$4}'" >> /opt/scrap_status 2>/dev/null
 	done
@@ -19,7 +19,7 @@ function scraper_status
 function scraper_memory
 {
 	rm /tmp/scrap_memory  > /dev/null
-	for server in 0{1..9} {10..20}
+	for server in 0{1..6}
 	do
 		Used_mem=`ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com 'free | grep Mem | awk '\''{print $3/$2 * 100.0}'\''' 2>/dev/null`
 		if [ -z $Used_mem ]
