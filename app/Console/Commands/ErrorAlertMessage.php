@@ -62,8 +62,8 @@ class errorAlertMessage extends Command
                         if (strpos(strtolower($value), strtolower($logKeyword->text)) !== false) {
                             $message = "You have error which matched the keyword  '" . $logKeyword->text . "'";
                             $message .= " | " . $value;
-                            $subject          = substr($message, 0, 190);
-                            $hasAssignedIssue = true;//DeveloperTask::where("subject", "like", "%{$subject}%")->whereDate("created_at", date("Y-m-d"))->where("is_resolved", 0)->first();
+                            $subject          = "You have error which matched the keyword  '" . $logKeyword->text . "'";
+                            $hasAssignedIssue = DeveloperTask::where("subject", "like", "%{$subject}%")->whereDate("created_at", date("Y-m-d"))->where("is_resolved", 0)->first();
                             if (!$hasAssignedIssue) {
                                 $requestData = new Request();
                                 $requestData->setMethod('POST');
