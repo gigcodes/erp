@@ -1210,7 +1210,7 @@ class DevelopmentController extends Controller
         $this->validate($request, [
             'subject' => 'sometimes|nullable|string',
             'task' => 'required|string|min:3',
-            'cost' => 'sometimes|nullable|integer',
+            //'cost' => 'sometimes|nullable|integer',
             'status' => 'required',
             'repository_id' => 'required',
             'module_id' => 'required',
@@ -1262,14 +1262,14 @@ class DevelopmentController extends Controller
 
 
 
-        if ($request->hasfile('images')) {
-            foreach ($request->file('images') as $image) {
-                $media = MediaUploader::fromSource($image)
-                    ->toDirectory('developertask/' . floor($task->id / config('constants.image_per_folder')))
-                    ->upload();
-                $task->attachMedia($media, config('constants.media_tags'));
-            }
-        }
+        // if ($request->hasfile('images')) {
+        //     foreach ($request->file('images') as $image) {
+        //         $media = MediaUploader::fromSource($image)
+        //             ->toDirectory('developertask/' . floor($task->id / config('constants.image_per_folder')))
+        //             ->upload();
+        //         $task->attachMedia($media, config('constants.media_tags'));
+        //     }
+        // }
 
         // CREATE GITHUB REPOSITORY BRANCH
         $newBranchName = $this->createBranchOnGithub(
@@ -2770,7 +2770,7 @@ class DevelopmentController extends Controller
 
         if ($id > 0) {
 
-            $devDocuments = \App\DeveloperTaskDocument::where("developer_task_id", $id)->get();
+            $devDocuments = \App\DeveloperTaskDocument::where("developer_task_id", $id)->latest()->get();
 
             $html = view('development.ajax.document-list', compact("devDocuments"))->render();
 
