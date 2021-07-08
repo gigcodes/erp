@@ -13,6 +13,11 @@
             </div>
 
 
+        <form action="{{ route('category',['filter'=>true]) }}" class="d-block filter_category_form mx-4" id="filter_category_form">
+            <input type="text" placeholder="Enter name" name="filter" id="filter_all_category" value="{{ $selected_value }}">
+            <button class="btn"><img src="/images/filter.png" style="width:16px"></button>
+        </form>
+
         <div class="d-flex justify-content-between mb-3 mx-4">
 
             <a href="{{ route('category.map-category') }}" class="btn btn-secondary my-0">Edit References</a>
@@ -21,7 +26,7 @@
             </button>
         </div>
 
-        <!-- Add category modal -->
+        {{-- <!-- Add category modal --> --}}
         <div class="modal fade" id="category-popup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
             aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -415,6 +420,11 @@
                 });
 
             })
+
+            // $(document).on('submit','#filter_category_form',function(e){
+            //     e.preventDefault()
+            //     console.log('its wokting')
+            // })
 
         
         </script>
