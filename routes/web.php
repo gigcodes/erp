@@ -905,7 +905,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
     Route::get('category', 'CategoryController@manageCategory')->name('category');
-    Route::get('category-11', 'CategoryController@manageCategory11')->name('category');
+    Route::get('category-11', 'CategoryController@manageCategory11')->name('category-11');
     Route::post('add-category', 'CategoryController@addCategory')->name('add.category');
     Route::post('category/{category}/edit', 'CategoryController@edit')->name('category.edit');
     Route::post('category/remove', 'CategoryController@remove')->name('category.remove');
