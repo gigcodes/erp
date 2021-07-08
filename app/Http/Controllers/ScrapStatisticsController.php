@@ -1077,6 +1077,13 @@ class ScrapStatisticsController extends Controller
         return view("scrap.partials.status-history", compact('statusHistory'));
     }
 
+    public function serverStatusProcess(Request $request)
+    {
+        $statusHistory = \App\ScraperProcess::whereDate("created_at", $request->date)->latest()->get();
+
+        return view("scrap.partials.process-status-history", compact('statusHistory'));
+    }
+
     public function getScraperServerTiming(Request $request)
     {
         \Artisan::call("check:scraper-running-status");

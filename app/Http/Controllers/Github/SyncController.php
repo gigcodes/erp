@@ -22,7 +22,8 @@ class SyncController extends Controller
     function __construct()
     {
         $this->client = new Client([
-            'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
+            'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
         ]);
     }
 
@@ -65,7 +66,9 @@ class SyncController extends Controller
 
     private function refreshGithubRepos()
     {
-        $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/repos?per_page=100";
+        // $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/repos?per_page=100";
+        $url = "https://api.github.com/orgs/" . config('env.GITHUB_ORG_ID') . "/repos?per_page=100";
+
         $response = $this->client->get($url);
 
         $repositories = json_decode($response->getBody()->getContents());
@@ -101,7 +104,9 @@ class SyncController extends Controller
 
     private function refreshUsersForOrganization()
     {
-        $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/members";
+        // $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/members";
+        $url = "https://api.github.com/orgs/" . config('env.GITHUB_ORG_ID') . "/members";
+
         $response = $this->client->get($url);
         $users = json_decode($response->getBody()->getContents());
         $returnUser = [];
@@ -130,7 +135,9 @@ class SyncController extends Controller
 
     private function refreshGithubGroups()
     {
-        $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/teams";
+        // $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/teams";
+        $url = "https://api.github.com/orgs/" . config('env.GITHUB_ORG_ID') . "/teams";
+
         $response = $this->client->get($url);
 
         $groups = json_decode($response->getBody()->getContents());
