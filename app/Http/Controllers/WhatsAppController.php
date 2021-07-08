@@ -5260,7 +5260,7 @@ class WhatsAppController extends FindByNumberController
             'logDetail_data' => $logDetail,
         ];
 
-        \Log::channel('chatapi')->debug('cUrl_url:{"' . $domain . " } \nMessage: ".json_encode($log_data) );
+        \Log::channel('whatsapp')->debug('cUrl_url:{"' . $domain . " } \nMessage: ".json_encode($log_data) );
 
         $curl = curl_init();
         
@@ -5310,7 +5310,7 @@ class WhatsAppController extends FindByNumberController
                 'logDetail_data' => $logDetail,
             ];
     
-            \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: ".json_encode($log_data_send) );
+            \Log::channel('whatsapp')->debug('cUrl:' . $response . "\nMessage: ".json_encode($log_data_send) );
 
             // Json decode response into result
             $result = json_decode($response, true);
