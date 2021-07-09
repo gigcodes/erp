@@ -15,6 +15,8 @@ use App\Helpers\TwilioHelper;
 
 Auth::routes();
 
+//Route::get('unused_category', 'TestingController@Demo');
+
 Route::get('/test/dummydata', 'TestingController@testingFunction');
 
 Route::get('/test/test', 'OrderController@testEmail');
