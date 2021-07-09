@@ -77,8 +77,11 @@ class OrderStatusChangeMail extends Mailable
             }
         }
 
-        return $this->view('emails.orders.update-status', compact(
-            'order', 'customer', 'order_products'
-        ));
+        if (!$storeWebsiteOrder) { 
+            return $this->view('emails.orders.update-status', compact(
+                'order', 'customer', 'order_products'
+            ));
+        }
+
     }
 }

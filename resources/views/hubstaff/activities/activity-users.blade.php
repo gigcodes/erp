@@ -81,8 +81,9 @@
                     </div>    
                 </form> 
             </div>
-        
+            
             <div class="col-md-12 margin-tb">
+                <button type="submit" name="submit" value="report_download" title="Download report" class="btn btn-sm btn-secondary"><i class="fa fa-file-excel-o"></i>Download report</button>
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <tr>
@@ -212,6 +213,7 @@
                                     <a class="btn btn-secondary show-activities"><i class="fa fa-check" aria-hidden="true"></i></a>
                                     <a class="btn approve-activities" title="Approve time"><i class="fa fa-check-circle" aria-hidden="true"></i></a>
                                 </form>
+                                <button class="btn hubstaff-activity-report-download" title="Activity Report" data-toggle="modal" data-system_user_id="{{ $user['system_user_id'] }}" data-target="#hubstaffActivityReportModel"><i class="fa fa-address-card" aria-hidden="true"></i></button>
                                 @endif
                             </td>
                         @endforeach
@@ -352,6 +354,39 @@
         </div>
     </div>
 </div>
+
+<!-- The Modal -->
+<div class="modal" id="hubstaffActivityReportModel">
+    <div class="modal-dialog">
+      <div class="modal-content">
+  
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Hubstaff Activity Report</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+  
+        <!-- Modal body -->
+        <div class="modal-body">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Excel File</th>
+                        <th>Download</th>
+                    </tr>
+                </thead>
+                <tbody class=" hubstaff-activity-table"></tbody>
+            </table>
+        </div>
+  
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+  
+      </div>
+    </div>
+  </div>
 
 @include("development.partials.time-history-modal")
 
@@ -794,6 +829,33 @@ let r_s = jQuery('input[name="start_date"]').val();
             });
         });
 
+        $(document).on('click','.hubstaff-activity-report-download',function(){
+            var user_id = $(this).data('system_user_id');
+            $('#hubstaffActivityReportModel .hubstaff-activity-table').text('');
+            $.ajax({
+                url: "{{ route('hubstaff-acitivtity.report') }}",
+                type: 'GET',
+                data: {"user_id":user_id},
+                success:function( response ){
+                    if (response.status == true) {
+                        array = response.data;
+                        for (let i = 0; i < array.length; i++) {
+                            j = i+1;
+                            $html = '<tr><td>Excel File-'+j+'</td><td><button class="btn activity-report-download" data-file="'+array[i].activity_excel_file+'"><i class="fa fa-download" aria-hidden="true"></i></button></td></tr>';
+                            $('#hubstaffActivityReportModel .hubstaff-activity-table').append($html);
+                        }
+                    }
+                }
+            });
+        })
+
+        $(document).on('click','.activity-report-download',function(){
+            var file = $(this).data('file');
+            var $this = $(this);
+
+            window.location.replace("{{ route('hubstaff-acitivtity-report.download') }}?file=" +  file );
+
+        })
 
 </script>
 @endsection

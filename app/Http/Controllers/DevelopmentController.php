@@ -1210,7 +1210,7 @@ class DevelopmentController extends Controller
         $this->validate($request, [
             'subject' => 'sometimes|nullable|string',
             'task' => 'required|string|min:3',
-            'cost' => 'sometimes|nullable|integer',
+            //'cost' => 'sometimes|nullable|integer',
             'status' => 'required',
             'repository_id' => 'required',
             'module_id' => 'required',
@@ -1262,14 +1262,14 @@ class DevelopmentController extends Controller
 
 
 
-        if ($request->hasfile('images')) {
-            foreach ($request->file('images') as $image) {
-                $media = MediaUploader::fromSource($image)
-                    ->toDirectory('developertask/' . floor($task->id / config('constants.image_per_folder')))
-                    ->upload();
-                $task->attachMedia($media, config('constants.media_tags'));
-            }
-        }
+        // if ($request->hasfile('images')) {
+        //     foreach ($request->file('images') as $image) {
+        //         $media = MediaUploader::fromSource($image)
+        //             ->toDirectory('developertask/' . floor($task->id / config('constants.image_per_folder')))
+        //             ->upload();
+        //         $task->attachMedia($media, config('constants.media_tags'));
+        //     }
+        // }
 
         // CREATE GITHUB REPOSITORY BRANCH
         $newBranchName = $this->createBranchOnGithub(
@@ -1385,7 +1385,13 @@ class DevelopmentController extends Controller
         if (!isset($reference)) {
             $reference = null;
         }
-        $module = DeveloperModule::find($module);
+        
+        if(is_string($module)) {
+            $module = DeveloperModule::where("name","like",$module)->first();
+        }else{
+            $module = DeveloperModule::find($module);
+        }
+
         if (!$module) {
             $module = new DeveloperModule();
             $module->name = $request->get('module');
@@ -2162,6 +2168,7 @@ class DevelopmentController extends Controller
 
     public function resolveIssue(Request $request)
     {
+        
         $issue = DeveloperTask::find($request->get('issue_id'));
         if($issue->is_resolved == 1) {
             return response()->json([
@@ -2170,6 +2177,7 @@ class DevelopmentController extends Controller
         }
         if (strtolower($request->get('is_resolved')) == "done") {
             if(Auth::user()->isAdmin()) {
+                $old_status = $issue->status;
                 $issue->status = $request->get('is_resolved');
                 $assigned_to = User::find($issue->assigned_to);
                 if($assigned_to && $assigned_to->fixed_price_user_or_job == 1) {
@@ -2193,6 +2201,17 @@ class DevelopmentController extends Controller
                 $issue->responsible_user_id = $issue->assigned_to;
                 $issue->is_resolved = 1;
                 $issue->save();
+
+                DeveloperTaskHistory::create([
+                    'developer_task_id' => $issue->id,
+                    'model' => 'App\DeveloperTask',
+                    'attribute' => "task_status",
+                    'old_value' => $old_status,
+                    'new_value' => $request->is_resolved,
+                    'user_id' => Auth::id(),
+                ]);
+
+
             }
             else {
                 return response()->json([
@@ -2201,6 +2220,17 @@ class DevelopmentController extends Controller
             }
         }
         else {
+            $old_status = $issue->status;
+
+            DeveloperTaskHistory::create([
+                'developer_task_id' => $issue->id,
+                'model' => 'App\DeveloperTask',
+                'attribute' => "task_status",
+                'old_value' => $old_status,
+                'new_value' => $request->is_resolved,
+                'user_id' => Auth::id(),
+            ]);
+
             $issue->status = $request->get('is_resolved');
             $issue->save();
         }
@@ -2770,7 +2800,7 @@ class DevelopmentController extends Controller
 
         if ($id > 0) {
 
-            $devDocuments = \App\DeveloperTaskDocument::where("developer_task_id", $id)->get();
+            $devDocuments = \App\DeveloperTaskDocument::where("developer_task_id", $id)->latest()->get();
 
             $html = view('development.ajax.document-list', compact("devDocuments"))->render();
 
@@ -2826,6 +2856,16 @@ class DevelopmentController extends Controller
     {
         $id = $request->id;
         $task_module = DeveloperTaskHistory::join('users','users.id','developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model','App\DeveloperTask')->where('attribute','estimate_date')->select('developer_tasks_history.*','users.name')->get();
+        if($task_module) {
+            return $task_module;
+        }
+        return 'error';
+    }
+
+    public function getStatusHistory(Request $request)
+    {
+        $id = $request->id;
+        $task_module = DeveloperTaskHistory::join('users','users.id','developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model','App\DeveloperTask')->where('attribute','task_status')->select('developer_tasks_history.*','users.name')->get();
         if($task_module) {
             return $task_module;
         }

@@ -22,7 +22,7 @@
         <div class="pull-left cls_filter_box">
             <form class="form-inline" action="" method="GET">
                 <div class="form-group ml-3 cls_filter_inputbox">
-                    <input type="text" name="product" value="{{ request('product') }}" class="form-control" placeholder="Enter Product Or SKU" required>
+                    <input type="text" name="product" value="{{ request('product') }}" class="form-control" placeholder="Enter Product Or SKU">
                 </div>
                 <div class="form-group ml-3 cls_filter_inputbox">
                     <select name="country_code" class="form-control" required>
@@ -32,6 +32,9 @@
                             <option value="{{ $key }}" {{ ( $country == $key ) ? 'selected' : '' }} >{{ $item }}</option>
                         @endforeach
                     </select>
+                </div>
+                <div class="form-group ml-3 cls_filter_inputbox">
+                    <?php echo Form::select("random",["" => "No","Yes" => "Yes"],request('random'),["class"=> "form-control"]); ?>
                 </div>
                 {{-- <div class="form-group ml-3 cls_filter_inputbox">
                     <input type="text" name="keyword" class="form-control" value="{{ request('keyword') }}" placeholder="keyword">

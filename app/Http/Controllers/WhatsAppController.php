@@ -5241,7 +5241,7 @@ class WhatsAppController extends FindByNumberController
         
         // here is we call python 
         if($isUseOwn == 1) { 
-            $domain = "http://136.244.118.102:82/".$link;
+            $domain = "http://167.86.89.241:82/".$link;
         }else{
             $domain = "https://api.chat-api.com/instance$instanceId/$link?token=$token";
         }

@@ -1297,5 +1297,25 @@
             }
 
         });
+
+
+		//START - Purpose : Show / Hide Chat & Remarks - #DEVTASK-19918
+		$(document).on('click', '.expand-row-msg', function () {
+            var id = $(this).data('id');
+            var full = '.expand-row-msg .td-full-container-'+id;
+            var mini ='.expand-row-msg .td-mini-container-'+id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
+        });
+
+		$(document).on('click', '.expand-row-msg-chat', function () {
+            var id = $(this).data('id');
+			console.log(id);
+            var full = '.expand-row-msg-chat .td-full-chat-container-'+id;
+            var mini ='.expand-row-msg-chat .td-mini-chat-container-'+id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
+        });
+		//END - #DEVTASK-19918
 </script>
 @endsection

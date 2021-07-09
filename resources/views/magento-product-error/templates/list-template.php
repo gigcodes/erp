@@ -26,8 +26,8 @@
 			    {{/props}}  
 		    </tbody>
 		</table>
-		{{:pagination}}
 	</div>
+	{{:pagination}}
 </script>
 
 

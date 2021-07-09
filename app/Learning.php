@@ -112,6 +112,11 @@ class Learning extends Model {
         return $this->hasOne(\App\User::class,'id','learning_user');
     }
 
+    public function learningVendor()
+    {
+        return $this->hasOne(\App\User::class,'id','learning_vendor');
+    }
+
 	public function remarks()
 	{
 		return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task')->latest();

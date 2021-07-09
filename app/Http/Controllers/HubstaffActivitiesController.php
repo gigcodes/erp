@@ -6,6 +6,7 @@ use App\DeveloperTask;
 use App\HubstaffTaskEfficiency;
 use App\Hubstaff\HubstaffActivity;
 use App\Hubstaff\HubstaffActivitySummary;
+use App\HubstaffActivityByPaymentFrequency;
 use App\Hubstaff\HubstaffMember; 
 use App\Hubstaff\HubstaffTaskNotes;
 use App\PaymentReceipt;
@@ -23,6 +24,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\HubstaffActivityReport;
 use App\DeveloperTaskHistory;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class HubstaffActivitiesController extends Controller
 {
@@ -431,6 +433,7 @@ class HubstaffActivitiesController extends Controller
                         $forworded_to   = $hubActivitySummery->receiver;
                         $final_approval = 1;
 
+                        $a['system_user_id'] = $activity->system_user_id;
                         $a['user_id']        = $activity->user_id;
                         $a['total_tracked']  = $activity->total_tracked;
                         $a['date']           = $activity->date;
@@ -457,6 +460,7 @@ class HubstaffActivitiesController extends Controller
                         $forworded_to   = $hubActivitySummery->receiver;
                         $final_approval = 1;
 
+                        $a['system_user_id'] = $activity->system_user_id;
                         $a['user_id']        = $activity->user_id;
                         $a['total_tracked']  = $activity->total_tracked;
                         $a['date']           = $activity->date;
@@ -482,6 +486,7 @@ class HubstaffActivitiesController extends Controller
                         $forworded_to   = $hubActivitySummery->receiver;
                         $final_approval = 1;
 
+                        $a['system_user_id'] = $activity->system_user_id;
                         $a['user_id']        = $activity->user_id;
                         $a['total_tracked']  = $activity->total_tracked;
                         $a['date']           = $activity->date;
@@ -507,6 +512,7 @@ class HubstaffActivitiesController extends Controller
                         $forworded_to   = $hubActivitySummery->receiver;
                         $final_approval = 0;
 
+                        $a['system_user_id'] = $activity->system_user_id;
                         $a['user_id']        = $activity->user_id;
                         $a['total_tracked']  = $activity->total_tracked;
                         $a['date']           = $activity->date;
@@ -533,6 +539,7 @@ class HubstaffActivitiesController extends Controller
                         $forworded_to   = $hubActivitySummery->receiver;
                         $final_approval = 0;
 
+                        $a['system_user_id'] = $activity->system_user_id;
                         $a['user_id']        = $activity->user_id;
                         $a['total_tracked']  = $activity->total_tracked;
                         $a['date']           = $activity->date;
@@ -558,6 +565,7 @@ class HubstaffActivitiesController extends Controller
                     $forworded_to   = Auth::user()->id;
                     $final_approval = 0;
 
+                    $a['system_user_id'] = $activity->system_user_id;
                     $a['user_id']        = $activity->user_id;
                     $a['total_tracked']  = $activity->total_tracked;
                     $a['date']           = $activity->date;
@@ -609,6 +617,7 @@ class HubstaffActivitiesController extends Controller
                     $final_approval = 0;
                     $note           = null;
                 }
+                $a['system_user_id'] = $activity->system_user_id;
                 $a['user_id']        = $activity->user_id;
                 $a['total_tracked']  = $activity->total_tracked;
                 $a['date']           = $activity->date;
@@ -1473,8 +1482,7 @@ class HubstaffActivitiesController extends Controller
         }
         $timeReceived = 0;
         try {
-            // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
-            $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
+            $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
 
             $now = time();
 
@@ -1757,5 +1765,18 @@ class HubstaffActivitiesController extends Controller
         $isTaskWise = true;
         return view("hubstaff.activities.activity-records", compact('activityrecords', 'user_id', 'date', 'hubActivitySummery', 'teamLeaders', 'admins', 'users', 'isAdmin', 'isTeamLeader', 'taskOwner', 'member','isTaskWise'));
 
+    }
+    
+    public function activityReport(Request $request)
+    {
+        $user_id = $request->user_id;
+        $activity = HubstaffActivityByPaymentFrequency::where('user_id',$user_id)->get();
+        return response()->json(['status' => true, 'data' => $activity]);
+    
+    }
+    public function activityReportDownload(Request $request)
+    {
+        $file_path = storage_path($request->file);
+        return response()->download($file_path);
     }
 }

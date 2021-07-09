@@ -373,7 +373,7 @@ class WhatsappConfigController extends Controller
             $ch = curl_init();
 
             if ($whatsappConfig->is_use_own == 1) {
-                $url = "http://136.244.118.102:81/get-barcode?instanceId=".$whatsappConfig->instance_id;
+                $url = "http://167.86.89.241:81/get-barcode?instanceId=".$whatsappConfig->instance_id;
             } else {
                 $url = env('WHATSAPP_BARCODE_IP') . $whatsappConfig->username . '/get-screen';
             }
@@ -572,7 +572,7 @@ class WhatsappConfigController extends Controller
         $whatsappConfig = WhatsappConfig::find($id);
         $ch = curl_init();
         if ($whatsappConfig->is_use_own == 1) {
-            $url = "http://136.244.118.102:81/logout?instanceId=".$whatsappConfig->instance_id;
+            $url = "http://167.86.89.241:83/logout?instanceId=".$whatsappConfig->instance_id;
             curl_setopt($ch, CURLOPT_URL, $url);
             //return the transfer as a string
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

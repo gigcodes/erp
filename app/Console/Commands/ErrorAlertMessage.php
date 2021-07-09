@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\File;
 
 class errorAlertMessage extends Command
 {
-    const CRON_ISSUE_MODULE_NAME = "Cron";
+    const CRON_ISSUE_MODULE_NAME = "268";
     const CRON_ISSUE_PRIORITY    = 1;
     const CRON_ISSUE_STATUS      = "Planned";
     const DEFAULT_ASSIGNED_TO    = 1;
@@ -62,7 +62,7 @@ class errorAlertMessage extends Command
                         if (strpos(strtolower($value), strtolower($logKeyword->text)) !== false) {
                             $message = "You have error which matched the keyword  '" . $logKeyword->text . "'";
                             $message .= " | " . $value;
-                            $subject          = substr($message, 0, 190);
+                            $subject          = "You have error which matched the keyword  '" . $logKeyword->text . "'";
                             $hasAssignedIssue = DeveloperTask::where("subject", "like", "%{$subject}%")->whereDate("created_at", date("Y-m-d"))->where("is_resolved", 0)->first();
                             if (!$hasAssignedIssue) {
                                 $requestData = new Request();
