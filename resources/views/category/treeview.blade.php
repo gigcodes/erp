@@ -1,30 +1,47 @@
     @extends('layouts.app')
 
     @section('content')
+        <style>
+            .btn-secondary{
+                color: #757575;
+                border: 1px solid #ddd;
+                background-color: #fff;
+            }
+        </style>
         {{-- <button id="show-sub1">click</button> --}}
 
         {{-- <div class="container"> --}}
-            <div class="row my-4">
-                <div class="col-lg-12 margin-tb">
-                    <div class="">
-                        <h2 class="page-heading text-center"> Category </h2>
+{{--            <div class="row my-4">--}}
+{{--                <div class="col-lg-12 margin-tb">--}}
+{{--                    <div class="">--}}
+{{--                        <h2 class="page-heading text-center"> Category </h2>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+        <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">Category
+            <div class="margin-tb" style="flex-grow: 1;">
+                <div class="pull-right ">
+
+
+                    <div class="d-flex justify-content-between  mx-3">
+
+                        <a href="{{ route('category.map-category') }}" class="btn btn-secondary my-0 mr-3">Edit References</a>
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#category-popup">
+                            Add category
+                        </button>
                     </div>
                 </div>
             </div>
-
-
+        </h2>
         <form action="{{ route('category',['filter'=>true]) }}" class="d-block filter_category_form mx-4" id="filter_category_form">
-            <input type="text" placeholder="Enter name" name="filter" id="filter_all_category" value="{{ $selected_value }}">
-            <button class="btn"><img src="/images/filter.png" style="width:16px"></button>
+           <div class="form-group mb-3">
+               <input style="border: 1px solid #ddd;height:30px;border-radius: 4px; padding: 0 5px;" type="text" placeholder="Enter name" name="filter" id="filter_all_category" value="{{ $selected_value }}">
+               <button class="btn"><img src="/images/filter.png" style="width:16px"></button>
+           </div>
         </form>
 
-        <div class="d-flex justify-content-between mb-3 mx-4">
 
-            <a href="{{ route('category.map-category') }}" class="btn btn-secondary my-0">Edit References</a>
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#category-popup">
-                Add category
-            </button>
-        </div>
+
 
         {{-- <!-- Add category modal --> --}}
         <div class="modal fade" id="category-popup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -206,6 +223,7 @@
           @endif
             <div class="table-responsive">
                 <table class="table table-bordered" style="table-layout:fixed;">
+                <thead>
                 <tr>
                     <th  style="width: 10%">Id</th>
                     <th style="width: 50%" >Name</th>
@@ -213,26 +231,27 @@
                     <th style="width: 20%" >Created At</th>
                     <th style="width: 20%" >Action</th>
                 </tr>
+                </thead>
 
                 @foreach ($categories as $key => $cat)
                     <tr class="parent-cat">
-                        <td class="index font-weight-bold">{{ $key + 1 }}</td>
-                        <td class="brand_name font-weight-bold" data-id="{{ $cat->title }}">{{ $cat->title }}
+                        <td class="index">{{ $key + 1 }}</td>
+                        <td class="brand_name" data-id="{{ $cat->title }}">{{ $cat->title }}
                             ({{ count($cat->childs) }})</td>
-                        <td class="created_at font-weight-bold">{{ $cat->created_at }}</td>
+                        <td class="created_at">{{ $cat->created_at }}</td>
 
                         <td>
-                            <button type="button" class="btn  no-pd show-sub-category" data-id="{{ $cat->id }}"
+                            <button type="button" class="btn btn-xs no-pd show-sub-category" data-id="{{ $cat->id }}"
                                 data-name="{{ $cat->id }}">
                                 <img src="/images/forward.png" style="cursor: pointer;" width="16px">
                             </button>
-                            <button type="submit" class="btn category_edit_popup" data-id="{{ $cat->id }}">
+                            <button type="submit" class="btn btn-xs category_edit_popup" data-id="{{ $cat->id }}">
                                 <img src="/images/edit.png" style="cursor: pointer; width: 16px;">
                             </button>
                             <form style="display: inline-block" action="{{ route('category.remove') }}" method="POST" class="category_deleted">
                                 @csrf
                                 <input type="text" name="edit_cat" value={{ $cat->id }} hidden>
-                                <button type="submit" class="btn" data-id="{{ $cat->id }}">
+                                <button type="submit" class="btn btn-xs" data-id="{{ $cat->id }}">
                                 <img src="/images/delete.png" style="cursor: pointer; width: 16px;">
                                     </button>
                             </form>
@@ -278,7 +297,7 @@
 
 
                                 let html =
-                                    '<td colspan="4" class="px-5"><h5 class="text-center">Child category</h5><table style="width:100%; ">';
+                                    '<td colspan="4" class="px-3" style="color: #757575;"><h5 style="color: #000;" class="pl-2 mt-0">Child category</h5><table style="width:100%; ">';
 
                                 response.forEach((element, key) => {
                                     html += `
@@ -290,18 +309,18 @@
                                             <td class="created_at" style="width: 20%">${element.created_at}</td>
                                         
                                             <td  style="width: 20%">
-                                                <button type="button" class="btn  no-pd show-sub-category"
+                                                <button type="button" class="btn btn-xs no-pd show-sub-category"
                                                             data-id="${ element.id }" data-name="${ element.id }">
                                                             <img src="/images/forward.png" style="cursor: pointer" width="16px">
                                                 </button>
-                                                <button type="button" class="btn  category_edit_popup" data-id="${element.id}"
+                                                <button type="button" class="btn btn-xs category_edit_popup" data-id="${element.id}"
                                                 >
                                                     <img src="/images/edit.png" style="cursor: pointer; width: 16px;">
                                                 </button>
                                                 <form style="display: inline-block" action="{{ route('category.remove') }}" method="POST" class="category_deleted">
                                                     @csrf
                                                     <input type="text" name="edit_cat" value="${element.id}" hidden>
-                                                    <button type="submit" class="btn" data-id="${element.id}">
+                                                    <button type="submit" class="btn btn-xs" data-id="${element.id}">
                                                     <img src="/images/delete.png" style="cursor: pointer; width: 16px;">
                                                         </button>
                                                 </form>
@@ -316,7 +335,7 @@
                                 $this.closest('.parent-cat').next('.add-childs:first').html(html)
                             } else {
                                 let html =
-                                    ' <td colspan="4"> <h5 class="text-center"> No child category available for this<h5> </td>'
+                                    ' <td colspan="4"> <h5 class="text-center mt-0"> No child category available for this<h5> </td>'
                                 $this.closest('.parent-cat').next('.add-childs:first').html(html)
 
                             }
