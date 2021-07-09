@@ -168,6 +168,7 @@ table tr td {
                                 <i class="fa fa-info-circle view_log" title="Special Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Special Price"></i> -->
                             </td>
                             
+                            
                             <td>
                                 <input type="text" name="invoice_no" placeholder="Add Invoice No." class="form-control mb-3 invoice_no" value="{{ $value->invoice ?? '' }}">
                                 <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_invoice" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
@@ -345,9 +346,11 @@ table tr td {
 
 <script type="text/javascript">
     $(".add_invoice").click(function (e) {
+        
         var purchase_pro_id = $(this).data('id');
+       
         var invoice = $(this).siblings('.invoice_no').val();
-
+        alert(invoice);
         if(invoice == ''){
             toastr['error']('Invoice No. is Required');
             return false;
@@ -746,8 +749,9 @@ table tr td {
         
         var purchase_pro_id = $(this).data('id');
         var purchase_order_products_id = $(this).data('order-products-id');
+       
         var header_name = $(this).data('name');
-
+        alert(header_name);
         $.ajax({
             type: "GET",
             url: "{{ route('purchaseproductorders.logs') }}",
