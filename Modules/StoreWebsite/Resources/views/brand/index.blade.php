@@ -51,36 +51,38 @@
 						<div class="form-group">
 					  				<button class="btn btn-secondary" onclick="refresh()">Refresh</button>
 					  			</div>
-		    			<form class="form-inline message-search-handler" method="get">
-					  		<div class="col">
-					  			<div class="form-group">
-								    <label for="keyword">Keyword:</label>
-								    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
-							  	</div>
-								
-								<div class="form-group">
-									<label for="no-inventory">No Inventory</label>
-									<input type="checkbox" name="no-inventory" value="1" {{ request()->has('no-inventory') ? 'checked' : '' }} />
-								</div>
-
-								<div class="form-group ">
-									<label for="category_id">Category</label>
-											
-									<?php echo Form::select("category_id",$categories,request("category_id"),["class"=> "form-control select2","placeholder" => "Select Category"]) ?>
-								</div>
-
-							  	<div class="form-group">
-							  		<label for="button">&nbsp;</label>
-							  		<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
-							  			<img src="/images/search.png" style="cursor: default;">
-							  		</button>
-							  	</div>		
-					  		</div>
-				  		</form>
+		    			
 					</div>
 		    	</div>
 		    </div>
-	    </div>	
+	    </div>
+
+	    <div class="row mb-3 ml-3">
+		    <form class="form-inline message-search-handler" method="get">
+		  		<div class="col">
+		  			<div class="form-group">
+					    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
+				  	</div>
+					
+					<div class="form-group">
+						<label for="no-inventory">No Inventory</label>
+						<input type="checkbox" name="no-inventory" value="1" {{ request()->has('no-inventory') ? 'checked' : '' }} />
+					</div>
+
+					<div class="form-group ">
+						<?php echo Form::select("category_id",$categories,request("category_id"),["class"=> "form-control select2","placeholder" => "Select Category"]) ?>
+					</div>
+
+				  	<div class="form-group">
+				  		<label for="button">&nbsp;</label>
+				  		<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
+				  			<img src="/images/search.png" style="cursor: default;">
+				  		</button>
+				  	</div>		
+		  		</div>
+	  		</form>
+	  	</div>	
+
 		<div class="col-md-12 margin-tb" id="page-view-result">
 			<div class="row">
 				<table class="table table-bordered">
