@@ -20,5 +20,5 @@ class SuggestedProductList extends Model
       * @SWG\Property(property="remove_attachment",type="string")
      * @SWG\Property(property="date",type="datetime")
      */
-    protected $fillable = ['suggested_products_id','customer_id','product_id','chat_message_id','remove_attachment','date'];
+    protected $fillable = ['suggested_products_id','customer_id','product_id','chat_message_id','media_id','remove_attachment','date'];
 }

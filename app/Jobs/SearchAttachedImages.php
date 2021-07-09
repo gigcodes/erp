@@ -94,6 +94,7 @@ class SearchAttachedImages implements ShouldQueue
                                 'customer_id' => $chat_message->customer_id,
                                 'product_id' => $mediable->mediable_id,
                                 'chat_message_id' => $chat_message->id,
+                                'media_id' => $m->id,
                                 'suggested_products_id' => $this->suggested_product !== null ? $this->suggested_product->id : null
                             ]); 
                         }
