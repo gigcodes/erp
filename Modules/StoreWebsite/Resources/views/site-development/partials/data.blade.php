@@ -129,19 +129,19 @@
                         @if($site)
                             <!-- START - Purpose : Show / Hide Chat & Remarks , Add Last Remarks - #DEVTASK-19918 -->
                             @if($site->lastChat) Chat = @endif
-                            <div class="justify-content-between expand-row-msg-chat" data-id="{{$site->lastChat->id}}">
-                                <span class="td-full-chat-container-{{$site->lastChat->id}} pl-1"> @if($site->lastChat) {{ str_limit($site->lastChat->message, 100,'...') }} @endif</span>
+                            <div class="justify-content-between expand-row-msg-chat" data-id="@if($site->lastChat){{$site->lastChat->id}}@endif">
+                                <span class="td-full-chat-container-@if($site->lastChat){{$site->lastChat->id}}@endif pl-1"> @if($site->lastChat) {{ str_limit($site->lastChat->message, 100,'...') }} @endif</span>
                             </div>
-                            <div class="expand-row-msg-chat" data-id="{{$site->lastChat->id}}">
-                                <span class="td-full-chat-container-{{$site->lastChat->id}} hidden"> @if($site->lastChat) {{ $site->lastChat->message }} @endif</span>
+                            <div class="expand-row-msg-chat" data-id="@if($site->lastChat){{$site->lastChat->id}}@endif">
+                                <span class="td-full-chat-container-@if($site->lastChat){{$site->lastChat->id}}@endif hidden"> @if($site->lastChat) {{ $site->lastChat->message }} @endif</span>
                             </div>
                             <br/>
                             @if($site->lastRemark) Remarks = @endif
-                            <div class="justify-content-between expand-row-msg" data-id="{{$site->lastRemark->id}}">
-                                <span class="td-full-container-{{$site->lastRemark->id}}" > @if($site->lastRemark)  {{ str_limit($site->lastRemark->remarks, 100, '...') }} @endif</span>
+                            <div class="justify-content-between expand-row-msg" data-id="@if($site->lastRemark){{$site->lastRemark->id}}@endif">
+                                <span class="td-full-container-@if($site->lastRemark){{$site->lastRemark->id}}@endif" > @if($site->lastRemark)  {{ str_limit($site->lastRemark->remarks, 100, '...') }} @endif</span>
                             </div>
-                            <div class="expand-row-msg" data-id="{{$site->lastRemark->id}}">
-                                <span class="td-full-container-{{$site->lastRemark->id}} hidden">
+                            <div class="expand-row-msg" data-id="@if($site->lastRemark){{$site->lastRemark->id}}@endif">
+                                <span class="td-full-container-@if($site->lastRemark){{$site->lastRemark->id}}@endif hidden">
                                     @if($site->lastRemark) {{ $site->lastRemark->remarks }} @endif
                                 </span>
                             </div>
