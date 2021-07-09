@@ -5348,11 +5348,11 @@ return response()->json(['only_date' => $only_date,'sop' => $sop]);
         $term = null;
         //$suggested_products_id=3;
         if($type == 'attach') {
-            $productsLists = \App\SuggestedProductList::with('customer')->where('suggested_products_id',$suggested_products_id)->where('customer_id',$customer_id)->where('remove_attachment',0)
+            $productsLists = \App\SuggestedProductList::where('suggested_products_id',$suggested_products_id)->where('customer_id',$customer_id)->where('remove_attachment',0)
             ->select('suggested_product_lists.*')->orderBy('date','desc')->get()->unique('date');
         }
         else {
-            $productsLists = \App\SuggestedProductList::with('customer')->where('customer_id',$customer_id)->where('chat_message_id','!=',NULL)
+            $productsLists = \App\SuggestedProductList::where('customer_id',$customer_id)->where('chat_message_id','!=',NULL)
             ->select('suggested_product_lists.*')->orderBy('date','desc')->get()->unique('date');
         }
         $customer = \App\Customer::find($customer_id);
