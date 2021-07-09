@@ -128,7 +128,7 @@
 			$(document).on('change', '.call-twilio', function () {
 
 				var id = $(this).data('id');
-				var numberToCall = '+918347532350';//$(this).data('phone');
+				var numberToCall = $(this).data('phone');
 				var context = $(this).data('context');
 				var numberCallFrom = $(this).children("option:selected").val();
 				var auth_id = $(this).data('auth-id');
