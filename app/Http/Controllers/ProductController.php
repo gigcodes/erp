@@ -3712,33 +3712,101 @@ class ProductController extends Controller
         $sopType = $request->get('type');
         $sop = Sop::where('name', $sopType)->first();
 
+        // dd($request->all(), $sop);
         if (!$sop) {
             $sop = new Sop();
-            $sop->name = $request->get('type');
-            $sop->content = '<p>Start Here...</p>';
+            $sop->name = $request->name;
+            $sop->content = $request->content;
+            // $sop->content = '<p>Start Here...</p>';
             $sop->save();
         }
 
         return view('products.sop', compact('sop'));
+        
+    }
+
+    function getdata(Request $request){
+         $usersop = DB::table('sops');
+
+   
+    // $searchsop = $request->get('search');
+    if($request->search){
+
+        $usersop = $usersop->where('name', 'like', '%'.$request->search.'%');
+    }
+
+         $usersop = $usersop->paginate(10);
+        
+        return view('products.sop', compact('usersop'));
 
     }
 
+    public function destroyname($id){
+        $usersop =Sop::findOrFail($id);
+        $usersop->delete();
+
+        return response()->json('asfasd');
+        // return view('products.sop', compact('usersop'));
+     }
+    
     public function saveSOP(Request $request)
     {
+        // dd($request->all());
+      
+             
         $sopType = $request->get('type');
         $sop = Sop::where('name', $sopType)->first();
 
         if (!$sop) {
             $sop = new Sop();
-            $sop->name = $request->get('type');
+            $sop->name = $request->get('name');
+            $sop->content = $request->get('content');
             $sop->save();
         }
+        // $sop->created_at = date('dd-mm-yy', strtotime($sop->created_at));
+        $only_date = $sop->created_at->todatestring();
 
-        $sop->content = $request->get('content');
-        $sop->save();
-
-        return redirect()->back()->with('message', 'Updated successfully!');
+        // $sop->content = $request->get('content');
+        // $sop->save();
+return response()->json(['only_date' => $only_date,'sop' => $sop]);
+        // return redirect()->back()->with('message', 'Updated successfully!');
     }
+
+    public function edit(Request $request)
+    {
+        
+        $sopedit = Sop::findOrFail($request->id);
+      
+       return response()->json($sopedit);
+    }
+    public function update(Request $request)
+    {
+
+        $sopedit =  Sop::findOrFail($request->id);
+
+        $sopedit->name    = $request->get("name", "");
+                $sopedit->content    = $request->get("content", "");
+             $updatedSop =    $sopedit->save();
+    
+             if($sopedit){
+                return response()->json($sopedit);
+
+             }
+
+           
+    }
+
+    public function searchsop(Request $request){
+        
+        // dd($request->all());
+            $searchsop = $request->get('search');
+            $usersop = DB::table('sops')->where('name', 'like', '%'.$searchsop.'%')->paginate(10);
+
+             
+        return view('products.sop', compact('usersop'));
+    }
+
+
 
     public function getSupplierScrappingInfo(Request $request)
     {

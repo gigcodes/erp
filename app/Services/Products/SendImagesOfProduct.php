@@ -30,33 +30,39 @@ class SendImagesOfProduct
             if($brand && $category) {
 
                 // find the values from setting to get the how many images we need to send in total;    
-                $setting = \App\Setting::where("name","send_auto_brand_category_image_no")->first();
-                $totalImages = 10;
-                if($setting) {
-                    $totalImages = $setting->val;
-                }
+                try{
+                    $setting = \App\Setting::where("name","send_auto_brand_category_image_no")->first();
+                    $totalImages = 10;
+                    if($setting) {
+                        $totalImages = $setting->val;
+                    }
 
-                $myRequest = new Request();
-                $myRequest->setMethod('POST');
-                $myRequest->request->add(['brand' => [$brand->id]]);
-                $myRequest->request->add(['category' => [$category->id]]);
-                $myRequest->request->add(['submit_type' => 'send-to-approval']);
-                $myRequest->request->add(['limit' => $totalImages]);
-                $myRequest->request->add(['need_to_send_message' => 1]);
-                $myRequest->request->add(['keyword_matched' => $chatMessage->message]);
+                    $myRequest = new Request();
+                    $myRequest->setMethod('POST');
+                    $myRequest->request->add(['brand' => [$brand->id]]);
+                    $myRequest->request->add(['category' => [$category->id]]);
+                    $myRequest->request->add(['submit_type' => 'send-to-approval']);
+                    $myRequest->request->add(['limit' => $totalImages]);
+                    $myRequest->request->add(['need_to_send_message' => 1]);
+                    $myRequest->request->add(['keyword_matched' => $chatMessage->message]);
 
-                $this->log[] = "Started function to call the attach image function with : ".json_encode($myRequest->all());
-                $return = (new \App\Http\Controllers\ProductController)->attachImages('customer',$chatMessage->customer_id,null,null,$myRequest);
-                if(!empty($return)) {
-                    $this->log[] = "Total product found for message : ".$return['total_product'];
+                    $this->log[] = "Started function to call the attach image function with : ".json_encode($myRequest->all());
+                    $return = (new \App\Http\Controllers\ProductController)->attachImages('customer',$chatMessage->customer_id,null,null,$myRequest);
+                    if(!empty($return)) {
+                        $this->log[] = "Total product found for message : ".$return['total_product'];
+                    }
+                }catch(\Exception $e) {
+                    $this->log[] = "Exception found erro thrown : ".$e->getMessage(). " ".$e->getTraceAsString();
                 }
             }else{
                 $this->log[] = "No brand and category matched for the message"; 
             }
-
-            $addKeyword->comment = implode("\n\r",$this->log);
-            $addKeyword->save();
+        }else{
+            $this->log[] = "Message type is not message or empty message";
         }
+
+        $addKeyword->comment = implode("\n\r",$this->log);
+        $addKeyword->save();
 
         //$addKeyword
     }

@@ -12,14 +12,14 @@
     <td>{{ $learning->created_at->format('m/d/Y') }}</td>
     <td>
         <select class="form-control updateUser" name="user">
-            @foreach(App\User::all() as $user)
+            @foreach(App\User::orderBy('name')->get() as $user)
                 <option value="{{ $user->id }}" {{ $learning->learning_user == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
             @endforeach
         </select>
     </td>
     <td>
         <select class="form-control updateProvider" name="provider">
-            @foreach(App\User::all() as $provider)
+            @foreach(App\User::orderBy('name')->get()  as $provider)
                 <option value="{{ $provider->id }}" {{ $learning->learning_vendor == $provider->id ? 'selected' : '' }}>{{ $provider->name }}</option>
             @endforeach
         </select>

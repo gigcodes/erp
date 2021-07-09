@@ -44,13 +44,12 @@
 		    </div>
 	    </div>	
 
-	    <div class="tab-content ">
+	     <div class="tab-content ">
         <!-- Pending task div start -->
         <div class="tab-pane active" id="1">
             <div class="row" style="margin:10px;"> 
                 <div class="col-12">
 					<div class="margin-tb" id="page-view-result">
-
 					</div>
 				</div>
 			</div>
@@ -67,13 +66,13 @@
   	</div>	
 </div>
 
-@include("magento-product-error.templates.list-template")
+@include("message-queue-history.templates.list-template")
 
 <script type="text/javascript" src="{{ asset('/js/jsrender.min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('/js/jquery.validate.min.js') }}"></script>
 <script src="{{ asset('/js/jquery-ui.js') }}"></script>
 <script type="text/javascript" src="{{ asset('/js/common-helper.js') }}"></script>
-<script type="text/javascript" src="{{ asset('/js/magento-product-error.js') }}"></script>
+<script type="text/javascript" src="{{ asset('/js/message_queue_history.js') }}"></script>
 
 <script type="text/javascript">
 	page.init({
@@ -83,4 +82,3 @@
 </script>
 
 @endsection
-

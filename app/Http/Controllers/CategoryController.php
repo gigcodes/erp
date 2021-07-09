@@ -35,6 +35,64 @@ class CategoryController extends Controller
         $categories        = Category::where('parent_id', '=', 0)->withCount('childs')->get();
         $allCategories     = Category::pluck('title', 'id')->all();
 
+        $selected_value  = $request->filter;
+
+     if(isset($request->filter)){
+            $categories        = Category::withCount('childs');
+
+          $categories=  $categories->where('title','like','%'.$request->filter.'%')->get();
+
+
+
+        $final_cat = [];
+
+        foreach($categories as $key=> $cat){
+
+                if($cat->parentM){
+                    
+                        if($cat->parentM->parentM){
+
+                            if($cat->parentM->parentM->parentM){
+
+                                $final_cat[$cat->parentM->parentM->parentM->id] = $cat->parentM->parentM->parentM;
+
+                            }else{
+                                $final_cat[$cat->parentM->parentM->id] = $cat->parentM->parentM;
+
+                            }
+                        }else{
+
+                            $final_cat[$cat->parentM->id] = $cat->parentM;
+                        }
+                }else{
+                    
+                    $final_cat[$cat->id] = $cat;
+                }
+        }
+            // dd($final_cat);
+
+            $categories = $final_cat;
+
+
+    //       foreach($categories as $cat){
+    //                     $all_cat = null;
+    //                     if($cat->parentM) { 
+    //                         $all_cat = $cat;
+    //                         while(!is_null($parentM->parentM)) {
+    //                             $all_cat = $parentM->parentM;
+    //                         }
+                            
+    //                     } else {
+    //                         $all_cat = $cat;
+    //                      }
+
+    //                      $final_cat[$cat->id][] =$all_cat;
+    //     }
+    // //    $categories =  $categories->get();
+    //     dd($final_cat);
+
+        }
+
         $old = $request->old('parent_id');
 
         $allCategoriesDropdown = Category::attr(['name' => 'parent_id', 'class' => 'form-control'])
@@ -45,7 +103,7 @@ class CategoryController extends Controller
             ->selected($old ? $old : 1)
             ->renderAsDropdown();
 
-        return view('category.treeview', compact('category_segments', 'categories', 'allCategories', 'allCategoriesDropdown', 'allCategoriesDropdownEdit'));
+        return view('category.treeview', compact('category_segments', 'categories', 'allCategories', 'allCategoriesDropdown', 'allCategoriesDropdownEdit','selected_value'));
     }
     public function manageCategory11(Request $request)
     {

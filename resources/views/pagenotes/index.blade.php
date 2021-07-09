@@ -65,7 +65,10 @@
 {{--                      <p class="m-0">{!!$value->note !!}</p>--}}
                   <td>{{$value->name}}</td>
                   <td>{{ date('m-d  H:i', strtotime($value->created_at)) }}</td>
-                  <td><a href="javascript:;" data-note-id = "{{$value->id}}" class="editor_edit btn-xs btn btn-image p-2"><img src="/images/edit.png"></a><a data-note-id = "{{$value->id}}" href="javascript:;" class="editor_remove btn-xs btn btn-image p-2"><img src="/images/delete.png"></a></td>
+                  <td><a href="javascript:;" data-note-id = "{{$value->id}}" class="editor_edit btn-xs btn btn-image p-2">
+                    <img src="/images/edit.png"></a>
+                    <a data-note-id = "{{$value->id}}" href="javascript:;" class="editor_remove btn-xs btn btn-image p-2">
+                    <img src="/images/delete.png"></a></td>
               </tr>
           @endforeach
           <!-- END - DEVTASK-4289 -->
