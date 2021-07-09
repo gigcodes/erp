@@ -8,6 +8,6 @@ class CustomerAddressData extends Model
 {
     //
     protected $fillable = [
-        'customer_id', 'address_1', 'address_2', 'address_3', 'country', 'city', 'state', 'postcode'
+        'customer_id', 'entity_id', 'address_type', 'region', 'region_id', 'postcode', 'firstname', 'middlename', 'company','country_id', 'telephone','prefix','street'
       ];
 }

@@ -96,7 +96,7 @@ class ScrapApiLogCommand extends Command
 
                         $api_log = new ScrapApiLog;
                         $api_log->scraper_id = $scraper->id;
-                        $api_log->server_id = $request->server_id;
+                        $api_log->server_id = $scraper->server_id;
                         $api_log->log_messages = $log;
                         $api_log->save();
                     }

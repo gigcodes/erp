@@ -7,6 +7,7 @@ use App\Services\Whatsapp\ChatApi\ChatApi;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
+use App\MessageQueueHistory;
 
 class SendQueuePendingChatMessages extends Command
 {
@@ -140,6 +141,15 @@ class SendQueuePendingChatMessages extends Command
                                     $value->is_queue = 0;
                                     $value->save();
 
+                                    $dataInsert = array(
+                                        'counter'  => $sendLimit,
+                                        'number'   => $number,
+                                        'type'     => 'individual',
+                                        'user_id'  => $value->customer_id,
+                                        'time'     => Carbon::now()->format('Y-m-d H:i:s')
+                                    );
+                                    MessageQueueHistory::insert($dataInsert);
+
                                 } else {
 
                                     // check message is full or not
@@ -154,6 +164,17 @@ class SendQueuePendingChatMessages extends Command
                                     $myRequest->setMethod('POST');
                                     $myRequest->request->add(['messageId' => $value->id]);
                                     app('App\Http\Controllers\WhatsAppController')->approveMessage('customer', $myRequest);
+
+
+                                    
+                                    $dataInsert = array(
+                                        'counter'  => $sendLimit,
+                                        'number'   => $number,
+                                        'type'     => 'individual',
+                                        'user_id'  => $value->customer_id,
+                                        'time'     => Carbon::now()->format('Y-m-d H:i:s')
+                                    );
+                                    MessageQueueHistory::insert($dataInsert);    
                                 }
                             }
                         }
