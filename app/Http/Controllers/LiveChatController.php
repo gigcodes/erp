@@ -134,7 +134,8 @@ class LiveChatController extends Controller
                     }
                 
                     $result  = TranslationHelper::translate($language, 'en', $message);
-                    $message = $result . ' -- ' . $message;
+                    // $message = $result . ' -- ' . $message;
+                    $message = $message;
 
                     if ($author_id == 'buying@amourint.com') {
                         $messageStatus = 2;

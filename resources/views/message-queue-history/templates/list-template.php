@@ -3,25 +3,23 @@
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
-		      	<th width="10%">Product ID</th>
-		        <th width="10%">Date</th>
-		        <th width="10%">Website</th>
-		        <th width="15%">Message</th>
-		        <th width="15%">Request data</th>
-		        <th width="15%">Response Data</th>
-		        <th width="10%">Status</th>
+		      	<th width="10%">ID</th>
+		        <th width="10%">Number</th>
+		        <th width="10%">Counter</th>
+		        <th width="15%">Type</th>
+		        <th width="15%">User_id</th>
+		        <th width="10%">Time</th>
 		      </tr>
 		    </thead>
 		    <tbody>
 		    	{{props data}}
 			      <tr>
-			      	<td>{{:prop.product_id}}</td>
-			      	<td>{{:prop.updated_at}}</td>
-			      	<td>{{:prop.store_website}}</td>
-			      	<td>{{:prop.message}}</td>
-			      	<td>{{:prop.request_data}}</td>
-			      	<td>{{:prop.response_data}}</td>
-			      	<td>{{:prop.response_status}}</td>
+			      	<td>{{:prop.id}}</td>
+			      	<td>{{:prop.number}}</td>
+			      	<td>{{:prop.counter}}</td>
+			      	<td>{{:prop.type}}</td>
+			      	<td>{{:prop.user_id}}</td>
+			      	<td>{{:prop.time}}</td>
 			      </tr>
 			    {{/props}}  
 		    </tbody>
