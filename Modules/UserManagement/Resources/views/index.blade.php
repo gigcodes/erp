@@ -313,7 +313,7 @@
                                     <td>{{ $row->notes }}</td>
 
                                     <td>
-                                        <button class="btn-warning btn deleteIp" data-usersystemid="{{ $row->id}}">Delete</button>
+                                        <button class="btn btn-secondary btn deleteIp" data-usersystemid="{{ $row->id}}">Delete</button>
                                     </td>
                                 </tr>
                             @endforeach
