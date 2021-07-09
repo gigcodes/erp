@@ -8,6 +8,19 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/css/dropify.min.css">
 
   <style>
+
+      .nav-tabs>li {
+          height: 43px;
+      }
+      li.active {
+           background: none !important;
+      }
+      li.active a{
+          background-color: #dddddd2b !important;
+      }
+      button:focus{
+          outline: none !important;
+      }
       .inbox_people {
           background: #f8f8f8 none repeat scroll 0 0;
           float: left;
@@ -243,6 +256,9 @@
   </style>
   {{--new chat--}}
   <style>
+      .nav-tabs{
+          border-bottom:none !important;
+      }
         #chat-history {
             /*background-color: #EEEEEE;*/
             max-height: 516px;
@@ -259,6 +275,17 @@
             align-items: center;
             flex-wrap: wrap;
         }
+      select.input-sm {
+          height: 35px;
+          font-size: 14px !important;
+          line-height: 35px;
+          color: #757575 !important;
+      }
+      .input-sm {
+          height: 35px;
+          font-size: 14px !important;
+          color: #757575 !important;
+      }
 
         .label-attached-img {
             border: 1px solid #fff;
@@ -374,7 +401,15 @@
             border-radius: 50%;
             display: inline-block;
         }
-
+        .top-head-btn{
+            margin-right: 15px;
+        }
+        .top-head-btn .btn.btn-xs.btn-secondary, .add-address, .middle-sec .btn-secondary, .sec-msg .btn-secondary, #updateCustomerButton, .verify-btn{
+            background: #fff;
+            color: #757575 !important;
+            border: 1px solid #ddd;
+            padding: 5px 12px !important;
+        }
     </style>
 @endsection
 
@@ -385,28 +420,30 @@
         </div>
     </div>
 
-<div class="row">
-  <div class="col-lg-12 margin-tb">
-    <div>
-      <h3>Customer Page</h3>
-    </div>
-      @if(isset($searchedMessages) && $searchedMessages)
-          <div>
-              <h5 style="display: block;">You searched: <strong>{{ Request::get('sm') }}</strong></h5>
-              @foreach($searchedMessages as $message)
-                  <p class="p-2 m-2" style="border-left: 4px solid #cccccc; background-color: #f5f5f5">{{ $message->message }}</p>
-              @endforeach
-          </div>
-      @endif
-    <div class="pull-right mt-4">
-      <a class="btn btn-xs btn-secondary" href="{{ route('customer.index') }}">Back</a>
-      <a class="btn btn-xs btn-secondary" href="#" id="quick_add_lead">+ Lead</a>
-      <a class="btn btn-xs btn-secondary" href="#" id="quick_add_order">+ Order</a>
-      <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#privateViewingModal">Set Up for Private Viewing</button>
-        <a class="btn btn-secondary btn-xs" href="{{ action('CustomerController@exportCommunication', $customer->id) }}">Export Chat</a>
-    </div>
-  </div>
-</div>
+
+    <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">Customer Page
+        <div class="margin-tb" style="flex-grow: 1;">
+            <div class="pull-right ">
+                @if(isset($searchedMessages) && $searchedMessages)
+                    <div>
+                        <h5 style="display: block;">You searched: <strong>{{ Request::get('sm') }}</strong></h5>
+                        @foreach($searchedMessages as $message)
+                            <p class="p-2 m-2" style="border-left: 4px solid #cccccc; background-color: #f5f5f5">{{ $message->message }}</p>
+                        @endforeach
+                    </div>
+                @endif
+                <div class="pull-right top-head-btn mr-2" style="flex-grow: 1; text-align: right">
+                    <a class="btn btn-xs btn-secondary" href="{{ route('customer.index') }}">Back</a>
+                    <a class="btn btn-xs btn-secondary" href="#" id="quick_add_lead">+ Lead</a>
+                    <a class="btn btn-xs btn-secondary" href="#" id="quick_add_order">+ Order</a>
+                    <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#privateViewingModal">Set Up for Private Viewing</button>
+                    <a class="btn btn-secondary btn-xs" href="{{ action('CustomerController@exportCommunication', $customer->id) }}">Export Chat</a>
+                </div>
+            </div>
+        </div>
+    </h2>
+
+
 
 @include('customers.partials.modal-private-viewing')
 
@@ -436,7 +473,7 @@
   @endif
 @endif
 
-<div id="exTab2" class="container">
+<div style="margin: 0 10px" id="exTab2">
   <ul class="nav nav-tabs">
     <li class="active">
       <a href="#one" data-toggle="tab" class="btn btn-image"><img src="/images/customer-info.png" /></a>
@@ -470,7 +507,7 @@
   </ul>
 </div>
 
-<div class="row">
+<div style="margin: 0 10px" class="row">
   <div class="col-xs-12 col-md-4 border">
     <!-- The Modal -->
     <div id="preview-image-model" class="modal col-6" data-backdrop="false">
@@ -480,17 +517,17 @@
       </div>
     </div>
     <div class="tab-content">
-      <div class="tab-pane active mt-3" id="one">
+      <div class="tab-pane active mt-3 ml-3" id="one">
         <div class="row">
-          <div class="col-xs-12">
+          <div class="col-xs-12 pl-1">
             <div class="d-flex">
               @if ($customer->is_priority == 1)
                 <div class="form-group">
-                  <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-priority.png" /></button>
+                  <button type="button" class="btn btn-image priority-customer pl-0" data-id="{{ $customer->id }}"><img src="/images/customer-priority.png" /></button>
                 </div>
               @else
                 <div class="form-group">
-                  <button type="button" class="btn btn-image priority-customer" data-id="{{ $customer->id }}"><img src="/images/customer-not-priority.png" /></button>
+                  <button type="button" class="btn btn-image priority-customer pl-0" data-id="{{ $customer->id }}"><img src="/images/customer-not-priority.png" /></button>
                 </div>
               @endif
 
@@ -498,31 +535,31 @@
                 <input type="text" name="name" id="customer_name" class="form-control input-sm" placeholder="Name" value="{{ $customer->name }}">
               </div>
 
-              <div class="form-group">
-                <button type="button" class="btn btn-image call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png" /></button>
+              <div class="form-group pl-3 d-flex">
+                <button type="button" class="btn btn-xs btn-image call-twilio " data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png" /></button>
 
                 @if ($customer->is_blocked == 1)
-                  <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/blocked-twilio.png" /></button>
+                  <button type="button" class="btn btn-xs btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/blocked-twilio.png" /></button>
                 @else
-                  <button type="button" class="btn btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/unblocked-twilio.png" /></button>
+                  <button type="button" class="btn btn-xs btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/unblocked-twilio.png" /></button>
                 @endif
 
                 @if ($customer->do_not_disturb == 1)
-                  <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" id="do_not_disturb"><img src="/images/do-not-disturb.png" /></button>
+                  <button type="button" class="btn btn-xs btn-image" data-id="{{ $customer->id }}" id="do_not_disturb"><img src="/images/do-not-disturb.png" /></button>
                 @else
-                  <button type="button" class="btn btn-image" data-id="{{ $customer->id }}" id="do_not_disturb"><img src="/images/do-disturb.png" /></button>
+                  <button type="button" class="btn btn-xs btn-image" data-id="{{ $customer->id }}" id="do_not_disturb"><img src="/images/do-disturb.png" /></button>
                 @endif
 
                 @if ($customer->is_flagged == 1)
-                  <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/flagged.png" /></button>
+                  <button type="button" class="btn btn-xs btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/flagged.png" /></button>
                 @else
-                  <button type="button" class="btn btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/unflagged.png" /></button>
+                  <button type="button" class="btn btn-xs btn-image flag-customer" data-id="{{ $customer->id }}"><img src="/images/unflagged.png" /></button>
                 @endif
 
-                <button type="button" class="btn btn-image" data-toggle="modal" data-target="#advancePaymentModal"><img src="/images/advance-link.png" /></button>
-                <button type="button" class="btn btn-image" data-toggle="modal" data-target="#sendContacts"><img src="/images/details.png" /></button>
-                <a href="{{ route('customer.download.contact-pdf',[$customer->id]) }}" target="_blank">
-                  <button type="button" class="btn btn-image"><img src="/images/download.png" /></button>
+                <button type="button" class="btn btn-xs btn-image" data-toggle="modal" data-target="#advancePaymentModal"><img src="/images/advance-link.png" /></button>
+                <button type="button" class="btn btn-xs btn-xs btn-image" data-toggle="modal" data-target="#sendContacts"><img src="/images/details.png" /></button>
+                <a class="d-flex" style="align-items: center" href="{{ route('customer.download.contact-pdf',[$customer->id]) }}" target="_blank">
+                  <button type="button" class="btn btn-xs btn-image"><img src="/images/download.png" /></button>
                 </a>
 
                 @include('customers.partials.modal-advance-link')
@@ -549,6 +586,135 @@
               {{-- <strong>Address:</strong> {{ $customer->address }} --}}
               <textarea name="address" id="customer_address" class="form-control input-sm" rows="3" cols="80" placeholder="Address">{{ $customer->address }}</textarea>
             </div>
+
+              @if (!$customer->customerAddress->isEmpty())
+                  @foreach ($customer->customerAddress as $address)
+                      @if($address->address_type && $address->company)
+                      <label class="pl-1">{{$address->address_type}}</label>
+                      <textarea name="address" class="form-control input-sm mb-4" rows="2" cols="80" placeholder="Address">{{$address->company . ','}} {{$address->street . ','}} {{$address->region }} {{ '-' . $address->postcode . ','}} {{$address->country_id}}
+                      </textarea>
+                      @endif
+                  @endforeach
+               @endif
+
+              <button class="btn btn-secondary add-address mb-4" data-toggle="modal" data-target="#exampleModal">Add Address +</button>
+
+              <div class="modal" id="exampleModal" tabindex="-1" role="dialog">
+                  <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                          <div class="modal-header">
+                              <h5 class="modal-title">Add Address</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                              </button>
+                          </div>
+                          <div class="modal-body">
+                              <form id="add_customer_address">
+
+                                  @csrf
+                                  <input type="hidden" name="customer_id" value="{{$customer->id}}">
+                                  <div class="row">
+                                      <div class="col-md-6">
+                                          <div class="form-group">
+                                              <input type="number" name="entity_id" class="form-control input-sm" placeholder="Entitty Id">
+                                          </div>
+                                      </div>
+                                      <div class="col-md-6">
+                                          <div class="form-group">
+                                              <input type="number" name="parent_id"  class="form-control input-sm" placeholder="Parent Id">
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="row">
+                                      <div class="col-md-6">
+                                          <div class="form-group">
+                                              <input type="text" name="address_type" class="form-control input-sm" placeholder="Add address Type">
+                                          </div>
+
+                                      </div>
+                                      <div class="col-md-6">
+                                          <div class="form-group">
+                                              <input type="text" name="region" class="form-control input-sm" placeholder="Region">
+                                          </div>
+
+                                      </div>
+                                  </div>
+                                  <div class="row">
+                                      <div class="col-md-6">
+                                          <div class="form-group">
+                                              <input type="number" name="region_id"  class="form-control input-sm" placeholder="Region Id">
+                                          </div>
+                                      </div>
+                                      <div class="col-md-6">
+                                          <div class="form-group">
+                                              <input type="text" name="postcode" class="form-control input-sm" placeholder="Postcode">
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="row">
+                                      <div class="col-md-6">
+                                          <div class="form-group">
+                                              <input type="text" name="firstname"  class="form-control input-sm" placeholder="First Name">
+                                          </div>
+                                      </div>
+                                      <div class="col-md-6">
+                                          <div class="form-group">
+                                              <input type="text" name="middlename"  class="form-control input-sm" placeholder="Middlename">
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="row">
+                                      <div class="col-md-6">
+                                          <div class="form-group">
+                                              <input type="text" name="company" class="form-control input-sm" placeholder="Company name">
+                                          </div>
+
+                                      </div>
+                                      <div class="col-md-6">
+                                          <div class="form-group">
+                                              <input type="text" name="country_id"  class="form-control input-sm" placeholder="Country">
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="row">
+                                      <div class="col-md-4">
+                                          <div class="form-group">
+                                              <input type="number" name="telephone"  class="form-control input-sm" placeholder="Telephone">
+                                          </div>
+                                      </div>
+                                      <div class="col-md-4">
+                                          <div class="form-group">
+                                              <select name="prefix" id="filter" class="form-control form-control-sm">
+                                                  <option value="">Select Prefix..</option>
+                                                  <option value="Mr">Mr.</option>
+                                                  <option value="Mrs">Mrs</option>
+                                                  <option value="Miss">Miss</option>
+                                              </select>
+                                          </div>
+                                      </div>
+                                      <div class="col-md-4">
+                                          <div class="form-group">
+                                              <input type="text" name="street"  class="form-control input-sm" placeholder="Street">
+                                          </div>
+                                      </div>
+                                  </div>
+
+
+                                <div style="text-align: right;" class="mt-4">
+                                    <button class="btn btn-primary add_customer_address-btn">Save changes</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                </div>
+
+
+
+
+                              </form>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+
 
             <div class="row">
               <div class="col-6">
@@ -704,7 +870,7 @@
                   </select>
                 </div>
               </div>
-               <div class="col-3">
+               <div class="col-3 mb-2 d-flex align-bottom" style="align-items: flex-end">
                 <div class="form-group">
                  <label class="switch" style="margin: 0px">
                     @if(isset($customer->customerMarketingPlatformActive) && $customer->customerMarketingPlatformActive->active == 1)
@@ -752,8 +918,8 @@
 
       <div class="tab-pane mt-3" id="6">
         <div class="row">
-          <h4>Call Recording</h4>
-          <div class="table-responsive">
+          <h4 class="ml-3">Call Recording</h4>
+          <div class="table-responsive m-3">
             <table class="table table-bordered">
               {{-- <tr>
                 <th style="width: 50%">Call Recording</th>
@@ -808,7 +974,7 @@
             @foreach ($customer->leads as $key => $lead)
               <div class="card">
                 <div class="card-header" id="headingLead{{ $key + 1 }}">
-                  <h5 class="mb-0">
+                  <h5 class="mb-0 mt-0">
                     <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#lead{{ $key + 1 }}" aria-expanded="false" aria-controls="lead{{ $key + 1 }}">
                       Lead {{ $leadCount }}
                       <?php $leadCount--;?>
@@ -1593,7 +1759,7 @@
       @endif
 
       <div class="tab-pane mt-3" id="suggestion_tab">
-        <h2>Suggestions</h2>
+        <h3>Suggestions</h3>
         <div class="row">
           <div class="col-12" id="suggestion-container"></div>
         </div>
@@ -1634,14 +1800,14 @@
     </div>
   </div>
 
-  <div class="col-xs-12 col-md-4 mb-3">
-    <div class="border">
+  <div class="col-xs-12 col-md-4 mb-3 middle-sec">
+    <div class="border pl-4">
       <form action="{{ route('whatsapp.send', 'customer') }}" method="POST" enctype="multipart/form-data">
         <div class="d-flex">
           @csrf
 
-          <div class="form-group">
-            <div class="upload-btn-wrapper btn-group pr-0 d-flex">
+          <div class="form-group mb-2">
+            <div class="upload-btn-wrapper btn-group pr-0 pl-0 d-flex">
               <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
               <input type="file" name="image" />
 
@@ -1649,8 +1815,8 @@
             </div>
           </div>
 
-          <div class="form-group flex-fill mr-3">
-            <button type="button" id="customerMessageButton" class="btn btn-image"><img src="/images/support.png" /></button>
+          <div class="form-group flex-fill mr-3 mb-2">
+            <button type="button" id="customerMessageButton" class="btn btn-xs mt-2 btn-image"><img src="/images/support.png" /></button>
             <textarea  class="form-control mb-3 hidden" style="height: 110px;" name="body" placeholder="Received from Customer"></textarea>
             <input type="hidden" name="status" value="0" />
           </div>
@@ -1673,28 +1839,9 @@
         <div class="d-flex">
           @csrf
 
-          <div class="form-group">
-            <div class=" d-flex flex-column">
-              <div class="">
-                <div class="upload-btn-wrapper btn-group px-0">
-                  <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
-                  <input type="file" name="image" />
-
-                </div>
-                <button type="submit" class="btn btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
-
-              </div>
-
-              <div class="">
-                <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}?return_url={{ request()->getRequestUri() }}" class="btn btn-image px-1"><img src="/images/attach.png" /></a>
 
 
-                <button type="button" class="btn btn-image px-1" data-toggle="modal" data-target="#suggestionModal"><img src="/images/customer-suggestion.png" /></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group flex-fill mr-3">
+          <div class="form-group flex-fill mb-0">
             <textarea id="message-body" class="form-control mb-3 message-strong" style="height: 110px;" name="body" placeholder="Send for approval"></textarea>
 
             <input type="hidden" name="screenshot_path" value="" id="screenshot_path" />
@@ -1704,6 +1851,26 @@
 
 
           </div>
+            <div class="form-group mr-3">
+                <div style="display:inline-grid;">
+                    <div style="display:inline-grid;">
+                        <div class="upload-btn-wrapper btn-group px-0">
+                            <button class="btn btn-image p-0"><img src="/images/upload.png" /></button>
+                            <input type="file" name="image" />
+
+                        </div>
+                        <button type="submit" class="btn px-1 btn-image px-1 send-communication"><img src="/images/filled-sent.png" /></button>
+
+                    </div>
+
+                    <div class="" style="display:inline-grid;">
+                        <a href="{{ route('attachImages', ['customer', $customer->id, 1]) }}?return_url={{ request()->getRequestUri() }}" class="btn btn-image p-0"><img src="/images/attach.png" /></a>
+
+
+                        <button type="button" class="btn btn-image px-1" data-toggle="modal" data-target="#suggestionModal"><img src="/images/customer-suggestion.png" /></button>
+                    </div>
+                </div>
+            </div>
           {{-- <div class="form-group">
             <div class="upload-btn-wrapper">
               <button class="btn btn-image px-1"><img src="/images/upload.png" /></button>
@@ -1715,15 +1882,15 @@
           <div class="upload-btn-wrapper" id="root">
           </div>
         </div>
-        <div class="pb-4 mt-3">
+        <div class="pb-5">
           <div class="row">
-            <div class="col-md-8">
-              <div class="d-inline form-inline">
-                  <input style="width: 75%" type="text" name="category_name" placeholder="Add Category" class="form-control mb-3 quick_category">
+            <div class=" pl-4" style="width: calc(100% - 190px)">
+              <div class="d-inline form-inline mb-3">
+                  <input style="width: calc(100% - 40px)" type="text" name="category_name" placeholder="Add Category" class="form-control  quick_category">
                   <button class="btn btn-secondary quick_category_add">+</button>
               </div>
-              <div>
-                <div style="float: left; width: 76%;">
+              <div class="d-flex">
+                <div class="mt-3" style="float: left;width: calc(100% - 40px)">
                   <select name="quickCategory" id="quickCategory" class="form-control input-sm mb-3">
                     <option value="">Select Category</option>
                     @foreach($reply_categories as $category)
@@ -1731,22 +1898,22 @@
                     @endforeach
                   </select>
                 </div>
-                <div style="float: right;">
+                <div class="mt-3" style="width:20px;">
                   <a class="btn btn-image delete_category"><img src="/images/delete.png"></a>
                 </div>
               </div>
-              <div>
-                <div style="float: left; width: 76%;">
+              <div class="d-flex">
+                <div style="float: left; width: calc(100% - 40px)">
                   <select name="quickComment" id="quickComment" class="form-control input-sm">
                     <option value="">Quick Reply</option>
                   </select>
                   </div>
-                  <div style="float: right;">
+                  <div style="width:20px;">
                     <a class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>
                   </div>
               </div>
             </div>
-            <div class="col-md-4">
+            <div class="pl-1" style="width: 130px">
               <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#ReplyModal" id="approval_reply">Create Quick Reply</button>
             </div>
           </div>
@@ -1761,9 +1928,9 @@
 
             <input type="hidden" name="customer_id" value="{{ $customer->id }}">
 
-            <div class="row">
-              <div class="col-6">
-                <div class="form-group">
+            <div class="row mr-2">
+              <div class="col-6 pr-0">
+                <div class="form-group mb-3">
                   <strong>Next action due</strong>
                   <a href="#" data-toggle="modal" data-target="#statusModal" class="btn-link">Add Action</a>
 
@@ -1776,8 +1943,8 @@
                 </div>
               </div>
 
-              <div class="col-6">
-                <div class="form-group" id="completion_form_group">
+              <div class="col-6 pr-3">
+                <div class="form-group mb-3" id="completion_form_group">
                   <strong>Completion Date:</strong>
                   <div class='input-group date' id='report-completion-datetime'>
                     <input type='text' class="form-control input-sm" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
@@ -1858,8 +2025,8 @@
       </div>
   </div>
 
-  <div class="col-xs-12 col-md-4">
-    <div class="border">
+  <div class="col-xs-12 col-md-4 sec-msg pl-0 pr-0">
+    <div class="border p-3">
       {{-- <h4>Messages</h4> --}}
 
       <div class="row">
@@ -1874,7 +2041,7 @@
             </div>
 
             @if ($customer->is_initiated_followup())
-              <div class="form-group ml-3">
+              <div class="form-group ml-3 mt-">
                 <form action="{{ route('customer.stop.followup', $customer->id) }}" method="POST">
                   @csrf
 
@@ -1906,8 +2073,8 @@
             </div>
           </div>
         @endif
-        <div class="col-xs-6">
-          <div class="form-inline">
+        <div class="col-xs-6" >
+          <div class="form-inline" style="justify-content: flex-end">
              <div class="form-group">
                 <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$customer->id}}" data-load-type="text" data-all="1" title="Load messages" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/chat.png" alt=""></a>
                 <a type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$customer->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"><img src="/images/archive.png" alt=""></a>
@@ -1918,7 +2085,7 @@
       </div>
       <div class="row">
         <div class="col-xs-12">
-            <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message">
+            <input type="text" name="search_chat_pop"  class="form-control search_chat_pop mt-3" placeholder="Search Message">
         </div>
       </div>
 
@@ -2034,8 +2201,8 @@
   </div> --}}
 {{-- </div> --}}
 
-<div class="row">
-  <div class="col-xs-12">
+<div style="margin: 0 10px" class="row mt-5">
+  <div class="col-xs-12 p-0">
     {{-- <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#instructionModal">Add Instruction</button> --}}
 
     {{-- <form class="form-inline mb-3" action="{{ route('instruction.category.store') }}" method="POST">
@@ -2049,7 +2216,7 @@
 
     @include('customers.partials.modal-instruction')
 
-    <div id="exTab3" class="container">
+    <div id="exTab3" >
       <ul class="nav nav-tabs">
         <li class="active">
           <a href="#4" data-toggle="tab">Instructions</a>
@@ -2058,113 +2225,116 @@
         <li>
           <a href="#6" class="mb-3" data-toggle="modal" data-target="#instructionModal">+ Add</a>
         </li>
-        <li>
-          <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
-            @csrf
-            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-            <input type="hidden" name="instruction" value="Send images">
-            <input type="hidden" name="category_id" value="6">
-            <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('image_shortcut') }}">
 
-            <button type="submit" class="btn btn-image quick-shortcut-button" title="Send Images"><img src="/images/attach.png" /></button>
-          </form>
-        </li>
+      <ul class="nav nav-tabs" style="flex-grow: 1;justify-content: flex-end">
+          <li>
+              <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                  @csrf
+                  <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                  <input type="hidden" name="instruction" value="Send images">
+                  <input type="hidden" name="category_id" value="6">
+                  <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('image_shortcut') }}">
 
-        <li>
-          <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
-            @csrf
-            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-            <input type="hidden" name="instruction" value="Send price">
-            <input type="hidden" name="category_id" value="3">
-            <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('price_shortcut') }}">
+                  <button type="submit" class="btn btn-image quick-shortcut-button" title="Send Images"><img src="/images/attach.png" /></button>
+              </form>
+          </li>
 
-            <button type="submit" class="btn btn-image quick-shortcut-button" title="Send Price"><img src="/images/price.png" /></button>
-          </form>
-        </li>
+          <li>
+              <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                  @csrf
+                  <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                  <input type="hidden" name="instruction" value="Send price">
+                  <input type="hidden" name="category_id" value="3">
+                  <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('price_shortcut') }}">
 
-        <li>
-          <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
-            @csrf
-            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-            <input type="hidden" name="instruction" value="{{ $users_array[\App\Setting::get('call_shortcut')] }} call this client">
-            <input type="hidden" name="category_id" value="10">
-            <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('call_shortcut') }}">
+                  <button type="submit" class="btn btn-image quick-shortcut-button" title="Send Price"><img src="/images/price.png" /></button>
+              </form>
+          </li>
 
-            <button type="submit" class="btn btn-image quick-shortcut-button" title="Call this Client"><img src="/images/call.png" /></button>
-          </form>
-        </li>
+          <li>
+              <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                  @csrf
+                  <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                  <input type="hidden" name="instruction" value="{{ $users_array[\App\Setting::get('call_shortcut')] }} call this client">
+                  <input type="hidden" name="category_id" value="10">
+                  <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('call_shortcut') }}">
 
-        <li>
-          <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
-            @csrf
-            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-            <input type="hidden" name="instruction" value="Attach image">
-            <input type="hidden" name="category_id" value="8">
-            <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('screenshot_shortcut') }}">
+                  <button type="submit" class="btn btn-image quick-shortcut-button" title="Call this Client"><img src="/images/call.png" /></button>
+              </form>
+          </li>
 
-            <button type="submit" class="btn btn-image quick-shortcut-button" title="Attach Image"><img src="/images/upload.png" /></button>
-          </form>
-        </li>
+          <li>
+              <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                  @csrf
+                  <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                  <input type="hidden" name="instruction" value="Attach image">
+                  <input type="hidden" name="category_id" value="8">
+                  <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('screenshot_shortcut') }}">
 
-        <li>
-          <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
-            @csrf
-            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-            <input type="hidden" name="instruction" value="Attach screenshot">
-            <input type="hidden" name="category_id" value="12">
-            <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('screenshot_shortcut') }}">
+                  <button type="submit" class="btn btn-image quick-shortcut-button" title="Attach Image"><img src="/images/upload.png" /></button>
+              </form>
+          </li>
 
-            <button type="submit" class="btn btn-image quick-shortcut-button" title="Attach Screenshot"><img src="/images/screenshot.png" /></button>
-          </form>
-        </li>
+          <li>
+              <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                  @csrf
+                  <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                  <input type="hidden" name="instruction" value="Attach screenshot">
+                  <input type="hidden" name="category_id" value="12">
+                  <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('screenshot_shortcut') }}">
 
-        <li>
-          <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
-            @csrf
-            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-            <input type="hidden" name="instruction" value="Give details">
-            <input type="hidden" name="category_id" value="14">
-            <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('details_shortcut') }}">
+                  <button type="submit" class="btn btn-image quick-shortcut-button" title="Attach Screenshot"><img src="/images/screenshot.png" /></button>
+              </form>
+          </li>
 
-            <button type="submit" class="btn btn-image quick-shortcut-button" title="Give Details"><img src="/images/details.png" /></button>
-          </form>
-        </li>
+          <li>
+              <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                  @csrf
+                  <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                  <input type="hidden" name="instruction" value="Give details">
+                  <input type="hidden" name="category_id" value="14">
+                  <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('details_shortcut') }}">
 
-        <li>
-          <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
-            @csrf
-            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-            <input type="hidden" name="instruction" value="Check for the Purchase">
-            <input type="hidden" name="category_id" value="7">
-            <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('purchase_shortcut') }}">
+                  <button type="submit" class="btn btn-image quick-shortcut-button" title="Give Details"><img src="/images/details.png" /></button>
+              </form>
+          </li>
 
-            <button type="submit" class="btn btn-image quick-shortcut-button" title="Check for Purchase"><img src="/images/purchase.png" /></button>
-          </form>
-        </li>
+          <li>
+              <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                  @csrf
+                  <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                  <input type="hidden" name="instruction" value="Check for the Purchase">
+                  <input type="hidden" name="category_id" value="7">
+                  <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('purchase_shortcut') }}">
 
-        <li>
-          <div class="d-inline">
-            <button type="button" class="btn btn-image send-instock-shortcut" data-id="{{ $customer->id }}">Send In Stock</button>
-          </div>
-        </li>
+                  <button type="submit" class="btn btn-image quick-shortcut-button" title="Check for Purchase"><img src="/images/purchase.png" /></button>
+              </form>
+          </li>
 
-        <li>
-          <div class="d-inline">
-            <button type="button" class="btn latest-scraped-shortcut" data-id="{{ $customer->id }}" data-toggle="modal" data-target="#categoryBrandModal">Send 20 Scraped</button>
-          </div>
-        </li>
+          <li>
+              <div class="d-inline">
+                  <button type="button" class="btn btn-image send-instock-shortcut" data-id="{{ $customer->id }}">Send In Stock</button>
+              </div>
+          </li>
 
-        <li>
-          <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
-            @csrf
-            <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-            <input type="hidden" name="instruction" value="Please show client chat to Yogesh">
-            <input type="hidden" name="category_id" value="13">
-            <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('price_shortcut') }}">
+          <li>
+              <div class="d-inline">
+                  <button type="button" class="btn latest-scraped-shortcut" data-id="{{ $customer->id }}" data-toggle="modal" data-target="#categoryBrandModal">Send 20 Scraped</button>
+              </div>
+          </li>
 
-            <button type="submit" class="btn btn-image quick-shortcut-button" title="Show Client Chat"><img src="/images/chat.png" /></button>
-          </form>
-        </li>
+          <li>
+              <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
+                  @csrf
+                  <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                  <input type="hidden" name="instruction" value="Please show client chat to Yogesh">
+                  <input type="hidden" name="category_id" value="13">
+                  <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('price_shortcut') }}">
+
+                  <button type="submit" class="btn btn-image quick-shortcut-button" title="Show Client Chat"><img src="/images/chat.png" /></button>
+              </form>
+          </li>
+      </ul>
       </ul>
     </div>
 
@@ -2172,18 +2342,20 @@
 
     <div class="tab-content ">
 
-      <div class="tab-pane active mt-3" id="4">
-        <div class="table-responsive">
+      <div class="tab-pane active " id="4">
+        <div class="table-responsive" style="border-top-left-radius:0">
             <table class="table table-bordered m-0">
-            <tr>
-              <th>Number</th>
-              <th>Assigned to</th>
-              <th>Category</th>
-              <th>Instructions</th>
-              <th colspan="3" class="text-center">Action</th>
-              <th>Created at</th>
-              <th>Remark</th>
-            </tr>
+           <thead>
+           <tr>
+               <th>Number</th>
+               <th>Assigned to</th>
+               <th>Category</th>
+               <th>Instructions</th>
+               <th colspan="3" class="text-center">Action</th>
+               <th>Created at</th>
+               <th>Remark</th>
+           </tr>
+           </thead>
             @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->limit(3)->get() as $instruction)
                 <tr>
                   <td>
@@ -2241,7 +2413,7 @@
         <div id="instructionAccordion">
             <div class="card mb-5">
               <div class="card-header" id="headingInstruction">
-                <h5 class="mb-0">
+                <h5 class="mb-0 mt-0">
                   <button class="btn btn-link collapsed collapse-fix" data-toggle="collapse" data-target="#instructionAcc" aria-expanded="false" aria-controls="">
                     Rest of Instructions
                   </button>
@@ -2312,7 +2484,7 @@
         </div>
       </div>
 
-      <div class="tab-pane mt-3" id="5">
+      <div class="tab-pane " id="5">
         <div class="table-responsive">
             <table class="table table-bordered m-0">
             <tr>
@@ -2446,14 +2618,16 @@
         <h4>Wishlist</h4>
         <div class="table-responsive">
             <table class="table table-bordered m-0">
+                <thead>
                 <tr>
-                  <th>Product name</th>
-                  <th>Sku</th>
-                  <th>Price</th>
-                  <th>Currency</th>
-                  <th>Website</th>
-                  <th>Created At</th>
+                    <th>Product name</th>
+                    <th>Sku</th>
+                    <th>Price</th>
+                    <th>Currency</th>
+                    <th>Website</th>
+                    <th>Created At</th>
                 </tr>
+                </thead>
                 @foreach($basketProducts as $basketProduct)
                   <tr>
                     <td>{{$basketProduct->product_name}}</td>
@@ -4843,6 +5017,67 @@
                 });
             }
         });
+
+
+
+
+      // $("#add_customer_address").validate({
+      //     rules: {
+      //         telephone: "required",
+      //         entity_id: "required",
+      //         parent_id: "required",
+      //         address_type: "required",
+      //         region: "required",
+      //         region_id: "required",
+      //         postcode: "required",
+      //         firstname: "required",
+      //         middlename: "required",
+      //         company: "required",
+      //         country_id: "required",
+      //     },
+      //     messages: {
+      //         first_name : "Please enter name",
+      //         last_name : "Please enter surname",
+      //         telephone : "Please enter phone number",
+      //     },
+      //     submitHandler: function (event) {
+      //         // $('#apply_job').submit(function (event) {
+      //             event.preventDefault();
+      //         var formData = new FormData($(this)[0]);
+      //         $.ajax({
+      //             url: '/api/customer/add_customer_data',
+      //             type: 'POST',
+      //             headers: {'X-CSRF-TOKEN': $('meta[name="csrf_token"]').attr('content')},
+      //             data: formData,
+      //             dataType: 'json',
+      //             contentType: false,
+      //             processData: false,
+      //             success: function (result) {
+      //                 console.log(result);
+      //             }
+      //         });
+      //     }
+      // });
+
+
+      $(document).on('click', '.add_customer_address-btn', function (e) {
+          e.preventDefault();
+          var $form = $("#add_customer_address");
+          var $this = $(this);
+          $.ajax({
+              type: "POST",
+              url: "/customer/add_customer_address",
+              data: $form.serialize(),
+              beforeSend : function(){
+                  $this.html("Sending message...");
+              }
+          }).done(function () {
+              $this.html('<img style="width: 17px;" src="/images/filled-sent.png">');
+              $("#exampleModal").modal("hide");
+          }).fail(function (response) {
+              console.log(response);
+          });
+      });
   </script>
 
   <style>

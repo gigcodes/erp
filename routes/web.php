@@ -14,6 +14,7 @@
 use App\Helpers\TwilioHelper;
 
 Auth::routes();
+Route::post('customer/add_customer_address', 'CustomerController@add_customer_address');
 
 //Route::get('unused_category', 'TestingController@Demo');
 
@@ -1146,6 +1147,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('purchase-product/supplier-details/{order_id}', 'PurchaseProductController@getSupplierDetails');
     Route::get('purchase-product/customer-details/{type}/{order_id}', 'PurchaseProductController@getCustomerDetails');
     Route::resource('purchase-product', 'PurchaseProductController');
+    Route::get('purchase-product/order-product/images', 'PurchaseProductController@getOrderProductImages');
 
     
 

@@ -4788,7 +4788,7 @@ return response()->json(['only_date' => $only_date,'sop' => $sop]);
         //         $request->request->add(['price_max' => $maxPrice]);
         //     }
         // }
-        $suggestedProducts = \App\SuggestedProduct::leftJoin("suggested_product_lists as spl","spl.suggested_products_id", "suggested_products.id");
+        $suggestedProducts = \App\SuggestedProduct::with('customer')->leftJoin("suggested_product_lists as spl","spl.suggested_products_id", "suggested_products.id");
         $suggestedProducts = $suggestedProducts->leftJoin("products as p","spl.product_id", "p.id");
         $suggestedProducts = $suggestedProducts->leftJoin("customers as c","c.id", "suggested_products.customer_id");
         if($customerId) {
@@ -5355,7 +5355,8 @@ return response()->json(['only_date' => $only_date,'sop' => $sop]);
             $productsLists = \App\SuggestedProductList::where('customer_id',$customer_id)->where('chat_message_id','!=',NULL)
             ->select('suggested_product_lists.*')->orderBy('date','desc')->get()->unique('date');
         }
-        
+        $customer = \App\Customer::find($customer_id);
+
         foreach($productsLists as $suggestion) {
             if($type == 'attach') {
                 $products = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')
@@ -5432,15 +5433,15 @@ return response()->json(['only_date' => $only_date,'sop' => $sop]);
                     }
                 });
             }
-             $suggestion->products = $products->select('products.*','suggested_product_lists.created_at as sort','suggested_product_lists.id as suggested_product_list_id')->orderBy('sort')->get();
+             $suggestion->products = $products->select('products.*','suggested_product_lists.created_at as sort','suggested_product_lists.id as suggested_product_list_id')->orderBy('sort')->paginate(20);
         }
         $selected_products = [];
         $model_type = 'customer';
         if($type == 'attach') {
-            return view('partials.attached-image-products',compact('productsLists','customer_id','selected_products','model_type','suggested_products_id'));
+            return view('partials.attached-image-products',compact('productsLists','customer_id','selected_products','model_type','suggested_products_id','customer'));
         }
         else {
-            return view('partials.suggested-image-products',compact('productsLists','customer_id','selected_products','model_type','suggested_products_id'));
+            return view('partials.suggested-image-products',compact('productsLists','customer_id','selected_products','model_type','suggested_products_id','customer'));
         }
     }
 
