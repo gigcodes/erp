@@ -7,6 +7,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\SiteDevelopmentCategory;
 use App\ChatMessage;
+use App\StoreDevelopmentRemark;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Mediable;
 
@@ -44,6 +45,13 @@ class SiteDevelopment extends Model
     {
     	return $this->hasOne(ChatMessage::class,'site_development_id','id')->orderBy('created_at', 'desc')->latest();
     }
+
+    //START - Purpose : Get Last Remarks - #DEVTASK-19918 
+    public function lastRemark()
+    {
+    	return $this->hasOne(StoreDevelopmentRemark::class,'store_development_id','id')->orderBy('created_at', 'desc')->latest();
+    }
+    //END - #DEVTASK-19918 
 
     public function whatsappAll($needBroadcast = false)
     {
