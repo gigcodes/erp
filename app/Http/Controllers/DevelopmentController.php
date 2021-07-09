@@ -2872,6 +2872,16 @@ class DevelopmentController extends Controller
         return 'error';
     }
 
+    public function getStatusHistory(Request $request)
+    {
+        $id = $request->id;
+        $task_module = DeveloperTaskHistory::join('users','users.id','developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model','App\DeveloperTask')->where('attribute','task_status')->select('developer_tasks_history.*','users.name')->get();
+        if($task_module) {
+            return $task_module;
+        }
+        return 'error';
+    }
+
     public function getTrackedHistory(Request $request)
     {
         $id = $request->id;

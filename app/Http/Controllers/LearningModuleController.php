@@ -819,6 +819,9 @@ class LearningModuleController extends Controller {
 			return redirect()->back()->with( 'success', 'Task created successfully.' );
 	}
 
+			// echo "<pre>";
+			// print_r($last_record_learning->toArray());
+			// exit;
 
 	private function createHubstaffTask(string $taskSummary, ?int $hubstaffUserId, int $projectId, bool $shouldRetry = true)
     {
