@@ -1385,7 +1385,13 @@ class DevelopmentController extends Controller
         if (!isset($reference)) {
             $reference = null;
         }
-        $module = DeveloperModule::find($module);
+        
+        if(is_string($module)) {
+            $module = DeveloperModule::where("name","like",$module)->first();
+        }else{
+            $module = DeveloperModule::find($module);
+        }
+
         if (!$module) {
             $module = new DeveloperModule();
             $module->name = $request->get('module');
