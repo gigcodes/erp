@@ -14,6 +14,7 @@
 use App\Helpers\TwilioHelper;
 
 Auth::routes();
+Route::post('customer/add_customer_address', 'CustomerController@add_customer_address');
 
 Route::get('/test/dummydata', 'TestingController@testingFunction');
 
