@@ -127,7 +127,25 @@
                     </div>
                     <div class="col-md-12">
                         @if($site)
-                            <span class="chat-mini-container pl-1"> @if($site->lastChat) {{ $site->lastChat->message }} @endif</span>
+                            <!-- START - Purpose : Show / Hide Chat & Remarks , Add Last Remarks - #DEVTASK-19918 -->
+                            @if($site->lastChat) Chat = @endif
+                            <div class="justify-content-between expand-row-msg-chat" data-id="{{$site->lastChat->id}}">
+                                <span class="td-full-chat-container-{{$site->lastChat->id}} pl-1"> @if($site->lastChat) {{ str_limit($site->lastChat->message, 100,'...') }} @endif</span>
+                            </div>
+                            <div class="expand-row-msg-chat" data-id="{{$site->lastChat->id}}">
+                                <span class="td-full-chat-container-{{$site->lastChat->id}} hidden"> @if($site->lastChat) {{ $site->lastChat->message }} @endif</span>
+                            </div>
+                            <br/>
+                            @if($site->lastRemark) Remarks = @endif
+                            <div class="justify-content-between expand-row-msg" data-id="{{$site->lastRemark->id}}">
+                                <span class="td-full-container-{{$site->lastRemark->id}}" > @if($site->lastRemark)  {{ str_limit($site->lastRemark->remarks, 100, '...') }} @endif</span>
+                            </div>
+                            <div class="expand-row-msg" data-id="{{$site->lastRemark->id}}">
+                                <span class="td-full-container-{{$site->lastRemark->id}} hidden">
+                                    @if($site->lastRemark) {{ $site->lastRemark->remarks }} @endif
+                                </span>
+                            </div>
+                            <!-- END - #DEVTASK-19918 -->
                         @endif
                     </div>
 

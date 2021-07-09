@@ -53,7 +53,7 @@ class ProductSupplierData extends Command
 
         $product_suppliers_arr = array();
         foreach ($product_suppliers_data as $key => $value) {
-            $product_suppliers_arr[$value->product_id][$value->supplier_id] = $supplier_arr[$value->supplier_id];
+            $product_suppliers_arr[$value->product_id][$value->supplier_id] =  ($supplier_arr[$value->supplier_id] ?? $value->supplier_id );
         }
 
         $product_not_available_product_supplier_table = array();
@@ -73,7 +73,7 @@ class ProductSupplierData extends Command
                         $supplier_exist_product_supplier_table[$key]['product_id'] = $product_id;
                         $supplier_exist_product_supplier_table[$key]['product_name'] = ($value->name ?? '');
                         $supplier_exist_product_supplier_table[$key]['supplier_id'] = $supplier_id;
-                        $supplier_exist_product_supplier_table[$key]['supplier_name'] = $product_suppliers_arr[$product_id][$supplier_id];
+                        $supplier_exist_product_supplier_table[$key]['supplier_name'] = ($product_suppliers_arr[$product_id][$supplier_id] ?? '-' );
 
                     }else{
                         $supplier_not_exist_product_supplier_table[$key]['product_id'] = $product_id;
