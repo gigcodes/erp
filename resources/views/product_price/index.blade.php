@@ -25,9 +25,9 @@
                     <input type="text" name="product" value="{{ request('product') }}" class="form-control" placeholder="Enter Product Or SKU">
                 </div>
                 <div class="form-group ml-3 cls_filter_inputbox">
-                    <select name="country_code" class="form-control" required>
+                    <select name="country_code" class="form-control">
+                        @php $country = request('country_code','') @endphp
                         <option value="">Select country code</option>
-                        @php $country = request('country_code','AE') @endphp
                         @foreach ($countryGroups as $key => $item)
                             <option value="{{ $key }}" {{ ( $country == $key ) ? 'selected' : '' }} >{{ $item }}</option>
                         @endforeach
@@ -60,6 +60,7 @@
                         <tr>
                             <th>SKU</th>
                             <th>PRODUCT ID</th>
+                            <th>Country</th>
                             <th>BRAND</th>
                             <th>SEGMENT</th>
                             <th>MAIN WEBSITE</th>
@@ -76,6 +77,7 @@
                             <tr>
                                 <td>{{ $key['sku'] }}</td>
                                 <td>{{ $key['id'] }}</td>
+                                <td>{{ $key['country_name'] }}</td>
                                 <td>{{ $key['brand'] }}</td>
                                 <td>{{ $key['segment'] }}</td>
                                 <td>{{ $key['website'] }}</td>
