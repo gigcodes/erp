@@ -554,7 +554,11 @@ class ChatMessagesController extends Controller
     {
         $title = "List | Custom Chat Message";
         
-        return view('custom-chat-message.index', compact('title'));
+        $users = User::orderBy('name')->get();
+
+        $vendors = Vendor::orderBy('name')->get();
+
+        return view('custom-chat-message.index', compact('title','users','vendors'));
     }
 
     public function customChatRecords(Request $request)
@@ -567,23 +571,43 @@ class ChatMessagesController extends Controller
                 $query->orWhereNotNull('user_id');
             });
 
+
+
         if (!empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
                 $q->where("message", "LIKE", "%$keyword%");
             });
         }
 
-        $records = $records->latest()->paginate(15);
+        if (!empty($request->user_id)) {
+            $records = $records->where("user_id", $request->user_id);
+        }
+
+        if (!empty($request->vendor_id)) {
+            $records = $records->where("vendor_id",$request->vendor_id);
+        }
+
+
+        $records = $records->latest()->paginate(12);
 
         $recorsArray = [];
 
         foreach ($records as $row) {
 
+            $type = $sender = '';
+            if($row->user_id){
+                $type = 'user';
+                $sender = optional($row->user)->name;
+            }else if ($row->vendor_id) {
+                $type = 'vendor';
+                $sender = optional($row->vendor)->name;
+            }
+
             $recorsArray[] = [
                 'created_at' => $row->created_at->format('d-m-y H:i:s'),
-                'message'    => $row->message.' - '.$row->user_id.' - '.$row->vendor_id,
-                'sender'     => $row->user_id.'-'. optional($row->user)->name,
-                // 'sender'     => (!empty($row->user_id)) ? optional($row->user)->name : (!empty($row->vendor_id)) ? optional($row->vendor)->name : '',
+                'type'       => $type,
+                'message'    => $row->message,
+                'sender'     => $type.' - '.$sender,
             ];
         }    
 

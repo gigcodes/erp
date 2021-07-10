@@ -35,7 +35,7 @@
         <div class="col-lg-12 margin-tb" style="margin-bottom: 10px;">
             <div class="pull-left">
                 <div class="form-inline">
-                    <form class="form-inline message-search-handler" method="get">
+                    <form class="form-inline message-search-handler form-search-data" method="get">
                         <div class="row">
 
 
@@ -43,18 +43,34 @@
 	                            <div class="col pr-0">
 	                                <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
 	                            </div>
-	                        </div>    
+	                        </div>
 
-                            <!-- <div class="form-group">
-                    	    	<div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
-	                                <input type="hidden" name="customrange" id="custom" value="{{ isset($customrange) ? $customrange : '' }}">
-	                                <i class="fa fa-calendar"></i>&nbsp;
-	                                <span @if(isset($customrange)) style="display:none;" @endif id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{ isset($customrange) ? $from .' '.$to : '' }}</p><i class="fa fa-caret-down"></i>
-	                            </div>
-		                    </div> -->
+                            <div class="form-group mr-2">
+                                <div class="col pr-0">
+                                    <select class="form-control" name="user_id">
+                                        <option value="">Select user</option>
+                                        @foreach($users as $user)
+                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                        @endforeach    
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group mr-2">
+                                <div class="col pr-0">
+                                    <select class="form-control" name="vendor_id">
+                                        <option value="">Select vendor</option>
+                                        @foreach($vendors as $vendor)
+                                            <option value="{{ $vendor->id }}">{{ $vendor->name }}</option>
+                                        @endforeach    
+                                    </select>
+                                </div>
+                            </div>    
+
+                            
                             
                             <div class="pull-right">
-	                            <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-secondary btn-search-action">
+	                            <button type="button" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-secondary btn-search-action">
 						  			<img src="/images/search.png" style="cursor: default;">
 						  		</button>
 		                	</div>
@@ -79,6 +95,22 @@
     <div class="row ml-2 mr-2">
         <div class="col-md-12">
             <div class="margin-tb" id="page-view-result">
+                <div class="table-responsive mt-3">
+                    <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th width="10%">Date</th>
+                            <th width="10%">Message</th>
+                            <th width="10%">Sender</th>
+                            <th width="15%">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody id="chatmessagecontent">
+                            
+                        </tbody>
+                    </table>
+                     <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="display: none" />
+                </div>
 			</div>
         </div>
     </div>
@@ -101,13 +133,75 @@
 <script type="text/javascript" src="{{ asset('/js/jquery.validate.min.js') }}"></script>
 <script src="{{ asset('/js/jquery-ui.js') }}"></script>
 <script type="text/javascript" src="{{ asset('/js/common-helper.js') }}"></script>
-<script type="text/javascript" src="{{ asset('/js/custom_chat_message.js') }}"></script>
+<!-- <script type="text/javascript" src="{{ asset('/js/custom_chat_message.js') }}"></script> -->
 
 <script type="text/javascript">
-	page.init({
-		bodyView : $("#common-page-layout"),
-		baseUrl : "<?php echo url("/"); ?>"
-	});
+	// page.init({
+	// 	bodyView : $("#common-page-layout"),
+	// 	baseUrl : "//echo url("/"); ?>"
+	// });
+
+var isLoading = false;
+var page = 0;
+
+function loadMore() {
+    if (isLoading)
+        return;
+    
+    isLoading = true;
+
+    type = $("#tasktype").val();
+    
+    var $loader = $('.infinite-scroll-products-loader');
+    
+    page = page + 1;
+    
+    $.ajax({
+        url: "/custom-chat-message/records?page="+page,
+        type: 'GET',
+        data: $('.form-search-data').serialize(),
+        beforeSend: function() {
+            $loader.show();
+        },
+        success: function (response) {
+            $loader.hide();
+
+            var addProductTpl = $.templates("#template-result-block");
+            var tplHtml       = addProductTpl.render(response);
+
+            $(".count-text").html("("+response.total+")");
+
+            $("#page-view-result #chatmessagecontent").append(tplHtml);
+
+            isLoading = false;
+        },
+        error: function () {
+            $loader.hide();
+            isLoading = false;
+        }
+    });
+}
+
+        
+$(document).ready(function () {
+    
+    loadMore();
+
+    $(window).scroll(function() {
+        if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+            loadMore();
+        }
+    });
+
+    $("#common-page-layout").on("click",".btn-search-action",function(e) {
+        e.preventDefault();
+        page = 0;
+        $("#page-view-result #chatmessagecontent").html('');
+        loadMore()
+    });            
+});
+
+
 </script>
 
 

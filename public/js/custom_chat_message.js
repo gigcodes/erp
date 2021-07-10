@@ -10,9 +10,32 @@ var page = {
         this.getResults();
 
         //initialize pagination
+        
+        // page.config.bodyView.on("click",".page-link",function(e) {
+        // 	e.preventDefault();
+        // 	page.getResults($(this).attr("href"));
+        // });
+
+        //initialize pagination
         page.config.bodyView.on("click",".page-link",function(e) {
-        	e.preventDefault();
-        	page.getResults($(this).attr("href"));
+            e.preventDefault();
+            var activePage = $(this).closest(".pagination").find(".active").text();
+            var clickedPage = $(this).text();
+
+            console.log($(this).attr("href"));
+
+            if(clickedPage == "‹" || clickedPage < activePage) {
+                $('html, body').animate({scrollTop: ($(window).scrollTop() - 500) + "px"}, 200);
+                page.getResults($(this).attr("href"));
+            }else{
+                page.getResults($(this).attr("href"));
+            }
+        });
+
+        $(window).scroll(function() {
+            if($(window).scrollTop() >= ($(document).height() - $(window).height())) {
+                page.config.bodyView.find("#page-view-result").find(".pagination").find(".active").next().find("a").click();
+            }
         });
 
         page.config.bodyView.on("click",".btn-search-action",function(e) {
@@ -49,7 +72,7 @@ var page = {
     	var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/custom-chat-message/records",
             method: "get",
-            data : $(".message-search-handler").serialize(),
+            data: (typeof href != "undefined") ? {} : $(".message-search-handler").serialize(),
             beforeSend : function() {
                 $("#loading-image").show();
             }
@@ -63,7 +86,7 @@ var page = {
 
         $(".count-text").html("("+response.total+")");
 
-    	page.config.bodyView.find("#page-view-result").html(tplHtml);
+    	page.config.bodyView.find("#page-view-result #chatmessagecontent").append(tplHtml);
 
     },
     getLoadData : function(elename,id) {
