@@ -13,8 +13,17 @@
 
 
 Route::prefix('user-management')->middleware('auth')->group(function() {
-    Route::get('/', 'UserManagementController@index')->name("user-management.index");
+
+    Route::get('/', 'UserManagementController@index');
     
+    Route::get('/feedback-category/store', 'UserManagementController@addFeedbackCategory')->name("user-management.index");
+    Route::get('/feedback-status/store', 'UserManagementController@addFeedbackStatus')->name("user.feedback-status");
+    Route::get('/feedback-table/data', 'UserManagementController@addFeedbackTableData')->name("user.feedback-table-data");
+
+    
+    // Route::get('/userfeedback','UserManagementController@cat_name');
+    // Route::post('/userfeedback','UserManagementController@cat_name')->name('user-management.insert');
+
     Route::post('/request-list', 'UserManagementController@permissionRequest')->name("user-management.permission.request");
 
     Route::post('/request-delete', 'UserManagementController@deletePermissionRequest')->name("user-management.permission.delete.request.");
