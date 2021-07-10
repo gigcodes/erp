@@ -145,6 +145,12 @@ return [
             'path'   => storage_path('logs/hubstaff-activity-command/hubstaff-activity-command.log'),
             'days'   => 7,
         ],
+
+        'scrapper_images'    => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/scrapper_images/scrapper_images.log'),
+            'days'   => 7,
+        ],
     ],
 
 ];
