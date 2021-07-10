@@ -29,7 +29,7 @@ class ChatMessagesController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function loadMoreMessages(Request $request)
-    {   
+    {
         // Set variables
         $limit = $request->get("limit", 3);
         $loadAttached = $request->get("load_attached", 0);
@@ -39,6 +39,9 @@ class ChatMessagesController extends Controller
         switch ($request->object) {
             case 'customer':
                 $object = Customer::find($request->object_id);
+                break;
+            case 'user-feedback':
+                $object = User::find($request->object_id);
                 break;
             case 'user':
                 $object = User::find($request->object_id);
@@ -106,9 +109,11 @@ class ChatMessagesController extends Controller
            $onlyBroadcast   = true;
            $loadType        = "images";
         }
-
         $chatMessages = $object->whatsappAll($onlyBroadcast)->whereRaw($rawWhere);
-
+        
+        if ($request->object == "user-feedback") {
+            $chatMessages = ChatMessage::where('user_feedback_id', $object->id)->where('user_feedback_category_id',$request->feedback_category_id);
+        }
         if(!$onlyBroadcast){
            $chatMessages = $chatMessages->where('status', '!=', 10);
         }
