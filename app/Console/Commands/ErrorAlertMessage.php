@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\File;
 
 class errorAlertMessage extends Command
 {
-    const CRON_ISSUE_MODULE_NAME = "Cron";
+    const CRON_ISSUE_MODULE_NAME = "268";
     const CRON_ISSUE_PRIORITY    = 1;
     const CRON_ISSUE_STATUS      = "Planned";
     const DEFAULT_ASSIGNED_TO    = 1;

@@ -76,7 +76,7 @@ class MessageController extends Controller
             }
         }
         $page = $pendingApprovalMsg->currentPage();
-        $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('id', 'DESC')->get();
+        $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('name')->get();
 
 
         if ($request->ajax()) {

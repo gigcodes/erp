@@ -44,7 +44,14 @@ class SearchAttachedImages implements ShouldQueue
         $ref_file = str_replace('|', '/', $this->url);
         $ref_file = str_replace("'", '', $ref_file);
         $params = $this->req_data;
-        $chat_message = \App\ChatMessage::where('id', $id)->first();
+        $customer_id = false;
+        $chat_message = false;
+        if(isset($params['customer_id'])){
+            $customer_id = $params['customer_id'];
+        }else{
+            $chat_message = \App\ChatMessage::where('id', $id)->first();
+        }
+        Log::error(' ref_file => ' . $ref_file . ' chat_message => ' . json_encode($chat_message));
         Log::error(' ref_file => ' . $ref_file . ' chat_message => ' . json_encode($chat_message));
         if(@file_get_contents($ref_file)){
             $i1 = CompareImagesHelper::createImage($ref_file);
@@ -60,7 +67,7 @@ class SearchAttachedImages implements ShouldQueue
             $bits = implode($bits1); 
             Log::error('bits => ' . $bits);
             DB::table('media')->whereNotNull('bits')->where('bits', '!=', 0)->where('bits', '!=', 1)->where('directory', 'like', '%product/%')->orderBy('id')->chunk(1000, function($medias)
-             use ($bits, $chat_message)
+             use ($bits, $chat_message, $customer_id)
             {
             foreach ($medias as $k => $m)
                 {
@@ -81,8 +88,8 @@ class SearchAttachedImages implements ShouldQueue
                         if($this->first_time){
                             $this->suggested_product = SuggestedProduct::create([
                                 'total' => 0,
-                                'customer_id' => $chat_message->customer_id,
-                                'chat_message_id' => $chat_message->id,
+                                'customer_id' => $chat_message ? $chat_message->customer_id : $customer_id,
+                                'chat_message_id' => $chat_message ? $chat_message->id : null,
                             ]);
                             Log::error('$this->suggested_product => ' . json_encode($this->suggested_product)); 
                             $this->first_time = false;
@@ -91,9 +98,10 @@ class SearchAttachedImages implements ShouldQueue
                         if($mediable){
                             Log::error('mediable => ' . json_encode($mediable)); 
                             SuggestedProductList::create([
-                                'customer_id' => $chat_message->customer_id,
+                                'customer_id' => $chat_message ? $chat_message->customer_id : $customer_id,
                                 'product_id' => $mediable->mediable_id,
-                                'chat_message_id' => $chat_message->id,
+                                'media_id' => $m->id,
+                                'chat_message_id' => $chat_message ? $chat_message->id : null,
                                 'suggested_products_id' => $this->suggested_product !== null ? $this->suggested_product->id : null
                             ]); 
                         }
