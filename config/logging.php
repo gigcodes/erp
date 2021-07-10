@@ -139,7 +139,12 @@ return [
             'driver' => 'daily',
             'path'   => storage_path('logs/general/broadcast.log'),
             'days'   => 1,
-        ]
+        ],
+        'hubstaff_activity_command' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/hubstaff-activity-command/hubstaff-activity-command.log'),
+            'days'   => 7,
+        ],
     ],
 
 ];
