@@ -60,6 +60,7 @@ use App\Website;
 use App\WebsiteStore;
 use App\scraperImags;
 use Validator;
+use Illuminate\Support\Facades\Log;
 
 
 class scrapperPhyhon extends Controller
@@ -228,6 +229,7 @@ class scrapperPhyhon extends Controller
 
     public function imageSave(Request $request)
     {
+        // dd(123);
         $validator = Validator::make($request->all(), [
            'country_code'   => 'required',
            'image'          => 'required',
@@ -248,11 +250,16 @@ class scrapperPhyhon extends Controller
                 'img_url'    => $request->image_name,
             );
             scraperImags::insert( $newImage );
+
+            Log::channel('scrapper_images')->info("imageSave() request =>  " . \json_encode($request->all()));
+
             return response()->json(["code" => 200, "message" => 'Image successfully saved']);
         }else{
+            
+            Log::channel('scrapper_images')->info("imageSave() request =>  " . \json_encode($request->all()));
+
             return response()->json(["code" => 500, "message" => 'Something went wrong!']);
         }
-
     }
 
 
