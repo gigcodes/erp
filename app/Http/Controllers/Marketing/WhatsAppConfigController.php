@@ -373,7 +373,7 @@ class WhatsappConfigController extends Controller
             $ch = curl_init();
 
             if ($whatsappConfig->is_use_own == 1) {
-                $url = "http://136.244.118.102:81/get-barcode?instanceId=".$whatsappConfig->instance_id;
+                $url = "http://167.86.89.241:81/get-barcode?instanceId=".$whatsappConfig->instance_id;
             } else {
                 $url = env('WHATSAPP_BARCODE_IP') . $whatsappConfig->username . '/get-screen';
             }
@@ -564,5 +564,30 @@ class WhatsappConfigController extends Controller
         } catch (Exception $e) {
             $e->getMessage();
         }
+    }
+
+    public function logoutScript(Request $request)
+    {
+        $id = $request->id;
+        $whatsappConfig = WhatsappConfig::find($id);
+        $ch = curl_init();
+        if ($whatsappConfig->is_use_own == 1) {
+            $url = "http://167.86.89.241:83/logout?instanceId=".$whatsappConfig->instance_id;
+            curl_setopt($ch, CURLOPT_URL, $url);
+            //return the transfer as a string
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            // $output contains the output string
+            $output = curl_exec($ch);
+            // close curl resource to free up system resources
+            curl_close($ch);
+            $response = json_decode($output);
+            if ($response) {
+                return Response::json(array('success' => true, 'message' => 'Logout Script called'));
+            } else {
+                return Response::json(array('error' => true));
+            }
+        }
+
+        return Response::json(array('error' => true));
     }
 }

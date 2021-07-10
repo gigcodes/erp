@@ -365,6 +365,27 @@
             }      
     }
 
+    function logoutScript(id) {
+          var result = confirm("Want to Logout Script?");
+          if (result) {
+                $.ajax({
+                url: '/marketing/whatsapp-config/logout-script',
+                type: 'GET',
+                dataType: 'json',
+                data: {id: id},
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                    if(data.success){
+                        alert(data.message);
+                    }else if(data.error){
+                        alert('Check if Server Is Running');
+                    }
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });
+            }      
+    }
+
     function removeBlocked() {
         var result = confirm("Want to remove WhatsApp Blocked?");
           if (result) {

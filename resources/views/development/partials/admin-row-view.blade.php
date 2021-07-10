@@ -193,11 +193,16 @@
     <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
     </td>
     <td>
-        @if($issue->is_resolved)
-            <strong>Done</strong>
-        @else
-            <?php echo Form::select("task_status",$statusList,$issue->status,["class" => "form-control resolve-issue","onchange" => "resolveIssue(this,".$issue->id.")"]); ?>
-        @endif
+        <div>
+            @if($issue->is_resolved)
+                <strong>Done</strong>
+            @else
+                <?php echo Form::select("task_status",$statusList,$issue->status,["class" => "form-control resolve-issue","onchange" => "resolveIssue(this,".$issue->id.")"]); ?>
+            @endif
+            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-status-history" title="Show Status History" data-id="{{$issue->id}}">
+                <i class="fa fa-info-circle"></i>
+            </button>
+        </div>
     </td>
     <td>
         @if($issue->cost > 0)

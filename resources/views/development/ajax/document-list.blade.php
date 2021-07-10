@@ -5,6 +5,7 @@
       <th>Info</th>
       <th>Creator</th>
       <th>Documents</th>
+      <th>created_at</th>
     </tr>
   </thead>
   <tbody>
@@ -24,6 +25,7 @@
                   @endforeach
               @endif
             </td>
+            <td>{{ $documents->created_at ? $documents->created_at->format('Y-m-d H:i:s') : '-' }}</td>
           </tr>
         <?php } ?>
     <?php } ?>

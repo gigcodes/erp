@@ -26,7 +26,7 @@ Route::post('mailinglist/add', 'Api\v1\MailinglistController@add');
 *Routes added by Hitesh Ends
 **/ 
 
-
+Route::post('customer/add_customer_data', 'CustomerController@add_customer_data');//Purpose : Add Customer Data - DEVTASK-19932
 
 Route::get('scrape/queue', 'Products\ScrapeController@getUrlFromQueue');
 Route::get('scrape/process', 'Products\ScrapeController@processDataFromScraper');

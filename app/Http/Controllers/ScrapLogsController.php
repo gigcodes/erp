@@ -32,7 +32,8 @@ class ScrapLogsController extends Controller
     	$searchVal = $searchVal != "null" ? $searchVal : "";
     	$dateVal = $dateVal != "null" ? $dateVal : "";
 		$file_list = [];
-		$files = File::allFiles(env('SCRAP_LOGS_FOLDER'));
+		// $files = File::allFiles(env('SCRAP_LOGS_FOLDER'));
+		$files = File::allFiles(config('env.SCRAP_LOGS_FOLDER'));
 
 		$date = $dateVal;
 
@@ -51,7 +52,9 @@ class ScrapLogsController extends Controller
 					continue;
 				}
 
-				$file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
+				// $file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
+				$file_path_new = config('env.SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
+
 				$file = file($file_path_new);
 				
                 $log_msg = "";
@@ -125,7 +128,9 @@ class ScrapLogsController extends Controller
     	$searchVal = "";
     	$dateVal = "";
 		$file_list = [];
-		$files = File::allFiles(env('SCRAP_LOGS_FOLDER'));
+		// $files = File::allFiles(env('SCRAP_LOGS_FOLDER'));
+		$files = File::allFiles(config('env.SCRAP_LOGS_FOLDER'));
+
 		$date = empty($dateVal )? Carbon::now()->format('d') : sprintf("%02d", $dateVal);
 		if($date == 01) 
 		{
@@ -135,7 +140,9 @@ class ScrapLogsController extends Controller
 		foreach ($files as $key => $val) {
 			$day_of_file = explode('-', $val->getFilename());
 			if(str_contains(end($day_of_file), sprintf("%02d", $date-1)) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
-				$file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
+				// $file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
+				$file_path_new = config('env.SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
+
 				$file = file($file_path_new);
 				$log_msg = "";
 				for ($i = max(0, count($file)-3); $i < count($file); $i++) {
@@ -205,7 +212,8 @@ class ScrapLogsController extends Controller
     }
 
     public function fileView($filename, $foldername) {
-		$path = env('SCRAP_LOGS_FOLDER') . '/' . $foldername . '/' . $filename;
+		// $path = env('SCRAP_LOGS_FOLDER') . '/' . $foldername . '/' . $filename;
+		$path = config('env.SCRAP_LOGS_FOLDER') . '/' . $foldername . '/' . $filename;
     	return response()->file($path);
     }
     

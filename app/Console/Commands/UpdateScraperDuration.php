@@ -78,7 +78,9 @@ class UpdateScraperDuration extends Command
         
                 /* This curl need to replace with guzzleHttp but for now i am keeping this. */
 
-                $url = 'http://' . $scraper->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js'; 
+                // $url = 'http://' . $scraper->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js'; 
+                $url = 'http://' . $scraper->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/process-list?filename=' . $name . '.js'; 
+
                 $curl = curl_init();
                 curl_setopt($curl, CURLOPT_URL, $url);
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);

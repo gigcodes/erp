@@ -125,7 +125,8 @@ class LiveChatController extends Controller
                     $language        = $customerDetails->language;
                     if($language == null){
                         $translate = new TranslateClient([
-                            'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
+                            // 'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
+                            'key' => config('env.GOOGLE_TRANSLATE_API_KEY')
                         ]);
                         $result = $translate->detectLanguage($message);
                         $customerDetails->language = $result['languageCode'];
@@ -133,7 +134,8 @@ class LiveChatController extends Controller
                     }
                 
                     $result  = TranslationHelper::translate($language, 'en', $message);
-                    $message = $result . ' -- ' . $message;
+                    // $message = $result . ' -- ' . $message;
+                    $message = $message;
 
                     if ($author_id == 'buying@amourint.com') {
                         $messageStatus = 2;

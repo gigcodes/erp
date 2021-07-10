@@ -39,7 +39,8 @@ class LoadBranchState extends Command
     {
         parent::__construct();
         $this->githubClient = new Client([
-            'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+            'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
         ]);
     }
 
@@ -109,7 +110,8 @@ class LoadBranchState extends Command
     private function getAllRepositoriesIds()
     {
         //https://api.github.com/orgs/ludxb/repos
-        $url      = 'https://api.github.com/orgs/' . getenv('GITHUB_ORG_ID') . '/repos';
+        // $url      = 'https://api.github.com/orgs/' . getenv('GITHUB_ORG_ID') . '/repos';
+        $url      = 'https://api.github.com/orgs/' . config('env.GITHUB_ORG_ID') . '/repos';
         $response = $this->githubClient->get($url);
 
         $repositories = json_decode($response->getBody()->getContents());

@@ -97,9 +97,11 @@ class WhatsAppController extends FindByNumberController
     public function __construct()
     {
         $this->githubClient = new GuzzleClient([
-            'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
+            'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
         ]);
-        $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+        // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+        $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
     }
     /**
      * Incoming message URL for whatsApp
@@ -2004,6 +2006,12 @@ class WhatsAppController extends FindByNumberController
             $module_id = $request->customer_id;
             //update if the customer message is going to send then update all old message to read
             \App\ChatMessage::updatedUnreadMessage($request->customer_id, $data["status"]);
+
+            // update message for chatbot request->customer_id
+            if(!empty($data["status"]) && !in_array($data["status"], \App\ChatMessage::AUTO_REPLY_CHAT)) {
+                \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.replied_chat_id', '=', 'c.id')->where('c.customer_id', $request->customer_id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
+                \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.chat_id', '=', 'c.id')->where('c.customer_id', $request->customer_id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
+            }
         } elseif ($context == "purchase") {
             $data['purchase_id'] = $request->purchase_id;
             $module_id = $request->purchase_id;
@@ -2029,6 +2037,10 @@ class WhatsAppController extends FindByNumberController
             }
             $data['user_id'] = $u_id;
             $module_id = $request->user_id;
+        }elseif ($context == 'hubstuff') {  
+            $data['hubstuff_activity_user_id'] = $request->hubstuff_id;
+            $module_id = $request->hubstuff_id;
+            $this->sendWithThirdApi(7487854885, 7487854885, 'test', false);
         } else {
             if ($context == 'vendor') {
                 $data['vendor_id'] = $request->vendor_id;
@@ -2042,6 +2054,13 @@ class WhatsAppController extends FindByNumberController
                 if ($request->get('message')) {
                     $data['message'] = $request->get('message');
                 }
+
+                // update message for chatbot request->vendor_id
+                if(!empty($data["status"]) && !in_array($data["status"], \App\ChatMessage::AUTO_REPLY_CHAT)) {
+                    \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.replied_chat_id', '=', 'c.id')->where('c.vendor_id', $request->vendor_id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
+                    \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.chat_id', '=', 'c.id')->where('c.vendor_id', $request->vendor_id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
+                }
+
             } elseif ($context == 'task') {
                 $data['task_id'] = $request->task_id;
                 $task = Task::find($request->task_id);
@@ -2142,6 +2161,12 @@ class WhatsAppController extends FindByNumberController
                         'replied_chat_id' => $chat_message->id,
                         'reply_from' => 'database'
                     ]);
+                }
+
+                // update message for chatbot request->vendor_id
+                if(!empty($data["status"]) && !in_array($data["status"], \App\ChatMessage::AUTO_REPLY_CHAT)) {
+                    \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.replied_chat_id', '=', 'c.id')->where('c.task_id', $task->id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
+                    \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.chat_id', '=', 'c.id')->where('c.task_id', $task->id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
                 }
                 
                 $message_ = "[ ". @$loggedUser->name ." ] - #". $task->id.' - '. $task->task_subject . "\n\n" . $request->message;
@@ -2448,6 +2473,12 @@ class WhatsAppController extends FindByNumberController
                         'last_communicated_message_at' => Carbon::now(),
                         'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
                     ]);
+
+                    // update message for chatbot request->vendor_id
+                    if(!empty($data["status"]) && !in_array($data["status"], \App\ChatMessage::AUTO_REPLY_CHAT)) {
+                        \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.replied_chat_id', '=', 'c.id')->where('c.developer_task_id', $issue->id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
+                        \DB::table('chat_messages as c')->join('chatbot_replies as cr', 'cr.chat_id', '=', 'c.id')->where('c.developer_task_id', $issue->id)->where('cr.is_read',0)->update([ 'cr.is_read' => 1]);
+                    }
 
                     if ($sendTo == "to_master") {
                         
@@ -2831,7 +2862,8 @@ class WhatsAppController extends FindByNumberController
                                             if ($request->customerId != null) {
                                                 $customer = Customer::findorfail($request->customerId);
                                                 if (!empty($request->send_pdf)) {
-                                                    $file = env('APP_URL') . '/pdf/' . $random . '.pdf';
+                                                    // $file = env('APP_URL') . '/pdf/' . $random . '.pdf';
+                                                    $file = config('env.APP_URL') . '/pdf/' . $random . '.pdf';
                                                 }
                                                 $data['customer_id'] = $customer->id;
                                                 $chat_message = ChatMessage::create($data);
@@ -3878,7 +3910,8 @@ class WhatsAppController extends FindByNumberController
 
                     $botReply          = \App\ChatbotReply::where( 'chat_id', $message->id)->get();
                     $storeEmailAddress = EmailAddress::whereNotNull('store_website_id')->where( 'store_website_id', $customer->store_website_id )->first();
-                    $from_address      = env('MAIL_FROM_ADDRESS');
+                    // $from_address      = env('MAIL_FROM_ADDRESS');
+                    $from_address      = config('env.MAIL_FROM_ADDRESS');
 
                     $subject = null;
                     $message_body = $message->message;
@@ -4096,7 +4129,7 @@ class WhatsAppController extends FindByNumberController
         $data = '';
         if ($message->message != '') {
 
-            if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'user-feedback') {
+            if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback') {
                 if ($context == 'supplier') {
                     $supplierDetails = Supplier::find($message->supplier_id);
                     $language = $supplierDetails->language;
@@ -4145,6 +4178,11 @@ class WhatsAppController extends FindByNumberController
                         $result = TranslationHelper::translate('en', $language, $message->message);
                         $message->message = $result;
                     }
+                }
+                if ($context == 'hubstuff') { 
+                    $user = User::find($message->hubstuff_activity_user_id);
+                    $phone = $user->phone;
+                    $whatsapp_number = Auth::user()->whatsapp_number;
                 }
                 $sendResult = $this->sendWithThirdApi($phone, $whatsapp_number, $message->message, null, $message->id);
             } else {
@@ -5170,8 +5208,7 @@ class WhatsAppController extends FindByNumberController
         if($chat_message_id > 0) {
             $chatMessage = \App\ChatMessage::find($chat_message_id);
         }
-
-
+        
         // Set instanceId and token
         $isUseOwn = false;
         if (isset($config[$whatsapp_number])) {
@@ -5184,29 +5221,29 @@ class WhatsAppController extends FindByNumberController
             $token = $config[0]['token'];
             $isUseOwn = isset($config[0]['is_use_own']) ? $config[0]['is_use_own'] : 0;
         }
-
+        
         if (isset($customer_id) && $message != null && $message != '') {
             $customer = Customer::findOrFail($customer_id);
-
+            
             $fields = array('[[NAME]]' => $customer->name, '[[CITY]]' => $customer->city, '[[EMAIL]]' => $customer->email, '[[PHONE]]' => $customer->phone, '[[PINCODE]]' => $customer->pincode, '[[WHATSAPP_NUMBER]]' => $customer->whatsapp_number, '[[SHOESIZE]]' => $customer->shoe_size, '[[CLOTHINGSIZE]]' => $customer->clothing_size);
-
+            
             preg_match_all("/\[[^\]]*\]]/", $message, $matches);
             $values = $matches[0];
-
+            
             foreach ($values as $value) {
                 if (isset($fields[$value])) {
                     $message = str_replace($value, $fields[$value], $message);
                 }
             }
         }
-
+        
         $encodedNumber = '+' . $number;
         if($isUseOwn == 1) { 
             $encodedNumber = $number;
         }
         
         $encodedText = $message;
-
+        
         $array = [
             'phone' => $encodedNumber
         ];
@@ -5222,18 +5259,34 @@ class WhatsAppController extends FindByNumberController
             $link = 'sendFile';
             $array['caption'] = $encodedText;
         }
-
+        
         $array['instanceId'] = $instanceId;
-
+        
         // here is we call python 
         if($isUseOwn == 1) { 
-            $domain = "http://136.244.118.102:82/".$link;
+            $domain = "http://167.86.89.241:82/".$link;
         }else{
             $domain = "https://api.chat-api.com/instance$instanceId/$link?token=$token";
         }
 
-        $curl = curl_init();
+        // \Log::channel('chatapi')->debug('cUrl_url:' . $domain . "\nMessage: " . $message. "\nCUSTOMREQUEST: " . 'POST' ."\nPostFields: " . json_encode($array) . "\nFile:" . $file . "\n" . ' ['. json_encode($logDetail). '] ');
 
+        $customerrequest_arr['CUSTOMREQUEST'] = 'POST';
+        $message_arr['message'] = $message;
+        $file_arr['file'] = $file;
+
+        $log_data = [
+            'Message_Data' => $message_arr,
+            'Customer_request_data' => $customerrequest_arr,
+            'PostFields' => $array,
+            'file_data' => $file_arr,
+            'logDetail_data' => $logDetail,
+        ];
+
+        \Log::channel('chatapi')->debug('cUrl_url:{"' . $domain . " } \nMessage: ".json_encode($log_data) );
+
+        $curl = curl_init();
+        
         curl_setopt_array($curl, array(
             CURLOPT_URL => $domain,
             CURLOPT_RETURNTRANSFER => true,
@@ -5268,7 +5321,19 @@ class WhatsAppController extends FindByNumberController
             return false;
         } else {
             // Log curl response
-            \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: " . $message . "\nFile:" . $file . "\n" . ' ['. json_encode($logDetail). '] ');
+
+            // \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: " . $message . "\nFile:" . $file . "\n" . ' ['. json_encode($logDetail). '] ');
+            $customerrequest_arr['CUSTOMREQUEST'] = 'POST';
+            $message_arr1['message'] = $message;
+            $file_arr1['file'] = $file;
+
+            $log_data_send = [
+                'Message_Data' => $message_arr1,
+                'file_data' => $file_arr1,
+                'logDetail_data' => $logDetail,
+            ];
+    
+            \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: ".json_encode($log_data_send) );
 
             // Json decode response into result
             $result = json_decode($response, true);
@@ -5761,7 +5826,9 @@ class WhatsAppController extends FindByNumberController
             ]);
 
 
-            $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+            // $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+            $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+
 			  $assignedUser = HubstaffMember::where('user_id', $user->id)->first();	  
 			  $hubstaffUserId = null;
 			  if ($assignedUser) {
@@ -5802,7 +5869,8 @@ class WhatsAppController extends FindByNumberController
         $data['hubstaff_task_id'] = 0;
         $data['assigned_by'] = $default_user_id;
         $data['status'] = 'In Progress';
-        $data['hubstaff_project'] = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+        // $data['hubstaff_project'] = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+        $data['hubstaff_project'] = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
         $task = DeveloperTask::create($data);
 
         // CREATE GITHUB REPOSITORY BRANCH
@@ -5876,7 +5944,8 @@ class WhatsAppController extends FindByNumberController
             if ($hubstaffUserId) {
                 $body['assignee_id'] = $hubstaffUserId;
             } else {
-                $body['assignee_id'] = getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID');
+                // $body['assignee_id'] = getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID');
+                $body['assignee_id'] = config('env.HUBSTAFF_DEFAULT_ASSIGNEE_ID');
             }
             $response = $httpClient->post(
                 $url,

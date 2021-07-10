@@ -43,7 +43,8 @@ class LearningModuleController extends Controller {
 	use hubstaffTrait;
 
 	public function __construct() {
-		$this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+		// $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+		$this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
 	}
 
 	public function index( Request $request ) {
@@ -306,270 +307,18 @@ class LearningModuleController extends Controller {
 			//return;
 		}
 
-					 
-			//task pending backup
-
-			// $data['task']['pending'] = DB::select('
-			// SELECT tasks.*
-
-			// FROM (
-			//   SELECT * FROM tasks
-			//   LEFT JOIN (
-			// 	  SELECT 
-			// 		  MAX(id) as max_id,
-			// 		  task_id as tk
-			// 	  FROM chat_messages 
-			// 	  WHERE chat_messages.status not in(7,8,9) 
-			// 	  GROUP BY task_id 
-			// 	  ORDER BY chat_messages.created_at DESC
-			//    ) AS chat_messages_max ON chat_messages_max.tk = tasks.id
-			//   LEFT JOIN (
-			// 	  SELECT 
-			// 		  id as message_id, 
-			// 		  task_id, 
-			// 		  message, 
-			// 		  status as message_status, 
-			// 		  sent as message_type, 
-			// 		  created_at as message_created_at, 
-			// 		  is_reminder AS message_is_reminder,
-			// 		  user_id AS message_user_id
-			// 	  FROM chat_messages 
-			//   ) AS chat_messages ON chat_messages.message_id = chat_messages_max.max_id
-			// ) AS tasks
-			// WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
-			// 		   AND (message_id = (
-			// 			 SELECT MAX(id) FROM chat_messages WHERE task_id = tasks.id
-			// 			 ) OR message_id IS NULL)
-			// ORDER BY is_flagged DESC, message_created_at DESC;
-			// 		 ');
-					 //end pending backup			
-
-
-
-						// dd($data['task']['pending']);
-
-		// $currentPage = LengthAwarePaginator::resolveCurrentPage();
-		// $perPage = Setting::get('pagination');
-		// $currentItems = array_slice($data['task']['pending'], $perPage * ($currentPage - 1), $perPage);
-		//
-		// $data['task']['pending'] = new LengthAwarePaginator($currentItems, count($data['task']['pending']), $perPage, $currentPage, [
-		// 	'path'	=> LengthAwarePaginator::resolveCurrentPath()
-		// ]);
-
-						// dd($data['task']['pending']);
-
-						// $tasks = Learning::all();
-						//
-						// foreach($tasks as $task) {
-						// 	if ($task->assign_to != 0) {
-						// 		$user = $task->assign_to;
-						// 		$task->users()->syncWithoutDetaching($user);
-						// 	}
-						// }
-
-		// $data['task']['completed']  = Learning::where( 'is_statutory', '=', 0 )
-		//                                     ->whereNotNull( 'is_completed'  )
-		// 									->where( function ($query ) use ($userid) {
-		// 										return $query->orWhere( 'assign_from', '=', $userid )
-		// 										             ->orWhere( 'assign_to', '=', $userid );
-		// 									});
-		// if ($request->category != '') {
-		// 	$data['task']['completed'] = $data['task']['completed']->where('category', $request->category);
-		// }
-		//
-		// if ($request->term != '') {
-		// 	$data['task']['completed'] = $data['task']['completed']->where(function ($query) use ($term) {
-		// 		$query->whereRaw('category IN (SELECT id FROM task_categories WHERE name LIKE "%' . $term . '%") OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")')
-		// 					->orWhere('id', 'LIKE', "%$term%")
-		// 					->orWhere('task_details', 'LIKE', "%$term%")->orWhere('task_subject', 'LIKE', "%$term%");
-		// 	});
-		// }
-		//
-		// $data['task']['completed'] = $data['task']['completed']->get()->toArray();
-
-			//completed task backup
-
-			// $data['task']['completed'] = DB::select('
-			// SELECT *,
-			//  message_id,
-			// message,
-			// message_status,
-			// message_type,
-			// message_created_At as last_communicated_at
-			// FROM (
-			//   SELECT * FROM tasks
-			//   LEFT JOIN (
-			// 	 SELECT 
-			// 		 MAX(id) as max_id,
-			// 		 task_id as tk
-			// 	 FROM chat_messages 
-			// 	 WHERE chat_messages.status not in(7,8,9) 
-			// 	 GROUP BY task_id 
-			// 	 ORDER BY chat_messages.created_at DESC
-			//   ) AS chat_messages_max ON chat_messages_max.tk = tasks.id
-			//  LEFT JOIN (
-			// 	 SELECT 
-			// 		 id as message_id, 
-			// 		 task_id, 
-			// 		 message, 
-			// 		 status as message_status, 
-			// 		 sent as message_type, 
-			// 		 created_at as message_created_At, 
-			// 		 is_reminder AS message_is_reminder,
-			// 		 user_id AS message_user_id
-			// 	 FROM chat_messages 
-			//  ) AS chat_messages ON chat_messages.message_id = chat_messages_max.max_id
-			// ) AS tasks
-			// WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
-			// ORDER BY last_communicated_at DESC;
-			// 		 ');
-
-			//completed task backup end
-
-		// $satutory_tasks = SatutoryTask::latest()
-		//                                          ->orWhere( 'assign_from', '=', $userid )
-		// 										 ->orWhere( 'assign_to', '=', $userid )->whereNotNull('completion_date')
-		//                                          ->get();
-		//
-		// foreach ($satutory_tasks as $task) {
-		// 	switch ($task->recurring_type) {
-		// 		case 'EveryDay':
-		// 			if (Carbon::parse($task->completion_date)->format('Y-m-d') < date('Y-m-d')) {
-		// 				$task->completion_date = null;
-		// 				$task->save();
-		// 			}
-		// 			break;
-		// 		case 'EveryWeek':
-		// 			if (Carbon::parse($task->completion_date)->addWeek()->format('Y-m-d') < date('Y-m-d')) {
-		// 				$task->completion_date = null;
-		// 				$task->save();
-		// 			}
-		// 			break;
-		// 		case 'EveryMonth':
-		// 			if (Carbon::parse($task->completion_date)->addMonth()->format('Y-m-d') < date('Y-m-d')) {
-		// 				$task->completion_date = null;
-		// 				$task->save();
-		// 			}
-		// 			break;
-		// 		case 'EveryYear':
-		// 			if (Carbon::parse($task->completion_date)->addYear()->format('Y-m-d') < date('Y-m-d')) {
-		// 				$task->completion_date = null;
-		// 				$task->save();
-		// 			}
-		// 			break;
-		// 		default:
-		//
-		// 	}
-		// }
-
-		// $data['task']['statutory'] = SatutoryTask::latest()->where(function ($query) use ($userid) {
-		// 	$query->where('assign_from', $userid)
-		//  				->orWhere('assign_to', $userid);
-		// });
-	 //
-	 //
-		// if ($request->category != '') {
-		// 	$data['task']['statutory'] = $data['task']['statutory']->where('category', $request->category);
-		// }
-	 //
-		// if ($request->term != '') {
-		// 	$data['task']['statutory'] = $data['task']['statutory']->where(function ($query) use ($term) {
-		// 		$query->whereRaw('category IN (SELECT id FROM task_categories WHERE name LIKE "%' . $term . '%") OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")')
-		// 					->orWhere('id', 'LIKE', "%$term%")
-		// 					->orWhere('task_details', 'LIKE', "%$term%")->orWhere('task_subject', 'LIKE', "%$term%");
-		// 	});
-		// }
-	 //
-   // $data['task']['statutory'] = $data['task']['statutory']->get()->toArray();
-
-		// $data['task']['statutory_completed'] = Learning::latest()->where( 'is_statutory', '=', 1 )
-		//                                    ->whereNotNull( 'is_completed'  )
-		//                                    ->where( function ($query ) use ($userid) {
-		// 	                                   return $query->orWhere('assign_from', '=', $userid)
-		// 	                                                ->orWhere('assign_to', '=', $userid);
-		//                                    })
-		//                                    ->get()->toArray();
-
-		 
-							// dd($data['task']['statutory_completed']);
-
-							// foreach ($data['task']['statutory_completed'] as $task) {
-							// 	dump($task->id);
-							// }
-							//
-							// dd('stap');
-
-		// $data['task']['statutory_today'] = Learning::latest()->where( 'is_statutory', '=', 1 )
-		//                                            ->where( 'is_completed', '=',  null  )
-		//                                            ->where( function ($query ) use ($userid) {
-		// 	                                           return $query->orWhere( 'assign_from', '=', $userid )
-		// 	                                                        ->orWhere( 'assign_to', '=', $userid );
-		//                                            });
-		//
-		// if ($request->category != '') {
-		// 	$data['task']['statutory_today'] = $data['task']['statutory_today']->where('category', $request->category);
-		// }
-		//
-		// if ($request->term != '') {
-		// 	$data['task']['statutory_today'] = $data['task']['statutory_today']->where(function ($query) use ($term) {
-		// 		$query->whereRaw('category IN (SELECT id FROM task_categories WHERE name LIKE "%' . $term . '%") OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")')
-		// 					->orWhere('id', 'LIKE', "%$term%")
-		// 					->orWhere('task_details', 'LIKE', "%$term%")->orWhere('task_subject', 'LIKE', "%$term%");
-		// 	});
-		// }
-		//
-    //  $data['task']['statutory_today'] = $data['task']['statutory_today']->get()->toArray();
-
-//		$data['task']['statutory_completed_ids'] = [];
-//		foreach ($data['task']['statutory_completed'] as $item)
-//			$data['task']['statutory_completed_ids'][] =  $item['statutory_id'];
-
-
-		// $data['task']['deleted']   = Learning::onlyTrashed()
-		//                                 ->where( 'is_statutory', '=', 0 )
-		// 								->where( function ($query ) use ($userid) {
-		// 									return $query->orWhere( 'assign_from', '=', $userid )
-		// 									             ->orWhere( 'assign_to', '=', $userid );
-		// 								});
-	 //
-		// if ($request->category != '') {
-		// 	$data['task']['deleted'] = $data['task']['deleted']->where('category', $request->category);
-		// }
-	 //
-		// if ($request->term != '') {
-		// 	$data['task']['deleted'] = $data['task']['deleted']->where(function ($query) use ($term) {
-		// 		$query->whereRaw('category IN (SELECT id FROM task_categories WHERE name LIKE "%' . $term . '%") OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")')
-		// 					->orWhere('id', 'LIKE', "%$term%")
-		// 					->orWhere('task_details', 'LIKE', "%$term%")->orWhere('task_subject', 'LIKE', "%$term%");
-		// 	});
-		// }
-	 //
-   // $data['task']['deleted'] = $data['task']['deleted']->get()->toArray();
-
-																	//  $tasks_query = Learning::where('is_statutory', 0)
-															 		// 												->where('assign_to', Auth::id());
-																	//
-															 		// $pending_tasks_count = Learning::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNull('is_completed')->get();
-															 		// $completed_tasks_count = $tasks_query->whereNull('is_completed')->count();
-																	// dd($pending_tasks_count);
-
-																	// $tasks_query = Learning::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNull('is_completed')->count();
-																	//
-																	// dd($tasks_query);
-																	// $users = Helpers::getUserArray(User::all());
+					
+		$subjectList = Learning::select('learning_subject')->distinct()->pluck('learning_subject');
 
 		$users                     = User::oldest()->get()->toArray();
 		$data['users']             = $users;
 		$data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
 
-		// foreach ($data['task']['pending'] as $task) {
-		// }
-
-
+		
 		// $category = '';
 		//My code start
 		$selected_user = $request->input( 'selected_user' );
-		$users         = Helpers::getUserArray( User::all() );
+		$users         = Helpers::getUserArray( User::orderby('name')->get() );
 		$task_categories = LearningModule::where('parent_id', 0)->get();
 		$learning_module_dropdown = nestable(LearningModule::where('is_approved', 1)->where('parent_id', 0)->get()->toArray())->attr(['name' => 'learning_module','class' => 'form-control input-sm parent-module'])
 		->selected($request->category)
@@ -623,7 +372,7 @@ class LearningModuleController extends Controller {
 		}
 		else {
 
-			$statusList = \DB::table("task_statuses")->pluck("name", "id")->toArray();
+			$statusList = \DB::table("task_statuses")->orderBy('name','asc')->pluck("name", "id")->toArray();
 
 			$learningsListing = Learning::query();
 
@@ -655,9 +404,14 @@ class LearningModuleController extends Controller {
 			$learningsListing = $learningsListing->latest()->get();
 
 
+			$last_record_learning = Learning::with('learningUser')->latest()->first();
+
+			// echo "<pre>";
+			// print_r($last_record_learning->toArray());
+			// exit;
 
 
-			return view( 'learning-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'learning_module_dropdown', 'learning_submodule_dropdown', 'priority','openTask','type','title','task_statuses','learningsListing','statusList'));
+			return view( 'learning-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'learning_module_dropdown', 'learning_submodule_dropdown', 'priority','openTask','type','title','task_statuses','learningsListing','statusList','subjectList','last_record_learning'));
 		}
 	}
 
@@ -1001,7 +755,9 @@ class LearningModuleController extends Controller {
 
 			  app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
 			  
-			  $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			//   $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			  $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+
 			  $assignedUser = HubstaffMember::where('user_id', $request->input('assign_to'))->first();
 			  // $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
 	  
@@ -1086,7 +842,8 @@ class LearningModuleController extends Controller {
             if ($hubstaffUserId) {
                 $body['assignee_id'] = $hubstaffUserId;
             } else {
-                $body['assignee_id'] = getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID');
+                // $body['assignee_id'] = getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID');
+				$body['assignee_id'] = config('env.HUBSTAFF_DEFAULT_ASSIGNEE_ID');
             }
 
             $response = $httpClient->post(
@@ -2177,7 +1934,8 @@ class LearningModuleController extends Controller {
 
 		$issue->save();
 		
-		$hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+		// $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+		$hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 
         $assignedUser = HubstaffMember::where('user_id', $masterUserId)->first();
 
@@ -2362,7 +2120,8 @@ class LearningModuleController extends Controller {
 			else {
 				$user_id = $task->master_user_id; 
 			}
-			$hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			// $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			$hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 		
 			$assignedUser = HubstaffMember::where('user_id', $user_id)->first();
 		

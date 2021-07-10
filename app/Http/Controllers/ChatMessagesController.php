@@ -43,6 +43,9 @@ class ChatMessagesController extends Controller
             case 'user-feedback':
                 $object = User::find($request->object_id);
                 break;
+            case 'hubstuff':
+                $object = User::find($request->object_id);
+                break;
             case 'user':
                 $object = User::find($request->object_id);
                 break;
