@@ -588,7 +588,7 @@ class ChatMessagesController extends Controller
         }
 
 
-        $records = $records->latest()->paginate(12);
+        $records = $records->latest()->paginate(20);
 
         $recorsArray = [];
 
