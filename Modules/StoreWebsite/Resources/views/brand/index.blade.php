@@ -64,14 +64,25 @@
 					    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
 				  	</div>
 					
-					<div class="form-group">
+					<div class="form-group ml-2">
 						<label for="no-inventory">No Inventory</label>
 						<input type="checkbox" name="no-inventory" value="1" {{ request()->has('no-inventory') ? 'checked' : '' }} />
 					</div>
-
-					<div class="form-group ">
+	
+					
+					<div class="form-group ml-2">
 						<?php echo Form::select("category_id",$categories,request("category_id"),["class"=> "form-control select2","placeholder" => "Select Category"]) ?>
 					</div>
+
+					<div class="form-group ml-2">
+						<?php echo Form::select("brd_store_website_id",$storeWebsite,request("brd_store_website_id"),["class"=> "form-control select2","placeholder" => "Select Store Website"]) ?>
+					</div>
+
+					<div class="form-group ml-2">
+						<label for="no_brand">no Available brand</label>
+						<input type="checkbox" name="no_brand" value="1" {{ request()->has('no_brand') ? 'checked' : '' }} />
+					</div>	
+
 
 				  	<div class="form-group">
 				  		<label for="button">&nbsp;</label>
@@ -92,28 +103,42 @@
 				        <th width="10%">Brand</th>
 				        <th width="10%">Min Price</th>
 				        <th width="10%">Max Price</th>
-				        <?php foreach($storeWebsite as $sw) { ?>
-				        	<th width="10%"><?php echo $sw->title; ?></th>
+				        <?php foreach($storeWebsite as $title) { ?>
+				        	<th width="10%"><?php echo $title; ?></th>
 				        <?php } ?>	
 				      </tr>
 				    </thead>
 				    <tbody>
 				    	<?php foreach($brands as $brand) { ?>
+
+				    	  <?php
+				    	  	if(request()->get('brd_store_website_id')){
+				    	  		if(request()->get('no_brand')){
+					    	  		if(in_array(request()->get('brd_store_website_id'), $apppliedResult[$brand->id])){
+					    	  			continue;
+					    	  			}
+					    	  	}else{
+					    	  		if(!in_array(request()->get('brd_store_website_id'), $apppliedResult[$brand->id])){
+					    	  			continue;
+					    	  		}
+					    	  	}	
+				    	  	}
+				    	  ?>		
  					      <tr>
 					      	<td><?php echo $brand->id; ?></td>
 					      	<td><a target="_blank" href="{{ route('product-inventory.new') }}?brand[]={{ $brand->id }}">{{ $brand->name }}  ( {{ $brand->counts }} )</a></td>
 					      	<td><?php echo $brand->min_sale_price; ?></td>
 					      	<td><?php echo $brand->max_sale_price; ?></td>
-					      	<?php foreach($storeWebsite as $sw) { 
-					      			$checked = (isset($apppliedResult[$brand->id]) && in_array($sw->id, $apppliedResult[$brand->id])) ? "checked" : ""; 
+					      	<?php foreach($storeWebsite as $swid => $sw) { 
+					      			$checked = (isset($apppliedResult[$brand->id]) && in_array($swid, $apppliedResult[$brand->id])) ? "checked" : ""; 
 					      		?>
 					        	<td>
-					        		<input data-brand="<?php echo $brand->id; ?>" data-sw="<?php echo $sw->id; ?>" <?php echo $checked; ?> class="push-brand" type="checkbox" name="brand_website">
+					        		<input data-brand="<?php echo $brand->id; ?>" data-sw="<?php echo $swid; ?>" <?php echo $checked; ?> class="push-brand" type="checkbox" name="brand_website">
 					        		<span>
-					        			@php $magentoStoreBrandId = $brand->storewebsitebrand($sw->id); @endphp
+					        			@php $magentoStoreBrandId = $brand->storewebsitebrand($swid); @endphp
 					        			{{ $magentoStoreBrandId ? $magentoStoreBrandId : '' }}
 					        		</span>
-					        		<a href="javascript:;" data-href="{!! route('store-website.brand.history',['brand'=>$brand->id,'store'=>$sw->id]) !!}" class="log_history"><i class="fa fa-info-circle" aria-hidden="true"></i>
+					        		<a href="javascript:;" data-href="{!! route('store-website.brand.history',['brand'=>$brand->id,'store'=>$swid]) !!}" class="log_history"><i class="fa fa-info-circle" aria-hidden="true"></i>
 					        		</a>
 					        	</td>
 					        <?php } ?>
