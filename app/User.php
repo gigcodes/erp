@@ -91,7 +91,10 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
-
+    public function userFeedbackCategory()
+    {
+        return $this->hasOne(UserFeedbackCategory::class);
+    }
     public function messages()
     {
         return $this->hasMany(Message::class);

@@ -31,6 +31,9 @@ use App\UserSysyemIp;
 use DB;
 use Hash;
 use Illuminate\Support\Arr;
+use App\UserFeedbackCategory;
+use App\UserFeedbackStatus;
+
 
 class UserManagementController extends Controller
 {
@@ -38,7 +41,7 @@ class UserManagementController extends Controller
      * Display a listing of the resource.
      * @return Response
      */
-    public function index()
+    public function index(Request $req)
     {
         $title = "User management";
         $permissionRequest = PermissionRequest::count();
@@ -48,7 +51,40 @@ class UserManagementController extends Controller
         
         $userlist = User::orderBy('name')->where('is_active',1)->get();
 
+        // $user = new feedback_table;
+        // $user->catagory=$req->input('catagory');
+        // //     // $user->adminrespose=$req->input('adminrespose');
+        // //     // $user->userrespose=$req->input('userrespose');
+        // //     // $user->status=$req->input('status');
+        // //     // $user->histry=$req->input('histry');
+        // $user->save();
+
         return view('usermanagement::index', compact('title','permissionRequest','statusList','usersystemips','userlist'));
+    }
+
+
+    public function cat_name( Request $req){
+        $title = "User management";
+        $permissionRequest = PermissionRequest::count();
+        $statusList = \DB::table("task_statuses")->select("name","id")->get()->toArray();
+
+        $usersystemips = UserSysyemIp::with('user')->get();
+        
+        $userlist = User::orderBy('name')->where('is_active',1)->get();
+
+        // $user = new feedback_table;
+        // $user->catagory=$req->input('catagory');
+        //     // $user->adminrespose=$req->input('adminrespose');
+        //     // $user->userrespose=$req->input('userrespose');
+        //     // $user->status=$req->input('status');
+        //     // $user->histry=$req->input('histry');
+        // $user->save();
+        
+  
+
+        return view('usermanagement::index', compact('title','permissionRequest','statusList','usersystemips','userlist'));
+      
+    
     }
 
     public function permissionRequest( Request $request ){
@@ -1676,6 +1712,42 @@ class UserManagementController extends Controller
         }else{
             return response()->json(["code" => 500, "data" => [], "message" => "No request found"]);
         }
+
+    }
+
+    public function addFeedbackCategory(Request $request)
+    {
+        $category = new UserFeedbackCategory;
+        $category->user_id=$request->user_id;
+        $category->category=$request->category;
+        $category->save();
+        $status = UserFeedbackStatus::get();
+
+        return view('usermanagement::user-feedback-data',compact('category','status'));
+        // return response()->json(["status" => true , 'category' => $category]);
+    }
+
+    public function addFeedbackStatus(Request $request)
+    {
+        $status = UserFeedbackStatus::where('status',$request->status);
+        if($status->count() === 0){
+            $feedback_status = new UserFeedbackStatus;
+            $feedback_status->status=$request->status;
+            $feedback_status->save();
+            // return view('usermanagement::user-feedback-data',compact('status'));
+            $all_status = UserFeedbackStatus::get();
+            return response()->json(["status" => true , 'feedback_status' => $all_status]);
+        }
+        return response()->json(["status" => false , 'status' => $status]);
+    }
+
+    public function addFeedbackTableData(Request $request)
+    {
+        $status = UserFeedbackStatus::get();
+
+        $user_id = $request->user_id;
+        $category = UserFeedbackCategory::where('user_id',$user_id)->groupBy('category')->get();
+        return view('usermanagement::user-feedback-table',compact('category', 'status'));
 
     }
 }

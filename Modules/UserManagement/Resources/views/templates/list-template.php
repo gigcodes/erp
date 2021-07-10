@@ -1,5 +1,5 @@
 <script type="text/x-jsrender" id="template-result-block">
-<style>
+	<style>
 table {
   table-layout: fixed;
   border-collapse: collapse;
@@ -39,7 +39,7 @@ a {
 				<th style="width:80px">Due date</th> 			
 				<th style="width:85px;">Paid on</th>
 				<th style="width:30px;">S</th>
-				<?php if(Auth::user()->isAdmin()) { ?>
+				<?php if (Auth::user()->isAdmin()) { ?>
 				<th style="width:148px;">Send</th>
 				<th style="width:160px;">Reply</th>
 				<?php } ?>
@@ -73,7 +73,7 @@ a {
 					<td>
 					<span class="user-status {{if prop.is_online}} is-online {{/if}}"></span>
 					</td>
-					<?php if(Auth::user()->isAdmin()) { ?>
+					<?php if (Auth::user()->isAdmin()) { ?>
 					<td>
 						<div class="row">
 							<div class="col-md-12">
@@ -103,7 +103,7 @@ a {
 					</td>
 					<?php } ?>
 			        <td>
-					<?php if(Auth::user()->isAdmin()) { ?>
+					<?php if (Auth::user()->isAdmin()) { ?>
 					<button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-communication-modal" data-object='user' data-id="{{:prop.id}}" title="Load messages">
 					<img src="/images/chat.png" data-is_admin="<?php echo Auth::user()->hasRole('Admin'); ?>" data-is_hod_crm="<?php echo Auth::user()->hasRole('HOD of CRM'); ?>" alt="">
 					</button>
@@ -136,7 +136,7 @@ a {
 						</span>
 						<br>
 					{{/if}}
-					<?php if(Auth::user()->isAdmin()) { ?>
+					<?php if (Auth::user()->isAdmin()) { ?>
 						{{if prop.is_active == 1}}
 							<button title="Deactive user" type="button" class="btn btn-image change-activation pd-5" data-id="{{:prop.id}}"><img src="/images/do-disturb.png" /></button>
 						{{else}}
@@ -153,16 +153,27 @@ a {
 					{{if !prop.already_approved}}
 						<button title="Approve user for the day" type="button" class="btn approve-user pd-5" data-id="{{:prop.id}}"> <i class="fa fa-check-circle" aria-hidden="true"></i></button>
 					{{/if}}
-					<?php if(Auth::user()->isAdmin()) { ?>
+					<?php if (Auth::user()->isAdmin()) { ?>
 						<button title="Create database" type="button" class="btn btn-create-database pd-5" data-id="{{:prop.id}}"> <i class="fa fa-database" aria-hidden="true"></i></button>
 					<?php } ?>
 					
 						<button title="Task acitivity" type="button" class="btn task-activity pd-5" data-id="{{:prop.id}}"><i class="fa fa-history"></i></button>
 
-						<?php if(Auth::user()->isAdmin()) { ?>
+						<?php if (Auth::user()->isAdmin()) { ?>
+
                 			<button title="generate pem file" class="btn user-generate-pem-file pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-file" aria-hidden="true"></i></button>
+
      						<button title="Pem file History" class="btn user-pem-file-history pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-info-circle" aria-hidden="true"></i></button>
+
+							 <button title="user feedback" id="exampleModal" data-user_id="{{:prop.id}}" class=" btn fa fa-comment feedback_btn user-feedback-modal" data-bs-target="#exampleModal" aria-hidden="true"><i class="fa fa comment" aria-hidden="true"></i></button>
+							 
+
           				<?php } ?>
+
+						
+
+						  <!-- <i class="fa fa-comment" aria-hidden="true"></i> -->
+
 					</td>
 			      </tr>
 			    {{/props}}  
@@ -364,8 +375,8 @@ a {
 					  	<div class="row">
 					  		<div class="col">
 					      		<select class="form-control choose-db" name="connection">
-					      			<?php foreach(\App\StoreWebsite::DB_CONNECTION as $k => $connection) { ?>
-					      				<option {{if data.connection == "<?php echo $k; ?>" }} selected='selected' {{/if}} value="<?php echo $k; ?>"><?php echo $connection ; ?></option>
+					      			<?php foreach (\App\StoreWebsite::DB_CONNECTION as $k => $connection) { ?>
+					      				<option {{if data.connection == "<?php echo $k; ?>" }} selected='selected' {{/if}} value="<?php echo $k; ?>"><?php echo $connection; ?></option>
 					      			<?php } ?>		
 					      		</select>
 					      	</div>
