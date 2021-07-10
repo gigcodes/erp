@@ -3201,3 +3201,9 @@ Route::prefix('message-queue-history')->middleware('auth')->group(static functio
     Route::get('/', 'MessageQueueHistoryController@index')->name('message-queue-history.index');
     Route::get('/records', 'MessageQueueHistoryController@records')->name("message-queue-history.records");
 });
+
+
+Route::prefix('custom-chat-message')->middleware('auth')->group(static function () {
+    Route::get('/', 'ChatMessagesController@customChatListing');
+    Route::get('/records', 'ChatMessagesController@customChatRecords');
+});
