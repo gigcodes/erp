@@ -517,9 +517,6 @@ class TwilioController extends FindByNumberController
      */
     public function outgoingCall(Request $request)
     {
-
-        Log::channel('customerDnd')->info('IP: = ' . $request->ip());
-        Log::channel('customerDnd')->info('>>>>>>>>>>>>>>>>>. = ' . implode(" ",$request->all()));
         Log::channel('customerDnd')->info('Call Status: = ' . $request->get("CallStatus"));
 
         $number = $request->get("PhoneNumber");
@@ -545,8 +542,8 @@ class TwilioController extends FindByNumberController
         ]);
 
         //Change Agent Call Status - START
-        Log::channel('customerDnd')->info('AuthId: ' . ($request->get("AuthId") ?? auth()->user()->id) );
-        $user_id = ($request->get("AuthId") ?? auth()->user()->id);
+        Log::channel('customerDnd')->info('AuthId: ' . $request->get("AuthId"));	
+        $user_id =$request->get("AuthId");
         $user_data = User::find($user_id);
         
         $twilio_number_data = TwilioActiveNumber::where('phone_number',$callFrom)->first();
