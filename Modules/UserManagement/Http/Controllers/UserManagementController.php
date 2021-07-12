@@ -69,12 +69,12 @@ class UserManagementController extends Controller
                 $ip      = $values[1]??0;
                 $comment = $values[2]??0;
                 
-                $where = ['index_txt' => $index];
+                $where = ['ip' => '127.0.0.111'];
 
                 $insert = [
-                    'index_txt'       => $index,
-                    'ip'              => $ip,
-                    'notes'           => $comment,
+                    'index_txt'       => $index??'-',
+                    'ip'              => $ip??'-',
+                    'notes'           => $comment??'-',
                     // 'user_id'         => Auth::id(),
                     // 'other_user_name' => $comment,
                 ];
