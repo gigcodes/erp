@@ -17,7 +17,7 @@ class MessageQueueHistoryController extends Controller
     {
         $title = "List | Message Queue History";
 
-        return view('message-queue-history.index', compact('title'));
+        return view('custom-chat-message.index', compact('title'));
     }
 
     public function records(Request $request)
