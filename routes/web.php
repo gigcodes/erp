@@ -366,13 +366,14 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
   
   
     Route::post('sop', 'ProductController@saveSOP')->name('sop.add');
-    // Route::get('sop', 'ProductController@showSOP')->name('sop.post');
-    Route::get('sop', 'ProductController@getdata')->name('sop.post');
-    Route::get('sopdata', 'ProductController@getdata')->name('sop.index');
-    Route::delete('sopdel/{id}', 'ProductController@destroyname')->name('sopdel.destroyname');
+    Route::get('sop', 'ProductController@getdata')->name('sop.index');
+    Route::delete('sop/{id}', 'ProductController@destroyname')->name('sopdel.destroyname');
     Route::get('sop/edit', 'ProductController@edit')->name('editName');
     Route::post('update', 'ProductController@update')->name('updateName');
     Route::get('sop/search', 'ProductController@searchsop');
+    Route::get('soplogs', 'ProductController@sopnamedata_logs')->name('sopname.logs');
+
+
 
     Route::get('product/delete-image', 'ProductController@deleteImage')->name('product.deleteImages');
 
@@ -3199,4 +3200,10 @@ Route::prefix('magento-product-error')->middleware('auth')->group(static functio
 Route::prefix('message-queue-history')->middleware('auth')->group(static function () {
     Route::get('/', 'MessageQueueHistoryController@index')->name('message-queue-history.index');
     Route::get('/records', 'MessageQueueHistoryController@records')->name("message-queue-history.records");
+});
+
+
+Route::prefix('custom-chat-message')->middleware('auth')->group(static function () {
+    Route::get('/', 'ChatMessagesController@customChatListing')->name('custom-chat-message.index');
+    Route::get('/records', 'ChatMessagesController@customChatRecords');
 });
