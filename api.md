@@ -1338,3 +1338,38 @@ POST https://erp.theluxuryunlimited.com/api/wishlist/remove
 }
 ```
 
+
+## Add address
+
+**Request:**
+
+```json
+POST https://erp.theluxuryunlimited.com/api/customer/add_customer_data?website=www.brands-labels.com&email=solanki7492@gmail.com
+[{
+    "entity_id" : 12,
+    "address_type" : "shipping",
+    "region" : "EU",
+    "region_id" : "12",
+    "postcode" : "12",
+    "firstname" : "1ad",
+    "middlename" : "J",
+    "company" : "Test",
+    "country_id" :96,
+    "telephone" : "987542011",
+    "prefix" : "mr",
+    "street" : "test"
+}]
+```
+
+**Successful Response:**
+```json
+{
+    "status": "200"
+}
+```
+**Failed Response:**
+```json
+{
+    "code": 404
+}
+```
