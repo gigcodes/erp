@@ -305,7 +305,7 @@ class InstantMessagingController extends Controller
 
 
         // // Nothing found
-        if ($whatsappConfig == null || Crypt::decrypt($whatsappConfig->password) != $request->token) {
+        if ($whatsappConfig == null || $whatsappConfig->token != $request->token) {
             $message = ['error' => 'Invalid token'];
             return json_encode($message, 400);
         }
