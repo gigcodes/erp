@@ -141,6 +141,11 @@ class Brand extends Model
         return self::pluck("name","id")->toArray();
     }
 
+    public function storewebbrand()
+    {
+        return $this->hasOne(StoreWebsiteBrand::class,'brand_id','id');
+    }
+
     public function storewebsitebrand($StoreID)
     {
         $record = $this->hasOne(StoreWebsiteBrand::class,'brand_id','id')->where('store_website_id',$StoreID)->first();

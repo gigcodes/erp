@@ -250,6 +250,8 @@ class CategoryController extends Controller
             SELECT
                 categories.title,
                 categories.id as cat_id,
+                ct.title as parent_name,
+                ct.id as parent_id,
                 MIN(price*1) AS minimumPrice,
                 MAX(price*1) AS maximumPrice
             FROM
@@ -258,11 +260,17 @@ class CategoryController extends Controller
                 categories
             ON
                 products.category=categories.id
+            LEFT JOIN
+                categories as ct
+            ON
+                categories.parent_id=ct.id    
             GROUP BY
                 products.category
             ORDER BY
                 categories.title
         ");
+
+
 
         // Get all form data
         $resultsBrandCategoryPriceRange = BrandCategoryPriceRange::all();
