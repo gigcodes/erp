@@ -5374,6 +5374,7 @@ class ProductController extends Controller
     public function getCustomerProducts($type,$suggested_products_id,$customer_id,Request $request) {
         $term = null;
         //$suggested_products_id=3;
+      
         if($type == 'attach') {
             $productsLists = \App\SuggestedProductList::where('suggested_products_id',$suggested_products_id)->where('customer_id',$customer_id)->where('remove_attachment',0)
             ->select('suggested_product_lists.*')->orderBy('date','desc')->get()->unique('date');
@@ -5460,15 +5461,17 @@ class ProductController extends Controller
                     }
                 });
             }
-             $suggestion->products = $products->select('products.*','suggested_product_lists.created_at as sort','suggested_product_lists.id as suggested_product_list_id')->orderBy('sort')->paginate(20);
+             $suggestion->products = $products->select('products.*','suggested_product_lists.created_at as sort','suggested_product_lists.id as suggested_product_list_id')->orderBy('sort')->get();
         }
         $selected_products = [];
         $model_type = 'customer';
         if($type == 'attach') {
             return view('partials.attached-image-products',compact('productsLists','customer_id','selected_products','model_type','suggested_products_id','customer'));
+
         }
         else {
             return view('partials.suggested-image-products',compact('productsLists','customer_id','selected_products','model_type','suggested_products_id','customer'));
+
         }
     }
 
