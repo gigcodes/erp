@@ -85,6 +85,11 @@ use App\EmailAddress;
 use App\EmailNotificationEmailDetails;//Purpose : Add Modal - DEVTASK-4359
 use App\Mails\Manual\PurchaseExport;//Purpose : Add Modal - DEVTASK-4236
 use App\Helpers\MessageHelper;
+use Illuminate\Pagination\LengthAwarePaginator;
+use App\Imports\CustomerNumberImport;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+
 class WhatsAppController extends FindByNumberController
 {
 

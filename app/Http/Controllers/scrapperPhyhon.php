@@ -251,12 +251,12 @@ class scrapperPhyhon extends Controller
             );
             scraperImags::insert( $newImage );
 
-            Log::channel('scrapper_images')->info("imageSave() request =>  " . \json_encode($request->all()));
+            Log::channel('scrapper_images')->info("imageSave() request =>  " . json_encode($request->all()));
 
             return response()->json(["code" => 200, "message" => 'Image successfully saved']);
         }else{
             
-            Log::channel('scrapper_images')->info("imageSave() request =>  " . \json_encode($request->all()));
+            Log::channel('scrapper_images')->info("imageSave() request =>  " . json_encode($request->all()));
 
             return response()->json(["code" => 500, "message" => 'Something went wrong!']);
         }
