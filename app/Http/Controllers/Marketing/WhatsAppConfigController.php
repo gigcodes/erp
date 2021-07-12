@@ -125,6 +125,10 @@ class WhatsappConfigController extends Controller
         $data['default_for']         = $defaultFor;
         WhatsappConfig::create($data);
 
+
+        \Artisan::call('config:clear');
+
+
         return redirect()->back()->withSuccess('You have successfully stored Whats App Config');
     }
 
@@ -171,6 +175,8 @@ class WhatsappConfigController extends Controller
 
         $config->update($data);
 
+        \Artisan::call('config:clear');
+
         return redirect()->back()->withSuccess('You have successfully changed Whats App Config');
     }
 
@@ -196,6 +202,9 @@ class WhatsappConfigController extends Controller
     {
         $config = WhatsappConfig::findorfail($request->id);
         $config->delete();
+
+        \Artisan::call('config:clear');
+
         return Response::json(array(
             'success' => true,
             'message' => 'WhatsApp Config Deleted',
