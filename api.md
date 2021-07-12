@@ -1344,7 +1344,7 @@ POST https://erp.theluxuryunlimited.com/api/wishlist/remove
 **Request:**
 
 ```json
-POST https://erp.theluxuryunlimited.com/api/customer/add_customer_data?website=www.brands-labels.com&email=solanki7492@gmail.com
+POST https://erp.theluxuryunlimited.com/api/customer/add_customer_data?website=www.brands-labels.com&email=test@gmail.com
 [{
     "entity_id" : 12,
     "address_type" : "shipping",
