@@ -926,4 +926,55 @@ class CategoryController extends Controller
             //      return false;
             //  }
     }
+
+    public function updateMinMaxPriceDefault()
+    {
+        if(!auth()->user()->isAdmin()) {
+            //return abort(404);
+        }
+        
+        $results = \Illuminate\Support\Facades\DB::select("
+            SELECT
+                categories.title,
+                categories.id as cat_id,
+                ct.title as parent_name,
+                ct.id as parent_id,
+                MIN(price*1) AS minimumPrice,
+                MAX(price*1) AS maximumPrice
+            FROM
+                products
+            JOIN
+                categories
+            ON
+                products.category=categories.id
+            LEFT JOIN
+                categories as ct
+            ON
+                categories.parent_id=ct.id    
+            GROUP BY
+                products.category
+            ORDER BY
+                categories.title
+        ");
+
+        $brandSegments = ['A', 'B', 'C'];
+
+        foreach($brandSegments as $bs) {
+            foreach($results as $r) {
+                $bsRange = BrandCategoryPriceRange::where('brand_segment' , $bs)->where('category_id' , $r->cat_id)->first(); 
+                if(!$bsRange) {
+                    BrandCategoryPriceRange::updateOrCreate(
+                        ['brand_segment' => $bs, 'category_id' => $r->cat_id],
+                        ['min_price' => 50,'max_price' => 10000]
+                    );
+                }else{
+                    $bsRange->min_price = 50;
+                    $bsRange->max_price = 10000;
+                    $bsRange->save();
+                }
+            }
+        }
+
+        Echo "script done";
+    }
 }
