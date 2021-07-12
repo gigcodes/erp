@@ -80,15 +80,15 @@
             <th style="width: 3% !important;">Cust Support</th>
             <th style="width: 3% !important;">Start Time</th>
             <th style="width: 3% !important;">End Time</th>
-            <th style="width: 3% !important;">Device</th>
+            <th style="width: 1% !important;">Device</th>
            <!--  <th style="width: 3% !important;">Sim No.</th>
             <th style="width: 3% !important;">Sim Owner.</th>
             <th style="width: 3% !important;">Pay</th>
             <th style="width: 14% !important;">Rech</th> -->
             <th style="width: 1% !important;">Sts</th>
             <th style="width: 5% !important;">Started At</th>
-            <th style="width: 5% !important;">Instance Id</th>
-            <th style="width: 12% !important;">Actions</th>
+            <th style="width: 1% !important;">Instance Id</th>
+            <th style="width: 20% !important;">Actions</th>
           </tr>
 
           <tr>

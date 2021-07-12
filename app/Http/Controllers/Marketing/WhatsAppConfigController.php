@@ -111,7 +111,7 @@ class WhatsappConfigController extends Controller
             'provider'         => 'required',
             'customer_support' => 'required',
             'username'         => 'required|min:3|max:255',
-            'password'         => 'required|min:6|max:255',
+            //'password'         => 'required|min:6|max:255',
             'frequency'        => 'required',
             'send_start'       => 'required',
             'send_end'         => 'required',
@@ -120,7 +120,7 @@ class WhatsappConfigController extends Controller
         $defaultFor  = implode(",", isset($requestData['default_for']) ? $requestData['default_for'] : []);
 
         $data                        = $request->except('_token', 'default_for');
-        $data['password']            = Crypt::encrypt($request->password);
+        //$data['password']            = Crypt::encrypt($request->password);
         $data['is_customer_support'] = $request->customer_support;
         $data['default_for']         = $defaultFor;
         WhatsappConfig::create($data);
@@ -153,7 +153,7 @@ class WhatsappConfigController extends Controller
             'provider'         => 'required',
             'customer_support' => 'required',
             'username'         => 'required|min:3|max:255',
-            'password'         => 'required|min:6|max:255',
+            //'password'         => 'required|min:6|max:255',
             'frequency'        => 'required',
             'send_start'       => 'required',
             'send_end'         => 'required',
@@ -165,7 +165,7 @@ class WhatsappConfigController extends Controller
         $defaultFor = implode(",", isset($requestData['default_for']) ? $requestData['default_for'] : []);
 
         $data                        = $request->except('_token', 'id', 'default_for');
-        $data['password']            = Crypt::encrypt($request->password);
+        //$data['password']            = Crypt::encrypt($request->password);
         $data['is_customer_support'] = $request->customer_support;
         $data['default_for']         = $defaultFor;
 
