@@ -1165,7 +1165,7 @@
                 url: "{{action('DevelopmentController@resolveIssue')}}",
                 data: {
                     issue_id: id,
-                    is_resolved: status
+                    is_resolved: status,
                 },
                 success: function () {
                     toastr["success"]("Status updated!", "Message")
