@@ -221,7 +221,7 @@
 
 
 
-    <div id="permission-request" class="modal fade" role="dialog">
+    <div id="permission-request-model" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <!-- Modal content-->
             <div class="modal-content">
@@ -757,8 +757,8 @@
                             t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
                         }
                     }
-                    $("#permission-request").find(".show-list-records").html(t);
-                    $("#permission-request").modal("show");
+                    $("#permission-request-model").find(".show-list-records").html(t);
+                    $("#permission-request-model").modal("show");
                 },
                 error: function() {
                     $("#loading-image").hide();
