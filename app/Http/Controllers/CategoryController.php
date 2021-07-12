@@ -929,8 +929,8 @@ class CategoryController extends Controller
 
     public function updateMinMaxPriceDefault()
     {
+        return abort(404);
         if(!auth()->user()->isAdmin()) {
-            //return abort(404);
         }
         
         $results = \Illuminate\Support\Facades\DB::select("
