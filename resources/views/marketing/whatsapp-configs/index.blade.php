@@ -386,6 +386,26 @@
             }      
     }
 
+    function getInfo(id) {
+          $.ajax({
+            url: '/marketing/whatsapp-config/get-status-info',
+            type: 'GET',
+            dataType: 'json',
+            data: {id: id},
+            }).done(function (data) {
+                $("#loading-image").hide();
+                if(data.success){
+                    alert(data.message);
+                }else if(data.error){
+                    alert('Check if Server Is Running');
+                }
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });      
+    }
+
+    
+
     function removeBlocked() {
         var result = confirm("Want to remove WhatsApp Blocked?");
           if (result) {
