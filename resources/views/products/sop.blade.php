@@ -27,7 +27,7 @@
         <div class="col-md-12">
             <h2 class="page-heading"> ListingApproved - SOP</h2>
         </div>
-        <div class="col-lg-12 margin-tb" >
+        <div class="col-lg-12 margin-tb">
 
             <div class="pull-left">
                 <div class="form-group" style="margin-bottom: 0px;">
@@ -46,7 +46,7 @@
                                     <img src="/images/search.png" style="cursor: default;">
                                 </button>
 
-                                <a href="{{ route('sop.add') }}" type="button" class="btn btn-image" id=""><img
+                                <a href="{{ route('sop.store') }}" type="button" class="btn btn-image" id=""><img
                                         src="/images/resend2.png"></a>
 
                             </div>
@@ -57,7 +57,8 @@
             </div>
 
             <div class="pull-right">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#exampleModal">+</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#exampleModal">Add
+                    Notes</button>
             </div>
         </div>
     </div>
@@ -70,7 +71,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Add Name</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Add Data</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -99,10 +100,10 @@
             </div>
         </div>
     </div>
- <!--------------------------------------------------- end Add Data Modal ------------------------------------------------------->
-    <div class="col-md-12">
+    <!--------------------------------------------------- end Add Data Modal ------------------------------------------------------->
+    <div class="col-md-12" style="padding: 0;">
         <div class="pagenote-scroll">
-            <!-- Purpose : Add Div for Scrolling - DEVTASK-4289 -->
+
             <div class="table-responsive">
                 <table cellspacing="0" role="grid"
                     class="page-notes table table-bordered datatable mdl-data-table dataTable page-notes" style="width:100%"
@@ -114,7 +115,7 @@
                             <th width="20%">Name</th>
                             <th width="50%">Content</th>
                             <th width="10%">Created at</th>
-                           
+
                             <th width="15%">Action</th>
                         </tr>
                     </thead>
@@ -127,9 +128,9 @@
                                 <td>{!! $value->content !!}</td>
 
                                 <td>{{ date('yy-m-d', strtotime($value->created_at)) }}</td>
-                              
+
                                 <td>
-                                   
+
                                     <a href="javascript:;" data-id="{{ $value->id }}"
                                         class="editor_edit btn-xs btn btn-image p-2">
                                         <img src="/images/edit.png"></a>
@@ -137,16 +138,18 @@
 
                                     <a class="btn btn-image deleteRecord" data-id="{{ $value->id }}"><img
                                             src="/images/delete.png" /></a>
-                                        
-                                            <a class="fa fa-info-circle view_log" style="font-size:18px; margin-left:15px;" title="status-log" data-name=
-                                            "{{ $value->purchaseProductOrderLogs ? $value->purchaseProductOrderLogs->header_name : '' }}" data-id="{{ $value->id }}" data-toggle="modal" data-target="#ViewlogModal"></a>
-                                  
+
+                                    <a class="fa fa-info-circle view_log" style="font-size:18px; margin-left:15px;"
+                                        title="status-log"
+                                        data-name="{{ $value->purchaseProductOrderLogs ? $value->purchaseProductOrderLogs->header_name : '' }}"
+                                        data-id="{{ $value->id }}" data-toggle="modal" data-target="#ViewlogModal"></a>
+
                                 </td>
                         @endforeach
-                       
+
                     </tbody>
                 </table>
-{{                $usersop->appends(request()->input())->links()}}
+                {{ $usersop->appends(request()->input())->links() }}
             </div>
 
         </div>
@@ -154,50 +157,53 @@
 
     {{-- ------------------ View Log ----------------------- --}}
 
-    <div class="modal fade log_modal" id="ViewlogModal" tabindex="-1" role="dialog" aria-labelledby="log_modal" aria-hidden="true">
+    <div class="modal fade log_modal" id="ViewlogModal" tabindex="-1" role="dialog" aria-labelledby="log_modal"
+        aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Log Details</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="table-responsive mt-2">
-                    <table class="table table-bordered log-table" style="border: 1px solid #ddd !important; color:black;table-layout:fixed">
-                        <thead>
-                            <tr>
-                                <th width="28%">From</th>
-                                <th width="28%">To</th>
-                                <th width="14%">Created By</th>
-                                <th width="30%">Created At</th>
-                                
-                            </tr>
-                        </thead>
-                        
-                        <tbody class="log_data" id="log_data">
-                            
-                        </tbody>
-                    </table>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">History Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-            </div>
-            <div class="modal-footer">
-            
-            </div>
+                <div class="modal-body">
+                    <div class="table-responsive mt-2">
+                        <table class="table table-bordered log-table"
+                            style="border: 1px solid #ddd !important; color:black;table-layout:fixed">
+                            <thead>
+                                <tr>
+                                    <th width="28%">From</th>
+                                    <th width="28%">To</th>
+                                    <th width="14%">Created By</th>
+                                    <th width="30%">Created At</th>
+
+                                </tr>
+                            </thead>
+
+                            <tbody class="log_data" id="log_data">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                </div>
             </div>
         </div>
     </div>
 
-{{-- -------------------------- end view log --------------------------- --}}
+    {{-- -------------------------- end view log --------------------------- --}}
 
 
-{{-- --------------------------------------------- Update Data start----------------------------------------- --}}
+    {{-- --------------------------------------------- Update Data start----------------------------------------- --}}
 
     <div id="erp-notes" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Update Data</h5>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
@@ -206,7 +212,8 @@
                         @csrf
                         <div class="form-group">
                             <label for="name">Notes:</label>
-                            <input type="hidden" class="form-control sop_old_name" name="sop_old_name" id="sop_old_name" value="">
+                            <input type="hidden" class="form-control sop_old_name" name="sop_old_name" id="sop_old_name"
+                                value="">
                             <input type="text" class="form-control sopname" name="name" id="sop_edit_name">
                         </div>
 
@@ -215,18 +222,16 @@
                             <textarea class="form-control sop_edit_class" name="content" id="sop_edit_content"></textarea>
                         </div>
 
-                        <button type="submit" class="btn btn-success ml-3 updatesopnotes" >Update</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-secondary ml-3 updatesopnotes">Update</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-{{-- -------------------------- end Update Data start-------------------------- --}}
+    {{-- -------------------------- end Update Data start-------------------------- --}}
 
-
-   
 @endsection
 
 @section('scripts')
@@ -236,45 +241,46 @@
         CKEDITOR.replace('sop_edit_content');
     </script>
 
-<script>
-$(document).on("click",".view_log",function(e) {    
-        
-    var id = $(this).data('id');
+    <script>
+        $(document).on("click", ".view_log", function(e) {
 
-    var purchase_order_products_id = $(this).data('data-id');
-    var header_name = $(this).attr('data-name');
-  
-    $.ajax({
-        type: "GET",
-        url: "{{ route('sopname.logs') }}",
-        data: {
-            _token: "{{ csrf_token() }}",
-            id: id,
-            purchase_order_products_id: purchase_order_products_id,
-            header_name : header_name,
-        },
-        dataType : "json",
-        success: function (response) {
+            var id = $(this).data('id');
 
-            var html_content = ''
-            $.each( response.log_data, function( key, value ) {
-                html_content += '<tr>';
-                html_content += '<td>'+ (value.replace_from == null ? '-' : value.replace_from )+'</td>';
-                html_content += '<td>'+ value.replace_to+'</td>';
-                html_content += '<td>'+ value.name+'</td>';
-                html_content += '<td>'+ value.log_created_at+'</td>';
-                html_content += '</tr>';
+            var purchase_order_products_id = $(this).data('data-id');
+            var header_name = $(this).attr('data-name');
+
+            $.ajax({
+                type: "GET",
+                url: "{{ route('sopname.logs') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id: id,
+                    purchase_order_products_id: purchase_order_products_id,
+                    header_name: header_name,
+                },
+                dataType: "json",
+                success: function(response) {
+
+                    var html_content = ''
+                    $.each(response.log_data, function(key, value) {
+                        html_content += '<tr>';
+                        html_content += '<td>' + (value.replace_from == null ? '-' : value
+                            .replace_from) + '</td>';
+                        html_content += '<td>' + value.replace_to + '</td>';
+                        html_content += '<td>' + value.name + '</td>';
+                        html_content += '<td>' + value.log_created_at + '</td>';
+                        html_content += '</tr>';
+                    });
+
+                    $("#log_data").html(html_content);
+                    $('#log_modal').modal('show');
+                },
+                error: function() {
+                    toastr['error']('Message not sent successfully!');
+                }
             });
-
-            $("#log_data").html(html_content);
-            $('#log_modal').modal('show');
-        },
-        error: function () {
-            toastr['error']('Message not sent successfully!');
-        }
-    });
-});
-</script>
+        });
+    </script>
 
     <script>
         $('#FormModal').submit(function(e) {
@@ -284,9 +290,8 @@ $(document).on("click",".view_log",function(e) {
 
             let _token = $("input[name=_token]").val();
 
-
             $.ajax({
-                url: "{{ route('sop.add') }}",
+                url: "{{ route('sop.store') }}",
                 type: "POST",
                 data: {
                     name: name,
@@ -297,21 +302,26 @@ $(document).on("click",".view_log",function(e) {
                 success: function(response) {
                     console.log('response', response);
                     if (response) {
-                      
-                        $("#NameTable tbody").append('<tr class="parent_tr"><td>'+response.sop.id+'</td><td> '+response.sop.name+' </td><td> '+response.sop.content+' </td><td> '+response.only_date+' </td><td>'+
-                                
-                                '<a href="javascript:;" data-id = "'+response.sop.id+'" class="editor_edit btn-xs btn btn-image p-2">'+
-                                            '<img src="/images/edit.png"></a>'+
-                                           
 
-                                        '<a class="btn btn-image deleteRecord" data-id="'+response.sop.id+'" ><img src="/images/delete.png" /></a>'+
+                        $("#NameTable tbody").prepend('<tr class="parent_tr"><td>' + response.sop.id +
+                            '</td><td> ' + response.sop.name + ' </td><td> ' + response.sop
+                            .content + ' </td><td> ' + response.only_date + ' </td><td>' +
 
-                                        ' <a class="fa fa-info-circle view_log" style="font-size:18px; margin-left:15px;" title="status-log" data-id="'+response.sop.id+'" data-toggle="modal" data-target="#ViewlogModal" data-name="'+response.params.header_name+'"></a>'+
-                                
-                                
-                                '</td></tr>');
+                            '<a href="javascript:;" data-id = "' + response.sop.id +
+                            '" class="editor_edit btn-xs btn btn-image p-2">' +
+                            '<img src="/images/edit.png"></a>' +
 
-                      
+
+                            '<a class="btn btn-image deleteRecord" data-id="' + response.sop.id +
+                            '" ><img src="/images/delete.png" /></a>' +
+
+                            ' <a class="fa fa-info-circle view_log" style="font-size:18px; margin-left:15px;" title="status-log" data-id="' +
+                            response.sop.id +
+                            '" data-toggle="modal" data-target="#ViewlogModal" data-name="' +
+                            response.params.header_name + '"></a>' +
+
+                            '</td></tr>');
+
                         $("#FormModal")[0].reset();
                         $('.cke_editable p').text(' ')
                         CKEDITOR.instances['content'].setData('')
@@ -320,42 +330,41 @@ $(document).on("click",".view_log",function(e) {
                     }
                 }
 
-
             });
         });
     </script>
+
+
     <script>
-           
         $(document).on('click', '.deleteRecord', function() {
-          
+
             let $this = $(this)
             console.log($this)
+            var result = window.confirm('Are You Sure Want To Delete This Records?');
+            if (result == true) {
+                // alert('Are You Sure Want To Delete This Records?');
+                var id = $(this).data("id");
+                var token = $("meta[name='csrf-token']").attr("content");
 
-            alert('Are You Sure Want To Delete This Records?');
-            var id = $(this).data("id");
-            var token = $("meta[name='csrf-token']").attr("content");
+                $.ajax({
+                    url: "/sop/" + id,
+                    type: 'DELETE',
+                    data: {
+                        "id": id,
+                        "_token": token,
+                    },
+                    success: function(response) {
 
-            $.ajax({
-                url: "/sop/" + id,
-                type: 'DELETE',
-                data: {
-                    "id": id,
-                    "_token": token,
-                },
-                success: function(response) {
+                        $this.closest('.parent_tr').remove()
+                        toastr["success"](response.message, "Message")
 
-                  
-                    $this.closest('.parent_tr').remove()
-                    toastr["success"](response.message, "Message")
-                    
-                }
-            });
-
+                    }
+                });
+            }
         });
-    
-</script>
+    </script>
+
     <script>
-        
         $(document).on('click', '.editor_edit', function() {
 
             var $this = $(this);
@@ -368,52 +377,75 @@ $(document).on("click",".view_log",function(e) {
                 },
                 url: "{{ route('editName') }}"
             }).done(function(data) {
-                
+
                 console.log(data.sopedit);
-              
+
                 $('#sop_edit_id').val(data.sopedit.id)
                 $('#sop_edit_name').val(data.sopedit.name)
                 $('#sop_old_name').val(data.sopedit.name)
-                console.log($('#sop_edit_class'), 'aaa')
-               
+
                 CKEDITOR.instances['sop_edit_content'].setData(data.sopedit.content)
 
                 $("#erp-notes #sop_edit_form").attr('data-id', $($this).attr('data-id'));
                 $("#erp-notes").modal("show");
 
-            }).fail(function(response) {
-                console.log(response);
+            }).fail(function(data) {
+                console.log(data);
             });
         });
-</script>
-<script>
+    </script>
+
+    <script>
         $(document).on('submit', '#sop_edit_form', function(e) {
             e.preventDefault();
             const $this = $(this)
             $(this).attr('data-id', );
-            console.log($(this))
-        
+
             $.ajax({
                 type: "POST",
                 data: $(this).serialize(),
                 url: "{{ route('updateName') }}",
                 datatype: "json"
             }).done(function(data) {
-                console.log(data)
-              
-                let id = $($this).attr('data-id');
-             
-                console.log($('#sid' + id + ' td:nth-child(5) a:nth-child(3)').attr('data-name', data.params.header_name),  111111);
-                $('#sid' + id + ' td:nth-child(2)').html(data.sopedit.name);
-                $('#sid' + id + ' td:nth-child(3)').html(data.sopedit.content);
-               
-                $("#erp-notes").modal("hide");
-                toastr["success"]("Data Updated Successfully!", "Message")
+                
 
-            }).fail(function(response) {
-                console.log(response);
+                // if (data) {
+
+                //   var html =  $("#NameTable tbody").prepend('<tr class="parent_tr"><td>' + data.sopedit.id +
+                //         '</td><td> ' + data.sopedit.name + ' </td><td> ' + data.sopedit
+                //         .content + ' </td><td> ' + data.only_date + ' </td><td>' +
+
+                //         '<a href="javascript:;" data-id = "' + data.sopedit.id +
+                //         '" class="editor_edit btn-xs btn btn-image p-2">' +
+                //         '<img src="/images/edit.png"></a>' +
+
+
+                //         '<a class="btn btn-image deleteRecord" data-id="' + data.sopedit.id +
+                //         '" ><img src="/images/delete.png" /></a>' +
+
+                //         ' <a class="fa fa-info-circle view_log" style="font-size:18px; margin-left:15px;" title="status-log" data-id="' +
+                //         data.sopedit.id +
+                //         '" data-toggle="modal" data-target="#ViewlogModal" data-name="' +
+                //         data.params.header_name + '"></a>' +
+
+                //         '</td></tr>');
+
+
+                    let id = $($this).attr('data-id');
+
+                    // console.log($('#sid' + id + ' td:nth-child(5) a:nth-child(3)').attr('data-name', data.params
+                    //     .header_name);
+                    $('#sid' + id + ' td:nth-child(1)').html(data.sopedit.id);
+                    $('#sid' + id + ' td:nth-child(2)').html(data.sopedit.name);
+                    $('#sid' + id + ' td:nth-child(3)').html(data.sopedit.content);
+
+                    $("#erp-notes").modal("hide");
+                    toastr["success"]("Data Updated Successfully!", "Message")
+                // }
+            }).fail(function(data) {
+                console.log(data);
             });
         });
     </script>
-      
+
 @endsection
