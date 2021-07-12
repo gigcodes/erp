@@ -261,6 +261,8 @@ var getHtml = function(response) {
             button += '<a title="Dialog" href="javascript:;" class="btn btn-xs btn-secondary ml-1 create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>';
         }
 
+        // button+='<a href=""  class="add-sop-knowledge-modal">open modal</a>'
+
 
         //check parent media details
         if (message.parentMediaWithDetails && message.parentMediaWithDetails.length > 0) {
