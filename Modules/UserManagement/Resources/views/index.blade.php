@@ -1515,7 +1515,7 @@
             if(category!=""){
                 console.log(category);
                  $.ajax({
-                     url:"{{ route('user-management.index') }}",
+                    url:"{{ route('user.feedback-category') }}",
                     type:"get",
                     data:{
                         category:category,
