@@ -12,6 +12,7 @@ use App\OrderProduct;
 use App\ReturnExchangeProduct;
 use App\ReturnExchange;
 use App\StoreWebsiteOrder;
+use App\AutoReply;
 use Illuminate\Validation\Rule;
 
 
@@ -168,6 +169,17 @@ class BuyBackController extends Controller
 
                         \App\Jobs\SendEmail::dispatch($email);
 
+                         // start a request to send message for refund 
+                         $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-refund')->first();
+                         if($auto_reply) {
+                             $auto_message = preg_replace("/{order_id}/i", $getCustomerOrderData->order_id, $auto_reply->reply); 
+                             $auto_message = preg_replace("/{product_names}/i", $getCustomerOrderData->product_name, $auto_message); 
+                             $requestData = new Request(); 
+                             $requestData->setMethod('POST'); 
+                             $requestData->request->add(['customer_id' => $getCustomerOrderData->customer_id, 'message' => $auto_message, 'status' => 1]); 
+                             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                         }
+
                     }else if ($request->type == "return") {
                         
                         $emailClass = (new \App\Mails\Manual\InitializeReturnRequest($success))->build();
@@ -187,6 +199,17 @@ class BuyBackController extends Controller
                         ]);
 
                         \App\Jobs\SendEmail::dispatch($email);
+
+                        // start a request to send message for refund 
+                         $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-return')->first();
+                         if($auto_reply) {
+                             $auto_message = preg_replace("/{order_id}/i", $getCustomerOrderData->order_id, $auto_reply->reply); 
+                             $auto_message = preg_replace("/{product_names}/i", $getCustomerOrderData->product_name, $auto_message); 
+                             $requestData = new Request(); 
+                             $requestData->setMethod('POST'); 
+                             $requestData->request->add(['customer_id' => $getCustomerOrderData->customer_id, 'message' => $auto_message, 'status' => 1]); 
+                             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                         }
 
                     }else if ($request->type == "exchange") {
                         
@@ -208,6 +231,17 @@ class BuyBackController extends Controller
 
                         \App\Jobs\SendEmail::dispatch($email);
 
+                        // start a request to send message for refund 
+                         $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-exchange')->first();
+                         if($auto_reply) {
+                             $auto_message = preg_replace("/{order_id}/i", $getCustomerOrderData->order_id, $auto_reply->reply); 
+                             $auto_message = preg_replace("/{product_names}/i", $getCustomerOrderData->product_name, $auto_message); 
+                             $requestData = new Request(); 
+                             $requestData->setMethod('POST'); 
+                             $requestData->request->add(['customer_id' => $getCustomerOrderData->customer_id, 'message' => $auto_message, 'status' => 1]); 
+                             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                         }
+
                     }else if ($request->type == "cancellation") {
                         
                         $emailClass = (new \App\Mails\Manual\InitializeCancelRequest($success))->build();
@@ -227,6 +261,17 @@ class BuyBackController extends Controller
                         ]);
 
                         \App\Jobs\SendEmail::dispatch($email);
+
+                        // start a request to send message for refund 
+                         $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-cancellation')->first();
+                         if($auto_reply) {
+                             $auto_message = preg_replace("/{order_id}/i", $getCustomerOrderData->order_id, $auto_reply->reply); 
+                             $auto_message = preg_replace("/{product_names}/i", $getCustomerOrderData->product_name, $auto_message); 
+                             $requestData = new Request(); 
+                             $requestData->setMethod('POST'); 
+                             $requestData->request->add(['customer_id' => $getCustomerOrderData->customer_id, 'message' => $auto_message, 'status' => 1]); 
+                             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                         }
 
                     }
                 }

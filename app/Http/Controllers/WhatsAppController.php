@@ -1993,16 +1993,12 @@ class WhatsAppController extends FindByNumberController
         $loggedUser = $request->user();
 
         if($request->add_autocomplete == "true"){
-
-        $exist = AutoCompleteMessage::where( 'message' , $request->message)->exists();
-
-        if(!$exist){
-
-            AutoCompleteMessage::create([
-                'message' => $request->message,
-            ]);
-        }
-
+            $exist = AutoCompleteMessage::where( 'message' , $request->message)->exists();
+            if(!$exist){
+                AutoCompleteMessage::create([
+                    'message' => $request->message,
+                ]);
+            }
         }
 
 
