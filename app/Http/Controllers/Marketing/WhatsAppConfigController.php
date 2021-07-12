@@ -111,7 +111,7 @@ class WhatsappConfigController extends Controller
             'provider'         => 'required',
             'customer_support' => 'required',
             'username'         => 'required|min:3|max:255',
-            'password'         => 'required|min:6|max:255',
+            //'password'         => 'required|min:6|max:255',
             'frequency'        => 'required',
             'send_start'       => 'required',
             'send_end'         => 'required',
@@ -120,10 +120,14 @@ class WhatsappConfigController extends Controller
         $defaultFor  = implode(",", isset($requestData['default_for']) ? $requestData['default_for'] : []);
 
         $data                        = $request->except('_token', 'default_for');
-        $data['password']            = Crypt::encrypt($request->password);
+        //$data['password']            = Crypt::encrypt($request->password);
         $data['is_customer_support'] = $request->customer_support;
         $data['default_for']         = $defaultFor;
         WhatsappConfig::create($data);
+
+
+        \Artisan::call('config:clear');
+
 
         return redirect()->back()->withSuccess('You have successfully stored Whats App Config');
     }
@@ -153,7 +157,7 @@ class WhatsappConfigController extends Controller
             'provider'         => 'required',
             'customer_support' => 'required',
             'username'         => 'required|min:3|max:255',
-            'password'         => 'required|min:6|max:255',
+            //'password'         => 'required|min:6|max:255',
             'frequency'        => 'required',
             'send_start'       => 'required',
             'send_end'         => 'required',
@@ -165,11 +169,13 @@ class WhatsappConfigController extends Controller
         $defaultFor = implode(",", isset($requestData['default_for']) ? $requestData['default_for'] : []);
 
         $data                        = $request->except('_token', 'id', 'default_for');
-        $data['password']            = Crypt::encrypt($request->password);
+        //$data['password']            = Crypt::encrypt($request->password);
         $data['is_customer_support'] = $request->customer_support;
         $data['default_for']         = $defaultFor;
 
         $config->update($data);
+
+        \Artisan::call('config:clear');
 
         return redirect()->back()->withSuccess('You have successfully changed Whats App Config');
     }
@@ -196,6 +202,9 @@ class WhatsappConfigController extends Controller
     {
         $config = WhatsappConfig::findorfail($request->id);
         $config->delete();
+
+        \Artisan::call('config:clear');
+
         return Response::json(array(
             'success' => true,
             'message' => 'WhatsApp Config Deleted',
