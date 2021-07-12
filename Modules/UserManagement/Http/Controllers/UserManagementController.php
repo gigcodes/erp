@@ -69,7 +69,7 @@ class UserManagementController extends Controller
                 $ip      = $values[1]??0;
                 $comment = $values[2]??0;
                 
-                $where = ['ip' => '127.0.0.111'];
+                $where = ['ip' => $ip];
 
                 $insert = [
                     'index_txt'       => $index??'-',
