@@ -21,6 +21,7 @@ class TasksController extends Controller
  
     public function index()
     {
+
         return view('totem.tasks.index_new', [
             'tasks' => Task::
                 orderBy('description')
@@ -31,7 +32,7 @@ class TasksController extends Controller
             'task'          => null,
             'commands'      => Totem::getCommands(),
             'timezones'     => timezone_identifiers_list(),
-            'frequencies'   => Totem::frequencies(),
+            'frequencies'   => Totem::frequencies(),    
         ]);
     } 
 

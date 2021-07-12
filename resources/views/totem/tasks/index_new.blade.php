@@ -69,6 +69,9 @@ table tr td {
 @endsection
 
 @section('large_content')
+    <script src="/js/jquery.jscroll.min.js"></script>
+
+
 	<div class="ajax-loader" style="display: none;">
 		<div class="inner_loader">
 		<img src="{{ asset('/images/loading2.gif') }}">
@@ -430,6 +433,18 @@ table tr td {
         $(this).attr('data-id', '');
         $('#addEditTaskModal .modal-title').html('Create task');
         $('.freq').html('<tr><td class="default_td">No Frequencies Found</td></tr>');
+    });
+
+    $('.infinite-scroll').jscroll({
+            autoTrigger: true,
+            loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+            padding: 2500,
+            nextSelector: '.pagination li.active + li a',
+            contentSelector: 'div.infinite-scroll',
+            callback: function() {
+                $('ul.pagination').first().remove();
+                $(".select-multiple").select2();
+            }
     });
 
     $(document).on("click",".view-task",function(e) {
