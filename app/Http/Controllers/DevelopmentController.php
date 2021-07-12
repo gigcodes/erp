@@ -2201,7 +2201,7 @@ class DevelopmentController extends Controller
                 $issue->responsible_user_id = $issue->assigned_to;
                 $issue->is_resolved = 1;
                 $issue->save();
-
+                
                 DeveloperTaskHistory::create([
                     'developer_task_id' => $issue->id,
                     'model' => 'App\DeveloperTask',
@@ -2862,6 +2862,7 @@ class DevelopmentController extends Controller
         return 'error';
     }
 
+    
     public function getStatusHistory(Request $request)
     {
         $id = $request->id;
