@@ -29,6 +29,7 @@ Route::get('/test/pushProduct', 'TmpTaskController@testPushProduct');
 Route::get('/test/fixBrandPrice', 'TmpTaskController@fixBrandPrice');
 Route::get('/test/deleteChatMessages', 'TmpTaskController@deleteChatMessages');
 Route::get('/test/deleteProductImages', 'TmpTaskController@deleteProductImages');
+Route::get('/test/deleteQueue', 'TmpTaskController@deleteQueue');
 
 
 Route::get('/test/analytics', 'AnalyticsController@cronShowData');
@@ -3208,3 +3209,4 @@ Route::prefix('custom-chat-message')->middleware('auth')->group(static function 
     Route::get('/', 'ChatMessagesController@customChatListing')->name('custom-chat-message.index');
     Route::get('/records', 'ChatMessagesController@customChatRecords');
 });
+
