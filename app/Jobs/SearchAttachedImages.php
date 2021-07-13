@@ -100,6 +100,7 @@ class SearchAttachedImages implements ShouldQueue
                             SuggestedProductList::create([
                                 'customer_id' => $chat_message ? $chat_message->customer_id : $customer_id,
                                 'product_id' => $mediable->mediable_id,
+                                'media_id' => $m->id,
                                 'chat_message_id' => $chat_message ? $chat_message->id : null,
                                 'suggested_products_id' => $this->suggested_product !== null ? $this->suggested_product->id : null
                             ]); 

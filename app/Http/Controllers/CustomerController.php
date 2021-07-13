@@ -2729,6 +2729,9 @@ class CustomerController extends Controller
             if($email != '' && $website_id != ''){
                 $find_customer = Customer::where('email',$email)->where('store_website_id',$website_id)->first();
 
+            if($email != '' && $website_id != ''){
+                $find_customer = Customer::where('email',$email)->where('store_website_id',$website_id)->first();
+
                 if($find_customer)
                 {
                     foreach($request->post() as $key => $value)

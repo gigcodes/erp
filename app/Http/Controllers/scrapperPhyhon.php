@@ -243,7 +243,7 @@ class scrapperPhyhon extends Controller
 
         $StoreWebsite = \App\StoreWebsite::where('website',$request->store_website)->first();
         if( $this->saveBase64Image( $request->image_name,  $request->image ) ){
-            
+
             $newImage = array(
                 'website_id' => $request->country_code,
                 'store_website' => $StoreWebsite->id ?? 0,
@@ -255,6 +255,7 @@ class scrapperPhyhon extends Controller
 
             return response()->json(["code" => 200, "message" => 'Image successfully saved']);
         }else{
+            
             return response()->json(["code" => 500, "message" => 'Something went wrong!']);
         }
     }
