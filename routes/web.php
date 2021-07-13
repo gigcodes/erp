@@ -127,6 +127,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
 
 Route::get('log-scraper-api', 'Logging\LogScraperController@scraperApiLog')->middleware('auth')->name('log-scraper.api');
 Route::get('log-scraper', 'Logging\LogScraperController@index')->middleware('auth')->name('log-scraper.index');
+Route::get('api-log-scraper/search', 'Logging\LogScraperController@scraperSearch')->name('api.log.scraper-search');
 
 Route::prefix('category-messages')->middleware('auth')->group(function () {
     Route::post('bulk-messages/addToDND', 'BulkCustomerRepliesController@addToDND');
