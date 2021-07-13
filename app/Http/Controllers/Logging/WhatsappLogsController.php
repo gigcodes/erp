@@ -127,13 +127,67 @@ class WhatsappLogsController extends Controller
 
                     $data = [];
                     $date = substr($row, 1, 19);
-                    $data['date'] = $date;
-                    // $message = substr($row, 155, strlen($row));
-                    $message = substr($row, 35, strlen($row));
-                    $data['error_message1'] = $message;
-                    $data['error_message2'] = '';
-                    array_push($array, $data);
-//                    dd($data);
+                    if(isset($_REQUEST['date']) && $_REQUEST['date'] != '')
+                    {
+                        $date1 = substr($date, 0, 10);
+                        if($date1 == $_REQUEST['date'])
+                        {
+                            $data['date'] = $date;
+                            // $message = substr($row, 155, strlen($row));
+                            $message = substr($row, 35, strlen($row));
+                            $data['error_message1'] = $message;
+                            $data['error_message2'] = '';
+
+                            $sent_message = strpos($message,'"sent":true');
+
+                            if($sent_message)
+                                $data['sent_message_status'] = 'Yes';
+                            else
+                                $data['sent_message_status'] = 'No';
+
+                            array_push($array, $data);
+                        }
+                    }
+                    else if(isset($request->date) && $request->date != '')
+                    {
+                        $date1 = substr($date, 0, 10);
+                        if($date1 == $request->date)
+                        {
+                            $data['date'] = $date;
+                            // $message = substr($row, 155, strlen($row));
+                            $message = substr($row, 35, strlen($row));
+                            $data['error_message1'] = $message;
+                            $data['error_message2'] = '';
+
+                            $sent_message = strpos($message,'"sent":true');
+
+                            if($sent_message)
+                                $data['sent_message_status'] = 'Yes';
+                            else
+                                $data['sent_message_status'] = 'No';
+
+                            array_push($array, $data);
+                        }
+                    }
+                    else{
+                        $data['date'] = $date;
+                        // $message = substr($row, 155, strlen($row));
+                        $message = substr($row, 35, strlen($row));
+                        $data['error_message1'] = $message;
+                        $data['error_message2'] = '';
+
+                        $sent_message = strpos($message,'"sent":true');
+
+                        if($sent_message)
+                            $data['sent_message_status'] = 'Yes';
+                        else
+                            $data['sent_message_status'] = 'No';
+
+                        array_push($array, $data);
+    //                    dd($data);
+                    }
+
+                   
                 }
             }
 
@@ -166,24 +220,59 @@ class WhatsappLogsController extends Controller
             $finaldata = [];
             foreach ($rows as $key => $row) {
 
+                
                 if (substr($row, 0, 1) === '[') {
-
+                    $row_cnt = 0;
                     $date = preg_match('#\[(.*?)\]#', $row, $match);
-//                  dd($match[1], $row);
-                    $finaldata['date'] = isset($match[1]) ? $match[1] : '';;
 
-                    // $message = preg_match('/{(.*?)}/', $row, $match);
-                    // $finaldata['error_message1'] = isset($match[1]) ? $match[1] : '';
-                    $message = substr($row, 35, strlen($row));
-                    $finaldata['error_message1'] = isset($message) ? $message : '';
+                    if(isset($_REQUEST['date']) && $_REQUEST['date'] != '')
+                    {
+                        $date2 = substr($match[1], 0, 10);
+                        if($date2 == $_REQUEST['date'])
+                        {
+                            $finaldata['date'] = isset($match[1]) ? $match[1] : '';
+                            $message = substr($row, 35, strlen($row));
+                            $finaldata['error_message1'] = isset($message) ? $message : '';
+                            $row_cnt = 1;
+                        }
+                    }
+                    else if(isset($request->date) && $request->date != ''){
+                        $date2 = substr($match[1], 0, 10);
+                        if($date2 == $request->date)
+                        {
+                            $finaldata['date'] = isset($match[1]) ? $match[1] : '';
+                            $message = substr($row, 35, strlen($row));
+                            $finaldata['error_message1'] = isset($message) ? $message : '';
+                            $row_cnt = 1;
+                        }
+                    }
+                    else{
+    //                  dd($match[1], $row);
+                        $finaldata['date'] = isset($match[1]) ? $match[1] : '';;
+
+                        // $message = preg_match('/{(.*?)}/', $row, $match);
+                        // $finaldata['error_message1'] = isset($match[1]) ? $match[1] : '';
+                        $message = substr($row, 35, strlen($row));
+                        $finaldata['error_message1'] = isset($message) ? $message : '';
+                        $row_cnt = 1;
+                    }
                 }
 
-                if (substr($row, 0, 7) === 'Message') {
+                if (substr($row, 0, 7) === 'Message' && $row_cnt == 1) {
 
                     $message = substr($row, 8, strlen($row));
+                    $message = str_replace('\n'," ",$message);
                     $finaldata['error_message2'] = $message;
+                    $finaldata['file'] = 'chatapi';
                     $finaldata['resend_details'] = '';
                     $finaldata['type'] = 2;
+
+                    $sent_message = strpos($message,'"sent":true');
+
+                    if($sent_message)
+                        $finaldata['sent_message_status'] = 'Yes';
+                    else
+                        $finaldata['sent_message_status'] = 'No';
 
                     array_push($chatapiarray, $finaldata);
                     $finaldata = [];
@@ -195,7 +284,30 @@ class WhatsappLogsController extends Controller
         }
         $chatapiarray = array_reverse($chatapiarray);
 
-        $farray = array_merge($chatapiarray, $array);
+        $f_array = array_merge($chatapiarray, $array);
+        $farray = array();
+        foreach($f_array as $key => $value){
+            if(isset($_REQUEST['message_sent']) && $_REQUEST['message_sent'] != '' && isset($value['sent_message_status']))
+            {
+                if($_REQUEST['message_sent'] == $value['sent_message_status'])
+                {
+                    $farray[] = $value;
+                }
+            }
+            elseif(isset($request->message_sent) && $request->message_sent != '' && isset($value['sent_message_status'])){
+                if($request->message_sent == $value['sent_message_status'])
+                {
+                    $farray[] = $value;
+                }
+            }
+            else{
+                $farray[] = $value;
+            }
+        }
+
+        // $farray = array_merge($chatapiarray, $array);
+        // dd($farray);
+
         usort($farray, function ($element1, $element2) {
             $datetime1 = strtotime($element1['date']);
             $datetime2 = strtotime($element2['date']);

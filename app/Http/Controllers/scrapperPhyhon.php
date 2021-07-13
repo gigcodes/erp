@@ -243,21 +243,19 @@ class scrapperPhyhon extends Controller
 
         $StoreWebsite = \App\StoreWebsite::where('website',$request->store_website)->first();
         if( $this->saveBase64Image( $request->image_name,  $request->image ) ){
+
             $newImage = array(
                 'website_id' => $request->country_code,
                 'store_website' => $StoreWebsite->id ?? 0,
                 'img_name'   => $request->image_name,
                 'img_url'    => $request->image_name,
             );
-            scraperImags::insert( $newImage );
 
-            Log::channel('scrapper_images')->info("imageSave() request =>  " . json_encode($request->all()));
+            scraperImags::insert( $newImage );
 
             return response()->json(["code" => 200, "message" => 'Image successfully saved']);
         }else{
             
-            Log::channel('scrapper_images')->info("imageSave() request =>  " . json_encode($request->all()));
-
             return response()->json(["code" => 500, "message" => 'Something went wrong!']);
         }
     }

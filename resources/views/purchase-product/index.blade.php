@@ -157,6 +157,11 @@
               <a href="/purchase-product/get-suppliers" class="btn btn-xs btn-secondary">
                             Suppliers
               </a>
+              <!-- START - Purpose : Add Vutton - DEVTASK-19941 -->
+              <a href="#" class="btn btn-xs btn-secondary not_mapping_supplier_list">
+                            Not Mapping Suppliers
+              </a>
+              <!-- END - DEVTASK-19941 -->
             </div>
         </div>
 </div>
@@ -1096,5 +1101,51 @@ $(document).on('click', '.view-details', function(e) {
           });
       });
 
+    //START - Purpose : Get not mapping product with supplier list - DEVTASK-19941
+    $(document).on('click', '.not_mapping_supplier_list', function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: "{{route('not_mapping_product_supplier_list')}}",
+            data: {
+              _token: "{{ csrf_token() }}",
+            },
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function() {
+              $("#loading-image").show();
+            }
+        }).done( function(response) {
+              $("#loading-image").hide();
+              
+              if(response.downloadUrl){
+                var form = $("<form/>", 
+                        { action:"/chat-messages/downloadChatMessages",
+                            method:"POST",
+                            target:'_blank',
+                            id:"chatHiddenForm",
+                            }
+                    );
+                form.append( 
+                    $("<input>", 
+                        { type:'hidden',  
+                        name:'filename', 
+                        value:response.downloadUrl }
+                    )
+                );
+                form.append( 
+                    $("<input>", 
+                        { type:'hidden',  
+                        name:'_token', 
+                        value:$('meta[name="csrf-token"]').attr('content') }
+                    )
+                );
+                $("body").append(form);
+                $('#chatHiddenForm').submit();
+              }
+        }).fail(function(errObj) {
+              $("#loading-image").hide();
+        });
+    });
+    //END - DEVTASK-19941
   </script>
 @endsection
