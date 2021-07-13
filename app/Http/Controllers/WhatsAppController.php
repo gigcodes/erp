@@ -2218,7 +2218,17 @@ class WhatsAppController extends FindByNumberController
                 $params['approved'] = 1;
                 $params['status'] = 2; 
                 $chat_message = ChatMessage::create($params); 
-                $this->sendWithThirdApi($ticket->phone_no, null, $params['message'],null, $chat_message->id);
+
+                // check if ticket has customer ?
+                $whatsappNo = null;
+                if($ticket->user) {
+                    $whatsappNo = $ticket->user->whatsapp_number;
+                }elseif($ticket->customer) {
+                    $whatsappNo = $ticket->customer->whatsapp_number;
+                }
+
+
+                $this->sendWithThirdApi($ticket->phone_no, $whatsappNo, $params['message'],null, $chat_message->id);
                 return response()->json(['message' => $chat_message]);
 
             } else {
