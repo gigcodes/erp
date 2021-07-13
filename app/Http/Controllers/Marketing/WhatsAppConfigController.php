@@ -111,7 +111,7 @@ class WhatsappConfigController extends Controller
             'provider'         => 'required',
             'customer_support' => 'required',
             'username'         => 'required|min:3|max:255',
-            'password'         => 'required|min:6|max:255',
+            //'password'         => 'required|min:6|max:255',
             'frequency'        => 'required',
             'send_start'       => 'required',
             'send_end'         => 'required',
@@ -120,10 +120,14 @@ class WhatsappConfigController extends Controller
         $defaultFor  = implode(",", isset($requestData['default_for']) ? $requestData['default_for'] : []);
 
         $data                        = $request->except('_token', 'default_for');
-        $data['password']            = Crypt::encrypt($request->password);
+        //$data['password']            = Crypt::encrypt($request->password);
         $data['is_customer_support'] = $request->customer_support;
         $data['default_for']         = $defaultFor;
         WhatsappConfig::create($data);
+
+
+        \Artisan::call('config:clear');
+
 
         return redirect()->back()->withSuccess('You have successfully stored Whats App Config');
     }
@@ -153,7 +157,7 @@ class WhatsappConfigController extends Controller
             'provider'         => 'required',
             'customer_support' => 'required',
             'username'         => 'required|min:3|max:255',
-            'password'         => 'required|min:6|max:255',
+            //'password'         => 'required|min:6|max:255',
             'frequency'        => 'required',
             'send_start'       => 'required',
             'send_end'         => 'required',
@@ -165,11 +169,13 @@ class WhatsappConfigController extends Controller
         $defaultFor = implode(",", isset($requestData['default_for']) ? $requestData['default_for'] : []);
 
         $data                        = $request->except('_token', 'id', 'default_for');
-        $data['password']            = Crypt::encrypt($request->password);
+        //$data['password']            = Crypt::encrypt($request->password);
         $data['is_customer_support'] = $request->customer_support;
         $data['default_for']         = $defaultFor;
 
         $config->update($data);
+
+        \Artisan::call('config:clear');
 
         return redirect()->back()->withSuccess('You have successfully changed Whats App Config');
     }
@@ -196,6 +202,9 @@ class WhatsappConfigController extends Controller
     {
         $config = WhatsappConfig::findorfail($request->id);
         $config->delete();
+
+        \Artisan::call('config:clear');
+
         return Response::json(array(
             'success' => true,
             'message' => 'WhatsApp Config Deleted',
@@ -331,6 +340,11 @@ class WhatsappConfigController extends Controller
 //        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/get-barcode';
         $url = 'http://136.244.118.102:81/get-barcode';
 
+        if($whatsappConfig->is_use_own == 1) {
+            $url = 'http://167.86.89.241:81/get-barcode?instanceId='.$whatsappConfig->instance_id;
+        }
+
+
         // set url
         curl_setopt($ch, CURLOPT_URL, $url);
 
@@ -373,7 +387,7 @@ class WhatsappConfigController extends Controller
             $ch = curl_init();
 
             if ($whatsappConfig->is_use_own == 1) {
-                $url = "http://167.86.89.241:81/get-barcode?instanceId=".$whatsappConfig->instance_id;
+                $url = "http://167.86.89.241:81/get-screen?instanceId=".$whatsappConfig->instance_id;
             } else {
                 $url = env('WHATSAPP_BARCODE_IP') . $whatsappConfig->username . '/get-screen';
             }
@@ -457,6 +471,10 @@ class WhatsappConfigController extends Controller
         $ch = curl_init();
 
         $url = env('WHATSAPP_BARCODE_IP') . $whatsappConfig->username . '/restart-script';
+
+        if ($whatsappConfig->is_use_own == 1) { 
+            $url = 'http://167.86.89.241:81/restart?instanceId='.$whatsappConfig->instance_id;
+        }    
 
         // set url
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -583,6 +601,30 @@ class WhatsappConfigController extends Controller
             $response = json_decode($output);
             if ($response) {
                 return Response::json(array('success' => true, 'message' => 'Logout Script called'));
+            } else {
+                return Response::json(array('error' => true));
+            }
+        }
+
+        return Response::json(array('error' => true));
+    }
+
+    public function getStatusInfo(Request $request) 
+    {
+        $id = $request->id;
+        $whatsappConfig = WhatsappConfig::find($id);
+        $ch = curl_init();
+        if ($whatsappConfig->is_use_own == 1) {
+            $url = "http://167.86.89.241:81/get-status?instanceId=".$whatsappConfig->instance_id;
+            curl_setopt($ch, CURLOPT_URL, $url);
+            //return the transfer as a string
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            // $output contains the output string
+            $output = curl_exec($ch);
+            // close curl resource to free up system resources
+            curl_close($ch);
+            if (!empty($output)) {
+                return Response::json(array('success' => true, 'message' => $output));
             } else {
                 return Response::json(array('error' => true));
             }

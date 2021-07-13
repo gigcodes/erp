@@ -334,8 +334,16 @@ padding: 3px 2px;
                     toastr['success']('data updated successfully!');
                     window.location.replace(response.redirect);
                 }else{
-                    errorMessage = response.error ? response.error : 'data is not correct or duplicate!';
-                    toastr['error'](errorMessage);
+                    if(response.error != "") {
+                        var message = ``;
+                        $.each(response.error,function(k,v) {
+                            message += v+`<br>`;
+                        });
+                        toastr['error'](message);
+                    }else{
+                        errorMessage = response.error ? response.error : 'data is not correct or duplicate!';
+                        toastr['error'](errorMessage);
+                    }
                 }
             },
             error: function () {

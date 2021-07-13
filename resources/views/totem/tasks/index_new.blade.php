@@ -69,6 +69,9 @@ table tr td {
 @endsection
 
 @section('large_content')
+    <script src="/js/jquery.jscroll.min.js"></script>
+
+
 	<div class="ajax-loader" style="display: none;">
 		<div class="inner_loader">
 		<img src="{{ asset('/images/loading2.gif') }}">
@@ -101,6 +104,7 @@ table tr td {
 
     <div class="row">
         <div class="infinite-scroll" style="width:100%;">
+            {!! $tasks->links() !!}
 	        <div class="table-responsive mt-2">
                 <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;table-layout:fixed">
                     <thead>
@@ -148,7 +152,7 @@ table tr td {
                     </tbody>
                 </table>
                 @if(!count($tasks))
-                <h5 class="text-center">No Tasks found</h5>
+                <h5 class="text-center">No Tasks found</h5> 
                 @endif
 	        </div>
         </div>
@@ -236,7 +240,7 @@ table tr td {
     </div>  
 
 
-    <div class="modal fade" id="view_execution_history" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade" id="view_execution_history" tabindex="-1" role="dialog" aria-hidden="true" style="overflow-y:auto;">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
         <div class="modal-header">
@@ -268,7 +272,7 @@ table tr td {
     </div>
     </div>
 
-    <div id="addEditTaskModal" class="modal fade" role="dialog" data-id = ''>
+    <div id="addEditTaskModal" class="modal fade" role="dialog" data-id = '' style="overflow-y:auto;">
         <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content">
@@ -424,12 +428,45 @@ table tr td {
 @endsection
 @section('scripts')
 
+<script src="/js/jquery.jscroll.min.js"></script>
 <script type="text/javascript"> 
+    $('ul.pagination').hide();
+    $(function() {
+        $('.infinite-scroll').jscroll({
+            autoTrigger: true,
+            loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+            padding: 2500,
+            nextSelector: '.pagination li.active + li a',
+            contentSelector: 'div.infinite-scroll',
+            callback: function() {
+                $('ul.pagination').hide();
+                setTimeout(function(){
+                    $('ul.pagination').first().remove();
+                }, 2000);
+                $(".select-multiple").select2();
+                initialize_select2();
+            }
+        });
+    });
+
     var freq = 0;
     $('#addEditTaskModal').on('hidden.bs.modal', function (e) {
+        $('.error').remove();
         $(this).attr('data-id', '');
         $('#addEditTaskModal .modal-title').html('Create task');
         $('.freq').html('<tr><td class="default_td">No Frequencies Found</td></tr>');
+    });
+
+    $('.infinite-scroll').jscroll({
+            autoTrigger: true,
+            loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+            padding: 2500,
+            nextSelector: '.pagination li.active + li a',
+            contentSelector: 'div.infinite-scroll',
+            callback: function() {
+                $('ul.pagination').first().remove();
+                $(".select-multiple").select2();
+            }
     });
 
     $(document).on("click",".view-task",function(e) {
@@ -517,8 +554,12 @@ table tr td {
                 toastr['success']('Task executed successfully!');
                 thiss.html(`<img src="/images/send.png" style="cursor: pointer; width: 0px;">`);
             },
-            error: function () {
-                toastr['error']('Something went wrong!');
+            error: function (response) {
+                if(response.status == 200){
+                    toastr['success']('Task executed successfully!');
+                }else{
+                    toastr['error']('Something went wrong!');
+                }
                 thiss.html(`<img src="/images/send.png" style="cursor: pointer; width: 0px;">`);
             }
         });
@@ -652,7 +693,7 @@ table tr td {
                 if(response.task){
                     toastr['success']('Task Updated Successfully.');
                 }else{
-                    toastr['error']('Something went wrong!');
+                    // toastr['error']('Something went wrong!');
                 }
                 setTimeout(function(){
                     window.location.reload(1);
@@ -679,7 +720,7 @@ table tr td {
                             $('.frequencies').after(error);
                         }
                     }
-                    toastr['error']('Something went wrong!');
+                    // toastr['error']('Something went wrong!');
                 }
             }
         });

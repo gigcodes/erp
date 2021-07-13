@@ -85,6 +85,11 @@ use App\EmailAddress;
 use App\EmailNotificationEmailDetails;//Purpose : Add Modal - DEVTASK-4359
 use App\Mails\Manual\PurchaseExport;//Purpose : Add Modal - DEVTASK-4236
 use App\Helpers\MessageHelper;
+use Illuminate\Pagination\LengthAwarePaginator;
+use App\Imports\CustomerNumberImport;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+
 class WhatsAppController extends FindByNumberController
 {
 
@@ -1203,7 +1208,7 @@ class WhatsAppController extends FindByNumberController
                         $extension = preg_replace("#\?.*#", "", pathinfo($text, PATHINFO_EXTENSION)) . "\n";
 
                         // Set tmp file
-                        $filePath = public_path() . '/uploads/tmp_' . rand(0, 100000) . '.' . $extension;
+                        $filePath = public_path() . '/uploads/tmp_' . rand(0, 100000) . '.' . trim($extension);
 
                         // Copy URL to file path
                         copy($text, $filePath);
@@ -1218,13 +1223,14 @@ class WhatsAppController extends FindByNumberController
                         $params['media_url'] = $media->getUrl();
                         $params['message'] = isset($chatapiMessage['caption']) ? $chatapiMessage['caption'] : '';
                     } catch (\Exception $exception) {
+                        \Log::error($exception);
                         //
                     }
                 } else {
                     try {
                         $extension = preg_replace("#\?.*#", "", pathinfo($text, PATHINFO_EXTENSION)) . "\n";
                         // Set tmp file
-                        $filePath = public_path() . '/uploads/tmp_' . rand(0, 100000) . '.' . $extension;
+                        $filePath = public_path() . '/uploads/tmp_' . rand(0, 100000) . '.' . trim($extension);
                         // Copy URL to file path
                         copy($text, $filePath);
                         // Upload media
@@ -1235,6 +1241,7 @@ class WhatsAppController extends FindByNumberController
                         $params['media_url'] = $media->getUrl();
                         $params['message'] = isset($chatapiMessage['caption']) ? $chatapiMessage['caption'] : '';
                     } catch (\Exception $exception) {
+                        \Log::error($exception);
                         $params['message'] = $text;
                     }
                 }
@@ -1988,16 +1995,12 @@ class WhatsAppController extends FindByNumberController
         $loggedUser = $request->user();
 
         if($request->add_autocomplete == "true"){
-
-        $exist = AutoCompleteMessage::where( 'message' , $request->message)->exists();
-
-        if(!$exist){
-
-            AutoCompleteMessage::create([
-                'message' => $request->message,
-            ]);
-        }
-
+            $exist = AutoCompleteMessage::where( 'message' , $request->message)->exists();
+            if(!$exist){
+                AutoCompleteMessage::create([
+                    'message' => $request->message,
+                ]);
+            }
         }
 
 
@@ -2215,7 +2218,17 @@ class WhatsAppController extends FindByNumberController
                 $params['approved'] = 1;
                 $params['status'] = 2; 
                 $chat_message = ChatMessage::create($params); 
-                $this->sendWithThirdApi($ticket->phone_no, null, $params['message'],null, $chat_message->id);
+
+                // check if ticket has customer ?
+                $whatsappNo = null;
+                if($ticket->user) {
+                    $whatsappNo = $ticket->user->whatsapp_number;
+                }elseif($ticket->customer) {
+                    $whatsappNo = $ticket->customer->whatsapp_number;
+                }
+
+
+                $this->sendWithThirdApi($ticket->phone_no, $whatsappNo, $params['message'],null, $chat_message->id);
                 return response()->json(['message' => $chat_message]);
 
             } else {
