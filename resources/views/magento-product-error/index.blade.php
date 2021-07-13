@@ -43,9 +43,18 @@
 		    	</div>
 		    </div>
 	    </div>	
-		<div class="margin-tb" id="page-view-result">
 
-		</div>
+	    <div class="tab-content ">
+        <!-- Pending task div start -->
+        <div class="tab-pane active" id="1">
+            <div class="row" style="margin:10px;"> 
+                <div class="col-12">
+					<div class="margin-tb" id="page-view-result">
+
+					</div>
+				</div>
+			</div>
+		</div>			
 	</div>
 </div>
 

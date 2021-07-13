@@ -35,6 +35,64 @@ class CategoryController extends Controller
         $categories        = Category::where('parent_id', '=', 0)->withCount('childs')->get();
         $allCategories     = Category::pluck('title', 'id')->all();
 
+        $selected_value  = $request->filter;
+
+     if(isset($request->filter)){
+            $categories        = Category::withCount('childs');
+
+          $categories=  $categories->where('title','like','%'.$request->filter.'%')->get();
+
+
+
+        $final_cat = [];
+
+        foreach($categories as $key=> $cat){
+
+                if($cat->parentM){
+                    
+                        if($cat->parentM->parentM){
+
+                            if($cat->parentM->parentM->parentM){
+
+                                $final_cat[$cat->parentM->parentM->parentM->id] = $cat->parentM->parentM->parentM;
+
+                            }else{
+                                $final_cat[$cat->parentM->parentM->id] = $cat->parentM->parentM;
+
+                            }
+                        }else{
+
+                            $final_cat[$cat->parentM->id] = $cat->parentM;
+                        }
+                }else{
+                    
+                    $final_cat[$cat->id] = $cat;
+                }
+        }
+            // dd($final_cat);
+
+            $categories = $final_cat;
+
+
+    //       foreach($categories as $cat){
+    //                     $all_cat = null;
+    //                     if($cat->parentM) { 
+    //                         $all_cat = $cat;
+    //                         while(!is_null($parentM->parentM)) {
+    //                             $all_cat = $parentM->parentM;
+    //                         }
+                            
+    //                     } else {
+    //                         $all_cat = $cat;
+    //                      }
+
+    //                      $final_cat[$cat->id][] =$all_cat;
+    //     }
+    // //    $categories =  $categories->get();
+    //     dd($final_cat);
+
+        }
+
         $old = $request->old('parent_id');
 
         $allCategoriesDropdown = Category::attr(['name' => 'parent_id', 'class' => 'form-control'])
@@ -45,7 +103,7 @@ class CategoryController extends Controller
             ->selected($old ? $old : 1)
             ->renderAsDropdown();
 
-        return view('category.treeview', compact('category_segments', 'categories', 'allCategories', 'allCategoriesDropdown', 'allCategoriesDropdownEdit'));
+        return view('category.treeview', compact('category_segments', 'categories', 'allCategories', 'allCategoriesDropdown', 'allCategoriesDropdownEdit','selected_value'));
     }
     public function manageCategory11(Request $request)
     {
@@ -192,6 +250,8 @@ class CategoryController extends Controller
             SELECT
                 categories.title,
                 categories.id as cat_id,
+                ct.title as parent_name,
+                ct.id as parent_id,
                 MIN(price*1) AS minimumPrice,
                 MAX(price*1) AS maximumPrice
             FROM
@@ -200,11 +260,17 @@ class CategoryController extends Controller
                 categories
             ON
                 products.category=categories.id
+            LEFT JOIN
+                categories as ct
+            ON
+                categories.parent_id=ct.id    
             GROUP BY
                 products.category
             ORDER BY
                 categories.title
         ");
+
+
 
         // Get all form data
         $resultsBrandCategoryPriceRange = BrandCategoryPriceRange::all();
@@ -859,5 +925,56 @@ class CategoryController extends Controller
             //  }else{
             //      return false;
             //  }
+    }
+
+    public function updateMinMaxPriceDefault()
+    {
+        return abort(404);
+        if(!auth()->user()->isAdmin()) {
+        }
+        
+        $results = \Illuminate\Support\Facades\DB::select("
+            SELECT
+                categories.title,
+                categories.id as cat_id,
+                ct.title as parent_name,
+                ct.id as parent_id,
+                MIN(price*1) AS minimumPrice,
+                MAX(price*1) AS maximumPrice
+            FROM
+                products
+            JOIN
+                categories
+            ON
+                products.category=categories.id
+            LEFT JOIN
+                categories as ct
+            ON
+                categories.parent_id=ct.id    
+            GROUP BY
+                products.category
+            ORDER BY
+                categories.title
+        ");
+
+        $brandSegments = ['A', 'B', 'C'];
+
+        foreach($brandSegments as $bs) {
+            foreach($results as $r) {
+                $bsRange = BrandCategoryPriceRange::where('brand_segment' , $bs)->where('category_id' , $r->cat_id)->first(); 
+                if(!$bsRange) {
+                    BrandCategoryPriceRange::updateOrCreate(
+                        ['brand_segment' => $bs, 'category_id' => $r->cat_id],
+                        ['min_price' => 50,'max_price' => 10000]
+                    );
+                }else{
+                    $bsRange->min_price = 50;
+                    $bsRange->max_price = 10000;
+                    $bsRange->save();
+                }
+            }
+        }
+
+        Echo "script done";
     }
 }

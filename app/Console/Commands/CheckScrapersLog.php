@@ -42,7 +42,9 @@ class CheckScrapersLog extends Command
     {
         try {
             $yesterdayDate = date('d', strtotime("-1 days"));
-            $root          = env('SCRAP_LOGS_FOLDER');
+            // $root          = env('SCRAP_LOGS_FOLDER');
+            $root          = config('env.SCRAP_LOGS_FOLDER');
+
             $counter       = 0;
             foreach (File::allFiles($root) as $file) {
                 $needed = explode('-', $file->getFilename());

@@ -15,10 +15,14 @@ use App\ReturnExchange;
 use App\ReturnExchangeHistory;
 use App\ReturnExchangeStatus;
 use App\Email;
+use App\AutoReply;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Requests\CreateCouponRequest;
+use Dompdf\Dompdf;
+use Qoraiche\MailEclipse\MailEclipse;
+
 
 class ReturnExchangeController extends Controller
 {
@@ -628,6 +632,16 @@ class ReturnExchangeController extends Controller
 
             ]
         );
+
+        /// start a request to send message for refund 
+         $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-refund-manual')->first();
+         if($auto_reply) {
+             $requestData = new Request(); 
+             $requestData->setMethod('POST'); 
+             $requestData->request->add(['customer_id' => $request->customer_id, 'message' => $auto_reply->reply, 'status' => 1]); 
+             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+         }
+
         return response()->json(['message' => 'You have successfully added refund!'], 200);
     }
 
@@ -892,4 +906,21 @@ class ReturnExchangeController extends Controller
         return response()->json(["code" => 500, "data" => [], "message" => "No data found"]);
     }
 
+
+    public function downloadRefundPdf(Request $request)
+    {
+        $return = \App\ReturnExchange::findOrFail($request->id);
+
+        $customer   = $return->customer;
+
+            if($customer){
+                            $html_temp = view('maileclipse::templates.initializeRefundRequetDefault', compact(
+                                'customer','return'
+                            ));
+                            $pdf = new Dompdf();
+                            $pdf->loadHtml($html_temp);
+                            $pdf->render();
+                            $pdf->stream('refund.pdf');
+            }
+    }
 }
