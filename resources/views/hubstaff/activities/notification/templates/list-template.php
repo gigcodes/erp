@@ -51,7 +51,26 @@
 			        </button>
 					</td>
 			      </tr>
-			    {{/props}}  
+			    {{/props}}
+
+			   {{if user_id > "0" }} () 
+			    <tr>
+			        <td></td>
+			        <td></td>
+			        <td></td>
+			        <td></td>
+			        <td>{{:sum}}</td>
+			        <td></td>
+			        <td></td>
+			        <td></td>
+			        <td></td>
+			        <td></td>
+			        <td></td>
+			        <td></td>
+			      </tr>
+			   {{/if}}   
+
+
 		    </tbody>
 		</table>
 		{{:pagination}}
