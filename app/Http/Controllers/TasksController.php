@@ -32,7 +32,7 @@ class TasksController extends Controller
             'commands'      => Totem::getCommands(),
             'timezones'     => timezone_identifiers_list(),
             'frequencies'   => Totem::frequencies(),
-        ]);
+        ])->with('i', (request()->input('page', 1) - 1) * 10);
     } 
 
     public function create()
