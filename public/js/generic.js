@@ -359,6 +359,11 @@ var getHtml = function(response) {
 }
 
 $(document).on('click', '.load-communication-modal', function () {
+    var feedback_category_id = null;
+    if ($(this).data('feedback_cat_id')) {
+        var feedback_category_id = $(this).data('feedback_cat_id');
+    }
+
     var thiss = $(this);
     var object_type = $(this).data('object');
     var object_id = $(this).data('id');
@@ -393,6 +398,7 @@ $(document).on('click', '.load-communication-modal', function () {
             load_all: load_all,
             load_attached: load_attached,
             load_type: load_type,
+            feedback_category_id: feedback_category_id,
         },
         beforeSend: function () {
             //$(thiss).text('Loading...');

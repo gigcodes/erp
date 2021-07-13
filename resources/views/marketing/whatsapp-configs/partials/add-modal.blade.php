@@ -21,14 +21,14 @@
     						@endif
     					</div>
 
-    					<div class="form-group">
+    					<!-- <div class="form-group">
     						<strong>Password:</strong>
     						<input type="text" name="password" class="form-control" value="{{ old('password') }}" required>
 
     						@if ($errors->has('password'))
     						<div class="alert alert-danger">{{$errors->first('password')}}</div>
     						@endif
-    					</div>
+    					</div> -->
 
     					<div class="form-group">
     						<strong>Number:</strong>
