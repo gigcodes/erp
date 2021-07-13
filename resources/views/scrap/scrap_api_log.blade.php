@@ -30,18 +30,19 @@
     <div class="mt-3 col-md-12">
         <div class="row row-no-gutters">
             <div class="col-sm-3"><input type="text" class="form-control" placeholder="Search By Name" name="scraper_name" id="scraper_name"></div>
+            <div><h5>From</h5></div>
             <div class="form-group col-md-2 pd-3">
                 <div class='input-group date' id='order-start-datetime'>
-                    <input type='text' class="form-control" name="start_date" id="start_search_date"/>
+                    <input type='text' class="form-control" name="start_date" id="start_search_date" placeholder="Start Date"/>
                     <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar"></span>
                     </span>
                 </div>
             </div>
-            <div><h4>To</h4></div>
+            <div><h5>To</h5></div>
             <div class="form-group col-md-2 pd-3">
                 <div class='input-group date' id='order-end-datetime'>
-                    <input type='text' class="form-control" name="end_date" id="end_search_date"/>
+                    <input type='text' class="form-control" name="end_date" id="end_search_date" placeholder="End Date"/>
                     <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar"></span>
                     </span>
