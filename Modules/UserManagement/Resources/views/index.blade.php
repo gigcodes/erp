@@ -1239,7 +1239,28 @@
             }
         });
 
-
+$(document).on('click','.statusChange',function(event){
+        event.preventDefault();
+        $.ajax({
+           type: "post",
+           url: '{{ action("UserController@statusChange") }}',
+           data: {
+             _token: "{{ csrf_token() }}",
+             status: $(this).attr('data-status'),
+             id: $(this).attr('data-id')
+           },
+           beforeSend: function() {
+             $(this).attr('disabled', true);
+             // $(element).text('Approving...');
+           }
+        }).done(function( data ) {
+          toastr["success"]("Status updated!", "Message")
+          window.location.reload();
+        }).fail(function(response) {
+           alert(response.responseJSON.message);
+           toastr["error"](error.responseJSON.message);
+        });
+      });
 
         $(document).on('click', '.send-message', function() {
             var thiss = $(this);
