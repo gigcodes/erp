@@ -94,7 +94,25 @@
         .pd-5 {
             padding: 5px;
         }
-
+        .feedback_model .modal-dialog{
+           max-width:1024px;
+           width:100%;
+        }
+        .quick_feedback, #feedback-status{
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            height: 35px;
+            outline: none;
+        }
+        .quick_feedback:focus, #feedback-status:focus{
+            outline: none;
+        }
+        .communication-td input{
+            width: calc(100% - 25px) !important;
+        }
+        .communication-td button{
+            width:20px;
+        }
     </style>
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -174,7 +192,7 @@
 
     {{-- //feeback model --}}
 
-    <div id="exampleModal123" class="modal fade" role="dialog">
+    <div id="exampleModal123" class="modal fade feedback_model" role="dialog">
         <div class="modal-dialog modal-lg">
             <!-- Modal content-->
             <div class="modal-content" id="success">
@@ -183,24 +201,25 @@
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <div class="col-md-12" id="permission-request">
+                    <div class="col-md-12 p-0" id="permission-request">
                         <table class="table table-bordered" id="feedback_tbl">
                             <thead>
                                 <tr>
-                                    <th width="45%">Category</th>
-                                    <th width="35%">Admin Response</th>
-                                    <th width="35%">User Response</th>
-                                    <th width="25%">Status</th>
-                                    <th width="15%">History</th>
+                                    <th width="20%">Category</th>
+                                    <th width="25%">Admin Response</th>
+                                    <th width="25%">User Response</th>
+                                    <th width="20%">Status</th>
+                                    <th width="10%">History</th>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <input type="text" style="width:85%" class="quick_feedback" id="addcategory" name="category">
-                                        <button type="button" class="btn btn-image add-feedback" id="btn-save"><img src="/images/add.png" style="cursor: nwse-resize; width: 0px;"></button>
+                                        <input type="text" style="width:calc(100% - 25px)" class="quick_feedback" id="addcategory" name="category">
+                                        <button style="width: 20px" type="button" class="btn btn-image add-feedback" id="btn-save"><img src="/images/add.png" style="cursor: nwse-resize; width: 0px;"></button>
                                     </td>
                                     <td></td>
                                     <td></td>
-                                    <td><input type="textbox" style="width:80%" id="feedback-status"><button type="button" class="btn btn-image user-feedback-status"><img src="/images/add.png" style="cursor: nwse-resize; width: 0px;"></button></td>
+                                    <td><input type="textbox" style="width:calc(100% - 25px)" id="feedback-status">
+                                        <button style="width: 20px" type="button" class="btn btn-image user-feedback-status"><img src="/images/add.png" style="cursor: nwse-resize; width: 0px;"></button></td>
                                     <td></td>
                                 </tr>
                             </thead>
