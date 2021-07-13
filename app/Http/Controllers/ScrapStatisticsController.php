@@ -1079,7 +1079,7 @@ class ScrapStatisticsController extends Controller
 
     public function serverStatusProcess(Request $request)
     {
-        $statusHistory = \App\ScraperProcess::whereDate("created_at", $request->date)->latest()->get();
+        $statusHistory = \App\ScraperProcess::whereDate("created_at", $request->date)->orderBy("scraper_name","asc")->latest()->get();
 
         return view("scrap.partials.process-status-history", compact('statusHistory'));
     }

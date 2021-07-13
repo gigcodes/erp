@@ -139,6 +139,7 @@ use App\Console\Commands\SendDailyReports;
 use App\Console\Commands\SendDailyLearningReports;
 use App\Console\Commands\InsertPleskEmail;
 use App\Console\Commands\SendDailyPlannerNotification;
+use App\Console\Commands\RemoveScrapperImages;
 use DB;
 
 class Kernel extends ConsoleKernel
@@ -275,6 +276,7 @@ class Kernel extends ConsoleKernel
         SendDailyPlannerNotification::class,
         InsertPleskEmail::class,
         StoreChatMessagesToAutoCompleteMessages::class,
+        RemoveScrapperImages::class
     ];
 
     /**
@@ -286,6 +288,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
 
+        $schedule->command('ScrapperImage:REMOVE')->hourly(); // Remove scrapper iamges older than 1 day
 
         // $schedule->command('reminder:send-to-dubbizle')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         // $schedule->command('reminder:send-to-vendor')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');

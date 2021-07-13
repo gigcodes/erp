@@ -37,6 +37,10 @@
 	.latest-remarks-list-view tr td {
 		padding: 3px !important;
 	}
+	#latest-remarks-modal .modal-dialog {
+		 max-width: 1100px;
+		width:100%;
+	}
 </style>
 @endsection
 
@@ -369,10 +373,10 @@
 						<thead>
 							<tr>
 								<th style="width:4%;">S no</th>
-								<th style="width:20%;">Category</th>
-								<th style="width:21%;">By</th>
-								<th style="width:27%;">Remarks</th>
-								<th style="width:28%;">Communication</th>
+								<th style="width:13%;">Category</th>
+								<th style="width:13%;">By</th>
+								<th style="width:45%;">Remarks</th>
+								<th style="width:25%;">Communication</th>
 							</tr>
 						</thead>
 						<tbody class="latest-remarks-list-view">
@@ -738,7 +742,7 @@
 		}).done(function(response) {
 			$("#loading-image").hide();
 			$this.siblings('input').val("");
-			$('#latest-remarks-modal').modal('hide');
+			// $('#latest-remarks-modal').modal('hide');
 			toastr["success"]("Remarks fetched successfully");
 		}).fail(function(jqXHR, ajaxOptions, thrownError) {
 			toastr["error"]("Oops,something went wrong");
@@ -1297,5 +1301,25 @@
             }
 
         });
+
+
+		//START - Purpose : Show / Hide Chat & Remarks - #DEVTASK-19918
+		$(document).on('click', '.expand-row-msg', function () {
+            var id = $(this).data('id');
+            var full = '.expand-row-msg .td-full-container-'+id;
+            var mini ='.expand-row-msg .td-mini-container-'+id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
+        });
+
+		$(document).on('click', '.expand-row-msg-chat', function () {
+            var id = $(this).data('id');
+			console.log(id);
+            var full = '.expand-row-msg-chat .td-full-chat-container-'+id;
+            var mini ='.expand-row-msg-chat .td-mini-chat-container-'+id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
+        });
+		//END - #DEVTASK-19918
 </script>
 @endsection

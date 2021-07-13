@@ -15,6 +15,7 @@ use App\ReturnExchange;
 use App\ReturnExchangeHistory;
 use App\ReturnExchangeStatus;
 use App\Email;
+use App\AutoReply;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -93,6 +94,42 @@ class ReturnExchangeController extends Controller
             // once return exchange created send message if request is for the return
             $returnExchange->notifyToUser();
             $returnExchange->updateHistory();
+            if ($request->type == "refund") {
+                // start a request to send message for refund 
+                 $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-refund')->first();
+                 if($auto_reply) {
+                     $auto_message = preg_replace("/{order_id}/i", !empty($orderProduct) ? $orderProduct->order_id : "N/A", $auto_reply->reply); 
+                     $auto_message = preg_replace("/{product_names}/i", !empty($product) ? $product->name : "N/A", $auto_message); 
+                     $requestData = new Request(); 
+                     $requestData->setMethod('POST'); 
+                     $requestData->request->add(['customer_id' => $returnExchange->customer->id, 'message' => $auto_message, 'status' => 1]); 
+                     app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                 }
+
+            } else if ($request->type == "return") {
+                // start a request to send message for return 
+                 $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-return')->first();
+                 if($auto_reply) {
+                     $auto_message = preg_replace("/{order_id}/i", !empty($orderProduct) ? $orderProduct->order_id : "N/A", $auto_reply->reply); 
+                     $auto_message = preg_replace("/{product_names}/i", !empty($product) ? $product->name : "N/A", $auto_message); 
+                     $requestData = new Request(); 
+                     $requestData->setMethod('POST'); 
+                     $requestData->request->add(['customer_id' => $returnExchange->customer->id, 'message' => $auto_message, 'status' => 1]); 
+                     app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                 }
+
+            } else if ($request->type == "exchange") {
+                // start a request to send message for exchange 
+                 $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-exchange')->first();
+                 if($auto_reply) {
+                     $auto_message = preg_replace("/{order_id}/i", !empty($orderProduct) ? $orderProduct->order_id : "N/A", $auto_reply->reply); 
+                     $auto_message = preg_replace("/{product_names}/i", !empty($product) ? $product->name : "N/A", $auto_message); 
+                     $requestData = new Request(); 
+                     $requestData->setMethod('POST'); 
+                     $requestData->request->add(['customer_id' => $returnExchange->customer->id, 'message' => $auto_message, 'status' => 1]); 
+                     app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                 }
+            }    
 
             // send emails
             if ($sendEmail == 'yes') {
@@ -154,6 +191,7 @@ class ReturnExchangeController extends Controller
                     ]);
 
                     \App\Jobs\SendEmail::dispatch($email);
+                    
                 }
             }
         }
@@ -631,6 +669,16 @@ class ReturnExchangeController extends Controller
 
             ]
         );
+
+        /// start a request to send message for refund 
+         $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-refund-manual')->first();
+         if($auto_reply) {
+             $requestData = new Request(); 
+             $requestData->setMethod('POST'); 
+             $requestData->request->add(['customer_id' => $request->customer_id, 'message' => $auto_reply->reply, 'status' => 1]); 
+             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+         }
+
         return response()->json(['message' => 'You have successfully added refund!'], 200);
     }
 

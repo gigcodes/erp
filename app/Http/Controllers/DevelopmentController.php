@@ -1385,7 +1385,13 @@ class DevelopmentController extends Controller
         if (!isset($reference)) {
             $reference = null;
         }
-        $module = DeveloperModule::find($module);
+        
+        if(is_string($module)) {
+            $module = DeveloperModule::where("name","like",$module)->first();
+        }else{
+            $module = DeveloperModule::find($module);
+        }
+
         if (!$module) {
             $module = new DeveloperModule();
             $module->name = $request->get('module');
@@ -2195,7 +2201,7 @@ class DevelopmentController extends Controller
                 $issue->responsible_user_id = $issue->assigned_to;
                 $issue->is_resolved = 1;
                 $issue->save();
-
+                
                 DeveloperTaskHistory::create([
                     'developer_task_id' => $issue->id,
                     'model' => 'App\DeveloperTask',
@@ -2279,25 +2285,85 @@ class DevelopmentController extends Controller
             $history = DeveloperTaskHistory::find($request->approve_time);
             $history->is_approved = 1;
             $history->save();
+
+
+            $task = DeveloperTask::find($request->developer_task_id);
+            $time = $history->new_value !== null ? $history->new_value : $history->old_value;
+            $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' .  $time . ' MINS'; 
+            
             $user = User::find($request->user_id);
-            $admin = Auth::user();
-            if($admin && $user){
-                $receiver_user_phone = $admin->phone;
-                if($receiver_user_phone){
-                    $task = DeveloperTask::find($request->developer_task_id);
-                    $time = $history->new_value !== null ? $history->new_value : $history->old_value;
-                    $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' .  $time . ' MINS'; 
+            $admin = Auth::user(); 
+            $master_user = User::find($task->master_user_id);
+            $team_lead = User::find($task->team_lead_id);
+            $tester = User::find($task->tester_id);
+
+            if($user){
+                if($admin->phone){
                     $chat = ChatMessage::create([
-                        'number' => $receiver_user_phone,
+                        'number' => $admin->phone,
                         'user_id' => $user->id,
                         'customer_id' => $user->id,
                         'message' => $msg,
                         'status' => 0, 
                         'developer_task_id' => $request->developer_task_id
                     ]);
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $admin->whatsapp_number, $msg, false, $chat->id);
+                }else if($user->phone){
+                    $chat = ChatMessage::create([
+                        'number' => $user->phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
+                }else if($master_user && $master_user->phone){
+                    $chat = ChatMessage::create([
+                        'number' => $master_user->phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
+                }else if($team_lead && $team_lead->phone){
+                    $chat = ChatMessage::create([
+                        'number' => $team_lead->phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
+                }else if($tester && $tester->phone){
+                    $chat = ChatMessage::create([
+                        'number' => $tester->phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
                 } 
-            } 
+                if($chat){ 
+                    if($admin->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($admin->phone, $admin->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if($user->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if($master_user && $master_user->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($master_user->phone, $master_user->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if($team_lead && $team_lead->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($team_lead->phone, $team_lead->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if($tester && $tester->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($tester->phone, $tester->whatsapp_number, $msg, false, $chat->id);
+                    } 
+                }
+            }
+ 
+
     }else{
             return response()->json([
                 'message' => 'Only admin can approve'
@@ -2856,6 +2922,7 @@ class DevelopmentController extends Controller
         return 'error';
     }
 
+    
     public function getStatusHistory(Request $request)
     {
         $id = $request->id;

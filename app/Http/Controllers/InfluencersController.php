@@ -216,16 +216,24 @@ class InfluencersController extends Controller
         try {
         
        /*$name = $request->name;
-       $extraVars = \App\Helpers::getInstagramVars($name);
+       
        $name = str_replace(" ","",$name).$extraVars;*/
 
         $cURLConnection = curl_init();
 
-        $url = env('INFLUENCER_PY_SCRIPT_URL').':'.env('INFLUENCER_PY_SCRIPT_PORT').'/influencer-keyword-start';
+        if($request->platform == "py_facebook") {
+            $extraVars = \App\Helpers::getFacebookVars($request->name);
+            $url = config("constants.py_facebook_script").'/fb-keyword-start'.$extraVars;
+            $params = [
+                "brand" => str_replace(" ","",$request->name)
+            ];
+        }else{
+            $url = env('INFLUENCER_PY_SCRIPT_URL').':'.env('INFLUENCER_PY_SCRIPT_PORT').'/influencer-keyword-start';
+            $params = [
+                "name" => str_replace(" ","",$request->name)
+            ];
+        }
 
-        $params = [
-            "name" => str_replace(" ","",$request->name)
-        ];
         // echo $url;
         // die();
         curl_setopt_array($cURLConnection, array(
@@ -243,6 +251,8 @@ class InfluencersController extends Controller
         ));
 
         $phoneList = curl_exec($cURLConnection);
+
+        \Log::info("Influencers start scraper : ".$url." with params : ".json_encode($params)." and response return ".(string)$phoneList);
 
         curl_close($cURLConnection);
 
@@ -369,12 +379,18 @@ class InfluencersController extends Controller
             $name = str_replace(" ","",$name).$extraVars;*/
 
             $cURLConnection = curl_init();
-
-            $url = env('INFLUENCER_PY_SCRIPT_URL').':'.env('INFLUENCER_PY_SCRIPT_PORT').'/influencer-keyword-stop';
-
-            $params = [
-                "name" => str_replace(" ","",$request->name)
-            ];
+            if($request->platform == "py_facebook") {
+                $extraVars = \App\Helpers::getInstagramVars($name);
+                $url = config("constants.py_facebook_script").'/fb-keyword-stop'.$extraVars;
+                $params = [
+                    "brand" => str_replace(" ","",$request->name)
+                ];
+            }else{
+                $url = env('INFLUENCER_PY_SCRIPT_URL').':'.env('INFLUENCER_PY_SCRIPT_PORT').'/influencer-keyword-stop';
+                $params = [
+                    "name" => str_replace(" ","",$request->name)
+                ];
+            }
             // echo $url;
             // die();
             curl_setopt_array($cURLConnection, array(
@@ -393,6 +409,8 @@ class InfluencersController extends Controller
 
 
             $phoneList = curl_exec($cURLConnection);
+
+            \Log::info("Influencers stop scraper : ".$url." with params : ".json_encode($params)." and response return ".(string)$phoneList);
 
             curl_close($cURLConnection);
 

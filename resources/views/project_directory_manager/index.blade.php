@@ -88,7 +88,7 @@ $(document).on('click', '.send-message1', function () {
 	
 	if (!$(thiss).is(':disabled')) {
 		$.ajax({
-			url: "/erp/project-file-manager/update",
+			url: "/project-file-manager/update",
 			type: 'POST',
 			data: {"_token": "{{ csrf_token() }}", id: id, size:size},
 			beforeSend: function () {

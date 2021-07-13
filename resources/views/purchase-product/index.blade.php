@@ -157,6 +157,11 @@
               <a href="/purchase-product/get-suppliers" class="btn btn-xs btn-secondary">
                             Suppliers
               </a>
+              <!-- START - Purpose : Add Vutton - DEVTASK-19941 -->
+              <a href="#" class="btn btn-xs btn-secondary not_mapping_supplier_list">
+                            Not Mapping Suppliers
+              </a>
+              <!-- END - DEVTASK-19941 -->
             </div>
         </div>
 </div>
@@ -273,6 +278,9 @@
               <td>{{-- $order->balance_amount --}}
                 @if ($order_product && $order_product->product)
               <i title="Add Supplier for this product" class="fa fa-user-plus add_supplier" aria-hidden="true" data-product_id="{{$order_product->product->id}}" data-product_name="{{$order_product->product->name}}"></i>
+              @endif 
+              @if(count($order->orderProducts)) 
+              <button type="button" class="btn btn-xs image-button" style="cursor: pointer;" data-customer-id="{{$order->customer_id}}" data-order-id="{{$order->id}}" data-product-id="{{implode(',', $order->orderProducts->pluck('product_id')->toArray())}}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load Auto Images attacheds"><img src="/images/archive.png" alt="" style="cursor: pointer; width: 16px;"></button>
               @endif
               </td>
 
@@ -375,6 +383,25 @@
     </div>
 </div>
 <div id="estdelhistoryresponse"></div>
+<div id="order-product-images" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Product Images</h4>
+          </div>
+          <div class="modal-body" style="background-color: #999999;">
+            <div style="overflow-x:auto;"><input type="text" id="click-to-clipboard-message" class="link" style="position: absolute; left: -5000px;">
+            <table class="table table-bordered">
+              <tbody style="background-color: #999999"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+  </div>
+</div>
 @endsection
 @include('common.commonEmailModal')
 @include("partials.modals.update-delivery-date-modal")
@@ -390,6 +417,79 @@
   <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
   <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script>
   <script type="text/javascript">
+
+
+
+$(document).on('click', '.image-button', function () {
+    var thiss = $(this);
+    var product_ids = $(this).attr('data-product-id'); 
+    var customer_id = $(this).attr('data-customer-id'); 
+
+    $.ajax({
+        type: "GET",
+        url: `/purchase-product/order-product/images?product_ids=`+ product_ids, 
+        beforeSend: function () {
+            // $(thiss).text('Loading...');
+        }
+    }).done(function (response) { 
+        $("#order-product-images table tbody").html('');
+        $("#order-product-images").find(".modal-dialog").css({"width":"700","max-width":"700"});
+        $("#order-product-images").find(".modal-body").css({"background-color":"white"});
+        let images = response.images;
+        if(images.length){
+          for(let i=0; i< images.length; i++){
+            $("#order-product-images table tbody").append(`
+              <td style="width:45%">
+                <div class="speech-wrapper full-match-img">
+                  <div id="1786233" class="bubble alt">
+                    <div class="txt">
+                      <p class="name alt"></p>
+                      <p class="message" data-message=""></p>
+                      <div style="margin-bottom:10px;">
+                        <div class="row">
+                          <div class="col-md-4">
+                            <a href="${images[i].image_url}" class="show-product-info" target="_blank">
+                              <img src="${images[i].image_url}" style="max-width: 100%; cursor: default;">
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td style="width:30%">&nbsp; 
+                <button style="padding: 3px 6px !important;" title="Search Product Image" data-media-url="'${images[i].image_url}'" data-product-id="${images[i].product_id}" data-customer-id="${customer_id}" class="btn btn-xs btn-secondary search-product-image"><i class="fa fa-search" aria-hidden="true"></i></button>
+              </td>
+            `); 
+          }
+        }
+        $("#order-product-images").modal("show"); 
+
+    }).fail(function (response) {
+        console.log(response, 777);
+        //$(thiss).text('Load More');
+
+        alert('Could not load images');
+
+    });
+});
+
+$(document).on('click','.search-product-image',function(event){
+  $.ajax({
+      type: "GET", 
+      url: "/erp-customer/search-image/"+$(this).attr('data-product-id')+'/'+$(this).attr('data-media-url').replaceAll('/', '|')+'?customer_id='+$(this).attr('data-customer-id'), 
+      beforeSend : function() {
+          toastr['success']('Image find process is started, you will get whatsapp notification as this process will be completed.');
+      },
+      success: function(response) { 
+
+      },
+      error: function() {
+          toastr['error']('Error occured please try again later!');
+      }
+  });
+});
 
 $(document).on('click', '.view-details', function(e) {
       e.preventDefault();
@@ -1001,5 +1101,51 @@ $(document).on('click', '.view-details', function(e) {
           });
       });
 
+    //START - Purpose : Get not mapping product with supplier list - DEVTASK-19941
+    $(document).on('click', '.not_mapping_supplier_list', function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: "{{route('not_mapping_product_supplier_list')}}",
+            data: {
+              _token: "{{ csrf_token() }}",
+            },
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function() {
+              $("#loading-image").show();
+            }
+        }).done( function(response) {
+              $("#loading-image").hide();
+              
+              if(response.downloadUrl){
+                var form = $("<form/>", 
+                        { action:"/chat-messages/downloadChatMessages",
+                            method:"POST",
+                            target:'_blank',
+                            id:"chatHiddenForm",
+                            }
+                    );
+                form.append( 
+                    $("<input>", 
+                        { type:'hidden',  
+                        name:'filename', 
+                        value:response.downloadUrl }
+                    )
+                );
+                form.append( 
+                    $("<input>", 
+                        { type:'hidden',  
+                        name:'_token', 
+                        value:$('meta[name="csrf-token"]').attr('content') }
+                    )
+                );
+                $("body").append(form);
+                $('#chatHiddenForm').submit();
+              }
+        }).fail(function(errObj) {
+              $("#loading-image").hide();
+        });
+    });
+    //END - DEVTASK-19941
   </script>
 @endsection
