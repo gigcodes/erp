@@ -127,6 +127,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
 
 Route::get('log-scraper-api', 'Logging\LogScraperController@scraperApiLog')->middleware('auth')->name('log-scraper.api');
 Route::get('log-scraper', 'Logging\LogScraperController@index')->middleware('auth')->name('log-scraper.index');
+Route::get('api-log-scraper/search', 'Logging\LogScraperController@scraperSearch')->name('api.log.scraper-search');
 
 Route::prefix('category-messages')->middleware('auth')->group(function () {
     Route::post('bulk-messages/addToDND', 'BulkCustomerRepliesController@addToDND');
@@ -2412,6 +2413,7 @@ Route::get('supplier-scrapping-info', 'ProductController@getSupplierScrappingInf
 
 Route::group(['middleware' => 'auth', 'admin'], function () {
     Route::get('category/brand/min-max-pricing', 'CategoryController@brandMinMaxPricing');
+    Route::get('category/brand/min-max-pricing-update-default', 'CategoryController@updateMinMaxPriceDefault');
     Route::post('category/brand/update-min-max-pricing', 'CategoryController@updateBrandMinMaxPricing');
 
     Route::post('task/change/status','TaskModuleController@updateStatus')->name('task.change.status');
@@ -2450,10 +2452,11 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('whatsapp-queue/delete_queues/{id}', 'WhatsappConfigController@clearMessagesQueue')->name('whatsapp.config.delete_all_queues');
     Route::get('whatsapp-config/get-barcode', 'WhatsappConfigController@getBarcode')->name('whatsapp.config.barcode');
     Route::get('whatsapp-config/get-screen', 'WhatsappConfigController@getScreen')->name('whatsapp.config.screen');
-    Route::get('whatsapp-config/delete-chrome', 'WhatsappConfigController@deleteChromeData')->name('whatsapp.config.delete');
+    Route::get('whatsapp-config/delete-chrome', 'WhatsappConfigController@deleteChromeData')->name('whatsapp.config.delete-chrome');
     Route::get('whatsapp-config/restart-script', 'WhatsappConfigController@restartScript')->name('whatsapp.restart.script');
     Route::get('whatsapp-config/logout-script', 'WhatsappConfigController@logoutScript')->name('whatsapp.restart.logout-script');
     Route::get('whatsapp-config/get-status', 'WhatsappConfigController@getStatus')->name('whatsapp.restart.get-status');
+    Route::get('whatsapp-config/get-status-info', 'WhatsappConfigController@getStatusInfo')->name('whatsapp.restart.get-status-info');
 
     Route::get('whatsapp-config/blocked-number', 'WhatsappConfigController@blockedNumber')->name('whatsapp.block.number');
 

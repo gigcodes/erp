@@ -308,4 +308,29 @@ class LogScraperController extends Controller
         $data['api_logs'] = $apilogs;
         return view('scrap.scrap_api_log', $data);
     }
+
+    public function scraperSearch(Request $request)
+    {
+        if ($request->search_name) {
+            $apilogs = \App\ScrapApiLog::select('scrap_api_logs.*','scrap_api_logs.scraper_id')
+                                        ->leftJoin('scrapers', 'scrap_api_logs.scraper_id', '=', 'scrapers.id')
+                                        ->select('scrap_api_logs.*','scrapers.scraper_name')
+                                        ->where('scrapers.scraper_name', 'LIKE', "%$request->search_name%")
+                                        ->latest()
+                                        ->get();
+            
+        }
+        if ($request->start_date && $request->end_date) {
+            $startDate = \Carbon\Carbon::createFromFormat('d/m/Y', $request->start_date);
+            $endDate = \Carbon\Carbon::createFromFormat('d/m/Y', $request->end_date);
+            $apilogs = \App\ScrapApiLog::whereBetween('created_at', [$startDate, $endDate])->latest()->get();
+        }
+
+        if ($request->name_length == 0) {
+            $apilogs = \App\ScrapApiLog::select('scrap_api_logs.*','scrap_api_logs.scraper_id')->leftJoin('scrapers', 'scrap_api_logs.scraper_id', '=', 'scrapers.id')->select('scrap_api_logs.*','scrapers.scraper_name')->latest()->paginate(30);
+        }
+        
+        $view = view("scrap.api-log-search")->with('apilogs', $apilogs)->render();
+        return response()->json(['status' => true,'html' => $view]);
+    }
 }

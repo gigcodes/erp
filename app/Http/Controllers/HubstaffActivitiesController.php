@@ -111,7 +111,10 @@ class HubstaffActivitiesController extends Controller
             $minutes = sprintf("%02d", floor((abs($difference) / 60) % 60));
 
             $latest_message = \App\ChatMessage::where('user_id',$row->id)->latest('message')->first();
-            $latest_msg = $latest_message->message;
+            $latest_msg = null;
+            if($latest_message){
+                $latest_msg = $latest_message->message;
+            }
             if(strlen($latest_message->message) > 20){
                 $latest_msg = substr($latest_message->message, 0, 20).'...';
             }

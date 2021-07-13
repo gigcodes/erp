@@ -85,6 +85,11 @@ use App\EmailAddress;
 use App\EmailNotificationEmailDetails;//Purpose : Add Modal - DEVTASK-4359
 use App\Mails\Manual\PurchaseExport;//Purpose : Add Modal - DEVTASK-4236
 use App\Helpers\MessageHelper;
+use Illuminate\Pagination\LengthAwarePaginator;
+use App\Imports\CustomerNumberImport;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+
 class WhatsAppController extends FindByNumberController
 {
 
@@ -1235,12 +1240,14 @@ class WhatsAppController extends FindByNumberController
                         $params['media_url'] = $media->getUrl();
                         $params['message'] = isset($chatapiMessage['caption']) ? $chatapiMessage['caption'] : '';
                     } catch (\Exception $exception) {
-                        $params['message'] = $text;
+                        $params['message'] = $text ." => ".$exception->getMessage();
                     }
                 }
             } else {
                 $params['message'] = $text;
             }
+
+
 
 // From me? Only store, nothing else
             if ($chatapiMessage['fromMe'] == true) {
@@ -1988,16 +1995,12 @@ class WhatsAppController extends FindByNumberController
         $loggedUser = $request->user();
 
         if($request->add_autocomplete == "true"){
-
-        $exist = AutoCompleteMessage::where( 'message' , $request->message)->exists();
-
-        if(!$exist){
-
-            AutoCompleteMessage::create([
-                'message' => $request->message,
-            ]);
-        }
-
+            $exist = AutoCompleteMessage::where( 'message' , $request->message)->exists();
+            if(!$exist){
+                AutoCompleteMessage::create([
+                    'message' => $request->message,
+                ]);
+            }
         }
 
 
