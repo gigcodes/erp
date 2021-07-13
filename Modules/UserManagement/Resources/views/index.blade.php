@@ -145,7 +145,7 @@
 
                             <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 erp-request">ERP IPs</button>
 
-                            <button class="btn btn-secondary btn-xs pull-right mt-0 mr-2 system-request" data-toggle="modal"
+                            <button class="btn btn-secondary btn-xs pull-right ml-2 mt-0 mr-2 system-request" data-toggle="modal"
                                 data-target="#system-request">System IPs</button>
 
                             <button class="btn btn-secondary btn-xs pull-right today-history"> All user task </button>
