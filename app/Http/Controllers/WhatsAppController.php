@@ -1208,7 +1208,7 @@ class WhatsAppController extends FindByNumberController
                         $extension = preg_replace("#\?.*#", "", pathinfo($text, PATHINFO_EXTENSION)) . "\n";
 
                         // Set tmp file
-                        $filePath = public_path() . '/uploads/tmp_' . rand(0, 100000) . '.' . $extension;
+                        $filePath = public_path() . '/uploads/tmp_' . rand(0, 100000) . '.' . trim($extension);
 
                         // Copy URL to file path
                         copy($text, $filePath);
@@ -1223,13 +1223,14 @@ class WhatsAppController extends FindByNumberController
                         $params['media_url'] = $media->getUrl();
                         $params['message'] = isset($chatapiMessage['caption']) ? $chatapiMessage['caption'] : '';
                     } catch (\Exception $exception) {
+                        \Log::error($exception);
                         //
                     }
                 } else {
                     try {
                         $extension = preg_replace("#\?.*#", "", pathinfo($text, PATHINFO_EXTENSION)) . "\n";
                         // Set tmp file
-                        $filePath = public_path() . '/uploads/tmp_' . rand(0, 100000) . '.' . $extension;
+                        $filePath = public_path() . '/uploads/tmp_' . rand(0, 100000) . '.' . trim($extension);
                         // Copy URL to file path
                         copy($text, $filePath);
                         // Upload media
@@ -1240,14 +1241,13 @@ class WhatsAppController extends FindByNumberController
                         $params['media_url'] = $media->getUrl();
                         $params['message'] = isset($chatapiMessage['caption']) ? $chatapiMessage['caption'] : '';
                     } catch (\Exception $exception) {
-                        $params['message'] = $text ." => ".$exception->getMessage();
+                        \Log::error($exception);
+                        $params['message'] = $text;
                     }
                 }
             } else {
                 $params['message'] = $text;
             }
-
-
 
 // From me? Only store, nothing else
             if ($chatapiMessage['fromMe'] == true) {
