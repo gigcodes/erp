@@ -18,8 +18,10 @@
     <div class="col-lg-12 margin-tb">
     	<div class="row">
 	    	<div class="col col-md-6">
-		    	<div class="row">
-	    			
+		    	<div class="row ml-3">
+	    			<a href="{{ route('magento_product_today_common_err')}}" class="btn btn-sm btn-warning">
+				  		Today Common Errors Report
+				  	</a>
 				 </div> 		
 		    </div>
 		    <div class="col">
