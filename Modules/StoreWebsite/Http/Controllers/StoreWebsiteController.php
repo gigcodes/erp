@@ -237,7 +237,7 @@ class StoreWebsiteController extends Controller
             $params['store_website_id'] = $post['store_id'];
             $params['website_mode'] = $post['websitemode'];
             
-            $StoreWebsiteUsersid = $StoreWebsiteUsers::create($params);
+            $StoreWebsiteUsersid = StoreWebsiteUsers::create($params);
 
             if($post['userEmail'] && $post['password']) {
                 $message = 'Email: '.$post['userEmail'].', Password is: ' . $post['password'];
@@ -251,7 +251,7 @@ class StoreWebsiteController extends Controller
             
             StoreWebsiteUserHistory::create([
                 'store_website_id' => $StoreWebsiteUsersid->store_website_id,
-                'store_website_user_id' => $StoreWebsiteUsersid,
+                'store_website_user_id' => $StoreWebsiteUsersid->id,
                 'model' => 'App\StoreWebsiteUsers',
                 'attribute' => "username_password",
                 'old_value' => 'new_added',
@@ -668,8 +668,9 @@ class StoreWebsiteController extends Controller
 
     public function userHistoryList(Request $request)
     {
-        $histories = StoreWebsiteUserHistory::with('websiteuser')
+        $histories = StoreWebsiteUserHistory::with('websiteuser','storewebsite')
             ->where('store_website_id',$request->id)
+            ->latest()
             ->get();
 
         $resultArray = [];
