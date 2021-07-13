@@ -122,62 +122,69 @@ $(document).ready(function(){
 
 $('.table_class').change(function(){
     let table_name = this.value;
-    $.ajax({
-        url: '{{route('admin.databse.menu.direct.dbquery.columns')}}',
-        data: table_name,
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-        success: function(response){
-            $('.container_ .row .left_bar').html('');
-            $('.container_ .row .right_bar').html('');
+    if(table_name != ''){
+        $.ajax({
+            url: '{{route('admin.databse.menu.direct.dbquery.columns')}}',
+            data: table_name,
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+            success: function(response){
+                $('.container_ .row .left_bar').html('');
+                $('.container_ .row .right_bar').html('');
 
-            let cols = response.data;
-            $.each(cols, function(index, value){
-                let input_type = value.Type;
-                let html = `
-                            <div class="col-xs-6 col-sm-6 col-md-6 text-left">
-                                <input name="columns[${value.Field}]" type="checkbox" value="${value.Field}">
-                                <strong class="ml-3">${value.Field}</strong>
-                            </div> 
-                            <div class="col-xs-6 col-sm-6 col-md-6">
-                                <div class="form-group">
-                                    <input placeholder="${value.Field}" class="form-control" name="update_${value.Field}" type="${input_type}">
+                let cols = response.data;
+                $.each(cols, function(index, value){
+                    let input_type = value.Type;
+                    let html = `
+                                <div class="col-xs-6 col-sm-6 col-md-6 text-left">
+                                    <input name="columns[${value.Field}]" type="checkbox" value="${value.Field}">
+                                    <strong class="ml-3">${value.Field}</strong>
+                                </div> 
+                                <div class="col-xs-6 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <input placeholder="${value.Field}" class="form-control" name="update_${value.Field}" type="${input_type}">
+                                    </div>
                                 </div>
-                            </div>
-                            `;
+                                `;
 
-                if(value.Field !== 'id') {
-                    $('.container_ .row .left_bar').append(html);
-                }
+                    if(value.Field !== 'id') {
+                        $('.container_ .row .left_bar').append(html);
+                    }
 
-                html = `
-                            <div class="col-xs-4 col-sm-4 col-md-4 text-left">
-                                <strong>${value.Field}</strong>
-                            </div>
-                            <div class="col-xs-4 col-sm-4 col-md-4 text-left">
-                                <select class="column-operator" id="ColumnOperator[]" name="criteriaColumnOperators['${value.Field}']">
-                                <option value="">Select Operator</option><option value="=">=</option><option value=">">&gt;</option><option value=">=">&gt;=</option><option value="<">&lt;</option><option value="<=">&lt;=</option><option value="!=">!=</option><option value="LIKE">LIKE</option><option value="LIKE %...%">LIKE %...%</option><option value="NOT LIKE">NOT LIKE</option><option value="IN (...)">IN (...)</option><option value="NOT IN (...)">NOT IN (...)</option><option value="BETWEEN">BETWEEN</option><option value="NOT BETWEEN">NOT BETWEEN</option><option value="IS NULL">IS NULL</option><option value="IS NOT NULL">IS NOT NULL</option>
-                                </select>
-                            </div>
-                            <div class="col-xs-4 col-sm-4 col-md-4">
-                                <div class="form-group">
-                                    <input placeholder="${value.Field}" class="form-control" name="where_${value.Field}" type="text">
+                    html = `
+                                <div class="col-xs-4 col-sm-4 col-md-4 text-left">
+                                    <strong>${value.Field}</strong>
                                 </div>
-                            </div>
-                            `;
+                                <div class="col-xs-4 col-sm-4 col-md-4 text-left">
+                                    <select class="column-operator" id="ColumnOperator[]" name="criteriaColumnOperators['${value.Field}']">
+                                    <option value="">Select Operator</option><option value="=">=</option><option value=">">&gt;</option><option value=">=">&gt;=</option><option value="<">&lt;</option><option value="<=">&lt;=</option><option value="!=">!=</option><option value="LIKE">LIKE</option><option value="LIKE %...%">LIKE %...%</option><option value="NOT LIKE">NOT LIKE</option><option value="IN (...)">IN (...)</option><option value="NOT IN (...)">NOT IN (...)</option><option value="BETWEEN">BETWEEN</option><option value="NOT BETWEEN">NOT BETWEEN</option><option value="IS NULL">IS NULL</option><option value="IS NOT NULL">IS NOT NULL</option>
+                                    </select>
+                                </div>
+                                <div class="col-xs-4 col-sm-4 col-md-4">
+                                    <div class="form-group">
+                                        <input placeholder="${value.Field}" class="form-control" name="where_${value.Field}" type="text">
+                                    </div>
+                                </div>
+                                `;
 
-                $('.container_ .row .right_bar').append(html);
-            });
-            $('.column-operator').select2();
-        }
-    });
-    $('.save_class').removeClass('d-none');
-    $('.container_ h3').removeClass('d-none');
-    $('.container_ h3').removeClass('d-none');
-    $('.container_ .row').removeClass('d-none');
-    $('.table_name').val(table_name);
+                    $('.container_ .row .right_bar').append(html);
+                });
+                $('.column-operator').select2();
+            }
+        });
+        $('.save_class').removeClass('d-none');
+        $('.container_ h3').removeClass('d-none');
+        $('.container_ .row').removeClass('d-none');
+        $('.table_name').val(table_name);
+    }else{
+        $('.save_class').addClass('d-none');
+        $('.container_ h3').addClass('d-none');
+        $('.container_ .row').addClass('d-none');
+        $('.table_name').val('table_name');
+    }
+   
 });
 
 $('.save_change_btn').click(function(){
