@@ -311,4 +311,13 @@ function getStr($srt)
 
 }
 
+function string_convert($msg2){
+    
+    // $message = str_replace('||',"\n",$msg2);
+    // $message = json_encode($msg2);
+    $message = explode("||",$msg2);
+
+    return $message;
+}
+
 
