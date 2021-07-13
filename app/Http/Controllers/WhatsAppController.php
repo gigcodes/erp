@@ -1240,6 +1240,7 @@ class WhatsAppController extends FindByNumberController
                         $params['media_url'] = $media->getUrl();
                         $params['message'] = isset($chatapiMessage['caption']) ? $chatapiMessage['caption'] : '';
                     } catch (\Exception $exception) {
+                        \Log::error($exception);
                         $params['message'] = $text ." => ".$exception->getMessage();
                     }
                 }
