@@ -114,9 +114,9 @@ class HubstaffActivitiesController extends Controller
             $latest_msg = null;
             if($latest_message){
                 $latest_msg = $latest_message->message;
-            }
-            if(strlen($latest_message->message) > 20){
-                $latest_msg = substr($latest_message->message, 0, 20).'...';
+                if(strlen($latest_message->message) > 20){
+                    $latest_msg = substr($latest_message->message, 0, 20).'...';
+                }
             }
             $recordsArr[] = [
 

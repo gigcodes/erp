@@ -49,8 +49,8 @@
                                 <div class="col pr-0">
                                     <select class="form-control" name="user_id">
                                         <option value="">Select user</option>
-                                        @foreach($users as $user)
-                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                        @foreach(\App\User::pluck('name','id')->toArray() as $k => $user)
+                                            <option value="{{ $k }}">{{ $user }}</option>
                                         @endforeach    
                                     </select>
                                 </div>
@@ -60,9 +60,9 @@
                                 <div class="col pr-0">
                                     <select class="form-control" name="vendor_id">
                                         <option value="">Select vendor</option>
-                                        @foreach($vendors as $vendor)
-                                            <option value="{{ $vendor->id }}">{{ $vendor->name }}</option>
-                                        @endforeach    
+                                            @foreach(\App\Vendor::pluck('name','id')->toArray() as $k => $vendor)
+                                                <option value="{{ $k }}">{{ $vendor }}</option>
+                                            @endforeach
                                     </select>
                                 </div>
                             </div>    

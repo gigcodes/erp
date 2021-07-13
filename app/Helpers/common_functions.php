@@ -311,6 +311,15 @@ function getStr($srt)
 
 }
 
+function string_convert($msg2){
+    
+    // $message = str_replace('||',"\n",$msg2);
+    // $message = json_encode($msg2);
+    $message = explode("||",$msg2);
+
+    return $message;
+}
+
 
 function  convertToThumbUrl($url,$extension){
     return   str_replace('.'.$extension,'_thumb.'.$extension,$url); // if product name is abc.jpg than thumb url name is abc_thumb.jpg name with same folder.
