@@ -21,6 +21,7 @@ class TasksController extends Controller
  
     public function index()
     {
+
         return view('totem.tasks.index_new', [
             'tasks' => Task::
                 orderBy('description')
