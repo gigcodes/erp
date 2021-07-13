@@ -209,15 +209,8 @@ var getHtml = function(response) {
                          }
                      }
                      button += '&nbsp;<button title="Forward" class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
-                     var image_url = message.media_url;
-                     if(image_url == null){
-                        if(message.media.length != 0){
-                            image_url = message.media[0].image;
-                        }
-                     }
-                     button += '&nbsp;<button title="Search Product Image" data-media-url="\''+image_url+'\'" data-id="'+message.id+'" class="btn btn-xs btn-secondary search-image"><i class="fa fa-search" aria-hidden="true"></i></button>';
+                     
                 }
-
 
 
                 if (message.type == "task" || message.type == "vendor") {
@@ -231,6 +224,15 @@ var getHtml = function(response) {
                     button += '&nbsp;<button title="Forward" class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;';
                 }
             }
+
+            var image_url = message.media_url;
+            if(image_url == null){
+               if(message.media.length != 0){
+                   image_url = message.media[0].image;
+               }
+            }
+            button += '&nbsp;<button title="Search Product Image" data-media-url="\''+image_url+'\'" data-id="'+message.id+'" class="btn btn-xs btn-secondary search-image"><i class="fa fa-search" aria-hidden="true"></i></button>';
+
         }
         if(message.type == "developer_task" ) {
             if (message.status == 0) {
@@ -357,6 +359,11 @@ var getHtml = function(response) {
 }
 
 $(document).on('click', '.load-communication-modal', function () {
+    var feedback_category_id = null;
+    if ($(this).data('feedback_cat_id')) {
+        var feedback_category_id = $(this).data('feedback_cat_id');
+    }
+
     var thiss = $(this);
     var object_type = $(this).data('object');
     var object_id = $(this).data('id');
@@ -391,6 +398,7 @@ $(document).on('click', '.load-communication-modal', function () {
             load_all: load_all,
             load_attached: load_attached,
             load_type: load_type,
+            feedback_category_id: feedback_category_id,
         },
         beforeSend: function () {
             //$(thiss).text('Loading...');

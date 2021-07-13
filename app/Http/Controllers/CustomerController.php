@@ -77,7 +77,27 @@ class CustomerController extends Controller
 //    public function __construct() {
 //      $this->middleware('permission:customer', ['only' => ['index','show']]);
 //    }
-
+    public function add_customer_address(Request $request){
+        $apply_job =  CustomerAddressData::create([
+            'customer_id' => $request->customer_id,
+            'entity_id' => $request->entity_id,
+            'parent_id' => $request->parent_id,
+            'address_type' => $request->address_type,
+            'region' => $request->region,
+            'region_id' => $request->region_id,
+            'postcode' => $request->postcode,
+            'firstname' => $request->firstname,
+            'middlename' => $request->middlename,
+            'company' => $request->company,
+            'country_id' => $request->country_id,
+            'telephone' => $request->telephone,
+            'prefix' => $request->prefix,
+            'street' => $request->street,
+        ]);
+//        dd($apply_job);
+        $apply_job->save();
+        return $apply_job;
+    }
     public function index(Request $request)
     {
         $complaints = Complaint::whereNotNull('customer_id')->pluck('complaint', 'customer_id')->toArray();
@@ -2694,7 +2714,6 @@ class CustomerController extends Controller
     //START - Purpose : Add Customer Data - DEVTASK-19932
     public function add_customer_data(Request $request)
     {
-
         if($request->email)
         {
             $email = $request->email;
@@ -2718,8 +2737,11 @@ class CustomerController extends Controller
                         if($value['entity_id'] != "")
                             $check_record = CustomerAddressData::where('customer_id',$find_customer->id)->where('entity_id',$value['entity_id'])->first();
 
+
                         if($check_record)
+
                         {
+
                             if(isset($value['is_deleted']) && $value['is_deleted'] == 1)
                             {
                                 CustomerAddressData::where('customer_id',$find_customer->id)
@@ -2746,7 +2768,7 @@ class CustomerController extends Controller
                                     ]
                                 );
                             }
-                        }else{   
+                        }else{
 
                             $params[] = [
                                 'customer_id' => $find_customer->id,
@@ -2767,14 +2789,14 @@ class CustomerController extends Controller
                                 'updated_at' => \Carbon\Carbon::now(),
 
                             ];
-                            
+
                         }
                     }
 
                     if(!empty($params))
                          CustomerAddressData::insert($params);
 
-                    return response()->json(["code" => 200]); 
+                    return response()->json(["code" => 200]);
                 }else{
                     return response()->json(["code" => 404 ,"message" => "Not Exist!"]);
                 }
@@ -2852,5 +2874,4 @@ class CustomerController extends Controller
         // }
     }
     //END - DEVTASK-19932
-   
 }
