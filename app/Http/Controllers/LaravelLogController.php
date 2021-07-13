@@ -239,10 +239,10 @@ class LaravelLogController extends Controller
 
         }
 
-        /*$other_channel_data = $this->getDirContents($path);
+        $other_channel_data = $this->getDirContents($path);
         foreach ($other_channel_data as $other) {
             array_push($errors, $other);
-        }*/
+        }
         $allErrorTypes = array_values(array_unique($errSelection));
 
         $users       = User::all();
