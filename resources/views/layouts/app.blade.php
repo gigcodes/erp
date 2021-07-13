@@ -1411,6 +1411,9 @@ $metaData = '';
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ url('horizon') }}">Jobs</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('project-file-manager') }}">Project Directory manager</a>
+                                </li>
                             </ul>
                         </li>
                         <li id="product-template" class="nav-item dropdown">
