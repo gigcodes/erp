@@ -45,6 +45,7 @@ class ProjectDirectory extends Command
         $output = shell_exec("tree --du -h . -f -L 6 --sort=size|grep 'M]\|G]' | egrep -v '[0-9]*\.[0-9]M'");
         if (!empty($output)) {
             $lastFolder = null;
+            $this->info("Output : " . $output);
             foreach (explode(PHP_EOL, $output) as $o) {
                 $directory = explode("]", $o);
                 if (isset($directory[0]) && isset($directory[1])) {
