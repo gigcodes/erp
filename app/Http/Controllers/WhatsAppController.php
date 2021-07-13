@@ -53,11 +53,7 @@ use App\MessageQueue;
 use App\Jobs\SendImagesWithWhatsapp;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Pagination\LengthAwarePaginator;
-use App\Imports\CustomerNumberImport;
-use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-use Illuminate\Support\Facades\DB;
+use IlluminUserFeedbackStatuspport\Facades\DB;
 use Validator;
 use Image;
 use GuzzleHttp\Client as GuzzleClient;
@@ -89,6 +85,11 @@ use App\EmailAddress;
 use App\EmailNotificationEmailDetails;//Purpose : Add Modal - DEVTASK-4359
 use App\Mails\Manual\PurchaseExport;//Purpose : Add Modal - DEVTASK-4236
 use App\Helpers\MessageHelper;
+use Illuminate\Pagination\LengthAwarePaginator;
+use App\Imports\CustomerNumberImport;
+use Plank\Mediable\Media;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+
 class WhatsAppController extends FindByNumberController
 {
 
@@ -1992,16 +1993,12 @@ class WhatsAppController extends FindByNumberController
         $loggedUser = $request->user();
 
         if($request->add_autocomplete == "true"){
-
-        $exist = AutoCompleteMessage::where( 'message' , $request->message)->exists();
-
-        if(!$exist){
-
-            AutoCompleteMessage::create([
-                'message' => $request->message,
-            ]);
-        }
-
+            $exist = AutoCompleteMessage::where( 'message' , $request->message)->exists();
+            if(!$exist){
+                AutoCompleteMessage::create([
+                    'message' => $request->message,
+                ]);
+            }
         }
 
 
@@ -2026,6 +2023,21 @@ class WhatsAppController extends FindByNumberController
             $data['customer_id'] = $request->customer_id;
             $module_id = $request->customer_id;
             \App\ChatMessage::updatedUnreadMessage($request->customer_id, $data["status"]);
+        } elseif ($context == 'user-feedback') { 
+            $data['user_feedback_id'] = $request->user_id;
+            $data['user_feedback_category_id'] = $request->feedback_cat_id;
+            $Admin_users = User::get();
+            foreach($Admin_users as $u){
+                if($u->isAdmin()){
+                    $u_id = $u->id;
+                    break;
+                }
+            }
+            if(Auth::user()->isAdmin()){
+                $u_id = Auth::id();
+            }
+            $data['user_id'] = $u_id;
+            $module_id = $request->user_id;
         }elseif ($context == 'hubstuff') {  
             $data['hubstuff_activity_user_id'] = $request->hubstuff_id;
             $module_id = $request->hubstuff_id;
@@ -4118,7 +4130,7 @@ class WhatsAppController extends FindByNumberController
         $data = '';
         if ($message->message != '') {
 
-            if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff') {
+            if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback') {
                 if ($context == 'supplier') {
                     $supplierDetails = Supplier::find($message->supplier_id);
                     $language = $supplierDetails->language;
@@ -4151,6 +4163,18 @@ class WhatsAppController extends FindByNumberController
                 if ($context == 'customer') {
                     $supplierDetails = Customer::find($message->supplier_id);
                     $language = $supplierDetails->language;
+                    if ($language != null) {
+                        $result = TranslationHelper::translate('en', $language, $message->message);
+                        $message->message = $result;
+                    }
+                }
+
+                if ($context == 'user-feedback') {
+                    $userDetails = User::find($message->user_id);
+                    $phone = $userDetails->phone;
+                    $user = \Auth::user();
+                    $whatsapp_number = $user->whatsapp_number;
+                    $language = $userDetails->language;
                     if ($language != null) {
                         $result = TranslationHelper::translate('en', $language, $message->message);
                         $message->message = $result;
@@ -5241,12 +5265,26 @@ class WhatsAppController extends FindByNumberController
         
         // here is we call python 
         if($isUseOwn == 1) { 
-            $domain = "http://136.244.118.102:82/".$link;
+            $domain = "http://167.86.89.241:82/".$link;
         }else{
             $domain = "https://api.chat-api.com/instance$instanceId/$link?token=$token";
         }
 
-        \Log::channel('chatapi')->debug('cUrl_url:' . $domain . "\nMessage: " . $message. "\nCUSTOMREQUEST: " . 'POST' ."\nPostFields: " . json_encode($array) . "\nFile:" . $file . "\n" . ' ['. json_encode($logDetail). '] ');
+        // \Log::channel('chatapi')->debug('cUrl_url:' . $domain . "\nMessage: " . $message. "\nCUSTOMREQUEST: " . 'POST' ."\nPostFields: " . json_encode($array) . "\nFile:" . $file . "\n" . ' ['. json_encode($logDetail). '] ');
+
+        $customerrequest_arr['CUSTOMREQUEST'] = 'POST';
+        $message_arr['message'] = $message;
+        $file_arr['file'] = $file;
+
+        $log_data = [
+            'Message_Data' => $message_arr,
+            'Customer_request_data' => $customerrequest_arr,
+            'PostFields' => $array,
+            'file_data' => $file_arr,
+            'logDetail_data' => $logDetail,
+        ];
+
+        \Log::channel('chatapi')->debug('cUrl_url:{"' . $domain . " } \nMessage: ".json_encode($log_data) );
 
         $curl = curl_init();
         
@@ -5284,7 +5322,19 @@ class WhatsAppController extends FindByNumberController
             return false;
         } else {
             // Log curl response
-            \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: " . $message . "\nFile:" . $file . "\n" . ' ['. json_encode($logDetail). '] ');
+
+            // \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: " . $message . "\nFile:" . $file . "\n" . ' ['. json_encode($logDetail). '] ');
+            $customerrequest_arr['CUSTOMREQUEST'] = 'POST';
+            $message_arr1['message'] = $message;
+            $file_arr1['file'] = $file;
+
+            $log_data_send = [
+                'Message_Data' => $message_arr1,
+                'file_data' => $file_arr1,
+                'logDetail_data' => $logDetail,
+            ];
+    
+            \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: ".json_encode($log_data_send) );
 
             // Json decode response into result
             $result = json_decode($response, true);

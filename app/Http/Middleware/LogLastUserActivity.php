@@ -57,11 +57,6 @@ class LogLastUserActivity
                   'logout_at' => Carbon::now()
                 ]);
               }
-            } else {
-              UserLogin::create([
-                'user_id'   => Auth::id(),
-                'logout_at' => Carbon::now()
-              ]);
             }
             Auth::logout();
             return redirect('/login')->withErrors(['You have been inactive for 30 minutes']);

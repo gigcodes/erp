@@ -21,21 +21,48 @@
         }
         .border{
             border: 1px solid grey;
-        } 
+            border-radius: 4px;
+        }
         .update_column{
             padding: 0;
             border-right: 1px solid #dee2e6;
         }
         .update_column h3{
             border-bottom: 1px solid #dee2e6;
-            padding-bottom: 15px;
+            padding-bottom: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 12px;
         }
         .where_column{
             padding: 0;
             border-right: 1px solid #dee2e6;
         }
         .left_bar, .right_bar{
-            padding: 0 25px;
+            padding: 0 15px;
+        }
+        .left_bar .col-md-6, .right_bar .col-md-4 {
+            width: 50%;
+            border-bottom: 1px solid #ddd;
+        }
+        .left_bar .col-md-6 .form-group, .right_bar .col-md-4 .form-group{
+            margin: 6px 0;
+        }
+        .left_bar .col-md-6.text-left, .right_bar .col-md-4.text-left{
+            border-right: 1px solid #ddd;
+            align-items: center;
+            display: flex;
+        }
+        .left_bar .col-md-6 strong{
+            border-left: 1px solid #ddd;
+            height: -webkit-fill-available;
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+        }
+
+        .right-cont{
+            border-right: none !important;
         }
 
     </style>
@@ -43,14 +70,13 @@
 @section('content')
 
 
-    <div class="row ml-3">
-        <div class="col-lg-12 margin-tb">
-            <h2>Direct Database Query Page</h2>
-            <br><br>
-        </div>
-    </div>
+    <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">Direct Database Query Page
+    </h2>
 
-    <div class="col-xs-2">
+
+    <div class="row" style="margin: 0 1px">
+
+    <div class="col-xs-2 pl-3 pr-0">
         <div class="form-group">
             <select name="table" class="form-control table_class" id="table_id">
                 <option value>Select Table</option>
@@ -59,24 +85,24 @@
                 @endforeach
             </select>
         </div>
-    </div> 
-    
-    <div class="col-xs-2 text-left save_class d-none">
-        <button type="submit" class="btn btn-secondary save_change_btn">Update</button>
+    </div>
+
+    <div class="col-xs-2 pl-3 text-left save_class d-none">
+        <button type="submit" class="btn btn-secondary save_change_btn mr-2">Update</button>
         <button type="submit" class="btn btn-secondary delete_btn">Delete</button>
     </div>
-    <br><br><br>
-    <div class="container_" style="margin: 0 30px">
+    </div>
+    <div class="container_" style="margin: 0 28px">
     <form class="db_query">
         <input type="hidden" name="table_name" class="table_name" value="">
         <div class="row border d-none" >
             <div class="col-md-6 update_column">
-                <h3 class="text-center d-none">Update Columns</h3><br><br>
+                <h3 class="text-center d-none mb-0">Update Columns</h3>
                 <div class="row left_bar"> 
                 </div>
             </div>
-            <div class="col-md-6 update_column">
-                <h3 class="text-center d-none">Where Query</h3><br><br>
+            <div class="col-md-6 update_column right-cont   ">
+                <h3 class="text-center d-none mb-0">Where Query</h3>
                 <div class="row right_bar">   
                 </div>
             </div>

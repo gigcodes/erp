@@ -1442,6 +1442,9 @@ $metaData = '';
                                         <li class="nav-item">
                                             <a class="dropdown-item" href="{{ route('message-queue.approve') }}">Message Queue Approval</a>
                                         </li>
+                                        <li class="nav-item">
+                                            <a class="dropdown-item" href="{{ route('message-queue-history.index') }}">Queue History</a>
+                                        </li>
                                     </ul>
                                 </li>
                             @endif
@@ -1555,6 +1558,11 @@ $metaData = '';
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">Admin<span class="caret"></span></a>
 
                                         <ul class="dropdown-menu multi-level">
+                                            
+                                            <li class="nav-item dropdown">
+                                                <a href="{{ route('custom-chat-message.index') }}">Chat Messages</a>
+                                            </li>    
+
                                             {{-- Sub Menu Product --}}
                                             <li class="nav-item dropdown dropdown-submenu">
                                                 <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cash Flow<span class="caret"></span></a>
