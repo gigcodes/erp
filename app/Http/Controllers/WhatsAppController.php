@@ -5296,7 +5296,11 @@ class WhatsAppController extends FindByNumberController
             'logDetail_data' => $logDetail,
         ];
 
-        \Log::channel('chatapi')->debug('cUrl_url:{"' . $domain . " } \nMessage: ".json_encode($log_data) );
+        $str_log = 'Message :: '.json_encode($message).' || Customer Request :: POST || Post Fields :: '.json_encode($array).' || File :: '.$file.' || Log Details :: '.json_encode($logDetail);
+
+        \Log::channel('chatapi')->debug('cUrl_url:{"' . $domain . " } \nMessage: ".$str_log );
+
+        // \Log::channel('chatapi')->debug('cUrl_url:{"' . $domain . " } \nMessage: ".json_encode($log_data) );
 
         $curl = curl_init();
         
@@ -5346,7 +5350,11 @@ class WhatsAppController extends FindByNumberController
                 'logDetail_data' => $logDetail,
             ];
     
-            \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: ".json_encode($log_data_send) );
+            $str_log = 'Message :: '.json_encode($message).' || File :: '.$file.' || Log Details :: '.json_encode($logDetail);
+
+            \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: ".$str_log );
+
+            // \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: ".json_encode($log_data_send) );
 
             // Json decode response into result
             $result = json_decode($response, true);
