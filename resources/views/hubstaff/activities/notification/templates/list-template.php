@@ -33,7 +33,7 @@
 			        <td>{{:prop.reason}}</td>
 			        <td>{{if prop.status == 1}} Approved {{else}} Pending {{/if}}</td>
 			        <td>
-						<div style="display:flex;">
+						<div style="display:flex;" class="hubstaff_chat_message">
 							<textarea rows="1" class="form-control quick-message-field cls_quick_message" id="messageid_{{:prop.user_id}}" name="message" placeholder="Message" style="width:calc(100% - 30px)"></textarea>
 							<div style="width:30px;">
 								<button class="btn btn-sm btn-image send-message1 pt-0 pb-0" data-hubstuffid="{{:prop.user_id}}"><img src="/images/filled-sent.png"/></button>
