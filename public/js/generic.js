@@ -224,16 +224,16 @@ var getHtml = function(response) {
                     button += '&nbsp;<button title="Forward" class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;';
                 }
             }
-
-            var image_url = message.media_url;
-            if(image_url == null){
-               if(message.media.length != 0){
-                   image_url = message.media[0].image;
-               }
-            }
-            button += '&nbsp;<button title="Search Product Image" data-media-url="\''+image_url+'\'" data-id="'+message.id+'" class="btn btn-xs btn-secondary search-image"><i class="fa fa-search" aria-hidden="true"></i></button>';
-
         }
+
+        var image_url = message.media_url;
+        if(image_url == null){
+           if(message.media.length != 0){
+               image_url = message.media[0].image;
+           }
+        }
+        button += '&nbsp;<button title="Search Product Image" data-media-url="\''+image_url+'\'" data-id="'+message.id+'" class="btn btn-xs btn-secondary search-image"><i class="fa fa-search" aria-hidden="true"></i></button>';
+
         if(message.type == "developer_task" ) {
             if (message.status == 0) {
                 button += "<a title='Mark as Read' href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "' class='btn btn-xs btn-secondary ml-1 change_message_status'><i class='fa fa-check' aria-hidden='true'></i></a>";

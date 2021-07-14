@@ -579,6 +579,8 @@ class MessageHelper
         
         try{
 
+            $toUsers = array_unique($toUsers);
+
             foreach($toUsers as $user_id){
 
                 $user = User::with('webhookNotification')->find($user_id);
