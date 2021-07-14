@@ -236,11 +236,15 @@ class scrapperPhyhon extends Controller
            'country_code'   => 'required',
            'image'          => 'required',
            'image_name'     => 'required',
-           'store_website'  => 'required',
+           'store_website'  => 'required|exists:store_websites,magento_url',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(["code" => 500, "message" => 'Invalid request',"error" => $validator->errors()]);
+            return response()->json([
+                "code" => 422, 
+                "message" => 'Invalid request',
+                "error" => $validator->errors()
+            ]);
         }
 
         $StoreWebsite = \App\StoreWebsite::where('magento_url',$request->store_website)->first();
