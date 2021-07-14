@@ -1,11 +1,120 @@
 <!-- Modal -->
+<style>
+    #quick-chatbox-window-modal .card_chat{
+        border-radius: 8px !important;
+    }
+    #quick-chatbox-window-modal .contacts_body{
+        padding:0 !important;
+    }
+    #quick-chatbox-window-modal .contacts li {
+        margin: 0 !important;
+        padding:10px !important;
+    }
+    #quick-chatbox-window-modal .card-footer{
+        border-radius: 0 !important;
+        /*background: transparent !important;*/
+    }
+    #quick-chatbox-window-modal .chat li:last-child{
+        border-bottom:none !important;
+    }
+    #quick-chatbox-window-modal .chat-righbox{
+        padding: 11px 17px 4px;
+        margin-bottom: 10px;
+    }
+    #quick-chatbox-window-modal .chat-righbox .title {
+        font-size: 17px;
+        font-weight: 400;
+    }
+    #quick-chatbox-window-modal h5{
+        margin-top:0 !important;
+    }
+    #customer_order_details{
+        padding: 10px 0 !important;
+    }
+    #quick-chatbox-window-modal .card {
+        margin-bottom: 1rem;
+    }
+    #quick-chatbox-window-modal .card-header {
+        padding: 0.5rem 1.25rem;
+    }
+    .msg_time {
+        font-size: 9px;
+        color: #757575;
+    }
+    .chat-rightbox.mt-4{
+        display: flex;
+    }
+    .chat-rightbox.mt-4 button{
+        margin-left:10px;
+    }
+    #quick-chatbox-window-modal .btn-link{
+        color: gray;
+    }
+    .remove-bottom-scroll .user_inital{
+        height: 35px;
+        width: 35px;
+        line-height: 35px;
+        margin-top: 4px;
+    }
+    .button-round{
+        border-radius: 50% !important;
+        background-color: rgba(0,0,0,0.3) !important;
+        border: 0 !important;
+        color: white !important;
+        cursor: pointer;
+        width: 25px;
+        height: 25px;
+        margin-bottom:5px;
+        margin-left: 7px;
+    }
+    #quick-chatbox-window-modal .button-round i{
+        font-size: 15px;
+    }
+    #quick-chatbox-window-modal .card-footer{
+        padding:8px 5px !important;
+    }
+    .selectedValue{
+        flex-grow: 1;
+    }
+    #autoTranslate{
+        width: 220px !important;
+        justify-content: flex-end;
+        margin: 0 0 0 auto;
+    }
+    #quick-chatbox-window-modal .card-header.msg_head{
+        background: #f1f1f1;
+    }
+    #quick-chatbox-window-modal .msg_card_body {
+        background: #ffffff;
+    }
+    #quick-chatbox-window-modal .typing-indicator{
+        display: none;
+    }
+    #quick-chatbox-window-modal  .card-header {
+        border-radius: 9px 9px 0 0 !important;
+    }
+    .io.action{
+        padding-left: 10px;
+        display: flex;
+        align-items: center;
+    }
+    .video_cam{
+        margin-left: 0;
+    }
+    .video_cam i{
+        color: #757575;
+    }
+    .video_cam span{
+        margin-right: 10px;
+    }
+</style>
 <div id="quick-chatbox-window-modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" style="width:90%; max-width: 90%;">
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-md-3 chat" style="margin-top : 0px !important;">
+                    <div class="col-md-3 chat pr-0" style="margin-top : 0px !important;">
                         <div class="card_chat mb-sm-3 mb-md-0 contacts_card">
                             <div class="card-header">
                                 <h3>Chats</h3>
@@ -13,18 +122,18 @@
                                     <input type="text" placeholder="Search..." name="" class="form-control search">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text search_btn"><i class="fa fa-search"></i></span>
-                                        </div> 
+                                        </div>
                                 </div> -->
                             </div>
                             <div class="card-body contacts_body">
                                 @php
-                                $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
+                                $chatIds = \App\CustomerLiveChat::with('customer')->orderBy('seen','asc')->orderBy('status','desc')->get();
                                 $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                 @endphp
                                 <ul class="contacts" id="customer-list-chat">
                                     @foreach ($chatIds as $chatId)
                                     @php
-                                    $customer = \App\Customer::where('id',$chatId->customer_id)->first();
+                                    $customer = $chatId->customer;
                                     $customerInital = substr($customer->name, 0, 1);
                                     @endphp
                                         <input type="hidden" id="live_selected_customer_store" value="{{ $customer->store_website_id }}" />
@@ -53,8 +162,8 @@
                     </div>
                     <div class="col-md-6 chat">
                         <div class="card_chat">
-                            <div class="card-header msg_head">
-                                <div class="d-flex bd-highlight align-items-center justify-content-between">
+                            <div class="card-header msg_head" style="display: flex">
+                                <div class="d-flex bd-highlight align-items-center " style="flex-grow: 1">
                                     <div class="img_cont">
                                         <soan class="rounded-circle user_inital" id="user_inital"></soan>
                                         {{-- <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"> --}}
@@ -64,10 +173,7 @@
                                         {{-- <span>Chat with Khalid</span>
                                             <p>1767 Messages</p> --}}
                                     </div>
-                                    <div class="video_cam">
-                                        <span><i class="fa fa-video"></i></span>
-                                        <span><i class="fa fa-phone"></i></span>
-                                    </div>
+
                                     @php
                                         $path = storage_path('/');
                                         $content = File::get($path."languages.json");
@@ -76,13 +182,17 @@
                                     <div class="selectedValue">
                                          <select id="autoTranslate" class="form-control auto-translate">
                                             <option value="">Translation Language</option>
-                                            @foreach ($language as $key => $value) 
+                                            @foreach ($language as $key => $value)
                                                 <option value="{{$value}}">{{$key}}</option>
-                                            @endforeach  
+                                            @endforeach
                                         </select>
                                     </div>
                                 </div>
-                                <span id="action_menu_btn"><i class="fa fa-ellipsis-v"></i></span>
+                                <div class="video_cam">
+                                    <span><i class="fa fa-video"></i></span>
+                                    <span><i class="fa fa-phone"></i></span>
+                                </div>
+                                <span class="io action" id="action_menu_btn "><i style="font-size: 17px" class="fa fa-ellipsis-v"></i></span>
                                 <div class="action_menu">
                                     {{-- <ul>
                                             <li><i class="fa fa-user-circle"></i> View profile</li>
@@ -100,25 +210,46 @@
                                 <div class="input-group">
                                     <div class="card-footer">
                                         <div class="input-group">
+
+                                            <input type="hidden" id="message-id" name="message-id" />
+
+                                           <span style="display: flex">
+                                                <div style="flex-grow: 1">
+                                                <textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
+
+                                            </div>
+                                            <div>
                                             @if(isset($customer))
-                                                <div class="input-group-append">
+                                                <!-- <div class="input-group-append">
                                                     <a class="btn btn-image px-1 send-attached-images">
                                                         <img src="/images/attach.png"/>
                                                     </a>
+                                                </div> -->
+                                                @endif
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text attach_btn button-round" onclick="sendImage()"><i class="fa fa-paperclip"></i></span>
+                                                    <input type="file" id="imgupload" style="display:none" />
                                                 </div>
-                                            @endif
-                                            <input type="hidden" id="message-id" name="message-id" />
-                                            <textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
-                                            <div class="input-group-append">
-                                                <span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text send_btn button-round" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
+                                                </div>
                                             </div>
+                                           </span>
+
+
+
+
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
+                        </div>
+                        <div class="card-body " id="customer_order_details">
+
                         </div>
                     </div>
-                    <div class="col-md-3 customer-info">
+                    <div class="col-md-3 customer-info pl-0">
                         <div class="chat-righbox">
                             <div class="title">General Info</div>
                             <div id="chatCustomerInfo"></div>
@@ -170,7 +301,7 @@
     </div>
 </div>
 
-<script src="https://cdn.livechatinc.com/accounts/accounts-sdk.min.js"></script>
+<!-- <script src="https://cdn.livechatinc.com/accounts/accounts-sdk.min.js"></script>
 <script>
 $(document).on("click",".quick_approve_add_live",function() {
     var messageId = $(this).attr('id');
@@ -192,16 +323,20 @@ $(document).on("click",".quick_approve_add_live",function() {
         alert('Chat Not Active');
     });
 });
+
+console.log($('#live_chat_key').val());
+
 var accessToken = '';
 var websocket = false;
 var client_id = $('#live_chat_key').val();
 var wsUri = "wss://api.livechatinc.com/v3.1/agent/rtm/ws";
 const instance = AccountsSDK.init({
     client_id: client_id,
-    // response_type: "code",
+    response_type: "token",
     onIdentityFetched: (error, data) => {
         if (error){
-            console.log(error)
+            console.log('++++ error >>>');
+            console.log(error);
         } 
         if (data) {
             //console.log("User authorized!");
@@ -618,6 +753,6 @@ checkChatCount();
 $(document).on("click",".send-attached-images",function() {
     var messageId = $('#message-id').val();
     location.href = "/attachImages/live-chat/"+messageId;
-});
+}); -->
 
 </script>

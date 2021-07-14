@@ -32,6 +32,7 @@ class DevelopmentHelper
             "3" => "NodeJS Puppeteer",
             "4" => "NodeJS Puppeteer with URL list",
             "5" => "NodeJS Puppeteer Luminati with URL list",
+            "6" => "Py Scraper"
         ];
     }
 

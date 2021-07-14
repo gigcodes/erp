@@ -14,9 +14,15 @@ use App\Reply;
 use App\ReturnExchange;
 use App\ReturnExchangeHistory;
 use App\ReturnExchangeStatus;
+use App\Email;
+use App\AutoReply;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Http\Requests\CreateCouponRequest;
+use Dompdf\Dompdf;
+use Qoraiche\MailEclipse\MailEclipse;
+
 
 class ReturnExchangeController extends Controller
 {
@@ -88,6 +94,42 @@ class ReturnExchangeController extends Controller
             // once return exchange created send message if request is for the return
             $returnExchange->notifyToUser();
             $returnExchange->updateHistory();
+            if ($request->type == "refund") {
+                // start a request to send message for refund 
+                 $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-refund')->first();
+                 if($auto_reply) {
+                     $auto_message = preg_replace("/{order_id}/i", !empty($orderProduct) ? $orderProduct->order_id : "N/A", $auto_reply->reply); 
+                     $auto_message = preg_replace("/{product_names}/i", !empty($product) ? $product->name : "N/A", $auto_message); 
+                     $requestData = new Request(); 
+                     $requestData->setMethod('POST'); 
+                     $requestData->request->add(['customer_id' => $returnExchange->customer->id, 'message' => $auto_message, 'status' => 1]); 
+                     app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                 }
+
+            } else if ($request->type == "return") {
+                // start a request to send message for return 
+                 $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-return')->first();
+                 if($auto_reply) {
+                     $auto_message = preg_replace("/{order_id}/i", !empty($orderProduct) ? $orderProduct->order_id : "N/A", $auto_reply->reply); 
+                     $auto_message = preg_replace("/{product_names}/i", !empty($product) ? $product->name : "N/A", $auto_message); 
+                     $requestData = new Request(); 
+                     $requestData->setMethod('POST'); 
+                     $requestData->request->add(['customer_id' => $returnExchange->customer->id, 'message' => $auto_message, 'status' => 1]); 
+                     app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                 }
+
+            } else if ($request->type == "exchange") {
+                // start a request to send message for exchange 
+                 $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-exchange')->first();
+                 if($auto_reply) {
+                     $auto_message = preg_replace("/{order_id}/i", !empty($orderProduct) ? $orderProduct->order_id : "N/A", $auto_reply->reply); 
+                     $auto_message = preg_replace("/{product_names}/i", !empty($product) ? $product->name : "N/A", $auto_message); 
+                     $requestData = new Request(); 
+                     $requestData->setMethod('POST'); 
+                     $requestData->request->add(['customer_id' => $returnExchange->customer->id, 'message' => $auto_message, 'status' => 1]); 
+                     app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+                 }
+            }    
 
             // send emails
             if ($sendEmail == 'yes') {
@@ -149,6 +191,7 @@ class ReturnExchangeController extends Controller
                     ]);
 
                     \App\Jobs\SendEmail::dispatch($email);
+                    
                 }
             }
         }
@@ -221,6 +264,12 @@ class ReturnExchangeController extends Controller
             $returnExchange = $returnExchange->where("w.title", "like", "%" . $params["website"] . "%");
         }
 
+        $loggedInUser = auth()->user();
+        $isInCustomerService = $loggedInUser->isInCustomerService();
+        if($isInCustomerService) {
+            $returnExchange = $returnExchange->where('c.user_id',$loggedInUser->id);
+        }
+
         $returnExchange = $returnExchange->select([
             "return_exchanges.*",
             "c.name as customer_name",
@@ -270,21 +319,73 @@ class ReturnExchangeController extends Controller
         $params = $request->all();
 
         $returnExchange = \App\ReturnExchange::find($id);
+        $status =  ReturnExchangeStatus::find($request->status);
 
         if (!empty($returnExchange)) {
             $returnExchange->fill($params);
             $returnExchange->save();
+            
+            if(  isset( $status->status_name ) && $status->status_name == 'approve' ){
+                
+                $storeList = \App\Website::where('store_website_id', $returnExchange->customer->storeWebsite->id)->get();
+                // dd($returnExchange->customer->storeWebsite->id);
+
+                $code = 'REFUND-'.date('Ym').'-'.rand(1000,9999);
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $requestData->request->add([
+                    'name'             => $code,
+                    'store_website_id' => $returnExchange->customer->storeWebsite->id,
+                    'website_ids'      => array($storeList[0]['platform_id'] ?? 0),
+                    'start'            => date('Y-m-d H:i:s'),
+                    'active'           => '1',
+                    'uses_per_coustomer' => 1,
+                    'customer_groups' => [0],
+                    'coupon_type' => 'SPECIFIC_COUPON',
+                    'code' => $code,
+                    'simple_action' => 'by_fixed',
+                    'discount_amount' => $request->refund_amount,
+                ]);
+                
+                try {
+                    $response = app('App\Http\Controllers\CouponController')->addRules($requestData);
+                    $emailClass = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
+                    $email = Email::create([
+                        'model_id'         => $returnExchange->id,
+                        'model_type'       => \App\ReturnExchange::class,
+                        'from'             => $emailClass->fromMailer,
+                        'to'               => $returnExchange->customer->email,
+                        'subject'          => $emailClass->subject,
+                        'message'          => 'Your refund coupon :'.$code,
+                        'template'         => 'refund-coupon',
+                        'additional_data'  => $returnExchange->id,
+                        'status'           => 'pre-send',
+                        'store_website_id' => null,
+                        'is_draft'        => 1,
+                    ]);
+                    
+                    $response = json_decode($response->getContent());
+                    if( $response->type == 'error' ){
+                        return response()->json(["code" => 500, "data" => [], "message" => json_decode($response->getContent())->message,"error" => json_decode($response->getContent())->error]);
+                    }
+                    if($response->type == 'error'){
+                        \App\Jobs\SendEmail::dispatch($email);
+                    }
+                } catch (Exception $e) {
+                    return response()->json(["code" => 500, "data" => [], "message" => "Something went wrong"]);
+                }
+            }
 
             //Sending Mail on changing of order status
             if (isset($request->send_message) && $request->send_message == '1') {
+                
                 //sending order message to the customer
                 UpdateReturnStatusMessageTpl::dispatch($returnExchange->id, request('message', null))->onQueue("customer_message");
                 try {
                     if ($returnExchange->type == "refund") {
 
                         $emailClass = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
-                    
-                        $email = Email::create([
+                        $email = App\Email::create([
                             'model_id'         => $returnExchange->id,
                             'model_type'       => \App\ReturnExchange::class,
                             'from'             => $emailClass->fromMailer,
@@ -297,14 +398,12 @@ class ReturnExchangeController extends Controller
                             'store_website_id' => null,
                             'is_draft'        => 1,
                         ]);
-
                         \App\Jobs\SendEmail::dispatch($email);
 
                     } else if ($returnExchange->type == "return") {
 
                         $emailClass = (new \App\Mails\Manual\StatusChangeReturn($returnExchange))->build();
-                    
-                        $email = Email::create([
+                        $email = App\Email::create([
                             'model_id'         => $returnExchange->id,
                             'model_type'       => \App\ReturnExchange::class,
                             'from'             => $emailClass->fromMailer,
@@ -317,14 +416,12 @@ class ReturnExchangeController extends Controller
                             'store_website_id' => null,
                             'is_draft'        => 1,
                         ]);
-
                         \App\Jobs\SendEmail::dispatch($email);
 
                     } else if ($returnExchange->type == "exchange") {
 
                         $emailClass = (new \App\Mails\Manual\StatusChangeExchange($returnExchange))->build();
-                    
-                        $email = Email::create([
+                        $email = App\Email::create([
                             'model_id'         => $returnExchange->id,
                             'model_type'       => \App\ReturnExchange::class,
                             'from'             => $emailClass->fromMailer,
@@ -351,6 +448,34 @@ class ReturnExchangeController extends Controller
         return response()->json(["code" => 200, "data" => [], "message" => "Request updated succesfully!!"]);
     }
 
+    public function regenerateCoupon(Request $request, $id)
+    {
+        $returnExchange = \App\ReturnExchange::find($id);
+        $requestData = new CreateCouponRequest();
+        $requestData->setMethod('POST');
+        $code = 'REFUND-'.date('Ym').'-'.rand(1000,9999);
+        
+        $storeList = \App\Website::where('store_website_id', $returnExchange->customer->storeWebsite->id)->get();
+
+        $requestData->request->add([
+            'name'             => $code,
+            'store_website_id' => $returnExchange->customer->storeWebsite->id,
+            'customer_group_ids' => $returnExchange->customer_id,
+            'website_ids'      => array($storeList[0]['platform_id'] ?? 0),
+            'start'            => date('Y-m-d H:i:s'),
+            'active'           => '1',
+            'uses_per_coustomer' => 1,
+            'simple_action' => 'by_fixed',
+            'discount_amount' => $request->refund_amount,
+        ]);
+        
+        try {
+            $response = app('App\Http\Controllers\CouponController')->addRules($requestData);
+            return response()->json(["code" => 200, "data" => [], "message" => json_decode($response->getContent())->message]);
+        } catch (Exception $e) {
+            return response()->json(["code" => 500, "data" => [], "message" => $e->getMessage()]);
+        }
+    }
     public function delete(Request $request, $id)
     {
         $ids = explode(",", $id);
@@ -544,6 +669,16 @@ class ReturnExchangeController extends Controller
 
             ]
         );
+
+        /// start a request to send message for refund 
+         $auto_reply = AutoReply::where('type', 'auto-reply')->where('keyword', 'order-refund-manual')->first();
+         if($auto_reply) {
+             $requestData = new Request(); 
+             $requestData->setMethod('POST'); 
+             $requestData->request->add(['customer_id' => $request->customer_id, 'message' => $auto_reply->reply, 'status' => 1]); 
+             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+         }
+
         return response()->json(['message' => 'You have successfully added refund!'], 200);
     }
 
@@ -808,4 +943,21 @@ class ReturnExchangeController extends Controller
         return response()->json(["code" => 500, "data" => [], "message" => "No data found"]);
     }
 
+
+    public function downloadRefundPdf(Request $request)
+    {
+        $return = \App\ReturnExchange::findOrFail($request->id);
+
+        $customer   = $return->customer;
+
+            if($customer){
+                            $html_temp = view('maileclipse::templates.initializeRefundRequetDefault', compact(
+                                'customer','return'
+                            ));
+                            $pdf = new Dompdf();
+                            $pdf->loadHtml($html_temp);
+                            $pdf->render();
+                            $pdf->stream('refund.pdf');
+            }
+    }
 }

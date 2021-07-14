@@ -94,9 +94,15 @@
                       </select>
                     </div>
                     <div class="col-md-2">
-                    <button class="btn btn-light" id="submit">
-                        <span class="fa fa-filter"></span> Filter Results
-                    </button>
+                      <button class="btn btn-light" id="submit">
+                          <span class="fa fa-filter"></span> Filter Results
+                      </button>
+                      
+                    </div>
+                    <div class="col-md-2">
+                       <button class="btn btn-light" id="submit-show-report">
+                            Show Error Report
+                        </button>
                     </div>
                 </div>
             </form>
@@ -329,6 +335,25 @@
     <!-- /.modal-dialog -->
   </div>
 
+  <div id="show-error-count" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Error with count</h4>
+        </div>
+          <div class="modal-body">
+            
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+
 @endsection
 
 @section('scripts')
@@ -458,6 +483,19 @@
       console.log("Data Saved: ", msg);
     });
   }
+
+  $(document).on("click","#submit-show-report",function(e){
+    e.preventDefault();
+    $.ajax({
+      method: "GET",
+      url: "/logging/list-magento/error-reporting"
+    })
+    .done(function(response) {
+        $("#show-error-count").find(".modal-body").html(response);
+        $("#show-error-count").modal("show");
+    });
+  });
+
 </script>
 @if (Session::has('errors'))
   <script>

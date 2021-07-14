@@ -21,12 +21,13 @@ Route::prefix('lead-queue')->middleware('auth')->group(function() {
 	Route::get('/approve', 'LeadQueueController@approve')->name("lead-queue.approve");
 	Route::get('/approve/approved', 'LeadQueueController@approved')->name("lead-queue.approved");
     Route::get('/status', 'LeadQueueController@status')->name("lead-queue.status");
+	Route::get('delete', 'LeadQueueController@deleteRecord')->name("lead-queue.delete.record");
     Route::prefix('records')->group(function() {
 		Route::get('/', 'LeadQueueController@records');
 		Route::post('/action-handler','LeadQueueController@actionHandler');
-		Route::prefix('{id}')->group(function() {
-			Route::get('delete', 'LeadQueueController@deleteRecord');
-		});
+		// Route::prefix('{id}')->group(function() {
+		// 	Route::get('delete', 'LeadQueueController@deleteRecord');
+		// });
 	});
 
 	Route::prefix('report')->group(function() {

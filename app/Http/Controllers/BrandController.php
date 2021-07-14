@@ -1,8 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use DB;
 use App\Brand;
 use App\Product;
 use App\Setting;
@@ -13,6 +11,25 @@ use \App\StoreWebsiteBrand;
 use Illuminate\Http\Request;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Auth;
+
+
+use App\Exports\ScrapRemarkExport;
+use App\Scraper;
+use App\ScrapHistory;
+use App\ScrapRemark;
+use App\ScrapStatistics;
+use App\Supplier;
+use App\User;
+use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Maatwebsite\Excel\Facades\Excel;
+use Zend\Diactoros\Response\JsonResponse;
+use \Carbon\Carbon;
+use App\BrandLogo;
+use App\BrandWithLogo;
+use App\Category;
+use App\CategorySegmentDiscount;
 
 class BrandController extends Controller
 {
@@ -29,7 +46,7 @@ class BrandController extends Controller
         ->leftJoin("store_websites as sw","sw.id","swb.store_website_id")
         ->select(["brands.*",\DB::raw("group_concat(sw.id) as selling_on"),\DB::raw("LOWER(trim(brands.name)) as lower_brand")])
         ->groupBy("brands.id")
-        ->orderBy('lower_brand',"asc")->whereNull('brands.deleted_at');
+        ->orderBy('lower_brand',"asc")->whereNull('brands.deleted_at')->whereNull('sw.id');
 
         $keyword = request('keyword');
         if(!empty($keyword)) {
@@ -49,6 +66,56 @@ class BrandController extends Controller
 
         return view('brand.index', compact('brands','storeWebsite','attachedBrands', 'category_segments'))
             ->with('i', (request()->input('page', 1) - 1) * 10);
+    }
+
+    public function scrap_brand(Request $request)
+    {
+        // Set dates
+        $keyWord    = $request->get("term", "");
+        $madeby     = $request->get("scraper_made_by", 0);
+        $scrapeType = $request->get("scraper_type", 0);
+ 
+        // $brands = Brand::leftJoin("store_website_brands as swb","swb.brand_id","brands.id")
+        // ->leftJoin("store_websites as sw","sw.id","swb.store_website_id")
+        // ->leftJoin("products as p","p.brand","brands.id")
+        // ->select(["brands.*",\DB::raw("group_concat(sw.id) as selling_on"),\DB::raw("LOWER(trim(brands.name)) as lower_brand"), \DB::raw('COUNT(p.id) as total_products')])
+        // ->groupBy("brands.id")
+        // ->orderBy('total_products',"desc")->whereNull('brands.deleted_at');
+
+        $brands = Brand::leftJoin("products as p","p.brand","brands.id")
+        ->select(["brands.*",\DB::raw("LOWER(trim(brands.name)) as lower_brand"), \DB::raw('COUNT(p.id) as total_products')])
+        ->groupBy("brands.id")
+        ->orderBy('total_products',"desc")->whereNull('brands.deleted_at');
+
+        $keyword = request('keyword');
+        if (!empty($keyWord)) {
+            $brands->where(function ($q) use ($keyWord) {
+                $q->where("brands.name", "like", "%{$keyWord}%");
+            });
+        }
+
+        $brands = $brands->paginate(Setting::get('pagination'));
+
+        $filters = $request->all();
+
+        return view('brand.scrap_brand', compact('brands','filters'));
+    }
+
+    private static function get_times($default = '19:00', $interval = '+60 minutes')
+    {
+
+        $output = [];
+
+        $current = strtotime('00:00');
+        $end     = strtotime('23:59');
+
+        while ($current <= $end) {
+            $time          = date('G', $current);
+            $output[$time] = date('h.i A', $current);
+            $current       = strtotime($interval, $current);
+        }
+
+        return $output;
     }
 
     public function create()
@@ -106,7 +173,7 @@ class BrandController extends Controller
 
         return redirect()->route('brand.index')->with('success', 'Brand added successfully');
     }
-
+    /*
     public function update(Request $request, Brand $brand)
     {
 
@@ -162,7 +229,7 @@ class BrandController extends Controller
 
         return redirect()->route('brand.index')->with('success', 'Brand updated successfully');
     }
-
+    */
     public function destroy(Brand $brand)
     {
         $brand->scrapedProducts()->delete();
@@ -220,7 +287,7 @@ class BrandController extends Controller
         $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
 
         $sku = $product->sku . $product->color;
-//		$result = $proxy->catalogProductUpdate($sessionId, $sku , array('visibility' => 4));
+//      $result = $proxy->catalogProductUpdate($sessionId, $sku , array('visibility' => 4));
         $data = [
             'price' => $product->price_eur_special,
             'special_price' => $product->price_eur_discounted
@@ -303,6 +370,7 @@ class BrandController extends Controller
 
         return response()->json(["code" => 500 , "data" => [], "message" => "Oops, something went wrong"]);
     }
+    /*
     public function updateReference(Request $request)
     {
         $reference = $request->get("reference");
@@ -317,7 +385,7 @@ class BrandController extends Controller
 
         return response()->json(["code" => 500 , "data" => [], "message" => "Oops, something went wrong"]);
     }
-
+    */
     public function createRemoteId(Request $request, $id)
     {
         $brand = \App\Brand::where("id",$id)->first();
@@ -478,4 +546,127 @@ class BrandController extends Controller
       }
       
     }
+
+    public function fetchNewBrands(Request $request){
+        $path = public_path('brands');
+        $files = File::allFiles($path);
+        if ($request->hasfile('files')) {
+            foreach ($request->file('files') as $files) {
+                $image_name = $files->getClientOriginalName();
+                $brand_name = strtoupper(pathinfo($image_name, PATHINFO_FILENAME));
+                $brand_found = Brand::where('name',$brand_name)->get();
+                if(!$brand_found->isEmpty()){
+                    $media = MediaUploader::fromSource($files)
+                    ->toDirectory('brands')
+                    ->upload();
+                    // Brand::where('id', $brand_found[0]->id)->update(['brand_image' => env('APP_URL').'/brands/'.$image_name]);
+                    Brand::where('id', $brand_found[0]->id)->update(['brand_image' => config('env.APP_URL').'/brands/'.$image_name]);
+                }
+            }
+            return response()->json(["code" => 200, "success" => "Brand images updated"]);
+        }else{
+            return response()->json(["code" => 500, "error" => "Oops, Please fillup required fields"]);
+        }
+    }
+    
+    //START - Purpose : Fetch data - DEVTASK-4278
+    public function fetchlogos(Request $request)
+    {
+        try{
+            // $brand_data = Brand::paginate(Setting::get('pagination'));
+            $brand_data = Brand::leftjoin('brand_with_logos','brands.id','brand_with_logos.brand_id')
+            ->leftjoin('brand_logos','brand_with_logos.brand_logo_image_id','brand_logos.id')
+            ->select('brands.id as brands_id','brands.name as brands_name','brand_logos.logo_image_name as brand_logos_image')
+            ->orderBy('brands.name','asc');
+
+            if($request->brand_name)
+            {
+                $search='%'.$request->brand_name.'%';
+                $brand_data= $brand_data->where('brands.name','like',$search);
+            }
+            $brand_data = $brand_data->paginate(Setting::get('pagination'));
+            return view('brand.brand_logo', compact('brand_data'))->with('i', (request()->input('page', 1) - 1) * 10);
+        }catch(\Exception $e){
+            
+        }
+    }
+
+    public function uploadlogo(Request $request)
+    {
+        try{
+         
+            $files = $request->file('file');
+            $fileNameArray = array();
+            foreach($files as $key=>$file){
+                //echo $file->getClientOriginalName();
+                // $fileName = time().$key.'.'.$file->extension();
+                $fileName = $file->getClientOriginalName();
+                $fileNameArray[] = $fileName;
+
+                $params['logo_image_name'] = $fileName;
+                $params['user_id'] = Auth::id();
+
+                $log = BrandLogo::create($params);
+                
+                $file->move(public_path('brand_logo'), $fileName);
+            }
+            return response()->json(["code" => 200, "msg" => "files uploaded successfully","data"=>$fileNameArray]);
+        }catch(\Exception $e){
+            
+        }
+    }
+
+    public function get_all_images(Request $request)
+    {
+        try{
+            // $brand_data = BrandLogo::get();
+            $brand_data = BrandLogo::leftjoin('brand_with_logos','brand_logos.id','brand_with_logos.brand_logo_image_id')
+            ->select('brand_logos.id as brand_logos_id','brand_logos.logo_image_name as brand_logo_image_name','brand_with_logos.id as brand_with_logos_id','brand_with_logos.brand_logo_image_id as brand_with_logos_brand_logo_image_id','brand_with_logos.brand_id as brand_with_logos_brand_id')
+            ->where('brand_logos.logo_image_name','like','%'.$request->brand_name.'%')
+            ->get();
+            return response()->json(["code" => 200, "brand_logo_image"=>$brand_data]);
+        }catch(\Exception $e){
+            
+        }
+    }
+
+    public function set_logo_with_brand(Request $request){
+        try{
+            $brand_id = $request->logo_id;
+            $logo_image_id = $request->logo_image_id;
+
+            $brand_logo_data = BrandWithLogo::updateOrCreate(
+                [
+                    'brand_id' => $brand_id,
+                ],
+                [
+                    'brand_id'   => $brand_id,
+                    'brand_logo_image_id'   => $logo_image_id,
+                    'user_id' => Auth::id(),
+                ]
+            );
+
+            $brand_logo_image = BrandLogo::where('id',$brand_logo_data->brand_logo_image_id)->select('logo_image_name')->first();
+
+            return response()->json(["code" => 200, "message"=>'Logo Set Sucessfully for this Brand.',"brand_logo_image" => $brand_logo_image->logo_image_name]);
+
+        }catch(\Exception $e){
+            
+        }
+    }
+
+    public function remove_logo(Request $request){
+        try{
+            $brand_id = $request->brand_id;
+
+            $record = BrandWithLogo::where('brand_id',$brand_id);
+            $record->delete();  
+
+            return response()->json(["code" => 200, "message"=>'Logo has been Removed Sucessfully.']);
+
+        }catch(\Exception $e){
+            
+        }
+    }
+    //END - DEVTASK-4278
 }

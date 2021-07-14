@@ -1,6 +1,8 @@
 # phpstorm project files
 .idea
 
+.gitignore
+
 # netbeans project files
 nbproject
 
@@ -53,14 +55,19 @@ logs
 .git.zip
 _MACOSX
 composer.lock
+/js
+/css
 
 /public/*.zip
 /public/*.pdf
 /public/pdf/
+/public/.htaccess
 public/uploads
 public/zoom/*
 !public/zoom/.gitkeep
 public/tmp_images/*
+public/purchase_product_orders/*
+public/brand_logo/*
 
 /deployment_scripts_test
 
@@ -79,3 +86,7 @@ app/Library/_MACOSX/*
 /public/wetransfer/*
 /resources/assets/analytics_files/*
 /.phpintel
+public/scrappersImages/*
+storage/framework/laravel-excel/*
+storage/chatMessageFiles/*
+public/7WZr3fgqVfRS5ZskKfv3km2ByrVRGqyDW9F/*

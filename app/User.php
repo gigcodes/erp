@@ -47,6 +47,10 @@ class User extends Authenticatable
 
     const USER_ADMIN_ID = 6;
 
+    protected $permission__ = null;
+    protected $permission_role_ = null;
+    protected $permission_user_role_ = null;
+    protected $permission_u_role_ = null;
     /**
      * The attributes that are mass assignable.
      *
@@ -65,7 +69,11 @@ class User extends Authenticatable
         'payment_frequency',
         'fixed_price_user_or_job',
         'approve_login',
-        'billing_frequency_day'
+        'billing_frequency_day',
+        'user_timeout',
+        'mail_notification',
+        'is_auto_approval',
+        'last_mail_sent_payment',
     ];
 
     public function getIsAdminAttribute()
@@ -83,7 +91,10 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
-
+    public function userFeedbackCategory()
+    {
+        return $this->hasOne(UserFeedbackCategory::class);
+    }
     public function messages()
     {
         return $this->hasMany(Message::class);
@@ -167,6 +178,14 @@ class User extends Authenticatable
     public function permissions()
     {
         return $this->belongsToMany(Permission::class);
+    }
+    public function chatMessage()
+    {
+        return $this->hasOne(ChatMessage::class)->latest();
+    }
+
+    public function webhookNotification(){
+        return $this->hasOne(WebhookNotification::class)->latest();
     }
 
     public function teams()
@@ -253,7 +272,14 @@ class User extends Authenticatable
             }
         }
 
-        $permission = Permission::where('route', $genUrl)->first();
+        $permission = null;
+
+        if($this->permission__ !== null){
+            $permission = $this->permission__;
+        }else{
+            $this->permission__ = $permission = Permission::where('route', $genUrl)->first();
+        }
+     
 
         if (empty($permission)) {
             echo 'unauthorized route doesnt not exist - new permission save' . $genUrl;
@@ -264,12 +290,23 @@ class User extends Authenticatable
             die();
             return false;
         }
-        $role = $permission->getRoleIdsInArray();
 
-        $user_role = $this->roles()
-            ->pluck('id')->unique()->toArray();
+        $role = null;
 
-        //dd($user_role);
+        if($this->permission_role_ !== null){
+            $role = $this->permission_role_;
+        }else{
+            $this->permission_role_ =  $role = $permission->getRoleIdsInArray();
+        }
+
+        $user_role = null;
+
+        if($this->permission_user_role_ !== null){
+            $user_role = $this->permission_user_role_;
+        }else{
+            $this->permission_user_role_ =  $user_role = $this->roles()->pluck('id')->unique()->toArray();
+        }
+
         foreach ($user_role as $key => $value) {
             if (in_array($value, $role)) {
                 return true;
@@ -277,8 +314,17 @@ class User extends Authenticatable
         }
 
         $permission = $permission->toArray();
-        $permission_role = $this->permissions()
-            ->pluck('id')->unique()->toArray();
+
+        $permission_role = null;
+
+        if($this->permission_u_role_ !== null){
+            $permission_role = $this->permission_u_role_;
+        }else{
+           $this->permission_u_role_ = $permission_role = $this->permissions()->pluck('id')->unique()->toArray();
+        }
+
+        
+
         foreach ($permission_role as $key => $value) {
             if (in_array($value, $permission)) {
                 return true;
@@ -306,8 +352,7 @@ class User extends Authenticatable
             return true;
         }
         $role = $permission->getRoleIdsInArray();
-        $user_role = $this->roles()
-            ->pluck('id')->unique()->toArray();
+        $user_role = $this->roles()->pluck('id')->unique()->toArray();
         //dd($user_role);
         foreach ($user_role as $key => $value) {
             if (in_array($value, $role)) {

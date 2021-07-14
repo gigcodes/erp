@@ -1,3 +1,93 @@
+<style>
+    .tickets .btn-group-xs>.btn, .btn-xs {
+        padding: 1px 2px !important;
+        font-size: 15px !important;
+    }
+    .tickets .select2-container .select2-selection--single{
+        height: 32px !important;
+        border: 1px solid #ddd !important;
+        color: #757575;
+        padding-left: 6px;
+    }
+    .tickets .select2-container--default .select2-selection--single .select2-selection__arrow{
+        height: 32px !important;
+    }
+    .tickets .select2-container--default .select2-selection--single .select2-selection__rendered{
+        line-height: 32px !important;
+        color: #757575;
+    }
+    .tickets>tbody>tr>td, .tickets>tbody>tr>th, .tickets>tfoot>tr>td, .tickets>tfoot>tr>th, .tickets>thead>tr>td, .tickets>thead>tr>th{
+        padding: 6px !important;
+    }
+    .tickets .page-heading{
+        font-size: 16px;
+        text-align: left;
+        margin-bottom: 10px;
+        font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+        font-weight: 600;
+    }
+    .form-control{
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+    }
+    .row.tickets .form-group input{
+        font-size: 13px;
+        height: 32px;
+    }
+    .container.container-grow{
+        padding:0 !important;
+    }
+    #quick-sidebar{
+        padding-top:0 !important;
+    }
+    #quick-sidebar .fa-2x {
+        font-size: 1.4em;
+        margin-bottom: 0;
+        height: auto !important;
+    }
+    #quick-sidebar {
+        min-width: 35px !important;
+        max-width: 30px !important;
+        margin-left: 0px !important;
+    }
+    .container.container-grow {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    .flex{
+        display: flex;
+    }
+    .list-unstyled.components li{
+        padding:8px 6px;
+        border-bottom: 1px solid #ddd;
+        cursor: pointer;
+        text-align: center;
+    }
+    .list-unstyled.components li:hover{
+        background: #dddddd78;
+    }
+    #quick-sidebar a{
+        text-align: center;
+    }
+    .list-unstyled.components{
+        border-top: 1px solid #ddd;
+        border-right: 1px solid #ddd;
+        margin-right: 10px;
+        margin-left: 10px;
+        border-left: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .navbar-laravel{
+        box-shadow: none !important;
+    }
+    .space-right{
+        padding-right:10px;
+        padding-left: 10px;
+    }
+    .row.tickets{
+        font-size: 13px !important;
+    }
+</style>
 @extends('layouts.app')
 
 @section('content')
@@ -5,22 +95,30 @@
 @php($users = $query = \App\User::get())
 
 @include('partials.flash_messages')
-    <div class="row">
-        <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">{{ (isset($title)) ? ucfirst($title) : "Tickets"}} (<span id="list_count">{{ $data->total() }}</span>)  </h2>
-            
-            <div class="form-group">
+    <div class="row tickets m-0">
+        <div class="col-lg-12 margin-tb pr-0 pl-0">
+            <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">{{ (isset($title)) ? ucfirst($title) : "Tickets"}} (<span id="list_count">{{ $data->total() }}</span>)
+                <div class="margin-tb" style="flex-grow: 1;">
+                    <div class="pull-right ">
+                        <button style="background: #fff;color: #757575;border: 1px solid #ccc;" type="button" class="btn btn-secondary mr-2" data-toggle="modal" data-target="#AddStatusModal">Add Status</button>
+
+                    </div>
+                </div>
+            </h2>
+        </div>
+        <div class="col-lg-12 margin-tb pl-3">
+            <div class="form-group mb-3">
                 <div class="row">
-                    <div class="col-md-2">
-                        <select class="form-control" name="users_id" id="users_id">
+                    <div class="col-md-2 pr-0 mb-3">
+                        <select class="form-control globalSelect2"  name="users_id" id="users_id">
                             <option value="">Select Users</option>
                             @foreach($users as $key => $user)
                             <option value="{{ $user->id }}">{{ $user->name }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <select class="form-control" name="ticket_id" id="ticket">
+                    <div class="col-md-2 pl-3  pr-0">
+                        <select class="form-control globalSelect2" name="ticket_id" id="ticket">
                             <option value="">Select Ticket</option>
                             @foreach($data as $key => $ticket)
                             <option value="{{ $ticket->ticket_id }}">{{ $ticket->ticket_id }}</option>
@@ -28,10 +126,10 @@
                         </select>
                     </div>
                         
-                    <div class="col-md-2">
-                        <?php echo Form::select("status_id",["" => "Select Status"] + \App\TicketStatuses::pluck("name","id")->toArray(),request('status_id'),["class" => "form-control", "id" => "status_id"]); ?>
+                    <div class="col-md-2 pl-3 pr-0">
+                        <?php echo Form::select("status_id",["" => "Select Status"] + \App\TicketStatuses::pluck("name","id")->toArray(),request('status_id'),["class" => "form-control globalSelect2", "id" => "status_id"]); ?>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-2 pl-3 pr-0">
                         <div class='input-group date' id='filter_date'>
                             <input type='text' class="form-control" id="date" name="date" value="" />
 
@@ -41,27 +139,27 @@
                         </div>
                     </div>
                 
-                    <div class="col-md-2">
+                    <div class="col-md-2 pl-3 pr-0">
                         <input name="term" type="text" class="form-control"
                                 value="{{ isset($term) ? $term : '' }}"
                                 placeholder="Name of User" id="term">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-2 pl-3 pr-3">
                         <input name="serach_inquiry_type" type="text" class="form-control"
                                 value="{{ isset($serach_inquiry_type) ? $serach_inquiry_type : '' }}"
                                 placeholder="Inquiry Type" id="serach_inquiry_type">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-2  pr-0">
                         <input name="search_country" type="text" class="form-control"
                                 value="{{ isset($search_country) ? $search_country : '' }}"
                                 placeholder="Country" id="search_country">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-2 pl-3 pr-0">
                         <input name="search_order_no" type="text" class="form-control"
                                 value="{{ isset($search_order_no) ? $search_order_no : '' }}"
                                 placeholder="Order No." id="search_order_no">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-2 pl-3 pr-0">
                         <input name="search_phone_no" type="text" class="form-control"
                                 value="{{ isset($search_phone_no) ? $search_phone_no : '' }}"
                                 placeholder="Phone No." id="search_phone_no">
@@ -71,12 +169,13 @@
                                 value="{{ isset($search_category) ? $search_category : '' }}"
                                 placeholder="Category" id="search_category">
                     </div> -->
-                    <div class="col-md-1">
+                    <div>
                         <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="{{ asset('images/filter.png')}}"/></button>
                     </div>
-                    <div class="col-md-1">
-                        <button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img src="{{ asset('images/resend2.png')}}"/></button>    
+                    <div >
+                        <button type="button" class="btn btn-image pl-0" id="resetFilter" onclick="resetSearch()"><img src="{{ asset('images/resend2.png')}}"/></button>
                     </div>
+
                 </div>
 
                
@@ -84,18 +183,17 @@
             </div>
            
         </div>
-        <div class="col-lg-12 margin-tb">
-            <div class="pull-right mt-3">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#AddStatusModal">Add Status</button>
-                
-            </div>
-        </div>
+{{--        <div class="col-lg-12 margin-tb">--}}
+{{--            <div class="pull-right mt-3">--}}
+{{--                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#AddStatusModal">Add Status</button>--}}
+{{--                --}}
+{{--            </div>--}}
+{{--        </div>--}}
     </div>
 
-    
-
-    <div class="table-responsive mt-3">
-      <table class="table table-bordered" id="list-table">
+    <div class="space-right">
+    <div class="table-responsive ">
+      <table style="font-size:13.8px;" class="table table-bordered tickets" id="list-table" cellspacing=0 >
         <thead>
           <tr>
             <th>Sr. No.</th>
@@ -110,8 +208,8 @@
             <th>Country</th>
             <th>Order No.</th>
             <th>Phone</th>
-            <th>Communication</th>
-            <th>Status</th>
+            <th style="width: 18%">Communication</th>
+            <th style="width: 8%">Status</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -121,6 +219,7 @@
 
         </tbody>
       </table>
+    </div>
     </div>
     {!! $data->render() !!}
 

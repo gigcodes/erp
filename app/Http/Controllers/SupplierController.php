@@ -211,11 +211,18 @@ class SupplierController extends Controller
                   ORDER BY last_communicated_at DESC, status DESC
               ');
         }
-        $suppliers_all = Supplier::where(function ($query) {
-            $query->whereNotNull('email')->orWhereNotNull('default_email');
-        })->get();
-        // print_r($suppliers_all);
 
+        $suppliers_all = null;
+
+        if($request->supplier_filter){
+
+            $suppliers_all = Supplier::where(function ($query) {
+                $query->whereNotNull('email')->orWhereNotNull('default_email');
+            })->whereIn('id',$request->supplier_filter)->get();
+        }
+        // $suppliers_all = Supplier::whererIn([2712,2713,2715])->get();  
+        // print_r($suppliers_all);
+// dd($suppliers_all);
         $currentPage  = LengthAwarePaginator::resolveCurrentPage();
         $perPage      = Setting::get('pagination');
         $currentItems = array_slice($suppliers, $perPage * ($currentPage - 1), $perPage);
@@ -233,7 +240,8 @@ class SupplierController extends Controller
         //SELECT supplier_status_id, COUNT(*) AS number_of_products FROM suppliers WHERE supplier_status_id IN (SELECT id from supplier_status) GROUP BY supplier_status_id
         $statistics = DB::select('SELECT supplier_status_id, ss.name, COUNT(*) AS number_of_products FROM suppliers s LEFT join supplier_status ss on ss.id = s.supplier_status_id WHERE supplier_status_id IN (SELECT id from supplier_status) GROUP BY supplier_status_id');
 
-        $brands           = Brand::whereNotNull('magento_id')->get()->all();
+        // $brands           = Brand::whereNotNull('magento_id')->get()->all();
+        // $brands= null;
         $scrapedBrandsRaw = Supplier::whereNotNull('scraped_brands_raw')->get()->all();
         $rawBrands        = array();
         foreach ($scrapedBrandsRaw as $key => $value) {
@@ -241,13 +249,18 @@ class SupplierController extends Controller
             array_push($rawBrands, array_unique(array_filter(explode(",", $value->scraped_brands))));
         }
         $scrapedBrands = array_unique(array_reduce($rawBrands, 'array_merge', []));
+
+
+
         $data          = Setting::where('type', "ScrapeBrandsRaw")->get()->first();
+        // dd($data);
         if (!empty($data)) {
             $selectedBrands = json_decode($data->val, true);
         } else {
             $selectedBrands = [];
         }
 
+        // dd($);
         $whatsappConfigs = WhatsappConfig::where('provider', 'LIKE', '%Chat-API%')->get();
 
         //Get All Product Supplier
@@ -258,8 +271,9 @@ class SupplierController extends Controller
         /* echo "<pre>";
         print_r($allSupplierPriceRanges);
         exit; */
-        $reply_categories = ReplyCategory::all();
+        $reply_categories = ReplyCategory::with('supplier')->get();
         $sizeSystem       = \App\SystemSize::pluck('name', 'id')->toArray();
+
 
         return view('suppliers.index', [
             'suppliers'              => $suppliers,
@@ -279,7 +293,7 @@ class SupplierController extends Controller
             'count'                  => $supplierscnt,
             'statistics'             => $statistics,
             'total'                  => 0,
-            'brands'                 => $brands,
+            // 'brands'                 => $brands,
             'scrapedBrands'          => $scrapedBrands,
             'selectedBrands'         => $selectedBrands,
             'whatsappConfigs'        => $whatsappConfigs,
@@ -340,39 +354,40 @@ class SupplierController extends Controller
                 ->whereRaw("find_in_set(" . self::DEFAULT_FOR . ",default_for)")
                 ->first();
 
-            if ($task_info) {
-                $data["whatsapp_number"] = $task_info->number;
-            }
-
-        }
+      if($task_info){
+			   $data["whatsapp_number"] = $task_info->number;
+      }
+		
+		}
         $scrapper_name = preg_replace("/\s+/", "", $request->supplier);
-        $scrapper_name = strtolower($scrapper_name);
-        $supplier      = Supplier::where('supplier', $scrapper_name)->first();
-        if (empty($supplier)) {
-            $supplier = Supplier::create($data);
-            if ($supplier->id > 0) {
-                $scraper = \App\Scraper::create([
-                    "supplier_id"        => $supplier->id,
-                    "scraper_name"       => $request->get("scraper_name", $scrapper_name),
-                    "inventory_lifetime" => $request->get("inventory_lifetime", ""),
-                ]);
-            }
+        $supplier = Supplier::where('supplier',$scrapper_name)->get();
+        
+        // if(empty($supplier)){
+        if($supplier->isEmpty()){   
+          $supplier = Supplier::create($data);
+          if ($supplier->id > 0) {
+              $scraper = \App\Scraper::create([
+                  "supplier_id" => $supplier->id,
+                  "scraper_name" => $request->get("scraper_name", $scrapper_name),
+                  "inventory_lifetime" => $request->get("inventory_lifetime", ""),
+              ]);
+          }
+          $supplier->scrapper = $scraper->id;
+          $supplier->save();
+        }else{
+          $scraper = \App\Scraper::where('scraper_name',$scrapper_name)->get();
+          if(empty($scraper)){
+            $scraper = \App\Scraper::create([
+                  "supplier_id" => $supplier->id,
+                  "scraper_name" => $request->get("scraper_name", $scrapper_name),
+                  "inventory_lifetime" => $request->get("inventory_lifetime", ""),
+              ]);
             $supplier->scrapper = $scraper->id;
             $supplier->save();
-        } else {
-            $scraper = \App\Scraper::where('scraper_name', $scrapper_name)->first();
-            if (empty($scraper)) {
-                $scraper = \App\Scraper::create([
-                    "supplier_id"        => $supplier->id,
-                    "scraper_name"       => $request->get("scraper_name", $scrapper_name),
-                    "inventory_lifetime" => $request->get("inventory_lifetime", ""),
-                ]);
-                $supplier->scrapper = $scraper->id;
-                $supplier->save();
-            } else {
-                $supplier->scrapper = $scraper->id;
-                $supplier->save();
-            }
+          }else{
+            $supplier->scrapper = $scraper->id;
+            $supplier->save();
+          }
         }
 
         if (!empty($source)) {
@@ -390,6 +405,7 @@ class SupplierController extends Controller
      */
     public function show($id)
     {
+
         $supplier               = Supplier::find($id);
         $user                   = User::where('id', $supplier->updated_by)->first();
         $suppliers              = Supplier::select(['id', 'supplier'])->where('supplier_status_id', 1)->orderby('supplier', 'asc')->get();
@@ -1682,7 +1698,7 @@ class SupplierController extends Controller
            $supplier = \App\Supplier::find($supplierId);
            $scrapper = \App\Scraper::where('supplier_id',$supplierId)->first();
            if(!empty($scrapper)) {
-                $supplier->fill(['scrapper' => $scrapper->id])->save();
+                $supplier->fill(['scrapper' => $scrapperId])->save();
            }else{
                 $scrapper_name = preg_replace("/\s+/", "", $supplier->supplier);
                 $scrapper_name = strtolower($scrapper_name);
@@ -1691,7 +1707,8 @@ class SupplierController extends Controller
                       "scraper_name" => $request->get("scraper_name", $scrapper_name),
                       "inventory_lifetime" => $request->get("inventory_lifetime", ""),
                   ]);
-                return $scraper;
+                $supplier->fill(['scrapper' => $scrapperId])->save();
+                //return $scraper;
            }
         }
         return response()->json(["code" => 200, "data" => [], "message" => "Scrapper updated successfully"]);
@@ -1766,6 +1783,13 @@ class SupplierController extends Controller
         SupplierSize::create($request->all());
 
         return redirect()->route('supplier.index')->withSuccess('You have successfully saved a supplier size!');
+    }
+
+    public function MessageTranslateHistory( Request $request ){
+
+        $history = \App\SupplierTranslateHistory::orderBy("id","desc")->where('supplier_id',$request->supplier)->get();
+        return response()->json( ["code" => 200 , "data" => $history] );
+        
     }
 
     public function sendMessage(Request $request)

@@ -268,4 +268,9 @@ class TmpTaskController extends Controller
 
     }
 
+    public function deleteQueue(Request $request)
+    {
+        \Redis::command('flushdb');
+    }
+
 }

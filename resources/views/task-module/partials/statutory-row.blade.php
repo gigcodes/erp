@@ -107,7 +107,7 @@
                 }
                 ?>
             <div class="d-flex">
-                <input type="text" style="width: <?php echo $text_box;?>%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
+                <input type="text" id="getMsg{{$task->id}}" style="width: <?php echo $text_box;?>%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
                 <button class="btn btn-sm btn-image send-message" data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png"/></button>
                 @if (isset($task->message))
                 <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
@@ -152,14 +152,6 @@
 
             @if ($special_task->users->contains(Auth::id()) || ($task->assign_from == Auth::id() && $task->is_private == 0) || ($task->assign_from == Auth::id() && $special_task->contacts()->count() > 0))
                 <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="/images/view.png"/></a>
-            @endif
-
-            @if ($special_task->users->contains(Auth::id()) || (!$special_task->users->contains(Auth::id()) && $task->assign_from == Auth::id() && $special_task->contacts()->count() > 0))
-                @if ($task->is_private == 1)
-                    <button type="button" class="btn btn-image make-private-task pd-5" data-taskid="{{ $task->id }}"><img src="/images/private.png"/></button>
-                @else
-                    <button type="button" class="btn btn-image make-private-task pd-5" data-taskid="{{ $task->id }}"><img src="/images/not-private.png"/></button>
-                @endif
             @endif
             <button type="button" onClick="return confirm('Are you sure you want to delete this task ?');" data-id="<?php echo $task->id; ?>" class="btn btn-image delete-task-btn pd-5"><img src="/images/delete.png"/></button>
         </div>

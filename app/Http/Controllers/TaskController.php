@@ -27,8 +27,6 @@ class TaskController extends Controller {
 		} else {
 			$task = Task::oldest()->whereNull( 'deleted_at' )->where( 'userid', '=', Auth::id() )->orWhere( 'assigned_user', '=', Auth::id() )->paginate( Setting::get( 'pagination' ) );
 		}
-
-
 		return view( 'task.index', compact( 'task' ) )
 			->with( 'i', ( request()->input( 'page', 1 ) - 1 ) * 10 );
 	}

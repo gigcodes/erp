@@ -7,6 +7,7 @@ namespace App;
  */
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Plank\Mediable\Mediable;
 
 class StoreWebsite extends Model
 {
@@ -47,12 +48,14 @@ class StoreWebsite extends Model
      * @SWG\Property(property="is_price_override",type="boolean")
      */
     use SoftDeletes;
+    use Mediable;
     protected $fillable = [
         'title',
         'remote_software',
         'website',
         'description',
         'is_published',
+        'disable_push',
         'deleted_at',
         'created_at',
         'updated_at',

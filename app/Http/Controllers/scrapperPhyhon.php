@@ -59,6 +59,8 @@ use App\ProductSupplier;
 use App\Website;
 use App\WebsiteStore;
 use App\scraperImags;
+use Validator;
+use Illuminate\Support\Facades\Log;
 
 
 class scrapperPhyhon extends Controller
@@ -70,7 +72,7 @@ class scrapperPhyhon extends Controller
      */
     function __construct()
     {
-        $this->middleware('permission:product-lister', ['only' => ['listing']]);
+        // $this->middleware('permission:product-lister', ['only' => ['listing']]);
     }
 
     /**
@@ -137,6 +139,37 @@ class scrapperPhyhon extends Controller
         return view('scrapper-phyhon.list', compact('websites','query','allWebsites','request'));
     }
 
+
+
+    public function listImages(Request $request){
+
+        $store_id = $request->id;
+
+        $oldDate = null;
+        $count   = 0;
+        $images = [];
+        
+        $webStore = \App\WebsiteStore::where('id',$store_id)->first();
+        $list =  Website::where('id',$webStore->website_id)->first();
+        $website_id = $list->id;
+
+        if( $webStore ){
+
+            $website_store_views = \App\WebsiteStoreView::where('website_store_id',$webStore->id)->first();
+
+                if( $website_store_views ){
+                    $images = \App\scraperImags::where('store_website',$list->store_website_id)
+                    ->where('website_id',$request->code) // this is language code. dont be confused with column name
+                    ->get()
+                    ->toArray();
+                }
+            }
+
+
+        return view('scrapper-phyhon.list-image-products', compact('images', 'website_id'));
+
+    }
+
     public function setDefaultStore(int $website=0,int $store=0,$checked=0)
     {
         if($website && $store)
@@ -196,6 +229,66 @@ class scrapperPhyhon extends Controller
         return $response;
     }
 
+    public function imageSave(Request $request)
+    {
+        // dd(123);
+        $validator = Validator::make($request->all(), [
+           'country_code'   => 'required',
+           'image'          => 'required',
+           'image_name'     => 'required',
+           'store_website'  => 'required|exists:store_websites,magento_url',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                "code" => 422, 
+                "message" => 'Invalid request',
+                "error" => $validator->errors()
+            ]);
+        }
+
+        $StoreWebsite = \App\StoreWebsite::where('magento_url',$request->store_website)->first();
+        
+        if( $this->saveBase64Image( $request->image_name,  $request->image ) ){
+
+            $newImage = array(
+                'website_id' => $request->country_code,
+                'store_website' => $StoreWebsite->id ?? 0,
+                'img_name'   => $request->image_name,
+                'img_url'    => $request->image_name,
+            );
+
+            scraperImags::insert( $newImage );
+
+            return response()->json(["code" => 200, "message" => 'Image successfully saved']);
+        }else{
+            
+            return response()->json(["code" => 500, "message" => 'Something went wrong!']);
+        }
+    }
+
+
+    public function saveBase64Image( $file_name, $base64Image )
+    {   
+        try {
+            $base64Image = trim($base64Image);
+            $base64Image = str_replace('data:image/png;base64,', '', $base64Image);
+            $base64Image = str_replace('data:image/jpg;base64,', '', $base64Image);
+            $base64Image = str_replace('data:image/jpeg;base64,', '', $base64Image);
+            $base64Image = str_replace('data:image/gif;base64,', '', $base64Image);
+            $base64Image = str_replace(' ', '+', $base64Image);
+            $imageData = base64_decode( $base64Image );
+    
+            // //Set image whole path here 
+            $filePath = public_path('scrappersImages').'/' . $file_name;
+            file_put_contents($filePath, $imageData);
+            return true;
+        } catch (\Throwable $th) {
+            dd( $th->getMessage() ) ;
+            \Log::error('scrapper_images :: ' .$th->getMessage());
+            return false;
+        }
+    }
 }
 
 

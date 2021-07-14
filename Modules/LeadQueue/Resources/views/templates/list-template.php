@@ -22,14 +22,15 @@
 			      	<td>{{:prop.customer_name}}</td>
 			        <td>{{:prop.whatsapp_number}}</td>
 			        <td>{{:prop.lead_id}}</td>
-			        <td>{{:prop.message}}</td>
+			        <td class="chat_short_message"><span>{{:prop.short_message}}</span></td>
+			        <td class="chat_long_message" style="display: none;"><span >{{:prop.long_message}}</span></td>
 			        <td>{{:prop.created_at}}</td>
 			        <td>
-			        	{{props prop.mediaList}}
-			        		<img width="75px" heigh="75px" src="{{>prop}}">
+			        	{{props prop.media_url}}
+			        		<img width="38px" heigh="75px" src="{{>prop}}">
 			        	{{/props}}
 			        </td>
-			        <td><button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><img width="15px" src="/images/delete.png"></button></td>
+			        <td><button type="button" data-id="{{>prop.id}}" data-chat_ids="{{:prop.chat_id}}" class="btn btn-delete-template-111 delete-lead-chat-messages"><img width="15px" src="/images/delete.png"></button></td>
 			      </tr>
 			    {{/props}}  
 		    </tbody>

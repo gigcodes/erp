@@ -37,6 +37,10 @@
 	.latest-remarks-list-view tr td {
 		padding: 3px !important;
 	}
+	#latest-remarks-modal .modal-dialog {
+		 max-width: 1100px;
+		width:100%;
+	}
 </style>
 @endsection
 
@@ -80,7 +84,7 @@
 							</div>
 							<div class="form-group">
 								<?php /* <label for="status">Status:</label> */?>
-								<?php echo Form::select("status", [""=>"All Status", "ignored" => "Ignored Status"], request("status"), ["class" => "form-control", "id" => "enter-status"]) ?>
+							<?php echo Form::select("status", [""=>"All Status"]+ $allStatus, request("status"), ["class" => "form-control", "id" => "enter-status"]) ?>
 							</div>
 							<div class="form-group">
 							<?php /* <label for="button">&nbsp;</label> */ ?>
@@ -368,10 +372,11 @@
 					<table class="table table-bordered" style="table-layout:fixed;">
 						<thead>
 							<tr>
-								<th style="width:5%;">Sl no</th>
-								<th style="width:15%;">Category</th>
-								<th style="width:40%;">Remarks</th>
-								<th style="width:40%;">Communication</th>
+								<th style="width:4%;">S no</th>
+								<th style="width:13%;">Category</th>
+								<th style="width:13%;">By</th>
+								<th style="width:45%;">Remarks</th>
+								<th style="width:25%;">Communication</th>
 							</tr>
 						</thead>
 						<tbody class="latest-remarks-list-view">
@@ -718,40 +723,31 @@
 	});
 
 	$(document).on('click', '.send-message-site-quick', function() {
-		var $this = $(this);
-		site = $(this).data("id");
-		category = $(this).data("category");
-		message = $this.closest("td").find(".quick-message-field").val();
-		userId = $this.data("user");
-		prefix = $this.data("prefix");
-		var users = [userId];
-
-		if (users.length <= 0) {
-			alert('Please Select User');
-		} else if (site) {
-			$.ajax({
-				url: '/whatsapp/sendMessage/site_development',
-				dataType: "json",
-				type: 'POST',
-				data: {
-					'site_development_id': site,
-					'message': prefix + ' => ' + message,
-					'users': users,
-					"_token": "{{ csrf_token() }}",
-					'status': 2
-				},
-				beforeSend: function() {
-					$this.closest("td").find(".quick-message-field").attr('disabled', true);
-				}
-			}).done(function(data) {
-				$this.closest("td").find(".quick-message-field").attr('disabled', false);
-				$this.closest("td").find(".quick-message-field").val('');
-			}).fail(function(jqXHR, ajaxOptions, thrownError) {
-				alert('No response from server');
-			});
-		} else {
-			alert('Site is not saved please enter value or select User');
-		}
+		$this = $(this);
+		var id = $(this).data("id");
+		var val = $(this).siblings('input').val();
+		
+		$.ajax({
+			url: '/site-development/' + id + '/remarks',
+			type: 'POST',
+			headers: {
+				'X-CSRF-TOKEN': "{{ csrf_token() }}"
+			},
+			data: {
+				remark: val
+			},
+			beforeSend: function() {
+				$("#loading-image").show();
+			}
+		}).done(function(response) {
+			$("#loading-image").hide();
+			$this.siblings('input').val("");
+			// $('#latest-remarks-modal').modal('hide');
+			toastr["success"]("Remarks fetched successfully");
+		}).fail(function(jqXHR, ajaxOptions, thrownError) {
+			toastr["error"]("Oops,something went wrong");
+			$("#loading-image").hide();
+		});
 	});
 
 	$(document).on('click', '.send-message-site', function() {
@@ -789,10 +785,8 @@
 				users.push(value);
 			}
 		}
-		console.log(users);
-		if (users.length <= 0) {
-			alert('Please Select User');
-		} else if (site) {
+
+		if (site) {
 			$.ajax({
 				url: '/whatsapp/sendMessage/site_development',
 				dataType: "json",
@@ -808,6 +802,7 @@
 					$('#message-' + site).attr('disabled', true);
 				}
 			}).done(function(data) {
+				toastr["success"]("Message Sent successfully");//Purpose : Display success message - DEVATSK-4361
 				$('#message-' + site).attr('disabled', false);
 				$('#message-' + site).val('');
 			}).fail(function(jqXHR, ajaxOptions, thrownError) {
@@ -1004,9 +999,9 @@
 				html += "</tr>";
 			});
 
-			$("#remark-area-list").find("#remark-field").attr("data-id", id);
+			$("#remark-area-list").find("#remark-field").data("id", id);
 			$("#remark-area-list").find(".remark-action-list-view").html(html);
-			$("#remark-area-list").modal("show");
+			$("#remark-area-list").modal("show").css('z-index',1051);
 			//$this.closest("tr").remove();
 		}).fail(function(jqXHR, ajaxOptions, thrownError) {
 			toastr["error"]("Oops,something went wrong");
@@ -1087,7 +1082,7 @@
 					var storeWebsite = response.data[i - 1].sw_website;
 					var storeDev = response.data[i - 1].sd_title;
 					var user_id = response.data[i - 1].user_id;
-					tr = tr + '<tr><td>' + i + '</td><td>' + response.data[i - 1].title + '</td><td>' + response.data[i - 1].remarks + '</td><td><div class="d-flex"><input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-' + siteId + '"><button style="padding: 2px;" class="btn btn-sm btn-image send-message-site-quick" data-prefix="# ' + storeWebsite + ' ' + storeDev + '" data-user="' + user_id + '" data-category="' + cateogryId + '" data-id="' + siteId + '"><img src="/images/filled-sent.png"/></button></div></td></tr>';
+					tr = tr + '<tr><td>' + i + '</td><td>' + response.data[i - 1].title + '</td><td>' + response.data[i - 1].username + '</td><td>' + response.data[i - 1].remarks + '<button type="button" data-site-id="' + response.data[i - 1].site_id + '" class="btn btn-store-development-remark pd-5"><i class="fa fa-comment" aria-hidden="true"></i></button></td><td><div class="d-flex"><input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-' + siteId + '"><button style="padding: 2px;" class="btn btn-sm btn-image send-message-site-quick" data-prefix="# ' + storeWebsite + ' ' + storeDev + '" data-user="' + user_id + '" data-category="' + cateogryId + '" data-id="' + siteId + '"><img src="/images/filled-sent.png"/></button></div></td></tr>';
 				}
 				$("#latest-remarks-modal").modal("show");
 				$(".latest-remarks-list-view").html(tr);
@@ -1306,5 +1301,25 @@
             }
 
         });
+
+
+		//START - Purpose : Show / Hide Chat & Remarks - #DEVTASK-19918
+		$(document).on('click', '.expand-row-msg', function () {
+            var id = $(this).data('id');
+            var full = '.expand-row-msg .td-full-container-'+id;
+            var mini ='.expand-row-msg .td-mini-container-'+id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
+        });
+
+		$(document).on('click', '.expand-row-msg-chat', function () {
+            var id = $(this).data('id');
+			console.log(id);
+            var full = '.expand-row-msg-chat .td-full-chat-container-'+id;
+            var mini ='.expand-row-msg-chat .td-mini-chat-container-'+id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
+        });
+		//END - #DEVTASK-19918
 </script>
 @endsection

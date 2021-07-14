@@ -8,6 +8,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Plank\Mediable\Mediable;
+use Illuminate\Support\Facades\DB;
 
 class DeveloperTask extends Model
 {
@@ -52,7 +53,8 @@ class DeveloperTask extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'user_id', 'module_id', 'priority', 'subject', 'task', 'cost', 'status', 'module', 'completed', 'estimate_time', 'start_time', 'end_time', 'task_type_id', 'parent_id', 'created_by', 'submitted_by', 'responsible_user_id','assigned_to','assigned_by','language','master_user_id', 'hubstaff_task_id','is_milestone','no_of_milestone','milestone_completed','customer_id','lead_hubstaff_task_id','team_lead_id','tester_id','team_lead_hubstaff_task_id','tester_hubstaff_task_id','site_developement_id','priority_no','scraper_id'
+        'user_id', 'module_id', 'priority', 'subject', 'task', 'cost', 'status', 'module', 'completed', 'estimate_time', 'start_time', 'end_time', 'task_type_id', 'parent_id', 'created_by', 'submitted_by', 'responsible_user_id','assigned_to','assigned_by','language','master_user_id', 'hubstaff_task_id','is_milestone','no_of_milestone','milestone_completed','customer_id','lead_hubstaff_task_id','team_lead_id','tester_id','team_lead_hubstaff_task_id','tester_hubstaff_task_id','site_developement_id','priority_no','scraper_id','frequency',
+        'message', 'reminder_from','reminder_last_reply','last_send_reminder', 'repository_id'
     ];
 
     public function user()
@@ -166,4 +168,32 @@ class DeveloperTask extends Model
     {
         return $this->hasMany(ChatMessage::class, 'developer_task_id', 'id')->orderBy('id','desc');
     }
+
+    public function scopeNotEstimated($query){
+        return $query->whereNull('estimate_minutes')
+                      ->where('estimate_date','0000-00-00');
+    }
+
+    public function scopeEstimated($query){
+        return $query->whereNotNull('estimate_minutes');
+    }
+
+    public function scopeAdminNotApproved( $query ){
+        return $query->join('developer_tasks_history' , 'developer_tasks_history.developer_task_id' , 'developer_tasks.id' )
+                      ->estimated()
+                      ->where('attribute','estimation_minute')
+                      ->where('model',\App\DeveloperTask::class)
+                      ->where('is_approved','0');
+    }
+
+    public function developerTaskHistory()
+    {
+       return  $this->hasOne(DeveloperTaskHistory::class,'developer_task_id','id');
+    }
+
+    public function ApprovedDeveloperTaskHistory()
+    {
+       return  $this->hasOne(DeveloperTaskHistory::class,'developer_task_id','id')->where('is_approved', 1);
+    }
+
 }

@@ -40,6 +40,21 @@ class Helpers
         return $users;
     }
 
+    public static function getUsersRoleName($roleName = 'HOD of CRM')
+    {
+        $roleID = Role::findByName($roleName);
+
+        $users = DB::table('users AS u')
+            ->select('u.id', 'u.name')
+            ->where('r.role_id', '=', $roleID->id)
+            ->leftJoin('role_user AS r', 'r.user_id', '=', 'u.id')
+            ->distinct()
+            ->orderBy('u.name')
+            ->get();
+
+        return $users;
+    }
+
     public static function getUserArray($users)
     {
 
@@ -357,5 +372,20 @@ class Helpers
         }
         return $extravars;
     }
+
+    public static function getFacebookVars($name)
+    {
+        $keyword   = \App\InfluencerKeyword::where("name", $name)->first();
+        $extravars = "";
+        if ($keyword) {
+            // check keyword account
+            $instagram = $keyword->instagramAccount;
+            if ($instagram) {
+                $extravars = "?fb_uname={$instagram->first_name}&fb_pswd={$instagram->password}";
+            }
+        }
+        return $extravars;
+    }
+
 
 }

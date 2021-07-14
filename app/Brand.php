@@ -98,6 +98,16 @@ class Brand extends Model
         return $this->hasMany( ScrapedProducts::class, 'brand_id', 'id' );
     }
 
+    public function dev_tasks()
+    {
+        return $this->hasMany( DeveloperTask::class, 'scraper_id', 'id' );
+    }
+
+    public function brandTask()
+    {
+        return $this->hasMany( DeveloperTask::class, 'brand_id', 'id' );
+    }
+
     public function products()
     {
         return $this->hasMany( Product::class, 'brand', 'id' );
@@ -131,6 +141,11 @@ class Brand extends Model
         return self::pluck("name","id")->toArray();
     }
 
+    public function storewebbrand()
+    {
+        return $this->hasOne(StoreWebsiteBrand::class,'brand_id','id');
+    }
+
     public function storewebsitebrand($StoreID)
     {
         $record = $this->hasOne(StoreWebsiteBrand::class,'brand_id','id')->where('store_website_id',$StoreID)->first();
@@ -140,4 +155,10 @@ class Brand extends Model
             return '';
         }
     }
+
+    // public function categorySegment()
+    // {
+    //     return $this->belongsToMany(CategorySegment::class,'category_segment_discounts','category_segment_id','brand_id')->withPivot('amount');
+    // }
+
 }

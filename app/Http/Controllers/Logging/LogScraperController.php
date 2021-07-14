@@ -13,16 +13,17 @@ use App\Setting;
 
 class LogScraperController extends Controller
 {
-    public function index(Request $request)
-    {
-        $customrange = $request->get("customrange",null);
+    public function index(Request $request){
 
+        $customrange = $request->get("customrange",null);
         $from = null;
         $to  = null;
+
 
         if(!empty($customrange)) {
             list($from,$to) = explode(" - ", $customrange);
         }
+
 
         $scraperLogs = DB::table('scraped_products');
 
@@ -66,14 +67,19 @@ class LogScraperController extends Controller
             $scraperLogs = $scraperLogs->where('is_external_scraper', $request->is_external_scraper);
         }
 
+
         $logsByGroup  = clone($scraperLogs);
         $logsByGroup  = $logsByGroup->where("validation_result","!=" ,"");
         $logsByGroup  = $logsByGroup->select(["website",\DB::raw("count(*) as total_error")]);
         $logsByGroup  = $logsByGroup->groupBy("website");
         $logsByGroup  = $logsByGroup->having("total_error",">",0)->get();
 
+
+
+
         $scraperLogs = $scraperLogs->orderBy('created_at', 'DESC')->paginate(25);
-        
+
+
         // For ajax
         if ($request->ajax()) {
             return response()->json([
@@ -82,10 +88,12 @@ class LogScraperController extends Controller
             ], 200);
         }
 
+
         return view('logging.scraper', compact('scraperLogs','customrange','logsByGroup'));
+
     }
 
-    public function logSKU(Request $request)
+    public function logSKU( Request $request )
     {
        
         $logScrapper = \App\ScrapedProducts::select('scraped_products.*','scrapers.inventory_lifetime')->leftJoin('scrapers', function($join) {
@@ -292,5 +300,31 @@ class LogScraperController extends Controller
         // Show results
         return view('logging.product-sku-errors', compact('logScrappers','category_selection','failed','existingIssues','lastCreatedIssue','pendingIssues','requestParam','pendingIssuesCount'));
     
+    }
+
+    public function scraperApiLog(Request $request)
+    {
+        $apilogs = \App\ScrapApiLog::select('scrap_api_logs.*','scrap_api_logs.scraper_id')
+                                    ->leftJoin('scrapers', 'scrap_api_logs.scraper_id', '=', 'scrapers.id')
+                                    ->select('scrap_api_logs.*','scrapers.scraper_name');
+        if ($request->scraper_name) {
+            $apilogs = $apilogs->where('scrapers.scraper_name', 'LIKE', "%$request->scraper_name%");
+            
+        }
+        if ($request->start_date && $request->end_date) {
+            if($request->start_date != $request->end_date){
+                $startDate = \Carbon\Carbon::createFromFormat('d-m-Y', $request->start_date);
+                $endDate = \Carbon\Carbon::createFromFormat('d-m-Y', $request->end_date);
+                $apilogs = $apilogs->whereBetween('scrap_api_logs.created_at', [$startDate, $endDate]);
+            }
+
+            if ($request->start_date == $request->end_date) {
+                $startDate = \Carbon\Carbon::createFromFormat('d-m-Y', $request->start_date);
+                $date = $startDate->format('Y-m-d');
+                $apilogs = $apilogs->where('scrap_api_logs.created_at', 'LIKE', "%$date%");
+            }
+        }
+        $data['api_logs'] = $apilogs->latest()->paginate(30);
+        return view('scrap.scrap_api_log', $data);
     }
 }

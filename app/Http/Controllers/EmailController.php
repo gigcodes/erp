@@ -23,6 +23,7 @@ use EmailReplyParser\Parser\EmailParser;
 
 use Carbon\Carbon;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
+use App\DigitalMarketingPlatform;
 
 class EmailController extends Controller
 {
@@ -150,13 +151,23 @@ class EmailController extends Controller
 
         // dont load any data, data will be loaded by tabs based on ajax
         // return view('emails.index',compact('emails','date','term','type'))->with('i', ($request->input('page', 1) - 1) * 5);
-
+        $digita_platfirms = DigitalMarketingPlatform::all();
         $sender_drpdwn = Email::select('from')->distinct()->get()->toArray();
         $receiver_drpdwn = Email::select('to')->distinct()->get()->toArray();
-        return view('emails.index',['emails'=>$emails,'type'=>'email' ,'search_suggestions'=>$search_suggestions,'email_categories'=>$email_categories,'email_status'=>$email_status, 'reports' => $reports,'sender_drpdwn' => $sender_drpdwn,'receiver_drpdwn' => $receiver_drpdwn])->with('i', ($request->input('page', 1) - 1) * 5);
+        return view('emails.index',['emails'=>$emails,'type'=>'email' ,'search_suggestions'=>$search_suggestions,'email_categories'=>$email_categories,'email_status'=>$email_status, 'reports' => $reports,'sender_drpdwn' => $sender_drpdwn,'digita_platfirms' => $digita_platfirms, 'receiver_drpdwn' => $receiver_drpdwn])->with('i', ($request->input('page', 1) - 1) * 5);
 
     }
 
+
+    public function platformUpdate(Request $request){
+        if($request->id){
+            if(Email::where('id',$request->id)->update(['digital_platfirm' => $request->platform])){
+                return redirect()->back()->with('success','Updated successfully.');
+            }
+            return redirect()->back()->with('error','Records not found!');
+        }
+        return redirect()->back()->with('error','Error Occured! Please try again later.');
+    }
     /**
      * Show the form for creating a new resource.
      *
@@ -332,8 +343,26 @@ class EmailController extends Controller
        }
 
        $email = Email::find($request->forward_email_id);
+
+       $emailClass = (new ForwardEmail($email, $email->message))->build();
+
+        $email             = \App\Email::create([
+            'model_id'         => $email->id,
+            'model_type'       => \App\Email::class,
+            'from'             => @$emailClass->from[0]['address'],
+            'to'               => $request->email,
+            'subject'          => $emailClass->subject,
+            'message'          => $emailClass->render(),
+            'template'         => 'forward-email',
+            'additional_data'  => "",
+            'status'           => 'pre-send',
+            'store_website_id' => null,
+            'is_draft'         => 1
+        ]);
+
+        \App\Jobs\SendEmail::dispatch($email);
        
-       Mail::to($request->email)->send(new ForwardEmail($email, $email->message));
+       //Mail::to($request->email)->send(new ForwardEmail($email, $email->message));
 
        return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
    }

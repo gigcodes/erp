@@ -34,7 +34,11 @@ class DailyActivity extends Model {
 		'repeat_end',
 		'repeat_end_date',
 		'parent_row',
-		'status'
+		'timezone',
+		'status',
+		'type',
+		'type_table_id',
+		'next_run_at',
 	];
 
 	public function remarks()

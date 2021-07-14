@@ -74,7 +74,9 @@ class ChatMessage extends Model
      
      */
 
-    protected $fillable = ['is_queue', 'unique_id', 'lead_id', 'order_id', 'customer_id', 'supplier_id', 'vendor_id', 'user_id','ticket_id','task_id', 'erp_user', 'contact_id', 'dubbizle_id', 'assigned_to', 'purchase_id', 'message', 'media_url', 'number', 'approved', 'status', 'error_status', 'resent', 'is_reminder', 'created_at', 'issue_id', 'developer_task_id', 'lawyer_id', 'case_id', 'blogger_id', 'voucher_id', 'document_id', 'group_id','old_id','message_application_id','is_chatbot','sent_to_user_id','site_development_id','social_strategy_id','store_social_content_id','quoted_message_id','is_reviewed','hubstaff_activity_summary_id','question_id','is_email','payment_receipt_id'];
+    //Purpose - Add learning_id - DEVTASK-4020
+    //Purpose : Add additional_data - DEVATSK-4236
+    protected $fillable = ['is_queue', 'unique_id', 'lead_id', 'order_id', 'customer_id', 'supplier_id', 'vendor_id', 'user_id','ticket_id','task_id', 'erp_user', 'contact_id', 'dubbizle_id', 'assigned_to', 'purchase_id', 'message', 'media_url', 'number', 'approved', 'status', 'error_status', 'resent', 'is_reminder', 'created_at', 'issue_id', 'developer_task_id', 'lawyer_id', 'case_id', 'blogger_id', 'voucher_id', 'document_id', 'group_id','old_id','message_application_id','is_chatbot','sent_to_user_id','site_development_id','social_strategy_id','store_social_content_id','quoted_message_id','is_reviewed','hubstaff_activity_summary_id','question_id','is_email','payment_receipt_id','learning_id','additional_data','hubstuff_activity_user_id','user_feedback_id','user_feedback_category_id'];
 
     protected $table = "chat_messages";
 
@@ -241,13 +243,20 @@ class ChatMessage extends Model
 
     public function taskUser()
     {
-        return $this->hasOne("\App\User","id","sent_to_user_id");
+        return $this->hasOne("\App\User","id","user_id");
     }
 
     public function user()
     {
         return $this->belongsTo('App\User');
     }
+
+    //START - Purpose : Add relationship - DEVTASK-4203
+    public function chatmsg()
+    {
+        return $this->hasOne("\App\ChatMessage","user_id","user_id")->latest();
+    }
+    //END - DEVTASK-4203
 
     public function sendTaskUsername()
     {
@@ -296,6 +305,13 @@ class ChatMessage extends Model
         return ($limit) ? json_decode($limit->val,true) : [];
     }
 
+    public static function getQueueTime()
+    {
+        $limit  = \App\Setting::where("name","is_queue_sending_time")->first();
+        
+        return ($limit) ? json_decode($limit->val,true) : [];
+    }
+
     public static function getStartTime()
     {
         $limit  = \App\Setting::where("name","is_queue_send_start_time")->first();
@@ -320,6 +336,16 @@ class ChatMessage extends Model
     public function chatBotReply()
     {
         return $this->hasOne("\App\ChatBotReply","chat_id", "id");
+    }
+
+    public function chatBotReplychat()
+    {
+        return $this->hasOne(ChatbotReply::class,"replied_chat_id", "id");
+    }
+
+    public function chatBotReplychatlatest()
+    {
+        return $this->hasMany(ChatbotReply::class,"replied_chat_id", "id");
     }
 
     public function suggestion()

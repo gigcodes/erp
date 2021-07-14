@@ -6,8 +6,19 @@
 
   <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+  <style>
+    .checkbox{
+      margin-left: -20px;
+      margin-top: 0px !important;
+      margin-bottom: 0px !important;
+    }
+    .erp-leads{
+      font-size: 14px;
+    }
+  </style>
   
 @section('content')
+
 <div class="row">
   <div class="col-lg-12 margin-tb">
       <h2 class="page-heading">Erp Leads <a class="btn btn-secondary editor_create" href="javascript:;">+</a></h2>
@@ -52,6 +63,13 @@
     </form>
   </div>
   */?>
+    @if(session()->has('success'))
+      <div class="col-lg-12 margin-tb">
+        <div class="alert alert-success">
+            {{ session()->get('success') }}
+        </div>
+      </div>
+    @endif
   <div class="col-md-12">
 
 <?php $base_url = URL::to('/');?>
@@ -76,8 +94,10 @@
                             <option value="{{$status['id']}}">{{$status['name']}}</option>
                           @endforeach
                         </select>
-                    </div>
-
+                      </div>
+                      <div class="form-group ml-3 cls_filter_inputbox">
+                        <h2 data-toggle="modal" data-target="#addStatusModal">+</h2>
+                      </div>
                     
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_archived">Customer</label>
@@ -129,6 +149,30 @@
                 
             </div>
 
+            <!--Add Status Modal -->
+            <div class="modal fade" id="addStatusModal" role="dialog">
+              <div class="modal-dialog">
+              
+                <!-- Modal content-->
+                <div class="modal-content">
+                  <form action="{{ route('erpLeads.status.create') }}">
+                  <div class="modal-header">
+                    <h4 class="modal-title">Add Status</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  </div>
+                    <div class="modal-body">
+                      <input type="text" name="add_status" class="form-control input-blog" placeholder="Add Status" style="width: 100%" required>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-secondary">Create</button>
+                    </div>
+                  </form>
+                </div>
+                
+              </div>
+            </div>
+
             <div class="col-lg-12 margin-tb" style="    margin-left: 23px;">
             <div class="pull-right mt-3" style="margin-bottom: 12px ">
                 <!-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
@@ -149,19 +193,22 @@
         <br>
         <div class="infinite-scroll">
     <div class="table-responsive mt-3">
-        <table class="table table-bordered" id="vendor-table">
+        <table class="table table-bordered erp-leads" id="vendor-table">
             <thead>
             <tr>
-                <th width="5%">ID</th>
-                <th width="5%">Status</th>
+                <th width="1%"></th>
+                <th width="1%">ID</th>
+                <th width="7%">Date</th>
+                <th width="10%">Status</th>
                 <th width="10%">Customer</th>
-                <th width="7%">Image</th>
-                <th width="13%">Brand</th>
-                <th width="10%">Brand Segment</th>
+                <th width="5%">Image</th>
+                <th width="5%">Brand</th>
+                <th width="5%">Brand Segment</th>
                 <th width="10%">Category</th> 
                
                 <th width="5%">Color</th>
                 <th width="2%">Size</th>
+                <th width="20%">Communication</th>
             </tr>
             </thead>
 
@@ -170,22 +217,34 @@
               @foreach ($sourceData as $source)
                 <tr>
                   <!-- <td>{{$source['id']}}</td> -->
-                  <td class="tblcell">
-                    
-                    <div class="checkbox"><label class="checkbox-inline"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'">{{$source['id']}}</label></div>
-                  </td>
-                  <td class="tblcell"> <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['status_name']}}</label></div></td>
+                  <td class="tblcell"><div class=""><label class="checkbox-inline"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'"></label></div></td>
+                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline">{{$source['id']}}</label></div></td>
+                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline">{{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $source['created_at'])->format('d-m-y')}}</label></div></td>
+                  <td class="tblcell"> <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
+                    <select class="form-control update-Erp-Status" name="ErpStatus"  data-id="{{$source['id']}}">
+                      @foreach(App\ErpLeadStatus::all() as $erp_status)
+                          <option value="{{ $erp_status->id }}" {{ $source['status_name'] == $erp_status->name ? 'selected' : '' }}>{{ $erp_status->name }}</option>
+                      @endforeach
+                  </select>
+                  </label></div></td>
                   <td class="tblcell">
                   <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none"><a href="/customer/' + data.customer_id + '" target="_blank">{{$source['customer_name']}}</a></label></div></td>
 
                   <td class="tblcell">
-                  <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">@if($source['media_url']) <img class="lazy" alt="" src="' + data.media_url + '" style="width:50px;"> @else {{''}} @endif</label></div>
-</td>
+                  <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">@if($source['media_url']) <img class="lazy" alt="" src="' + data.media_url + '" style="width:50px;"> @else {{''}} @endif</label></div></td>
+                  
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['brand_name']}}</label></div></td>
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['brand_segment']}}</label></div></td>
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['cat_title']}}</label></div></td>
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['color']}}</label></div></td>
                   <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['size']}}</label></div></td>
+                  <td class="tblcell communication-td">
+                    @if($source['customer_whatsapp_number'])
+                      <input type="text" class="form-control send-message-textbox" data-id="{{$source['customer_id']}}" id="send_message_{{$source['customer_id']}}" name="send_message_{{$source['id']}}" placeholder="whatsapp message..." style="margin-bottom:5px;width:77%;display:inline;"/>
+                      <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message"  data-id="{{$source['id']}}" ><img src="/images/filled-sent.png"/></button>
+                      <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='customer' data-id="{{ $source['customer_id'] }}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
+                    @endif
+                  </td>
                 </tr>
               @endforeach
 
@@ -198,6 +257,28 @@
    
   </div>
 </div>
+{{-- //modal  --}}
+
+<div id="chat-list-history" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Communication</h4>
+              <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+              <input type="hidden" id="chat_obj_type" name="chat_obj_type">
+              <input type="hidden" id="chat_obj_id" name="chat_obj_id">
+              <button type="submit" class="btn btn-default downloadChatMessages">Download</button>
+          </div>
+          <div class="modal-body" style="background-color: #999999;">
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+  </div>
+</div>
+
+
 
 <div id="erp-leads" class="modal fade" role="dialog">
   <div class="modal-dialog">
@@ -256,6 +337,42 @@
         </div>
 
     </div>
+</div>
+
+<div id="update-status-message-tpl" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content ">
+      <div class="modal-header">
+          <h4 class="modal-title">Change Status</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <form action="" id="update-status-message-tpl-frm" method="POST">
+          @csrf
+          <input type="hidden" name="order_id" id="order-id-status-tpl" value="">
+          <input type="hidden" name="order_status_id" id="order-status-id-status-tpl" value="">
+          <div class="modal-body">
+              <div class="row">
+                  <div class="col-md-12">
+                      <div class="col-md-2">
+                          <strong>Message:</strong>
+                      </div>
+                      <div class="col-md-8">
+                      <div class="form-group">
+                        <textarea cols="45" class="form-control" id="order-template-status-tpl" name="message"></textarea>
+                      </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-secondary update-status-with-message">With Message</button>
+              <button type="button" class="btn btn-secondary update-status-without-message">Without Message</button>
+          </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 @endsection
@@ -685,6 +802,100 @@
 
     }
 
+    $(document).on("change",".update-Erp-Status",function() {
+          var id = $(this).data("id");
+          var status_id = $(this).val();
+
+          $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url:"{{ route('erpLeads.status.update') }}",
+            type: "post",
+            data:{'id':id,'status_id':status_id},
+          }).done( function(response) {
+            if(response.code == 200) {
+              $("#update-status-message-tpl").modal("show");
+              $("#order-id-status-tpl").val(id);
+              $("#order-status-id-status-tpl").val(status_id);
+              $("#order-template-status-tpl").val(response.template);
+            }
+            
+          })
+      });
+
+      $(document).on("click",".update-status-with-message",function(e) {
+          e.preventDefault();
+          $.ajax({
+            url:"{{ route('erpLeads.status.change') }}",
+            type: "GET",
+            async : false,
+            data : {
+              id : $("#order-id-status-tpl").val(),
+              status : $("#order-status-id-status-tpl").val(),
+              sendmessage:'1',
+              message:$("#order-template-status-tpl").val(),
+            }
+          }).done( function(response) {
+              $("#update-status-message-tpl").modal("hide");
+          })
+      });
+
+      $(document).on("click",".update-status-without-message",function(e) {
+          e.preventDefault();
+          $.ajax({
+            url:"{{ route('erpLeads.status.change') }}",
+            type: "GET",
+            async : false,
+            data : {
+              id : $("#order-id-status-tpl").val(),
+              status : $("#order-status-id-status-tpl").val(),
+              sendmessage:'0',
+              message:$("#order-template-status-tpl").html(),
+            }
+          }).done( function(response) {
+            $("#update-status-message-tpl").modal("hide");
+          }).fail(function(errObj) {
+            alert("Could not change status");
+          });
+      });
+
+
+      $(document).on('click', '.send-message-open', function (event) {
+            var textBox = $(this).closest(".communication-td").find(".send-message-textbox");
+            let customerId = textBox.attr('data-id');
+            let message = textBox.val();
+            if (message == '') {
+                return;
+            }
+
+            let self = textBox;
+
+            $.ajax({
+                url: "{{action('WhatsAppController@sendMessage', 'customer')}}",
+                type: 'POST',
+                data: {
+                    "customer_id": customerId,
+                    "message": message,
+                    "_token": "{{csrf_token()}}",
+                   "status": 2
+                },
+                dataType: "json",
+                success: function (response) {
+                    toastr["success"]("Message sent successfully!", "Message");
+                    $('#message_list_' + customerId).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                    $(self).removeAttr('disabled');
+                    $(self).val('');
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending the message...');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
+        });
 
 
   </script>
