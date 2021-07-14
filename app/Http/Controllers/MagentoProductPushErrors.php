@@ -13,6 +13,10 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
 
 use App\ProductPushErrorLog;
+use App\Exports\MagentoProductCommonError;
+use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class MagentoProductPushErrors extends Controller
 {
@@ -42,7 +46,7 @@ class MagentoProductPushErrors extends Controller
         }
 
 
-        $records = $records->latest()->paginate(12);
+        $records = $records->latest()->paginate(50);
 
         $recorsArray = [];
 
@@ -80,5 +84,32 @@ class MagentoProductPushErrors extends Controller
         $fulltextvalue = $records[$request->field];
         
         return response()->json(["code" => 200, "data" => $fulltextvalue]);
+    }
+
+    public function groupErrorMessage(Request $request){
+
+        $records = ProductPushErrorLog::where('response_status','error')
+            ->whereDate('created_at',Carbon::now()->format('Y-m-d'))
+            ->latest('count')
+            ->groupBy('message')
+            ->select(\DB::raw('*,COUNT(message) AS count'))
+            ->get();
+
+        $recordsArr = []; 
+        foreach($records as $row){
+
+            $recordsArr[] = [
+                'count' => $row->count,
+                'message' => $row->message,
+
+            ];
+        }
+
+        // echo "<pre>";
+        // print_r($recordsArr);
+        // exit;
+
+        $filename = 'Today Report Magento Errors.csv';
+        return Excel::download(new MagentoProductCommonError($recordsArr),$filename);
     }
 }
