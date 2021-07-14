@@ -312,9 +312,17 @@ class LogScraperController extends Controller
             
         }
         if ($request->start_date && $request->end_date) {
-            $startDate = \Carbon\Carbon::createFromFormat('d/m/Y', $request->start_date);
-            $endDate = \Carbon\Carbon::createFromFormat('d/m/Y', $request->end_date);
-            $apilogs = \App\ScrapApiLog::whereBetween('created_at', [$startDate, $endDate]);
+            if($request->start_date != $request->end_date){
+                $startDate = \Carbon\Carbon::createFromFormat('d-m-Y', $request->start_date);
+                $endDate = \Carbon\Carbon::createFromFormat('d-m-Y', $request->end_date);
+                $apilogs = $apilogs->whereBetween('scrap_api_logs.created_at', [$startDate, $endDate]);
+            }
+
+            if ($request->start_date == $request->end_date) {
+                $startDate = \Carbon\Carbon::createFromFormat('d-m-Y', $request->start_date);
+                $date = $startDate->format('Y-m-d');
+                $apilogs = $apilogs->where('scrap_api_logs.created_at', 'LIKE', "%$date%");
+            }
         }
         $data['api_logs'] = $apilogs->latest()->paginate(30);
         return view('scrap.scrap_api_log', $data);
