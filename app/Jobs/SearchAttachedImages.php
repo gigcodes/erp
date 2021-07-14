@@ -51,8 +51,7 @@ class SearchAttachedImages implements ShouldQueue
         }else{
             $chat_message = \App\ChatMessage::where('id', $id)->first();
         }
-        Log::error(' ref_file => ' . $ref_file . ' chat_message => ' . json_encode($chat_message));
-        Log::error(' ref_file => ' . $ref_file . ' chat_message => ' . json_encode($chat_message));
+        Log::error(' ref_file => ' . $ref_file . ' chat_message => ' . json_encode($chat_message)); 
         if(@file_get_contents($ref_file)){
             $i1 = CompareImagesHelper::createImage($ref_file);
                 
@@ -100,6 +99,7 @@ class SearchAttachedImages implements ShouldQueue
                             SuggestedProductList::create([
                                 'customer_id' => $chat_message ? $chat_message->customer_id : $customer_id,
                                 'product_id' => $mediable->mediable_id,
+                                'media_id' => $m->id,
                                 'chat_message_id' => $chat_message ? $chat_message->id : null,
                                 'suggested_products_id' => $this->suggested_product !== null ? $this->suggested_product->id : null
                             ]); 
