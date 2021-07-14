@@ -763,7 +763,7 @@ button[disabled]:hover {
             }
              
           }
-          function stopScript(name) {
+          function stopScript(name,ele) {
             var platform = $(ele).closest("tr").find(".platform-request").val();
             var result = confirm("You Want to stop this script "+name+"?");
             if(result){

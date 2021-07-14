@@ -26,6 +26,7 @@ use App\DeveloperTaskHistory;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use App\Exports\HubstaffNotificationReport;
 
 
 class HubstaffActivitiesController extends Controller
@@ -49,8 +50,10 @@ class HubstaffActivitiesController extends Controller
     public function notification()
     {
         $title = "Hubstaff Notification";
+        
+        $users = User::orderBy('name')->get();
 
-        return view("hubstaff.activities.notification.index", compact('title'));
+        return view("hubstaff.activities.notification.index", compact('title','users'));
     }
 
     public function notificationRecords(Request $request)
@@ -64,6 +67,10 @@ class HubstaffActivitiesController extends Controller
             $records = $records->where(function ($q) use ($keyword) {
                 $q->where("u.name", "LIKE", "%$keyword%");
             });
+        }
+
+        if (!empty($request->user_id)) {
+            $records = $records->where('hubstaff_activity_notifications.user_id',$request->user_id);
         }
 
         if ($request->start_date != null) {
@@ -83,7 +90,13 @@ class HubstaffActivitiesController extends Controller
         ->orderBy('total_track','desc')->get();
 
          $recordsArr = []; 
+
+         $totalUserTrack = 0;
+         $display_user_total_hour = 0;
+
        foreach($records as $row){
+
+            $totalUserTrack = $totalUserTrack + $row->total_track;
 
             $dwork = $row->daily_working_hour ? number_format($row->daily_working_hour,2,".","") : 0;
 
@@ -110,7 +123,7 @@ class HubstaffActivitiesController extends Controller
             $hours = floor(abs($difference) / 3600);
             $minutes = sprintf("%02d", floor((abs($difference) / 60) % 60));
 
-            $latest_message = \App\ChatMessage::where('user_id',$row->id)->latest('message')->first();
+            $latest_message = \App\ChatMessage::where('user_id',$row->user_id)->where('hubstuff_activity_user_id','!=', null)->orderBy('id', 'DESC')->first();
             $latest_msg = null;
             if($latest_message){
                 $latest_msg = $latest_message->message;
@@ -122,6 +135,7 @@ class HubstaffActivitiesController extends Controller
 
                 'id' => $row->id,
                 'user_name' => $row->user_name,
+                'user_id' => $row->user_id,
                 'start_date' =>  Carbon::parse($row->start_date)->format('Y-m-d'),
                 'daily_working_hour' => $dwork,
                 'total_working_hour' => $twork,
@@ -137,7 +151,19 @@ class HubstaffActivitiesController extends Controller
             ];
        }   
 
-        return response()->json(["code" => 200, "data" => $recordsArr, "total" => count($records)]);
+       if($request->user_id){
+            $hrs = floor($totalUserTrack / 3600);
+            $mnts = floor(($totalUserTrack / 60) % 60);
+            $display_user_total_hour = $hrs.':'.sprintf("%02d", $mnts);
+        }
+
+        return response()->json([
+            "code"    => 200, 
+            "data"    => $recordsArr, 
+            "total"   => count($records),
+            "user_id" => $request->get('user_id')??0,
+            "sum"     => $display_user_total_hour,
+        ]);
     }
 
     public function downloadNotification(Request $request){
@@ -151,6 +177,10 @@ class HubstaffActivitiesController extends Controller
             $records = $records->where(function ($q) use ($keyword) {
                 $q->where("u.name", "LIKE", "%$keyword%");
             });
+        }
+
+        if (!empty($request->user_id)) {
+            $records = $records->where('hubstaff_activity_notifications.user_id',$request->user_id);
         }
 
         if ($request->start_date != null) {

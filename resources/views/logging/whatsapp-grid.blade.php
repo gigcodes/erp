@@ -67,7 +67,14 @@
                                     Message1 : {{$row['error_message1']}} <br>
                                 @endif --}}
                             @endif
-                            Message2 : {{$row['error_message2']}}
+                            @php
+                                $str_msg = string_convert($row['error_message2'])
+                            @endphp
+                                    <br/>
+                            Message2 : 
+                                @foreach($str_msg as $key => $val)
+                                    {{$val}}<br/>
+                                @endforeach
                             </div>
                         </td>
                         <td>

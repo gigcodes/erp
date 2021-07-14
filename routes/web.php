@@ -1149,7 +1149,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('purchase-product/supplier-details/{order_id}', 'PurchaseProductController@getSupplierDetails');
     Route::get('purchase-product/customer-details/{type}/{order_id}', 'PurchaseProductController@getCustomerDetails');
     Route::resource('purchase-product', 'PurchaseProductController');
-    Route::get('purchase-product/order-product/images', 'PurchaseProductController@getOrderProductImages');
 
 
     Route::post('purchase-product/insert_suppliers_product', 'PurchaseProductController@insert_suppliers_product')->name('purchase-product.insert_suppliers_product');
@@ -3157,6 +3156,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/admin-menu/db-query/delete/confirm', 'DBQueryController@deleteConfirm')->name('admin.databse.menu.direct.dbquery.delete.confirm');
     Route::post('/admin-menu/db-query/update', 'DBQueryController@update')->name('admin.databse.menu.direct.dbquery.update');
     Route::post('/admin-menu/db-query/delete', 'DBQueryController@delete')->name('admin.databse.menu.direct.dbquery.delete');
+    Route::post('/admin-menu/db-query/command_execution', 'DBQueryController@command_execution')->name('admin.command_execution');//Purpose : Add Route for Command Exicute - DEVTASK-19941
+    Route::get('/admin-menu/db-query/command_execution_history', 'DBQueryController@command_execution_history')->name('admin.command_execution_history');//Purpose : Add Route for Command Exicution History data - DEVTASK-19941
 });
 
 Route::middleware('auth')->prefix('totem')->group(function() {
@@ -3197,6 +3198,8 @@ Route::prefix('magento-product-error')->middleware('auth')->group(static functio
     Route::get('/records', 'MagentoProductPushErrors@records')->name("magento-productt-errors.records");
 
     Route::post('/loadfiled', 'MagentoProductPushErrors@getLoadDataValue');
+
+    Route::get('/download', 'MagentoProductPushErrors@groupErrorMessage')->name('magento_product_today_common_err');
 });
 
 Route::prefix('message-queue-history')->middleware('auth')->group(static function () {
