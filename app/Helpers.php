@@ -373,4 +373,19 @@ class Helpers
         return $extravars;
     }
 
+    public static function getFacebookVars($name)
+    {
+        $keyword   = \App\InfluencerKeyword::where("name", $name)->first();
+        $extravars = "";
+        if ($keyword) {
+            // check keyword account
+            $instagram = $keyword->instagramAccount;
+            if ($instagram) {
+                $extravars = "?fb_uname={$instagram->first_name}&fb_pswd={$instagram->password}";
+            }
+        }
+        return $extravars;
+    }
+
+
 }

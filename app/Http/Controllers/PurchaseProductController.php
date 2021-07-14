@@ -1605,31 +1605,6 @@ class PurchaseProductController extends Controller
     {
         //
     }
-
-
-    public function getOrderProductImages(Request $request)
-    {
-        Log::error(' getOrderProductImages() => ' . json_encode($request->all()));
-        $products = Product::whereIn('id', explode(',', $request->product_ids) )
-                            ->withTrashed()
-                            ->get();
-        Log::error(' products => ' . json_encode($products));
-        $image_array = [];                    
-        foreach($products as $product){
-            if ($product->hasMedia(config('constants.media_tags'))){
-                $productImages = $product->getMedia(config('constants.media_tags'));
-                foreach($productImages as $img){
-                    $img['product_id'] = $product->id;
-                    $img['image_url'] = $img->getUrl();
-                    $image_array[] = $img;
-                }
-            }
-        }
-        Log::error(' image_array => ' . json_encode($image_array));
-        return response()->json([
-            'images' => $image_array
-        ]);
-    }
     
     //START -Purpose : Get Data not maping suppliers data - DEVTASK-19941
     public function not_mapping_product_supplier_list(Request $request)
