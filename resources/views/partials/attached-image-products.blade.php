@@ -42,8 +42,7 @@ style="padding: 0px 10px;">
                         <div data-interval="false" id="carousel_{{ $product->id }}" class="carousel slide"
                             data-ride="carousel">
                             <a href="{{ route('products.show', $product->id) }}" data-toggle="tooltip"
-                                data-html="true" data-placement="top"
-                                title="<strong>Supplier: </strong>{{ $product->supplier }} <strong>Status: </strong>{{ $product->purchase_status }}">
+                                data-html="true" data-placement="top" >
                                 <div class="carousel-inner maincarousel">
                                     <div class="item" style="display: block;"> <img
                                             src="{{ urldecode($im['url']) }}"
@@ -319,21 +318,3 @@ style="padding: 0px 10px;">
                    
     <br>
 </div>
-@if(count($suggestedProductsLists))
-{{ $suggestedProductsLists->appends(request()->query())->links() }}
-<script>
-    $(document).on('click','.page-link',function(e){
-        e.preventDefault()
-        const $this  = $(this)
-        const url = $(this).attr('href')
-        $.ajax({
-            type: 'GET',
-            url: url,
-            success: function (data) {
-                $this.closest('.customer-count').html(data)
-            
-            }
-        })
-    })
-</script>
-@endif
