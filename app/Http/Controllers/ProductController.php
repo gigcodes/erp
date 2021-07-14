@@ -5375,7 +5375,7 @@ class ProductController extends Controller
         $term = null;
         //$suggested_products_id=3;
         $suggestedProductsLists = \App\SuggestedProductList::with('getMedia')->where('suggested_products_id',$suggested_products_id)->where('customer_id',$customer_id)->where('remove_attachment',0)
-        ->orderBy('date','desc')->whereNotNull('media_id')->paginate(20);
+        ->orderBy('date','desc')->whereNotNull('media_id')->get();
 
         if($type == 'attach') {
             $productsLists = \App\SuggestedProductList::where('suggested_products_id',$suggested_products_id)->where('customer_id',$customer_id)->whereNull('media_id')->where('remove_attachment',0)
