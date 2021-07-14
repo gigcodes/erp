@@ -252,6 +252,14 @@ var getHtml = function(response) {
             }
         }
         //END - DEVTASK-4236
+
+        //START - Purpose : Add resend button - DEVTASK-18283
+        if(message.type == "order")
+        {
+            button += "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'><i class='fa fa-repeat' aria-hidden='true'></i> (" + message.resent + ")</a>";
+        }
+        //END - DEVTASK-18283
+
         if(message.is_queue == 1) {
            button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>';
         }
