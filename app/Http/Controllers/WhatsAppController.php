@@ -2040,10 +2040,9 @@ class WhatsAppController extends FindByNumberController
             }
             $data['user_id'] = $u_id;
             $module_id = $request->user_id;
-        }elseif ($context == 'hubstuff') {  
+        }elseif ($context == 'hubstuff') {
             $data['hubstuff_activity_user_id'] = $request->hubstuff_id;
             $module_id = $request->hubstuff_id;
-            $this->sendWithThirdApi(7487854885, 7487854885, 'test', false);
         } else {
             if ($context == 'vendor') {
                 $data['vendor_id'] = $request->vendor_id;

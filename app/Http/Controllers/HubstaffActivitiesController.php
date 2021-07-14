@@ -122,6 +122,7 @@ class HubstaffActivitiesController extends Controller
 
                 'id' => $row->id,
                 'user_name' => $row->user_name,
+                'user_id' => $row->user_id,
                 'start_date' =>  Carbon::parse($row->start_date)->format('Y-m-d'),
                 'daily_working_hour' => $dwork,
                 'total_working_hour' => $twork,
