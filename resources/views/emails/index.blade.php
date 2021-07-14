@@ -103,13 +103,13 @@
 	</div>   
   <div class="col-md-12">
       <ul class="nav nav-tabs" id="myTab" role="tablist">
-          <li class="nav-item active">
+          <li class="nav-item {{ ($receiver != '' && $from == 'order_data') ? '' : 'active'}}"><!-- Purpose : Add Turnary -  DEVTASK-18283 -->
               <a class="nav-link" id="read-tab" data-toggle="tab" href="#read" role="tab" aria-controls="read" aria-selected="true" onclick="load_data('incoming',1)">Read</a>
           </li>
           <li class="nav-item">
               <a class="nav-link" id="unread-tab" data-toggle="tab" href="#unread" role="tab" aria-controls="unread" aria-selected="false" onclick="load_data('incoming',0)">Unread</a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item {{ ($receiver != '' && $from == 'order_data') ? 'active' : ''}}"><!-- Purpose : Add Turnary -  DEVTASK-18283 -->
               <a class="nav-link" id="sent-tab" data-toggle="tab" href="#sent" role="tab" aria-controls="sent" aria-selected="false" onclick="load_data('outgoing','both')">Sent</a>
           </li>
           <li class="nav-item">
@@ -164,7 +164,12 @@
             <select class="form-control" name="receiver" id="receiver">
                 <option value="">Select Receiver</option>
                 @foreach($receiver_drpdwn as $sender)
+                    <!-- Purpose : Add If condition -  DEVTASK-18283 -->
+                    @if($receiver != '' && $from == 'order_data')
+                    <option value="{{ $sender['to'] }}" {{ ($sender['to'] == $receiver) ? "selected" : ""}}>{{ $sender['to'] }}</option>
+                    @else
                     <option value="{{ $sender['to'] }}" {{ (Request::get('to') && strcmp(Request::get('receiver'),$sender['to']) == 0) ? "selected" : ""}}>{{ $sender['to'] }}</option>
+                    @endif
                 @endforeach
             </select>
         </div>
