@@ -22,7 +22,7 @@
 @section('large_content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Product Listing ({{ $products_count }}) <a target="_new" href="{{ action('ProductController@showSOP') }}?type=Listing" class="pull-right">SOP</a></h2>
+            <h2 class="page-heading">Product Listing ({{ $products_count }}) <a target="_new" href="{{ route('sop.index') }}?type=Listing" class="pull-right">SOP</a></h2>
             <div class="m-5">
                 <div class="panel-group">
                     <div class="panel panel-default">

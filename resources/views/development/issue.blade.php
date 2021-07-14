@@ -889,6 +889,38 @@
             $('#date_history_modal').modal('show');
         });
 
+        $(document).on('click', '.show-status-history', function() {
+            var data = $(this).data('history');
+            var issueId = $(this).data('id');
+            $('#status_history_modal table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/status/history') }}",
+                data: {id: issueId},
+                success: function (data) {
+                    if(data != 'error') {
+                        $.each(data, function(i, item) {
+                            if(item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            }
+                            else {
+                                var checked = ''; 
+                            }
+                            $('#status_history_modal table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                                    <td>'+item['new_value']+'</td>\
+                                    <td>'+item['name']+'</td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#status_history_modal').modal('show');
+        });
+
+
 
         $(document).on('submit', '#approve-time-btn', function(event) {
             event.preventDefault();
@@ -1133,7 +1165,7 @@
                 url: "{{action('DevelopmentController@resolveIssue')}}",
                 data: {
                     issue_id: id,
-                    is_resolved: status
+                    is_resolved: status,
                 },
                 success: function () {
                     toastr["success"]("Status updated!", "Message")

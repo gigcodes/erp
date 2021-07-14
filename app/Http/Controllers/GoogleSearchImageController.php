@@ -848,7 +848,8 @@ class GoogleSearchImageController extends Controller
             $brand = '';
         }
 
-        $googleServer = env('GOOGLE_CUSTOM_SEARCH');
+        // $googleServer = env('GOOGLE_CUSTOM_SEARCH');
+        $googleServer = config('env.GOOGLE_CUSTOM_SEARCH');
 
         //Replace Google Server Key
         if ($key != null) {
@@ -1235,7 +1236,8 @@ class GoogleSearchImageController extends Controller
             $brand = '';
         }
 
-        $googleServer = env('GOOGLE_CUSTOM_SEARCH');
+        // $googleServer = env('GOOGLE_CUSTOM_SEARCH');
+        $googleServer = config('env.GOOGLE_CUSTOM_SEARCH');
 
         //Replace Google Server Key
         if ($key != null) {

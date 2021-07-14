@@ -127,7 +127,25 @@
                     </div>
                     <div class="col-md-12">
                         @if($site)
-                            <span class="chat-mini-container pl-1"> @if($site->lastChat) {{ $site->lastChat->message }} @endif</span>
+                            <!-- START - Purpose : Show / Hide Chat & Remarks , Add Last Remarks - #DEVTASK-19918 -->
+                            @if($site->lastChat) Chat = @endif
+                            <div class="justify-content-between expand-row-msg-chat" data-id="@if($site->lastChat){{$site->lastChat->id}}@endif">
+                                <span class="td-full-chat-container-@if($site->lastChat){{$site->lastChat->id}}@endif pl-1"> @if($site->lastChat) {{ str_limit($site->lastChat->message, 100,'...') }} @endif</span>
+                            </div>
+                            <div class="expand-row-msg-chat" data-id="@if($site->lastChat){{$site->lastChat->id}}@endif">
+                                <span class="td-full-chat-container-@if($site->lastChat){{$site->lastChat->id}}@endif hidden"> @if($site->lastChat) {{ $site->lastChat->message }} @endif</span>
+                            </div>
+                            <br/>
+                            @if($site->lastRemark) Remarks = @endif
+                            <div class="justify-content-between expand-row-msg" data-id="@if($site->lastRemark){{$site->lastRemark->id}}@endif">
+                                <span class="td-full-container-@if($site->lastRemark){{$site->lastRemark->id}}@endif" > @if($site->lastRemark)  {{ str_limit($site->lastRemark->remarks, 100, '...') }} @endif</span>
+                            </div>
+                            <div class="expand-row-msg" data-id="@if($site->lastRemark){{$site->lastRemark->id}}@endif">
+                                <span class="td-full-container-@if($site->lastRemark){{$site->lastRemark->id}}@endif hidden">
+                                    @if($site->lastRemark) {{ $site->lastRemark->remarks }} @endif
+                                </span>
+                            </div>
+                            <!-- END - #DEVTASK-19918 -->
                         @endif
                     </div>
 
@@ -164,7 +182,10 @@
                     <i class="fa fa-eye" aria-hidden="true"></i>
                 </button>
                 @if(Auth::user()->isAdmin())
-                <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task pd-5" data-id="@if($site){{ $site->id }}@endif" data-title="@if($site){{ $site->title }}@endif"><img style="width:12px !important;" src="/images/add.png" /></button>
+                @php
+                    $websitenamestr = ($website) ? $website->title : "";
+                @endphp
+                <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task pd-5" data-id="@if($site){{ $site->id }}@endif" data-title="@if($site){{ $websitenamestr.' '.$site->title }}@endif"><img style="width:12px !important;" src="/images/add.png" /></button>
                 <button style="padding-left: 0;float: right;padding-right:0px;" type="button" class="btn btn-image d-inline count-dev-customer-tasks" title="Show task history" data-id="@if($site){{ $site->id }}@endif"><i class="fa fa-info-circle"></i></button>
                 @endif
                 <button class="btn btn-image d-inline create-quick-task pd-5">

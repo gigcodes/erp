@@ -32,7 +32,83 @@ class CategoryController extends Controller
     public function manageCategory(Request $request)
     {
         $category_segments = CategorySegment::where('status', 1)->get()->pluck('name', 'id');
-        $categories        = Category::where('parent_id', '=', 0)->get();
+        $categories        = Category::where('parent_id', '=', 0)->withCount('childs')->get();
+        $allCategories     = Category::pluck('title', 'id')->all();
+
+        $selected_value  = $request->filter;
+
+     if(isset($request->filter)){
+            $categories        = Category::withCount('childs');
+
+          $categories=  $categories->where('title','like','%'.$request->filter.'%')->get();
+
+
+
+        $final_cat = [];
+
+        foreach($categories as $key=> $cat){
+
+                if($cat->parentM){
+                    
+                        if($cat->parentM->parentM){
+
+                            if($cat->parentM->parentM->parentM){
+
+                                $final_cat[$cat->parentM->parentM->parentM->id] = $cat->parentM->parentM->parentM;
+
+                            }else{
+                                $final_cat[$cat->parentM->parentM->id] = $cat->parentM->parentM;
+
+                            }
+                        }else{
+
+                            $final_cat[$cat->parentM->id] = $cat->parentM;
+                        }
+                }else{
+                    
+                    $final_cat[$cat->id] = $cat;
+                }
+        }
+            // dd($final_cat);
+
+            $categories = $final_cat;
+
+
+    //       foreach($categories as $cat){
+    //                     $all_cat = null;
+    //                     if($cat->parentM) { 
+    //                         $all_cat = $cat;
+    //                         while(!is_null($parentM->parentM)) {
+    //                             $all_cat = $parentM->parentM;
+    //                         }
+                            
+    //                     } else {
+    //                         $all_cat = $cat;
+    //                      }
+
+    //                      $final_cat[$cat->id][] =$all_cat;
+    //     }
+    // //    $categories =  $categories->get();
+    //     dd($final_cat);
+
+        }
+
+        $old = $request->old('parent_id');
+
+        $allCategoriesDropdown = Category::attr(['name' => 'parent_id', 'class' => 'form-control'])
+            ->selected($old ? $old : 1)
+            ->renderAsDropdown();
+
+        $allCategoriesDropdownEdit = Category::attr(['name' => 'edit_cat', 'class' => 'form-control'])
+            ->selected($old ? $old : 1)
+            ->renderAsDropdown();
+
+        return view('category.treeview', compact('category_segments', 'categories', 'allCategories', 'allCategoriesDropdown', 'allCategoriesDropdownEdit','selected_value'));
+    }
+    public function manageCategory11(Request $request)
+    {
+        $category_segments = CategorySegment::where('status', 1)->get()->pluck('name', 'id');
+        $categories        = Category::where('parent_id', '=', 0)->withCount('childs')->get();
         $allCategories     = Category::pluck('title', 'id')->all();
 
         $old = $request->old('parent_id');
@@ -45,7 +121,7 @@ class CategoryController extends Controller
             ->selected($old ? $old : 1)
             ->renderAsDropdown();
 
-        return view('category.treeview', compact('category_segments', 'categories', 'allCategories', 'allCategoriesDropdown', 'allCategoriesDropdownEdit'));
+        return view('category.treeview-11', compact('category_segments', 'categories', 'allCategories', 'allCategoriesDropdown', 'allCategoriesDropdownEdit'));
     }
 
     /**
@@ -106,6 +182,26 @@ class CategoryController extends Controller
         $category_instance = new Category();
         $category          = $category_instance->find($request->input('edit_cat'));
 
+        if($request->ajax()){
+            if (Category::isParent($category->id)) {
+                return response()->json(['error-remove'=> 'Can\'t delete Parent category. Please delete all the childs first']);
+            }
+    
+            if (Category::hasProducts($category->id)) {
+                return response()->json(['error-remove'=> 'Can\'t delete category is associated with products. Please remove all the association first']);
+            }
+    
+            if ($category->id == 1) {
+                return response()->json(['error-remove'=> 'Can\'t be delete']);
+            }
+
+            $title = $category->title;
+            $category->delete();
+
+            return response()->json(['success-remove'=> $title . 'category Deleted']);
+
+        }
+
         if (Category::isParent($category->id)) {
             return back()->with('error-remove', 'Can\'t delete Parent category. Please delete all the childs first');
         }
@@ -121,7 +217,7 @@ class CategoryController extends Controller
         $title = $category->title;
         $category->delete();
 
-        return back()->with('success-remove', $title . ' category Deleted');
+        return back()->with('success-remove', $title . 'Category Deleted');
     }
 
     public static function getCategoryTree($id)
@@ -154,6 +250,8 @@ class CategoryController extends Controller
             SELECT
                 categories.title,
                 categories.id as cat_id,
+                ct.title as parent_name,
+                ct.id as parent_id,
                 MIN(price*1) AS minimumPrice,
                 MAX(price*1) AS maximumPrice
             FROM
@@ -162,11 +260,17 @@ class CategoryController extends Controller
                 categories
             ON
                 products.category=categories.id
+            LEFT JOIN
+                categories as ct
+            ON
+                categories.parent_id=ct.id    
             GROUP BY
                 products.category
             ORDER BY
                 categories.title
         ");
+
+
 
         // Get all form data
         $resultsBrandCategoryPriceRange = BrandCategoryPriceRange::all();
@@ -606,12 +710,12 @@ class CategoryController extends Controller
 
         $scrapped_category_mapping = ScrappedCategoryMapping::select('id', 'name','category_id');
 
-if(!empty($request->show_auto_fix)){
-    $scrapped_category_mapping->whereNotNull('category_id')->where('is_auto_skip',0);
-}else{
-    $scrapped_category_mapping->whereNull('category_id');
+        if(!empty($request->show_auto_fix)){
+            $scrapped_category_mapping->whereNotNull('category_id')->where('is_auto_skip',0);
+        }else{
+            $scrapped_category_mapping->whereNull('category_id');
 
-}
+        }
         $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination')    );
 
         $links = [];
@@ -763,4 +867,114 @@ if(!empty($request->show_auto_fix)){
         return response()->json(["code" => 200, "message" => "Category updated successfully"]);
     }
 
+
+    public function childCategory(Request $request)
+    {
+             $cat = Category::with('childs.childLevelSencond')->find($request->subCat);
+            $childs = $cat->childs;
+
+             if($childs){
+                 return response()->json($childs);
+             }else{
+                 return false;
+             }
+
+
+    }
+    public function childEditCategory(Request $request)
+    {
+
+             $cat = Category::with(['childs.childLevelSencond','categorySegmentId'])->find($request->dataId);
+            
+             if($cat){
+                 return response()->json($cat);
+             }else{
+                 return false;
+             }
+    }
+    public function updateCategory(Request $request,$id)
+    {
+            $this->validate($request, [
+                'title'       => 'required',
+                'magento_id'  => 'required|numeric',
+                'show_all_id' => 'numeric|nullable',
+            ]);
+
+            $category = Category::find($id);
+
+            $category->title       = $request->input('title');
+            $category->magento_id  = $request->input('magento_id');
+            $category->show_all_id = $request->input('show_all_id');
+            $category->need_to_check_measurement = $request->need_to_check_measurement ? 1 :0;
+            $category->need_to_check_size = $request->need_to_check_size ? 1 :0;
+            if ($request->has('category_segment_id')) {
+                $category->category_segment_id = $request->category_segment_id;
+            }
+
+            $category->save();
+
+            if($category){
+                return response()->json($category);
+            }else{
+                return false;
+            }
+            //  $cat = Category::with(['childs.childLevelSencond','categorySegmentId'])->find($request->dataId);
+            
+            //  if($cat){
+            //      return response()->json($cat);
+            //  }else{
+            //      return false;
+            //  }
+    }
+
+    public function updateMinMaxPriceDefault()
+    {
+        return abort(404);
+        if(!auth()->user()->isAdmin()) {
+        }
+        
+        $results = \Illuminate\Support\Facades\DB::select("
+            SELECT
+                categories.title,
+                categories.id as cat_id,
+                ct.title as parent_name,
+                ct.id as parent_id,
+                MIN(price*1) AS minimumPrice,
+                MAX(price*1) AS maximumPrice
+            FROM
+                products
+            JOIN
+                categories
+            ON
+                products.category=categories.id
+            LEFT JOIN
+                categories as ct
+            ON
+                categories.parent_id=ct.id    
+            GROUP BY
+                products.category
+            ORDER BY
+                categories.title
+        ");
+
+        $brandSegments = ['A', 'B', 'C'];
+
+        foreach($brandSegments as $bs) {
+            foreach($results as $r) {
+                $bsRange = BrandCategoryPriceRange::where('brand_segment' , $bs)->where('category_id' , $r->cat_id)->first(); 
+                if(!$bsRange) {
+                    BrandCategoryPriceRange::updateOrCreate(
+                        ['brand_segment' => $bs, 'category_id' => $r->cat_id],
+                        ['min_price' => 50,'max_price' => 10000]
+                    );
+                }else{
+                    $bsRange->min_price = 50;
+                    $bsRange->max_price = 10000;
+                    $bsRange->save();
+                }
+            }
+        }
+
+        Echo "script done";
+    }
 }

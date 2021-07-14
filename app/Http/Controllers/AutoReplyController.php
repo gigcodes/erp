@@ -27,11 +27,32 @@ class AutoReplyController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $simple_auto_replies        = AutoReply::where('type', 'simple')->latest()->get()->groupBy('reply')->toArray();
-        $priority_customers_replies = AutoReply::where('type', 'priority-customer')->latest()->paginate(Setting::get('pagination'), ['*'], 'priority-page');
-        $auto_replies               = AutoReply::where('type', 'auto-reply')->latest()->paginate(Setting::get('pagination'), ['*'], 'autoreply-page');
+
+        $keyword = $request->keyword;
+
+        $simple_auto_replies = AutoReply::where('type', 'simple');
+            if(!empty($keyword)){
+                $simple_auto_replies->where('reply',"LIKE", "%$keyword%");
+            }
+        $simple_auto_replies = $simple_auto_replies->latest()->get()->groupBy('reply')->toArray();
+
+
+        $priority_customers_replies = AutoReply::where('type', 'priority-customer');
+            if(!empty($keyword)){
+                $priority_customers_replies->where('reply',"LIKE", "%$keyword%");
+            }
+        $priority_customers_replies = $priority_customers_replies->latest()->paginate(Setting::get('pagination'), ['*'], 'priority-page');
+        
+
+        $auto_replies   = AutoReply::where('type', 'auto-reply');
+            if(!empty($keyword)){
+                $auto_replies->where('reply',"LIKE", "%$keyword%");
+            }
+        $auto_replies = $auto_replies->latest()->paginate(Setting::get('pagination'), ['*'], 'autoreply-page');
+        
+
         $show_automated_messages    = Setting::get('show_automated_messages');
 
         $currentPage  = LengthAwarePaginator::resolveCurrentPage();

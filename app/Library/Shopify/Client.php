@@ -30,10 +30,14 @@ class Client
     public function __construct()
     {
         // Config ID
-        $this->_shopUrl      = env('SHOPIFY_SHOP_URL');
-        $this->_key          = env('SHOPIFY_SHOP_KEY');
-        $this->_password     = env('SHOPIFY_SHOP_PASSWORD');
-        $this->_sharedSecret = env('SHOPIFY_SHOP_SHARED_SECRET');
+        // $this->_shopUrl      = env('SHOPIFY_SHOP_URL');
+        // $this->_key          = env('SHOPIFY_SHOP_KEY');
+        // $this->_password     = env('SHOPIFY_SHOP_PASSWORD');
+        // $this->_sharedSecret = env('SHOPIFY_SHOP_SHARED_SECRET');
+        $this->_shopUrl      = config('env.SHOPIFY_SHOP_URL');
+        $this->_key          = config('env.SHOPIFY_SHOP_KEY');
+        $this->_password     = config('env.SHOPIFY_SHOP_PASSWORD');
+        $this->_sharedSecret = config('env.SHOPIFY_SHOP_SHARED_SECRET');
 
         // Set random
         $this->_random = uniqid();

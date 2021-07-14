@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 use App\Setting;//Purpose : Add Setting - DEVTASK-4289
 
 //use Spatie\Permission\Models\Permission;

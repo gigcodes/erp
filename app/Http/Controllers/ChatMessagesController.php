@@ -29,7 +29,7 @@ class ChatMessagesController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function loadMoreMessages(Request $request)
-    {   
+    {
         // Set variables
         $limit = $request->get("limit", 3);
         $loadAttached = $request->get("load_attached", 0);
@@ -39,6 +39,12 @@ class ChatMessagesController extends Controller
         switch ($request->object) {
             case 'customer':
                 $object = Customer::find($request->object_id);
+                break;
+            case 'user-feedback':
+                $object = User::find($request->object_id);
+                break;
+            case 'hubstuff':
+                $object = User::find($request->object_id);
                 break;
             case 'user':
                 $object = User::find($request->object_id);
@@ -106,9 +112,14 @@ class ChatMessagesController extends Controller
            $onlyBroadcast   = true;
            $loadType        = "images";
         }
-
         $chatMessages = $object->whatsappAll($onlyBroadcast)->whereRaw($rawWhere);
-
+        
+        if ($request->object == "user-feedback") {
+            $chatMessages = ChatMessage::where('user_feedback_id', $object->id)->where('user_feedback_category_id',$request->feedback_category_id);
+        }
+        if ($request->object == "hubstuff") {
+            $chatMessages = ChatMessage::where('hubstuff_activity_user_id', $object->id);
+        }
         if(!$onlyBroadcast){
            $chatMessages = $chatMessages->where('status', '!=', 10);
         }
@@ -544,4 +555,89 @@ class ChatMessagesController extends Controller
 
           return response()->json(["code" => 200 , "data" => [], "messages" => "Customer updated Successfully"]);
     }
+
+
+
+    public function customChatListing()
+    {
+        $title = "List | Custom Chat Message";
+        
+        $users = User::orderBy('name')->get();
+
+        $vendors = Vendor::orderBy('name')->get();
+
+        return view('custom-chat-message.index', compact('title','users','vendors'));
+    }
+
+    public function customChatRecords(Request $request)
+    {
+        $keyword = $request->get("keyword");
+
+        $records = ChatMessage::with('user','vendor')
+            ->where(function($query){
+                $query->whereNotNull('vendor_id');
+                $query->orWhereNotNull('user_id');
+            });
+
+
+
+        if (!empty($keyword)) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where("message", "LIKE", "%$keyword%");
+            });
+        }
+
+        if (!empty($request->user_id)) {
+            $records = $records->where("user_id", $request->user_id);
+        }
+
+        if (!empty($request->vendor_id)) {
+            $records = $records->where("vendor_id",$request->vendor_id);
+        }
+
+
+        $records = $records->latest()->paginate(20);
+
+        $recorsArray = [];
+
+        foreach ($records as $row) {
+
+            $type = $sender = '';
+            if($row->user_id){
+                $type = 'user';
+                $sender = optional($row->user)->name;
+            }else if ($row->vendor_id) {
+                $type = 'vendor';
+                $sender = optional($row->vendor)->name;
+            }
+
+            $recorsArray[] = [
+                'created_at' => $row->created_at->format('d-m-y H:i:s'),
+                'type'       => $type,
+                'message'    => $row->message,
+                'sender'     => $type.' - '.$sender,
+            ];
+        }    
+
+        return response()->json([
+            "code"       => 200,
+            "data"       => $recorsArray,
+            "pagination" => (string) $records->links(),
+            "total"      => $records->total(),
+            "page"       => $records->currentPage(),
+        ]);
+        
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 }

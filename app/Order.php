@@ -100,6 +100,10 @@ class Order extends Model
 
     }
 
+    public function orderProducts(){
+        return $this->hasMany(OrderProduct::class, 'order_id', 'id')->where('product_id', '!=', 0);
+    }
+
     public function products(){
         return $this->belongsToMany(Product::class, OrderProduct::class, 'user_id', 'role_id');
     }

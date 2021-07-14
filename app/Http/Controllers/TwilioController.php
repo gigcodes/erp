@@ -1434,7 +1434,8 @@ class TwilioController extends FindByNumberController
                'forwarding_on' => $request->agent_id,
                'twilio_active_number_id' => $request->twilio_number_id
             ]);
-            $base_url = env('APP_URL');
+            // $base_url = env('APP_URL');
+            $base_url = config('env.APP_URL');
             //update webhook url on twilio console using api
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, 'https://api.twilio.com/2010-04-01/Accounts/'.$account_details->account_id.'/IncomingPhoneNumbers/'.$number_details->sid.'.json');

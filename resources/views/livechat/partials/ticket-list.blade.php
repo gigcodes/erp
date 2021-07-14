@@ -65,6 +65,7 @@
                 <button type="button" 
                         style="margin-left:6px;"
                         class="btn btn-xs btn-image load-communication-modal" 
+                        data-object="ticket"
                         data-id="{{$ticket->id}}">
                         <i class="fa fa-comments-o"></i>
                 </button>

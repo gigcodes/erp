@@ -26,7 +26,7 @@ Route::post('mailinglist/add', 'Api\v1\MailinglistController@add');
 *Routes added by Hitesh Ends
 **/ 
 
-
+Route::post('customer/add_customer_data', 'CustomerController@add_customer_data');//Purpose : Add Customer Data - DEVTASK-19932
 
 Route::get('scrape/queue', 'Products\ScrapeController@getUrlFromQueue');
 Route::get('scrape/process', 'Products\ScrapeController@processDataFromScraper');
@@ -95,6 +95,8 @@ Route::post('{client}/{numberFrom}/competitor','FacebookController@saveCompetito
 
 //Scrapped facebook users
 Route::post('facebook/scrape-user','FacebookController@apiPost');
+
+Route::post('facebook/post', 'FacebookController@facebookPost');
 
 Route::get('duty/v1/get-currencies', 'SimplyDutyCurrencyController@sendCurrencyJson');
 Route::get('duty/v1/get-countries', 'SimplyDutyCountryController@sendCountryJson');

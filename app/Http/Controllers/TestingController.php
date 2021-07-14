@@ -4,10 +4,51 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-
+use App\Category;
 
 class TestingController extends Controller
 {
+    // public function Demo(Request $request){
+
+    //     $unKnownCategory  = Category::where('title', 'LIKE', '%Unknown Category%')->first();
+        
+    // if ($unKnownCategory) {
+
+    //     $unKnownCatArr = array_unique(explode(',', $unKnownCategory->references));
+        
+    //     if (!empty($unKnownCatArr)) {
+            
+    //         $storeUnUserCategory = [];
+            
+    //         foreach ($unKnownCatArr as $key => $unKnownC) {
+                
+    //             $count = \App\Category::ScrapedProducts($unKnownC);
+    //             if ($count > 1) {
+                
+    //                 // echo "Added in  {$unKnownC} categories";
+    //                 // echo  PHP_EOL;
+                
+    //             }else{
+    //                 $storeUnUserCategory[] = $unKnownC;
+
+    //                 //$key = array_search ($unKnownC, $unKnownCatArr);
+                    
+    //                 unset($unKnownCatArr[$key]);
+                    
+    //                 // echo "removed from  {$unKnownC} categories";
+    //                 // echo  PHP_EOL;
+    //             }
+    //         }
+
+    //         $unKnownCategory->references      = implode(',',array_filter($unKnownCatArr));
+    //         $unKnownCategory->ignore_category = implode(',',array_filter($storeUnUserCategory));
+    //         $unKnownCategory->save();
+    //     }
+    // }
+    
+    // }
+
+
     public function testingFunction(Request $request)
     {
             $message = '<!DOCTYPE html>

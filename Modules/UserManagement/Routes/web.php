@@ -9,12 +9,23 @@
 | routes are loaded by the RouteServiceProvider within a group which
 | contains the "web" middleware group. Now create something great!
 |
-*/
+ */
 
+Route::prefix('user-management')->middleware('auth')->group(function () {
 
-Route::prefix('user-management')->middleware('auth')->group(function() {
     Route::get('/', 'UserManagementController@index')->name("user-management.index");
+
+    Route::get('/feedback-category/store', 'UserManagementController@addFeedbackCategory')->name("user.feedback-category");
+    Route::get('/feedback-status/store', 'UserManagementController@addFeedbackStatus')->name("user.feedback-status");
+    Route::get('/feedback-table/data', 'UserManagementController@addFeedbackTableData')->name("user.feedback-table-data");
+
+    // Route::get('/userfeedback','UserManagementController@cat_name');
+    // Route::post('/userfeedback','UserManagementController@cat_name')->name('user-management.insert');
+
     Route::post('/request-list', 'UserManagementController@permissionRequest')->name("user-management.permission.request");
+
+    Route::post('/request-delete', 'UserManagementController@deletePermissionRequest')->name("user-management.permission.delete.request.");
+
     Route::post('/task-activity', 'UserManagementController@taskActivity')->name("user-management.task.activity");
     Route::post('today-task-history', 'UserManagementController@todayTaskHistory')->name("user-management.today.task.history");
     Route::post('modifiy-permission', 'UserManagementController@modifiyPermission')->name("user-management.modifiy.permission");
@@ -36,8 +47,7 @@ Route::prefix('user-management')->middleware('auth')->group(function() {
     Route::get('/paymentInfo/{id}', 'UserManagementController@paymentInfo')->name("user-management.payment-info");
     Route::get('payments/{id}', 'UserManagementController@userPayments')->name("user-management.payments");
     Route::post('payments/{id}', 'UserManagementController@savePayments')->name("user-management.savePayments");
-    
-    
+
     Route::get('user-avaibility/{id}', 'UserManagementController@getPendingandAvalHour')->name("user-management.task-hours");
 
     Route::post('user-avaibility/submit-time', 'UserManagementController@saveUserAvaibility')->name("user-management.user-avaibility.submit-time");
@@ -61,9 +71,8 @@ Route::prefix('user-management')->middleware('auth')->group(function() {
     Route::post('{id}/choose-database', 'UserManagementController@chooseDatabase')->name("user-management.choose-database");
     Route::post('/update-status', 'UserManagementController@updateStatus');
 
-
     Route::post('/user-generate-file-store', 'UserManagementController@userGenerateStorefile')->name("user-management.gent-file-store");
 
-    Route::get('/user-generate-file-listing/{userid}','UserManagementController@userPemfileHistoryListing')->name("user-management-pem-history-list");
-    Route::post('/delete-pem-file/{id}','UserManagementController@deletePemFile')->name("user-management-delete-pem-file");
+    Route::get('/user-generate-file-listing/{userid}', 'UserManagementController@userPemfileHistoryListing')->name("user-management-pem-history-list");
+    Route::post('/delete-pem-file/{id}', 'UserManagementController@deletePemFile')->name("user-management-delete-pem-file");
 });

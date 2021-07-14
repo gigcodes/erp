@@ -62,9 +62,11 @@ class DevelopmentController extends Controller
     {
         //  $this->middleware( 'permission:developer-tasks', [ 'except' => [ 'issueCreate', 'issueStore', 'moduleStore' ] ] );
         $this->githubClient = new Client([
-            'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
+            'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
         ]);
-        $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+        // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+        $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
     }
     /*public function index_bkup(Request $request)
     {
@@ -474,7 +476,7 @@ class DevelopmentController extends Controller
         // });
 
         // Set variables with modules and users
-        $modules = DeveloperModule::all();
+        $modules = DeveloperModule::orderBy('name')->get();
         
         $usrlst = User::orderBy('name')->where('is_active',1)->get();
         $users = Helpers::getUserArray($usrlst);
@@ -807,11 +809,13 @@ class DevelopmentController extends Controller
         $issues = $issues->select("developer_tasks.*","chat_messages.message");
 
         // Set variables with modules and users
-        $modules = DeveloperModule::all();
-        $users = Helpers::getUserArray(User::all());
+        $modules = DeveloperModule::orderBy('name')->get();
+
+        $users = Helpers::getUserArray(User::orderBy('name')->get());
+        
         // $statusList = \DB::table("developer_tasks")->where("status", "!=", "")->groupBy("status")->select("status")->pluck("status", "status")->toArray();
 
-        $statusList = \DB::table("task_statuses")->select("name")->pluck("name", "name")->toArray();
+        $statusList = \DB::table("task_statuses")->select("name")->orderBy('name')->pluck("name", "name")->toArray();
 
         $statusList = array_merge([
             "" => "Select Status",
@@ -1118,7 +1122,8 @@ class DevelopmentController extends Controller
             if ($hubstaffUserId) {
                 $body['assignee_id'] = $hubstaffUserId;
             } else {
-                $body['assignee_id'] = getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID');
+                // $body['assignee_id'] = getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID');
+                $body['assignee_id'] = config('env.HUBSTAFF_DEFAULT_ASSIGNEE_ID');
             }
 
             $response = $httpClient->post(
@@ -1205,7 +1210,7 @@ class DevelopmentController extends Controller
         $this->validate($request, [
             'subject' => 'sometimes|nullable|string',
             'task' => 'required|string|min:3',
-            'cost' => 'sometimes|nullable|integer',
+            //'cost' => 'sometimes|nullable|integer',
             'status' => 'required',
             'repository_id' => 'required',
             'module_id' => 'required',
@@ -1213,7 +1218,8 @@ class DevelopmentController extends Controller
         ]);
         
         $data = $request->except('_token');
-        $data['hubstaff_project'] = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+        // $data['hubstaff_project'] = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+        $data['hubstaff_project'] = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 
         $data['user_id'] = $request->user_id ? $request->user_id : Auth::id();
         //$data[ 'responsible_user_id' ] = $request->user_id ? $request->user_id : Auth::id();
@@ -1256,14 +1262,14 @@ class DevelopmentController extends Controller
 
 
 
-        if ($request->hasfile('images')) {
-            foreach ($request->file('images') as $image) {
-                $media = MediaUploader::fromSource($image)
-                    ->toDirectory('developertask/' . floor($task->id / config('constants.image_per_folder')))
-                    ->upload();
-                $task->attachMedia($media, config('constants.media_tags'));
-            }
-        }
+        // if ($request->hasfile('images')) {
+        //     foreach ($request->file('images') as $image) {
+        //         $media = MediaUploader::fromSource($image)
+        //             ->toDirectory('developertask/' . floor($task->id / config('constants.image_per_folder')))
+        //             ->upload();
+        //         $task->attachMedia($media, config('constants.media_tags'));
+        //     }
+        // }
 
         // CREATE GITHUB REPOSITORY BRANCH
         $newBranchName = $this->createBranchOnGithub(
@@ -1379,7 +1385,13 @@ class DevelopmentController extends Controller
         if (!isset($reference)) {
             $reference = null;
         }
-        $module = DeveloperModule::find($module);
+        
+        if(is_string($module)) {
+            $module = DeveloperModule::where("name","like",$module)->first();
+        }else{
+            $module = DeveloperModule::find($module);
+        }
+
         if (!$module) {
             $module = new DeveloperModule();
             $module->name = $request->get('module');
@@ -1837,7 +1849,8 @@ class DevelopmentController extends Controller
 
         // $hubstaffUser = HubstaffMember::where('user_id', $request->get('assigned_to'))->first();
 
-        $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+        // $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+        $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 
         $assignedUser = HubstaffMember::where('user_id', $request->get('assigned_to'))->first();
 
@@ -1923,7 +1936,8 @@ class DevelopmentController extends Controller
         $issue->save();
 
 
-        $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+        // $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+        $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 
         $assignedUser = HubstaffMember::where('user_id', $masterUserId)->first();
         $hubstaffUserId = null;
@@ -2035,7 +2049,9 @@ class DevelopmentController extends Controller
         $issue->save();
 
 
-        $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+        // $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+        $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+
         $assignedUser = HubstaffMember::where('user_id', $tester_id)->first();
 
         $hubstaffUserId = null;
@@ -2152,6 +2168,7 @@ class DevelopmentController extends Controller
 
     public function resolveIssue(Request $request)
     {
+        
         $issue = DeveloperTask::find($request->get('issue_id'));
         if($issue->is_resolved == 1) {
             return response()->json([
@@ -2160,6 +2177,7 @@ class DevelopmentController extends Controller
         }
         if (strtolower($request->get('is_resolved')) == "done") {
             if(Auth::user()->isAdmin()) {
+                $old_status = $issue->status;
                 $issue->status = $request->get('is_resolved');
                 $assigned_to = User::find($issue->assigned_to);
                 if($assigned_to && $assigned_to->fixed_price_user_or_job == 1) {
@@ -2183,6 +2201,17 @@ class DevelopmentController extends Controller
                 $issue->responsible_user_id = $issue->assigned_to;
                 $issue->is_resolved = 1;
                 $issue->save();
+                
+                DeveloperTaskHistory::create([
+                    'developer_task_id' => $issue->id,
+                    'model' => 'App\DeveloperTask',
+                    'attribute' => "task_status",
+                    'old_value' => $old_status,
+                    'new_value' => $request->is_resolved,
+                    'user_id' => Auth::id(),
+                ]);
+
+
             }
             else {
                 return response()->json([
@@ -2191,6 +2220,17 @@ class DevelopmentController extends Controller
             }
         }
         else {
+            $old_status = $issue->status;
+
+            DeveloperTaskHistory::create([
+                'developer_task_id' => $issue->id,
+                'model' => 'App\DeveloperTask',
+                'attribute' => "task_status",
+                'old_value' => $old_status,
+                'new_value' => $request->is_resolved,
+                'user_id' => Auth::id(),
+            ]);
+
             $issue->status = $request->get('is_resolved');
             $issue->save();
         }
@@ -2245,24 +2285,85 @@ class DevelopmentController extends Controller
             $history = DeveloperTaskHistory::find($request->approve_time);
             $history->is_approved = 1;
             $history->save();
+
+
+            $task = DeveloperTask::find($request->developer_task_id);
+            $time = $history->new_value !== null ? $history->new_value : $history->old_value;
+            $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' .  $time . ' MINS'; 
+            
             $user = User::find($request->user_id);
+            $admin = Auth::user(); 
+            $master_user = User::find($task->master_user_id);
+            $team_lead = User::find($task->team_lead_id);
+            $tester = User::find($task->tester_id);
+
             if($user){
-                $receiver_user_phone = $user->phone;
-                if($receiver_user_phone){
-                    $task = DeveloperTask::find($request->developer_task_id);
-                    $time = $history->new_value !== null ? $history->new_value : $history->old_value;
-                    $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' .  $time . ' MINS'; 
+                if($admin->phone){
                     $chat = ChatMessage::create([
-                        'number' => $receiver_user_phone,
+                        'number' => $admin->phone,
                         'user_id' => $user->id,
                         'customer_id' => $user->id,
                         'message' => $msg,
                         'status' => 0, 
                         'developer_task_id' => $request->developer_task_id
                     ]);
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+                }else if($user->phone){
+                    $chat = ChatMessage::create([
+                        'number' => $user->phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
+                }else if($master_user && $master_user->phone){
+                    $chat = ChatMessage::create([
+                        'number' => $master_user->phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
+                }else if($team_lead && $team_lead->phone){
+                    $chat = ChatMessage::create([
+                        'number' => $team_lead->phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
+                }else if($tester && $tester->phone){
+                    $chat = ChatMessage::create([
+                        'number' => $tester->phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
                 } 
-            } 
+                if($chat){ 
+                    if($admin->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($admin->phone, $admin->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if($user->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if($master_user && $master_user->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($master_user->phone, $master_user->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if($team_lead && $team_lead->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($team_lead->phone, $team_lead->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if($tester && $tester->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($tester->phone, $tester->whatsapp_number, $msg, false, $chat->id);
+                    } 
+                }
+            }
+ 
+
     }else{
             return response()->json([
                 'message' => 'Only admin can approve'
@@ -2659,8 +2760,10 @@ class DevelopmentController extends Controller
         // Get all task types
         $tasksTypes = TaskTypes::all();
         $moduleNames = [];
+        
         // Get all modules
-        $modules = DeveloperModule::all();
+        $modules = DeveloperModule::orderBy('name')->get();
+
         // Loop over all modules and store them
         foreach ($modules as $module) {
             $moduleNames[$module->id] = $module->name;
@@ -2669,7 +2772,11 @@ class DevelopmentController extends Controller
         // this is the ID for erp
         $defaultRepositoryId = 231925646;
         $respositories = GithubRepository::all();
-        $statusList = \DB::table("task_statuses")->select("name")->pluck("name", "name")->toArray();
+        $statusList = \DB::table("task_statuses")
+                    ->orderBy('name')
+                    ->select("name")
+                    ->pluck("name", "name")
+                    ->toArray();
 
         $statusList = array_merge([
             "" => "Select Status",
@@ -2753,7 +2860,7 @@ class DevelopmentController extends Controller
 
         if ($id > 0) {
 
-            $devDocuments = \App\DeveloperTaskDocument::where("developer_task_id", $id)->get();
+            $devDocuments = \App\DeveloperTaskDocument::where("developer_task_id", $id)->latest()->get();
 
             $html = view('development.ajax.document-list', compact("devDocuments"))->render();
 
@@ -2815,6 +2922,17 @@ class DevelopmentController extends Controller
         return 'error';
     }
 
+    
+    public function getStatusHistory(Request $request)
+    {
+        $id = $request->id;
+        $task_module = DeveloperTaskHistory::join('users','users.id','developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model','App\DeveloperTask')->where('attribute','task_status')->select('developer_tasks_history.*','users.name')->get();
+        if($task_module) {
+            return $task_module;
+        }
+        return 'error';
+    }
+
     public function getTrackedHistory(Request $request)
     {
         $id = $request->id;
@@ -2845,7 +2963,8 @@ class DevelopmentController extends Controller
             else {
                 $user_id = $task->master_user_id;
             }
-            $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+            // $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+            $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 
             $assignedUser = HubstaffMember::where('user_id', $user_id)->first();
 
