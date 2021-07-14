@@ -123,7 +123,7 @@ class HubstaffActivitiesController extends Controller
             $hours = floor(abs($difference) / 3600);
             $minutes = sprintf("%02d", floor((abs($difference) / 60) % 60));
 
-            $latest_message = \App\ChatMessage::where('user_id',$row->id)->latest('message')->first();
+            $latest_message = \App\ChatMessage::where('user_id',$row->user_id)->where('hubstuff_activity_user_id','!=', null)->orderBy('id', 'DESC')->first();
             $latest_msg = null;
             if($latest_message){
                 $latest_msg = $latest_message->message;

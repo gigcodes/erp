@@ -120,7 +120,7 @@
 		var data = new FormData();
 		var hubstuff_id = $(this).data('hubstuffid');
 
-		var message = $("#messageid_"+hubstuff_id).val();
+		var message = $(this).parents('.hubstaff_chat_message').find("#messageid_"+hubstuff_id).val();
 
 		data.append("hubstuff_id", hubstuff_id);
 		data.append("message", message);
@@ -144,12 +144,12 @@
 					if(message.length > 30)
 					{
 						var res_msg = message.substr(0, 27)+"..."; 
-						$("#message-chat-txt-"+hubstuff_id).html(res_msg);
+						$(thiss).parents('td').find("#message-chat-txt-"+hubstuff_id).text(res_msg);
 						$("#message-chat-fulltxt-"+hubstuff_id).html(message);    
 					}
 					else
 					{
-						$("#message-chat-txt-"+hubstuff_id).html(message); 
+						$(thiss).parents('td').find("#message-chat-txt-"+hubstuff_id).text(message);
 						$("#message-chat-fulltxt-"+hubstuff_id).html(message);      
 					}
 					
