@@ -32,14 +32,14 @@ padding: 3px 2px;
 <table class="table table-bordered chatbot page-template-{{ $page }}">
     <thead>
     <tr>
-        <th width="2%"># Name</th>
+        <th width="5%"># Name</th>
         <th width="5%">Website</th>
-        <th width="11%">User input</th>
-        <th width="11%">Bot Replied</th>
-        <th width="26%">Message Box</th>
+        <th width="10%">User input</th>
+        <th width="10%">Bot Replied</th>
+        <th width="15%">Message Box</th>
         <th width="5%">From</th>
-        <th width="35%">Shortcuts</th>
-        <th width="5%">Action</th>
+        <th width="10%">Shortcuts</th>
+        <th width="10%">Action</th>
 
     </tr>
     </thead>
@@ -138,37 +138,27 @@ padding: 3px 2px;
         </td>
         <td class="boat-replied">{{ $pam->reply_from }}</td>
         <td style="/*padding: 5px 7px;*/" class="communication">
-            <div class="row">
-                <div class="col-6 d-inline form-inline">
-                    <input style="width: calc(100% - 35px)" type="text" name="category_name" placeholder="Enter New Category" class="form-control mb-2 quick_category">
-                    <button class="btn btn-secondary quick_category_add" style="position: absolute;  margin-left: 8px;background: #fff;border: 1px solid #ccc; color: #757575;font-size: 23px;padding: 0px 9px;">+</button>
+            <div class="col-12 d-inline form-inline">
+                <div style="float:left;width: calc(100% - 20px)">
+                    <select name="quickCategory" class="form-control mb-2 quickCategory select-quick-category">
+                        <option value="">Select Category</option>
+                        @foreach($reply_categories as $category)
+                            <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
-                <div class="col-6 d-inline form-inline" style="padding-left: 0px;">
-                    <div style="float:left;width: calc(100% - 20px)">
-                        <select name="quickCategory" class="form-control mb-2 quickCategory">
-                            <option value="">Select Category</option>
-                            @foreach($reply_categories as $category)
-                                <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div style="float:right;width: 18px;">
-                        <a style="padding: 5px 0;" class="btn btn-image delete_category"><img src="/images/delete.png"></a>
-                    </div>
+                <div style="float:right;width: 18px;">
+                    <a style="padding: 5px 0;" class="btn btn-image delete_category"><img src="/images/delete.png"></a>
                 </div>
-                <div class="col-6 d-inline form-inline">
-                    <input style="width: calc(100% - 35px)" type="text" name="quick_comment" placeholder="Enter New Quick Comment" class="form-control  quick_comment">
-                    <button class="btn btn-secondary quick_comment_add" style="position: absolute;  margin-left: 8px;background: #fff;border: 1px solid #ccc; color: #757575;font-size: 23px;padding: 0px 9px;">+</button>
+            </div>
+            <div class="col-12 d-inline form-inline ">
+                <div style="float: left; width:calc(100% - 20px)" class="mt-2">
+                    <select name="quickComment" class="form-control quickComment select-quick-reply">
+                        <option value="">Quick Reply</option>
+                    </select>
                 </div>
-                <div class="col-6 d-inline form-inline" style="padding-left: 0px;">
-                    <div style="float: left; width:calc(100% - 20px)">
-                        <select name="quickComment" class="form-control quickComment">
-                            <option value="">Quick Reply</option>
-                        </select>
-                    </div>
-                    <div style="float: right;width: 18px;">
-                        <a style="padding: 5px 0;" class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>
-                    </div>
+                <div style="float: right;width: 18px;">
+                    <a style="padding: 5px 0;" class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>
                 </div>
             </div>
         </td>
