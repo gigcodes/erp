@@ -5,7 +5,7 @@
 		      <tr>
 		      	<th style="width:3%;"><input type="checkbox" class="select-all-records"></th>
 		        <th style="width:5%;">ID</th>
-		        <th style="width:6%;">Customer</th>
+		        <th style="width:8%;">Customer</th>
 		        <th style="width:5%;">Product</th>
 				<th style="width:5%;">Website</th>
 		        <th style="width:5%;">Type</th>
@@ -14,8 +14,8 @@
 		        <th style="width:5%;">Status</th>
 				<!-- <th>Change Status</th> -->
 		        <th style="width:5%;">Pickup Address</th>
-		        <th style="width:5%;">Refund details</th>
-		        <th style="width:17%;">Est Refund / Ex. date</th>
+		        <th style="width:6%;">Refund details</th>
+		        <th style="width:14%;">Est Refund / Ex. date</th>
 		        <th style="width:5%;">Remarks</th>
 		        <th style="width:5%;">Created At</th>
 		        <th style="width:19%;">Action</th>
@@ -113,8 +113,9 @@
 			    {{/props}}  
 		    </tbody>
 		</table>
-		{{:pagination}}
+
 	</div>
+	{{:pagination}}
 </script>
 <script type="text/x-jsrender" id="template-history-block">
 	<div class="modal-content">
