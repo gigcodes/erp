@@ -144,22 +144,24 @@ class scrapperPhyhon extends Controller
     public function listImages(Request $request){
 
         $store_id = $request->id;
-//        $list =  Website::where('id',$website_id)->first();
-//dd($list, $website_id);
+
         $oldDate = null;
         $count   = 0;
         $images = [];
-        // dd( $list->store_website_id );
+        
+        $webStore = \App\WebsiteStore::where('id',$store_id)->first();
+        $list =  Website::where('id',$webStore->website_id)->first();
+        $website_id = $list->id;
 
-            $webStore = \App\WebsiteStore::where('id',$store_id)->first();
-                $list =  Website::where('id',$webStore->website_id)->first();
-                $website_id = $list->id;
         if( $webStore ){
+
             $website_store_views = \App\WebsiteStoreView::where('website_store_id',$webStore->id)->first();
-//            dd($list->store_website_id);
-//            dd($list->store_website_id);
+
                 if( $website_store_views ){
-                    $images = \App\scraperImags::where('store_website',$list->store_website_id)->where('website_id',$request->code)->get()->toArray();
+                    $images = \App\scraperImags::where('store_website',$list->store_website_id)
+                    ->where('website_id',$request->code) // this is language code. dont be confused with column name
+                    ->get()
+                    ->toArray();
                 }
             }
 
@@ -241,7 +243,8 @@ class scrapperPhyhon extends Controller
             return response()->json(["code" => 500, "message" => 'Invalid request',"error" => $validator->errors()]);
         }
 
-        $StoreWebsite = \App\StoreWebsite::where('website',$request->store_website)->first();
+        $StoreWebsite = \App\StoreWebsite::where('magento_url',$request->store_website)->first();
+        
         if( $this->saveBase64Image( $request->image_name,  $request->image ) ){
 
             $newImage = array(
