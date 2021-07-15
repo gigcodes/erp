@@ -2054,7 +2054,7 @@ class TaskModuleController extends Controller {
 			'task_subject'	=> 'required',
 			'task_detail'	=> 'required',
 			'task_asssigned_to' => 'required_without:assign_to_contacts',
-			'cost'=>'sometimes|integer'
+			//'cost'=>'sometimes|integer'
 		]);
 		$data['assign_from'] = Auth::id();
 		$data['status'] = 3;

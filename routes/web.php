@@ -123,6 +123,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     //TODO::Magento Product API call Route
     Route::get('magento-product-api-call', 'Logging\LogListMagentoController@showMagentoProductAPICall')->name('logging.magento.product.api.call');
     Route::post('magento-product-skus-ajax', 'Logging\LogListMagentoController@getMagentoProductAPIAjaxCall')->name('logging.magento.product.api.ajax.call');
+    Route::get('get-latest-product-for-push', 'Logging\LogListMagentoController@getLatestProductForPush')->name('logging.magento.get-latest-product-for-push');
 });
 
 Route::get('log-scraper-api', 'Logging\LogScraperController@scraperApiLog')->middleware('auth')->name('log-scraper.api');
@@ -583,6 +584,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
                 Route::post('/', 'ContentManagementController@saveRemarks')->name("content-management.saveRemarks");
             });
         });
+        Route::get('newsletter-email/store', 'ContentManagementController@emailStore')->name("content-management.emailStore");
 
 
         Route::prefix('contents')->group(function () {
@@ -1267,6 +1269,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
     Route::post('development/reminder', 'DevelopmentController@updateDevelopmentReminder');
+    Route::post('log_status/change/{id}', 'MagentoProductPushErrors@changeStatus');
+    Route::post('log_history/list/{id}', 'MagentoProductPushErrors@getHistory');
 
 
     Route::get('development/list', 'DevelopmentController@issueTaskIndex')->name('development.issue.index');
@@ -3201,6 +3205,7 @@ Route::prefix('magento-product-error')->middleware('auth')->group(static functio
     Route::post('/loadfiled', 'MagentoProductPushErrors@getLoadDataValue');
 
     Route::get('/download', 'MagentoProductPushErrors@groupErrorMessage')->name('magento_product_today_common_err');
+    Route::get('/magento_product_today_common_err_report', 'MagentoProductPushErrors@groupErrorMessageReport')->name('magento_product_today_common_err_report');//Purpose : Add Route for get Data - DEVTASK-20123
 });
 
 Route::prefix('message-queue-history')->middleware('auth')->group(static function () {

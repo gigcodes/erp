@@ -4,6 +4,7 @@
 @section('title', 'Message List | Chatbot')
 
 @section('content')
+
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="/css/dialog-node-editor.css">
     <style type="text/css">
@@ -19,18 +20,21 @@
             width: 15px;
             height: 15px;
         }
+        form.chatbot .col{
+            flex-grow: unset !important;
+        }
     </style>
-    <div class="row">
-        <div class="col-lg-12 margin-tb">
+    <div class="row m-0">
+        <div class="col-lg-12 margin-tb p-0">
             <h2 class="page-heading">Message List | Chatbot</h2>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-12 margin-tb" style="margin-bottom: 10px;">
+    <div class="row m-0">
+        <div class="col-lg-12 margin-tb pl-3 pr-3" style="margin-bottom: 10px;">
             <div class="pull-left">
                 <div class="form-inline">
-                    <form method="get">
+                    <form method="get" class="chatbot">
                         <div class="row">
 
 
@@ -38,7 +42,7 @@
                                 <?php echo Form::text("search", request("search", null), ["class" => "form-control", "placeholder" => "Enter input here.."]); ?>
                             </div>
                             <div class="col">
-                                <select name="status" class="chatboat-message-status form-control">
+                                <select style="width: 130px !important" name="status" class="chatboat-message-status form-control">
                                     <option value="">Select Status</option>
                                     <option value="1" {{request()->get('status') == '1' ? 'selected' : ''}}>
                                         Approved
@@ -71,7 +75,7 @@
                             </div>
                             <!-- END - DEVATSK=4350 -->
 
-                            <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
+                            <button type="submit" style="display: inline-block;width: auto" class="btn btn-sm btn-image">
                                 <img src="/images/search.png" style="cursor: default;">
                             </button>
                         </div>
@@ -95,8 +99,8 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-12">
+    <div class="row m-0">
+        <div class="col-md-12 pl-3 pr-3">
             <div class="table-responsive-lg" id="page-view-result">
                 @include("chatbot::message.partial.list")
             </div>

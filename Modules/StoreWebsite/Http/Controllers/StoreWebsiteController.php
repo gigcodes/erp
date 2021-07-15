@@ -19,6 +19,9 @@ use App\StoreWebsiteUsers;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\ProductCancellationPolicie;
+use App\StoreWebsiteUserHistory;
+
+
 class StoreWebsiteController extends Controller
 {
 
@@ -145,6 +148,7 @@ class StoreWebsiteController extends Controller
 
     public function saveUserInMagento(Request $request) {
         
+
         $post = $request->all();
         $validator = Validator::make($post, [
             'username'   => 'required',
@@ -202,9 +206,28 @@ class StoreWebsiteController extends Controller
             $getUser->website_mode = $post['websitemode'];
             $getUser->save();
 
-            $magentoHelper = new MagentoHelperv2();
-            $result = $magentoHelper->updateMagentouser($storeWebsite, $post);
-            return response()->json(["code" => 200, "messages" => 'User details updated Sucessfully']);
+            StoreWebsiteUserHistory::create([
+                'store_website_id' => $getUser->store_website_id,
+                'store_website_user_id' => $getUser->id,
+                'model' => 'App\StoreWebsiteUsers',
+                'attribute' => "username_password",
+                'old_value' => 'updated',
+                'new_value' => 'updated',
+                'user_id' => Auth::id(),
+            ]);
+
+
+            if($getUser->is_deleted == 0){
+                $magentoHelper = new MagentoHelperv2();
+                $result = $magentoHelper->updateMagentouser($storeWebsite, $post);
+                return response()->json(["code" => 200, "messages" => 'User details updated Sucessfully']);
+            }else{
+                return response()->json(["code" => 200, "messages" => 'User details updated Sucessfully']);
+            }
+
+            
+
+
         } else {
             $params['username'] = $post['username'];
             $params['first_name'] = $post['firstName'];
@@ -213,7 +236,8 @@ class StoreWebsiteController extends Controller
             $params['password'] = $post['password'];
             $params['store_website_id'] = $post['store_id'];
             $params['website_mode'] = $post['websitemode'];
-            StoreWebsiteUsers::create($params);
+            
+            $StoreWebsiteUsersid = StoreWebsiteUsers::create($params);
 
             if($post['userEmail'] && $post['password']) {
                 $message = 'Email: '.$post['userEmail'].', Password is: ' . $post['password'];
@@ -224,21 +248,46 @@ class StoreWebsiteController extends Controller
 
             $magentoHelper = new MagentoHelperv2();
             $result = $magentoHelper->addMagentouser($storeWebsite, $post);
+            
+            StoreWebsiteUserHistory::create([
+                'store_website_id' => $StoreWebsiteUsersid->store_website_id,
+                'store_website_user_id' => $StoreWebsiteUsersid->id,
+                'model' => 'App\StoreWebsiteUsers',
+                'attribute' => "username_password",
+                'old_value' => 'new_added',
+                'new_value' => 'new_added',
+                'user_id' => Auth::id(),
+            ]);    
+
+
             return response()->json(["code" => 200, "messages" => 'User details saved Sucessfully']);
         }
     }
 
     public function deleteUserInMagento(Request $request) {
-        $post = $request->all();
-        $getUser = StoreWebsiteUsers::where('id',$post['store_website_userid'])->first();
+        
+        $post     = $request->all();
+        $getUser  = StoreWebsiteUsers::where('id',$post['store_website_userid'])->first();
         $username = $getUser->username;
         $getUser->is_deleted = 1;
         $getUser->save();
 
         $storeWebsite = StoreWebsite::find($getUser->store_website_id);
-
+        
         $magentoHelper = new MagentoHelperv2();
         $result = $magentoHelper->deleteMagentouser($storeWebsite, $username);
+        
+
+        StoreWebsiteUserHistory::create([
+            'store_website_id' => $getUser->store_website_id,
+            'store_website_user_id' => $getUser->id,
+            'model' => 'App\StoreWebsiteUsers',
+            'attribute' => "username_password",
+            'old_value' => 'delete',
+            'new_value' => 'delete',
+            'user_id' => Auth::id(),
+        ]);    
+
         return response()->json(["code" => 200, "messages" => 'User Deleted Sucessfully']);
     }
 
@@ -251,9 +300,18 @@ class StoreWebsiteController extends Controller
     public function edit(Request $request, $id)
     {
         $storeWebsite = StoreWebsite::where("id", $id)->first();
-        $storewebsiteusers = StoreWebsiteUsers::where('store_website_id',$id)->where('is_deleted',0)->get();
+
+        //->where('is_deleted',0)
+
+        $storewebsiteusers = StoreWebsiteUsers::where('store_website_id',$id)->get();
+        
         if ($storeWebsite) {
-            return response()->json(["code" => 200, "data" => $storeWebsite,"userdata" => $storewebsiteusers, "totaluser" => count($storewebsiteusers)]);
+            return response()->json([
+                "code" => 200, 
+                "data" => $storeWebsite,
+                "userdata" => $storewebsiteusers, 
+                "totaluser" => count($storewebsiteusers)]
+            );
         }
 
         return response()->json(["code" => 500, "error" => "Wrong site id!"]);
@@ -606,6 +664,29 @@ class StoreWebsiteController extends Controller
     {
         $users = StoreWebsiteUsers::where('is_deleted',0)->get();
         return response()->json(["code" => 200, "data" => $users]);
+    }
+
+    public function userHistoryList(Request $request)
+    {
+        $histories = StoreWebsiteUserHistory::with('websiteuser','storewebsite')
+            ->where('store_website_id',$request->id)
+            ->latest()
+            ->get();
+
+        $resultArray = [];
+
+        foreach($histories as $history){
+            $resultArray[] = [
+                'date'         => $history->created_at->format('Y-m-d H:i:s'),
+                'website_mode' => $history->websiteuser->website_mode,
+                'username'     => $history->websiteuser->username,
+                'first_name'   => $history->websiteuser->first_name,
+                'last_name'    => $history->websiteuser->last_name,
+                'action'       => $history->new_value,
+            ];
+        }
+
+        return response()->json(["code" => 200, "data" => $resultArray]);
     }
 
 }
