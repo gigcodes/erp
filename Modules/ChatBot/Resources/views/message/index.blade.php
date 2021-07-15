@@ -127,6 +127,76 @@
     <script type="text/javascript" src="/js/jsrender.min.js"></script>
     <script type="text/javascript" src="/js/common-helper.js"></script>
     <script type="text/javascript">
+
+        var callQuickCategory = function () {
+            $(".select-quick-category").select2({tags:true,"width" : 200}).on("change",function(e){
+                var $this = $(this);
+                var id = $this.select2({tags:true,"width" : 200}).find(":selected").data("id");
+                if(id == undefined) {
+                    //siteHelpers.quickCategoryAdd($this);
+                    var params = {
+                        method : 'post',
+                        data : {
+                            _token : $('meta[name="csrf-token"]').attr('content'),
+                            name : $this.val()
+                        },
+                        url: "/add-reply-category"
+                    };
+                    siteHelpers.sendAjax(params,"afterQuickCategoryAdd");
+                }else{
+                    var replies = JSON.parse($this.val());
+                        $this.closest(".communication").find('.quickComment').empty();
+                        $this.closest(".communication").find('.quickComment').append($('<option>', {
+                            value: '',
+                            text: 'Quick Reply'
+                        }));
+                        replies.forEach(function (reply) {
+                            $this.closest(".communication").find('.quickComment').append($('<option>', {
+                                value: reply.reply,
+                                text: reply.reply,
+                                'data-id': reply.id
+                            }));
+                        });
+                }
+            });
+        }
+
+
+        var callCategoryComment = function () {
+            $(".select-quick-reply").select2({tags:true,"width" : 200}).on("change",function(e){
+                var $this = $(this);
+                var id = $this.select2({tags:true,"width" : 200}).find(":selected").data("id");
+                if(id == undefined) {
+                    var quickCategory = $this.closest(".communication").find(".quickCategory");
+                    
+                    if (quickCategory.val() == "") {
+                        alert("Please Select Category!!");
+                        return false;
+                    }
+                    var quickCategoryId = quickCategory.children("option:selected").data('id');
+                    var formData = new FormData();
+                    formData.append("_token", $('meta[name="csrf-token"]').attr('content'));
+                    formData.append("reply", $this.val());
+                    formData.append("category_id", quickCategoryId);
+                    formData.append("model", 'Approval Lead');
+                    var params = {
+                        method : 'post',
+                        data : formData,
+                        url: "/reply"
+                    };
+                    siteHelpers.sendFormDataAjax(params,"afterQuickCommentAdd");
+                    $this.closest('.customer-raw-line').find('.quick-message-field').val($this.val());
+
+                }else{
+                    $this.closest('.customer-raw-line').find('.quick-message-field').val($this.val());
+                }
+            });
+        }
+
+        callQuickCategory();
+        callCategoryComment();
+
+
         $(document).on("click", ".approve-message", function () {
             var $this = $(this);
             $.ajax({
@@ -428,8 +498,7 @@
                 siteHelpers.sendAjax(params,"afterQuickCategoryAdd");
             },
             afterQuickCategoryAdd : function(response) {
-                $(".quick_category").val('');
-                $(".quickCategory").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
+                callQuickCategory();
             },
             deleteQuickCategory : function(ele) {
                 var quickCategory = ele.closest(".communication").find(".quickCategory");
@@ -495,11 +564,12 @@
                 siteHelpers.sendFormDataAjax(params,"afterQuickCommentAdd");
             },
             afterQuickCommentAdd : function(reply) {
-                $(".quick_comment").val('');
+                /*$(".quick_comment").val('');
                 $('.quickComment').append($('<option>', {
                     value: reply,
                     text: reply
-                }));
+                }));*/
+                callCategoryComment();
             },
             changeQuickCategory : function (ele) {
                 if (ele.val() != "") {
@@ -520,7 +590,11 @@
             },
             changeQuickComment : function (ele) {
                 ele.closest('.customer-raw-line').find('.quick-message-field').val(ele.val());
+            },
+            pageReload : function() {
+                location.reload();
             }
+
         };
         $.extend(siteHelpers, common)
 
@@ -536,12 +610,12 @@
         $(document).on('click', '.quick_comment_add', function () {
             siteHelpers.quickCommentAdd($(this));
         });
-        $(document).on('change', '.quickCategory', function () {
+        /*$(document).on('change', '.quickCategory', function () {
             siteHelpers.changeQuickCategory($(this));
-        });
-        $(document).on('change', '.quickComment', function () {
+        });*/
+        /*$(document).on('change', '.quickComment', function () {
             siteHelpers.changeQuickComment($(this));
-        });
+        });*/
     
 
     </script>
