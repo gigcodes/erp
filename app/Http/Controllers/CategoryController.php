@@ -14,6 +14,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class CategoryController extends Controller
 {
@@ -31,18 +32,17 @@ class CategoryController extends Controller
      */
     public function manageCategory(Request $request)
     {
+
         $category_segments = CategorySegment::where('status', 1)->get()->pluck('name', 'id');
-        $categories        = Category::where('parent_id', '=', 0)->withCount('childs')->get();
+        $categories        = Category::with(['childs.childs.childs.childs','parentC.parentC.parentC.parentC'])->orderBy('parent_id')->get();
         $allCategories     = Category::pluck('title', 'id')->all();
 
         $selected_value  = $request->filter;
 
-     if(isset($request->filter)){
+        if(isset($request->filter)){
             $categories        = Category::withCount('childs');
 
           $categories=  $categories->where('title','like','%'.$request->filter.'%')->get();
-
-
 
         $final_cat = [];
 
@@ -95,8 +95,8 @@ class CategoryController extends Controller
 
         $old = $request->old('parent_id');
 
-        $allCategoriesDropdown = Category::attr(['name' => 'parent_id', 'class' => 'form-control'])
-            ->selected($old ? $old : 1)
+        $allCategoriesDropdown = Category::attr(['name' => 'parent_id', 'class' => 'form-control' ])
+            ->selected()
             ->renderAsDropdown();
 
         $allCategoriesDropdownEdit = Category::attr(['name' => 'edit_cat', 'class' => 'form-control'])
@@ -870,7 +870,7 @@ class CategoryController extends Controller
 
     public function childCategory(Request $request)
     {
-             $cat = Category::with('childs.childLevelSencond')->find($request->subCat);
+             $cat = Category::with('childs')->find($request->subCat);
             $childs = $cat->childs;
 
              if($childs){
@@ -894,37 +894,54 @@ class CategoryController extends Controller
     }
     public function updateCategory(Request $request,$id)
     {
-            $this->validate($request, [
-                'title'       => 'required',
-                'magento_id'  => 'required|numeric',
-                'show_all_id' => 'numeric|nullable',
-            ]);
-
             $category = Category::find($id);
 
-            $category->title       = $request->input('title');
-            $category->magento_id  = $request->input('magento_id');
-            $category->show_all_id = $request->input('show_all_id');
-            $category->need_to_check_measurement = $request->need_to_check_measurement ? 1 :0;
-            $category->need_to_check_size = $request->need_to_check_size ? 1 :0;
+            if ($request->has('title')) {
+            
+                $category->title       = $request->input('title');
+            $category->save();
+            // return redirect()->back();
+            return response()->json(['success-remove'=> $category->title . 'category Updated']);
+
+            }
+
+            if ($request->has('magento_id')) {
+                $category->magento_id  = $request->input('magento_id');
+            $category->save();
+            // return redirect()->back();
+            return response()->json(['success-remove'=> $category->title . 'category Updated']);
+            
+            }
+
+            if ($request->has('show_all_id')) {
+                $category->show_all_id = $request->input('show_all_id');
+                $category->save();
+                // return redirect()->back();
+                return response()->json(['success-remove'=> $category->title . 'category Updated']);
+            
+            }
+
+            if ($request->has('parent_id')) {
+                $category->parent_id = $request->parent_id;
+                $category->save();
+                return response()->json(['success-remove'=> $category->title . 'category Updated']);
+
+            }
+
             if ($request->has('category_segment_id')) {
                 $category->category_segment_id = $request->category_segment_id;
-            }
+                $category->save();
+                // return redirect()->back();
+                return response()->json(['success-remove'=> $category->title . 'category Updated']);
 
-            $category->save();
-
-            if($category){
-                return response()->json($category);
-            }else{
-                return false;
             }
-            //  $cat = Category::with(['childs.childLevelSencond','categorySegmentId'])->find($request->dataId);
             
-            //  if($cat){
-            //      return response()->json($cat);
-            //  }else{
-            //      return false;
-            //  }
+            $category->need_to_check_measurement = $request->need_to_check_measurement ? 1 :0;
+            $category->need_to_check_size = $request->need_to_check_size ? 1 :0;
+
+                $category->save();
+                return response()->json(['success-remove'=> $category->title . 'category Updated']);
+
     }
 
     public function updateMinMaxPriceDefault()
