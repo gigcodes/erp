@@ -55,7 +55,7 @@
             <td>
                 <div class="row">
                     <div class="col-md-12 mb-1">
-                        <select style="margin-top: 5px;" class="form-control save-item-select developer assign-to select2" data-category="{{ $category->id }}" data-type="developer" data-site="@if($site){{ $site->id }}@endif" name="developer_id" id="user-@if($site){{ $site->id }}@endif">
+                        <select style="margin-top: 5px;" class="form-control save-item-select developer assign-to select2 selected-developer-account" data-category="{{ $category->id }}" data-type="developer" data-site="@if($site){{ $site->id }}@endif" name="developer_id" id="user-@if($site){{ $site->id }}@endif">
                             <option value="">Select Developer</option>
                             @foreach($users as $user)
                             <option value="{{ $user->id }}" @if($site && $site->developer_id == $user->id) selected @endif >{{ $user->name }}</option>
@@ -185,7 +185,7 @@
                 @php
                     $websitenamestr = ($website) ? $website->title : "";
                 @endphp
-                <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task pd-5" data-id="@if($site){{ $site->id }}@endif" data-title="@if($site){{ $websitenamestr.' '.$site->title }}@endif"><img style="width:12px !important;" src="/images/add.png" /></button>
+                <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task pd-5" data-id="@if($site){{ $site->id }}@endif" data-development="{{ $category->title }}" data-title="@if($site){{ $websitenamestr.' '.$category->title.' '.$site->title }}@endif"><img style="width:12px !important;" src="/images/add.png" /></button>
                 <button style="padding-left: 0;float: right;padding-right:0px;" type="button" class="btn btn-image d-inline count-dev-customer-tasks" title="Show task history" data-id="@if($site){{ $site->id }}@endif"><i class="fa fa-info-circle"></i></button>
                 @endif
                 <button class="btn btn-image d-inline create-quick-task pd-5">
