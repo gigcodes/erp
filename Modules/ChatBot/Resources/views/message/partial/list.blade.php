@@ -23,23 +23,42 @@
 padding: 3px 2px;
         }
     }
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #ddd !important;
+    }
+    .d-inline.form-inline .select2-container{
+        width: 100% !important;
+    }
+    .actions{
+        display: flex !important;
+        align-items: center;
+    }
+    .actions a{
+        padding: 0 3px !important;
+        display: flex !important;
+        align-items: center;
+    }
+    .actions .btn-image img{
+        width: 13px !important;
+    }
 </style>
 @php
     $isAdmin = Auth::user()->hasRole('Admin');
     $isHod  = Auth::user()->hasRole('HOD of CRM');
     
 @endphp
+<div class="table-responsive">
 <table class="table table-bordered chatbot page-template-{{ $page }}">
     <thead>
     <tr>
-        <th width="5%"># Name</th>
-        <th width="5%">Website</th>
-        <th width="10%">User input</th>
+        <th width="4%"># Name</th>
+        <th width="3%">Website</th>
+        <th width="11%">User input</th>
         <th width="10%">Bot Replied</th>
-        <th width="15%">Message Box</th>
-        <th width="5%">From</th>
-        <th width="10%">Shortcuts</th>
-        <th width="10%">Action</th>
+        <th width="15%">Message Box </th>
+        <th width="4%">From</th>
+        <th width="17%">Shortcuts</th>
+        <th width="6%">Action</th>
 
     </tr>
     </thead>
@@ -77,8 +96,8 @@ padding: 3px 2px;
         <td>{{ $pam->website_title }}</td>
 
         <!-- Purpose : Add question - DEVTASK-4203 -->
-        @if (strlen($pam->question) > 40)
-            <td style="word-break: break-word;padding: 8px 5px;" data-log_message="{{ $pam->question }}" class="log-message-popup user-input">{{ substr($pam->question,0,34) }}...
+        @if (strlen($pam->question) > 10)
+            <td style="word-break: break-word;padding: 8px 5px;" data-log_message="{{ $pam->question }}" class="log-message-popup user-input">{{ substr($pam->question,0,17) }}...
                 @if($pam->chat_read_id == 1)
                     <a href="javascript:;" class="read-message" data-value="0" data-id="{{ $pam->chat_bot_id }}">
                         <img width="15px" title="Mark as unread" height="15px" src="/images/completed-green.png">
@@ -105,8 +124,8 @@ padding: 3px 2px;
 {{--            {{ $pam->question }}--}}
 
 
-        @if (strlen($pam->answer) > 40)
-            <td style="word-break: break-word;padding: 8px 5px;" data-log_message="{{ $pam->answer }}" class="bot-reply-popup boat-replied pr-0">{{ substr( $pam->answer ,0,32) }}...
+        @if (strlen($pam->answer) > 10)
+            <td style="word-break: break-word;padding: 8px 5px;" data-log_message="{{ $pam->answer }}" class="bot-reply-popup boat-replied pr-0">{{ substr( $pam->answer ,0,17) }}...
             </td>
         @else
             <td class="boat-replied">{{ $pam->answer }}
@@ -114,55 +133,65 @@ padding: 3px 2px;
             @endif
 
 
-        <td class="message-input pr-0" style="padding-bottom: 5px">
+        <td class="message-input pr-2 pt-2" style="padding-bottom: 5px">
             <div style="display: flex" class=" cls_textarea_subbox">
-                <div style="width: calc(100% - 35px)" class=" cls_remove_rightpadding">
-                    <textarea rows="3" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-customer-id="{{ $pam->customer_id }}" name="message" placeholder="Message"></textarea>
+                <div class=" cls_remove_rightpadding">
+                    <textarea rows="1" class="form-control quick-message-field cls_quick_message addToAutoComplete" data-customer-id="{{ $pam->customer_id }}" name="message" placeholder="Message"></textarea>
                 </div>
 
-                <div style="display: flex;flex-direction: column; width: 35px" class="cls_remove_allpadding row-flex">
-                    <span style="display: flex;justify-content:  center" class="pl-2 pr-2"><input name="add_to_autocomplete" class="m-0 add_to_autocomplete" type="checkbox" value="true"></span>
-                    <button class="btn btn-xs rt btn-image send-message1" data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
+                <div style="display: flex;" class="cls_remove_allpadding row-flex">
+                    <span style="display: flex;align-items:  center" class="pl-2 pr-2"><input name="add_to_autocomplete" class="m-0 add_to_autocomplete" type="checkbox" value="true"></span>
+                    <button class="btn btn-image send-message1 p-0" data-customer-id="{{ $pam->customer_id }}"><img src="/images/filled-sent.png"></button>
                     @if($pam->task_id > 0 )
-                        <button style="padding:0 !important;" type="button" class="btn btn-xs rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="task" data-id="{{$pam->task_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                        <button style="padding:0 ;" type="button" class="btn pl-1 pr-0 rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="task" data-id="{{$pam->task_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                     @elseif($pam->developer_task_id > 0 )
-                        <button style="padding:0 !important;" type="button" class="btn btn-xs rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="developer_task" data-id="{{$pam->developer_task_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                        <button style="padding:0 ;" type="button" class="btn pl-1 pr-0 rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="developer_task" data-id="{{$pam->developer_task_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                     @elseif($pam->vendor_id > 0 )
-                        <button style="padding:0 !important;" type="button" class="btn btn-xs rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="vendor" data-id="{{$pam->vendor_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                        <button style="padding:0 ;" type="button" class="btn pl-1 pr-0 rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="vendor" data-id="{{$pam->vendor_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                     @else
-                        <button  style="padding:0 !important;" type="button" class="btn btn-xs rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="customer" data-id="{{$pam->customer_id }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
-                        <button  style="padding:0 !important;" type="button" class="btn btn-xs rt btn-image load-communication-modal" data-object="customer" data-id="{{$pam->customer_id }}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
+                        <button  style="padding:0 ;" type="button" class="btn rt btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="customer" data-id="{{$pam->customer_id }}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                        <button  style="padding:0 ;" type="button" class="btn pl-1 pr-0 rt btn-image load-communication-modal" data-object="customer" data-id="{{$pam->customer_id }}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
                     @endif
                 </div>
             </div>
         </td>
         <td class="boat-replied">{{ $pam->reply_from }}</td>
-        <td style="/*padding: 5px 7px;*/" class="communication">
-            <div class="col-12 d-inline form-inline">
-                <div style="float:left;width: calc(100% - 20px)">
-                    <select name="quickCategory" class="form-control mb-2 quickCategory select-quick-category">
-                        <option value="">Select Category</option>
-                        @foreach($reply_categories as $category)
-                            <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div style="float:right;width: 18px;">
-                    <a style="padding: 5px 0;" class="btn btn-image delete_category"><img src="/images/delete.png"></a>
-                </div>
-            </div>
-            <div class="col-12 d-inline form-inline ">
-                <div style="float: left; width:calc(100% - 20px)" class="mt-2">
-                    <select name="quickComment" class="form-control quickComment select-quick-reply">
-                        <option value="">Quick Reply</option>
-                    </select>
-                </div>
-                <div style="float: right;width: 18px;">
-                    <a style="padding: 5px 0;" class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>
-                </div>
-            </div>
+        <td style="/*padding: 5px 7px;*/" class="communication pr-0 pt-2 pb-2">
+          <div class="row m-0">
+              <div class="col-6 d-inline form-inline p-0">
+                  <div style="float:left;width: calc(100% - 5px)">
+                      <select name="quickCategory" class="form-control mb-2 quickCategory select-quick-category">
+                          <option value="">Select Category</option>
+                          @foreach($reply_categories as $category)
+                              <option value="{{ $category->approval_leads }}" data-id="{{$category->id}}">{{ $category->name }}</option>
+                          @endforeach
+                      </select>
+                  </div>
+{{--                  <div style="float:right;width: 20px;">--}}
+{{--                      <a style="padding: 5px 0;" class="btn btn-image delete_category"><img src="/images/delete.png"></a>--}}
+{{--                  </div>--}}
+              </div>
+              <div class="col-6 d-inline form-inline p-0">
+                  <div style="float: left; width:calc(100% - 5px)" class="mt-0">
+                      <select name="quickComment" class="form-control quickComment select-quick-reply">
+                          <option value="">Quick Reply</option>
+                      </select>
+                  </div>
+{{--                  <div style="float: right;width: 20px;">--}}
+{{--                      <a style="padding: 5px 0;" class="btn btn-image delete_quick_comment"><img src="/images/delete.png"></a>--}}
+{{--                  </div>--}}
+              </div>
+          </div>
         </td>
         <td>
+            <div class="actions">
+            <a href="javascript:;"  style="display: inline-block" class="resend-to-bot btns" data-id="{{ $pam->id }}">
+                <img width="15px" title="Resend to bot" height="15px" src="/images/icons-refresh.png">
+            </a>
+            <a href="javascript:;"  style="display: inline-block" class="approve_message  btns  pt-2" data-id="{{ $pam->chat_id }}">
+                <i style="color: #686868;" class="fa fa-plus" aria-hidden="true"></i>
+            </a>
+
             @if($pam->approved == 0)
             <a href="javascript:;" style="display: inline-block" class="approve-message btns " data-id="{{ !empty($pam->chat_id) ? $pam->chat_id : $pam->id  }}">
                 <img width="15px" height="15px" src="/images/completed.png">
@@ -175,9 +204,9 @@ padding: 3px 2px;
             @endif
             @if($pam->customer_id > 0)
                 @if($pam->customer_do_not_disturb == 1)
-                    <button type="button" class="btn btn-image do_not_disturb" data-id="{{$pam->customer_id}}"><img src="/images/do-not-disturb.png" style="cursor: nwse-resize;"></button>
+                    <button type="button" class="btn btn-xs btn-image do_not_disturb" data-id="{{$pam->customer_id}}"><img height="13" width="10" src="/images/do-not-disturb.png" style="cursor: nwse-resize;"></button>
                 @else
-                    <button type="button" class="btn btn-image do_not_disturb" data-id="{{$pam->customer_id}}"><img src="/images/do-disturb.png" style="cursor: nwse-resize;"></button>
+                    <button type="button" class="btn btn-xs btn-image do_not_disturb" data-id="{{$pam->customer_id}}"><img height="13" width="10" src="/images/do-disturb.png" style="cursor: nwse-resize;"></button>
                 @endif
             @endif
 
@@ -193,15 +222,11 @@ padding: 3px 2px;
                 @endif
             @endif
 
-            <a href="javascript:;"  style="display: inline-block" class="resend-to-bot btns" data-id="{{ $pam->id }}">
-                <img width="15px" title="Resend to bot" height="15px" src="/images/icons-refresh.png">
-            </a>
+
             <!-- <span class="check-all" data-id="{{ $pam->chat_id }}">
               <i class="fa fa-indent" aria-hidden="true"></i>
             </span> -->
-            <a href="javascript:;"  style="display: inline-block" class="approve_message  btns pl-2 pt-1" data-id="{{ $pam->chat_id }}">
-                <i style="color: #686868;" class="fa fa-plus" aria-hidden="true"></i>
-            </a>
+        </div>
         </td>
     </tr>
     <?php }?>
@@ -209,12 +234,12 @@ padding: 3px 2px;
     </tbody>
     <tfoot>
     <tr>
-        <td colspan="9"><?php echo $pendingApprovalMsg->appends(request()->except("page"))->links(); ?></td>
+        <td class="p-0" colspan="9"><?php echo $pendingApprovalMsg->appends(request()->except("page"))->links(); ?></td>
     </tr>
     </tfoot>
 </table>
 
-
+</div>
 <div id="approve-reply-popup" class="modal fade" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">

@@ -185,11 +185,6 @@
         </div>
     </div>
 
-    <div class="common-modal modal" role="adminj">
-        <div class="modal-dialog modal-lg" role="dialog" id="exampleModal">
-        </div>
-    </div>
-
     {{-- //feeback model --}}
 
     <div id="exampleModal123" class="modal fade feedback_model" role="dialog">
