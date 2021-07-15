@@ -1269,6 +1269,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
     Route::post('development/reminder', 'DevelopmentController@updateDevelopmentReminder');
+    Route::post('log_status/change/{id}', 'MagentoProductPushErrors@changeStatus');
+    Route::post('log_history/list/{id}', 'MagentoProductPushErrors@getHistory');
 
 
     Route::get('development/list', 'DevelopmentController@issueTaskIndex')->name('development.issue.index');

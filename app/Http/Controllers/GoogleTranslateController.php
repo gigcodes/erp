@@ -120,7 +120,7 @@ class GoogleTranslateController extends Controller
             if(!empty($logid)) {
                 $logModel = LogListMagento::find($logid);
                 if($logModel) {
-                    ProductPushErrorLog::log("",$product->id, $msg, 'error',$logModel->store_website_id,"","",$logModel->id);
+                    ProductPushErrorLog::log("",$product->id, $msg, 'php',$logModel->store_website_id,"","",$logModel->id);
                 }
 
             }

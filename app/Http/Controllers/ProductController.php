@@ -1768,7 +1768,7 @@ class ProductController extends Controller
             $msg = $e->getMessage();
 
             $logId = LogListMagento::log($id, $msg, 'info');
-            ProductPushErrorLog::log("",$id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+            ProductPushErrorLog::log("",$id, $msg, 'php',$logId->store_website_id,"","",$logId->id);
             $this->updateLogUserId($logId);
             // Return error response by default
             return response()->json([
