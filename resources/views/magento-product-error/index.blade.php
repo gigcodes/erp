@@ -12,32 +12,45 @@
         td {
             word-wrap: break-word;
         }
+        .btn-primary {
+            background: #fff;
+            border: 1px solid #ddd;
+            color: #757575;
 
+        }
+        select.globalSelect2 + span.select2{
+            width: 150px !important;
+            flex-grow: 1;
+        }
     </style>
 
-    <div class="row" id="common-page-layout">
-        <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">{{ $title }} <span class="count-text"></span></h2>
+    <div class="row m-0" id="common-page-layout">
+        <div class="col-lg-12 margin-tb p-0">
+            <h2 class="page-heading">{{ $title }} <span class="count-text"></span>
+            <div class="pull-right pr-2">
+                <a href="{{ route('magento_product_today_common_err') }}" class="btn btn-sm btn-primary mr-2">
+                    Export Today Common Errors Report
+                </a>
+
+                <!-- START - Purpose : Add button - DEVTASK-20123  -->
+                <a href="#" class="btn btn-sm btn-primary view_today_common_errors_report">
+                    Today Common Errors Report
+                </a>
+            </div>
+            </h2>
         </div>
         <br>
-        <div class="col-lg-12 margin-tb">
-            <div class="row">
-                <div class="col col-md-6">
-                    <div class="row ml-3">
+        <div class="col-lg-12 margin-tb p-0">
+            <div class="row m-0">
+{{--                <div class="col col-md-6">--}}
+{{--                    <div class="row ml-3">--}}
                         <!-- Purpose : Rename from Today Common Errors Report to Export Today Common Errors Report - DEVTASK-20123  -->
-                        <a href="{{ route('magento_product_today_common_err') }}" class="btn btn-sm btn-warning mr-2">
-                            Export Today Common Errors Report
-                        </a>
 
-                        <!-- START - Purpose : Add button - DEVTASK-20123  -->
-                        <a href="#" class="btn btn-sm btn-warning view_today_common_errors_report">
-                            Today Common Errors Report
-                        </a>
                         <!-- END - DEVTASK-20123  -->
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="h" style="margin-bottom:10px;">
+{{--                    </div>--}}
+{{--                </div>--}}
+                <div class="col pl-3">
+                    <div class="h" style="margin-bottom:0px;">
                         <form class="form-inline message-search-handler" method="post">
                             <div class="row">
                                 <div class="col">
@@ -55,7 +68,7 @@
                                     <div class="form-group">
                                         {{-- <label for="keyword">Website:</label> --}}
 
-                                        <select class="form-control" name="website" id="website">
+                                        <select class="form-control globalSelect2" name="website" id="website">
                                             <option value="all" selected>All</option>
                                             @foreach ($websites as $website)
                                                 <option value="{{ $website->id }}">{{ $website->title }}</option>
@@ -80,8 +93,8 @@
             <div class="tab-content ">
                 <!-- Pending task div start -->
                 <div class="tab-pane active" id="1">
-                    <div class="row" style="margin:10px;">
-                        <div class="col-12">
+                    <div class="row" style="margin:0 10px;">
+                        <div class="col-12 p-0">
                             <div class="margin-tb" id="page-view-result">
 
                             </div>
@@ -96,6 +109,7 @@
         </div>
 
         <div class="common-modal modal" role="dialog">
+
             <div class="modal-dialog" role="document" style="width: 1000px; max-width: 1000px;">
             </div>
         </div>

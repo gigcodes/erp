@@ -81,19 +81,19 @@ class MagentoProductPushErrors extends Controller
                 'store_website'   => $row->store_website->title,
                 'message'         => str_limit($row->message, 30, 
                     '<a data-logid='.$row->id.' class="message_load">...</a>'),
-                'request_data'    => str_limit($row->message, 30,
+                'request_data'    => str_limit($row->request_data, 30,
                     '<a data-logid='.$row->id.' class="request_data_load">...</a>'),
                 'response_data'   => str_limit($row->response_data, 30, 
                     '<a data-logid='.$row->id.' class="response_data_load">...</a>'),
 //                'response_status' => $row->response_status,
-                'response_status' => ' <select class="form-control" name="error_status" id="error_status" data-log_id="'.$row->id.'">
+                'response_status' => ' <div style="display:flex;"><select class="form-control globalSelect2" name="error_status" id="error_status" data-log_id="'.$row->id.'">
  <option value="" ></option>
  <option value="error" '.($row->response_status == 'error' ? 'selected' : '' ).'>Error</option>
  <option value="php" '.($row->response_status === 'php' ? 'selected' : '' ).'>Php</option>
  <option value="magento" '.($row->response_status == 'magento' ? 'selected' : '' ).'>Magento</option>
-</select> <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-logs-history" title="Show Logs History" data-id="'.$row->id.'">
+</select> <button style="padding-left:5px !important;" type="button" class="btn btn-xs show-logs-history" title="Show Logs History" data-id="'.$row->id.'">
                 <i class="fa fa-info-circle"></i>
-            </button>',
+            </button></div>',
             ];
         }    
 
