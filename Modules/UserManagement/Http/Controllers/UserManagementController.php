@@ -1772,10 +1772,9 @@ class UserManagementController extends Controller
             $feedback_status->status=$request->status;
             $feedback_status->save();
             // return view('usermanagement::user-feedback-data',compact('status'));
-            $all_status = UserFeedbackStatus::get();
-            return response()->json(["status" => true , 'feedback_status' => $all_status]);
         }
-        return response()->json(["status" => false , 'status' => $status]);
+        $all_status = UserFeedbackStatus::get();
+        return response()->json(["status" => true , 'feedback_status' => $all_status]);
     }
 
     public function addFeedbackTableData(Request $request)
