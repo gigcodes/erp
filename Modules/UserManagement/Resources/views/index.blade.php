@@ -1516,11 +1516,14 @@ $(document).on('click','.statusChange',function(event){
                 url: '{{ route("user.feedback-status") }}',
                 data: {'status':status},
                 success:function(response){
-                    //
                     if (response.status == true) {
+                        $('#feedback-status').val('');
                         var all_status = response.feedback_status;
+                        var Select = '<option value="">Select</option>'
+                        $('.user_feedback_status').append(Select);
+
                         for (let i = 0; i < all_status.length; i++) {
-                            var html = '<option>'+all_status[i].status+'</option>';    
+                            var html = '<option value="' + all_status[i].id+'">'+all_status[i].status+'</option>'; 
                             $('.user_feedback_status').append(html);
                         }
                     }
@@ -1563,6 +1566,7 @@ $(document).on('click','.statusChange',function(event){
                     },
                     cashe:false,
                     success:function(response){
+                        $('#addcategory').val('');
                         $(document).find('.user-feedback-data').append(response);
                     }
                 });
@@ -1572,10 +1576,12 @@ $(document).on('click','.statusChange',function(event){
          });
 
          $(document).on('click', '.send-message-open', function (event) {
+            var feedback_status_id = $(this).parents('tr').find('.user_feedback_status').val();
             var textBox = $(this).closest(".communication-td").find(".send-message-textbox");
             let user_id = textBox.attr('data-id');
             let message = textBox.val();
             var feedback_cat_id = $(this).data('feedback_cat_id');
+            var $this = $(this);
             if (message == '') {
                 return;
             }
@@ -1586,6 +1592,7 @@ $(document).on('click','.statusChange',function(event){
                 url: "{{action('WhatsAppController@sendMessage', 'user-feedback')}}",
                 type: 'POST',
                 data: {
+                    "feedback_status_id": feedback_status_id,
                     "feedback_cat_id": feedback_cat_id,
                     "user_id": user_id,
                     "message": message,
@@ -1598,6 +1605,13 @@ $(document).on('click','.statusChange',function(event){
                     $('#message_list_' + user_id).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
                     $(self).removeAttr('disabled');
                     $(self).val('');
+                    var msg = response.message.message;
+                    if (msg.length > 20) {
+                        var msg = msg.substring(1,20)+'...';
+                        $this.siblings('.latest_message').text(msg);
+                    }else{
+                        $this.siblings('.latest_message').text(msg);
+                    }
                 },
                 beforeSend: function () {
                     $(self).attr('disabled', true);
