@@ -505,7 +505,7 @@ class LogListMagentoController extends Controller
         if(!$produts->isEmpty()) {
             foreach($produts as $p) {
                 $listToBeSend[] =  [
-                    "sku" => $p->sku,
+                    "sku" => $p->sku."-". $p->color,
                     "websiteid" => $p->store_website_id,
                 ];
             }
