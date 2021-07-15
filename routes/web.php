@@ -3201,6 +3201,7 @@ Route::prefix('magento-product-error')->middleware('auth')->group(static functio
     Route::post('/loadfiled', 'MagentoProductPushErrors@getLoadDataValue');
 
     Route::get('/download', 'MagentoProductPushErrors@groupErrorMessage')->name('magento_product_today_common_err');
+    Route::get('/magento_product_today_common_err_report', 'MagentoProductPushErrors@groupErrorMessageReport')->name('magento_product_today_common_err_report');//Purpose : Add Route for get Data - DEVTASK-20123
 });
 
 Route::prefix('message-queue-history')->middleware('auth')->group(static function () {

@@ -14,7 +14,7 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use App\DeveloperTaskHistory;
 
-class MagentoProductCommonError implements FromArray, ShouldAutoSize, WithHeadings
+class MagentoProductCommonError implements FromArray, WithHeadings, ShouldAutoSize, WithEvents
 {
   protected $lists;
 
@@ -40,4 +40,18 @@ class MagentoProductCommonError implements FromArray, ShouldAutoSize, WithHeadin
             'Message',
         ];
     }
+
+    //START - Purpose : Set width - DEVTASK-20123
+    public function registerEvents(): array
+    {
+        return [
+            // Handle by a closure.
+            AfterSheet::class => function(AfterSheet $event) {
+             
+              $event->sheet->getDelegate()->getColumnDimension('A')->setAutoSize(true);
+              $event->sheet->getDelegate()->getColumnDimension('B')->setAutoSize(true);
+            },
+        ];
+    }
+    //END - DEVTASK-20123
 }

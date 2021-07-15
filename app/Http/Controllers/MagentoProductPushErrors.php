@@ -96,20 +96,100 @@ class MagentoProductPushErrors extends Controller
             ->get();
 
         $recordsArr = []; 
+
+        //START - Purpose : Comment code , Data sorting - DEVTASK-20123
+        // foreach($records as $row){
+
+        //     $recordsArr[] = [
+        //         'count' => $row->count,
+        //         'message' => $row->message,
+
+        //     ];
+        // }
+
         foreach($records as $row){
+            
+            if (strpos($row->message, 'Failed readiness') !== false) {
 
-            $recordsArr[] = [
-                'count' => $row->count,
-                'message' => $row->message,
+                if (array_key_exists("Failed_readiness",$recordsArr))
+                {
+                    $recordsArr['Failed_readiness']['count'] = $recordsArr['Failed_readiness']['count'] + 1;
+                    $recordsArr['Failed_readiness']['message'] = 'Failed readiness';
+                }else{
+                    $recordsArr['Failed_readiness'] = [
+                        'count' => 1,
+                        'message' => $row->message,
+    
+                    ];
+                }
+            }else{
+                $recordsArr[] = [
+                    'count' => $row->count,
+                    'message' => $row->message,
 
-            ];
+                ];
+            }
         }
+        
+        usort($recordsArr, function($a, $b) {
+            return $a['count'] - $b['count'];
+        });
+
+        rsort($recordsArr);
+        //END - DEVTASK-20123
 
         // echo "<pre>";
         // print_r($recordsArr);
         // exit;
 
-        $filename = 'Today Report Magento Errors.csv';
+        $filename = 'Today Report Magento Errors.xlsx';
         return Excel::download(new MagentoProductCommonError($recordsArr),$filename);
     }
+
+
+    //START - Purpose : Open modal and get data - DEVTASK-20123
+    public function groupErrorMessageReport(Request $request)
+    {
+        $records = ProductPushErrorLog::where('response_status','error')
+            ->whereDate('created_at',Carbon::now()->format('Y-m-d'))
+            ->latest('count')
+            ->groupBy('message')
+            ->select(\DB::raw('*,COUNT(message) AS count'),)
+            ->get();
+
+        $recordsArr = []; 
+        foreach($records as $row){
+            
+            if (strpos($row->message, 'Failed readiness') !== false) {
+
+                if (array_key_exists("Failed_readiness",$recordsArr))
+                {
+                    $recordsArr['Failed_readiness']['count'] = $recordsArr['Failed_readiness']['count'] + 1;
+                    $recordsArr['Failed_readiness']['message'] = 'Failed readiness';
+                }else{
+                    $recordsArr['Failed_readiness'] = [
+                        'count' => 1,
+                        'message' => $row->message,
+    
+                    ];
+                }
+            }else{
+                $recordsArr[] = [
+                    'count' => $row->count,
+                    'message' => $row->message,
+
+                ];
+            }
+        }
+        
+        usort($recordsArr, function($a, $b) {
+            return $a['count'] - $b['count'];
+        });
+
+        rsort($recordsArr);
+
+        return response()->json(["code" => 200, "data" => $recordsArr]);
+    }
+    //END - DEVTASK-20123
+
 }

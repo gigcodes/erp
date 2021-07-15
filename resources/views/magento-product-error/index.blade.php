@@ -8,6 +8,9 @@
 	.preview-category input.form-control {
 	  width: auto;
 	}
+	td{
+		word-wrap: break-word;
+	}
 </style>
 
 <div class="row" id="common-page-layout">
@@ -19,9 +22,16 @@
     	<div class="row">
 	    	<div class="col col-md-6">
 		    	<div class="row ml-3">
-	    			<a href="{{ route('magento_product_today_common_err')}}" class="btn btn-sm btn-warning">
+					<!-- Purpose : Rename from Today Common Errors Report to Export Today Common Errors Report - DEVTASK-20123  -->
+	    			<a href="{{ route('magento_product_today_common_err')}}" class="btn btn-sm btn-warning mr-2">
+				  		Export Today Common Errors Report
+				  	</a>
+
+					<!-- START - Purpose : Add button - DEVTASK-20123  -->
+					<a href="#" class="btn btn-sm btn-warning view_today_common_errors_report">
 				  		Today Common Errors Report
 				  	</a>
+					<!-- END - DEVTASK-20123  -->
 				 </div> 		
 		    </div>
 		    <div class="col">
@@ -69,6 +79,36 @@
   	</div>	
 </div>
 
+
+<!-- START - Purpose : modal for liting error - DEVTASK-20123  -->
+<!-- Modal -->
+<div class="modal fade" id="today_common_error_report_modal" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <h5 class="modal-title" id="">Today Common Errors Report</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+	  		<table id="" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%" style="table-layout:fixed;">
+				<thead>
+					<tr>
+						<th class="th-sm" style="width:20%">Count</th>
+						<th class="th-sm" style="width:80%">Message</th>
+					</tr>
+				</thead>
+				<tbody class="table_data">
+					
+				</tbody>
+			</table>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END - DEVTASK-20123  -->
+
 @include("magento-product-error.templates.list-template")
 
 <script type="text/javascript" src="{{ asset('/js/jsrender.min.js') }}"></script>
@@ -82,6 +122,38 @@
 		bodyView : $("#common-page-layout"),
 		baseUrl : "<?php echo url("/"); ?>"
 	});
+
+	//START - Purpose : Get data - DEVTASK-20123
+	$(document).on('click','.view_today_common_errors_report',function(e){
+		
+		$.ajax({
+			type: 'GET',
+            url: "{{route('magento_product_today_common_err_report')}}",
+            dataType : "json",
+            success: function (response) {
+
+				if(response.code == 200) {
+					var html_content = '';
+					$.each( response.data, function( key, value ) {
+						
+						html_content += '<tr>';
+						html_content += '<td>'+value.count+'</td>';
+						html_content += '<td>'+value.message+'</td>';
+						html_content += '</tr>';
+					});
+
+					$('.table_data').html(html_content);
+
+					$('#today_common_error_report_modal').modal('show');
+				}
+				
+            },
+            error: function () {
+               toastr['error']('Could not change module!');
+            }
+        });
+	});
+	//END - DEVTASK-20123
 </script>
 
 @endsection
