@@ -27,7 +27,8 @@ padding: 3px 2px;
         border: 1px solid #ddd !important;
     }
     .d-inline.form-inline .select2-container{
-        width: 100% !important;
+        max-width: 100% !important;
+        /*width: unset !important;*/
     }
     .actions{
         display: flex !important;
@@ -41,6 +42,9 @@ padding: 3px 2px;
     .actions .btn-image img{
         width: 13px !important;
     }
+    .read-message{
+        float: right;
+    }
 </style>
 @php
     $isAdmin = Auth::user()->hasRole('Admin');
@@ -51,8 +55,8 @@ padding: 3px 2px;
 <table class="table table-bordered chatbot page-template-{{ $page }}">
     <thead>
     <tr>
-        <th width="4%"># Name</th>
-        <th width="3%">Website</th>
+        <th width="5%"># Name</th>
+        <th width="2%">Website</th>
         <th width="11%">User input</th>
         <th width="10%">Bot Replied</th>
         <th width="15%">Message Box </th>
@@ -88,12 +92,31 @@ padding: 3px 2px;
         @endphp
 
         <td data-context="{{ $context }}" data-url={{ route('whatsapp.send', ['context' => $context]) }} {{ $pam->taskUser ? 'data-chat-message-reply-id='.$pam->chat_bot_id : '' }}  data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id ?? ( $pam->taskUser ? $issueID : '')}}" data-vendor-id="{{$pam->vendor_id}}" data-supplier-id="{{$pam->supplier_id}}" data-chatbot-id="{{$pam->chat_bot_id}}">
+
             @if($pam->supplier_id > 0)
-                {{  /*"#".$pam->supplier_id." ".*/$pam->supplier_name  }}</td>
+                @if (strlen($pam->supplier_name) > 5)
+               <p style="word-break: break-word;padding: 8px 5px;" data-log_message="{{ $pam->supplier_name }}" class="user-inputt p-0 m-0">{{  substr($pam->supplier_name,0,6)   }}...</p>
+                @else
+                <p class="p-0 m-0">{{  /*"#".$pam->supplier_id." ".*/$pam->supplier_name  }}</p>
+                @endif
+        </td>
+
+             @else
+            @if (isset($pam->taskUser) && ( strlen($pam->taskUser->name) > 5) || strlen($pam->customer_name) > 5 || $pam->vendor_id > 0 && strlen($pam->vendors_name) > 5)
+            <p style="word-break: break-word;padding: 8px 5px;" data-log_message="{{  ($pam->vendor_id > 0 ) ? $pam->vendors_name : ( $pam->taskUser ? $pam->taskUser->name : $pam->customer_name  )  }}" class="user-inputt p-0 m-0">{{  ($pam->vendor_id > 0 ) ? substr($pam->vendors_name,0,6) : ( $pam->taskUser ? substr($pam->taskUser->name,0,6) : substr($pam->customer_name,0,6)  )  }}...</p>
             @else
-                {{  ($pam->vendor_id > 0 ) ? /*"#".$pam->vendor_id." ".*/$pam->vendors_name : ( $pam->taskUser ? /*'#'.$pam->taskUser->id .' ' .*/ $pam->taskUser->name : /*"#".$pam->customer_id." ".*/$pam->customer_name  )  }}</td>
+                <p class="p-0 m-0">{{  ($pam->vendor_id > 0 ) ? $pam->vendors_name  : ( $pam->taskUser ? $pam->taskUser->name : $pam->customer_name  )  }}</p>
             @endif
-        <td>{{ $pam->website_title }}</td>
+
+           </td>
+            @endif
+                @if (strlen($pam->website_title) > 5)
+                    <td style="word-break: break-word;padding: 8px 5px;" data-log_message="{{ $pam->website_title }}" class="log-website-popup user-iput">
+                        <p>{{ substr($pam->website_title,0,5) }}...</p>
+                    </td>
+                @else
+                    <td>{{ $pam->website_title }}</td>
+                @endif
 
         <!-- Purpose : Add question - DEVTASK-4203 -->
         @if (strlen($pam->question) > 10)
@@ -311,6 +334,52 @@ padding: 3px 2px;
 
 
 
+
+
+<div id="chatbotname" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Name</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="word-break: break-word;"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+<div id="website" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Website</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="word-break: break-word;"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
 <script type="text/javascript">
 
     $(document).on('click','.log-message-popup',function(){
@@ -321,6 +390,14 @@ padding: 3px 2px;
     $(document).on('click','.bot-reply-popup',function(){
         $('#botReply').modal('show');
         $('#botReply p').text($(this).data('log_message'));
+    })
+    $(document).on('click','.user-inputt',function(){
+        $('#chatbotname').modal('show');
+        $('#chatbotname p').text($(this).data('log_message'));
+    })
+    $(document).on('click','.log-website-popup',function(){
+        $('#website').modal('show');
+        $('#website p').text($(this).data('log_message'));
     })
 
 
