@@ -1218,7 +1218,7 @@
             var thiss = $(this);
             var data = new FormData();
             var task_id = $(this).data('taskid');
-            var message = $(this).siblings('input').val();
+            var message = $(this).closest('tr').find('.quick-message-field').val();
 
             data.append("task_id", task_id);
             data.append("message", message);
@@ -1238,30 +1238,8 @@
                             $(thiss).attr('disabled', true);
                         }
                     }).done(function (response) {
-                        $(thiss).siblings('input').val('');
-
-                        if (cached_suggestions) {
-                            suggestions = JSON.parse(cached_suggestions);
-
-                            if (suggestions.length == 10) {
-                                suggestions.push(message);
-                                suggestions.splice(0, 1);
-                            } else {
-                                suggestions.push(message);
-                            }
-                            localStorage['message_suggestions'] = JSON.stringify(suggestions);
-                            cached_suggestions = localStorage['message_suggestions'];
-
-                            console.log('EXISTING');
-                            console.log(suggestions);
-                        } else {
-                            suggestions.push(message);
-                            localStorage['message_suggestions'] = JSON.stringify(suggestions);
-                            cached_suggestions = localStorage['message_suggestions'];
-
-                            console.log('NOT');
-                            console.log(suggestions);
-                        }
+                        thiss.closest('tr').find('.quick-message-field').val('');
+                        
 
                         // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
                         //   .done(function( data ) {
