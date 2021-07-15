@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\ChatMessage;
 use App\Http\Controllers\WhatsAppController;
+use App\MagentoLogHistory;
 use App\StoreWebsite;
 use Auth;
 use Crypt;
@@ -29,20 +30,42 @@ class MagentoProductPushErrors extends Controller
     {
         $title = "List | Magento Log Errors";
 
-        return view('magento-product-error.index', compact('title'));
+        $websites = StoreWebsite::get();
+
+        return view('magento-product-error.index', compact('title', 'websites'));
     }
 
     public function records(Request $request)
     {
         $keyword = $request->get("keyword");
 
-        $records = ProductPushErrorLog::with('store_website')
-            ->where('response_status','error');
+        if($request->website !== '' && $request->website !== 'all'){
+            $records = ProductPushErrorLog::whereHas('store_website', function($q) use($request){
+                $q->where('id', $request->website);
+            });
+//                ->where('response_status','error');
+        }else{
+
+            $records = ProductPushErrorLog::with('store_website');
+//                ->where('response_status','error');
+        }
+
 
         if (!empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
                 $q->where("message", "LIKE", "%$keyword%");
             });
+        }
+        if (!empty($keyword)) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where("message", "LIKE", "%$keyword%");
+            });
+        }
+
+        if(!empty($request->log_date)){
+            $log_date = date("Y-m-d", strtotime($request->log_date));
+//            dd($log_date);
+            $records = $records->whereBetween('created_at', [$log_date.' 00:00:00', $log_date. ' 23:59:59']);
         }
 
 
@@ -58,11 +81,19 @@ class MagentoProductPushErrors extends Controller
                 'store_website'   => $row->store_website->title,
                 'message'         => str_limit($row->message, 30, 
                     '<a data-logid='.$row->id.' class="message_load">...</a>'),
-                'request_data'    => str_limit($row->request_data, 30, 
+                'request_data'    => str_limit($row->message, 30,
                     '<a data-logid='.$row->id.' class="request_data_load">...</a>'),
                 'response_data'   => str_limit($row->response_data, 30, 
                     '<a data-logid='.$row->id.' class="response_data_load">...</a>'),
-                'response_status' => $row->response_status,
+//                'response_status' => $row->response_status,
+                'response_status' => ' <select class="form-control" name="error_status" id="error_status" data-log_id="'.$row->id.'">
+ <option value="" ></option>
+ <option value="error" '.($row->response_status == 'error' ? 'selected' : '' ).'>Error</option>
+ <option value="php" '.($row->response_status === 'php' ? 'selected' : '' ).'>Php</option>
+ <option value="magento" '.($row->response_status == 'magento' ? 'selected' : '' ).'>Magento</option>
+</select> <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-logs-history" title="Show Logs History" data-id="'.$row->id.'">
+                <i class="fa fa-info-circle"></i>
+            </button>',
             ];
         }    
 
@@ -111,5 +142,35 @@ class MagentoProductPushErrors extends Controller
 
         $filename = 'Today Report Magento Errors.csv';
         return Excel::download(new MagentoProductCommonError($recordsArr),$filename);
+    }
+
+    public function getHistory(Request $request, $id){
+
+        $log_module = MagentoLogHistory::join('users','users.id','magento_log_history.user_id')->where('log_id', $id)->select('magento_log_history.*','users.name')->get();
+
+        if($log_module) {
+            return $log_module;
+        }
+        return 'error';
+    }
+    public function changeStatus(Request $request, $id){
+
+        $log = ProductPushErrorLog::where('id', $id)->first();
+        $logged_user = $request->user();
+
+        if($log){
+            $old_value = $log->response_status;
+            $log->response_status = $request->type;
+            $log->save();
+
+            MagentoLogHistory::create([
+                'log_id' => $log->id,
+                'user_id' => $logged_user->id,
+                'old_value' => $old_value,
+                'new_value' => $request->type,
+            ]);
+        }
+        return response()->json(true);
+
     }
 }
