@@ -90,6 +90,13 @@
                 </select>
               </div>
 
+            <div class="col-md-2 col-sm-3">
+              <select class="form-control " name="status" id="status"> 
+                  <option {{ request("status") == null || request("status") == "Pending"  ? 'selected' : ''}} value="Pending">Pending</option>
+                  <option {{ request("status") == "Done"  ? 'selected' : ''}} value="Done">Done</option> 
+                </select>
+              </div>
+
               <div class="col-sm-12 col-md-4">
                 <label>Due Date</label>
                 <div class="form-group mr-3">
@@ -424,7 +431,7 @@
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
   <script type="text/javascript">
-
+  
     $('.assign-to.select2').select2({
       width: "100%"
     });

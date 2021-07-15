@@ -2180,7 +2180,8 @@ class DevelopmentController extends Controller
                 $old_status = $issue->status;
                 $issue->status = $request->get('is_resolved');
                 $assigned_to = User::find($issue->assigned_to);
-                if($assigned_to && $assigned_to->fixed_price_user_or_job == 1) {
+                $dev_task_user = User::find($issue->team_lead_id !== null ? $issue->team_lead_id : $issue->assigned_to);
+                if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 1) {
                     // Fixed price task.
                     if($issue->cost == null) {
                         return response()->json([
@@ -2194,9 +2195,20 @@ class DevelopmentController extends Controller
                         $payment_receipt->rate_estimated = $issue->cost;
                         $payment_receipt->status = 'Pending';
                         $payment_receipt->developer_task_id = $issue->id;
-                        $payment_receipt->user_id = $issue->assigned_to;
+                        $payment_receipt->user_id = $dev_task_user->id;
+                        $payment_receipt->by_command = 3;
                         $payment_receipt->save();
                     }
+                }else if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 2){
+                    $payment_receipt = new PaymentReceipt;
+                    $payment_receipt->date = date( 'Y-m-d' );
+                    $payment_receipt->worked_minutes = $issue->estimate_minutes;
+                    $payment_receipt->rate_estimated = ($issue->estimate_minutes ?? 0) * ($dev_task_user->hourly_rate ?? 0);
+                    $payment_receipt->status = 'Pending';
+                    $payment_receipt->developer_task_id = $issue->id;
+                    $payment_receipt->user_id = $dev_task_user->id;
+                    $payment_receipt->by_command = 2;
+                    $payment_receipt->save();
                 }
                 $issue->responsible_user_id = $issue->assigned_to;
                 $issue->is_resolved = 1;

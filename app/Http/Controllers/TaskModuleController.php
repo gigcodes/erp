@@ -2821,6 +2821,19 @@ class TaskModuleController extends Controller {
 
    	    	$task->save();
 
+			$task_user = User::find($task->assign_to);
+            if(!empty($task_user)){
+				PaymentReceipt::create([
+					'status'            => 'Pending',
+					'rate_estimated'    => $task_user->fixed_price_user_or_job == 1 ? $task->cost ?? 0 : $task->approximate * ($task_user->hourly_rate ?? 0),
+					'date'              => date('Y-m-d'),
+					'currency'          => '',
+					'user_id'           => $task_user->id,
+					'by_command'        => 4,
+					'task_id'           => $task->id,
+				]);
+            }
+
    	    	return response()->json([
                 'status' => 'success', 'message' =>'The task status updated.'
             ],200);
