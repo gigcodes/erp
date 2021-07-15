@@ -120,7 +120,7 @@ padding: 3px 2px;
 
         <!-- Purpose : Add question - DEVTASK-4203 -->
         @if (strlen($pam->question) > 10)
-            <td style="word-break: break-word;padding: 8px 5px;" data-log_message="{{ $pam->question }}" class="log-message-popup user-input">{{ substr($pam->question,0,17) }}...
+            <td style="word-break: break-word;padding: 8px 5px;" data-log_message="{{ $pam->question }}" class="log-message-popup user-input">{{ substr($pam->question,0,19) }}...
                 @if($pam->chat_read_id == 1)
                     <a href="javascript:;" class="read-message" data-value="0" data-id="{{ $pam->chat_bot_id }}">
                         <img width="15px" title="Mark as unread" height="15px" src="/images/completed-green.png">
@@ -209,15 +209,18 @@ padding: 3px 2px;
         <td>
             <div class="actions">
             <a href="javascript:;"  style="display: inline-block" class="resend-to-bot btns" data-id="{{ $pam->id }}">
-                <img width="15px" title="Resend to bot" height="15px" src="/images/icons-refresh.png">
+                <i style="color: #757575c7;" class="fa fa-refresh" title="Resend to bot" aria-hidden="true"></i>
+
             </a>
             <a href="javascript:;"  style="display: inline-block" class="approve_message  btns  pt-2" data-id="{{ $pam->chat_id }}">
-                <i style="color: #686868;" class="fa fa-plus" aria-hidden="true"></i>
+                <i style="color: #757575c7;" class="fa fa-plus" aria-hidden="true"></i>
             </a>
 
             @if($pam->approved == 0)
             <a href="javascript:;" style="display: inline-block" class="approve-message btns " data-id="{{ !empty($pam->chat_id) ? $pam->chat_id : $pam->id  }}">
-                <img width="15px" height="15px" src="/images/completed.png">
+{{--                <img width="15px" height="15px" src="/images/completed.png">--}}
+                <i  style="color: #757575c7;" class="fa fa-check-square" aria-hidden="true"></i>
+
             </a>
             @endif
             @if($pam->suggestion_id)
@@ -227,9 +230,13 @@ padding: 3px 2px;
             @endif
             @if($pam->customer_id > 0)
                 @if($pam->customer_do_not_disturb == 1)
-                    <button type="button" class="btn btn-xs btn-image do_not_disturb" data-id="{{$pam->customer_id}}"><img height="13" width="10" src="/images/do-not-disturb.png" style="cursor: nwse-resize;"></button>
+                    <button type="button" class="btn btn-xs btn-image do_not_disturb" data-id="{{$pam->customer_id}}">
+                        <i style="color: #c10303;" class="fa fa-ban" aria-hidden="true"></i>
+                    </button>
                 @else
-                    <button type="button" class="btn btn-xs btn-image do_not_disturb" data-id="{{$pam->customer_id}}"><img height="13" width="10" src="/images/do-disturb.png" style="cursor: nwse-resize;"></button>
+                    <button type="button" class="btn btn-xs btn-image do_not_disturb" data-id="{{$pam->customer_id}}">
+                        <i style="color: #757575c7;" class="fa fa-ban" aria-hidden="true"></i>
+                    </button>
                 @endif
             @endif
 
