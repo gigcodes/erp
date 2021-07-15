@@ -744,7 +744,7 @@ class EmailController extends Controller
                     'host'          => $emailAddress->host,
                     'port'          => 993,
                     'encryption'    => "ssl",
-                    'validate_cert' => true,
+                    'validate_cert' => false,
                     'username'      => $emailAddress->username,
                     'password'      => $emailAddress->password,
                     'protocol'      => 'imap',
