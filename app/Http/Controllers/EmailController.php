@@ -38,7 +38,7 @@ class EmailController extends Controller
         
         // Set default type as incoming
         $type = "incoming";
-		$seen = '1';
+		$seen = '0';
         $from = '';//Purpose : Add var -  DEVTASK-18283
 		
         $term = $request->term ?? '';
@@ -46,6 +46,8 @@ class EmailController extends Controller
         $receiver = $request->receiver ?? '';
         $status = $request->status ?? '';
         $category = $request->category ?? '';
+        $mailbox = $request->mail_box ?? '';
+
         $date = $request->date ?? '';
         $type = $request->type ?? $type;
         $seen = $request->seen ?? $seen;
@@ -53,7 +55,7 @@ class EmailController extends Controller
         $trash_query = false;
 
         //START - Purpose : Add Email - DEVTASK-18283
-        if($email != null && $receiver == ''){
+        if($email != '' && $receiver == ''){
             $receiver = $email;
             $from = 'order_data';
             $seen = 'both';
@@ -114,6 +116,12 @@ class EmailController extends Controller
 			
 		}
 
+        if(!empty($mailbox)) {
+            $query = $query->where(function ($query) use ($mailbox) {
+                $query->orWhere('from','like','%'.$mailbox.'%');
+            });
+        }
+
         if(isset($seen)){
             if($seen != 'both'){
                 $query = $query->where('seen',$seen);
@@ -165,7 +173,11 @@ class EmailController extends Controller
         $digita_platfirms = DigitalMarketingPlatform::all();
         $sender_drpdwn = Email::select('from')->distinct()->get()->toArray();
         $receiver_drpdwn = Email::select('to')->distinct()->get()->toArray();
-        return view('emails.index',['emails'=>$emails,'type'=>'email' ,'search_suggestions'=>$search_suggestions,'email_categories'=>$email_categories,'email_status'=>$email_status, 'reports' => $reports,'sender_drpdwn' => $sender_drpdwn,'digita_platfirms' => $digita_platfirms, 'receiver_drpdwn' => $receiver_drpdwn, 'receiver' => $receiver, 'from' => $from])->with('i', ($request->input('page', 1) - 1) * 5);
+        $mailboxdropdown = \App\EmailAddress::pluck('from_address','from_address')->toArray();
+
+
+
+        return view('emails.index',['emails'=>$emails,'type'=>'email' ,'search_suggestions'=>$search_suggestions,'email_categories'=>$email_categories,'email_status'=>$email_status, 'reports' => $reports,'sender_drpdwn' => $sender_drpdwn,'digita_platfirms' => $digita_platfirms, 'receiver_drpdwn' => $receiver_drpdwn, 'receiver' => $receiver, 'from' => $from,'mailboxdropdown'=> $mailboxdropdown])->with('i', ($request->input('page', 1) - 1) * 5);
 
     }
 
