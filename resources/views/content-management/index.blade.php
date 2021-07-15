@@ -27,7 +27,7 @@
         @include("partials.flash_messages")
         <div class="col-lg-12 margin-tb">
             <div class="row">
-                <div class="col col-md-10">
+                <div class="col col-md-4">
                     <div class="h" style="margin-bottom:10px;">
                         <form class="form-inline message-search-handler" method="post">
                             <div class="row">
@@ -47,6 +47,15 @@
                                 </div>
                             </div>
                         </form>
+                    </div>
+                </div>
+                <div class="form-group col-md-6">
+                    <div class="form-group col-md-4">
+                        <input type="text" name="email_address" placeholder="@if ($content_management_email) {{ $content_management_email->email }}@else {{ "Enter Email" }} @endif" class="form-control" id="news_letter_email">
+                        <span id="email_error" style="color:red;"></span>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <button class="btn btn-secondary news_letter_email">Submit</button>
                     </div>
                 </div>
                 <div class="col col-md-1">
@@ -393,6 +402,23 @@
                 error: function() {}
             });
         });
+
+        $(document).on("click",'.news_letter_email',function(){
+            var email = $('#news_letter_email').val();
+            if (email.length === 0) {
+                $('#email_error').text('Please Enter Email');
+                return;
+            }
+            $.ajax({
+                type:"get",
+                url:"{{ route('content-management.emailStore') }}", // #DEVTASK-4012-Newsletter Images Extraction
+                data:{email:email},
+                success: function(response){
+                    $('#email_error').text('');
+                    toastr.success(response.message);
+                }
+            })
+        })
     </script>
 
 @endsection
