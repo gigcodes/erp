@@ -234,7 +234,7 @@ padding: 3px 2px;
     </tbody>
     <tfoot>
     <tr>
-        <td colspan="9"><?php echo $pendingApprovalMsg->appends(request()->except("page"))->links(); ?></td>
+        <td class="p-0" colspan="9"><?php echo $pendingApprovalMsg->appends(request()->except("page"))->links(); ?></td>
     </tr>
     </tfoot>
 </table>
