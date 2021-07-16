@@ -16,6 +16,10 @@ class Category extends Model
 {
 
     CONST UNKNOWN_CATEGORIES = 143;
+    CONST PUSH_TYPE = [
+        "0" => "Simple",
+        "1" => "Configurable"
+    ];
 
     use NestableTrait;
     
@@ -32,7 +36,7 @@ class Category extends Model
 
      */
   
-    public $fillable = [ 'id','title', 'parent_id','status_after_autocrop','magento_id', 'show_all_id','need_to_check_measurement','need_to_check_size','ignore_category'];
+    public $fillable = [ 'id','title', 'parent_id','status_after_autocrop','magento_id', 'show_all_id','need_to_check_measurement','need_to_check_size','ignore_category','push_type'];
 
     /**
      * Get the index name for the model.
