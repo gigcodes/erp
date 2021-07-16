@@ -47,7 +47,8 @@ class VendorController extends Controller
   public function __construct()
   {
     // $this->middleware('permission:vendor-all');
-    $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+    // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+    $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
   }
 
   public function updateReminder(Request $request)
@@ -1195,7 +1196,8 @@ class VendorController extends Controller
   private function changeHubstaffUserRoleApi($hubstaff_member_id) {
     try {
       $tokens = $this->getTokens();
-      $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/update_members';
+      // $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/update_members';
+      $url = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/update_members';
       $client = new GuzzleHttpClient();
       $body = array(
         'members' => array(
@@ -1264,7 +1266,8 @@ class VendorController extends Controller
     // }
     try {
       $tokens = $this->getTokens();
-      $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/invites';
+      // $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/invites';
+      $url = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/invites';
       $client = new GuzzleHttpClient();
       $response = $client->post(
         $url,
@@ -1323,22 +1326,28 @@ class VendorController extends Controller
 	public function sendMessage(Request $request)
 	{
         // return $request->all();
-		$vendors = Vendor::whereIn('id', $request->vendors)->get();
-        $params = [];
+		set_time_limit(0);
+    $vendors = Vendor::whereIn('id', $request->vendors)->get();
         if(count($vendors)) {
             foreach($vendors as $key => $item) {
-                $params[] = [
+                $params = [
                     'vendor_id' => $item->id,
                     'number' => null,
                     'message' => $request->message,
                     'user_id' => Auth::id(),
-                    'status' => 1,
-                    'is_queue' => 1,
+                    'status' => 2,
+                    'approved' => 1,
+                    'is_queue' => 0,
                 ];
+                $chat_message = ChatMessage::create($params);
+                $myRequest = new Request();
+                $myRequest->setMethod('POST');
+                $myRequest->request->add(['messageId' => $chat_message->id]);
+                app('App\Http\Controllers\WhatsAppController')->approveMessage('vendor', $myRequest);
             }
         }
         // return $params;
-        ChatMessage::insert($params);
+        
 
         return response()->json(["code" => 200, "data" => [], "message" => "Message sent successfully"]);
   }

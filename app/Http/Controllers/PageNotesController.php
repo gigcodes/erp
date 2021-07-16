@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 use App\Setting;//Purpose : Add Setting - DEVTASK-4289
 
 //use Spatie\Permission\Models\Permission;
@@ -120,8 +121,17 @@ class PageNotesController extends Controller
         ->leftJoin('page_notes_categories', 'page_notes.category_id', '=', 'page_notes_categories.id')
         ->where("page_notes.user_id",\Auth::user()->id)
         ->orderBy("page_notes.id","desc")
-        ->select(["page_notes.*","users.name", "page_notes_categories.name as category_name"]
-        )->paginate(Setting::get('pagination'));
+        ->select(["page_notes.*","users.name", "page_notes_categories.name as category_name"]);
+
+        //START - Purpose : Add search - DEVTASK-4289
+        if($request->search)
+        {
+            $search ='%'.$request->search.'%';
+            $records= $records->where('page_notes.note','like',$search);
+        }
+        //END - DEVTASK-4289
+
+        $records = $records->paginate(Setting::get('pagination'));
 
         // return view("pagenotes.index");
     	return view("pagenotes.index",compact('records'));

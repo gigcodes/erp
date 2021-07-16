@@ -10,7 +10,7 @@ use seo2websites\MagentoHelper\MagentoHelperv2;
 
 class LogListMagentoController extends Controller
 {
-    const VALID_MAGENTO_STATUS = ['available','sold','out_of_stock',];
+    const VALID_MAGENTO_STATUS = ['available', 'sold', 'out_of_stock'];
 
     protected function get_brands()
     {
@@ -216,54 +216,55 @@ class LogListMagentoController extends Controller
         $size                   = '';
         $brands                 = '';
         $composition            = '';
-        $brand = "";
-        $dimensions = "N/A";
-        $size = "N/A";
+        $brand                  = "";
+        $dimensions             = "N/A";
+        $size                   = "N/A";
         foreach ($products as $value) {
-            $websites[]   = \App\StoreWebsite::where('id', $value->store_website_id)->value('title');
+            $websites[] = \App\StoreWebsite::where('id', $value->store_website_id)->value('title');
             if (isset($value->extension_attributes)) {
                 foreach ($value->extension_attributes->website_ids as $vwi) {
                     $websites[] = \App\Website::where('platform_id', $vwi)->value('name');
                 }
             }
-            
+
             if (isset($value->custom_attributes)) {
                 foreach ($value->custom_attributes as $v) {
                     if ($v->attribute_code === "category_ids") {
                         foreach ($v->value as $key => $cat_id) {
-                            $category_names[] = \App\StoreWebsiteCategory::join("categories as c","c.id","store_website_categories.category_id")
-                            ->where('remote_id', $cat_id)
-                            ->value('title');
+                            $category_names[] = \App\StoreWebsiteCategory::join("categories as c", "c.id", "store_website_categories.category_id")
+                                ->where('remote_id', $cat_id)
+                                ->value('title');
                         }
                     }
                     if ($v->attribute_code === "size_v2" || $v->attribute_code === "size") {
-                        $sizeM = \App\StoreWebsiteSize::join("sizes as s","s.id","store_website_sizes.size_id")->where("platform_id",$v->value)->where("store_website_id",$value->store_website_id)->select("s.*")->first();
-                        if($sizeM) {    
+                        $sizeM = \App\StoreWebsiteSize::join("sizes as s", "s.id", "store_website_sizes.size_id")->where("platform_id", $v->value)->where("store_website_id", $value->store_website_id)->select("s.*")->first();
+                        if ($sizeM) {
                             $size = $sizeM->name;
                         }
 
                     }
 
                     if ($v->attribute_code === "brands") {
-                        $brandsModel = \App\StoreWebsiteBrand::join("brands as b","b.id","store_website_brands.brand_id")
-                        ->where("magento_value",$v->value)
-                        ->where("store_website_id",$value->store_website_id)
-                        ->select("b.*")
-                        ->first();
-                        if($brandsModel) {
+                        $brandsModel = \App\StoreWebsiteBrand::join("brands as b", "b.id", "store_website_brands.brand_id")
+                            ->where("magento_value", $v->value)
+                            ->where("store_website_id", $value->store_website_id)
+                            ->select("b.*")
+                            ->first();
+                        if ($brandsModel) {
                             $brand = $brandsModel->name;
                         }
                     }
                     if ($v->attribute_code === "composition") {
                         $composition = $v->value;
                     }
-                    
+
                     if ($v->attribute_code === "dimensions") {
                         $dimensions = $v->value;
                     }
 
                 }
             }
+
             $prepared_products_data[$value->sku] = [
                 'store_website_id'      => $value->store_website_id,
                 'magento_id'            => $value->id,
@@ -348,7 +349,7 @@ class LogListMagentoController extends Controller
 
             $products = array();
             //$skudata  = json_decode('[{"sku":"RMTR00604468H20081Grey","websiteid":"1"}]'); //json_decode($request->productSkus);
-            $skudata  = json_decode($request->productSkus);
+            $skudata = json_decode($request->productSkus);
 
             $magentoHelper = new MagentoHelperv2;
 
@@ -367,21 +368,22 @@ class LogListMagentoController extends Controller
                     //   ]
                     // ]);
                     // $response = $req->getBody()->getContents();
+
                     if (isset($result->id)) {
-                        $result->success    = true;
-                        $result->size_chart_url    = "";
+                        $result->success        = true;
+                        $result->size_chart_url = "";
 
                         $englishDescription = "";
-                        if(!empty($result->custom_attributes)) {
-                          foreach($result->custom_attributes as $attributes) {
-                             if($attributes->attribute_code == "size_chart_url") {
-                                $result->size_chart_url    = $attributes->value;
-                             }
-                             if($attributes->attribute_code == "description") {
-                                $englishDescription = $attributes->value;
-                                $result->english = "Yes";
-                             }
-                          }
+                        if (!empty($result->custom_attributes)) {
+                            foreach ($result->custom_attributes as $attributes) {
+                                if ($attributes->attribute_code == "size_chart_url") {
+                                    $result->size_chart_url = $attributes->value;
+                                }
+                                if ($attributes->attribute_code == "description") {
+                                    $englishDescription = $attributes->value;
+                                    $result->english    = "Yes";
+                                }
+                            }
                         }
 
                         // check for all langauge request
@@ -400,15 +402,15 @@ class LogListMagentoController extends Controller
 
                                     $diffrentDescription = "";
 
-                                    if(!empty($exresult->custom_attributes)) {
-                                      foreach($exresult->custom_attributes as $attributes) {
-                                         if($attributes->attribute_code == "description") {
-                                            $diffrentDescription = $attributes->value;
-                                         }
-                                      }
+                                    if (!empty($exresult->custom_attributes)) {
+                                        foreach ($exresult->custom_attributes as $attributes) {
+                                            if ($attributes->attribute_code == "description") {
+                                                $diffrentDescription = $attributes->value;
+                                            }
+                                        }
                                     }
 
-                                    if (trim(strip_tags(strtolower($englishDescription))) != trim(strip_tags(strtolower($diffrentDescription))) && !empty($diffrentDescription) ) {
+                                    if (trim(strip_tags(strtolower($englishDescription))) != trim(strip_tags(strtolower($diffrentDescription))) && !empty($diffrentDescription)) {
                                         $result->{$language} = "Yes";
                                     } else {
                                         $result->{$language} = "No";
@@ -416,13 +418,12 @@ class LogListMagentoController extends Controller
                                 }
                             }
                         }
+                        $result->skuid            = $sku->sku;
+                        $result->store_website_id = $sku->websiteid;
+                        $products[]               = $result;
                     } else {
                         $result->success = false;
                     }
-
-                    $result->skuid            = $sku->sku;
-                    $result->store_website_id = $sku->websiteid;
-                    $products[]               = $result;
 
                 } catch (\Exception $e) {
                     \Log::info("Error from LogListMagentoController 448" . $e->getMessage());
@@ -481,16 +482,68 @@ class LogListMagentoController extends Controller
 
     public function errorReporting(Request $request)
     {
-        $log = \App\Loggers\LogListMagento::leftJoin("product_push_error_logs as ppel","ppel.log_list_magento_id","log_list_magentos.id")
-        ->leftJoin("store_websites as sw","sw.id","log_list_magentos.store_website_id")
-        ->groupBy("ppel.url")
-        ->where("ppel.response_status","error")
-        ->where("ppel.url","!=","")
-        ->where("ppel.created_at",">=",date("Y-m-d",strtotime('-7 days')))
-        ->select([\DB::raw("count(*) as total_error"),"ppel.url","sw.website"])
-        ->orderBy("total_error","desc")
-        ->get();
+        $log = \App\Loggers\LogListMagento::leftJoin("product_push_error_logs as ppel", "ppel.log_list_magento_id", "log_list_magentos.id")
+            ->leftJoin("store_websites as sw", "sw.id", "log_list_magentos.store_website_id")
+            ->groupBy("ppel.url")
+            ->where("ppel.response_status", "error")
+            ->where("ppel.url", "!=", "")
+            ->where("ppel.created_at", ">=", date("Y-m-d", strtotime('-7 days')))
+            ->select([\DB::raw("count(*) as total_error"), "ppel.url", "sw.website"])
+            ->orderBy("total_error", "desc")
+            ->get();
 
-        return view("logging.partials.log-count-error",compact("log"));
+        return view("logging.partials.log-count-error", compact("log"));
+    }
+
+    public function getLatestProductForPush(Request $request)
+    {
+        //
+        $produts      = \App\Loggers\LogListMagento::join("products as p", "p.id", "log_list_magentos.product_id")->where("sync_status", "success")->groupBy("product_id", "store_website_id")->limit($request->limit)->orderBy("log_list_magentos.id", "desc")->get();
+        $listToBeSend = [];
+        if (!$produts->isEmpty()) {
+            foreach ($produts as $p) {
+                $listToBeSend[] = [
+                    "sku"       => $p->sku . "-" . $p->color,
+                    "websiteid" => $p->store_website_id,
+                ];
+            }
+        }
+
+        return response()->json(["code" => 200, "products" => $listToBeSend]);
+
+    }
+
+    public function productInformation(Request $request)
+    {
+        $product = \App\Product::find($request->product_id);
+        if ($product) {
+
+            $estimated_minimum_days = 0;
+            $supplier               = \App\Supplier::join('product_suppliers', 'suppliers.id', 'product_suppliers.supplier_id')
+                ->where('product_suppliers.product_id', $product->id)
+                ->select('suppliers.*')
+                ->first();
+            if ($supplier) {
+                $estimated_minimum_days = is_numeric($supplier->est_delivery_time) ? $supplier->est_delivery_time : 0;
+            }
+
+            $data                           = [];
+            $data['sku']                    = $product->sku . MagentoHelperv2::SKU_SEPERATOR . $product->color;
+            $data['description']            = $product->short_description;
+            $data['name']                   = html_entity_decode(strtoupper($product->name), ENT_QUOTES, 'UTF-8');
+            $data['price']                  = $product->price;
+            $data['composition']            = $product->composition;
+            $data['material']               = $product->color;
+            $data['country_of_manufacture'] = $product->made_in;
+            $data['brands']                 = ($product->brands) ? $product->brands->name : "-";
+            $data['sizes']                  = $product->size_eu;
+            $data['dimensions']             = 'L-' . $product->lmeasurement . ',H-' . $product->hmeasurement . ',D-' . $product->dmeasurement;
+            $data['stock']                  = $product->stock;
+            $data['estimated_minimum_days'] = $estimated_minimum_days;
+            $data['estimated_maximum_days'] = $estimated_minimum_days + 7;
+            
+            return view("logging.partials.product-information",compact('data'));
+
+        }
     }
 }

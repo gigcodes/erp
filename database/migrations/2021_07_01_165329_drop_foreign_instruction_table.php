@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddIndexToProductsTable extends Migration
+class DropForeignInstructionTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,13 @@ class AddIndexToProductsTable extends Migration
      */
     public function up()
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->index(['category']);
-
-        });
+        // try {
+        //     Schema::table('instructions', function (Blueprint $table) {
+        //         $table->dropForeign(['order_id']);
+        //     });
+        // } catch (\Exception $e) {
+            
+        // }
     }
 
     /**
@@ -26,9 +29,6 @@ class AddIndexToProductsTable extends Migration
      */
     public function down()
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->dropIndex(['category']);
-
-        });
+        //
     }
 }

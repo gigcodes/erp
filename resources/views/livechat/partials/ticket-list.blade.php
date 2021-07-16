@@ -6,26 +6,26 @@
 @php($statusList = \App\TicketStatuses::all()->pluck('name','id'))
 
 @foreach ($data as $key => $ticket)
-<tr style="width:100%">
-    <td style="width: 1%">{{ ++$i }}</td>
+<tr>
+    <td>{{ ++$i }}</td>
     <td>{{ substr($ticket->ticket_id, -5) }}</td>
-    <td style="width: 65px;">
+    <td>
         <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->source_of_ticket }}">
             {{ str_limit($ticket->source_of_ticket,10)}}
         </a>
     </td>
-    <td style="width:65px;">{{ $ticket->name}}</td>
+    <td>{{ $ticket->name}}</td>
     <td>
         <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->email }}">
             {{ str_limit($ticket->email,6)}}
         </a>
     </td>
-    <td style="width:70px">
+    <td>
         <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->subject }}">
             {{ str_limit($ticket->subject,4)}}
         </a>
     </td>
-    <td style="width:77px">
+    <td>
         <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->message }}">
             {{ str_limit($ticket->message,5)}}
         </a>
@@ -50,14 +50,14 @@
         </a>
     </td>
     
-    <td class="table-hover-cell">
-        <div class="row d-flex flex-row w-100 justify-content-between">
-            <div class="col-9">
-                <textarea  style="width:150px;height:37px;" class="form-control" id="messageid_{{ $ticket->id }}" name="message" placeholder="Message"></textarea>
+    <td class="table-hover-cell pr-0 pb-0">
+        <div style="display:flex;" class=" d-flex flex-row w-100 justify-content-between">
+            <div style="flex-grow: 1">
+                <textarea  style="height:37px;" class="form-control" id="messageid_{{ $ticket->id }}" name="message" placeholder="Message"></textarea>
             </div>
-            <div class="col-2" style="margin:-8px; ">  
+            <div style="width: min-content">
 
-                <button class="btn btn-sm btn-image send-message1" 
+                <button class="btn btn-xs btn-image send-message1 " style="margin-left:6px;"
                         data-ticketid="{{ $ticket->id }}">
                     <img src="<?php echo $base_url;?>/images/filled-sent.png"/>
                 </button>
@@ -65,6 +65,7 @@
                 <button type="button" 
                         style="margin-left:6px;"
                         class="btn btn-xs btn-image load-communication-modal" 
+                        data-object="ticket"
                         data-id="{{$ticket->id}}">
                         <i class="fa fa-comments-o"></i>
                 </button>
@@ -73,24 +74,24 @@
        </div>
     </td>    
     
-    <td style="width:75px;">
+    <td>
         <?php echo Form::select( 
                                 "ticket_status_id",
                                  $statusList,$ticket->status_id,
                                  [ 
-                                     "class" => "resolve-issue border-0",
+                                     "class" => "resolve-issue border-0 globalSelect2",
                                      "onchange" => "resolveIssue(this,".$ticket->id.")",
                            ]); ?>
     </td>        
     <td>
-        <div class="chat-righbox d-flex">
+        <div class=" d-flex">
           <button type="button" 
                   class="btn btn-xs send-email-to-vender" 
                   data-subject="{{ $ticket->subject }}" 
                   data-message="{{ $ticket->message }}" 
                   data-email="{{ $ticket->email }}" 
                   data-id="{{$ticket->id}}">
-            <i class="fa fa-envelope-square"></i>
+            <i class="fa fa-envelope"></i>
           </button>
 
           <button type="button" 

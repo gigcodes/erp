@@ -76,7 +76,8 @@
     else
         $isAdmin = false;
     ?>
-<div class="row mb-2">
+    
+    <div class="row mb-2">
         <div class="col-xs-12">
             <form action="{{ action('LearningModuleController@createLearningFromSortcut') }}" method="POST" id="taskCreateForm">
                 @csrf
@@ -86,7 +87,8 @@
                         <div class="form-group cls_learning_user">
                                 <!-- <strong>User :</strong> -->
                                 <select class="globalSelect2 form-control"  data-ajax="{{ route('select2.uservendor') }}" data-live-search="true" data-size="15" name="learning_user" data-placeholder="Choose a User" id="learning_user" required>
-                                <option></option>
+                                   <option id="{{ $last_record_learning->learningUser->id }}" selected="selected">{{ $last_record_learning->learningUser->name }}</option>
+
                                 {{-- @foreach ($quick_users_array as $index => $user)
                                 <option data-tokens="{{ $index }} {{ $user }}" value="{{ $index }}">{{ $user }}</option>
                                 @endforeach --}}
@@ -98,7 +100,10 @@
                         <div class="form-group cls_learning_provider">
                                 <!-- <strong>Provider :</strong> -->
                                 <select class="globalSelect2 form-control"  data-ajax="{{ route('select2.uservendor') }}" data-live-search="true" data-size="15" name="learning_vendor" data-placeholder="Choose a Provider" id="learning_vendor" required>
-                                <option></option>
+                                
+                                <option id="{{ $last_record_learning->learningVendor->id }}" selected="selected">{{ $last_record_learning->learningVendor->name }}</option>
+
+
                                 {{-- @foreach ($quick_users_array as $index => $user)
                                 <option data-tokens="{{ $index }} {{ $user }}" value="{{ $index }}">{{ $user }}</option>
                                 @endforeach --}}
@@ -206,7 +211,7 @@
                         <!-- <strong>Due Date :</strong> -->
                             <div class='input-group date' id='learning-due-datetime'>
                                 
-                                <input type='text' class="form-control input-sm" name="learning_duedate" id="learning_duedate" value="{{ date('Y-m-d H:i') }}"/>
+                                <input type='text' class="form-control input-sm" name="learning_duedate" id="learning_duedate" value="{{ date('Y-m-d') }}"/>
                                 <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
                                 </span>
@@ -326,7 +331,15 @@
             </div>
 
             <div class="col-md-2 pd-sm">
-                <input type="text" name="subject" placeholder="Subject" class="form-control" value="{{ request()->get('subject') }}">
+                <!-- <input type="text" name="subject" placeholder="Subject" class="form-control" value="{{ request()->get('subject') }}"> -->
+
+                <select class="form-control" name="subject">
+                    <option value="">Select Subject</option>
+                    @foreach ($subjectList as $subject)
+                        <option {{ request()->get('subject') == $subject ? 'selected' : '' }} value="{{ $subject }}">{{ $subject }}</option>
+                    @endforeach
+                </select>
+
             </div>
 
             
@@ -341,7 +354,28 @@
                         <span class="glyphicon glyphicon-calendar"></span>
                     </span>
                 </div>
-            </div>    
+            </div>
+
+             <div class="col-md-2 pd-sm">
+                <select class="form-control updateModule" name="module">
+                    <option value="">Select Module</option>
+                    @foreach(App\LearningModule::where('parent_id',0)->orderBy('title')->get() as $module)
+                        <option value="{{ $module->id }}" {{ request()->get('module') == $module->id ? 'selected' : '' }}>{{ $module->title }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-2 pd-sm">
+                <select class="form-control" name="submodule">
+                    <option value="">Select SubModule</option>
+                    @foreach(App\LearningModule::where('parent_id','!=',0)->orderBy('title')->get() as $submodule)
+                        <option class="submodule" {{ request()->get('submodule') == $submodule->id ? 'selected' : '' }} value="{{ $submodule->id }}">{{ $submodule->title }}</option>
+                    @endforeach
+                </select>
+            </div> 
+
+
+
             
             
 
@@ -395,6 +429,42 @@
            
         </div>
     </div>
+    </div>
+
+    <div id="duedate_history_modal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title">Status History</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <form action="">
+                    <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12" id="duedate_history_div">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Old duedate</th>
+                                        <th>New duedate</th>
+                                        <th>Updated by</th>
+                                        
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
 
@@ -512,7 +582,58 @@
                  format: 'YYYY-MM-DD'
             });
 
+            $('.learning-overdue-datetime').datetimepicker({
+                 format: 'YYYY-MM-DD'
+            }).on('dp.change', function(e){ 
+                var formatedValue = e.date.format(e.date._f);
+                $.ajax({
+                    url: "{{ route('learning-due-change') }}",
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                    },
+                    dataType:"json",
+                    data: {
+                        due_date : formatedValue,
+                        learningid: $(this).data('id')
+                    },
+                    success: function () {
+                        toastr["success"]("Duedate updated successfully!", "Message");
+                    }
+                });
+            })
+
         });
+
+        
+
+        $(document).on('click', '.show-due-history', function() {
+            
+            var learningid = $(this).data('learningid');
+            
+            $('#duedate_history_div table tbody').html('');
+
+            $.ajax({
+                url: "{{ route('learning/duedate/history') }}",
+                data: {learningid: learningid},
+                success: function (data) {
+                    if(data != 'error') {
+                        $.each(data, function(i, item) {
+                            $('#duedate_history_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ item['created_date'] +'</td>\
+                                    <td>'+ item['old_duedate']  +'</td>\
+                                    <td>'+ item['new_duedate']  +'</td>\
+                                    <td>'+ item['update_by']+'</td>\
+                                </tr>'
+                            );  
+                        });
+                    }
+                    $('#duedate_history_modal').modal('show');
+                }
+            }); 
+        });
+
 
         $(document).on('click', '.show-time-history', function() {
             
@@ -736,7 +857,7 @@
         $(document).ready(function () {
 
             $('#learning-due-datetime').datetimepicker({
-                 format: 'YYYY-MM-DD HH:mm'
+                 format: 'YYYY-MM-DD'
             }); 
 
             $('.js-example-basic-multiple').select2();

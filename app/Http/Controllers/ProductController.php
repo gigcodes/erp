@@ -28,6 +28,9 @@ use App\User;
 use App\Language;
 use App\ChatMessage;
 use App\Supplier;
+use App\PurchaseProductOrderLog;
+use App\PurchaseProductOrder;
+
 use App\Stock;
 use App\Colors;
 use App\ReadOnly\LocationList;
@@ -1765,7 +1768,7 @@ class ProductController extends Controller
             $msg = $e->getMessage();
 
             $logId = LogListMagento::log($id, $msg, 'info');
-            ProductPushErrorLog::log("",$id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+            ProductPushErrorLog::log("",$id, $msg, 'php',$logId->store_website_id,"","",$logId->id);
             $this->updateLogUserId($logId);
             // Return error response by default
             return response()->json([
@@ -2518,20 +2521,47 @@ class ProductController extends Controller
         if ($request->has("limit")) {
             $perPageLimit = ($request->get("limit") == "all") ? $products->get()->count() : $request->get("limit");
         }
-        $categoryAll = Category::where('parent_id', 0)->get();
+        // $categoryAll = Category::where('parent_id', 0)->get();
+        // foreach ($categoryAll as $category) {
+        //     // dump('fitst cat');
+        //     $categoryArray1[] = array('id' => $category->id, 'value' => $category->title);
+        //     $childs = Category::where('parent_id', $category->id)->get();
+        //     foreach ($childs as $child) {
+        //         // dump('first  child');
+        //         $categoryArray1[] = array('id' => $child->id, 'value' => $category->title . ' ' . $child->title);
+        //         $grandChilds = Category::where('parent_id', $child->id)->get();
+        //         if ($grandChilds != null) {
+
+        //             foreach ($grandChilds as $grandChild) {
+        //                 // dump('first grand child');
+
+        //                 $categoryArray1[] = array('id' => $grandChild->id, 'value' => $category->title . ' ' . $child->title . ' ' . $grandChild->title);
+                        
+        //             }
+        //         }
+        //     }
+        // }
+
+        $categoryAll = Category::with('childs.childLevelSencond')->where('parent_id', 0)->get();
+
         foreach ($categoryAll as $category) {
             $categoryArray[] = array('id' => $category->id, 'value' => $category->title);
-            $childs = Category::where('parent_id', $category->id)->get();
-            foreach ($childs as $child) {
+            // $childs = Category::where('parent_id', $category->id)->get();
+            foreach ($category->childs as $child) {
                 $categoryArray[] = array('id' => $child->id, 'value' => $category->title . ' ' . $child->title);
-                $grandChilds = Category::where('parent_id', $child->id)->get();
-                if ($grandChilds != null) {
-                    foreach ($grandChilds as $grandChild) {
+                // $grandChilds = Category::where('parent_id', $child->id)->get();
+                if ($child->childLevelSencond != null) {
+                    foreach ($child->childLevelSencond as $grandChild) {
                         $categoryArray[] = array('id' => $grandChild->id, 'value' => $category->title . ' ' . $child->title . ' ' . $grandChild->title);
                     }
                 }
             }
         }
+
+
+//         dump($categoryArray1);
+//         dump($categoryArray);
+// dd('ds');
 
         if ($request->total_images) {
             $products = $products->limit($request->total_images)->get();
@@ -3190,6 +3220,7 @@ class ProductController extends Controller
             $imageReference->speed = $request->get('time');
             $imageReference->product_id = $product->id;
             $imageReference->color = $colorName;
+            $imageReference->instance_id = $request->get('instance_id');
             $imageReference->save();
 
 
@@ -3687,30 +3718,122 @@ class ProductController extends Controller
 
         if (!$sop) {
             $sop = new Sop();
-            $sop->name = $request->get('type');
-            $sop->content = '<p>Start Here...</p>';
+            $sop->name = $request->name;
+            $sop->content = $request->content;
+         
             $sop->save();
         }
 
         return view('products.sop', compact('sop'));
+        
+    }
+
+    function getdata(Request $request){
+        
+         $usersop = Sop::with('purchaseProductOrderLogs');
+  
+    if($request->search){
+
+        $usersop = $usersop->where('name', 'like', '%'.$request->search.'%');
+    }
+
+         $usersop = $usersop->paginate(15);
+
+         $total_record = $usersop->total();
+        
+        return view('products.sop', compact('usersop','total_record'));
 
     }
 
+    function sopnamedata_logs(Request $request){
+      
+        $log_data = PurchaseProductOrderLog::where('purchase_product_order_id',$request->id)
+        ->join('users','purchase_product_order_logs.created_by','users.id')
+        ->where('header_name',$request->header_name);
+
+        $log_data = $log_data->orderBy('purchase_product_order_logs.id','ASC')
+        ->select('purchase_product_order_logs.*','users.*','purchase_product_order_logs.created_at as log_created_at')
+        ->get();
+
+        return response()->json(['log_data' => $log_data ,'code' => 200]);
+
+   }
+
+
+    public function destroyname($id){
+        $usersop =Sop::findOrFail($id);
+        $usersop->delete();
+
+        return response()->json([
+            'message' => 'Data deleted Successfully!'
+        ]);
+        
+     }
+    
     public function saveSOP(Request $request)
     {
+       
         $sopType = $request->get('type');
         $sop = Sop::where('name', $sopType)->first();
 
         if (!$sop) {
             $sop = new Sop();
-            $sop->name = $request->get('type');
+            $sop->name = $request->get('name');
+            $sop->content = $request->get('content');
             $sop->save();
+
+           
+            $params['purchase_product_order_id'] = $sop->id;
+            $params['header_name'] = 'SOP Listing Approve Logs';
+            $params['replace_from'] = '-';
+            $params['replace_to'] = $request->get('name');
+            $params['created_by'] = \Auth::id();
+
+            $log = PurchaseProductOrderLog::create($params);
         }
+       
+        $only_date = $sop->created_at->todatestring();
 
-        $sop->content = $request->get('content');
-        $sop->save();
+          return response()->json(['only_date' => $only_date,'sop' => $sop, 'params' => $params]);
+      }
 
-        return redirect()->back()->with('message', 'Updated successfully!');
+    public function edit(Request $request)
+    {
+        
+        $sopedit = Sop::findOrFail($request->id);
+      
+       return response()->json(['sopedit' => $sopedit]);
+    }
+    public function update(Request $request)
+    {
+        $sopedit =  Sop::findOrFail($request->id);
+
+        $sopedit->name    = $request->get("name", "");
+        $sopedit->content    = $request->get("content", "");
+        $updatedSop =    $sopedit->save();
+          
+        $params['purchase_product_order_id'] = $request->id;
+        $params['header_name'] = 'SOP Listing Approve Logs';
+        $params['replace_from'] = $request->get("sop_old_name", "");
+        $params['replace_to'] = $request->get("name", "");
+        $params['created_by'] = \Auth::id();
+
+        $log = PurchaseProductOrderLog::create($params);
+     
+        if ($sopedit) {
+            return response()->json([
+                'sopedit' => $sopedit,
+                'params' => $params
+            ]);
+        }
+    }
+
+    public function searchsop(Request $request){
+        
+            $searchsop = $request->get('search');
+            $usersop = DB::table('sops')->where('name', 'like', '%'.$searchsop.'%')->paginate(10);
+
+        return view('products.sop', compact('usersop'));
     }
 
     public function getSupplierScrappingInfo(Request $request)
@@ -3915,7 +4038,8 @@ class ProductController extends Controller
         imagefill($canvasImage, 0, 0, $gray);
 
         imagecopy($canvasImage, $thumb, (1000 - $thumbWidth) / 2, (1000 - $thumbHeight) / 2, 0, 0, $thumbWidth, $thumbHeight);
-        $url = env('APP_URL');
+        // $url = env('APP_URL');
+        $url = config('env.APP_URL');
         $path = str_replace($url, '', $img);
 
         imagejpeg($canvasImage, public_path() . '/' . $path);
@@ -4692,7 +4816,7 @@ class ProductController extends Controller
         //         $request->request->add(['price_max' => $maxPrice]);
         //     }
         // }
-        $suggestedProducts = \App\SuggestedProduct::leftJoin("suggested_product_lists as spl","spl.suggested_products_id", "suggested_products.id");
+        $suggestedProducts = \App\SuggestedProduct::with('customer')->leftJoin("suggested_product_lists as spl","spl.suggested_products_id", "suggested_products.id");
         $suggestedProducts = $suggestedProducts->leftJoin("products as p","spl.product_id", "p.id");
         $suggestedProducts = $suggestedProducts->leftJoin("customers as c","c.id", "suggested_products.customer_id");
         if($customerId) {
@@ -5251,15 +5375,19 @@ class ProductController extends Controller
     public function getCustomerProducts($type,$suggested_products_id,$customer_id,Request $request) {
         $term = null;
         //$suggested_products_id=3;
+        $suggestedProductsLists = \App\SuggestedProductList::with('getMedia')->where('suggested_products_id',$suggested_products_id)->where('customer_id',$customer_id)->where('remove_attachment',0)
+        ->orderBy('date','desc')->whereNotNull('media_id')->get();
+
         if($type == 'attach') {
-            $productsLists = \App\SuggestedProductList::where('suggested_products_id',$suggested_products_id)->where('customer_id',$customer_id)->where('remove_attachment',0)
+            $productsLists = \App\SuggestedProductList::where('suggested_products_id',$suggested_products_id)->where('customer_id',$customer_id)->whereNull('media_id')->where('remove_attachment',0)
             ->select('suggested_product_lists.*')->orderBy('date','desc')->get()->unique('date');
         }
         else {
-            $productsLists = \App\SuggestedProductList::where('customer_id',$customer_id)->where('chat_message_id','!=',NULL)
+            $productsLists = \App\SuggestedProductList::where('customer_id',$customer_id)->whereNull('media_id')->where('chat_message_id','!=',NULL)
             ->select('suggested_product_lists.*')->orderBy('date','desc')->get()->unique('date');
         }
-        
+        $customer = \App\Customer::find($customer_id);
+
         foreach($productsLists as $suggestion) {
             if($type == 'attach') {
                 $products = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')
@@ -5341,10 +5469,12 @@ class ProductController extends Controller
         $selected_products = [];
         $model_type = 'customer';
         if($type == 'attach') {
-            return view('partials.attached-image-products',compact('productsLists','customer_id','selected_products','model_type','suggested_products_id'));
+            return view('partials.attached-image-products',compact('productsLists','customer_id','selected_products','model_type','suggested_products_id','customer','suggestedProductsLists'));
+
         }
         else {
-            return view('partials.suggested-image-products',compact('productsLists','customer_id','selected_products','model_type','suggested_products_id'));
+            return view('partials.suggested-image-products',compact('productsLists','customer_id','selected_products','model_type','suggested_products_id','customer','suggestedProductsLists'));
+
         }
     }
 
@@ -5411,7 +5541,8 @@ class ProductController extends Controller
     {
         $product = Product::find($product_id);
         
-        $def_cust_id = getenv('DEFAULT_CUST_ID');
+        // $def_cust_id = getenv('DEFAULT_CUST_ID');
+        $def_cust_id = config('env.DEFAULT_CUST_ID');
 
         $customers = \App\Customer::find($def_cust_id);
 

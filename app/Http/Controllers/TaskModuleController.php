@@ -42,7 +42,8 @@ class TaskModuleController extends Controller {
 	use hubstaffTrait;
 
 	public function __construct() {
-		$this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+		// $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+		$this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
 	}
 
 	public function index( Request $request ) {
@@ -580,8 +581,7 @@ class TaskModuleController extends Controller {
 																	// dd($tasks_query);
 																	// $users = Helpers::getUserArray(User::all());
 
-		$users                     = User::oldest()->get()->toArray();
-		$data['users']             = $users;
+		$data['users'] =  User::orderBy('name')->where('is_active',1)->get()->toArray();
 		$data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
 
 		// foreach ($data['task']['pending'] as $task) {
@@ -591,7 +591,8 @@ class TaskModuleController extends Controller {
 		// $category = '';
 		//My code start
 		$selected_user = $request->input( 'selected_user' );
-		$users         = Helpers::getUserArray( User::all() );
+		$usrlst = User::orderby('name')->where('is_active',1)->get();
+		$users  = Helpers::getUserArray($usrlst);
 		$task_categories = TaskCategory::where('parent_id', 0)->get();
 		$task_categories_dropdown = nestable(TaskCategory::where('is_approved', 1)->get()->toArray())->attr(['name' => 'category','class' => 'form-control input-sm'])
 		->selected($request->category)
@@ -645,7 +646,7 @@ class TaskModuleController extends Controller {
 		}
 		else {
 			$statuseslist=TaskStatus::pluck('name','id')->toArray();
-			$selectStatusList=TaskStatus::whereNotIn('id',[1])->pluck('id')->toArray();
+			$selectStatusList=TaskStatus::pluck('id')->toArray();
 
 			return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title','task_statuses','statuseslist','selectStatusList'));
 		}
@@ -1018,7 +1019,9 @@ class TaskModuleController extends Controller {
 
 			  app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
 			  
-			  $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			//   $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			  $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+
 			  $assignedUser = HubstaffMember::where('user_id', $request->input('assign_to'))->first();
 			  // $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
 	  
@@ -1103,7 +1106,8 @@ class TaskModuleController extends Controller {
             if ($hubstaffUserId) {
                 $body['assignee_id'] = $hubstaffUserId;
             } else {
-                $body['assignee_id'] = getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID');
+                // $body['assignee_id'] = getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID');
+				$body['assignee_id'] = config('env.HUBSTAFF_DEFAULT_ASSIGNEE_ID');
             }
 
             $response = $httpClient->post(
@@ -1147,10 +1151,10 @@ class TaskModuleController extends Controller {
 	
 	public function flag(Request $request)
 	{
-		if($request->task_type == 'TASK'){
-			$task = Task::find($request->task_id);
-		}else if($request->task_type == 'DEVTASK'){
+		if($request->task_type == 'DEVTASK'){
 			$task = DeveloperTask::find($request->task_id);
+		}else {
+			$task = Task::find($request->task_id);
 		}	
 
 		if ($task->is_flagged == 0) {
@@ -2050,7 +2054,7 @@ class TaskModuleController extends Controller {
 			'task_subject'	=> 'required',
 			'task_detail'	=> 'required',
 			'task_asssigned_to' => 'required_without:assign_to_contacts',
-			'cost'=>'sometimes|integer'
+			//'cost'=>'sometimes|integer'
 		]);
 		$data['assign_from'] = Auth::id();
 		$data['status'] = 3;
@@ -2262,7 +2266,9 @@ class TaskModuleController extends Controller {
 
 
 		if($created) {
-			$hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			// $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			$hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+
 			$assignedUser = HubstaffMember::where('user_id', $assignedUserId)->first();
 	  
 			  $hubstaffUserId = null;
@@ -2427,7 +2433,8 @@ class TaskModuleController extends Controller {
 
 		$issue->save();
 		
-		$hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+		// $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+		$hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 
         $assignedUser = HubstaffMember::where('user_id', $masterUserId)->first();
 
@@ -2573,24 +2580,55 @@ class TaskModuleController extends Controller {
             $history->is_approved = 1;
             $history->save();
 
-			$user = User::find($request->user_id);
+			$task = Task::find($request->developer_task_id);
+            $time = $history->new_value !== null ? $history->new_value : $history->old_value;
+            $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' .  $time . ' MINS'; 
+            
+            $user = User::find($request->user_id);
+            $admin = Auth::user(); 
+            $master_user = User::find($task->master_user_id); 
+
             if($user){
-                $receiver_user_phone = $user->phone;
-                if($receiver_user_phone){
-                    $task = DeveloperTask::find($request->developer_task_id);
-                    $time = $history->new_value !== null ? $history->new_value : $history->old_value;
-                    $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' .  $time . ' MINS'; 
+                if($admin->phone){
                     $chat = ChatMessage::create([
-                        'number' => $receiver_user_phone,
+                        'number' => $admin->phone,
                         'user_id' => $user->id,
                         'customer_id' => $user->id,
                         'message' => $msg,
                         'status' => 0, 
                         'developer_task_id' => $request->developer_task_id
                     ]);
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $user->whatsapp_number, $msg, false, $chat->id);
+                }else if($user->phone){
+                    $chat = ChatMessage::create([
+                        'number' => $user->phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
+                }else if($master_user && $master_user->phone){
+                    $chat = ChatMessage::create([
+                        'number' => $master_user->phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
                 } 
-            } 
+                if($chat){ 
+                    if($admin->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($admin->phone, $admin->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if($user->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if($master_user && $master_user->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($master_user->phone, $master_user->whatsapp_number, $msg, false, $chat->id);
+                    } 
+                }
+            }
 			
             return response()->json([
                 'message' => 'Success'
@@ -2644,7 +2682,8 @@ class TaskModuleController extends Controller {
 			else {
 				$user_id = $task->master_user_id; 
 			}
-			$hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			// $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			$hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 		
 			$assignedUser = HubstaffMember::where('user_id', $user_id)->first();
 		
@@ -2782,6 +2821,19 @@ class TaskModuleController extends Controller {
 
    	    	$task->save();
 
+			$task_user = User::find($task->assign_to);
+            if(!empty($task_user)){
+				PaymentReceipt::create([
+					'status'            => 'Pending',
+					'rate_estimated'    => $task_user->fixed_price_user_or_job == 1 ? $task->cost ?? 0 : $task->approximate * ($task_user->hourly_rate ?? 0) / 60,
+					'date'              => date('Y-m-d'),
+					'currency'          => '',
+					'user_id'           => $task_user->id,
+					'by_command'        => 4,
+					'task_id'           => $task->id,
+				]);
+            }
+
    	    	return response()->json([
                 'status' => 'success', 'message' =>'The task status updated.'
             ],200);
@@ -2817,6 +2869,30 @@ class TaskModuleController extends Controller {
 
 
    }
+
+   public function updateTaskReminder(Request $request)
+  {
+    $task = Task::find($request->get('task_id'));
+	$task->frequency            = $request->get('frequency');
+    $task->reminder_message     = $request->get('message');
+    $task->reminder_from        = $request->get('reminder_from',"0000-00-00 00:00");
+    $task->reminder_last_reply  = $request->get('reminder_last_reply',0);
+    $task->last_send_reminder   = date("Y-m-d H:i:s");
+    $task->save();
+	
+		$message = $request->get('message');
+		if(optional($task->assignedTo)->phone){
+			$requestData = new Request();
+            $requestData->setMethod('POST');
+            $requestData->request->add(['task_id' => $task->id, 'message' => $message, 'status' => 1]);
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'task');	
+			//app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($task->assignedTo->phone, '', $message);
+		}	
+	
+    return response()->json([
+      'success'
+    ]);
+  }
 
    
 }

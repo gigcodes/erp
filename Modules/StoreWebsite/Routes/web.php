@@ -13,6 +13,9 @@
 
 Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::get('/', 'StoreWebsiteController@index')->name("store-website.index");
+    
+    Route::get('/magento-user-lising', 'StoreWebsiteController@magentoUserList')->name("store-website.user-list");
+
     Route::get('/cancellation', 'StoreWebsiteController@cancellation')->name("store-website.cancellation");
     Route::get('/records', 'StoreWebsiteController@records')->name("store-website.records");
     Route::post('/save', 'StoreWebsiteController@save')->name("store-website.save");
@@ -23,10 +26,17 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::post('/delete-user-in-magento', 'StoreWebsiteController@deleteUserInMagento')->name("store-website.delete-user-in-magento");
 
     Route::prefix('{id}')->group(function () {
+        
+        Route::get('/userhistory', 'StoreWebsiteController@userHistoryList');
+
         Route::get('/edit', 'StoreWebsiteController@edit')->name("store-website.edit");
+        
         Route::get('/edit-cancellation', 'StoreWebsiteController@editCancellation')->name("store-website.edit-cancellation");
+        
         Route::get('/delete', 'StoreWebsiteController@delete')->name("store-website.delete");
+        
         Route::get('/child-categories', 'CategoryController@getChildCategories')->name("store-website.child-categories");
+        
         Route::post('/submit-social-remarks', 'StoreWebsiteController@updateSocialRemarks')->name("store-website.update.social-remarks");
 
         Route::prefix('social-strategy')->group(function () {

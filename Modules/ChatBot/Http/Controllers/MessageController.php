@@ -62,7 +62,7 @@ class MessageController extends Controller
             $q->where("chat_messages.message", "!=", "");
         })->select(['cr.id as chat_bot_id','cr.is_read as chat_read_id', "chat_messages.*", "cm1.id as chat_id", "cr.question",
             "cm1.message as answer",
-            "c.name as customer_name", "v.name as vendors_name","s.supplier as supplier_name", "cr.reply_from", "cm1.approved", "sw.title as website_title"])
+            "c.name as customer_name", "v.name as vendors_name","s.supplier as supplier_name", "cr.reply_from", "cm1.approved", "sw.title as website_title","c.do_not_disturb as customer_do_not_disturb"])
             ->orderBy('cr.id', 'DESC')
             ->paginate(20);
 
@@ -76,7 +76,7 @@ class MessageController extends Controller
             }
         }
         $page = $pendingApprovalMsg->currentPage();
-        $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('id', 'DESC')->get();
+        $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('name')->get();
 
 
         if ($request->ajax()) {
@@ -93,13 +93,30 @@ class MessageController extends Controller
     {
         $id = request("id");
 
+
         if ($id > 0) {
 
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add(['messageId' => $id]);
 
-            app('App\Http\Controllers\WhatsAppController')->approveMessage('customer', $myRequest);
+            $chatMEssage = \app\ChatMessage::find($id);
+
+            $type = "customer";
+            if($chatMEssage->task_id > 0) {
+                $type = "task";
+            }elseif($chatMEssage->developer_tasK_id > 0) {
+                $type = "issue";
+            }elseif($chatMEssage->vendor_id > 0) {
+                $type = "vendor";
+            }elseif($chatMEssage->user_id > 0) {
+                $type = "user";
+            }elseif($chatMEssage->supplier_id > 0) {
+                $type = "supplier";
+            }
+
+
+            app('App\Http\Controllers\WhatsAppController')->approveMessage($type, $myRequest);
         }
 
         return response()->json(["code" => 200, "message" => "Messsage Send Successfully"]);
@@ -223,6 +240,26 @@ class MessageController extends Controller
         }
 
         return response()->json(["code" => 500, "data" => [], "messages" => "Message not exist in record"]);
+    }
+
+    public function stopReminder(Request $request)
+    {
+        $id = $request->get("id");
+        $type = $request->get("type");
+
+        if($type == "developer_task") {
+           $task = \App\DeveloperTask::find($id);
+        }else{
+           $task = \App\Task::find($id);
+        }
+
+        if($task) {
+            $task->frequency = 0;
+            $task->save();
+            return response()->json(["code" => 200, "data" => [], "messages" => "Reminder turned off"]);
+        }
+
+        return response()->json(["code" => 500, "data" => [], "messages" => "No task found"]);
     }
 
 }

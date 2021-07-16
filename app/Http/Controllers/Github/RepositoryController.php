@@ -28,13 +28,16 @@ class RepositoryController extends Controller
     function __construct()
     {
         $this->client = new Client([
-            'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
+            'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
         ]);
     }
 
     private function refreshGithubRepos()
     {
-        $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/repos?per_page=100";
+        // $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/repos?per_page=100";
+        $url = "https://api.github.com/orgs/" . config('env.GITHUB_ORG_ID') . "/repos?per_page=100";
+
         $response = $this->client->get($url);
 
         $repositories = json_decode($response->getBody()->getContents());
@@ -95,26 +98,31 @@ class RepositoryController extends Controller
     {
         $source = 'master';
         $destination = Input::get('branch');
+        $pullOnly = request('pull_only',0);
 
         $url = "https://api.github.com/repositories/" . $repoId . "/merges";
 
         try {
             // Merge master into branch
-            $this->client->post(
-                $url,
-                [
-                    RequestOptions::BODY => json_encode([
-                        'base' => $destination,
-                        'head' => $source,
-                    ])
-                ]
-            );
-            echo 'done';
-            //Artisan::call('github:load_branch_state');
-            if($source == 'master'){
-                $this->updateBranchState($repoId, $destination);
-            }else if($destination == 'master'){
-                $this->updateBranchState($repoId, $source);
+            if(empty($pullOnly) || $pullOnly != 1) {
+
+                $this->client->post(
+                    $url,
+                    [
+                        RequestOptions::BODY => json_encode([
+                            'base' => $destination,
+                            'head' => $source,
+                        ])
+                    ]
+                );
+                echo 'done';
+                //Artisan::call('github:load_branch_state');
+                if($source == 'master'){
+                    $this->updateBranchState($repoId, $destination);
+                }else if($destination == 'master'){
+                    $this->updateBranchState($repoId, $source);
+                }
+
             }
 
             // Deploy branch
@@ -198,7 +206,7 @@ class RepositoryController extends Controller
 
                 $requestData = new Request();
                 $requestData->setMethod('POST');
-                $requestData->request->add(['issue_id' => $devTaskId, 'message' => $message, 'status' => 1]);
+                $requestData->request->add(['issue_id' => $devTask->id, 'message' => $message, 'status' => 1]);
                 app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
 
                 MessageHelper::sendEmailOrWebhookNotification([$devTask->assigned_to, $devTask->team_lead_id, $devTask->tester_id] , $message .'. kindly test task in live if possible and put test result as comment in task.' );

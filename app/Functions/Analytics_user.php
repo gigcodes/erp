@@ -47,7 +47,8 @@ function getReportRequest($analytics, $request)
     if (isset($request['view_id'])) {
         $view_id = (string) $request['view_id'];
     } else {
-        $view_id = env('ANALYTICS_VIEW_ID');
+        // $view_id = env('ANALYTICS_VIEW_ID');
+        $view_id = config('env.ANALYTICS_VIEW_ID');
     }
 
     if(!empty($request)){

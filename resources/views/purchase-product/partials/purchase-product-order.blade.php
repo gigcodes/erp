@@ -142,17 +142,19 @@ table tr td {
                             <td>{{$value->sku}}</td>
                             <td>{{$value->brand_name}}</td> -->
                             <td>{{$value->supplier}}</td>
-                            <td>
-                                <input type="text" name="product_mrp" placeholder="MRP" class="form-control mb-3 product_mrp" value="{{ ($value->mrp_price > 0 ? $value->mrp_price : 0) ?? ( $value->mrp > 0 ? $value->mrp : 0 ) ?? '' }}">
+                            <td class="mrp_amount">
+                                {{ ($value->mrp_price > 0 ? $value->mrp_price : 0) ?? ( $value->mrp > 0 ? $value->mrp : 0 ) ?? '' }}
+                                <!-- <input type="text" name="product_mrp" placeholder="MRP" class="form-control mb-3 product_mrp" value="{{ ($value->mrp_price > 0 ? $value->mrp_price : 0) ?? ( $value->mrp > 0 ? $value->mrp : 0 ) ?? '' }}">
                                 <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_mrp" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
-                                <i class="fa fa-info-circle view_log" title="MRP Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="MRP"></i>
+                                <i class="fa fa-info-circle view_log" title="MRP Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="MRP"></i> -->
                             </td>
-                            <td>
-                                <input type="text" name="product_discount_price" placeholder="Discounted Price" class="form-control mb-3 product_discount_price" value="{{ ($value->discount_price > 0 ? $value->discount_price : 0 ) ?? ($value->price_discounted > 0 ? $value->price_discounted : 0 ) ?? '' }}">
+                            <td class="discount_amount">
+                                {{ ($value->discount_price > 0 ? $value->discount_price : 0 ) ?? ($value->price_discounted > 0 ? $value->price_discounted : 0 ) ?? '' }}
+                                <!-- <input type="text" name="product_discount_price" placeholder="Discounted Price" class="form-control mb-3 product_discount_price" value="{{ ($value->discount_price > 0 ? $value->discount_price : 0 ) ?? ($value->price_discounted > 0 ? $value->price_discounted : 0 ) ?? '' }}">
                                 <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_discount_price" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
-                                <i class="fa fa-info-circle view_log" title="Discounted Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Discounted Price"></i>
+                                <i class="fa fa-info-circle view_log" title="Discounted Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Discounted Price"></i> -->
                             </td>
-                            <td>
+                            <td class="special_price_amount">
                             @php
                             $discount_amt = ( $value->discount_price ?? $value->price_discounted ?? 0 );
                             $special_amt = ($value->special_price ?? $value->price_special ?? 0);
@@ -160,10 +162,12 @@ table tr td {
                             $final_special_amt = $special_amt - $discount_amt;
 
                             @endphp
-                                <input type="text" name="product_special_price" placeholder="Special Price" class="form-control mb-3 product_special_price" value="{{ ($final_special_amt > 0 ? $final_special_amt : 0) }}">
+                            {{ ($final_special_amt > 0 ? $final_special_amt : 0) }}
+                                <!-- <input type="text" name="product_special_price" placeholder="Special Price" class="form-control mb-3 product_special_price" value="{{ ($final_special_amt > 0 ? $final_special_amt : 0) }}">
                                 <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_special_price" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
-                                <i class="fa fa-info-circle view_log" title="Special Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Special Price"></i>
+                                <i class="fa fa-info-circle view_log" title="Special Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Special Price"></i> -->
                             </td>
+                            
                             
                             <td>
                                 <input type="text" name="invoice_no" placeholder="Add Invoice No." class="form-control mb-3 invoice_no" value="{{ $value->invoice ?? '' }}">
@@ -183,24 +187,27 @@ table tr td {
                                 <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_cost_details" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
                                 <i class="fa fa-info-circle view_log" title="Cost Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Cost"></i>
                             </td>
-                            <td>
+                            <td class="landed_cost">
                                 @php
                                 $purchase_price = $value->mrp_price - $value->discount_price  / 1.22;
                                 @endphp
                                 {{-- ( {{$value->mrp_price ?? $value->mrp ?? 0}} - {{$value->price_discounted}} / 1.22 ) + {{$value->shipping_cost ?? 0}}  + {{$value->duty_cost ?? 0}}  --}}
-                                 {{ round($purchase_price + $value->shipping_cost + $value->duty_cost,2) }} 
+                                {{ round($purchase_price + $value->shipping_cost + $value->duty_cost,2) }}
                             </td>
                             <td>
                                 <select class="form-control change_status" name="status" id="status" data-id="{{$value->pur_pro_id}}">
                                     <option value="">Select</option>
-                                    <option {{$value->status == 'pending' ? 'selected' : ''}} value="pending">Pending</option>
-                                    <option {{$value->status == 'complete' ? 'selected' : ''}} value="complete">Complete</option>
-                                    <option {{$value->status == 'in_stock' ? 'selected' : ''}} value="in_stock">In Stock</option>
-                                    <option {{$value->status == 'out_stock' ? 'selected' : ''}} value="out_stock">Out Stock</option>
+                                    <option {{$value->purchase_status == 'pending' ? 'selected' : ''}} value="pending">Pending</option>
+                                    <option {{$value->purchase_status == 'complete' ? 'selected' : ''}} value="complete">Complete</option>
+                                    <option {{$value->purchase_status == 'in_stock' ? 'selected' : ''}} value="in_stock">In Stock</option>
+                                    <option {{$value->purchase_status == 'out_stock' ? 'selected' : ''}} value="out_stock">Out Stock</option>
                                 </select>
                                 <i class="fa fa-info-circle view_log" title="Status Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Status"></i>
                             </td>
-                            <td>{{$value->created_at_date}}</td>
+                            @php
+                            $date = explode(" ",$value->created_at_date)
+                            @endphp
+                            <td>{{$date[0]}}</td>
                             <td>
                             @php
                             $order_products_order_id = $value->order_products_order_id;
@@ -210,6 +217,8 @@ table tr td {
                                 <i class="fa fa-list-ul view_full_order" data-id="{{$value->pur_pro_id}}" data-pro-order-id="{{$onlyconsonants}}" data-supplier-id="{{$value->supplier_id}}" data-order-id="{{$value->order_pro_order_id}}" aria-hidden="true"></i>
 
                                 <i class="fa fa-upload upload_data_btn pl-3" data-order-id="{{$value->order_id}}" data-pro-order-id="{{$onlyconsonants}}" data-supplier-id="{{$value->supplier_id}}" aria-hidden="true"></i>
+
+                                <a type="button" class="btn btn-xs btn-image load-communication-modal"  data-object="supplier" data-load-type="text" data-all="1" title="Load messages" data-object="supplier" data-id="{{$value->supplier_id}}" ><img src="/images/chat.png" alt=""></a>
                             </td>
                             
                         </tr>
@@ -246,7 +255,7 @@ table tr td {
                                 <th width="30%">From</th>
                                 <th width="30%">To</th>
                                 <th width="20%">Created By</th>
-                                <th width="20%">Created By</th>
+                                <th width="20%">Created At</th>
                                 
                             </tr>
                         </thead>
@@ -312,14 +321,36 @@ table tr td {
     </div>
     </div>
 
+
+    <div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+                    <input type="hidden" id="chat_obj_type" name="chat_obj_type">
+                    <input type="hidden" id="chat_obj_id" name="chat_obj_id">
+                    <button type="submit" class="btn btn-default downloadChatMessages">Download</button>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 @section('scripts')
 
 <script type="text/javascript">
     $(".add_invoice").click(function (e) {
+        
         var purchase_pro_id = $(this).data('id');
+       
         var invoice = $(this).siblings('.invoice_no').val();
-
+        alert(invoice);
         if(invoice == ''){
             toastr['error']('Invoice No. is Required');
             return false;
@@ -421,6 +452,7 @@ table tr td {
             dataType : "json",
             success: function (response) {
                 if(response.code == 200) {
+                    $('.row_'+purchase_pro_id+' .landed_cost').html(response.landed_cost);
                     toastr['success'](response.messages);
                 }else{
                     toastr['error'](response.messages);
@@ -561,10 +593,165 @@ table tr td {
         });
     });
 
-    $(".view_log").click(function (e) {
-        var purchase_pro_id = $(this).data('id');
-        var header_name = $(this).data('name');
+    // $(".add_product_order_mrp").click(function (e) {
+    $(document).on("click",".add_product_order_mrp",function(e) {
+        
+        var purchase_pro_id = $(this).data('purchase-product-orders-id');
+        var order_products_id = $(this).data('order-products-id');
+        var product_order_mrp_old = $(this).data('old-amount');
+        var product_order_mrp = $(this).closest('.product_order_mrp_div').children('.product_order_mrp').val();
 
+        if(product_order_mrp == ''){
+            toastr['error']('MRP is Required');
+            return false;
+        }
+
+
+
+        var  product_order_mrp_total = 0;
+        $(this).parents('table').find('.product_order_mrp').each( function( key, value ) {
+            // product_order_mrp_total = product_order_mrp_total + $(value).val();
+            product_order_mrp_total += parseInt($(value).val());
+        });
+
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('purchaseproductorders.update') }}",
+            data: {
+				_token: "{{ csrf_token() }}",
+                from : 'product_order_mrp',
+                product_order_mrp_old: product_order_mrp_old,
+                product_order_mrp : product_order_mrp,
+				purchase_pro_id: purchase_pro_id,
+                order_products_id: order_products_id,
+                product_order_mrp_total: product_order_mrp_total,
+            },
+            dataType : "json",
+            success: function (response) {
+                if(response.code == 200) {
+                    $('.row_'+purchase_pro_id+' .mrp_amount').html(response.mrp_price);
+                    $('.row_'+purchase_pro_id+' .discount_amount').html(response.discount_price);
+                    $('.row_'+purchase_pro_id+' .special_price_amount').html(response.special_price);
+                    $('.row_'+purchase_pro_id+' .landed_cost').html(response.landed_cost);
+                    toastr['success'](response.messages);
+
+                }else{
+                    toastr['error'](response.messages);
+                }
+            },
+            error: function () {
+                toastr['error']('Message not sent successfully!');
+            }
+        });
+    });
+
+    
+    $(document).on("click",".add_product_order_discount",function(e) {
+        
+        var purchase_pro_id = $(this).data('purchase-product-orders-id');
+        var order_products_id = $(this).data('order-products-id');
+        var product_order_mrp_old = $(this).data('old-amount');
+        var product_order_mrp = $(this).closest('.product_order_mrp_div').children('.product_order_discount').val();
+
+        if(product_order_mrp == ''){
+            toastr['error']('MRP is Required');
+            return false;
+        }
+
+        var  product_order_mrp_total = 0;
+        $(this).parents('table').find('.product_order_discount').each( function( key, value ) {
+            // product_order_mrp_total = product_order_mrp_total + $(value).val();
+            product_order_mrp_total += parseInt($(value).val());
+        });
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('purchaseproductorders.update') }}",
+            data: {
+				_token: "{{ csrf_token() }}",
+                from : 'product_order_discounted_price',
+                product_order_mrp_old: product_order_mrp_old,
+                product_order_mrp : product_order_mrp,
+				purchase_pro_id: purchase_pro_id,
+                order_products_id: order_products_id,
+                product_order_mrp_total:product_order_mrp_total,
+            },
+            dataType : "json",
+            success: function (response) {
+                if(response.code == 200) {
+                    $('.row_'+purchase_pro_id+' .mrp_amount').html(response.mrp_price);
+                    $('.row_'+purchase_pro_id+' .discount_amount').html(response.discount_price);
+                    $('.row_'+purchase_pro_id+' .special_price_amount').html(response.special_price);
+                    $('.row_'+purchase_pro_id+' .landed_cost').html(response.landed_cost);
+                    toastr['success'](response.messages);
+                }else{
+                    toastr['error'](response.messages);
+                }
+            },
+            error: function () {
+                toastr['error']('Message not sent successfully!');
+            }
+        });
+    });
+
+    
+    $(document).on("click",".add_product_order_special",function(e) {
+        
+        var purchase_pro_id = $(this).data('purchase-product-orders-id');
+        var order_products_id = $(this).data('order-products-id');
+        var product_order_mrp_old = $(this).data('old-amount');
+        var product_order_mrp = $(this).closest('.product_order_mrp_div').children('.product_order_special').val();
+
+        if(product_order_mrp == ''){
+            toastr['error']('MRP is Required');
+            return false;
+        }
+
+        var  product_order_mrp_total = 0;
+        $(this).parents('table').find('.product_order_special').each( function( key, value ) {
+            // product_order_mrp_total = product_order_mrp_total + $(value).val();
+            product_order_mrp_total += parseInt($(value).val());
+        });
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('purchaseproductorders.update') }}",
+            data: {
+				_token: "{{ csrf_token() }}",
+                from : 'product_order_special_price',
+                product_order_mrp_old: product_order_mrp_old,
+                product_order_mrp : product_order_mrp,
+				purchase_pro_id: purchase_pro_id,
+                order_products_id: order_products_id,
+                product_order_mrp_total:product_order_mrp_total,
+            },
+            dataType : "json",
+            success: function (response) {
+                if(response.code == 200) {
+                    $('.row_'+purchase_pro_id+' .mrp_amount').html(response.mrp_price);
+                    $('.row_'+purchase_pro_id+' .discount_amount').html(response.discount_price);
+                    $('.row_'+purchase_pro_id+' .special_price_amount').html(response.special_price);
+                    $('.row_'+purchase_pro_id+' .landed_cost').html(response.landed_cost);
+                    toastr['success'](response.messages);
+                }else{
+                    toastr['error'](response.messages);
+                }
+            },
+            error: function () {
+                toastr['error']('Message not sent successfully!');
+            }
+        });
+    });
+
+    // $(".view_log").click(function (e) {
+    $(document).on("click",".view_log",function(e) {    
+        
+        var purchase_pro_id = $(this).data('id');
+        var purchase_order_products_id = $(this).data('order-products-id');
+       
+        var header_name = $(this).data('name');
+        alert(header_name);
         $.ajax({
             type: "GET",
             url: "{{ route('purchaseproductorders.logs') }}",
@@ -572,6 +759,7 @@ table tr td {
 				_token: "{{ csrf_token() }}",
                 header_name : header_name,
 				purchase_pro_id: purchase_pro_id,
+                purchase_order_products_id: purchase_order_products_id,
             },
             dataType : "json",
             success: function (response) {
@@ -625,6 +813,7 @@ table tr td {
             dataType : "json",
             success: function (response) {
 
+                if(response.order_data.length > 0){
                 var html_content = '';
                 html_content += '<tr class="expand-row-10 row_order_data_'+purchase_pro_id+'">';
                 html_content += '<td colspan="13" id="product-list-data-10"><center><p>ORDERED PRODUCTS</p></center>';
@@ -651,9 +840,41 @@ table tr td {
                     html_content += '<td>'+value.name+'</td>';
                     html_content += '<td>'+value.sku+'</td>';
                     html_content += '<td>'+(value.brands_name != null ? value.brands_name : '' )+'</td>';
-                    html_content += '<td>'+(value.mrp_price != null ? value.mrp_price : '')+'</td>';
-                    html_content += '<td>'+(value.mrp_price_discounted != null ? value.mrp_price_discounted : '') +'</td>';
-                    html_content += '<td>'+(value.mrp_price_special != null ? value.mrp_price_special: '') +'</td>';
+
+                    // html_content += '<td>'+(value.mrp_price != null ? value.mrp_price : '')+'</td>';
+                    if(response.purchase_pro_arr[response.purchase_pro_id] != undefined && response.purchase_pro_arr[response.purchase_pro_id][value.order_products_id] != undefined && response.purchase_pro_arr[response.purchase_pro_id][value.order_products_id]['order_product_mrp'] != undefined)
+                        var amount = (response.purchase_pro_arr[response.purchase_pro_id][value.order_products_id]['order_product_mrp'] ? response.purchase_pro_arr[response.purchase_pro_id][value.order_products_id]['order_product_mrp'] : (value.mrp_price != null ? value.mrp_price : 0) );
+                    else
+                        var amount = (value.mrp_price != null ? value.mrp_price : 0);
+
+                    html_content += '<td><div style="display:flex;" class="product_order_mrp_div"><input type="text" name="order_product_mrp" data-supplier-id="'+value.supplier_id+'" data-order-products-id="'+value.order_products_id+'" placeholder="MRP" class="form-control mb-3 product_order_mrp" value="'+ amount +'">';
+                    html_content += '<div><button style="display: inline;width: 5%" class="btn btn-sm btn-image add_product_order_mrp"  data-purchase-product-orders-id="'+response.purchase_pro_id+'" data-old-amount="'+ amount +'" data-supplier-id="'+value.supplier_id+'" data-order-products-id="'+value.order_products_id+'""><img src="/images/filled-sent.png"></button>';
+                    html_content += ' <i class="fa fa-info-circle view_log" title="MRP Logs" aria-hidden="true" data-id="'+response.purchase_pro_id+'" data-order-products-id="'+value.order_products_id+'" data-name="Product Order MRP"></i></div></div>';
+                    html_content += '</td>';
+
+                    // html_content += '<td>'+(value.mrp_price_discounted != null ? value.mrp_price_discounted : '') +'</td>';
+
+                    if(response.purchase_pro_arr[response.purchase_pro_id] != undefined && response.purchase_pro_arr[response.purchase_pro_id][value.order_products_id] != undefined && response.purchase_pro_arr[response.purchase_pro_id][value.order_products_id]['order_product_discount'] != undefined)
+                        var dis_amount = (response.purchase_pro_arr[response.purchase_pro_id][value.order_products_id]['order_product_discount'] ? response.purchase_pro_arr[response.purchase_pro_id][value.order_products_id]['order_product_discount'] : (value.mrp_price_discounted != null ? value.mrp_price_discounted : 0) );
+                    else
+                        var dis_amount = (value.mrp_price_discounted != null ? value.mrp_price_discounted : 0);
+
+
+                    html_content += '<td><div style="display:flex;" class="product_order_mrp_div"><input type="text" name="order_product_discount" data-supplier-id="'+value.supplier_id+'" data-order-products-id="'+value.order_products_id+'" placeholder="Discount" class="form-control mb-3 product_order_discount" value="'+dis_amount+'">';
+                    html_content += '<div><button style="display: inline;width: 5%" class="btn btn-sm btn-image add_product_order_discount" data-purchase-product-orders-id="'+response.purchase_pro_id+'" data-old-amount="'+dis_amount+'"  data-supplier-id="'+value.supplier_id+'" data-order-products-id="'+value.order_products_id+'""><img src="/images/filled-sent.png"></button>';
+                    html_content += ' <i class="fa fa-info-circle view_log" title="MRP Logs" aria-hidden="true" data-id="'+response.purchase_pro_id+'" data-order-products-id="'+value.order_products_id+'" data-name="Product Order Discounted Price"></i></div></div>';
+                    html_content += '</td>';
+
+                    // html_content += '<td>'+(value.mrp_price_special != null ? value.mrp_price_special: '') +'</td>';
+                    if(response.purchase_pro_arr[response.purchase_pro_id] != undefined && response.purchase_pro_arr[response.purchase_pro_id][value.order_products_id] != undefined && response.purchase_pro_arr[response.purchase_pro_id][value.order_products_id]['order_product_special'] != undefined)
+                        var spl_amount = (response.purchase_pro_arr[response.purchase_pro_id][value.order_products_id]['order_product_special'] ? response.purchase_pro_arr[response.purchase_pro_id][value.order_products_id]['order_product_special'] : (value.mrp_price_special != null ? value.mrp_price_special: 0) );
+                    else
+                        var spl_amount = (value.mrp_price_special != null ? value.mrp_price_special : 0);
+
+                    html_content += '<td><div style="display:flex;" class="product_order_mrp_div"><input type="text" name="order_product_special" data-supplier-id="'+value.supplier_id+'" data-order-products-id="'+value.order_products_id+'" placeholder="Discount" class="form-control mb-3 product_order_special" value="'+spl_amount+'">';
+                    html_content += '<div><button style="display: inline;width: 5%" class="btn btn-sm btn-image add_product_order_special" data-purchase-product-orders-id="'+response.purchase_pro_id+'" data-old-amount="'+spl_amount+'" data-supplier-id="'+value.supplier_id+'" data-order-products-id="'+value.order_products_id+'""><img src="/images/filled-sent.png"></button>';
+                    html_content += ' <i class="fa fa-info-circle view_log" title="MRP Logs" aria-hidden="true" data-id="'+response.purchase_pro_id+'" data-order-products-id="'+value.order_products_id+'" data-name="Product Order Special Price"></i></div></div>';
+                    html_content += '</td>';
                     // html_content += '<td><i class="fa fa-upload upload_data_btn" data-id="'+value.order_products_id+'" data-order-id="'+order_id+'" aria-hidden="true"></i></td>';
                     html_content += '</tr>';
 
@@ -663,6 +884,12 @@ table tr td {
                 html_content += '</div>';
                 html_content += '</td>';
                 html_content += '</tr>';
+                }else{
+                    var html_content = '';
+                    html_content += '<tr class="expand-row-10 row_order_data_'+purchase_pro_id+'">';
+                    html_content += '<td colspan="13" id="product-list-data-10"><center><p>NO ANY ORDERS</p></center>';
+                    html_content += '</tr>';
+                }
 
                 $(".row_"+purchase_pro_id).after(html_content);
             },

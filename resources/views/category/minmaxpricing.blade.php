@@ -14,7 +14,7 @@
             @foreach ( $results as $result )
                 <tr>
                     <td>{{ $brandSegment }}</td>
-                    <td>{{ $result->title }}</td>
+                    <td>{{ $result->parent_name.' -> '.$result->title }}</td>
                     <td><input type="text" data-type='min' data-cat='{{ $result->cat_id }}' data-brand='{{ $brandSegment }}' class="form-control update-pricing" style="text-align: right;" value="{{ $formResults[$brandSegment][$result->cat_id]['min'] ?? '' }}"></td>
                     <td>{{ $result->minimumPrice }}</td>
                     <td class="text-right">{{ $result->maximumPrice }}</td>

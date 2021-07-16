@@ -216,7 +216,18 @@
             <div class="row cls_action_box" style="margin:0px;">
                 @if(auth()->user()->isAdmin())
                     <button type="button" class='btn btn-image whatsapp-group pd-5' data-id="{{ $task->id }}" data-toggle='modal' data-target='#whatsAppMessageModal'><img src="{{asset('images/whatsapp.png')}}" /></button>
-                @endif
+                @endif  
+
+                <button data-toggle="modal" data-target="#taskReminderModal"  
+                    class='btn pd-5 task-set-reminder' 
+                    data-id="{{ $task->id }}"
+                    data-frequency="{{ !empty($task->reminder_message) ? $task->frequency : '60' }}"
+                    data-reminder_message="{{ !empty($task->reminder_message) ? $task->reminder_message : 'Plz update' }}"
+                    data-reminder_from="{{ $task->reminder_from }}"
+                    data-reminder_last_reply="{{ ($task && !empty($task->reminder_last_reply)) ? $task->reminder_last_reply : '' }}"
+                >
+                    <i class="fa fa-bell @if(!empty($task->reminder_message) && $task->frequency > 0) {{ 'green-notification'  }} @else {{ 'red-notification' }} @endif" aria-hidden="true"></i>
+                </button>
 
                 @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id() || $task->master_user_id == Auth::id())
                     <button type="button" title="Complete the task by user" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png"/></button>
@@ -246,14 +257,6 @@
 
                 @if ($special_task->users->contains(Auth::id()) || ($task->assign_from == Auth::id() && $task->is_private == 0) || ($task->assign_from == Auth::id() && $special_task->contacts()->count() > 0) || Auth::id() == 6)
                     <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="{{asset('images/view.png')}}"/></a>
-                @endif
-
-                @if ($special_task->users->contains(Auth::id()) || (!$special_task->users->contains(Auth::id()) && $task->assign_from == Auth::id() && $special_task->contacts()->count() > 0))
-                    @if ($task->is_private == 1)
-                        <button type="button" class="btn btn-image make-private-task pd-5" data-taskid="{{ $task->id }}"><img src="{{asset('images/private.png')}}"/></button>
-                    @else
-                        <button type="button" class="btn btn-image make-private-task pd-5" data-taskid="{{ $task->id }}"><img src="{{asset('images/not-private.png')}}"/></button>
-                    @endif
                 @endif
 
                 @if ($task->is_flagged == 1)

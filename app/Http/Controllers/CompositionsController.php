@@ -15,7 +15,7 @@ class CompositionsController extends Controller
     public function index(Request $request)
     {
         $matchedArray = [];
-        $compositions = Compositions::query();
+        $compositions =Compositions::withCount('productCounts');
 
         if ($request->keyword != null) {
             //getting search results based on two words
@@ -29,7 +29,7 @@ class CompositionsController extends Controller
                         if (strpos($comp->name, $word) !== false) {
 
                         } else {
-                            $isMatched = 0;
+                            $isMatched = 0; 
                         }
                     }
                     if ($isMatched == 1) {
@@ -44,6 +44,15 @@ class CompositionsController extends Controller
         }
 
         $listcompostions = Compositions::where('replace_with', '!=', '')->groupBy('replace_with')->pluck('replace_with', 'replace_with')->toArray();
+// dd($compositions->get());
+        // foreach($compositions  as  $com){
+        //         dump($com->title);
+        //     }
+
+
+// foreach($compositions  as  $com){
+//     dump($com->title);
+// }
 
         if ($request->with_ref == 1) {
             $compositions = $compositions->where(function ($q) use ($request) {
@@ -53,9 +62,11 @@ class CompositionsController extends Controller
             $compositions = $compositions->where(function ($q) use ($request) {
                 $q->orWhere('replace_with', '')->orWhereNull('replace_with');
             });
+            
+            $compositions = $compositions->orderBy('product_counts_count', 'desc')->paginate(200);
         }
 
-        $compositions = $compositions->orderBy('id', 'desc')->paginate(200);
+
 
         return view('compositions.index', compact('compositions', 'listcompostions'));
     }
@@ -233,19 +244,21 @@ class CompositionsController extends Controller
             ])->onQueue("supplier_products");
         }
 
-        $c = Compositions::where("name", $from)->first();
-        if ($c) {
-            //once it is save let's store to the user updated attributes table as well
-            $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
-                'old_value'      => $c->replace_with,
-                'new_value'      => $to,
-                'attribute_name' => 'compositions',
-                'attribute_id'   => $c->id,
-                'user_id'        => $userId,
-            ]);
+        $c = Compositions::where("name", $from)->get();
+        if (!$c->isEmpty()) {
+            foreach($c as $b) {
+                //once it is save let's store to the user updated attributes table as well
+                $userUpdatedAttributeHistory = \App\UserUpdatedAttributeHistory::create([
+                    'old_value'      => $b->replace_with,
+                    'new_value'      => $to,
+                    'attribute_name' => 'compositions',
+                    'attribute_id'   => $b->id,
+                    'user_id'        => $userId,
+                ]);
 
-            $c->replace_with = $to;
-            $c->save();
+                $b->replace_with = $to;
+                $b->save();
+            }
         }
 
         return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);

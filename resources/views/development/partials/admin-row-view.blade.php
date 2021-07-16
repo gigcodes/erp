@@ -16,6 +16,18 @@
         </a> -->
         <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
         <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
+            
+        <a href="javascript:;" data-toggle="modal" data-target="#developmentReminderModal"  
+            class='pd-5 development-set-reminder' 
+            data-id="{{ $issue->id }}"
+            data-frequency="{{ !empty($issue->reminder_message) ? $issue->frequency : '60' }}"
+            data-reminder_message="{{ !empty($issue->reminder_message) ? $issue->reminder_message : 'Plz update' }}"
+            data-reminder_from="{{ $issue->reminder_from }}"
+            data-reminder_last_reply="{{ $issue->reminder_last_reply }}"
+        >
+            <i class="fa fa-bell @if(!empty($issue->reminder_message) && $issue->frequency > 0) {{ 'green-notification'  }} @else {{ 'red-notification' }} @endif"  aria-hidden="true"></i>
+        </a>     
+
         <br>
         {{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}
         @if($issue->task_type_id == 1) Devtask @elseif($issue->task_type_id == 3) Issue @endif
@@ -64,8 +76,8 @@
                 <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$issue->id}}" data-userId="{{$issue->user_id}}"><i class="fa fa-info-circle"></i></button>
             </div>
             <!-- <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}">Save</button> -->
-                @if($issue->developerTaskHistory)
-                    <span>Approved : {{$issue->developerTaskHistory ? $issue->developerTaskHistory->new_value:0  }}</span>
+                @if($issue->ApprovedDeveloperTaskHistory)
+                    <span>Approved : {{$issue->ApprovedDeveloperTaskHistory ? $issue->ApprovedDeveloperTaskHistory->new_value:0  }}</span>
                     @else 
                     <p style="color:#337ab7"><strong>Unapproved</strong> </p>
                 @endif
@@ -181,11 +193,16 @@
     <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
     </td>
     <td>
-        @if($issue->is_resolved)
-            <strong>Done</strong>
-        @else
-            <?php echo Form::select("task_status",$statusList,$issue->status,["class" => "form-control resolve-issue","onchange" => "resolveIssue(this,".$issue->id.")"]); ?>
-        @endif
+        <div>
+            @if($issue->is_resolved)
+                <strong>Done</strong>
+            @else
+                <?php echo Form::select("task_status",$statusList,$issue->status,["class" => "form-control resolve-issue","onchange" => "resolveIssue(this,".$issue->id.")"]); ?>
+            @endif
+            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-status-history" title="Show Status History" data-id="{{$issue->id}}">
+                <i class="fa fa-info-circle"></i>
+            </button>
+        </div>
     </td>
     <td>
         @if($issue->cost > 0)

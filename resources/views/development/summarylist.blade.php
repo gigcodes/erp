@@ -157,7 +157,7 @@
                         </div>
                     @endif
                     <div class="col-md-2 pd-sm pd-rt status-selection">
-                    <?php echo Form::select("task_status[]",$statusList,request()->get('task_status', ['In Progress']),["class" => "form-control multiselect","multiple" => true]); ?>
+                    <?php echo Form::select("task_status[]",$statusList,request()->get('task_status', array_values($statusList)),["class" => "form-control multiselect","multiple" => true]); ?>
                     </div>
                     
                     
@@ -226,6 +226,40 @@
             </div>
         </div>
     </div>
+
+    <div id="status_quick_history_modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title">Status History</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            
+                <div class="row">
+                    <div class="col-md-12" id="status_history_div">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Old Status</th>
+                                    <th>New Status</th>
+                                    <th>Updated by</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
    
 @endsection
 
@@ -1403,6 +1437,38 @@ $(document).on("submit","#upload-task-documents",function(e) {
                 }
             });
         });
+
+
+        $(document).on('click', '.show-status-history', function() {
+                var data = $(this).data('history');
+                var issueId = $(this).data('id');
+                $('#status_quick_history_modal table tbody').html('');
+                $.ajax({
+                    url: "{{ route('development/status/history') }}",
+                    data: {id: issueId},
+                    success: function (data) {
+                        if(data != 'error') {
+                            $.each(data, function(i, item) {
+                                if(item['is_approved'] == 1) {
+                                    var checked = 'checked';
+                                }
+                                else {
+                                    var checked = ''; 
+                                }
+                                $('#status_quick_history_modal table tbody').append(
+                                    '<tr>\
+                                        <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                        <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                                        <td>'+item['new_value']+'</td>\
+                                        <td>'+item['name']+'</td>\
+                                    </tr>'
+                                );
+                            });
+                        }
+                    }
+                });
+                $('#status_quick_history_modal').modal('show');
+            });
 
     </script>
 @endsection

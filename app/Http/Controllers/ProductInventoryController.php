@@ -647,7 +647,7 @@ class ProductInventoryController extends Controller
 
 		$reply_categories = \App\ReplyCategory::whereHas('product_dispatch')->get();
 
-		return view("instock.instruction_create",compact(['productId','users','customers','order','locations','couriers', 'reply_categories']));
+		return view("instock.instruction_create",compact(['productId','users','order','locations','couriers', 'reply_categories']));
 
 	}
 
@@ -779,13 +779,15 @@ class ProductInventoryController extends Controller
 		$instruction->assigned_from = \Auth::user()->id;
 		$instruction->assigned_to = $params["assign_to"];
 		$instruction->product_id = $params["product_id"];
-		$instruction->order_id = isset($params["order_id"]) ? $params["order_id"] : 0;
+		// $instruction->order_id = isset($params["order_id"]) ? $params["order_id"] : 0;
+		$instruction->order_id = isset($params["order_id"]) ? $params["order_id"] : null;
 		$instruction->save();
 
 
 		$productHistory = new \App\ProductLocationHistory();
 		$productHistory->fill($params);
 		$productHistory->created_by = \Auth::user()->id;
+		$productHistory->instruction_message = $params["instruction_message"];
 		$productHistory->save();
 
 
@@ -917,7 +919,7 @@ class ProductInventoryController extends Controller
 
 		}
 
-		return response()->json(["code" => 1]);
+		return response()->json(["code" => 1, "productHistory" => $productHistory,"userName" => $productHistory->user->name]);
 
 	}
 

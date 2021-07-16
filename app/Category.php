@@ -16,6 +16,10 @@ class Category extends Model
 {
 
     CONST UNKNOWN_CATEGORIES = 143;
+    CONST PUSH_TYPE = [
+        "0" => "Simple",
+        "1" => "Configurable"
+    ];
 
     use NestableTrait;
     
@@ -32,7 +36,7 @@ class Category extends Model
 
      */
   
-    public $fillable = [ 'id','title', 'parent_id','status_after_autocrop','magento_id', 'show_all_id' ];
+    public $fillable = [ 'id','title', 'parent_id','status_after_autocrop','magento_id', 'show_all_id','need_to_check_measurement','need_to_check_size','ignore_category','push_type'];
 
     /**
      * Get the index name for the model.
@@ -96,7 +100,13 @@ class Category extends Model
 
     }
 
-     public static function getCategoryIdByKeyword( $keyword, $gender=null, $genderAlternative=null )
+
+        public function categorySegmentId()
+        {
+            return $this->hasOne(CategorySegment::class,'id','category_segment_id');
+        }
+
+        public static function getCategoryIdByKeyword( $keyword, $gender=null, $genderAlternative=null )
     {
         // Set gender
         if ( empty( $gender ) ) {

@@ -75,7 +75,8 @@ class ScrapApiLogCommand extends Command
                 $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
             }
 
-            $url = 'http://' . $supplier->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/send-position?website=' . $name;
+            // $url = 'http://' . $supplier->server_id . '.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/send-position?website=' . $name;
+            $url = 'http://' . $supplier->server_id . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/send-position?website=' . $name;
 
             $curl = curl_init();
 
@@ -95,7 +96,7 @@ class ScrapApiLogCommand extends Command
 
                         $api_log = new ScrapApiLog;
                         $api_log->scraper_id = $scraper->id;
-                        $api_log->server_id = $request->server_id;
+                        $api_log->server_id = $scraper->server_id;
                         $api_log->log_messages = $log;
                         $api_log->save();
                     }

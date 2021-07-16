@@ -12,14 +12,14 @@
     <td>{{ $learning->created_at->format('m/d/Y') }}</td>
     <td>
         <select class="form-control updateUser" name="user">
-            @foreach(App\User::all() as $user)
+            @foreach(App\User::orderBy('name')->get() as $user)
                 <option value="{{ $user->id }}" {{ $learning->learning_user == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
             @endforeach
         </select>
     </td>
     <td>
         <select class="form-control updateProvider" name="provider">
-            @foreach(App\User::all() as $provider)
+            @foreach(App\User::orderBy('name')->get()  as $provider)
                 <option value="{{ $provider->id }}" {{ $learning->learning_vendor == $provider->id ? 'selected' : '' }}>{{ $provider->name }}</option>
             @endforeach
         </select>
@@ -41,7 +41,23 @@
         </select>
     </td>
     <td><div style="display: flex"><input type="text" class="form-control send-message-textbox" name="learning_assignment" value="{{ $learning->learning_assignment }}" maxlength="15"> <img src="/images/filled-sent.png" class="updateAssignment" style="cursor: pointer; object-fit: contain; height: auto; width: 16px; margin-left: 4px;"></div></td>
-    <td>{{ $learning->learning_duedate }}</td>
+
+    <td>
+        <div>
+            <input style="min-width: 30px;" placeholder="E.Date" 
+                value="{{ $learning->learning_duedate }}" 
+                type="text" 
+                class="form-control learning-overdue-datetime due-date-update" 
+                name="due_date_{{$learning->id}}" 
+                data-id="{{$learning->id}}" 
+                id="due_date_{{$learning->id}}"
+            >
+               
+            
+            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-due-history" title="Show Due Date" data-learningid="{{ $learning->id }}"><i class="fa fa-info-circle"></i></button>
+        </div>    
+    </td>
+
     <td>
         <div style="display: flex">
         <select class="form-control updateStatus" name="status">
