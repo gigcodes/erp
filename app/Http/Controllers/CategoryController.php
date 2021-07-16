@@ -55,7 +55,7 @@ class CategoryController extends Controller
             ->selected($old ? $old : 1)
             ->renderAsDropdown();
 
-        return view('category.treeview', compact('category_segments', 'categories', 'allCategories', 'allCategoriesDropdown', 'allCategoriesDropdownEdit','selected_value'))->with('i', (request()->input('page', 1) - 1) * 10);;
+        return view('category.treeview', compact('category_segments', 'categories', 'allCategories', 'allCategoriesDropdown', 'allCategoriesDropdownEdit','selected_value'))->with('i', (request()->input('page', 1) - 1) * 20);;
     }
     public function manageCategory11(Request $request)
     {
@@ -896,8 +896,7 @@ class CategoryController extends Controller
                 }
                 $category->simplyduty_code = $request->simplyduty_code;
                 $category->save();
-                return response()->json(['success-remove'=> 'Simply duty code of '.  $category->title . ' updated successfully']);
-
+                return response()->json(['success-remove'=> 'SH code of '.  $category->title . ' updated successfully']);
             }
 
 

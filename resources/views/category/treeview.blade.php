@@ -7,6 +7,9 @@
                 border: 1px solid #ddd;
                 background-color: #fff;
             }
+            table{
+                word-break: break-all;
+        }
 
         </style>
 
@@ -147,28 +150,29 @@
                 <table class="table table-bordered" style="table-layout:fixed;">
                     <thead>
                         <tr>
-                            <th style="width:5%">Id</th>
-                            <th style="width:8%">Level-1 </th>
-                            <th style="width:8%">Level-2</th>
-                            <th style="width:8%">Level-3</th>
-                            <th style="width:8%">Level-4</th>
 
-                            <th style="width:10%"> Magento id</th>
-                            <th style="width:10%"> Show all id </th>
-                            <th style="width:10%"> Parent category </th>
-                            <th style="width:10%"> Select category segmanet </th>
-                            <th style="width:10%"> Simplyduty code </th>
-                            <th style="width:5%"> Check Measurement </th>
-                            <th style="width:5%"> Check Size </th>
-                            <th style="width:15%"> Check for dimensions </th>
-                            <th style="width:15%"> Push Type</th>
-                            <th style="width=8%">Action</th>
+                            <th style="width:6%">Level-1 </th>
+                            <th style="width:6%">Level-2</th>
+                            <th style="width:6%">Level-3</th>
+                            <th style="width:6%">Level-4</th>
+
+                            <th style="width:8%"> Magento id</th>
+                            <th style="width:8%"> Show all id </th>
+                            <th style="width:9%"> SH code </th>
+                            <th style="width:7%"> Select category segmanet </th>
+                            <th style="width:9%"> Parent category </th>
+
+                            <th style="width:4%"> Check Measurement </th>
+                            <th style="width:4%"> Check Size </th>
+
+                            <th style="width:7%"> Push Type</th>
+                            
+                            <th style="width:3%">Action</th>
                         </tr>
                     </thead>
 
                     @foreach ($categories as $key => $cat)
                         <tr class="parent-cat">
-                            <td class="index">{{ $cat->id }}</td>
                             @if ($cat->parentC)
                                 @if ($cat->parentC->parentC)
                                     @if ($cat->parentC->parentC->parentC)
@@ -280,13 +284,13 @@
                                 </form>
                             </td>
                             <td class="pb-0">
-                                <div class="form-group">
+                                <div class="form-group mb-2">
                                     <form method="POST"
                                         action="{{ route('category.child-update-category', ['edit' => $cat->id]) }}"
                                         class="edit_category_data" data-id={{ $cat->id }}>
                                         @csrf
                                         <div class="d-flex align-items-baseline">
-                                            <div class="form-group mb-0">
+                                            <div class="form-group mb-0 pb-0">
 
                                                 <input type="text" class="form-control" name="show_all_id"
                                                     placeholder="Enter Show All Id" value="{{ $cat->show_all_id }}">
@@ -299,11 +303,18 @@
                                 </div>
                             </td>
                             <td class="pb-0">
-                                <div class="form-group mb-0">
-                                    {{-- <input type="text" class="form-control" id="cat_category_segment_id" name="category_segment_id"
-                                            placeholder="Enter Show All Id"> --}}
-                                    {{-- {{ dd($category_segments) }} --}}
+                                <form method="post" action="{{ route('category.child-update-category', ['edit' => $cat->id]) }}" class="edit_category_data"  data-id={{ $cat->id }}>
+                                    {{csrf_field()}}
+                                
+                                    <input type="text" class="form-control" placeholder="Entery HS code" name="simplyduty_code" value="{{ $cat->simplyduty_code }}" >
+                                    <button type="button" class="btn btn-secondary btn-block mt-2"  hidden>Save</button>
+                                </form>
+                            </td>
 
+
+                            
+                            <td class="pb-0">
+                                <div class="form-group mb-0 pb-0">
                                     <form method="POST"
                                         action="{{ route('category.child-update-category', ['edit' => $cat->id]) }}"
                                         class="edit_category_data" data-id={{ $cat->id }}>
@@ -328,7 +339,7 @@
                                     action="{{ route('category.child-update-category', ['edit' => $cat->id]) }}"
                                     class="edit_category_data" data-id={{ $cat->id }}>
                                     @csrf
-                                    <div class="form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
+                                    <div class="mb-0 pb-0  form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
 
                                         <select name="parent_id" class="submit_on_change globalSelect2">
                                             <option>Select Category </option>
@@ -350,15 +361,6 @@
                                 </form>
                             </td>
 
-
-                            <td class="pb-0">
-                                <form method="post" action="{{ route('category.child-update-category', ['edit' => $cat->id]) }}" class="edit_category_data"  data-id={{ $cat->id }}>
-                                    {{csrf_field()}}
-                                
-                                    <input type="text" class="form-control" placeholder="Entery HS code" name="simplyduty_code" value="{{ $cat->simplyduty_code }}" >
-                                    <button type="button" class="btn btn-secondary btn-block mt-2"  hidden>Save</button>`
-                                </form>
-                            </td>
 
                             <td class="pb-0">
                                 <div
