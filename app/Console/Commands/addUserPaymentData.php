@@ -63,7 +63,7 @@ class addUserPaymentData extends Command
             }
             $dev_task_payment = 0;
         }
-        $tasks = Task::whereNotNull('is_completed')->get();
+        $tasks = Task::where('status', 1)->get();
         foreach ($tasks as $task) {
 
             $task_user = User::find($task->assign_to);
@@ -78,7 +78,7 @@ class addUserPaymentData extends Command
                 'currency'          => '',
                 'user_id'           => $task_user->id,
                 'by_command'        => 1,
-                'developer_task_id' => $task->id,
+                'task_id' => $task->id,
             ]);
             if($task_payment){
                 dump('task-id - ' . $task->id . ' payment-id - ' . $task_payment->id . ' is done');

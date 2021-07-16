@@ -145,7 +145,7 @@
               <td>
                 @if(isset($task->user)) {{  $task->user->name }} @endif
               </td>
-              <td>{{ \Carbon\Carbon::parse($task->date)->format('d-m') }}</td>
+              <td>{{ \Carbon\Carbon::parse($task->date)->format('d-m-Y') }}</td>
               <td>{{ str_limit($task->details, $limit = 100, $end = '...') }}</td>
               <td>@if($task->task_id) Task #{{$task->task_id}} @elseif($task->developer_task_id) Devtask #{{$task->developer_task_id}} @else Manual @endif </td>
               <td>{{ $task->estimate_minutes }}</td>
