@@ -103,8 +103,11 @@
 				        <th width="10%">Brand</th>
 				        <th width="10%">Min Price</th>
 				        <th width="10%">Max Price</th>
-				        <?php foreach($storeWebsite as $title) { ?>
-				        	<th width="10%"><?php echo $title; ?></th>
+				        <?php foreach($storeWebsite as $k => $title) { ?>
+				        	<th data-id="{{$k}}" width="10%"><?php echo $title; ?> 
+				        		<a class="brand-history"  data-id="{{$k}}" href="javascript:;" ><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+				        		<a class="missing-brand-history" data-id="{{$k}}" href="javascript:;" ><i class="fa fa-close" aria-hidden="true"></i></a>
+				        	</th>
 				        <?php } ?>	
 				      </tr>
 				    </thead>
@@ -172,6 +175,33 @@
 	</div>
 </div>
 
+<div id="brand-live-data" class="modal fade" role="dialog">
+  	<div class="modal-dialog">
+	    <!-- Modal content-->
+	    <div class="modal-content">
+	        <div class="modal-header">
+	        	<h4 class="modal-title">Brand Live</h4>
+	          	<button type="button" class="close" data-dismiss="modal">&times;</button>
+	        </div>
+	        <div class="modal-body"></div>
+    	</div>
+	</div>
+</div>
+
+<div id="missing-live-data" class="modal fade" role="dialog">
+  	<div class="modal-dialog">
+	    <!-- Modal content-->
+	    <div class="modal-content">
+	        <div class="modal-header">
+	        	<h4 class="modal-title">Brand Missing</h4>
+	          	<button type="button" class="close" data-dismiss="modal">&times;</button>
+	        </div>
+	        <div class="modal-body"></div>
+    	</div>
+	</div>
+</div>
+
+
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
 <script src="/js/jquery-ui.js"></script>
@@ -217,6 +247,57 @@
         	});
 		});
 	});
+
+	$(document).on("click",".brand-history",function(e) {
+		e.preventDefault();
+		var $this = $(this);
+		$.ajax({
+            url: "/store-website/brand/live-brands",
+            type: 'GET',
+            data : {
+            	store_website_id: $this.data("id")
+            },
+            beforeSend : function() {
+            	$("#loading-image").show();
+            },
+            success: function(response) {
+            	$("#loading-image").hide();
+                $("#brand-live-data").find(".modal-body").html(response);
+                $("#brand-live-data").modal("show");
+            },
+            error: function(response) {
+            	$("#loading-image").hide();
+            	alert("Something went wrong, please try after sometime.");
+            }
+    	});
+	});
+
+	$(document).on("click",".missing-brand-history",function(e) {
+		e.preventDefault();
+		var $this = $(this);
+		$.ajax({
+            url: "/store-website/brand/missing-brands",
+            type: 'GET',
+            data : {
+            	store_website_id: $this.data("id")
+            },
+            beforeSend: function() {
+              $("#loading-image").show();
+            },
+            success: function(response) {
+            	$("#loading-image").hide();
+                $("#missing-live-data").find(".modal-body").html(response);
+                $("#missing-live-data").modal("show");
+            },
+            error: function(response) {
+            	$("#loading-image").hide();
+            	alert("Something went wrong, please try after sometime.");
+            }
+    	});
+	});
+
+	
+
 </script>
 
 @endsection
