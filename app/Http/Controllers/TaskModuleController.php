@@ -2825,7 +2825,7 @@ class TaskModuleController extends Controller {
             if(!empty($task_user)){
 				PaymentReceipt::create([
 					'status'            => 'Pending',
-					'rate_estimated'    => $task_user->fixed_price_user_or_job == 1 ? $task->cost ?? 0 : $task->approximate * ($task_user->hourly_rate ?? 0),
+					'rate_estimated'    => $task_user->fixed_price_user_or_job == 1 ? $task->cost ?? 0 : $task->approximate * ($task_user->hourly_rate ?? 0) / 60,
 					'date'              => date('Y-m-d'),
 					'currency'          => '',
 					'user_id'           => $task_user->id,

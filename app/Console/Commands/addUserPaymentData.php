@@ -51,7 +51,7 @@ class addUserPaymentData extends Command
             }
             $dev_task_payment = PaymentReceipt::create([
                 'status'            => 'Done',
-                'rate_estimated'    => $dev_task_user->fixed_price_user_or_job == 1 ? $dev_task->cost ?? 0 : ($dev_task->estimate_minutes ?? 0) * ($dev_task_user->hourly_rate ?? 0),
+                'rate_estimated'    => $dev_task_user->fixed_price_user_or_job == 1 ? $dev_task->cost ?? 0 : ($dev_task->estimate_minutes ?? 0) * ($dev_task_user->hourly_rate ?? 0) / 60,
                 'date'              => date('Y-m-d'),
                 'currency'          => '',
                 'user_id'           => $dev_task_user->id,
@@ -73,7 +73,7 @@ class addUserPaymentData extends Command
             }
             $task_payment = PaymentReceipt::create([
                 'status'            => 'Done',
-                'rate_estimated'    => $task_user->fixed_price_user_or_job == 1 ? $task->cost ?? 0 : $task->approximate * ($task_user->hourly_rate ?? 0),
+                'rate_estimated'    => $task_user->fixed_price_user_or_job == 1 ? $task->cost ?? 0 : $task->approximate * ($task_user->hourly_rate ?? 0) / 60,
                 'date'              => date('Y-m-d'),
                 'currency'          => '',
                 'user_id'           => $task_user->id,

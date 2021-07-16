@@ -2203,7 +2203,7 @@ class DevelopmentController extends Controller
                     $payment_receipt = new PaymentReceipt;
                     $payment_receipt->date = date( 'Y-m-d' );
                     $payment_receipt->worked_minutes = $issue->estimate_minutes;
-                    $payment_receipt->rate_estimated = ($issue->estimate_minutes ?? 0) * ($dev_task_user->hourly_rate ?? 0);
+                    $payment_receipt->rate_estimated = ($issue->estimate_minutes ?? 0) * ($dev_task_user->hourly_rate ?? 0) / 60;
                     $payment_receipt->status = 'Pending';
                     $payment_receipt->developer_task_id = $issue->id;
                     $payment_receipt->user_id = $dev_task_user->id;
