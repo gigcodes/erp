@@ -846,7 +846,7 @@ class CategoryController extends Controller
     }
     public function updateCategory(Request $request,$id)
     {
-            $category = Category::find($id);
+            $category = Category::findOrFail($id);
 
             if ($request->has('title')) {
             
@@ -881,15 +881,45 @@ class CategoryController extends Controller
             if ($request->has('category_segment_id')) {
                 $category->category_segment_id = $request->category_segment_id;
                 $category->save();
-                return response()->json(['success-remove'=> 'Category segment id of '.  $category->title . 'updated successfully']);
+                return response()->json(['success-remove'=> 'Category segment id of '.  $category->title . ' updated successfully']);
 
             }
             
-                $category->need_to_check_measurement = $request->need_to_check_measurement ? 1 :0;
-                $category->need_to_check_size = $request->need_to_check_size ? 1 :0;
-
+            if ($request->has('simplyduty_code')) {
+                // $category->simplyduty_code = $request->simplyduty_code;
+                $findChild = \App\Category::whereNull("simplyduty_code")->where("parent_id", $category->id)->get();
+                if (!empty($findChild) && !$findChild->isEmpty()) {
+                    foreach ($findChild as $child) {
+                        $child->simplyduty_code = $request->simplyduty_code;
+                        $child->save();
+                    }
+                }
+                $category->simplyduty_code = $request->simplyduty_code;
                 $category->save();
-                return response()->json(['success-remove'=> 'Check dimension of '.  $category->title . ' updated successfully']);
+                return response()->json(['success-remove'=> 'Simply duty code of '.  $category->title . ' updated successfully']);
+
+            }
+
+
+            if(isset($request->measurment)){
+                if ($request->has('need_to_check_measurement')) {
+                    $category->need_to_check_measurement =  1 ;
+                }else{
+                    $category->need_to_check_measurement =  0 ;
+                }
+                $category->save();
+                return response()->json(['success-remove'=> 'Check measurement of '.  $category->title . ' updated successfully']);
+            }
+            if(isset($request->checkSize)){
+                if ($request->has('need_to_check_size')) {
+                    $category->need_to_check_size =  1 ;
+                }else{
+                    $category->need_to_check_size =  0 ;
+                }
+                $category->save();
+                return response()->json(['success-remove'=> 'Check size of '.  $category->title . ' updated successfully']);
+
+            }
 
     }
 

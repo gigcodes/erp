@@ -153,13 +153,13 @@
                             <th style="width:8%">Level-3</th>
                             <th style="width:8%">Level-4</th>
 
-
-                            <th style="width:10%">Magento id</th>
+                            <th style="width:10%"> Magento id</th>
                             <th style="width:10%"> Show all id </th>
-                            <th style="width:10%"> Select category segmanet </th>
                             <th style="width:10%"> Parent category </th>
-                            <th style="width:15%"> Check for dimensions </th>
-
+                            <th style="width:10%"> Select category segmanet </th>
+                            <th style="width:10%"> Simplyduty code </th>
+                            <th style="width:5%"> Check Measurement </th>
+                            <th style="width:5%"> Check Size </th>
                             <th style="width=8%">Action</th>
                         </tr>
                     </thead>
@@ -175,15 +175,15 @@
                                         <td class="pb-0">  {{ $cat->parentC->title  }} </td>
                                         <td class="pb-0"> 
                                             <form method="POST"
-                                            action="{{ route('category.child-update-category', ['edit' => $cat->id]) }}"
-                                            class="edit_category_data" data-id={{ $cat->id }}>
-                                            @csrf
+                                                action="{{ route('category.child-update-category', ['edit' => $cat->id]) }}"
+                                                class="edit_category_data" data-id={{ $cat->id }}>
+                                                @csrf
                                                 <div class="d-flex align-items-baseline">
                                                     <div class="form-group mb-0">
     
-                                                    <input type="text" class="form-control" name="title"
-                                                        placeholder="Enter Show All Id" value="{{ $cat->title }}">
-                                                </div>
+                                                            <input type="text" class="form-control" name="title"
+                                                                   placeholder="Enter Show All Id" value="{{ $cat->title }}">
+                                                      </div>
                                                     <button class="btn btn-xs" hidden>
                                                         <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
                                                     </button>
@@ -196,20 +196,20 @@
                                     <td class="pb-0">  {{ $cat->parentC->title  }} </td>
                                         <td class="pb-0"> 
                                             <form method="POST"
-                                            action="{{ route('category.child-update-category', ['edit' => $cat->id]) }}"
-                                            class="edit_category_data" data-id={{ $cat->id }}>
-                                            @csrf
-                                            <div class="d-flex align-items-baseline">
-                                                <div class="form-group mb-0">
-    
-                                                    <input type="text" class="form-control" name="title"
-                                                        placeholder="Enter Show All Id" value="{{ $cat->title }}">
+                                                action="{{ route('category.child-update-category', ['edit' => $cat->id]) }}"
+                                                class="edit_category_data" data-id={{ $cat->id }}>
+                                                @csrf
+                                                <div class="d-flex align-items-baseline">
+                                                    <div class="form-group mb-0">
+        
+                                                        <input type="text" class="form-control" name="title"
+                                                            placeholder="Enter Show All Id" value="{{ $cat->title }}">
+                                                    </div>
+                                                        <button class="btn btn-xs" hidden>
+                                                            <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
+                                                        </button>
                                                 </div>
-                                                    <button class="btn btn-xs" hidden>
-                                                        <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
-                                                    </button>
-                                            </div>
-                                        </form>     
+                                            </form>     
                                         
                                         </td>
                                         <td class="pb-0"> - </td>
@@ -220,20 +220,20 @@
 
                                     <td class="pb-0"> 
                                         <form method="POST"
-                                        action="{{ route('category.child-update-category', ['edit' => $cat->id]) }}"
-                                        class="edit_category_data" data-id={{ $cat->id }}>
-                                        @csrf
-                                        <div class="d-flex align-items-baseline">
-                                            <div class="form-group mb-0">
+                                            action="{{ route('category.child-update-category', ['edit' => $cat->id]) }}"
+                                            class="edit_category_data" data-id={{ $cat->id }}>
+                                            @csrf
+                                            <div class="d-flex align-items-baseline">
+                                                <div class="form-group mb-0">
 
-                                                <input type="text" class="form-control" name="title"
-                                                    placeholder="Enter Show All Id" value="{{ $cat->title }}">
+                                                    <input type="text" class="form-control" name="title"
+                                                        placeholder="Enter Show All Id" value="{{ $cat->title }}">
+                                                </div>
+                                                    <button class="btn btn-xs" hidden>
+                                                        <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
+                                                    </button>
                                             </div>
-                                                <button class="btn btn-xs" hidden>
-                                                    <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
-                                                </button>
-                                        </div>
-                                    </form> 
+                                        </form> 
                                     </td>
                                     <td class="pb-0"> - </td>
                                     <td class="pb-0"> - </td>
@@ -247,7 +247,6 @@
                                         @csrf
                                         <div class="d-flex align-items-baseline">
                                             <div class="form-group mb-0">
-
                                                 <input type="text" class="form-control" name="title"
                                                     placeholder="Enter Show All Id" value="{{ $cat->title }}">
                                             </div>
@@ -295,13 +294,12 @@
                                                 </button>
                                         </div>
                                     </form>
-
                                 </div>
                             </td>
                             <td class="pb-0">
                                 <div class="form-group mb-0">
                                     {{-- <input type="text" class="form-control" id="cat_category_segment_id" name="category_segment_id"
-                          placeholder="Enter Show All Id"> --}}
+                                            placeholder="Enter Show All Id"> --}}
                                     {{-- {{ dd($category_segments) }} --}}
 
                                     <form method="POST"
@@ -350,6 +348,16 @@
                                 </form>
                             </td>
 
+
+                            <td class="pb-0">
+                                <form method="post" action="{{ route('category.child-update-category', ['edit' => $cat->id]) }}" class="edit_category_data"  data-id={{ $cat->id }}>
+                                    {{csrf_field()}}
+                                
+                                    <input type="text" class="form-control" placeholder="Entery HS code" name="simplyduty_code" value="{{ $cat->simplyduty_code }}" >
+                                    <button type="button" class="btn btn-secondary btn-block mt-2"  hidden>Save</button>`
+                                </form>
+                            </td>
+
                             <td class="pb-0">
                                 <div
                                     class="d-flex justify-content-between form-group mb-0 {{ $errors->has('parent_id') ? 'has-error' : '' }}">
@@ -357,27 +365,43 @@
                                         action="{{ route('category.child-update-category', ['edit' => $cat->id]) }}"
                                         class="edit_category_data" data-id={{ $cat->id }}>
                                         @csrf
+                                        <input type="text" name="measurment" value="true" hidden>
                                         <div class="d-flex">
+
                                             <input type="checkbox" id="edit_need_to_check_measuremen{{ $cat->id }}"
                                                 name="need_to_check_measurement" class="submit_on_change"
                                                 {{ $cat->need_to_check_measurement ? 'checked' : '' }}>
-                                            <label for="edit_need_to_check_measurement{{ $cat->id }}" class="ml-3"> Check
-                                                Measurement</label>
+                                            {{-- <label for="edit_need_to_check_measurement{{ $cat->id }}" class="ml-3"> Check
+                                                Measurement</label> --}}
                                         </div>
-                                        <div class="d-flex">
-                                            <input type="checkbox" id="edit_need_to_check_size{{ $cat->id }}"
-                                                name="need_to_check_size" {{ $cat->need_to_check_size ? 'checked' : '' }}
-                                                class="submit_on_change">
-                                            <label for="edit_need_to_check_size{{ $cat->id }}" class="ml-3"> Check
-                                                Size</label>
-                                        </div>
-
+                                        
                                     </form>
 
                                 </div>
 
                             </td>
+                            <td class="pb-0">
+                                <div
+                                    class="d-flex justify-content-between form-group mb-0 {{ $errors->has('parent_id') ? 'has-error' : '' }}">
+                                    <form method="POST"
+                                        action="{{ route('category.child-update-category', ['edit' => $cat->id]) }}"
+                                        class="edit_category_data" data-id={{ $cat->id }}>
+                                        @csrf
+                                        <input type="text" name="checkSize" value="true" hidden>
 
+                                        <div class="d-flex">
+                                            <input type="checkbox" id="edit_need_to_check_size{{ $cat->id }}"
+                                                name="need_to_check_size" {{ $cat->need_to_check_size ? 'checked' : '' }}
+                                                class="submit_on_change">
+                                            {{-- <label for="edit_need_to_check_size{{ $cat->id }}" class="ml-3"> Check
+                                                Size</label> --}}
+                                        </div>
+                                    </form>
+
+                                </div>
+
+                            </td>
+                            
 
                             {{-- <td class="brand_name" data-id="{{ $cat->title }}">{{ $cat->title }}
                             ({{ count($cat->childs) }})</td> --}}
@@ -534,17 +558,13 @@
                     },
                     error: function(response) {}
                 });
-
             })
 
             $(document).on('submit', '.edit_category_data', function(e) {
-
                 e.preventDefault()
                 const dataId = $(this).data('id')
                 console.log(dataId)
                 const form_data = $(this).serialize();
-
-
                 console.log(form_data, 'form-data')
 
                 $.ajax({
@@ -573,31 +593,31 @@
                 // console.log(form_data,'dataid')
 
                 if(confirm('Do you really want to delete this category?')){
-                $.ajax({
-                    url: 'category/remove',
-                    method: 'POST',
-                    dataType: "json",
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        console.log(response)
-                        $this.closest('.parent-cat').remove()
+                    $.ajax({
+                        url: 'category/remove',
+                        method: 'POST',
+                        dataType: "json",
+                        data: $(this).serialize(),
+                        success: function(response) {
+                            console.log(response)
+                            $this.closest('.parent-cat').remove()
 
-                        // location.reload()
-                        if (response['error-remove']) {
-                            toastr["error"](response['error-remove']);
+                            // location.reload()
+                            if (response['error-remove']) {
+                                toastr["error"](response['error-remove']);
 
+                            }
+
+
+                            if (response['success-remove'])
+                                toastr["success"](response['success-remove']);
+                            // $('#editCategoryModal').modal('hide')
+                        },
+                        error: function(response) {
+                            toastr["error"]("Oops,something went wrong");
                         }
-
-
-                        if (response['success-remove'])
-                            toastr["success"](response['success-remove']);
-                        // $('#editCategoryModal').modal('hide')
-                    },
-                    error: function(response) {
-                        toastr["error"]("Oops,something went wrong");
-                    }
-                });
-            }
+                    });
+                }
 
             })
 
