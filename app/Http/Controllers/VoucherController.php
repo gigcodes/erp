@@ -33,7 +33,8 @@ class VoucherController extends Controller
         $start         = $request->range_start ? $request->range_start : date("Y-m-d", strtotime('monday this week'));
         $end           = $request->range_end ? $request->range_end : date("Y-m-d", strtotime('saturday this week'));
         $selectedUser  = $request->user_id ? $request->user_id : null;
-        $tasks         = PaymentReceipt::where('status', 'Pending');
+        $status        = $request->status ? $request->status : 'Pending';
+        $tasks         = PaymentReceipt::where('status', $status);
         $teammembers   = Team::where(['teams.user_id' => Auth::user()->id])->join('team_user', 'team_user.team_id', '=', 'teams.id')->select(['team_user.user_id'])->get()->toArray();
         $teammembers[] = Auth::user()->id;
         if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) {
@@ -86,17 +87,21 @@ class VoucherController extends Controller
                 $task->estimate_minutes = 0;
                 if ($task->taskdetails) {
                     $task->details = $task->taskdetails->task_details;
-                    if (!$task->worked_minutes) {
+                    if ($task->worked_minutes == null) {
                         $task->estimate_minutes = $task->taskdetails->approximate;
-                    }
+                    }else{
+                        $task->estimate_minutes = $task->worked_minutes;
+                    } 
                 }
             } else if ($task->developer_task_id) {
                 $task->taskdetails      = DeveloperTask::find($task->developer_task_id);
                 $task->estimate_minutes = 0;
                 if ($task->taskdetails) {
                     $task->details = $task->taskdetails->task;
-                    if (!$task->worked_minutes) {
+                    if ($task->worked_minutes == null) {
                         $task->estimate_minutes = $task->taskdetails->estimate_minutes;
+                    }else{
+                        $task->estimate_minutes = $task->worked_minutes;
                     }
                 }
             } else {

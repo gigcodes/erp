@@ -11,7 +11,7 @@ class MediaObserver
     { 
         $this->updateBits($media);
 
-        if($media){
+        if($media->aggregate_type == "image"){
             $m_url = $media->getAbsolutePath();
             $file=@file_get_contents($m_url);
 

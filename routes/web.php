@@ -145,6 +145,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //Crop Reference
     Route::get('crop-references', 'CroppedImageReferenceController@index');
     Route::get('crop-references-grid', 'CroppedImageReferenceController@grid');
+    Route::get('crop-references-grid/manage-instances', 'CroppedImageReferenceController@manageInstance');
+    Route::post('crop-references-grid/add-instance', 'CroppedImageReferenceController@addInstance');
+    Route::get('crop-references-grid/delete-instance', 'CroppedImageReferenceController@deleteInstance');
+    Route::get('crop-references-grid/start-instance', 'CroppedImageReferenceController@startInstance');
+    Route::get('crop-references-grid/stop-instance', 'CroppedImageReferenceController@stopInstance');
     //Ajax request for select2
     Route::get('/crop-references-grid/getCategories', 'CroppedImageReferenceController@getCategories');
     Route::get('/crop-references-grid/getProductIds', 'CroppedImageReferenceController@getProductIds');
