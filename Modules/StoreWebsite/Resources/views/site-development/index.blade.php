@@ -41,6 +41,11 @@
 		 max-width: 1100px;
 		width:100%;
 	}
+	.btn-secondary{
+		border: 1px solid #ddd;
+		color: #757575;
+		background-color: #fff !important;
+	}
 </style>
 @endsection
 
@@ -50,15 +55,30 @@
 	<img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
 </div>
 <div class="row" id="common-page-layout">
-	<div class="col-lg-12 margin-tb">
-		<h2 class="page-heading">Site Development  @if($website) {{ '- ( ' .$website->website.' )' }} @endif <span class="count-text"></span></h2>
+	<div class="col-lg-12 margin-tb p-0">
+		<h2 class="page-heading">Site Development  @if($website) {{ '- ( ' .$website->website.' )' }} @endif <span class="count-text"></span>
+		<div class="pull-right pr-2">
+			<a style="color: #757575" href="{{ route('site-development-status.index') }}" target="__blank">
+				<button style=" color: #757575" class="btn btn-secondary btn-image">
+					+ Add Status
+				</button>
+			</a>
+			<button style="margin-right:5px;" class="btn btn-secondary latest-remarks-btn">
+				Remarks
+			</button>
+			<a class="btn btn-secondary" data-toggle="collapse" href="#statusFilterCount" role="button" aria-expanded="false" aria-controls="statusFilterCount">
+				Status Count
+			</a>
+
+		</div>
+		</h2>
 	</div>
 	<br>
-	<div class="col-lg-12 margin-tb">
+	<div class="col-lg-12 margin-tb pl-3 pr-3" >
 		<div class="row">
 			<div class="col col-md-12">
 				<div class="row mb-3">
-					<div class="col-md-3">
+					<div class="col-md-12 d-flex">
 						<form class="form-inline message-search-handler" onsubmit="event.preventDefault(); saveCategory();">
 							<div class="row">
 								<div class="col">
@@ -75,38 +95,27 @@
 								</div>
 							</div>
 						</form>
-					</div>
-					<div class="col-md-9">
+
 						<form class="form-inline handle-search" style="display:inline-block;">
 							<div class="form-group" style="margin-right:10px;">
-							<?php /* <label for="keyword">Search keyword:</label> */ ?>
+								<?php /* <label for="keyword">Search keyword:</label> */ ?>
 								<?php echo Form::text("k", request("k"), ["class" => "form-control", "placeholder" => "Search keyword", "id" => "enter-keyword"]) ?>
 							</div>
 							<div class="form-group">
 								<?php /* <label for="status">Status:</label> */?>
-							<?php echo Form::select("status", [""=>"All Status"]+ $allStatus, request("status"), ["class" => "form-control", "id" => "enter-status"]) ?>
+								<?php echo Form::select("status", [""=>"All Status"]+ $allStatus, request("status"), ["class" => "form-control", "id" => "enter-status"]) ?>
 							</div>
 							<div class="form-group">
-							<?php /* <label for="button">&nbsp;</label> */ ?>
+								<?php /* <label for="button">&nbsp;</label> */ ?>
 								<button style="display: inline-block;width: 10%" type="submit" class="btn btn-sm btn-image btn-search-keyword">
 									<img src="/images/send.png" style="cursor: default;">
 								</button>
 							</div>
 						</form>
-			
-						<a href="{{ route('site-development-status.index') }}" target="__blank">
-							<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
-								+ Add Status
-							</button>
-						</a>
-						<button style="display: inline-block;width: 10%;margin-right:5px;" class="btn btn-secondary latest-remarks-btn">
-							Remarks
-						</button>
-						<a class="btn btn-secondary" data-toggle="collapse" href="#statusFilterCount" role="button" aria-expanded="false" aria-controls="statusFilterCount">
-							Status Count
-						</a>
-					
+
+
 					</div>
+
 				</div>
 			</div>
 		</div>
@@ -140,21 +149,23 @@
 
 		<div class="col-md-12 margin-tb infinite-scroll">
 			<div class="row">
+				<div class="table-responsive">
 				<table class="table table-bordered" id="documents-table">
 					<thead>
 						<tr>
 							<th width="4%">S No</th>
-							<th width="10%"></th>
-							<th width="18%">Title</th>
+							<th width="12%"></th>
+							<th width="15%">Title</th>
 							<th width="18%">Message</th>
-							<th width="30%">Communication</th>
-							<th width="20%">Action</th>
+							<th width="35%">Communication</th>
+							<th width="16%">Action</th>
 						</tr>
 					</thead>
 					<tbody>
 						@include("storewebsite::site-development.partials.data")
 					</tbody>
 				</table>
+				</div>
 				{{ $categories->appends(request()->capture()->except('page','pagination') + ['pagination' => true])->render() }}
 			</div>
 		</div>
