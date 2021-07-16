@@ -64,6 +64,9 @@
         .right-cont{
             border-right: none !important;
         }
+.select_per select.globalSelect2 + span.select2{
+    width: 400px !important;
+}
 
     </style>
 @endsection
@@ -73,25 +76,57 @@
     <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">Direct Database Query Page
     </h2>
 
+    <div class="alert alert-success commnd_reponse_div" role="alert" style="display:none;" >
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <p class="commnd_reponse"></p>
+       
+    </div>
 
     <div class="row" style="margin: 0 1px">
 
-    <div class="col-xs-2 pl-3 pr-0">
-        <div class="form-group">
-            <select name="table" class="form-control table_class" id="table_id">
-                <option value>Select Table</option>
-                @foreach($table_array as $tab)
-                <option value="{{$tab}}" >{{$tab}}</option>
-                @endforeach
-            </select>
+       <div class="col-md-6">
+       <div class="col-xs-4 pl-3 pr-0">
+            <div class="form-group">
+                <select name="table" class="form-control table_class" id="table_id">
+                    <option value>Select Table</option>
+                    @foreach($table_array as $tab)
+                    <option value="{{$tab}}" >{{$tab}}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+
+        <div class="col-xs-4 pl-3 text-left save_class d-none">
+            <button type="submit" class="btn btn-secondary save_change_btn mr-2">Update</button>
+            <button type="submit" class="btn btn-secondary delete_btn">Delete</button>
         </div>
     </div>
 
-    <div class="col-xs-2 pl-3 text-left save_class d-none">
-        <button type="submit" class="btn btn-secondary save_change_btn mr-2">Update</button>
-        <button type="submit" class="btn btn-secondary delete_btn">Delete</button>
+    <!-- START - Purpose : Command List - DEVTASK-19941 -->
+    <div class="col-md-6 select_per" style="display:flex;justify-content:flex-end;">
+       <div class=" pl-3 pr-0 " >
+            <div class="form-group">
+                <select name="artisan_command" class="form-control artisan_command globalSelect2" id="artisan_command" style="max-width:400px;">
+                    <option value>Select Command</option>
+                    @foreach($command_list_arr as $key => $val)
+                        <option value="{{$val['Name']}}" >{{$val['Name']}}  ==> {{$val['Description']}} </option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+
+        <div class="pl-3 text-left">
+            <button type="submit" class="btn btn-secondary execute_command mr-2">Execute Command</button>
+            <a href="{{route('admin.command_execution_history')}}" class="btn btn-secondary">Command History</a>
+        </div>
     </div>
+    <!-- END - DEVTASK-19941 -->
+
+
     </div>
+
     <div class="container_" style="margin: 0 28px">
     <form class="db_query">
         <input type="hidden" name="table_name" class="table_name" value="">
@@ -110,7 +145,11 @@
     </form>    
     </div>
 
-
+    <!-- START - Purpose : Add Loader - DEVTASK-19941 -->
+    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
+  50% 50% no-repeat;display:none;">
+    </div>
+    <!-- END - DEVTASK-19941 -->
 @endsection
 
 @section('scripts')
@@ -277,6 +316,40 @@ $('.delete_btn').click(function(){
     });
 });
 
+    // START - Purpose : Command Execute - DEVTASK-19941 START - Purpose : Command List - DEVTASK-19941 
+    $(document).on("click",".execute_command",function() {
+        var command_name = $('#artisan_command').find(":selected").val();
+
+        $.ajax({
+            url: "{{route('admin.command_execution')}}",
+            type: 'POST',
+            data: {
+                _token: "{{ csrf_token() }}",
+                command_name: command_name,
+            },
+            dataType: 'json',
+            beforeSend: function() {
+                // $("#loading-image").show();
+                // $('.execute_command').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
+            },
+            success: function (response) {
+                // console.log(response);
+
+                // if(response.code == 200) {
+                //     $(".commnd_reponse_div").css("display", "block");
+                //     $('.commnd_reponse').html(response.data);
+                // }
+               
+                // $("#loading-image").hide();
+                // $('.execute_command').prop('disabled', false).html('Execute Command');
+            },
+            error: function () {
+                // $("#loading-image").hide();
+                // $('.execute_command').prop('disabled', false).html('Execute Command');
+            }
+        });
+    });
+    // END - DEVTASK-19941 
 </script>
 
 @endsection

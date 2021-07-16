@@ -146,6 +146,11 @@ return [
             'days'   => 7,
         ],
 
+        'product-thumbnail' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/product-thumbnail/product-thumbnail-command.log'),
+            'days'   => 7,
+        ],
         'scrapper_images'    => [
             'driver' => 'daily',
             'path'   => storage_path('logs/scrapper_images/scrapper_images.log'),

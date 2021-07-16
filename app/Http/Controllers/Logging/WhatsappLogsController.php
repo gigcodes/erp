@@ -234,6 +234,13 @@ class WhatsappLogsController extends Controller
                             $message = substr($row, 35, strlen($row));
                             $finaldata['error_message1'] = isset($message) ? $message : '';
                             $row_cnt = 1;
+
+                            $sent_message = strpos($message,'"sent":true');
+
+                            if($sent_message)
+                                $finaldata['sent_message_status'] = 'Yes';
+                            else
+                                $finaldata['sent_message_status'] = 'No';
                         }
                     }
                     else if(isset($request->date) && $request->date != ''){
@@ -244,6 +251,13 @@ class WhatsappLogsController extends Controller
                             $message = substr($row, 35, strlen($row));
                             $finaldata['error_message1'] = isset($message) ? $message : '';
                             $row_cnt = 1;
+
+                            $sent_message = strpos($message,'"sent":true');
+
+                            if($sent_message)
+                                $finaldata['sent_message_status'] = 'Yes';
+                            else
+                                $finaldata['sent_message_status'] = 'No';
                         }
                     }
                     else{
@@ -255,6 +269,13 @@ class WhatsappLogsController extends Controller
                         $message = substr($row, 35, strlen($row));
                         $finaldata['error_message1'] = isset($message) ? $message : '';
                         $row_cnt = 1;
+
+                        $sent_message = strpos($message,'"sent":true');
+
+                        if($sent_message)
+                            $finaldata['sent_message_status'] = 'Yes';
+                        else
+                            $finaldata['sent_message_status'] = 'No';
                     }
                 }
 
@@ -266,13 +287,6 @@ class WhatsappLogsController extends Controller
                     $finaldata['file'] = 'chatapi';
                     $finaldata['resend_details'] = '';
                     $finaldata['type'] = 2;
-
-                    $sent_message = strpos($message,'"sent":true');
-
-                    if($sent_message)
-                        $finaldata['sent_message_status'] = 'Yes';
-                    else
-                        $finaldata['sent_message_status'] = 'No';
 
                     array_push($chatapiarray, $finaldata);
                     $finaldata = [];

@@ -1768,7 +1768,7 @@ class ProductController extends Controller
             $msg = $e->getMessage();
 
             $logId = LogListMagento::log($id, $msg, 'info');
-            ProductPushErrorLog::log("",$id, $msg, 'error',$logId->store_website_id,"","",$logId->id);
+            ProductPushErrorLog::log("",$id, $msg, 'php',$logId->store_website_id,"","",$logId->id);
             $this->updateLogUserId($logId);
             // Return error response by default
             return response()->json([
@@ -5374,13 +5374,15 @@ class ProductController extends Controller
     public function getCustomerProducts($type,$suggested_products_id,$customer_id,Request $request) {
         $term = null;
         //$suggested_products_id=3;
-      
+        $suggestedProductsLists = \App\SuggestedProductList::with('getMedia')->where('suggested_products_id',$suggested_products_id)->where('customer_id',$customer_id)->where('remove_attachment',0)
+        ->orderBy('date','desc')->whereNotNull('media_id')->get();
+
         if($type == 'attach') {
-            $productsLists = \App\SuggestedProductList::where('suggested_products_id',$suggested_products_id)->where('customer_id',$customer_id)->where('remove_attachment',0)
+            $productsLists = \App\SuggestedProductList::where('suggested_products_id',$suggested_products_id)->where('customer_id',$customer_id)->whereNull('media_id')->where('remove_attachment',0)
             ->select('suggested_product_lists.*')->orderBy('date','desc')->get()->unique('date');
         }
         else {
-            $productsLists = \App\SuggestedProductList::where('customer_id',$customer_id)->where('chat_message_id','!=',NULL)
+            $productsLists = \App\SuggestedProductList::where('customer_id',$customer_id)->whereNull('media_id')->where('chat_message_id','!=',NULL)
             ->select('suggested_product_lists.*')->orderBy('date','desc')->get()->unique('date');
         }
         $customer = \App\Customer::find($customer_id);
@@ -5466,11 +5468,11 @@ class ProductController extends Controller
         $selected_products = [];
         $model_type = 'customer';
         if($type == 'attach') {
-            return view('partials.attached-image-products',compact('productsLists','customer_id','selected_products','model_type','suggested_products_id','customer'));
+            return view('partials.attached-image-products',compact('productsLists','customer_id','selected_products','model_type','suggested_products_id','customer','suggestedProductsLists'));
 
         }
         else {
-            return view('partials.suggested-image-products',compact('productsLists','customer_id','selected_products','model_type','suggested_products_id','customer'));
+            return view('partials.suggested-image-products',compact('productsLists','customer_id','selected_products','model_type','suggested_products_id','customer','suggestedProductsLists'));
 
         }
     }

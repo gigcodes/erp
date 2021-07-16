@@ -2028,6 +2028,7 @@ class WhatsAppController extends FindByNumberController
         } elseif ($context == 'user-feedback') { 
             $data['user_feedback_id'] = $request->user_id;
             $data['user_feedback_category_id'] = $request->feedback_cat_id;
+            $data['user_feedback_status'] = $request->feedback_status_id;
             $Admin_users = User::get();
             foreach($Admin_users as $u){
                 if($u->isAdmin()){
@@ -2039,11 +2040,11 @@ class WhatsAppController extends FindByNumberController
                 $u_id = Auth::id();
             }
             $data['user_id'] = $u_id;
+            $data['send_by'] = Auth::user()->isAdmin() ? Auth::id() : null;
             $module_id = $request->user_id;
-        }elseif ($context == 'hubstuff') {  
+        }elseif ($context == 'hubstuff') {
             $data['hubstuff_activity_user_id'] = $request->hubstuff_id;
             $module_id = $request->hubstuff_id;
-            $this->sendWithThirdApi(7487854885, 7487854885, 'test', false);
         } else {
             if ($context == 'vendor') {
                 $data['vendor_id'] = $request->vendor_id;
