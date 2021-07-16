@@ -165,10 +165,10 @@ a {
 
      						<button title="Pem file History" class="btn user-pem-file-history pd-5" data-userid="{{:prop.id}}"> <i class="fa fa-info-circle" aria-hidden="true"></i></button>
 
-							 <button title="user feedback" id="exampleModal" data-user_id="{{:prop.id}}" class=" btn fa fa-comment feedback_btn user-feedback-modal" data-bs-target="#exampleModal" aria-hidden="true"><i class="fa fa comment" aria-hidden="true"></i></button>
 							 
 
           				<?php } ?>
+						  <button title="user feedback" id="exampleModal" data-user_id="{{:prop.id}}" class=" btn fa fa-comment feedback_btn user-feedback-modal" data-bs-target="#exampleModal" aria-hidden="true"><i class="fa fa comment" aria-hidden="true"></i></button>
 
 						
 

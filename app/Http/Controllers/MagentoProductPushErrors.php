@@ -81,19 +81,19 @@ class MagentoProductPushErrors extends Controller
                 'store_website'   => $row->store_website->title,
                 'message'         => str_limit($row->message, 30, 
                     '<a data-logid='.$row->id.' class="message_load">...</a>'),
-                'request_data'    => str_limit($row->message, 30,
+                'request_data'    => str_limit($row->request_data, 30,
                     '<a data-logid='.$row->id.' class="request_data_load">...</a>'),
                 'response_data'   => str_limit($row->response_data, 30, 
                     '<a data-logid='.$row->id.' class="response_data_load">...</a>'),
 //                'response_status' => $row->response_status,
-                'response_status' => ' <select class="form-control" name="error_status" id="error_status" data-log_id="'.$row->id.'">
+                'response_status' => ' <div style="display:flex;"><select class="form-control globalSelect2" name="error_status" id="error_status" data-log_id="'.$row->id.'">
  <option value="" ></option>
  <option value="error" '.($row->response_status == 'error' ? 'selected' : '' ).'>Error</option>
  <option value="php" '.($row->response_status === 'php' ? 'selected' : '' ).'>Php</option>
  <option value="magento" '.($row->response_status == 'magento' ? 'selected' : '' ).'>Magento</option>
-</select> <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-logs-history" title="Show Logs History" data-id="'.$row->id.'">
+</select> <button style="padding-left:5px !important;" type="button" class="btn btn-xs show-logs-history" title="Show Logs History" data-id="'.$row->id.'">
                 <i class="fa fa-info-circle"></i>
-            </button>',
+            </button></div>',
             ];
         }    
 
@@ -127,22 +127,100 @@ class MagentoProductPushErrors extends Controller
             ->get();
 
         $recordsArr = []; 
+
+        //START - Purpose : Comment code , Data sorting - DEVTASK-20123
+        // foreach($records as $row){
+
+        //     $recordsArr[] = [
+        //         'count' => $row->count,
+        //         'message' => $row->message,
+
+        //     ];
+        // }
+
         foreach($records as $row){
+            
+            if (strpos($row->message, 'Failed readiness') !== false) {
 
-            $recordsArr[] = [
-                'count' => $row->count,
-                'message' => $row->message,
+                if (array_key_exists("Failed_readiness",$recordsArr))
+                {
+                    $recordsArr['Failed_readiness']['count'] = $recordsArr['Failed_readiness']['count'] + 1;
+                    $recordsArr['Failed_readiness']['message'] = 'Failed readiness';
+                }else{
+                    $recordsArr['Failed_readiness'] = [
+                        'count' => 1,
+                        'message' => $row->message,
+    
+                    ];
+                }
+            }else{
+                $recordsArr[] = [
+                    'count' => $row->count,
+                    'message' => $row->message,
 
-            ];
+                ];
+            }
         }
+        
+        usort($recordsArr, function($a, $b) {
+            return $a['count'] - $b['count'];
+        });
+
+        rsort($recordsArr);
+        //END - DEVTASK-20123
 
         // echo "<pre>";
         // print_r($recordsArr);
         // exit;
 
-        $filename = 'Today Report Magento Errors.csv';
+        $filename = 'Today Report Magento Errors.xlsx';
         return Excel::download(new MagentoProductCommonError($recordsArr),$filename);
     }
+
+    //START - Purpose : Open modal and get data - DEVTASK-20123
+    public function groupErrorMessageReport(Request $request)
+    {
+        $records = ProductPushErrorLog::where('response_status','error')
+            ->whereDate('created_at',Carbon::now()->format('Y-m-d'))
+            ->latest('count')
+            ->groupBy('message')
+            ->select(\DB::raw('*,COUNT(message) AS count'),)
+            ->get();
+
+        $recordsArr = []; 
+        foreach($records as $row){
+            
+            if (strpos($row->message, 'Failed readiness') !== false) {
+
+                if (array_key_exists("Failed_readiness",$recordsArr))
+                {
+                    $recordsArr['Failed_readiness']['count'] = $recordsArr['Failed_readiness']['count'] + 1;
+                    $recordsArr['Failed_readiness']['message'] = 'Failed readiness';
+                }else{
+                    $recordsArr['Failed_readiness'] = [
+                        'count' => 1,
+                        'message' => $row->message,
+    
+                    ];
+                }
+            }else{
+                $recordsArr[] = [
+                    'count' => $row->count,
+                    'message' => $row->message,
+
+                ];
+            }
+        }
+        
+        usort($recordsArr, function($a, $b) {
+            return $a['count'] - $b['count'];
+        });
+
+        rsort($recordsArr);
+
+        return response()->json(["code" => 200, "data" => $recordsArr]);
+    }
+    //END - DEVTASK-20123
 
     public function getHistory(Request $request, $id){
 

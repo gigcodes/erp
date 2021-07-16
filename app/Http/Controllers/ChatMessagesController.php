@@ -116,6 +116,9 @@ class ChatMessagesController extends Controller
         
         if ($request->object == "user-feedback") {
             $chatMessages = ChatMessage::where('user_feedback_id', $object->id)->where('user_feedback_category_id',$request->feedback_category_id);
+            if ($request->feedback_status_id != null) {
+                $chatMessages = ChatMessage::where('user_feedback_id', $object->id)->where('user_feedback_category_id',$request->feedback_category_id)->where('user_feedback_status',$request->feedback_status_id);
+            }
         }
         if ($request->object == "hubstuff") {
             $chatMessages = ChatMessage::where('hubstuff_activity_user_id', $object->id);
@@ -181,6 +184,34 @@ class ChatMessagesController extends Controller
                                             });
                     });
                 break;
+            case 'incoming_img':
+                    $chatMessages = $chatMessages->where(function($query) use ($object) {
+                    $query->whereRaw("(chat_messages.number = ".$object->phone." and ( media_url is not null 
+                                                or id in (
+                                                select
+                                                    mediable_id
+                                                from
+                                                    mediables
+                                                    join media on id = media_id and extension != 'pdf'
+                                                WHERE
+                                                    mediable_type LIKE 'App%ChatMessage'
+                                            )) )");
+                    });
+                break;
+            case 'outgoing_img':
+                $chatMessages = $chatMessages->where(function($query) use ($object) {
+                $query->whereRaw("((chat_messages.number != ".$object->phone."  or chat_messages.number is null) and ( media_url is not null 
+                                            or id in (
+                                            select
+                                                mediable_id
+                                            from
+                                                mediables
+                                                join media on id = media_id and extension != 'pdf'
+                                            WHERE
+                                                mediable_type LIKE 'App%ChatMessage'
+                                        )) )");
+                });
+            break;  
         }
 
         $chatMessages = $chatMessages->get();

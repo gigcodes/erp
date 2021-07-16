@@ -34,64 +34,16 @@ class CategoryController extends Controller
     {
 
         $category_segments = CategorySegment::where('status', 1)->get()->pluck('name', 'id');
-        $categories        = Category::with(['childs.childs.childs.childs','parentC.parentC.parentC.parentC'])->orderBy('parent_id')->get();
-        $allCategories     = Category::pluck('title', 'id')->all();
+        $categories        = Category::with(['parentC.parentC'])->orderBy('created_at', 'DESC');
+        $allCategories     = Category::all();
 
         $selected_value  = $request->filter;
 
         if(isset($request->filter)){
-            $categories        = Category::withCount('childs');
-
-          $categories=  $categories->where('title','like','%'.$request->filter.'%')->get();
-
-        $final_cat = [];
-
-        foreach($categories as $key=> $cat){
-
-                if($cat->parentM){
-                    
-                        if($cat->parentM->parentM){
-
-                            if($cat->parentM->parentM->parentM){
-
-                                $final_cat[$cat->parentM->parentM->parentM->id] = $cat->parentM->parentM->parentM;
-
-                            }else{
-                                $final_cat[$cat->parentM->parentM->id] = $cat->parentM->parentM;
-
-                            }
-                        }else{
-
-                            $final_cat[$cat->parentM->id] = $cat->parentM;
-                        }
-                }else{
-                    
-                    $final_cat[$cat->id] = $cat;
-                }
+            $categories=  $categories->where('title','like','%'.$request->filter.'%');
         }
-            // dd($final_cat);
-
-            $categories = $final_cat;
-
-
-    //       foreach($categories as $cat){
-    //                     $all_cat = null;
-    //                     if($cat->parentM) { 
-    //                         $all_cat = $cat;
-    //                         while(!is_null($parentM->parentM)) {
-    //                             $all_cat = $parentM->parentM;
-    //                         }
-                            
-    //                     } else {
-    //                         $all_cat = $cat;
-    //                      }
-
-    //                      $final_cat[$cat->id][] =$all_cat;
-    //     }
-    // //    $categories =  $categories->get();
-    //     dd($final_cat);
-
-        }
+        $categories= $categories->paginate(20);
+    
 
         $old = $request->old('parent_id');
 
@@ -103,7 +55,7 @@ class CategoryController extends Controller
             ->selected($old ? $old : 1)
             ->renderAsDropdown();
 
-        return view('category.treeview', compact('category_segments', 'categories', 'allCategories', 'allCategoriesDropdown', 'allCategoriesDropdownEdit','selected_value'));
+        return view('category.treeview', compact('category_segments', 'categories', 'allCategories', 'allCategoriesDropdown', 'allCategoriesDropdownEdit','selected_value'))->with('i', (request()->input('page', 1) - 1) * 10);;
     }
     public function manageCategory11(Request $request)
     {
@@ -898,49 +850,46 @@ class CategoryController extends Controller
 
             if ($request->has('title')) {
             
-                $category->title       = $request->input('title');
+            $category->title       = $request->input('title');
             $category->save();
-            // return redirect()->back();
-            return response()->json(['success-remove'=> $category->title . 'category Updated']);
+            return response()->json(['success-remove'=> $category->title . ' updated successfully']);
 
             }
 
             if ($request->has('magento_id')) {
                 $category->magento_id  = $request->input('magento_id');
             $category->save();
-            // return redirect()->back();
-            return response()->json(['success-remove'=> $category->title . 'category Updated']);
+            return response()->json(['success-remove'=> 'Magneto id of '.  $category->title . ' updated successfully']);
             
             }
 
             if ($request->has('show_all_id')) {
                 $category->show_all_id = $request->input('show_all_id');
                 $category->save();
-                // return redirect()->back();
-                return response()->json(['success-remove'=> $category->title . 'category Updated']);
+                return response()->json(['success-remove'=>'Show all id of '.  $category->title . ' updated successfully']);
             
             }
-
             if ($request->has('parent_id')) {
                 $category->parent_id = $request->parent_id;
                 $category->save();
-                return response()->json(['success-remove'=> $category->title . 'category Updated']);
+                return response()->json(['success-remove'=> 'Parent category '.  $category->title . ' updated successfully.Please refresh page']);
 
             }
+      
 
+            
             if ($request->has('category_segment_id')) {
                 $category->category_segment_id = $request->category_segment_id;
                 $category->save();
-                // return redirect()->back();
-                return response()->json(['success-remove'=> $category->title . 'category Updated']);
+                return response()->json(['success-remove'=> 'Category segment id of '.  $category->title . 'updated successfully']);
 
             }
             
-            $category->need_to_check_measurement = $request->need_to_check_measurement ? 1 :0;
-            $category->need_to_check_size = $request->need_to_check_size ? 1 :0;
+                $category->need_to_check_measurement = $request->need_to_check_measurement ? 1 :0;
+                $category->need_to_check_size = $request->need_to_check_size ? 1 :0;
 
                 $category->save();
-                return response()->json(['success-remove'=> $category->title . 'category Updated']);
+                return response()->json(['success-remove'=> 'Check dimension of '.  $category->title . ' updated successfully']);
 
     }
 

@@ -3,13 +3,13 @@
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
-		      	<th width="5%">Product ID</th>
+		      	<th width="6%">Product ID</th>
 		        <th width="10%">Date</th>
 		        <th width="10%">Website</th>
 		        <th width="15%">Message</th>
 		        <th width="15%">Request data</th>
 		        <th width="15%">Response Data</th>
-		        <th width="10%">Status</th>
+		        <th width="12%">Status</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -44,5 +44,14 @@
 	   <div class="modal-body">
 			{{:data}}
 		</div>
-	</div>			
+	</div>
+
+
+</script>
+<script>
+
+    $(document).ready(function() {
+        $(".globalSelect2").select2();
+    });
+
 </script>
