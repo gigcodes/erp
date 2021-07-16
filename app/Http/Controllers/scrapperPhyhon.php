@@ -230,7 +230,7 @@ class scrapperPhyhon extends Controller
     {
         $validator = Validator::make($request->all(), [
            'country_code'   => 'required',
-           'image'          => 'required',
+           'image'          => 'required|valid_base',
            'image_name'     => 'required',
            'store_website'  => 'required',
         ]);
