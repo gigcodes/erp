@@ -159,7 +159,7 @@
                             <th style="width:10%"> Select category segmanet </th>
                             <th style="width:10%"> Parent category </th>
                             <th style="width:15%"> Check for dimensions </th>
-
+                            <th style="width:15%"> Push Type</th>
                             <th style="width=8%">Action</th>
                         </tr>
                     </thead>
@@ -382,6 +382,10 @@
                             {{-- <td class="brand_name" data-id="{{ $cat->title }}">{{ $cat->title }}
                             ({{ count($cat->childs) }})</td> --}}
                             {{-- <td class="created_at">{{ $cat->created_at }}</td> --}}
+
+                            <td class="pb-0">
+                                <?php echo Form::select('push_type',[null => "- Select -"] + \App\Category::PUSH_TYPE,$cat->push_type, ["class" => "form-control push-type-change","data-id" => $cat->id]); ?>
+                            </td>
 
                             <td class="pb-0">
 
@@ -609,5 +613,32 @@
             $(document).on('change', '.submit_on_change', function() {
                 $(this).closest('form').submit()
             })
+
+            $(document).on('change','.push-type-change',function() {
+                var category_id = $(this).data("id");
+                var value = $(this).val();
+                $.ajax({
+                    url: 'category/change-push-type',
+                    method: 'POST',
+                    dataType: "json",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        category_id : category_id,
+                        value : value
+                    },
+                    success: function(response) {
+                        if(response.code == 200) {
+                            toastr["success"](response.message);
+                        }else{
+                            toastr["error"](response.message);
+                        }
+                        
+                    },
+                    error: function(response) {
+                        toastr["error"]("Oops,something went wrong");
+                    }
+                });
+            });
+
         </script>
     @endsection

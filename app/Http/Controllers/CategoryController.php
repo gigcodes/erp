@@ -943,4 +943,16 @@ class CategoryController extends Controller
 
         Echo "script done";
     }
+
+    public function changePushType(Request $request) 
+    {
+        $category = \App\Category::find($request->category_id);
+        if($category) {
+            $category->push_type = $request->value;
+            $category->save();
+            return response()->json(["code" => 200 , "message" => "Updated successfully"]);
+        }else{
+            return response()->json(["code" => 500 , "message" => "Category not found"]);
+        }
+    }
 }
