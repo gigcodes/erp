@@ -40,6 +40,12 @@
       <h2 class="page-heading">Magento Product API Call</h2>
     </div>
   </div>
+  <div class="row" style="margin-bottom: 10px; margin: 10px">
+    <div class="col-lg-6 margin-tb">
+       <input type="text" placeholder="Enter the limit of product" name="product_limit" class="form-control col-md-4 product-limit-text">
+       <button class="btn btn-secondary check-latest-product" style="margin: 2px">Check latest product</button>
+    </div>
+  </div>
 
   <div class="col-md-12">
     <div class="panel panel-default">
@@ -215,6 +221,31 @@
         ]
       });
     }
+
+     $(document).on("click",".check-latest-product",function() {
+        let limit = $(".product-limit-text").val();
+        if(limit == '') {
+           alert("Please select limit");
+           return false;
+        }
+
+        $.ajax({
+          method: "GET",
+          url: "/logging/get-latest-product-for-push",
+          data: {
+            "limit": limit
+          },
+          dataType: 'json'
+        })
+        .done(function(result) {
+          if(result.code == 200){ 
+              localStorage.setItem('luxury-product-data-asin', JSON.stringify(result.products));
+              location.reload();
+          }
+        });
+
+    });
+
     </script>
     @if (Session::has('errors'))
       <script>

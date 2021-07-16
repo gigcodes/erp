@@ -21,7 +21,7 @@
 		    	{{props data}}
 			      <tr>
 			      	<td>
-			      		<input type="checkbox" class="activity-notification-ckbx" name="activity_notification[]" value="{{:prop.id}}"/>
+			      		<input type="checkbox" class="activity-notification-ckbx" name="activity_notification[]" value="{{:prop.user_id}}"/>
 			      	</td>
 			      	<td>{{:prop.user_name}}</td>
 			        <td>{{:prop.start_date}}</td>
@@ -33,25 +33,44 @@
 			        <td>{{:prop.reason}}</td>
 			        <td>{{if prop.status == 1}} Approved {{else}} Pending {{/if}}</td>
 			        <td>
-						<div style="display:flex;">
-							<textarea rows="1" class="form-control quick-message-field cls_quick_message" id="messageid_{{:prop.id}}" name="message" placeholder="Message" style="width:calc(100% - 30px)"></textarea>
+						<div style="display:flex;" class="hubstaff_chat_message">
+							<textarea rows="1" class="form-control quick-message-field cls_quick_message" id="messageid_{{:prop.user_id}}" name="message" placeholder="Message" style="width:calc(100% - 30px)"></textarea>
 							<div style="width:30px;">
-								<button class="btn btn-sm btn-image send-message1 pt-0 pb-0" data-hubstuffid="{{:prop.id}}"><img src="/images/filled-sent.png"/></button>
-								<button type="button" class="btn  btn-image load-communication-modal pl-3 pt-0 pb-0" data-object="hubstuff" data-is_admin="{{:prop.is_admin}}" data-is_hod_crm="{{:prop.is_hod_crm}}"  data-id="{{:prop.id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
+								<button class="btn btn-sm btn-image send-message1 pt-0 pb-0" data-hubstuffid="{{:prop.user_id}}"><img src="/images/filled-sent.png"/></button>
+								<button type="button" class="btn  btn-image load-communication-modal pl-3 pt-0 pb-0" data-object="hubstuff" data-is_admin="{{:prop.is_admin}}" data-is_hod_crm="{{:prop.is_hod_crm}}"  data-id="{{:prop.user_id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
 							</div>
 						</div>
-						<span class="td-mini-container message-chat-txt" id="message-chat-txt-{{:prop.id}}">{{:prop.latest_message}}</span>
+						<span class="td-mini-container message-chat-txt" id="message-chat-txt-{{:prop.user_id}}">{{:prop.latest_message}}</span>
 					</td>
 			        <td>
-					<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-reason">
+					<button type="button" data-id="{{>prop.user_id}}" class="btn btn-edit-reason">
 			        	<i class="fa fa-comment"></i>
 			        </button>
-					<button type="button" data-id="{{>prop.id}}" class="btn btn-change-status">
+					<button type="button" data-id="{{>prop.user_id}}" class="btn btn-change-status">
 			        	<i class="fa fa-edit"></i>
 			        </button>
 					</td>
 			      </tr>
-			    {{/props}}  
+			    {{/props}}
+
+			   {{if user_id > "0" }} () 
+			    <tr>
+			        <td></td>
+			        <td></td>
+			        <td></td>
+			        <td></td>
+			        <td>{{:sum}}</td>
+			        <td></td>
+			        <td></td>
+			        <td></td>
+			        <td></td>
+			        <td></td>
+			        <td></td>
+			        <td></td>
+			      </tr>
+			   {{/if}}   
+
+
 		    </tbody>
 		</table>
 		{{:pagination}}

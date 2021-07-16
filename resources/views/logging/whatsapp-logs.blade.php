@@ -35,6 +35,10 @@
             text-align: center;
             padding: 40px 0;
         }
+        .fa-refresh{
+            cursor: pointer;
+            color:#000;
+        }
 
     </style>
 @endsection
@@ -46,7 +50,8 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading"> Whatsapp Logs (<span id="count">{{ count($array) }}</span>)</h2>
-            <div class="pull-right">
+
+            <div class="pull-right" style="display: none;">
                 <button type="button" class="btn btn-secondary" onclick="sendMulti()" style="display: none;" id="nulti">
                     Send Selected
                 </button>
@@ -55,6 +60,46 @@
             </div>
 
         </div>
+        <div class="col-10" style="padding-left:0px;">
+            <div >
+                <form class="form-inline" action="" method="GET">
+                    <div class="form-group col-md-2 pd-3">
+                        <div class='input-group date' id='filter-date'>
+                            <input type='text' class="form-control search_date" name="date" value="{{ isset($_REQUEST['date']) ? $_REQUEST['date'] : '' }}" placeholder="Date" />
+
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-2 pd-3">
+                        <select name="message_sent" id="message_sent" class="form-control">
+                            <option value="">Message Sent Status</option>
+                            @if(isset($_REQUEST['message_sent']) && $_REQUEST['message_sent'] == 'Yes')
+                                <option selected value="Yes">Yes</option>
+                            @else
+                                <option value="Yes">Yes</option>
+                            @endif
+
+                            @if(isset($_REQUEST['message_sent']) && $_REQUEST['message_sent'] == 'No')
+                                <option selected value="No">No</option>
+                            @else
+                                <option value="No">No</option>
+                            @endif
+                        </select>
+                    </div>
+
+                    <div class="form-group col-md-1 pd-3">
+                        <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
+
+                        <a href="{{ route('whatsapp.log') }}" class="fa fa-refresh" aria-hidden="true"></a>
+                    </div>
+                </form>
+               
+            </div>
+        </div>
+
     </div>
 
     @include('partials.flash_messages')
@@ -131,16 +176,41 @@
                 $message = implode(',',$row_array);
                 // $message = strpos($row['error_message1'],'"message');
                 // $message_str = strtok(substr($row['error_message1'],$message), ',');
-                $message1 = strpos($row['error_message1'],'whatsapp_number');
-                $number = strpos($row['error_message1'],'"number":');
-                $receiver_number = substr($row['error_message1'],$number+10,12);
-                $sender_number = substr($row['error_message1'],$message1+18,12);
-                $null = substr($row['error_message1'],$message1+17,4);
+             
+
+                if(isset($row['file']) && $row['file'] == 'chatapi')
+                {
+                    $message1 = strpos($row['error_message2'],'whatsapp_number');
+                    $number = strpos($row['error_message2'],'"number":');
+                    $receiver_number = (is_numeric(substr($row['error_message2'],$number+10,12)) ? substr($row['error_message2'],$number+10,12) : '');
+                    $sender_number = (is_numeric(substr($row['error_message2'],$message1+18,12)) ? substr($row['error_message2'],$message1+18,12) : '');
+                    $null = substr($row['error_message2'],$message1+17,4);
+                }else{
+                    $message1 = strpos($row['error_message1'],'whatsapp_number');
+                    $number = strpos($row['error_message1'],'"number":');
+                    $receiver_number = (is_numeric(substr($row['error_message1'],$number+10,12)) ? substr($row['error_message1'],$number+10,12) : '');
+                    $sender_number = (is_numeric(substr($row['error_message1'],$message1+18,12)) ? substr($row['error_message1'],$message1+18,12) : '');
+                    $null = substr($row['error_message1'],$message1+17,4);
+                }
+
+                $sent_message = strpos($row['error_message1'],'"sent":true');
+
+                if($sent_message)
+                    $sent_message_status = 1;
+                else
+                    $sent_message_status = 0;
+
             @endphp
                 <tr>
                     <td>{{ $sr_no++ }}</td>
                     <td>{{ $row['date'] }}</td>
-                    <td>No</td>
+
+                    @if($sent_message_status == 1)
+                        <td>Yes</td>     
+                    @else
+                        <td>No</td>
+                    @endif
+
                     @if ($message1 == '' || $null == "null")
                         <td></td>
                     @else
@@ -163,7 +233,15 @@
                                 Message1 : {{$row['error_message1']}} <br>
                             @endif --}}
                         @endif
-                        Message2 : {{$row['error_message2']}}
+                        @php
+                            $str_msg = string_convert($row['error_message2'])
+                        @endphp
+                                <br/>
+                        Message2 : 
+                            @foreach($str_msg as $key => $val)
+                                {{$val}}<br/>
+                            @endforeach
+                    
                         </div>
                     </td>
                     <td>
@@ -208,6 +286,10 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
     <script type="text/javascript">
+
+        $('#filter-date').datetimepicker({
+            format: 'YYYY-MM-DD'
+        });
 
 
         $(document).on('click', '.sentMessage', function () {
@@ -291,9 +373,20 @@
 
         function loadMore(page) {
 
+            var date = $('.search_date').val();
+            var message_sent =  $('#message_sent').attr('selected', true).val();
+           
+
+            if(date != '')
+                var url = "/whatsapp-log?page="+page+"&date="+date;
+            else if(message_sent != '')
+                var url = "/whatsapp-log?page="+page+"&date="+date+"&message_sent="+message_sent;
+            else
+                var url = "/whatsapp-log?page="+page;
+
             page = page + 1;
             $.ajax({
-                url: "/whatsapp-log?page="+page,
+                url: url,
                 type: 'GET',
                 data: $('.form-search-data').serialize(),
                 beforeSend:function(){

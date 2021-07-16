@@ -264,6 +264,7 @@ class LogListMagentoController extends Controller
 
                 }
             }
+
             $prepared_products_data[$value->sku] = [
                 'store_website_id'      => $value->store_website_id,
                 'magento_id'            => $value->id,
@@ -367,6 +368,7 @@ class LogListMagentoController extends Controller
                     //   ]
                     // ]);
                     // $response = $req->getBody()->getContents();
+                    
                     if (isset($result->id)) {
                         $result->success    = true;
                         $result->size_chart_url    = "";
@@ -416,13 +418,14 @@ class LogListMagentoController extends Controller
                                 }
                             }
                         }
+                        $result->skuid            = $sku->sku;
+                        $result->store_website_id = $sku->websiteid;
+                        $products[]               = $result;
                     } else {
                         $result->success = false;
                     }
 
-                    $result->skuid            = $sku->sku;
-                    $result->store_website_id = $sku->websiteid;
-                    $products[]               = $result;
+                    
 
                 } catch (\Exception $e) {
                     \Log::info("Error from LogListMagentoController 448" . $e->getMessage());
@@ -492,5 +495,23 @@ class LogListMagentoController extends Controller
         ->get();
 
         return view("logging.partials.log-count-error",compact("log"));
+    }
+
+    public function getLatestProductForPush(Request $request)
+    {   
+        //
+        $produts = \App\Loggers\LogListMagento::join("products as p","p.id","log_list_magentos.product_id")->where("sync_status","success")->groupBy("product_id","store_website_id")->limit($request->limit)->orderBy("log_list_magentos.id","desc")->get();
+        $listToBeSend = [];
+        if(!$produts->isEmpty()) {
+            foreach($produts as $p) {
+                $listToBeSend[] =  [
+                    "sku" => $p->sku."-". $p->color,
+                    "websiteid" => $p->store_website_id,
+                ];
+            }
+        }
+
+        return response()->json(["code" => 200 , "products" => $listToBeSend]);
+
     }
 }

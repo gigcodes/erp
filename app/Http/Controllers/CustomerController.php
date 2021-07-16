@@ -2729,9 +2729,6 @@ class CustomerController extends Controller
             if($email != '' && $website_id != ''){
                 $find_customer = Customer::where('email',$email)->where('store_website_id',$website_id)->first();
 
-            if($email != '' && $website_id != ''){
-                $find_customer = Customer::where('email',$email)->where('store_website_id',$website_id)->first();
-
                 if($find_customer)
                 {
                     foreach($request->post() as $key => $value)
@@ -2739,6 +2736,7 @@ class CustomerController extends Controller
 
                         if($value['entity_id'] != "")
                             $check_record = CustomerAddressData::where('customer_id',$find_customer->id)->where('entity_id',$value['entity_id'])->first();
+
 
                         if($check_record)
 
@@ -2791,7 +2789,6 @@ class CustomerController extends Controller
                                 'updated_at' => \Carbon\Carbon::now(),
 
                             ];
-                            $params->save();
 
                         }
                     }
@@ -2877,6 +2874,4 @@ class CustomerController extends Controller
         // }
     }
     //END - DEVTASK-19932
-
-
 }

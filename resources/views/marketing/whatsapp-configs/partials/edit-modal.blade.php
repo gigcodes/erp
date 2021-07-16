@@ -20,14 +20,14 @@
                             @endif
                         </div>
                             <input type="hidden" name="id" value="{{ $whatsAppConfig->id }}"/>
-                        <div class="form-group">
+                        <!-- <div class="form-group">
                             <strong>Password:</strong>
                             <input type="text" name="password" class="form-control" value="" required>
 
                             @if ($errors->has('password'))
                                 <div class="alert alert-danger" >{{$errors->first('password')}}</div>
                             @endif
-                        </div>
+                        </div> -->
                         <div class="form-group">
                             <strong>Number:</strong>
                             <input type="text" name="number" class="form-control" value="{{ $whatsAppConfig->number }}">
@@ -258,7 +258,7 @@
                                 <option>Select Status</option>
                                 <option value="1" @if($whatsAppConfig->status == 1) selected @endif>Active</option>
                                 <option value="2" @if($whatsAppConfig->status == 2) selected @endif>Blocked</option>
-                                <option value="3" @if($whatsAppConfig->status == 0) selected @endif>Inactive</option>
+                                <option value="3" @if($whatsAppConfig->status == 3) selected @endif>Inactive</option>
                              </select>
                             @if ($errors->has('status'))
                             <div class="alert alert-danger">{{$errors->first('status')}}</div>

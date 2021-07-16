@@ -65,10 +65,27 @@ table tr td {
 .red{
     color: red
 }
+#addEditTaskModal .modal-dialog{
+    max-width: 1050px;
+    width: 100%;
+}
+.uk-margin-remove th, .uk-margin-remove td{
+    padding: 4px 10px;
+}
+.btn-default:focus{
+    outline: none;
+    border:1px solid #ddd;
+    box-shadow: none !important;
+    background: #fff;
+    color: #757575;
+}
 </style>
 @endsection
 
 @section('large_content')
+    <script src="/js/jquery.jscroll.min.js"></script>
+
+
 	<div class="ajax-loader" style="display: none;">
 		<div class="inner_loader">
 		<img src="{{ asset('/images/loading2.gif') }}">
@@ -77,21 +94,30 @@ table tr td {
 
     <div class="row">
         <div class="col-12" style="padding:0px;">
-            <h2 class="page-heading text-center">Tasks</h2>
+            <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">Cron Tasks
+                <div class="margin-tb" style="flex-grow: 1;">
+                    <div class="pull-right ">
+                        <button type="button" class="btn btn-default btn-sm add-remark mr-1" data-toggle="modal" data-target="#addEditTaskModal">
+                            <span class="glyphicon glyphicon-th-plus"></span> Add Task
+                        </button>
+                    </div>
+                </div>
+            </h2>
+
+
+
         </div>
-         <div class="col-10" style="padding-left:0px;">
+         <div class="col-12 pl-2" style="padding-left:0px;">
             <div >
                 <form class="form-inline" action="" method="GET">
                     <div class="form-group col-md-2 pd-3">
                         <input style="width:100%;" id="totem__search__form" name="q" type="text" class="form-control" value="{{ isset($_REQUEST['q']) ? $_REQUEST['q'] : '' }}" placeholder="Search...">
                     </div> 
                     <div class="form-group col-md-1 pd-3">
-                        <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
+                        <button type="submit" class="btn btn-image ml-0"><img src="{{asset('images/filter.png')}}" /></button>
                         <a href="{{ route('totem.tasks.all') }}" class="fa fa-refresh" aria-hidden="true"></a>
                     </div>
-                    <button type="button" class="btn btn-default btn-sm add-remark" data-toggle="modal" data-target="#addEditTaskModal">
-                        <span class="glyphicon glyphicon-th-plus"></span> Add Task
-                    </button>
+
                 </form> 
             </div>
         </div>
@@ -100,9 +126,10 @@ table tr td {
 
 
     <div class="row">
-        <div class="infinite-scroll" style="width:100%;">
+        <div class="infinite-scroll" style="width:100%;padding: 0 8px">
+            {!! $tasks->links() !!}
 	        <div class="table-responsive mt-2">
-                <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;table-layout:fixed">
+                <table class="table table-bordered order-table" style="color:black;table-layout:fixed">
                     <thead>
                         <tr>
                             <th width="2%">#</th>
@@ -148,7 +175,7 @@ table tr td {
                     </tbody>
                 </table>
                 @if(!count($tasks))
-                <h5 class="text-center">No Tasks found</h5>
+                <h5 class="text-center">No Tasks found</h5> 
                 @endif
 	        </div>
         </div>
@@ -236,7 +263,7 @@ table tr td {
     </div>  
 
 
-    <div class="modal fade" id="view_execution_history" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade" id="view_execution_history" tabindex="-1" role="dialog" aria-hidden="true" style="overflow-y:auto;">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
         <div class="modal-header">
@@ -268,7 +295,7 @@ table tr td {
     </div>
     </div>
 
-    <div id="addEditTaskModal" class="modal fade" role="dialog" data-id = ''>
+    <div id="addEditTaskModal" class="modal fade" role="dialog" data-id = '' style="overflow-y:auto;">
         <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content">
@@ -333,17 +360,19 @@ table tr td {
                         <div class="form-group frequencies">
                             <label>FREQUENCIES</label><i class="fa fa-info-circle" title="Add   to your task. These frequencies will be converted into a cron expression while scheduling the task"></i><br>
                             <button type="button" class="btn btn-default btn-sm add-remark" data-toggle="modal" data-target="#addFrequencyModal">Add Frequency</button>
-                            <table class="uk-table uk-table-divider uk-margin-remove">
+                            <div class="table-responsive mt-2" style="width: fit-content">
+                            <table class="uk-table table-bordered uk-table-divider uk-margin-remove">
                                 <thead>
                                     <tr>
                                         <th>Frequency</th> 
-                                        <th>Parameters</th>
+                                        <th colspan="2">Parameters</th>
                                     </tr>
                                 </thead>
                                 <tbody class="freq">
                                     <td class="default_td">No Frequencies Found</td>
                                 </tbody>
                             </table>
+                            </div>
                         </div> 
 
                         <hr> 
@@ -367,17 +396,17 @@ table tr td {
                             <label>Miscellaneous Options</label>
                             <br>
                             <input type="hidden" name="dont_overlap" id="dont_overlap" value="0" checked>
-                            <input type="checkbox" name="dont_overlap" id="dont_overlap" value="1" >Don't Overlap
+                            <input type="checkbox" name="dont_overlap" id="dont_overlap" value="1" class="mr-2">Don't Overlap
                             <i class="fa fa-info-circle" title="Add a slack web hook url to recieve slack notifications. Phone numbers should include country code and are digits only. Leave empty if you do not wish to receive slack notifications"></i>
                             <br>
                             
                             <input type="hidden" name="run_in_maintenance" id="run_in_maintenance" value="0" checked>
-                            <input type="checkbox" name="run_in_maintenance" id="run_in_maintenance" value="1" >Run in maintenance mode
+                            <input type="checkbox" name="run_in_maintenance" id="run_in_maintenance" value="1" class="mr-2">Run in maintenance mode
                             <i class="fa fa-info-circle" title="Add a slack web hook url to recieve slack notifications. Phone numbers should include country code and are digits only. Leave empty if you do not wish to receive slack notifications"></i>
                             <br>
                             
                             <input type="hidden" name="run_on_one_server" id="run_on_one_server" value="0" checked>
-                            <input type="checkbox" name="run_on_one_server" id="run_on_one_server" value="1" >Run on a single server
+                            <input type="checkbox" name="run_on_one_server" id="run_on_one_server" value="1" class="mr-2">Run on a single server
                             <i class="fa fa-info-circle" title="Add a slack web hook url to recieve slack notifications. Phone numbers should include country code and are digits only. Leave empty if you do not wish to receive slack notifications"></i>
                              
                             <p class="d-none"></p>
@@ -424,12 +453,45 @@ table tr td {
 @endsection
 @section('scripts')
 
+<script src="/js/jquery.jscroll.min.js"></script>
 <script type="text/javascript"> 
+    $('ul.pagination').hide();
+    $(function() {
+        $('.infinite-scroll').jscroll({
+            autoTrigger: true,
+            loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+            padding: 2500,
+            nextSelector: '.pagination li.active + li a',
+            contentSelector: 'div.infinite-scroll',
+            callback: function() {
+                $('ul.pagination').hide();
+                setTimeout(function(){
+                    $('ul.pagination').first().remove();
+                }, 2000);
+                $(".select-multiple").select2();
+                initialize_select2();
+            }
+        });
+    });
+
     var freq = 0;
     $('#addEditTaskModal').on('hidden.bs.modal', function (e) {
+        $('.error').remove();
         $(this).attr('data-id', '');
         $('#addEditTaskModal .modal-title').html('Create task');
         $('.freq').html('<tr><td class="default_td">No Frequencies Found</td></tr>');
+    });
+
+    $('.infinite-scroll').jscroll({
+            autoTrigger: true,
+            loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+            padding: 2500,
+            nextSelector: '.pagination li.active + li a',
+            contentSelector: 'div.infinite-scroll',
+            callback: function() {
+                $('ul.pagination').first().remove();
+                $(".select-multiple").select2();
+            }
     });
 
     $(document).on("click",".view-task",function(e) {
@@ -517,8 +579,12 @@ table tr td {
                 toastr['success']('Task executed successfully!');
                 thiss.html(`<img src="/images/send.png" style="cursor: pointer; width: 0px;">`);
             },
-            error: function () {
-                toastr['error']('Something went wrong!');
+            error: function (response) {
+                if(response.status == 200){
+                    toastr['success']('Task executed successfully!');
+                }else{
+                    toastr['error']('Something went wrong!');
+                }
                 thiss.html(`<img src="/images/send.png" style="cursor: pointer; width: 0px;">`);
             }
         });
@@ -652,7 +718,7 @@ table tr td {
                 if(response.task){
                     toastr['success']('Task Updated Successfully.');
                 }else{
-                    toastr['error']('Something went wrong!');
+                    // toastr['error']('Something went wrong!');
                 }
                 setTimeout(function(){
                     window.location.reload(1);
@@ -679,7 +745,7 @@ table tr td {
                             $('.frequencies').after(error);
                         }
                     }
-                    toastr['error']('Something went wrong!');
+                    // toastr['error']('Something went wrong!');
                 }
             }
         });
