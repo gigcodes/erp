@@ -32,17 +32,8 @@ class GoogleTranslateController extends Controller
                 $product_translation->country_of_manufacture = $product->made_in;
                 $product_translation->dimension = $measurement;
                 $product_translation->save();
-            }else{
-                $msg = 'Default translation data not exists';
-
-            
-                if(!empty($logid)) {
-                    $logModel = LogListMagento::find($logid);
-                    if($logModel) {
-                        ProductPushErrorLog::log("",$product->id, $msg, 'error',$logModel->store_website_id,"","",$logModel->id);
-                    }
-                }
             }
+            
             if(count($languages) > 0){
                 foreach($languages as $language) {
                     $isLocaleAvailable = Product_translation::where('locale',$language)->where('product_id',$product->id)->first();
