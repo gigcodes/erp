@@ -448,28 +448,30 @@ $(document).on('click', '.image-button', function () {
     if(images.length){
       for(let i=0; i< images.length; i++){
         $("#order-product-images table tbody").append(`
-          <td style="width:45%">
-            <div class="speech-wrapper full-match-img">
-              <div id="1786233" class="bubble alt">
-                <div class="txt">
-                  <p class="name alt"></p>
-                  <p class="message" data-message=""></p>
-                  <div style="margin-bottom:10px;">
-                    <div class="row">
-                      <div class="col-md-4">
-                        <a href="${images[i].image_url}" class="show-product-info" target="_blank">
-                          <img src="${images[i].image_url}" style="max-width: 100%; cursor: default;">
-                        </a>
+          <tr>
+            <td style="width:45%">
+              <div class="speech-wrapper full-match-img">
+                <div id="1786233" class="bubble alt">
+                  <div class="txt">
+                    <p class="name alt"></p>
+                    <p class="message" data-message=""></p>
+                    <div style="margin-bottom:10px;">
+                      <div class="row">
+                        <div class="col-md-4">
+                          <a href="${images[i].image_url}" class="show-product-info" target="_blank">
+                            <img src="${images[i].image_url}" style="max-width: 100%; cursor: default;">
+                          </a>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </td>
-          <td style="width:30%">&nbsp; 
-            <button style="padding: 3px 6px !important;" title="Search Product Image" data-media-url="'${images[i].image_url}'" data-customer-id="${customer_id}" data-product-id="${images[i].product_id}" class="btn btn-xs btn-secondary search-product-image"><i class="fa fa-search" aria-hidden="true"></i></button>
-          </td>
+            </td>
+            <td style="width:30%">&nbsp; 
+              <button style="padding: 3px 6px !important;" title="Search Product Image" data-media-url="'${images[i].image_url}'" data-customer-id="${customer_id}" data-product-id="${images[i].product_id}" class="btn btn-xs btn-secondary search-product-image"><i class="fa fa-search" aria-hidden="true"></i></button>
+            </td>
+          </tr>
         `); 
       }
     }

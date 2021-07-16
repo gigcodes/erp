@@ -448,40 +448,42 @@
                     },
                 })
                 .done(function(data) {
-                    
+                    thiss.closest(".cls_textarea_subbox").find("textarea").val("");
+                    toastr['success']("Message sent successfully", 'success');
                 })
             }
             //END - DEVTASK-18280
+            
 
-            var add_autocomplete  = thiss.closest(".cls_textarea_subbox").find("[name=add_to_autocomplete]").is(':checked') ;
-            data.append("add_autocomplete", add_autocomplete);
+            // var add_autocomplete  = thiss.closest(".cls_textarea_subbox").find("[name=add_to_autocomplete]").is(':checked') ;
+            // data.append("add_autocomplete", add_autocomplete);
 
-            if (message.length > 0) {
-                if (!$(thiss).is(':disabled')) {
-                    $.ajax({
-                        url: BASE_URL+'/whatsapp/sendMessage/'+type,
-                        type: 'POST',
-                        "dataType": 'json',           // what to expect back from the PHP script, if anything
-                        "cache": false,
-                        "contentType": false,
-                        "processData": false,
-                        "data": data,
-                        beforeSend: function () {
-                            $(thiss).attr('disabled', true);
+            // if (message.length > 0) {
+            //     if (!$(thiss).is(':disabled')) {
+            //         $.ajax({
+            //             url: BASE_URL+'/whatsapp/sendMessage/'+type,
+            //             type: 'POST',
+            //             "dataType": 'json',           // what to expect back from the PHP script, if anything
+            //             "cache": false,
+            //             "contentType": false,
+            //             "processData": false,
+            //             "data": data,
+            //             beforeSend: function () {
+            //                 $(thiss).attr('disabled', true);
 
-                        }
-                    }).done(function (response) {
-                        $(thiss).attr('disabled', false);
-                        thiss.closest(".cls_textarea_subbox").find("textarea").val("");
-                        toastr['success']("Message sent successfully", 'success');
+            //             }
+            //         }).done(function (response) {
+            //             $(thiss).attr('disabled', false);
+            //             thiss.closest(".cls_textarea_subbox").find("textarea").val("");
+            //             toastr['success']("Message sent successfully", 'success');
 
-                    }).fail(function (errObj) {
+            //         }).fail(function (errObj) {
                        
-                    });
-                }
-            } else {
-                alert('Please enter a message first');
-            }
+            //         });
+            //     }
+            // } else {
+            //     alert('Please enter a message first');
+            // }
         });
 
         var siteHelpers = {

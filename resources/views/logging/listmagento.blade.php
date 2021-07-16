@@ -133,8 +133,9 @@
               @foreach($logListMagentos as $item)
                 <tr>
 
-                  <td><a href="/products/{{ $item->product_id }}" target="__blank">{{ $item->product_id }}</a></td>
-
+                  <td>
+                    <a class="show-product-information" data-id="{{ $item->product_id }}" href="/products/{{ $item->product_id }}" target="__blank">{{ $item->product_id }}</a>
+                  </td>
                   <td class="expand-row-msg" data-name="sku" data-id="{{$item->id}}">
                     <span class="show-short-sku-{{$item->id}}">{{ str_limit($item->sku, 5 ,'...')}}</span>
                     <span style="word-break:break-all;" class="show-full-sku-{{$item->id}} hidden"><a href="{{ $item->website_url }}/default/catalogsearch/result/?q={{ $item->sku }}" target="__blank">{{$item->sku}}</a></span>
@@ -349,9 +350,41 @@
             <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
           </div>
       </div>
-      <!-- /.modal-content -->
     </div>
-    <!-- /.modal-dialog -->
+  </div>
+  <div id="show-product-information" class="modal fade" role="dialog" style="margin: 150px;">
+    <div class="modal-dialog modal-lg" style="margin: 0px;">
+      <div class="modal-content" style="width: 1500px">
+        <div class="modal-header">
+          <h4 class="modal-title">Product information</h4>
+        </div>
+          <div class="modal-body">
+              <table class="table table-bordered table-hover" style="table-layout:fixed;">
+                <thead>
+                  <th width="10%">SKU</th>
+                  <th width="15%">Description</th>
+                  <th>Name</th>
+                  <th>Price</th>
+                  <th>Composition</th>
+                  <th>Material</th>
+                  <th>Manufracturer.</th>
+                  <th>Brand</th>
+                  <th>Sizes</th>
+                  <th>Dimensions</th>
+                  <th width="5%">Stock</th>
+                  <th width="5%">Min day</th>
+                  <th width="5%">Max day</th>
+                </thead>
+                <tbody class="product-information-data">
+
+                </tbody>
+              </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+    </div>
   </div>
 
 @endsection
@@ -493,6 +526,22 @@
     .done(function(response) {
         $("#show-error-count").find(".modal-body").html(response);
         $("#show-error-count").modal("show");
+    });
+  });
+
+  $(document).on("click",".show-product-information",function (e) {
+    e.preventDefault();
+    var id  = $(this).data("id");
+    $.ajax({
+      method: "GET",
+      url: "/logging/list-magento/product-information",
+      data : {
+         product_id : id
+      }
+    })
+    .done(function(response) {
+        $(".product-information-data").html(response);
+        $("#show-product-information").modal("show");
     });
   });
 

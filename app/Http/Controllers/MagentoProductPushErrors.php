@@ -76,9 +76,9 @@ class MagentoProductPushErrors extends Controller
         foreach ($records as $row) {
 
             $recorsArray[] = [
-                'product_id'      => $row->product_id,
+                'product_id'      => '<a class="show-product-information" data-id="'.$row->product_id.'" href="/products/'.$row->product_id.'" target="__blank">'.$row->product_id.'</a>',
                 'updated_at'      => $row->created_at->format('d-m-y H:i:s'),
-                'store_website'   => $row->store_website->title,
+                'store_website'   => ($row->store_website) ? $row->store_website->title : "-",
                 'message'         => str_limit($row->message, 30, 
                     '<a data-logid='.$row->id.' class="message_load">...</a>'),
                 'request_data'    => str_limit($row->request_data, 30,
