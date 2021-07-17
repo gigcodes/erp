@@ -21,19 +21,24 @@
             background: #fff !important;
             border: 1px solid #ddd !important;
             color: #757575 !important;
+            padding: 8px 5px 8px 10px;
         }
+        .space-right{
+        padding-right:10px;
+        padding-left: 10px;
+    }
+   
     </style>
     <!-- END - DEVTASK-4416 -->
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css">
 @section('content')
 
-    <div class="row">
-        <div class="col-md-12">
+    <div class="row" style="margin:0%">
+        <div class="col-md-12 margin-tb p-0">
             <h2 class="page-heading"> ListingApproved - SOP
 
                 <div class="pull-right">
-                    <button type="button" class="btn btn-secondary1" data-toggle="modal" data-target="#exampleModal">Add
-                        Notes</button>
+                    <button type="button" class="btn btn-secondary1 mr-2" data-toggle="modal" data-target="#exampleModal">Add Notes</button>
                 </div>
 
             </h2>
@@ -49,7 +54,7 @@
                                 <div class="col" id="search-bar">
 
                                     <input type="text" value="{{ request('search') ?? '' }}" name="search" class="form-control"
-                                        placeholder="Search Here..">
+                                        placeholder="Search Here.." style="margin-left: -5px;">
                                     {{-- <input type="text" name="search" id="search" class="form-control search-input" placeholder="Search Here Text.." autocomplete="off"> --}}
                                 </div>
 
@@ -110,13 +115,11 @@
         </div>
     </div>
     <!--------------------------------------------------- end Add Data Modal ------------------------------------------------------->
-    <div class="col-md-12" style="padding: 0;">
-        <div class="pagenote-scroll">
+    
+        <div class="space-right">
 
             <div class="table-responsive">
-                <table cellspacing="0" role="grid"
-                    class="page-notes table table-bordered datatable mdl-data-table dataTable page-notes" style="width:100%"
-                    id="NameTable">
+                <table class="table table-bordered page-notes" style="font-size:13.8px;border:0px !important;" id="NameTable">
                     <thead>
                         <tr>
                             <th width="3%">ID</th>
@@ -125,7 +128,6 @@
                             <th width="50%">Content</th>
                             <th width="18%">Communication</th>
                             <th width="8%">Created at</th>
-
                             <th width="12%">Action</th>
                         </tr>
                     </thead>
@@ -142,12 +144,12 @@
                                     {{ $value->content ? substr(strip_tags($value->content), 0, 200) . (strlen(($value->content)) > 200 ? '......' : '') : '' }}
                                     </span>
                                     <span class="td-full-container hidden">{!! $value->content !!}</span>
-                            </td> 
+                                 </td> 
                                                         
                                 {{-- <td> {!! $value->content !!}</td> --}}
 
-                                <td class="table-hover-cell pr-0 pb-0 ">
-                                    <div style="display:flex;" class=" d-flex flex-row w-100 justify-content-between">
+                                <td class="table-hover-cell pr-0">
+                                    <div class=" d-flex flex-row w-100 justify-content-between">
                                         <div style="flex-grow: 1">
                                             <textarea  style="height:37px;" class="form-control" id="messageid_{{ $value->user_id }}" name="message" placeholder="Message"></textarea>
                                         </div>
@@ -155,11 +157,11 @@
                             
                                             <button class="btn btn-xs btn-image send-message-open" style="margin-left:6px;"
                                                     data-user_id="{{ $value->user_id }}">
-                                                <img src="/images/filled-sent.png"/>
+                                                <img src="/images/filled-sent.png" style="color: #757575"/>
                                             </button>
                             
                                             
-                                    <button type="button" 
+                                             <button type="button" 
                                                     style="margin-left:6px;"
                                                     class="btn btn-xs btn-image load-communication-modal" 
                                                     data-id="{{$value->user_id}}" title="Load messages"
@@ -178,13 +180,15 @@
 
                                     <a href="javascript:;" data-id="{{ $value->id }}"
                                         class="editor_edit btn-xs btn btn-image p-2" style="font-size:10px;">
-                                        <img src="/images/edit.png"></a>
+                                        {{-- <img src="/images/edit.png"></a> --}}<i class="fa fa-edit"></i>
                                     {{-- <a onclick="editname({{$value->id}})" class="btn btn-image"> <img src="/images/edit.png"></a> --}}
 
-                                    <a class="btn btn-image deleteRecord" data-id="{{ $value->id }}" style="font-size:15px; margin-left:-15px;"><img
-                                            src="/images/delete.png" /></a>
+                                    <a class="btn btn-image deleteRecord" data-id="{{ $value->id }}" style="font-size:15px; margin-left:-5px;">
+                                        {{-- <img src="/images/delete.png" /></a> --}}
+                                        <i class="fa fa-trash" style="color: #757575;" aria-hidden="true"></i>
 
-                                    <a class="fa fa-info-circle view_log" style="font-size:15px; margin-left:-8px;"
+                                        
+                                    <a class="fa fa-info-circle view_log" style="font-size:15px; margin-left:-3px; color: #757575;"
                                         title="status-log"
                                         data-name="{{ $value->purchaseProductOrderLogs ? $value->purchaseProductOrderLogs->header_name : '' }}"
                                         data-id="{{ $value->id }}" data-toggle="modal" data-target="#ViewlogModal"></a>
@@ -205,7 +209,7 @@
             </div>
 
         </div>
-    </div>
+  
 
     {{-- ------------------ View Log ----------------------- --}}
 
@@ -589,15 +593,15 @@ $(document).on('click', '.send-message-open', function (event) {
 
                         $("#NameTable tbody").prepend('<tr class="parent_tr"><td>' + response.sop.id +
                             '</td><td> ' + response.sop.name + ' </td><td> ' + response.sop
-                            .content + ' </td><td class="table-hover-cell pr-0 pb-0"> <div style="display:flex;" class=" d-flex flex-row w-100 justify-content-between"> <div style="flex-grow: 1"> <textarea  style="height:37px;" class="form-control" id="messageid_'+ response.sop.user_id +'" name="message" placeholder="Message"></textarea> </div>  <div style="width: min-content"><button class="btn btn-xs btn-image send-message-open" style="margin-left:6px;" data-user_id="'+ response.sop.user_id +'"> <img src="/images/filled-sent.png"/> </button> <button type="button" style="margin-left:6px;" class="btn btn-xs btn-image load-communication-modal" data-id="'+ response.sop.user_id +'" title="Load messages"data-object="SOP"> <i class="fa fa-comments-o"></i></button></div></div></td><td> ' + response.only_date + ' </td><td>' +
+                            .content + ' </td><td class="table-hover-cell pr-0"> <div style="display:flex;" class=" d-flex flex-row w-100 justify-content-between"> <div style="flex-grow: 1"> <textarea  style="height:37px;" class="form-control" id="messageid_'+ response.sop.user_id +'" name="message" placeholder="Message"></textarea> </div>  <div style="width: min-content"><button class="btn btn-xs btn-image send-message-open" style="margin-left:6px;" data-user_id="'+ response.sop.user_id +'"> <img src="/images/filled-sent.png"/> </button> <button type="button" style="margin-left:6px;" class="btn btn-xs btn-image load-communication-modal" data-id="'+ response.sop.user_id +'" title="Load messages"data-object="SOP"> <i class="fa fa-comments-o"></i></button></div></div></td><td> ' + response.only_date + ' </td><td>' +
                                         
 
-                            ' <a href="javascript:;" data-id="' + response.sop.id +'" class="editor_edit btn-xs btn btn-image p-2"><img src="/images/edit.png"></a>' +
+                            ' <a href="javascript:;" data-id="' + response.sop.id +'" class="editor_edit btn-xs btn btn-image p-2"><i class="fa fa-edit"></i></a>' +
 
-                            '<a class="btn btn-image deleteRecord" style="font-size:15px; margin-left:-9px; data-id="' + response.sop.id +
-                            '" ><img src="/images/delete.png" /></a>' +
+                            '<a class="btn btn-image deleteRecord" style="font-size:15px; margin-left:-6px; data-id="' + response.sop.id +
+                            '" ><i class="fa fa-trash" style="color: #757575;" aria-hidden="true"></i>' +
 
-                            ' <a class="fa fa-info-circle view_log" style="font-size:15px; margin-left:-9px; " title="status-log" data-id="' +
+                            ' <a class="fa fa-info-circle view_log" style="font-size:15px; margin-left:-2px; color: #757575; " title="status-log" data-id="' +
                             response.sop.id +
                             '" data-toggle="modal" data-target="#ViewlogModal" data-name="' +
                             response.params.header_name + '"></a>' +
