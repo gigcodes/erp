@@ -37,7 +37,27 @@
             margin: 10px;
             background: #f1f1f1;
         }
-
+        .btn-secondary{
+            border: 1px solid #ddd;
+            color: #757575;
+            background-color: #fff !important;
+        }
+        .form-inline .d-flex.main .form-group{
+            flex: 1;
+        }
+        .form-inline .d-flex.main{
+            width: -webkit-fill-available;
+        }
+        .form-inline .d-flex.main input{
+            width: 100%;
+            /*border: 1px solid #ddd !important;*/
+        }
+        .d-flex.main .select2-container{
+            width: 100% !important;
+        }
+        .select2-container--default .select2-selection--multiple{
+            border: 1px solid #ddd !important;
+        }
 
     </style>
 @endsection
@@ -64,54 +84,63 @@
             </form>
         </div>
     </div>
-    <div class="row">
-        <div class="col-lg-12 margin-tb">
+    <div class="row m-0">
+        <div class="col-lg-12 margin-tb p-0">
             <div class="">
-                <h2 class="page-heading">Google Search by Image ({{ $count_system }})</h2>
+                <h2 class="page-heading">Google Search by Image ({{ $count_system }})
+                <div class="pull-right pr-2">
+                    <button type="button" class="btn btn-secondary select-all-system-btn" data-count="0">Send All In System</button>
+                    <button type="button" class="btn btn-secondary select-all-page-btn" data-count="0">Send All On Page</button>
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#product-image">Get Product By Image</button>
+                </div>
+                </h2>
 
                 <!--Product Search Input -->
-                <form method="GET" class="form-inline align-items-start">
-                    <div class="form-group mr-3">
-                        <select data-placeholder="Select status" class="form-control select-multiple2" name="status_id[]" multiple>
-                            @foreach (\App\Helpers\StatusHelper::getStatus() as $id=>$name)
-                                <option value="{{ $id }}" {{ isset($status_id) && in_array($id, $status_id)  ? 'selected' : '' }}>{{ $name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group mr-3 mb-3">
-                        {!! $category_selection !!}
-                    </div>
+                <form method="GET" class="form-inline align-items-start ml-3 mr-3">
+                  <div class="d-flex main">
+                      <div class="form-group mr-3">
+                          <select data-placeholder="Select status" class="form-control select-multiple2" name="status_id[]" multiple>
+                              @foreach (\App\Helpers\StatusHelper::getStatus() as $id=>$name)
+                                  <option value="{{ $id }}" {{ isset($status_id) && in_array($id, $status_id)  ? 'selected' : '' }}>{{ $name }}</option>
+                              @endforeach
+                          </select>
+                      </div>
+                      <div class="form-group mr-3 mb-3 " >
+                          {!! $category_selection !!}
+                      </div>
 
 
-                    <div class="form-group mr-3">
-                        @php $brands = \App\Brand::getAll();
-                        @endphp
-                        <select data-placeholder="Select brands" class="form-control select-multiple2" name="brand[]" multiple>
-                            <optgroup label="Brands">
-                                @foreach ($brands as $id => $name)
-                                    <option value="{{ $id }}" {{ isset($brand) && $brand == $id ? 'selected' : '' }}>{{ $name }}</option>
-                                @endforeach
-                            </optgroup>
-                        </select>
-                    </div>
-                    <div class="form-group mr-3 mb-3">
-                        <input placeholder="Shoe Size" type="text" name="shoe_size" value="{{request()->get('shoe_size')}}" class="form-control-sm form-control">
-                    </div>
-                    <div class="form-group mr-3">
-                        @php $colors = new \App\Colors();
-                        @endphp
-                        <select data-placeholder="Select color" class="form-control select-multiple2" name="color[]" multiple>
-                            <optgroup label="Colors">
-                                @foreach ($colors->all() as $id => $name)
-                                    <option value="{{ $id }}" {{ isset($color) && $color == $id ? 'selected' : '' }}>{{ $name }}</option>
-                                @endforeach
-                            </optgroup>
-                        </select>
-                    </div>
+                      <div class="form-group mr-3" style="width: 230px;">
+                          @php $brands = \App\Brand::getAll();
+                          @endphp
+                          <select data-placeholder="Select brands" class="form-control select-multiple2" name="brand[]" multiple>
+                              <optgroup label="Brands">
+                                  @foreach ($brands as $id => $name)
+                                      <option value="{{ $id }}" {{ isset($brand) && $brand == $id ? 'selected' : '' }}>{{ $name }}</option>
+                                  @endforeach
+                              </optgroup>
+                          </select>
+                      </div>
+                      <div class="form-group mr-3 mb-3">
+                          <input placeholder="Shoe Size" type="text" name="shoe_size" value="{{request()->get('shoe_size')}}" class="form-control-sm form-control">
+                      </div>
+                      <div class="form-group mr-0" style="width: 230px;" >
+                          @php $colors = new \App\Colors();
+                          @endphp
+                          <select data-placeholder="Select color" class="form-control select-multiple2" name="color[]" multiple>
+                              <optgroup label="Colors">
+                                  @foreach ($colors->all() as $id => $name)
+                                      <option value="{{ $id }}" {{ isset($color) && $color == $id ? 'selected' : '' }}>{{ $name }}</option>
+                                  @endforeach
+                              </optgroup>
+                          </select>
+                      </div>
 
+
+                  </div>
                     @if (Auth::user()->hasRole('Admin'))
                         @if(!empty($locations))
-                            <div class="form-group mr-3">
+                            <div class="form-group mr-3" style="width: 230px;">
                                 <select data-placeholder="Select location" class="form-control select-multiple2" name="location[]" multiple>
                                     <optgroup label="Locations">
                                         @foreach ($locations as $name)
@@ -121,16 +150,16 @@
                                 </select>
                             </div>
                         @endif
-                        <div class="form-group mr-3">
-                            <input type="checkbox" name="no_locations" id="no_locations" {{ isset($no_locations) ? 'checked' : '' }}>
-                            <label for="no_locations">With no Locations</label>
+                        <div class="form-group mr-3 d-flex ml-3">
+                            <input class="mt-0" type="checkbox" name="no_locations" id="no_locations" {{ isset($no_locations) ? 'checked' : '' }}>
+                            <label style="line-height: 30px" class="ml-2" for="no_locations">With no Locations</label>
                         </div>
                     @endif
-                    <div class="form-group mr-3">
-                        <input type="checkbox" name="quick_product" id="quick_product" {{ $quick_product == 'true' ? 'checked' : '' }}  value="true">
-                        <label for="quick_product">Quick Sell</label>
+                    <div class="form-group mr-3 d-flex ml-3">
+                        <input class="mt-0" type="checkbox" name="quick_product" id="quick_product" {{ $quick_product == 'true' ? 'checked' : '' }}  value="true">
+                        <label class="ml-2" style="line-height: 30px" for="quick_product">Quick Sell</label>
                     </div>
-                    <div class="form-group mr-3">
+                    <div class="form-group mr-3" style="width: 230px;">
                         <select class="form-control select-multiple2" name="quick_sell_groups[]" multiple data-placeholder="Quick Sell Groups...">
                             @foreach ($quick_sell_groups as $key => $quick_sell)
                                 <option value="{{ $quick_sell->id }}" {{ in_array($quick_sell->id, request()->get('quick_sell_groups', [])) ? 'selected' : '' }}>{{ $quick_sell->name }}</option>
@@ -139,7 +168,7 @@
                     </div>
                     <div class="form-group mr-3 mb-3">
                         <strong class="mr-3">Price</strong>
-                        <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="10000000" data-slider-step="10" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '10000000' }}]"/>
+                        <input type="text"style="height: 32px;border: 1px solid #ddd" name="price" data-provide="slider" data-slider-min="0" data-slider-max="10000000" data-slider-step="10" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '10000000' }}]"/>
                     </div>
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                 </form>
@@ -151,27 +180,25 @@
 
     @include('partials.flash_messages')
 
-    <button type="button" class="btn btn-secondary select-all-system-btn" data-count="0">Send All In System</button>
-    <button type="button" class="btn btn-secondary select-all-page-btn" data-count="0">Send All On Page</button>
-    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#product-image">Get Product By Image</button>
+
 
     <div class="productGrid" id="productGrid">
-        {!! $products->appends(Request::except('page'))->links() !!}
+{{--        {!! $products->appends(Request::except('page'))->links() !!}--}}
         <form method="POST" action="{{route('google.search.crop')}}" id="theForm">
             {{ csrf_field() }}
-            <div class="row">
+            <div class="row m-0">
 
 
-                <div class="col-md-12 margin-tb">
+                <div class="col-md-12 margin-tb pl-3 pr-3">
                     <div class="table-responsive">
                         <table class="table table-bordered" style="table-layout:fixed;">
                             <thead>
-                            <th style="width:8%">Id</th>
-                            <th style="width:7% ; height: 10%">Image</th>
-                            <th style="width:10%">Sku</th>
-                            <th style="width:20%">Price</th>
-                            <th style="width:20%">Status</th>
-                            <th style="width:20%">Action</th>
+                            <th style="width:13%">Id</th>
+                            <th style="width:10% ; height: 10%">Image</th>
+                            <th style="width:15%">Sku</th>
+                            <th style="width:15%">Price</th>
+                            <th style="width:17%">Status</th>
+                            <th style="width:15%">Action</th>
                             </thead>
                             <tbody class="infinite-scroll-data">
 
@@ -182,7 +209,8 @@
 
                                     <td>{{ $product->id }}</td>
                                     <td>
-                                        <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt="" id="img{{ $product->id }}" data-media="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->id : ''}}"/>
+                                        <img class="img-responsive grid-image" src="https://www.w3schools.com/html/img_chania.jpg">
+{{--                                        <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt="" id="img{{ $product->id }}" data-media="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->id : ''}}"/>--}}
                                     </td>
                                     <td>
                                         {{ $product->sku }}
@@ -194,9 +222,9 @@
                                         {{ ucwords(\App\Helpers\StatusHelper::getStatus()[$product->status_id]) }}
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="select-product-edit" name="product_id" value="{{ $product->id }}" style="margin: 10px !important;">
+                                        <input type="checkbox" class="select-product-edit" name="product_id" value="{{ $product->id }}" style="margin: 0px !important;">
                                         @if($product->status_id == 26)<a href="{{ route('products.show', $product->id) }}" target="_blank" class="btn btn-secondary">Verify</a>@endif
-                                        <button type="button" class="btn btn-image my-3" id="sendImageMessage" onclick="sendImage()"><img src="/images/filled-sent.png"/></button>
+                                        <button type="button" class="btn btn-image m-0 p-0" id="sendImageMessage" onclick="sendImage()" style="padding-top:0 !important;"><img src="/images/filled-sent.png"/></button>
 
                                     </td>
 
