@@ -2180,7 +2180,8 @@ class DevelopmentController extends Controller
                 $old_status = $issue->status;
                 $issue->status = $request->get('is_resolved');
                 $assigned_to = User::find($issue->assigned_to);
-                if($assigned_to && $assigned_to->fixed_price_user_or_job == 1) {
+                $dev_task_user = User::find($issue->team_lead_id !== null ? $issue->team_lead_id : $issue->assigned_to);
+                if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 1) {
                     // Fixed price task.
                     if($issue->cost == null) {
                         return response()->json([
@@ -2194,9 +2195,20 @@ class DevelopmentController extends Controller
                         $payment_receipt->rate_estimated = $issue->cost;
                         $payment_receipt->status = 'Pending';
                         $payment_receipt->developer_task_id = $issue->id;
-                        $payment_receipt->user_id = $issue->assigned_to;
+                        $payment_receipt->user_id = $dev_task_user->id;
+                        $payment_receipt->by_command = 3;
                         $payment_receipt->save();
                     }
+                }else if($dev_task_user && $dev_task_user->fixed_price_user_or_job == 2){
+                    $payment_receipt = new PaymentReceipt;
+                    $payment_receipt->date = date( 'Y-m-d' );
+                    $payment_receipt->worked_minutes = $issue->estimate_minutes;
+                    $payment_receipt->rate_estimated = ($issue->estimate_minutes ?? 0) * ($dev_task_user->hourly_rate ?? 0) / 60;
+                    $payment_receipt->status = 'Pending';
+                    $payment_receipt->developer_task_id = $issue->id;
+                    $payment_receipt->user_id = $dev_task_user->id;
+                    $payment_receipt->by_command = 2;
+                    $payment_receipt->save();
                 }
                 $issue->responsible_user_id = $issue->assigned_to;
                 $issue->is_resolved = 1;
@@ -2285,25 +2297,85 @@ class DevelopmentController extends Controller
             $history = DeveloperTaskHistory::find($request->approve_time);
             $history->is_approved = 1;
             $history->save();
+
+
+            $task = DeveloperTask::find($request->developer_task_id);
+            $time = $history->new_value !== null ? $history->new_value : $history->old_value;
+            $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' .  $time . ' MINS'; 
+            
             $user = User::find($request->user_id);
-            $admin = Auth::user();
-            if($admin && $user){
-                $receiver_user_phone = $admin->phone;
-                if($receiver_user_phone){
-                    $task = DeveloperTask::find($request->developer_task_id);
-                    $time = $history->new_value !== null ? $history->new_value : $history->old_value;
-                    $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' .  $time . ' MINS'; 
+            $admin = Auth::user(); 
+            $master_user = User::find($task->master_user_id);
+            $team_lead = User::find($task->team_lead_id);
+            $tester = User::find($task->tester_id);
+
+            if($user){
+                if($admin->phone){
                     $chat = ChatMessage::create([
-                        'number' => $receiver_user_phone,
+                        'number' => $admin->phone,
                         'user_id' => $user->id,
                         'customer_id' => $user->id,
                         'message' => $msg,
                         'status' => 0, 
                         'developer_task_id' => $request->developer_task_id
                     ]);
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($receiver_user_phone, $admin->whatsapp_number, $msg, false, $chat->id);
+                }else if($user->phone){
+                    $chat = ChatMessage::create([
+                        'number' => $user->phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
+                }else if($master_user && $master_user->phone){
+                    $chat = ChatMessage::create([
+                        'number' => $master_user->phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
+                }else if($team_lead && $team_lead->phone){
+                    $chat = ChatMessage::create([
+                        'number' => $team_lead->phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
+                }else if($tester && $tester->phone){
+                    $chat = ChatMessage::create([
+                        'number' => $tester->phone,
+                        'user_id' => $user->id,
+                        'customer_id' => $user->id,
+                        'message' => $msg,
+                        'status' => 0, 
+                        'developer_task_id' => $request->developer_task_id
+                    ]);
                 } 
-            } 
+                if($chat){ 
+                    if($admin->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($admin->phone, $admin->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if($user->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if($master_user && $master_user->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($master_user->phone, $master_user->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if($team_lead && $team_lead->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($team_lead->phone, $team_lead->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if($tester && $tester->phone){
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($tester->phone, $tester->whatsapp_number, $msg, false, $chat->id);
+                    } 
+                }
+            }
+ 
+
     }else{
             return response()->json([
                 'message' => 'Only admin can approve'

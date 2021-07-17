@@ -3,13 +3,13 @@
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
-		      	<th width="10%">Product ID</th>
+		      	<th width="6%">Product ID</th>
 		        <th width="10%">Date</th>
 		        <th width="10%">Website</th>
 		        <th width="15%">Message</th>
 		        <th width="15%">Request data</th>
 		        <th width="15%">Response Data</th>
-		        <th width="10%">Status</th>
+		        <th width="12%">Status</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -18,10 +18,10 @@
 			      	<td>{{:prop.product_id}}</td>
 			      	<td>{{:prop.updated_at}}</td>
 			      	<td>{{:prop.store_website}}</td>
-			      	<td>{{:prop.message}}</td>
-			      	<td>{{:prop.request_data}}</td>
-			      	<td>{{:prop.response_data}}</td>
-			      	<td>{{:prop.response_status}}</td>
+			      	<td class="message_load_data">{{:prop.message}}</td>
+			      	<td class="request_message_load_data">{{:prop.request_data}}</td>
+			      	<td class="response_message_load_data">{{:prop.response_data}}</td>
+			      	<td>{{:prop.response_status}}  </td>
 			      </tr>
 			    {{/props}}  
 		    </tbody>
@@ -44,5 +44,14 @@
 	   <div class="modal-body">
 			{{:data}}
 		</div>
-	</div>			
+	</div>
+
+
+</script>
+<script>
+
+    $(document).ready(function() {
+        $(".globalSelect2").select2();
+    });
+
 </script>

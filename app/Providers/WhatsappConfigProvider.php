@@ -19,7 +19,7 @@ class WhatsappConfigProvider extends ServiceProvider
                 "number", "instance_id", "token", "is_customer_support", "status", "is_default","is_use_own"
             ])->where("instance_id", "!=", "")
                 ->where("token", "!=", "")
-                ->where("status", 1)
+                //->where("status", 1)
                 ->orderBy("is_default", "DESC")
                 ->get();
         } catch (\Illuminate\Database\QueryException $e) {

@@ -20,19 +20,19 @@ var page = {
             page.getResults();
         });
 
-        page.config.bodyView.on("click",".message_load",function(e) {
+        page.config.bodyView.on("click",".message_load_data",function(e) {
             e.preventDefault();
-            page.getLoadData("message",$(this).data("logid"));
+            page.getLoadData("message",$(this).find('a').data("logid"));
         });
 
-        page.config.bodyView.on("click",".request_data_load",function(e) {
+        page.config.bodyView.on("click",".request_message_load_data",function(e) {
             e.preventDefault();
-            page.getLoadData("request_data",$(this).data("logid"));
+            page.getLoadData("request_data",$(this).find('a').data("logid"));
         });
 
-        page.config.bodyView.on("click",".response_data_load",function(e) {
+        page.config.bodyView.on("click",".response_message_load_data",function(e) {
             e.preventDefault();
-            page.getLoadData("response_data",$(this).data("logid"));
+            page.getLoadData("response_data",$(this).find('a').data("logid"));
         });
     },
     loadFirst: function() {

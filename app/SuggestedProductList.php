@@ -20,7 +20,7 @@ class SuggestedProductList extends Model
       * @SWG\Property(property="chat_message_id",type="integer")
       * @SWG\Property(property="remove_attachment",type="string")
      * @SWG\Property(property="date",type="datetime")
-     */
+     */ 
     protected $fillable = ['suggested_products_id','customer_id','product_id','chat_message_id','media_id','remove_attachment','date'];
 
     public function getMedia(){

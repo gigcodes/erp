@@ -32,6 +32,9 @@ class CroppedImageReference extends Model
 
     public function getDifferentWebsiteName($media_id) {
        $media =  DB::table('mediables')->select('tag')->where('media_id',$media_id)->first();
+       if(!$media) {
+          return 'Default';
+       }
        if($media->tag == 'gallery'){
             return 'Default';
        }else{

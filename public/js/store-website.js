@@ -161,6 +161,28 @@ var page = {
             page.openUserListing();
             
         });
+
+        $(document).on("click",".open-store-user-histoty",function(href) {
+            page.openUserStoreHistorListing($(this));
+            
+        });
+    },
+    openUserStoreHistorListing: function(ele) {
+        var _z = {
+            url: this.config.baseUrl + "/store-website/"+ele.data("id")+'/userhistory',
+            method: "get",
+        }
+        this.sendAjax(_z, 'showStoreUserHistoryLiting');
+    },
+    showStoreUserHistoryLiting : function(response) {
+        if(response.code == 200) {
+            var createWebTemplate = $.templates("#template-history-store-magento-user");
+            var tplHtml = createWebTemplate.render(response);
+            var common =  $(".common-modal");
+                common.find(".modal-dialog").html(tplHtml);
+                common.modal("show");
+        }        
+              
     },
     openUserListing: function() {
         var _z = {
