@@ -3220,6 +3220,7 @@ class ProductController extends Controller
             $imageReference->speed = $request->get('time');
             $imageReference->product_id = $product->id;
             $imageReference->color = $colorName;
+            $imageReference->instance_id = $request->get('instance_id');
             $imageReference->save();
 
 

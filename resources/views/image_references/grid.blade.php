@@ -28,6 +28,8 @@
             <div class="pull-right">
                  <button onclick="addTask()" class="btn btn-secondary">Add Issue</button>
                  <button onclick="rejectImage()" class="btn btn-secondary">Reject Image</button>
+                 <button class="btn btn-secondary btn-instances-manage">Instances</button>
+
                  <select class="form-control-sm form-control bg-secondary text-light" name="reject_cropping" id="reason-select">
                     <option value="0">Select...</option>
                     <option value="Images Not Cropped Correctly">Images Not Cropped Correctly</option>
@@ -172,6 +174,21 @@
                     <h4 class="modal-title">Communication</h4>
                 </div>
                 <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="manage-crop-instance" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Manage Crop Instances</h4>
+                </div>
+                <div class="modal-body">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -522,6 +539,93 @@
                 }
             })
         })
+
+
+        $(document).on("click",".btn-instances-manage",function() {
+            $.ajax({
+                url: '/crop-references-grid/manage-instances',
+                success: function (data) {
+                    $("#manage-crop-instance").find(".modal-body").html(data);
+                    $("#manage-crop-instance").modal("show");
+                },
+            });
+        });
+
+        $(document).on("click",".add-instance",function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            $.ajax({
+                url: '/crop-references-grid/add-instance',
+                method:"post",
+                data : $this.closest('form').serialize(),
+                success: function (data) {
+                    $("#manage-crop-instance").find(".modal-body").html(data);
+                },
+            });
+        });
+
+        $(document).on("click",".btn-delete-manage-instances",function(e) {
+            e.preventDefault();
+            var $id = $(this).data("id");
+            $.ajax({
+                url: '/crop-references-grid/delete-instance',
+                method:"get",
+                data : {
+                    id : $id
+                },
+                success: function (data) {
+                    $("#manage-crop-instance").find(".modal-body").html(data);
+                },
+            });
+        });
+
+
+        $(document).on("click",".btn-start-manage-instances",function(e) {
+            e.preventDefault();
+            var $id = $(this).data("id");
+            $.ajax({
+                url: '/crop-references-grid/start-instance',
+                method:"get",
+                data : {
+                    id : $id
+                },
+                dataType:"json",
+                success: function (data) {
+                    if(data.code == 200) {
+                        toastr['success'](data.message, 'Success');
+                    }else{
+                        toastr['error'](data.message, 'Error');
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    toastr['error'](jqXHR.responseText, 'Error');
+                }
+            });
+        });
+
+        $(document).on("click",".btn-stop-manage-instances",function(e) {
+            e.preventDefault();
+            var $id = $(this).data("id");
+            $.ajax({
+                url: '/crop-references-grid/stop-instance',
+                method:"get",
+                data : {
+                    id : $id
+                },
+                dataType:"json",
+                success: function (data) {
+                    if(data.code == 200) {
+                        toastr['success'](data.message, 'Success');
+                    }else{
+                        toastr['error'](data.message, 'Error');
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    toastr['error'](jqXHR.responseText, 'Error');
+                }
+            });
+        });
+
     </script>
 
 @endsection
