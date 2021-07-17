@@ -209,8 +209,8 @@
 
                                     <td>{{ $product->id }}</td>
                                     <td>
-                                        <img class="img-responsive grid-image" src="https://www.w3schools.com/html/img_chania.jpg">
-{{--                                        <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt="" id="img{{ $product->id }}" data-media="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->id : ''}}"/>--}}
+{{--                                        <img class="img-responsive grid-image" src="https://www.w3schools.com/html/img_chania.jpg">--}}
+                                        <img src="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" class="img-responsive grid-image" alt="" id="img{{ $product->id }}" data-media="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->id : ''}}"/>
                                     </td>
                                     <td>
                                         {{ $product->sku }}
