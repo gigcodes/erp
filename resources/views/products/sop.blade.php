@@ -3,7 +3,7 @@
 @section('content')
 
 @section('styles')
-    <!-- START - Purpose : Add CSS - DEVTASK-4289 -->
+    <!-- START - Purpose : Add CSS - DEVTASK-4416 -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style type="text/css">
         table tr td {
@@ -17,16 +17,28 @@
         .flex {
             display: flex;
         }
-
+        .btn-secondary1{
+            background: #fff !important;
+            border: 1px solid #ddd !important;
+            color: #757575 !important;
+        }
     </style>
-    <!-- END - DEVTASK-4289 -->
+    <!-- END - DEVTASK-4416 -->
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css">
 @section('content')
 
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading"> ListingApproved - SOP</h2>
+            <h2 class="page-heading"> ListingApproved - SOP
+
+                <div class="pull-right">
+                    <button type="button" class="btn btn-secondary1" data-toggle="modal" data-target="#exampleModal">Add
+                        Notes</button>
+                </div>
+
+            </h2>
         </div>
+
         <div class="col-lg-12 margin-tb">
 
             <div class="pull-left">
@@ -36,7 +48,7 @@
                             <div class="flex">
                                 <div class="col" id="search-bar">
 
-                                    <input type="text" value="{{ old('search') }}" name="search" class="form-control"
+                                    <input type="text" value="{{ request('search') ?? '' }}" name="search" class="form-control"
                                         placeholder="Search Here..">
                                     {{-- <input type="text" name="search" id="search" class="form-control search-input" placeholder="Search Here Text.." autocomplete="off"> --}}
                                 </div>
@@ -56,10 +68,7 @@
                 </div>
             </div>
 
-            <div class="pull-right">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#exampleModal">Add
-                    Notes</button>
-            </div>
+            
         </div>
     </div>
 
@@ -110,13 +119,14 @@
                     id="NameTable">
                     <thead>
                         <tr>
-                            <th width="5%">ID</th>
-
-                            <th width="20%">Name</th>
+                            <th width="3%">ID</th>
+                            
+                            <th width="10%">Name</th>
                             <th width="50%">Content</th>
-                            <th width="10%">Created at</th>
+                            <th width="18%">Communication</th>
+                            <th width="8%">Created at</th>
 
-                            <th width="15%">Action</th>
+                            <th width="12%">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -125,25 +135,67 @@
                             <tr id="sid{{ $value->id }}" class="parent_tr" data-id="{{ $value->id }}">
                                 <td class="sop_table_id">{{ $value->id }}</td>
                                 <td class="sop_table_name">{{ $value->name }}</td>
-                                <td>{!! $value->content !!}</td>
+
+                                
+                                 <td class="expand-row" data-subject="{!! $value->content ? ($value->content) : '' !!}" data-details="{{$value->value}}" data-switch="0" style="word-break: break-all;">
+                                    <span class="td-mini-container">
+                                    {{ $value->content ? substr(strip_tags($value->content), 0, 200) . (strlen(($value->content)) > 200 ? '......' : '') : '' }}
+                                    </span>
+                                    <span class="td-full-container hidden">{!! $value->content !!}</span>
+                            </td> 
+                                                        
+                                {{-- <td> {!! $value->content !!}</td> --}}
+
+                                <td class="table-hover-cell pr-0 pb-0 ">
+                                    <div style="display:flex;" class=" d-flex flex-row w-100 justify-content-between">
+                                        <div style="flex-grow: 1">
+                                            <textarea  style="height:37px;" class="form-control" id="messageid_{{ $value->user_id }}" name="message" placeholder="Message"></textarea>
+                                        </div>
+                                        <div style="width: min-content">
+                            
+                                            <button class="btn btn-xs btn-image send-message-open" style="margin-left:6px;"
+                                                    data-user_id="{{ $value->user_id }}">
+                                                <img src="/images/filled-sent.png"/>
+                                            </button>
+                            
+                                            
+                                    <button type="button" 
+                                                    style="margin-left:6px;"
+                                                    class="btn btn-xs btn-image load-communication-modal" 
+                                                    data-id="{{$value->user_id}}" title="Load messages"
+                                                    data-object="SOP">
+                                                    <i class="fa fa-comments-o"></i>
+                                            </button>
+                            
+                                        </div>
+                                   </div>
+                                </td>    
+                                
 
                                 <td>{{ date('yy-m-d', strtotime($value->created_at)) }}</td>
 
-                                <td>
+                                <td>                                    
 
                                     <a href="javascript:;" data-id="{{ $value->id }}"
-                                        class="editor_edit btn-xs btn btn-image p-2">
+                                        class="editor_edit btn-xs btn btn-image p-2" style="font-size:10px;">
                                         <img src="/images/edit.png"></a>
                                     {{-- <a onclick="editname({{$value->id}})" class="btn btn-image"> <img src="/images/edit.png"></a> --}}
 
-                                    <a class="btn btn-image deleteRecord" data-id="{{ $value->id }}"><img
+                                    <a class="btn btn-image deleteRecord" data-id="{{ $value->id }}" style="font-size:15px; margin-left:-15px;"><img
                                             src="/images/delete.png" /></a>
 
-                                    <a class="fa fa-info-circle view_log" style="font-size:18px; margin-left:15px;"
+                                    <a class="fa fa-info-circle view_log" style="font-size:15px; margin-left:-8px;"
                                         title="status-log"
                                         data-name="{{ $value->purchaseProductOrderLogs ? $value->purchaseProductOrderLogs->header_name : '' }}"
                                         data-id="{{ $value->id }}" data-toggle="modal" data-target="#ViewlogModal"></a>
 
+                                     
+                                        <a title="Download Invoice" class="btn btn-image" href="{{ route('sop.download',$value->id) }}">
+                                            <i class="fa fa-download downloadpdf" style="font-size:15px; margin-left:-7px;"></i>
+                                            </a>
+
+                                            <button type="button" class="btn send-email-common-btn" data-toemail="{{$value->user->email}}" data-object="Sop" data-id="{{$value->user_id}}" style="font-size:15px; margin-left:-19px;"><i class="fa fa-envelope-square"></i></button>
+                                       
                                 </td>
                         @endforeach
 
@@ -173,10 +225,10 @@
                             style="border: 1px solid #ddd !important; color:black;table-layout:fixed">
                             <thead>
                                 <tr>
-                                    <th width="28%">From</th>
-                                    <th width="28%">To</th>
-                                    <th width="14%">Created By</th>
-                                    <th width="30%">Created At</th>
+                                    <th width="30%">Created By</th>
+                                    <th width="30%">Updated By</th>
+                                   
+                                    <th width="40%">Updated At</th>
 
                                 </tr>
                             </thead>
@@ -232,15 +284,248 @@
 
     {{-- -------------------------- end Update Data start-------------------------- --}}
 
-@endsection
 
+    <div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+                    <input type="hidden" id="chat_obj_type" name="chat_obj_type">
+                    <input type="hidden" id="chat_obj_id" name="chat_obj_id">
+                    <button type="submit" class="btn btn-default downloadChatMessages">Download</button>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{{-- Content POP-up --}}
+<div id="logMessageModel" class="modal fade" role="dialog">
+     <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                  <h4 class="modal-title">Content description</h4>
+            </div>
+            <div class="modal-body">
+               <p style="word-break: break-word;" ></p>
+            </div>
+             <div class="modal-footer">
+                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+             </div>
+         </div>
+    </div>
+</div>
+{{-- End Content POP-up --}}
+
+
+ <!-- Send Email Modal-->
+<div id="commonEmailModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+       
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Send Email</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <form action="" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="id" id="id">
+                <input type="hidden" name="object" id="object">
+                <input type="hidden" name="action" class="action" value="{{route('common.getmailtemplate')}}">
+                @csrf
+                <div class="modal-body">
+                    <div class="form-group">
+                        <strong>Send To</strong>
+                        <input type="text" name="sendto" class="form-control sendto" id="sendto">
+                    </div>
+
+                    <div class="form-group">
+                        <strong>From Mail</strong>
+                        <select class="form-control" name="from_mail" id="from_mail">
+                          <?php $emailAddressArr = \App\EmailAddress::all(); ?>
+                          @foreach ($emailAddressArr as $emailAddress)
+                            <option value="{{ $emailAddress->from_address }}">{{ $emailAddress->from_name }} - {{ $emailAddress->from_address }} </option>
+                          @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group text-right">
+                        <a class="add-cc mr-3" href="#">Cc</a>
+                        <a class="add-bcc" href="#">Bcc</a>
+                    </div>
+
+                    <div id="cc-label" class="form-group" style="display:none;">
+                        <strong class="mr-3">Cc</strong>
+                        <a href="#" class="add-cc">+</a>
+                    </div>
+
+                    <div id="cc-list" class="form-group">
+
+                    </div>
+
+                    <div id="bcc-label" class="form-group" style="display:none;">
+                        <strong class="mr-3">Bcc</strong>
+                        <a href="#" class="add-bcc">+</a>
+                    </div>
+
+                    <div id="bcc-list" class="form-group">
+
+                    </div>
+                   
+                    <div class="form-group">
+                        <strong>Subject *</strong>
+                        <input type="text" class="form-control subject" name="subject" id="subject" required>
+                    </div>
+
+                    <div class="form-group">
+                        <strong>Message *</strong>
+                        <textarea name="message" class="form-control mail_message" id="message" rows="8" cols="80" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <strong>Files</strong>
+                        <input type="file" name="file[]" value="" multiple>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-secondary sop-mail-send">Send</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+ <!-- End Send Email Modal-->
+
+@endsection
+{{-- @include('common.commonEmailModal') --}}
 @section('scripts')
+{{-- <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script>  --}}
     <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
     <script>
         CKEDITOR.replace('content');
         CKEDITOR.replace('sop_edit_content');
     </script>
+<script>
+   
+    $(document).on('click','.send-email-common-btn',function(e){
+        e.preventDefault();
+     
+        var mailtype = $(this).data('object');
+        var id = $(this).data('id');
+        var content =$(this).data('content');
+        var toemail = $(this).data('toemail');
+        $('#commonEmailModal').find('form').find('input[name="id"]').val(id);
+        $('#commonEmailModal').find('form').find('input[name="sendto"]').val(toemail);
+        $('#commonEmailModal').find('form').find('input[name="object"]').val(mailtype);
+        $('#commonEmailModal').modal("show");
+    });
 
+    $(document).on('click','.sop-mail-send',function(e){
+        e.preventDefault();
+        
+            let id = $("#id").val();
+            let sendto = $("#sendto").val();
+            let from_mail = $("#from_mail").val();
+            let object = $("#object").val();
+            let subject = $("#subject").val();
+            let message = $(".mail_message").val();
+
+                         
+       $.ajax({
+                url: "{{ route('common.send.email') }}",
+                type: 'POST',
+                data: {
+                   "id": id,
+                    "sendto": sendto,
+                   "from_mail": from_mail,
+                    "object": object,
+                    "subject": subject,
+                    "message": message,
+                    
+                    "_token": "{{csrf_token()}}",
+                                   
+                },
+                
+                dataType: "json",
+                success: function (response) {
+                    alert('There was an error sending the message...');
+                            
+                },
+               
+                error: function (response) {
+                   $('#commonEmailModal').modal('hide');
+                   toastr["success"]("Your Mail sent successfully!", "Message");
+                   
+                }
+            });
+       
+        });
+    
+</script>
+
+<script>
+
+$(document).on('click', '.send-message-open', function (event) {
+
+            var thiss = $(this);
+            var $this = $(this);
+            var data = new FormData();
+            var sop_user_id = $(this).data('user_id');
+            var message = $(this).parents('td').find("#messageid_"+sop_user_id).val();
+           
+            if (message.length > 0) {
+
+            //  let self = textBox;
+
+            $.ajax({
+                url: "{{action('WhatsAppController@sendMessage', 'SOP-Data')}}",
+                type: 'POST',
+                data: {
+                    "sop_user_id": sop_user_id,
+                    "message": message,
+                    "_token": "{{csrf_token()}}",
+                   "status": 2,
+                  
+                },
+                dataType: "json",
+                success: function (response) {
+                    $this.parents('td').find("#messageid_"+sop_user_id).val('');
+                   toastr["success"]("Message sent successfully!", "Message");
+                    $('#message_list_' + sop_user_id).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                   
+                   
+                },
+               
+                error: function (response) {
+                    alert('There was an error sending the message...');
+                   
+                }
+            });
+        } else {
+                alert('Please enter a message first');
+            }
+        });
+    </script>
+
+    <script>
+ $(document).on('click', '.expand-row', function () {
+    $('#logMessageModel .modal-body p').html($(this).attr('data-subject'));
+    $('#logMessageModel').modal("show");
+    var selection = window.getSelection();
+    // if (selection.toString().length === 0) {
+       
+    //     $(this).find('.td-mini-container').toggleClass('hidden');
+    //     $(this).find('.td-full-container').toggleClass('hidden');
+    // }
+});
+</script>
     <script>
         $(document).on("click", ".view_log", function(e) {
 
@@ -262,14 +547,13 @@
                 success: function(response) {
 
                     var html_content = ''
-                    $.each(response.log_data, function(key, value) {
-                        html_content += '<tr>';
-                        html_content += '<td>' + (value.replace_from == null ? '-' : value
-                            .replace_from) + '</td>';
-                        html_content += '<td>' + value.replace_to + '</td>';
-                        html_content += '<td>' + value.name + '</td>';
-                        html_content += '<td>' + value.log_created_at + '</td>';
+                    $.each(response.log_data, function(key, value) { 
+                        html_content += '<tr>'; 
+                        html_content += '<td>' + value.sop.user.name + '</td>';
+                        html_content += '<td>' + value.updated_by.name + '</td>';
+                        html_content += '<td>' + value.created_at + '</td>';
                         html_content += '</tr>';
+                        console.log(html_content, 132);
                     });
 
                     $("#log_data").html(html_content);
@@ -300,25 +584,27 @@
                     _token: _token
                 },
                 success: function(response) {
-                    console.log('response', response);
+                
                     if (response) {
 
                         $("#NameTable tbody").prepend('<tr class="parent_tr"><td>' + response.sop.id +
                             '</td><td> ' + response.sop.name + ' </td><td> ' + response.sop
-                            .content + ' </td><td> ' + response.only_date + ' </td><td>' +
+                            .content + ' </td><td class="table-hover-cell pr-0 pb-0"> <div style="display:flex;" class=" d-flex flex-row w-100 justify-content-between"> <div style="flex-grow: 1"> <textarea  style="height:37px;" class="form-control" id="messageid_'+ response.sop.user_id +'" name="message" placeholder="Message"></textarea> </div>  <div style="width: min-content"><button class="btn btn-xs btn-image send-message-open" style="margin-left:6px;" data-user_id="'+ response.sop.user_id +'"> <img src="/images/filled-sent.png"/> </button> <button type="button" style="margin-left:6px;" class="btn btn-xs btn-image load-communication-modal" data-id="'+ response.sop.user_id +'" title="Load messages"data-object="SOP"> <i class="fa fa-comments-o"></i></button></div></div></td><td> ' + response.only_date + ' </td><td>' +
+                                        
 
-                            '<a href="javascript:;" data-id = "' + response.sop.id +
-                            '" class="editor_edit btn-xs btn btn-image p-2">' +
-                            '<img src="/images/edit.png"></a>' +
+                            ' <a href="javascript:;" data-id="' + response.sop.id +'" class="editor_edit btn-xs btn btn-image p-2"><img src="/images/edit.png"></a>' +
 
-
-                            '<a class="btn btn-image deleteRecord" data-id="' + response.sop.id +
+                            '<a class="btn btn-image deleteRecord" style="font-size:15px; margin-left:-9px; data-id="' + response.sop.id +
                             '" ><img src="/images/delete.png" /></a>' +
 
-                            ' <a class="fa fa-info-circle view_log" style="font-size:18px; margin-left:15px;" title="status-log" data-id="' +
+                            ' <a class="fa fa-info-circle view_log" style="font-size:15px; margin-left:-9px; " title="status-log" data-id="' +
                             response.sop.id +
                             '" data-toggle="modal" data-target="#ViewlogModal" data-name="' +
                             response.params.header_name + '"></a>' +
+
+                            '<a title="Download Invoice" class="btn btn-image" href="'+ 'sop/DownloadData/' + response.sop.id +'"><i class="fa fa-download downloadpdf" style="font-size:15px; margin-left:-1px "></i></a>' +
+
+                          ' <button type="button" class="btn send-email-common-btn" data-toemail="' + response.user_email[0].email + '" data-object="Sop" data-id='+ response.sop.user_id +' style="font-size:15px; margin-left:-20px;"><i class="fa fa-envelope-square"></i></button>' +
 
                             '</td></tr>');
 
@@ -407,34 +693,11 @@
                 url: "{{ route('updateName') }}",
                 datatype: "json"
             }).done(function(data) {
-                
-
-                // if (data) {
-
-                //   var html =  $("#NameTable tbody").prepend('<tr class="parent_tr"><td>' + data.sopedit.id +
-                //         '</td><td> ' + data.sopedit.name + ' </td><td> ' + data.sopedit
-                //         .content + ' </td><td> ' + data.only_date + ' </td><td>' +
-
-                //         '<a href="javascript:;" data-id = "' + data.sopedit.id +
-                //         '" class="editor_edit btn-xs btn btn-image p-2">' +
-                //         '<img src="/images/edit.png"></a>' +
-
-
-                //         '<a class="btn btn-image deleteRecord" data-id="' + data.sopedit.id +
-                //         '" ><img src="/images/delete.png" /></a>' +
-
-                //         ' <a class="fa fa-info-circle view_log" style="font-size:18px; margin-left:15px;" title="status-log" data-id="' +
-                //         data.sopedit.id +
-                //         '" data-toggle="modal" data-target="#ViewlogModal" data-name="' +
-                //         data.params.header_name + '"></a>' +
-
-                //         '</td></tr>');
-
+                          
 
                     let id = $($this).attr('data-id');
 
-                    // console.log($('#sid' + id + ' td:nth-child(5) a:nth-child(3)').attr('data-name', data.params
-                    //     .header_name);
+                   
                     $('#sid' + id + ' td:nth-child(1)').html(data.sopedit.id);
                     $('#sid' + id + ' td:nth-child(2)').html(data.sopedit.name);
                     $('#sid' + id + ' td:nth-child(3)').html(data.sopedit.content);

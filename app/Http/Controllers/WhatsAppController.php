@@ -27,6 +27,7 @@ use App\BroadcastImage;
 use App\Leads;
 use App\Order;
 use App\Task;
+use App\sop;
 use App\Status;
 use App\Supplier;
 use App\Vendor;
@@ -2018,6 +2019,9 @@ class WhatsAppController extends FindByNumberController
         } elseif ($context == 'supplier') {
             $data['supplier_id'] = $request->supplier_id;
             $module_id = $request->supplier_id;
+        } elseif ($context == 'SOP-Data') {
+            $data['sop_user_id'] = $request->sop_user_id;
+            $module_id = $request->sop_user_id;
         } elseif ($context == 'chatbot') { //Purpose : Add Chatbotreplay - DEVTASK-18280
             $data['customer_id'] = $request->customer_id;
             $module_id = $request->customer_id;
@@ -4129,7 +4133,7 @@ class WhatsAppController extends FindByNumberController
         $data = '';
         if ($message->message != '') {
 
-            if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback') {
+            if ($context == 'supplier' || $context == 'vendor' || $context == 'task' || $context == 'dubbizle' || $context == 'lawyer' || $context == 'case' || $context == 'blogger' || $context == 'old' || $context == 'hubstuff' || $context == 'user-feedback' || $context == 'SOP-Data') {
                 if ($context == 'supplier') {
                     $supplierDetails = Supplier::find($message->supplier_id);
                     $language = $supplierDetails->language;
@@ -4178,6 +4182,12 @@ class WhatsAppController extends FindByNumberController
                         $result = TranslationHelper::translate('en', $language, $message->message);
                         $message->message = $result;
                     }
+                }
+                if ($context == 'SOP-Data') { 
+                    $user = User::find($message->user_id);
+                    
+                    $phone = $user->phone;
+                    $whatsapp_number = Auth::user()->whatsapp_number;
                 }
                 if ($context == 'hubstuff') { 
                     $user = User::find($message->hubstuff_activity_user_id);

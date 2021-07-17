@@ -372,9 +372,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('update', 'SopController@update')->name('updateName');
     Route::get('sop/search', 'SopController@search');
     Route::get('soplogs', 'SopController@sopnamedata_logs')->name('sopname.logs');
+    Route::get('sop/DownloadData/{id}', 'SopController@downloaddata')->name('sop.download');
+   // Route::post('sop/whatsapp/sendMessage/', 'SopController@loadMoreMessages')->name('whatsapp.sendmsg');
 
-
-
+  
     Route::get('product/delete-image', 'ProductController@deleteImage')->name('product.deleteImages');
 
     // Delivery Approvals
