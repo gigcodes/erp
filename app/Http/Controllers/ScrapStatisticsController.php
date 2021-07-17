@@ -1150,4 +1150,10 @@ class ScrapStatisticsController extends Controller
         return response()->json(["code" => 200, "message" => "Your job has been stopped"]);
     }
 
+    //START - Purpose : Add get data for scrappers - DEVTASK-20102
+    public function view_scrappers_data(Request $request)
+    {
+        dd("54544545");
+    }
+    //END - DEVTASK-20102
 }
