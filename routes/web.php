@@ -3181,12 +3181,10 @@ Route::middleware('auth')->prefix('totem')->group(function() {
 
     Route::group(['prefix' => 'tasks'], function () {
         Route::get('/', 'TasksController@index')->name('totem.tasks.all');
-
         Route::get('{task}', 'TasksController@view')->name('totem.task.view');
-
         Route::post('{task}/delete', 'TasksController@destroy')->name('totem.task.delete');
-
         Route::post('{task}/status', 'TasksController@status')->name('totem.task.status');
+        Route::get('{task}/development-task', 'TasksController@developmentTask')->name('totem.task.developmentTask');
     });
 
 });
