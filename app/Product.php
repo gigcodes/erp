@@ -78,12 +78,16 @@ class Product extends Model
         'category',
         'short_description',
         'price',
+        'price_eur_special',
+        'price_eur_discounted',
+        'price_inr',
+        'price_inr_special',
+        'price_inr_discounted',
+        'price_special_offer',
         'status_id',
         'id',
         'sku',
         'is_barcode_check',
-
-
         'has_mediables',
         'size_eu',
         'supplier',

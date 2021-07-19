@@ -34,6 +34,18 @@
             </div>
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
+                    <strong>Price Special offer:</strong>
+                    <input type="text" name="price_special_offer" value="{{ ($product) ? $product->price_special_offer : '' }}" class="form-control" placeholder="Price special offer">
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="form-group">
+                    <strong>Price (INR) special:</strong>
+                    <input type="text" name="price_inr_special" value="{{ ($product) ? $product->price_inr_special : '' }}" class="form-control" placeholder="Price(INR) special">
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="form-group">
                     <strong>Status:</strong>
                     <?php echo Form::select("status_id",\App\Helpers::selectStatusList(),$product->status_id,["class" => "form-control-sm form-control select2",'style' => 'width:200px']); ?>
                 </div>
