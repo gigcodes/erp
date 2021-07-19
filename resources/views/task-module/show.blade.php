@@ -1144,7 +1144,7 @@
         </div>
     </div>
 
-    <div id="preview-task-image" class="modal fade" role="dialog">
+<div id="preview-task-image" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
         	<div class="modal-body">
@@ -1173,7 +1173,7 @@
 <div id="file-upload-area-section" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
-           <form action="{{ route("task.save-documents") }}" method="POST" enctype="multipart/form-data">
+           <form action="{{ route('task.save-documents') }}" method="POST" enctype="multipart/form-data">
 	            <input type="hidden" name="task_id" id="hidden-task-id" value="">
 	            <div class="modal-header">
 	                <h4 class="modal-title">Upload File(s)</h4>
@@ -1222,7 +1222,8 @@
             </form>
         </div>
     </div>
-</div>" class="modal fade" role="dialog">
+</div>
+<div class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
            <form action="{{ route("task.save-documents") }}" method="POST" enctype="multipart/form-data">
