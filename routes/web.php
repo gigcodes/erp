@@ -384,6 +384,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('product/delete-image', 'ProductController@deleteImage')->name('product.deleteImages');
 
+    Route::post('create/shortcut-sop', 'SopShortcutCreateController@createShortcut')->name('shortcut.sop.create');
+
     // Delivery Approvals
     Route::post('deliveryapproval/{id}/updateStatus', 'DeliveryApprovalController@updateStatus')->name('deliveryapproval.updateStatus');
     Route::resource('deliveryapproval', 'DeliveryApprovalController');

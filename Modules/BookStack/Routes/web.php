@@ -26,7 +26,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/', 'BookshelfController@index');
         Route::group(['prefix' => 'shelves'], function () {
             Route::get('/', 'BookshelfController@index');
-            // Route::post('/', 'BookshelfController@store');
+            Route::post('/{slug}/add', 'BookshelfController@store');
             Route::get('/{slug}/edit', 'BookshelfController@edit');
             Route::get('/{slug}/delete', 'BookshelfController@showDelete');
             Route::get('/{slug}', 'BookshelfController@show');
@@ -68,7 +68,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('/{bookSlug}/create-guest-page', 'PageController@createAsGuest');
             Route::get('/{bookSlug}/draft/{pageId}', 'PageController@editDraft');
             Route::post('/{bookSlug}/draft/{pageId}', 'PageController@store');
-            Route::get('/{bookSlug}/page/{pageSlug}', 'PageController@show');
+            Route::post('/{bookSlug}/page/{pageSlug}', 'PageController@show');
             Route::get('/{bookSlug}/page/{pageSlug}/export/pdf', 'PageController@exportPdf');
             Route::get('/{bookSlug}/page/{pageSlug}/export/html', 'PageController@exportHtml');
             Route::get('/{bookSlug}/page/{pageSlug}/export/plaintext', 'PageController@exportPlainText');
