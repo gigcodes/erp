@@ -266,8 +266,8 @@
                 $("#brand-live-data").modal("show");
             },
             error: function(response) {
-            	$("#loading-image").hide();
-            	alert("Something went wrong, please try after sometime.");
+                $("#loading-image").hide();
+            	alert(response.responseText);
             }
     	});
 	});
@@ -291,7 +291,7 @@
             },
             error: function(response) {
             	$("#loading-image").hide();
-            	alert("Something went wrong, please try after sometime.");
+                alert(response.responseText);
             }
     	});
 	});

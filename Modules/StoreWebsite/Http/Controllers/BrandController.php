@@ -310,10 +310,10 @@ class BrandController extends Controller
 
     public function liveBrands(Request $request)
     {
-        $storeWebsiteId = $request->store_website_id;
-        if($storeWebsiteId) {
+        $storeWebsite = \App\StoreWebsite::find($request->store_website_id);
+        if($storeWebsite) {
             $client   = new Client();
-            $response = $client->request('GET', "https://dev.sololuxury.com/rest/V1/brands/list", [
+            $response = $client->request('GET', $storeWebsite->magento_url."/rest/V1/brands/list", [
                 'form_params' => [
                     
                 ],
@@ -341,10 +341,10 @@ class BrandController extends Controller
 
     public function missingBrands(Request $request)
     {
-        $storeWebsiteId = $request->store_website_id;
-        if($storeWebsiteId) {
+        $storeWebsite = \App\StoreWebsite::find($request->store_website_id);
+        if($storeWebsite) {
             $client   = new Client();
-            $response = $client->request('GET', "https://dev.sololuxury.com/rest/V1/brands/list", [
+            $response = $client->request('GET', $storeWebsite->magento_url."/rest/V1/brands/list", [
                 'form_params' => [
                     
                 ],
