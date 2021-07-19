@@ -51,8 +51,7 @@ class SearchAttachedImages implements ShouldQueue
         }else{
             $chat_message = \App\ChatMessage::where('id', $id)->first();
         }
-        Log::error(' ref_file => ' . $ref_file . ' chat_message => ' . json_encode($chat_message));
-        Log::error(' ref_file => ' . $ref_file . ' chat_message => ' . json_encode($chat_message));
+        Log::error(' ref_file => ' . $ref_file . ' chat_message => ' . json_encode($chat_message)); 
         if(@file_get_contents($ref_file)){
             $i1 = CompareImagesHelper::createImage($ref_file);
                 

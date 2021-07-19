@@ -3,22 +3,22 @@
 		<table class="table table-bordered" style="">
 		    <thead>
 		      <tr>
-		      	<th><input type="checkbox" class="select-all-records"></th>
-		        <th>ID</th>
-		        <th>Customer</th>
-		        <th>Product</th>
-				<th>Website</th>
-		        <th>Type</th>
-		        <th>Refund</th>
-		        <th>Refund Reason</th>
-		        <th>Status</th>
+		      	<th style="width:3%;"><input type="checkbox" class="select-all-records"></th>
+		        <th style="width:5%;">ID</th>
+		        <th style="width:8%;">Customer</th>
+		        <th style="width:5%;">Product</th>
+				<th style="width:5%;">Website</th>
+		        <th style="width:5%;">Type</th>
+		        <th style="width:5%;">Refund</th>
+		        <th style="width:5%;">Refund Reason</th>
+		        <th style="width:5%;">Status</th>
 				<!-- <th>Change Status</th> -->
-		        <th>Pickup Address</th>
-		        <th>Refund details</th>
-		        <th>Est Refund / Ex. date</th>
-		        <th>Remarks</th>
-		        <th>Created At</th>
-		        <th style="min-width: 100px">Action</th>
+		        <th style="width:5%;">Pickup Address</th>
+		        <th style="width:6%;">Refund details</th>
+		        <th style="width:14%;">Est Refund / Ex. date</th>
+		        <th style="width:5%;">Remarks</th>
+		        <th style="width:5%;">Created At</th>
+		        <th style="width:19%;">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -47,7 +47,7 @@
 					</td>
 
 					<td class="expand-row-msg" data-name="statusName" data-id="{{:prop.id}}" >
-						<p style="display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; overflow: hidden; border: none; line-height: 21px;">
+						<p class="mb-0" style="display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; overflow: hidden; border: none; line-height: 21px;">
 							<span class="show-short-statusName-{{:prop.id}}" style="white-space : nowrap;">{{:~trimlength(prop.status_name, 7)}}</span>
 							<span class="show-full-statusName-{{:prop.id}} hidden"><span style="word-break:inherit;">{{:prop.status_name}}</span></span><br>
 							<span class="show-short-statusName-{{:prop.id}}" style="white-space : nowrap;">{{:~trimlength('to be added', 7)}}</span>
@@ -71,13 +71,15 @@
 					</td>
 					<td style="padding:1px;">
 					<div class="form-group" style="margin-bottom:0px;">
-					<div class="">
-						<div class='input-group estimate_dates'>
+					<div class="pt-2" style="display:flex;">
+						<div  class='input-group estimate_dates pl-2'>
 							<input style="min-width: 30px;" placeholder="E.Date" value="{{>prop.est_completion_date}}" type="text" class="form-control estimate-date" name="estimate_date_{{>prop.id}}" data-id="{{>prop.id}}" id="estimate_date_{{>prop.id}}">
 							
 						</div>
-						<button style="padding: 0px;" class="btn btn-sm btn-image estimate-date-submit ml-3" data-id="{{>prop.id}}"><img src="images/filled-sent.png" style="cursor: nwse-resize;"></button>
-						<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-date-history mr-3" title="Show Date History" data-id="{{>prop.id}}"><i class="fa fa-info-circle"></i></button>
+						<div style="display:flex">
+						<button style="padding: 0px;" class="btn btn-sm btn-image estimate-date-submit ml-2" data-id="{{>prop.id}}"><img src="images/filled-sent.png" style="cursor: nwse-resize;"></button>
+						<button style="padding-right:0px;" type="button" class="btn btn-xs show-date-history mr-2 mt-1" title="Show Date History" data-id="{{>prop.id}}"><i class="fa fa-info-circle"></i></button>
+						</div>
 					</div>
 					</div>
 					</td>
@@ -111,8 +113,9 @@
 			    {{/props}}  
 		    </tbody>
 		</table>
-		{{:pagination}}
+
 	</div>
+	{{:pagination}}
 </script>
 <script type="text/x-jsrender" id="template-history-block">
 	<div class="modal-content">

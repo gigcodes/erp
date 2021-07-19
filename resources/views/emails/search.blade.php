@@ -6,7 +6,7 @@
                 @endif
             </td>
             
-            <td>{{ Carbon\Carbon::parse($email->created_at)->format('d-m-Y') }}</td>
+            <td>{{ Carbon\Carbon::parse($email->created_at)->format('d-m-Y H:i:s') }}</td>
             
             <td data-toggle="modal" data-target="#viewMore"  onclick="opnModal('{{$email->from}}')"> 
             {{ substr($email->from, 0,  10) }} {{strlen($email->from) > 10 ? '...' : '' }}

@@ -157,7 +157,7 @@
                         </div>
                     @endif
                     <div class="col-md-2 pd-sm pd-rt status-selection">
-                    <?php echo Form::select("task_status[]",$statusList,request()->get('task_status', ['In Progress']),["class" => "form-control multiselect","multiple" => true]); ?>
+                    <?php echo Form::select("task_status[]",$statusList,request()->get('task_status', array_values($statusList)),["class" => "form-control multiselect","multiple" => true]); ?>
                     </div>
                     
                     

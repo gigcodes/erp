@@ -103,22 +103,22 @@
 	</div>   
   <div class="col-md-12">
       <ul class="nav nav-tabs" id="myTab" role="tablist">
-          <li class="nav-item active">
+          <li class="nav-item <?php echo (request('type') == 'incoming' && request('seen') == '1') ? 'active' : '' ?>" ><!-- Purpose : Add Turnary -  DEVTASK-18283 -->
               <a class="nav-link" id="read-tab" data-toggle="tab" href="#read" role="tab" aria-controls="read" aria-selected="true" onclick="load_data('incoming',1)">Read</a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item <?php echo ((request('type') == 'incoming' && request('seen') == '0') || empty(request('type'))) ? 'active' : '' ?>">
               <a class="nav-link" id="unread-tab" data-toggle="tab" href="#unread" role="tab" aria-controls="unread" aria-selected="false" onclick="load_data('incoming',0)">Unread</a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item <?php echo (request('type') == 'outgoing' && request('seen') == 'both') ? 'active' : '' ?>"><!-- Purpose : Add Turnary -  DEVTASK-18283 -->
               <a class="nav-link" id="sent-tab" data-toggle="tab" href="#sent" role="tab" aria-controls="sent" aria-selected="false" onclick="load_data('outgoing','both')">Sent</a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item <?php echo (request('type') == 'bin' && request('seen') == 'both') ? 'active' : '' ?>">
             <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('bin','both')">Trash</a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item <?php echo (request('type') == 'draft' && request('seen') == 'both') ? 'active' : '' ?>">
             <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('draft','both')">Draft</a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item <?php echo (request('type') == 'pre-send' && request('seen') == 'both') ? 'active' : '' ?>">
             <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('pre-send','both')">Queue</a>
           </li>
       </ul>
@@ -164,10 +164,23 @@
             <select class="form-control" name="receiver" id="receiver">
                 <option value="">Select Receiver</option>
                 @foreach($receiver_drpdwn as $sender)
+                    <!-- Purpose : Add If condition -  DEVTASK-18283 -->
+                    @if($receiver != '' && $from == 'order_data')
+                    <option value="{{ $sender['to'] }}" {{ ($sender['to'] == $receiver) ? "selected" : ""}}>{{ $sender['to'] }}</option>
+                    @else
                     <option value="{{ $sender['to'] }}" {{ (Request::get('to') && strcmp(Request::get('receiver'),$sender['to']) == 0) ? "selected" : ""}}>{{ $sender['to'] }}</option>
+                    @endif
                 @endforeach
             </select>
         </div>
+    <div class="form-group px-2">
+        <select class="form-control" name="mail_box" id="mail_box">
+            <option value="">Select Mailbox</option>
+            @foreach($mailboxdropdown as $sender)
+                <option value="{{ $sender }}" {{ (Request::get('mail_box') == $sender) ? "selected" : ""}}>{{ $sender }}</option>
+            @endforeach
+        </select>
+    </div>    
 		<div class="form-group px-2">
           <select class="form-control" name="status" id="email_status">
 				<option value="">Select Status</option>
@@ -234,7 +247,9 @@
           @include('emails.search')
         </tbody>
       </table>
-      {{$emails->links()}}
+      <div class="pagination-custom">
+        {{$emails->links()}}
+      </div> 
 </div>
 
 <div id="replyMail" class="modal fade" role="dialog">
@@ -565,6 +580,9 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script type="text/javascript">
+
+        //$("#unread-tab").trigger("click");
+
         var searchSuggestions = {!! json_encode(array_values($search_suggestions), true) !!};
         var _parentElement = $("#forwardMail")
 
@@ -605,6 +623,7 @@
       var receiver = $("#receiver").val();
       var status = $("#email_status").val();
       var category = $("#category").val();
+      var mail_box = $("#mail_box").val();
      console.log(window.url);
         $.ajax({
           url: 'email',
@@ -617,7 +636,8 @@
 				sender:sender,
 				receiver:receiver,
 				status:status,
-				category:category
+				category:category,
+        mail_box : mail_box
             },
             beforeSend: function () {
                 $("#loading-image").show();
@@ -625,11 +645,8 @@
         }).done( function(response) {
           $("#loading-image").hide();
             $("#email-table tbody").empty().html(response.tbody);
-            if (response.links.length > 5) {
-                $('ul.pagination').replaceWith(response.links);
-            } else {
-                $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-            }
+            $(".pagination-custom").html(response.links);
+
         }).fail(function(errObj) {
           $("#loading-image").hide();
         });

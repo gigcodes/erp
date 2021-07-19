@@ -26,10 +26,17 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
     Route::post('/delete-user-in-magento', 'StoreWebsiteController@deleteUserInMagento')->name("store-website.delete-user-in-magento");
 
     Route::prefix('{id}')->group(function () {
+        
+        Route::get('/userhistory', 'StoreWebsiteController@userHistoryList');
+
         Route::get('/edit', 'StoreWebsiteController@edit')->name("store-website.edit");
+        
         Route::get('/edit-cancellation', 'StoreWebsiteController@editCancellation')->name("store-website.edit-cancellation");
+        
         Route::get('/delete', 'StoreWebsiteController@delete')->name("store-website.delete");
+        
         Route::get('/child-categories', 'CategoryController@getChildCategories')->name("store-website.child-categories");
+        
         Route::post('/submit-social-remarks', 'StoreWebsiteController@updateSocialRemarks')->name("store-website.update.social-remarks");
 
         Route::prefix('social-strategy')->group(function () {

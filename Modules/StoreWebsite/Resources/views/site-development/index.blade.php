@@ -37,6 +37,15 @@
 	.latest-remarks-list-view tr td {
 		padding: 3px !important;
 	}
+	#latest-remarks-modal .modal-dialog {
+		 max-width: 1100px;
+		width:100%;
+	}
+	.btn-secondary{
+		border: 1px solid #ddd;
+		color: #757575;
+		background-color: #fff !important;
+	}
 </style>
 @endsection
 
@@ -46,15 +55,30 @@
 	<img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
 </div>
 <div class="row" id="common-page-layout">
-	<div class="col-lg-12 margin-tb">
-		<h2 class="page-heading">Site Development  @if($website) {{ '- ( ' .$website->website.' )' }} @endif <span class="count-text"></span></h2>
+	<div class="col-lg-12 margin-tb p-0">
+		<h2 class="page-heading">Site Development  @if($website) {{ '- ( ' .$website->website.' )' }} @endif <span class="count-text"></span>
+		<div class="pull-right pr-2">
+			<a style="color: #757575" href="{{ route('site-development-status.index') }}" target="__blank">
+				<button style=" color: #757575" class="btn btn-secondary btn-image">
+					+ Add Status
+				</button>
+			</a>
+			<button style="margin-right:5px;" class="btn btn-secondary latest-remarks-btn">
+				Remarks
+			</button>
+			<a class="btn btn-secondary" data-toggle="collapse" href="#statusFilterCount" role="button" aria-expanded="false" aria-controls="statusFilterCount">
+				Status Count
+			</a>
+
+		</div>
+		</h2>
 	</div>
 	<br>
-	<div class="col-lg-12 margin-tb">
+	<div class="col-lg-12 margin-tb pl-3 pr-3" >
 		<div class="row">
 			<div class="col col-md-12">
 				<div class="row mb-3">
-					<div class="col-md-3">
+					<div class="col-md-12 d-flex">
 						<form class="form-inline message-search-handler" onsubmit="event.preventDefault(); saveCategory();">
 							<div class="row">
 								<div class="col">
@@ -71,38 +95,27 @@
 								</div>
 							</div>
 						</form>
-					</div>
-					<div class="col-md-9">
+
 						<form class="form-inline handle-search" style="display:inline-block;">
 							<div class="form-group" style="margin-right:10px;">
-							<?php /* <label for="keyword">Search keyword:</label> */ ?>
+								<?php /* <label for="keyword">Search keyword:</label> */ ?>
 								<?php echo Form::text("k", request("k"), ["class" => "form-control", "placeholder" => "Search keyword", "id" => "enter-keyword"]) ?>
 							</div>
 							<div class="form-group">
 								<?php /* <label for="status">Status:</label> */?>
-							<?php echo Form::select("status", [""=>"All Status"]+ $allStatus, request("status"), ["class" => "form-control", "id" => "enter-status"]) ?>
+								<?php echo Form::select("status", [""=>"All Status"]+ $allStatus, request("status"), ["class" => "form-control", "id" => "enter-status"]) ?>
 							</div>
 							<div class="form-group">
-							<?php /* <label for="button">&nbsp;</label> */ ?>
+								<?php /* <label for="button">&nbsp;</label> */ ?>
 								<button style="display: inline-block;width: 10%" type="submit" class="btn btn-sm btn-image btn-search-keyword">
 									<img src="/images/send.png" style="cursor: default;">
 								</button>
 							</div>
 						</form>
-			
-						<a href="{{ route('site-development-status.index') }}" target="__blank">
-							<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
-								+ Add Status
-							</button>
-						</a>
-						<button style="display: inline-block;width: 10%;margin-right:5px;" class="btn btn-secondary latest-remarks-btn">
-							Remarks
-						</button>
-						<a class="btn btn-secondary" data-toggle="collapse" href="#statusFilterCount" role="button" aria-expanded="false" aria-controls="statusFilterCount">
-							Status Count
-						</a>
-					
+
+
 					</div>
+
 				</div>
 			</div>
 		</div>
@@ -136,21 +149,23 @@
 
 		<div class="col-md-12 margin-tb infinite-scroll">
 			<div class="row">
+				<div class="table-responsive">
 				<table class="table table-bordered" id="documents-table">
 					<thead>
 						<tr>
 							<th width="4%">S No</th>
-							<th width="10%"></th>
-							<th width="18%">Title</th>
+							<th width="12%"></th>
+							<th width="15%">Title</th>
 							<th width="18%">Message</th>
-							<th width="30%">Communication</th>
-							<th width="20%">Action</th>
+							<th width="35%">Communication</th>
+							<th width="16%">Action</th>
 						</tr>
 					</thead>
 					<tbody>
 						@include("storewebsite::site-development.partials.data")
 					</tbody>
 				</table>
+				</div>
 				{{ $categories->appends(request()->capture()->except('page','pagination') + ['pagination' => true])->render() }}
 			</div>
 		</div>
@@ -286,7 +301,7 @@
 					</div>
 					<div class="form-group">
 						<label for="">Details</label>
-						<input class="form-control" type="text" name="task_detail" />
+						<input class="form-control text-task-development" type="text" name="task_detail" />
 					</div>
 
 					<div class="form-group">
@@ -324,6 +339,7 @@
 						<tbody>
 							<tr>
 								<th>Task type</th>
+								<th>Task Id</th>
 								<th>Assigned to</th>
 								<th>Description</th>
 								<th>Status</th>
@@ -369,10 +385,10 @@
 						<thead>
 							<tr>
 								<th style="width:4%;">S no</th>
-								<th style="width:20%;">Category</th>
-								<th style="width:21%;">By</th>
-								<th style="width:27%;">Remarks</th>
-								<th style="width:28%;">Communication</th>
+								<th style="width:13%;">Category</th>
+								<th style="width:13%;">By</th>
+								<th style="width:45%;">Remarks</th>
+								<th style="width:25%;">Communication</th>
 							</tr>
 						</thead>
 						<tbody class="latest-remarks-list-view">
@@ -694,13 +710,24 @@
 		var $this = $(this);
 		site = $(this).data("id");
 		title = $(this).data("title");
+		development = $(this).data("development");
 		if (!title || title == '') {
 			toastr["error"]("Please add title first");
 			return;
 		}
 
 		$("#create-quick-task").modal("show");
+
+		var selValue = $(".save-item-select").val();
+		if(selValue != "") {
+			$("#create-quick-task").find(".assign-to option[value="+selValue+"]").attr('selected','selected')
+			$('.assign-to.select2').select2({
+				width: "100%"
+			});
+		}
+
 		$("#hidden-task-subject").val(title);
+		$(".text-task-development").val(development);
 		$('#site_id').val(site);
 
 		// $.ajax({
@@ -738,7 +765,7 @@
 		}).done(function(response) {
 			$("#loading-image").hide();
 			$this.siblings('input').val("");
-			$('#latest-remarks-modal').modal('hide');
+			// $('#latest-remarks-modal').modal('hide');
 			toastr["success"]("Remarks fetched successfully");
 		}).fail(function(jqXHR, ajaxOptions, thrownError) {
 			toastr["error"]("Oops,something went wrong");
@@ -1174,13 +1201,13 @@
 			},
 			success: function(data) {
 				$("#dev_task_statistics").modal("show");
-				var table = '<div class="table-responsive"><table class="table table-bordered table-striped"><tr><th>Task type</th><th>Assigned to</th><th>Description</th><th>Status</th><th>Communicate</th><th>Action</th></tr>';
+				var table = '<div class="table-responsive"><table class="table table-bordered table-striped"><tr><th>Task type</th><th>Task Id</th><th>Assigned to</th><th>Description</th><th>Status</th><th>Communicate</th><th>Action</th></tr>';
 				for (var i = 0; i < data.taskStatistics.length; i++) {
 					var str = data.taskStatistics[i].subject;
 					var res = str.substr(0, 100);
 					var status = data.taskStatistics[i].status;
 					if(typeof status=='undefined' || typeof status=='' || typeof status=='0' ){ status = 'In progress'};
-					table = table + '<tr><td>' + data.taskStatistics[i].task_type + '</td><td>' + data.taskStatistics[i].assigned_to_name + '</td><td>' + res + '</td><td>' + status + '</td><td><div class="col-md-10 pl-0 pr-1"><input type="text" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value=""></div><div class="col-md-2"><button style="float: left;" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="'+ data.taskStatistics[i].id +'"><img src="/images/filled-sent.png" style="cursor: default;"></button></div></td><td><button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="' + data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i].id + '" title="Load messages" data-dismiss="modal"><img src="/images/chat.png" alt=""></button>';
+					table = table + '<tr><td>' + data.taskStatistics[i].task_type + '</td><td>#' + data.taskStatistics[i].id + '</td><td>' + data.taskStatistics[i].assigned_to_name + '</td><td>' + res + '</td><td>' + status + '</td><td><div class="col-md-10 pl-0 pr-1"><input type="text" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value=""></div><div class="col-md-2"><button style="float: left;" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="'+ data.taskStatistics[i].id +'"><img src="/images/filled-sent.png" style="cursor: default;"></button></div></td><td><button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="' + data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i].id + '" title="Load messages" data-dismiss="modal"><img src="/images/chat.png" alt=""></button>';
 					table = table + '| <a href="javascript:void(0);" data-task-type="'+data.taskStatistics[i].task_type +'" data-id="' + data.taskStatistics[i].id + '" class="delete-dev-task-btn btn btn-image pd-5"><img title="Delete Task" src="/images/delete.png" /></a></td>';
 					table = table + '</tr>';
 				}
@@ -1202,7 +1229,7 @@
             var thiss = $(this);
             var data = new FormData();
             var task_id = $(this).data('taskid');
-            var message = $(this).siblings('input').val();
+            var message = $(this).closest('tr').find('.quick-message-field').val();
 
             data.append("task_id", task_id);
             data.append("message", message);
@@ -1222,30 +1249,8 @@
                             $(thiss).attr('disabled', true);
                         }
                     }).done(function (response) {
-                        $(thiss).siblings('input').val('');
-
-                        if (cached_suggestions) {
-                            suggestions = JSON.parse(cached_suggestions);
-
-                            if (suggestions.length == 10) {
-                                suggestions.push(message);
-                                suggestions.splice(0, 1);
-                            } else {
-                                suggestions.push(message);
-                            }
-                            localStorage['message_suggestions'] = JSON.stringify(suggestions);
-                            cached_suggestions = localStorage['message_suggestions'];
-
-                            console.log('EXISTING');
-                            console.log(suggestions);
-                        } else {
-                            suggestions.push(message);
-                            localStorage['message_suggestions'] = JSON.stringify(suggestions);
-                            cached_suggestions = localStorage['message_suggestions'];
-
-                            console.log('NOT');
-                            console.log(suggestions);
-                        }
+                        thiss.closest('tr').find('.quick-message-field').val('');
+                        
 
                         // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
                         //   .done(function( data ) {
