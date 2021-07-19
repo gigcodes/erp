@@ -372,16 +372,17 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('stock/private/viewing/{id}/updateOfficeBoy', 'StockController@updateOfficeBoy')->name('stock.private.viewing.updateOfficeBoy');
   
   
-    Route::post('sop', 'ProductController@saveSOP')->name('sop.add');
-    Route::get('sop', 'ProductController@getdata')->name('sop.index');
-    Route::delete('sop/{id}', 'ProductController@destroyname')->name('sopdel.destroyname');
-    Route::get('sop/edit', 'ProductController@edit')->name('editName');
-    Route::post('update', 'ProductController@update')->name('updateName');
-    Route::get('sop/search', 'ProductController@searchsop');
-    Route::get('soplogs', 'ProductController@sopnamedata_logs')->name('sopname.logs');
+    Route::post('sop', 'SopController@store')->name('sop.store');
+    Route::get('sop', 'SopController@index')->name('sop.index');
+    Route::delete('sop/{id}', 'SopController@delete')->name('sop.delete');
+    Route::get('sop/edit', 'SopController@edit')->name('editName');
+    Route::post('update', 'SopController@update')->name('updateName');
+    Route::get('sop/search', 'SopController@search');
+    Route::get('soplogs', 'SopController@sopnamedata_logs')->name('sopname.logs');
+    Route::get('sop/DownloadData/{id}', 'SopController@downloaddata')->name('sop.download');
+   // Route::post('sop/whatsapp/sendMessage/', 'SopController@loadMoreMessages')->name('whatsapp.sendmsg');
 
-
-
+  
     Route::get('product/delete-image', 'ProductController@deleteImage')->name('product.deleteImages');
 
     Route::post('create/shortcut-sop', 'SopShortcutCreateController@createShortcut')->name('shortcut.sop.create');

@@ -378,6 +378,7 @@ $(document).on('click', '.load-communication-modal', function () {
             var feedback_status_id = null;
         }
         var feedback_category_id = $(this).data('feedback_cat_id');
+        
     }
 
     var thiss = $(this);
@@ -404,7 +405,6 @@ $(document).on('click', '.load-communication-modal', function () {
         object_name:object_type,
         object_val:object_id
     }
-
 
     $.ajax({
         type: "GET",
