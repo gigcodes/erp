@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Inventory suppliers')
+@section('title', 'Totem Cron Module')
 
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -169,6 +169,8 @@ table tr td {
                                     <a style="padding:1px;" class="btn d-inline btn-image execute-task" href="#" data-id="{{$task->id}}" title="execute Task"><img src="/images/send.png" style="cursor: pointer; width: 0px;"></a>
                                     <a style="padding:1px;" class="btn d-inline btn-image active-task" href="#" data-id="{{$task->id}}" title="task status" data-active="{{$task->is_active}}"><img src="/images/{{ $task->is_active ? 'flagged-green' : 'flagged'}}.png"  style="cursor: pointer; width: 0px;"></a>
                                     <a style="padding:1px;" class="btn d-inline btn-image execution-history" href="#" data-id="{{$task->id}}" title="task execution history" data-results="{{json_encode($task->results()->orderByDesc('created_at')->get())}}"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
+
+                                    <a style="padding:1px;" class="btn d-inline btn-image task-history" href="#" data-id="{{$task->id}}" title="Task History">T</a>
                                 </td>
                             </tr>
                             @endforeach
@@ -450,6 +452,24 @@ table tr td {
             </div>
         </div>
     </div>  
+
+    <div id="show-development-history" class="modal fade" role="dialog" style="z-index: 999999999">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Development Task</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    
+                </div>  
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 @section('scripts')
 
@@ -750,6 +770,27 @@ table tr td {
             }
         });
 
+    });
+
+    $(document).on("click",".task-history",function() {
+        $.ajax({
+            type: "GET",
+            url: "/totem/tasks/"+$(this).data('id')+"/development-task",  
+            beforeSend : function() {
+                $(".ajax-loader").show();
+            },
+            success: function (response) {
+                $(".ajax-loader").hide();
+                $("#show-development-history").find(".modal-body").html(response);
+                $("#show-development-history").modal("show");
+            },
+            error: function (response) { 
+                $(".ajax-loader").hide();
+                if(response.status != 200){      
+                    toastr['error']('Something went wrong!');
+                }
+            }
+        });
     });
 
     $('.edit-task').click(function(){
