@@ -28,7 +28,7 @@ Route::post('mailinglist/add', 'Api\v1\MailinglistController@add');
 
 Route::post('customer/add_customer_data', 'CustomerController@add_customer_data');//Purpose : Add Customer Data - DEVTASK-19932
 
-Route::get('scrape/queue', 'Products\ScrapeController@getUrlFromQueue');
+Route::post('scrape/queue', 'Products\ScrapeController@getUrlFromQueue');
 Route::get('scrape/process', 'Products\ScrapeController@processDataFromScraper');
 Route::post('scrape/send-screenshot', 'ScrapController@sendScreenshot');
 Route::post('scrape/send-position', 'ScrapController@sendPosition');

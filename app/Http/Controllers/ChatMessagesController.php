@@ -21,6 +21,8 @@ use App\PaymentReceipt;
 use Carbon\Carbon;
 use App\Order;
 use App\Learning;
+use App\Sop;
+
 class ChatMessagesController extends Controller
 {
     /**
@@ -87,6 +89,10 @@ class ChatMessagesController extends Controller
                 $object = Learning::find($request->object_id);
             break;
             //END - DEVTASK-4020
+            case 'SOP':
+                $object = User::find($request->object_id);
+
+            break;
             default:
                 $object = Customer::find($request->object);
         }
@@ -112,7 +118,13 @@ class ChatMessagesController extends Controller
            $onlyBroadcast   = true;
            $loadType        = "images";
         }
+       
         $chatMessages = $object->whatsappAll($onlyBroadcast)->whereRaw($rawWhere);
+
+        if ($request->object == "SOP") {
+            $chatMessages = ChatMessage::where('sop_user_id', $object->id);
+        } 
+      
         
         if ($request->object == "user-feedback") {
             $chatMessages = ChatMessage::where('user_feedback_id', $object->id)->where('user_feedback_category_id',$request->feedback_category_id);
