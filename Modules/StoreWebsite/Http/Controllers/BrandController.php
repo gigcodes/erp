@@ -13,6 +13,7 @@ use seo2websites\MagentoHelper\MagentoHelper;
 use App\Brand; 
 use App\Category; 
 use App\StoreWebsiteBrandHistory;
+use GuzzleHttp\Client;
 
 class BrandController extends Controller
 {
@@ -305,6 +306,67 @@ class BrandController extends Controller
             return view("storewebsite::brand.history", compact(['StoreWebsiteBrandHistories']));
         }
         return response()->json(["code" => 200, "data" => []]);
+    }
+
+    public function liveBrands(Request $request)
+    {
+        $storeWebsiteId = $request->store_website_id;
+        if($storeWebsiteId) {
+            $client   = new Client();
+            $response = $client->request('GET', "https://dev.sololuxury.com/rest/V1/brands/list", [
+                'form_params' => [
+                    
+                ],
+            ]);
+            $brands = (string)$response->getBody()->getContents();
+            $brands = json_decode($brands,true);
+            $mangetoIds = [];
+
+            if(!empty($brands)) {
+                foreach($brands as $brand) {
+                    $mangetoIds[] = $brand['brand_id'];
+                }
+            }
+
+            $availableBrands = \App\StoreWebsiteBrand::join("brands as b","b.id","store_website_brands.brand_id")
+            ->whereIn("magento_value",$mangetoIds)
+            ->groupBy("store_website_brands.magento_value")
+            ->select(["b.*"])
+            ->get();
+            //$missingBrands   = \App\StoreWebsiteBrand::join("brands as b","b.id","store_website_brands.brand_id")->whereNotIn("magento_value",$mangetoIds)->get();
+
+            return view("storewebsite::brand.live-compare",compact('availableBrands'));
+        }
+    }
+
+    public function missingBrands(Request $request)
+    {
+        $storeWebsiteId = $request->store_website_id;
+        if($storeWebsiteId) {
+            $client   = new Client();
+            $response = $client->request('GET', "https://dev.sololuxury.com/rest/V1/brands/list", [
+                'form_params' => [
+                    
+                ],
+            ]);
+            $brands = (string)$response->getBody()->getContents();
+            $brands = json_decode($brands,true);
+            $mangetoIds = [];
+
+            if(!empty($brands)) {
+                foreach($brands as $brand) {
+                    $mangetoIds[] = $brand['brand_id'];
+                }
+            }
+
+            $availableBrands = \App\StoreWebsiteBrand::join("brands as b","b.id","store_website_brands.brand_id")
+            ->whereNotIn("magento_value",$mangetoIds)
+            ->groupBy("store_website_brands.magento_value")
+            ->select(["b.*"])
+            ->get();
+
+            return view("storewebsite::brand.live-compare",compact('availableBrands'));
+        }
     }
 
 }
