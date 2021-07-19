@@ -1838,4 +1838,10 @@ class SupplierController extends Controller
         }
         return response()->json(["code" => 200, "data" => [], "message" => "Price Range updated successfully"]);
     }
+
+    public function supplierList(Request $request, $source)
+    {
+        $list = \App\Supplier::where("source",$source)->where("supplier_status_id",1)->pluck('supplier','id');
+        return response()->json(["code" => 200,"data" => $list]);
+    }
 }

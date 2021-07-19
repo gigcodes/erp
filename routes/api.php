@@ -219,6 +219,8 @@ Route::post('notification/create','\App\Http\Controllers\Api\v1\PushFcmNotificat
 
 //Saving Not Found Brand
 Route::get('missing-brand/save','MissingBrandController@saveMissingBrand');
+// Scraper info
+Route::get('{supplierName}/supplier-list','SupplierController@supplierList');
 
 //Store data into the laravel_logs 
 Route::post('laravel-logs/save','LaravelLogController@saveNewLogData');
