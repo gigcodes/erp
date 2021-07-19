@@ -14,7 +14,7 @@ class DropForeignChatMessagesTable extends Migration
     public function up()
     {
         //
-        \DB::statement("ALTER TABLE `chat_messages` DROP FOREIGN KEY `chat_messages_sop_user_id_foreign`");
+        // \DB::statement("ALTER TABLE `chat_messages` DROP FOREIGN KEY `chat_messages_sop_user_id_foreign`");
 
         
     }
