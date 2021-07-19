@@ -7,6 +7,7 @@ use App\Product;
 use App\Scraper;
 use App\ScrapHistory;
 use App\ScrapRemark;
+use App\ScraperProcess;
 use App\ScrapStatistics;
 use App\Supplier;
 use App\User;
@@ -1153,7 +1154,20 @@ class ScrapStatisticsController extends Controller
     //START - Purpose : Add get data for scrappers - DEVTASK-20102
     public function view_scrappers_data(Request $request)
     {
-        dd("54544545");
+        $scraper_proc = [];
+
+        $scraper_process = ScraperProcess::orderBy('started_at','DESC')->get()->unique('scraper_id');
+        foreach ($scraper_process as $key => $sp) {
+            $to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $sp->started_at);
+            $from = \Carbon\Carbon::now();
+            $diff_in_hours = $to->diffInMinutes($from);
+            if ($diff_in_hours > 1440) {
+                array_push($scraper_proc,$sp);
+            }
+        }
+        $scrapers = Scraper::whereNotIn('id', $scraper_process->pluck('scraper_id'))->get();
+
+        return view('scrap.scraper-process-list',compact('scraper_process','scrapers'));
     }
     //END - DEVTASK-20102
 }
