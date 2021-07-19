@@ -22,7 +22,7 @@ class ProjectFileManagerController extends Controller
 		if($request->search){
 			$query = $query->where('name', 'LIKE','%'.$request->search.'%')->orWhere('parent', 'LIKE', '%'.$request->search.'%');
 		}
-		$projectDirectoryData = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
+		$projectDirectoryData = $query->orderByRaw('CAST(size AS DECIMAL(10,2)) DESC')->paginate(25)->appends(request()->except(['page']));
 		return view('project_directory_manager.index', compact('projectDirectoryData'))
 			->with('i', ($request->input('page', 1) - 1) * 5);
 		
