@@ -135,5 +135,12 @@ class TasksController extends Controller
             ->deleteFileAfterSend(true);
     }
 
+    public function developmentTask(Request $request, $task) 
+    {
+        $findTasks = \App\DeveloperTask::where("subject","like","%".strtoupper($task->command)."%")->latest()->get();
+
+        return view("totem.tasks.partials.development-task-list",compact('findTasks'));
+    }
+
 
 }
