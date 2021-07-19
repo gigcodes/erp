@@ -98,6 +98,8 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::post('push-to-store', 'BrandController@pushToStore')->name("store-website.brand.push-to-store");
         Route::post('refresh-min-max-price', 'BrandController@refreshMinMaxPrice')->name("store-website.refresh-min-max-price");
         Route::get('history','BrandController@history')->name("store-website.brand.history");
+        Route::get('live-brands','BrandController@liveBrands')->name("store-website.brand.live-brands");
+        Route::get('missing-brands','BrandController@missingBrands')->name("store-website.brand.missing-brands");
     });
 
     Route::prefix('price-override')->group(function () {

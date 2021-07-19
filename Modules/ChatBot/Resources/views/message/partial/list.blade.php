@@ -238,6 +238,10 @@ padding: 3px 2px;
                         <i style="color: #757575c7;" class="fa fa-ban" aria-hidden="true"></i>
                     </button>
                 @endif
+                <a href="javascript:;"  style="display: inline-block" class="create-customer-ticket-modal btns pt-2" data-customer_id="{{ $pam->customer_id }}" data-id="{{ $pam->chat_id }}">
+                    <i style="color: #757575c7;" class="fa fa-plus" aria-hidden="true"></i>
+                </a>
+                <a class="create-customer-ticket-modal btns pt-2" style="display: inline-block" href="javascript:;" data-customer_id="{{$pam->customer_id}}" data-toggle="modal" data-target="#create-customer-ticket-modal" title="Create Ticket"><i style="color: #757575c7;" class="fa fa-ticket" aria-hidden="true"></i></a>
             @endif
 
             @if($pam->reply_from == "reminder")

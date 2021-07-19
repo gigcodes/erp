@@ -22,6 +22,7 @@ class TaskController extends Controller {
 	 */
 	public function index() {
 		//
+	
 		if ( ( \Auth::user()->hasRole( [ 'Admin', 'Supervisors' ] ) ) ) {
 			$task = Task::oldest()->whereNull( 'deleted_at' )->paginate( Setting::get( 'pagination' ) );
 		} else {

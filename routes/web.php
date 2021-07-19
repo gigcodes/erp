@@ -372,17 +372,20 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('stock/private/viewing/{id}/updateOfficeBoy', 'StockController@updateOfficeBoy')->name('stock.private.viewing.updateOfficeBoy');
   
   
-    Route::post('sop', 'ProductController@saveSOP')->name('sop.add');
-    Route::get('sop', 'ProductController@getdata')->name('sop.index');
-    Route::delete('sop/{id}', 'ProductController@destroyname')->name('sopdel.destroyname');
-    Route::get('sop/edit', 'ProductController@edit')->name('editName');
-    Route::post('update', 'ProductController@update')->name('updateName');
-    Route::get('sop/search', 'ProductController@searchsop');
-    Route::get('soplogs', 'ProductController@sopnamedata_logs')->name('sopname.logs');
+    Route::post('sop', 'SopController@store')->name('sop.store');
+    Route::get('sop', 'SopController@index')->name('sop.index');
+    Route::delete('sop/{id}', 'SopController@delete')->name('sop.delete');
+    Route::get('sop/edit', 'SopController@edit')->name('editName');
+    Route::post('update', 'SopController@update')->name('updateName');
+    Route::get('sop/search', 'SopController@search');
+    Route::get('soplogs', 'SopController@sopnamedata_logs')->name('sopname.logs');
+    Route::get('sop/DownloadData/{id}', 'SopController@downloaddata')->name('sop.download');
+   // Route::post('sop/whatsapp/sendMessage/', 'SopController@loadMoreMessages')->name('whatsapp.sendmsg');
 
-
-
+  
     Route::get('product/delete-image', 'ProductController@deleteImage')->name('product.deleteImages');
+
+    Route::post('create/shortcut-sop', 'SopShortcutCreateController@createShortcut')->name('shortcut.sop.create');
 
     // Delivery Approvals
     Route::post('deliveryapproval/{id}/updateStatus', 'DeliveryApprovalController@updateStatus')->name('deliveryapproval.updateStatus');
@@ -784,6 +787,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/{id}/isWatched', 'TaskModuleController@isWatched');
     Route::post('task-remark/{id}/delete', 'TaskModuleController@archiveTaskRemark')->name('task.archive.remark');
     Route::post('tasks/deleteTask', 'TaskModuleController@deleteTask');
+    Route::post('tasks/send-brodcast', 'TaskModuleController@sendBrodCast')->name('task.send-brodcast');
     Route::post('tasks/{id}/delete', 'TaskModuleController@archiveTask')->name('task.archive');
     //  Route::get('task/completeStatutory/{satutory_task}','TaskModuleController@completeStatutory');
     Route::post('task/deleteStatutoryTask', 'TaskModuleController@deleteStatutoryTask');
@@ -1820,6 +1824,8 @@ Route::post('tickets/email-send', 'LiveChatController@sendEmail')->name('tickets
 Route::post('tickets/assign-ticket', 'LiveChatController@AssignTicket')->name('tickets.assign');
 Route::post('tickets/add-ticket-status', 'LiveChatController@TicketStatus')->name('tickets.add.status');
 Route::post('tickets/change-ticket-status', 'LiveChatController@ChangeStatus')->name('tickets.status.change');
+Route::post('tickets/send-brodcast', 'LiveChatController@sendBrodcast')->name('tickets.send-brodcast');
+
 Route::post('livechat/create-ticket', 'LiveChatController@createTickets')->name('livechat.create.ticket');
 Route::get('livechat/get-tickets-data', 'LiveChatController@getTicketsData')->name('livechat.get.tickets.data');
 Route::post('livechat/create-credit', 'LiveChatController@createCredits')->name('livechat.create.credit');
@@ -2136,6 +2142,8 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::post('/scrap/assignTask', 'ScrapController@assignScrapProductTask')->name('scrap.assignTask');
 
     Route::get('servers/statistics','ScrapController@getServerStatistics')->name('scrap.servers.statistics');
+
+    Route::get('logdata/view_scrappers_data','ScrapStatisticsController@view_scrappers_data')->name('scrap.logdata.view_scrappers_data');//Purpose : Add Route - DEVTASK-20102
  
 });
 
@@ -3177,12 +3185,10 @@ Route::middleware('auth')->prefix('totem')->group(function() {
 
     Route::group(['prefix' => 'tasks'], function () {
         Route::get('/', 'TasksController@index')->name('totem.tasks.all');
-
         Route::get('{task}', 'TasksController@view')->name('totem.task.view');
-
         Route::post('{task}/delete', 'TasksController@destroy')->name('totem.task.delete');
-
         Route::post('{task}/status', 'TasksController@status')->name('totem.task.status');
+        Route::get('{task}/development-task', 'TasksController@developmentTask')->name('totem.task.developmentTask');
     });
 
 });

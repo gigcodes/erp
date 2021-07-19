@@ -99,7 +99,7 @@ class CommonController extends Controller
         $fromName  = "buying";
 
         if ($request->from_mail) {
-            $mail = \App\EmailAddress::where('id', $request->from_mail)->first();
+            $mail = \App\EmailAddress::where('from_address', $request->from_mail)->first();
             if ($mail) {
                 $fromEmail = $mail->from_address;
                 $fromName  = $mail->from_name;

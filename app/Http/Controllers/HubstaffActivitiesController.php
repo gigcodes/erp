@@ -295,8 +295,8 @@ class HubstaffActivitiesController extends Controller
             $request->status = $params['status'];
             $request->submit = $params['submit']; 
             Auth::login($request->user);
+            Log::channel('hubstaff_activity_command')->info(' check parmenters is not null');
         }
-        Log::channel('hubstaff_activity_command')->info(' check parmenters');
 
         //START - Purpose : Comment code - DEVATSK-4300
         // if( request('submit') ==  'report_download'){
@@ -333,20 +333,20 @@ class HubstaffActivitiesController extends Controller
                 }
             }
         }
-        Log::channel('hubstaff_activity_command')->info('task id array' .$task_id);
+        Log::channel('hubstaff_activity_command')->info('task id array' .json_encode($taskIds));
 
         if( !empty( $task_status ) ){
             $developer_tasks = \App\DeveloperTask::where('status',$task_status)->where('hubstaff_task_id','!=',0)->pluck('hubstaff_task_id');
             if(!empty($developer_tasks)) {
                  $taskIds = $developer_tasks;
             }
-            Log::channel('hubstaff_activity_command')->info('devloper task' .$developer_tasks);
+            Log::channel('hubstaff_activity_command')->info('devloper task wehre hubstall_task_id not zero' .json_encode($developer_tasks));
 
         }
 
         if(!empty($task_id)) {
             $developer_tasks    = \App\Task::find($task_id);
-            Log::channel('hubstaff_activity_command')->info(' task' .$developer_tasks);
+            Log::channel('hubstaff_activity_command')->info(' task' .json_encode($developer_tasks));
 
             if(!empty($developer_tasks)) {
                 if(!empty($developer_tasks->hubstaff_task_id)) {
@@ -362,8 +362,7 @@ class HubstaffActivitiesController extends Controller
         if (!empty($taskIds) || !empty($task_id) || !empty($developer_task_id)) {
 
             $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereIn('hubstaff_activities.task_id', $taskIds)->whereDate('hubstaff_activities.starts_at', '>=', $start_date)->whereDate('hubstaff_activities.starts_at', '<=', $end_date);
-            Log::channel('hubstaff_activity_command')->info('!empty($taskIds) || !empty($task_id) || !empty($developer_task_id)',$query);
-
+            Log::channel('hubstaff_activity_command')->info('!empty($taskIds) || !empty($task_id) || !empty($developer_task_id)'.json_encode($query));
         } else {
             //START - Purpose : Add Date Temporary Remove this code - DEVATSK-4300
             // $start_date = '2020-09-01';
@@ -382,7 +381,6 @@ class HubstaffActivitiesController extends Controller
             $users = User::all()->pluck('name', 'id')->toArray();
         } else {
             Log::channel('hubstaff_activity_command')->info(' check : if  user is not admin ');
-
 
             $members = Team::join('team_user', 'team_user.team_id', 'teams.id')->where('teams.user_id', Auth::user()->id)->distinct()->pluck('team_user.user_id');
 
@@ -425,7 +423,7 @@ class HubstaffActivitiesController extends Controller
                 $a['user_efficiency']  = $efficiencyObj->user_input;
                 $a['efficiency']       = (Auth::user()->isAdmin()) ? $efficiencyObj->admin_input : $efficiencyObj->user_input;
 
-                Log::channel('hubstaff_activity_command')->info('check: hubstaff activity id > 0'.json_encode($efficiencyObj->id));
+                Log::channel('hubstaff_activity_command')->info('check: hubstaff activity id > 0'.$efficiencyObj->id .' and ingormattion' .json_encode($a) );
 
 
             } else {
@@ -433,8 +431,7 @@ class HubstaffActivitiesController extends Controller
                 $a['user_efficiency']  = "";
 
                 $a['efficiency'] = "";
-                Log::channel('hubstaff_activity_command')->info('check: hubstaff activity id is < 0'.json_encode($efficiencyObj->id));
-
+                Log::channel('hubstaff_activity_command')->info('check: hubstaff activity id is < 0');
 
             }
 
@@ -445,8 +442,7 @@ class HubstaffActivitiesController extends Controller
                 } else {
                     $activity->userName = '';
                 }
-                Log::channel('hubstaff_activity_command')->info('check: system id of activity'. json_encode($activity->userName));
-
+                Log::channel('hubstaff_activity_command')->info('check: system id of activity'.$activity->userName);
             } else {
                 $activity->userName = '';
             }
@@ -465,7 +461,7 @@ class HubstaffActivitiesController extends Controller
                 if ($ar->task_id) {
                     if ($ar->is_manual) {
                         $task = DeveloperTask::where('id', $ar->task_id)->first();
-                        Log::channel('hubstaff_activity_command')->info('check: if $ar->manual is true ',$task);
+                        Log::channel('hubstaff_activity_command')->info('check: if $ar->manual is true '.json_encode($task));
 
                         if ($task) {
                             $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
@@ -489,7 +485,7 @@ class HubstaffActivitiesController extends Controller
                         $tracked = $ar->tracked;
                         $task = DeveloperTask::where('hubstaff_task_id', $ar->task_id)->orWhere('lead_hubstaff_task_id', $ar->task_id)->first();
                         if ($task && empty( $task_id )) {
-                            Log::channel('hubstaff_activity_command')->info('check: hubstaff task id and lead hubstaff task id is true:' .$task);
+                            Log::channel('hubstaff_activity_command')->info('check: hubstaff task id and lead hubstaff task id is true:' .json_encode($task));
 
                             $estMinutes = ($task->estimate_minutes && $task->estimate_minutes > 0) ? $task->estimate_minutes : "N/A";
                             $taskSubject = $ar->task_id . '||#DEVTASK-' . $task->id . '-' . $task->subject."||#DEVTASK-$task->id||$estMinutes||$task->status||$task->id";
@@ -506,8 +502,7 @@ class HubstaffActivitiesController extends Controller
                 }
                 $lsTask[] = $taskSubject;
             }
-            Log::channel('hubstaff_activity_command')->info('ls task array'.json_encode($lsTask[]));
-
+            Log::channel('hubstaff_activity_command')->info('ls task array'.json_encode($lsTask));
             $a['tasks'] = array_unique($lsTask);
             $hubActivitySummery = HubstaffActivitySummary::where('date', $activity->date)->where('user_id', $activity->system_user_id)->orderBy('created_at', 'desc')->first();
             if ($request->status == 'approved') {
@@ -524,7 +519,7 @@ class HubstaffActivitiesController extends Controller
                         $totalPending  = $hubActivitySummery->pending;
                         $totalUserRequest  = $hubActivitySummery->user_requested;
                         $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 1)->where('paid', 0)->sum('tracked');
-                        Log::channel('hubstaff_activity_command')->info(' totle paid '.json_encode($totalNotPaid));
+                        Log::channel('hubstaff_activity_command')->info(' totle paid '.$totalNotPaid);
 
                         $forworded_to   = $hubActivitySummery->receiver;
                         $final_approval = 1;
@@ -560,7 +555,7 @@ class HubstaffActivitiesController extends Controller
                         $totalPending  = $hubActivitySummery->pending;
                         $totalUserRequest  = $hubActivitySummery->user_requested;
                         $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 2)->where('paid', 0)->sum('tracked');
-                        Log::channel('hubstaff_activity_command')->info('total not paid'. json_encode($totalNotPaid));
+                        Log::channel('hubstaff_activity_command')->info('total not paid'. $totalNotPaid);
 
                         $forworded_to   = $hubActivitySummery->receiver;
                         $final_approval = 1;
@@ -596,6 +591,8 @@ class HubstaffActivitiesController extends Controller
                         $totalApproved  = $hubActivitySummery->accepted;
                         $totalUserRequest  = $hubActivitySummery->user_requested;
                         $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 2)->where('paid', 0)->sum('tracked');
+                        Log::channel('hubstaff_activity_command')->info('total not paid'. $totalNotPaid);
+
                         $forworded_to   = $hubActivitySummery->receiver;
                         $final_approval = 1;
 
@@ -628,7 +625,7 @@ class HubstaffActivitiesController extends Controller
                         $totalPending  = $hubActivitySummery->pending;
                         $totalUserRequest  = $hubActivitySummery->user_requested;
                         $totalNotPaid   = HubstaffActivity::whereDate('starts_at', $activity->date)->where('user_id', $activity->user_id)->where('status', 1)->where('paid', 0)->sum('tracked');
-                        Log::channel('hubstaff_activity_command')->info('total nor paid'.json_encode($totalNotPaid));
+                        Log::channel('hubstaff_activity_command')->info('total not paid'.$totalNotPaid);
 
                         $forworded_to   = $hubActivitySummery->receiver;
                         $final_approval = 0;
