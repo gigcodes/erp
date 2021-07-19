@@ -63,7 +63,7 @@ class HubstuffActivityCommand extends Command
             $last_mail_sent = $user->last_mail_sent_payment;
 
             $to = Carbon::now()->startOfMonth();
-            Log::channel('hubstaff_activity_command')->info('payment_frequency => ' .json_encode( $payment_frequency ). ' last_mail_sent => ' . json_encode($last_mail_sent));
+            Log::channel('hubstaff_activity_command')->info('payment_frequency => ' . $payment_frequency . ' last_mail_sent => ' . $last_mail_sent);
 
             if ($last_mail_sent) {
                 $to = Carbon::createFromFormat('Y-m-d H:s:i', $last_mail_sent);
@@ -96,10 +96,10 @@ class HubstuffActivityCommand extends Command
             $data["email"] = $user->email;
             $data["title"] = "Hubstuff Activities Report";
 
-            if($payment_frequency == "weekly"){
+            if($payment_frequency == "weekly" ){
                 Log::channel('hubstaff_activity_command')->info('check; payment frequecy is weekly');
 
-                if ($diff_in_days == 7) {
+                if ($diff_in_days == 7 ) {
                     Log::channel('hubstaff_activity_command')->info('check; difff in day is 7');
 
                     $res = $tasks_controller->getActivityUsers($req, $req);
@@ -110,7 +110,7 @@ class HubstuffActivityCommand extends Command
                     foreach($z as $zz){
                         Log::channel('hubstaff_activity_command')->info('convert res in array and foreach condition' .json_encode($zz));
                         if($path == null){
-                            Log::channel('hubstaff_activity_command')->info('path is not null' .json_encode($path));
+                            Log::channel('hubstaff_activity_command')->info('path is  null');
 
                             $path = $zz->getRealPath();
                             Log::channel('hubstaff_activity_command')->info('get real path' .json_encode($path));
@@ -135,7 +135,7 @@ class HubstuffActivityCommand extends Command
                         Log::channel('hubstaff_activity_command')->info('convert res in array and foreach condition' .json_encode($zz));
 
                         if($path == null){
-                            Log::channel('hubstaff_activity_command')->info('path is not null' .json_encode($path));
+                            Log::channel('hubstaff_activity_command')->info('path is  null' );
 
                             $path = $zz->getRealPath();
                             Log::channel('hubstaff_activity_command')->info('get real path' .json_encode($path));                        }
@@ -158,7 +158,7 @@ class HubstuffActivityCommand extends Command
                         Log::channel('hubstaff_activity_command')->info('convert res in array and foreach condition' .json_encode($zz));
 
                         if($path == null){
-                            Log::channel('hubstaff_activity_command')->info('path is not null' .json_encode($path));
+                            Log::channel('hubstaff_activity_command')->info('path is null' );
 
                             $path = $zz->getRealPath();
                             Log::channel('hubstaff_activity_command')->info('get real path' .json_encode($path));                        }
@@ -181,7 +181,7 @@ class HubstuffActivityCommand extends Command
                         Log::channel('hubstaff_activity_command')->info('convert res in array and foreach condition' .json_encode($zz));
 
                         if($path == null){
-                            Log::channel('hubstaff_activity_command')->info('path is not null' .json_encode($path));
+                            Log::channel('hubstaff_activity_command')->info('path is  null' );
 
                             $path = $zz->getRealPath();
                             Log::channel('hubstaff_activity_command')->info('get real path' .json_encode($path));                        }
@@ -219,6 +219,5 @@ class HubstuffActivityCommand extends Command
             Log::channel('hubstaff_activity_command')->info('end for each');                        
 
         }
-        dd('complete');
     }
 }

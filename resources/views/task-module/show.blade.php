@@ -539,6 +539,7 @@
 
              <li> <button type="button"  onclick="window.location.href = '{{ action("DevelopmentController@exportTask",request()->all()) }}'" class="btn btn-xs btn-secondary my-3" role="link"> Download Tasks </button></li> &nbsp;
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_tasks_button" data-selected="0">View Tasks</button></li>&nbsp;
+            <li><button type="button" class="btn btn-xs btn-secondary my-3" id="send_message_button" data-selected="0">Send Message</button></li>&nbsp;
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_categories_button">Categories</button></li>&nbsp;
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_complete_button">Complete Tasks</button></li>&nbsp;
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_delete_button">Delete Tasks</button></li>&nbsp;
@@ -998,7 +999,7 @@
                                 <div class="form-group">
                                     <select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="task_id" title="Choose a Task" required>
                                         @foreach ($data['task']['pending'] as $task)
-                                            <option data-tokens="{{ $task->id }} {{ $task->task_subject }} {{ $task->task_details }} {{ array_key_exists($task->assign_from, $users) ? $users[$task->assign_from] : '' }} {{ array_key_exists($task->assign_to, $users) ? $users[$task->assign_to] : '' }}" value="{{ $task->id }}">{{ $task->id }} from {{ $users[$task->assign_from] }} {{ $task->task_subject }}</option>
+                                            <option data-tokens="{{ $task->id }} {{ $task->task_subject }} {{ $task->task_details }} {{ array_key_exists($task->assign_from, $users) ? $users[$task->assign_from] : '' }} {{ array_key_exists($task->assign_to, $users) ? $users[$task->assign_to] : '' }}" value="{{ $task->id }}">{{ $task->id }} from {{ @$users[$task->assign_from] }} {{ $task->task_subject }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -1143,7 +1144,7 @@
         </div>
     </div>
 
-    <div id="preview-task-image" class="modal fade" role="dialog">
+<div id="preview-task-image" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
         	<div class="modal-body">
@@ -1169,10 +1170,10 @@
         </div>
     </div>
 </div>
-    <div id="file-upload-area-section" class="modal fade" role="dialog">
+<div id="file-upload-area-section" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
-           <form action="{{ route("task.save-documents") }}" method="POST" enctype="multipart/form-data">
+           <form action="{{ route('task.save-documents') }}" method="POST" enctype="multipart/form-data">
 	            <input type="hidden" name="task_id" id="hidden-task-id" value="">
 	            <div class="modal-header">
 	                <h4 class="modal-title">Upload File(s)</h4>
@@ -1198,6 +1199,60 @@
         </div>
     </div>
 </div>
+
+<div id="send-message-text-box" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+           <form action="{{ route('task.send-brodcast') }}" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="task_id" id="hidden-task-id" value="">
+                <div class="modal-header">
+                    <h4 class="modal-title">Send Brodcast Message</h4>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                    @csrf
+                    <div class="form-group">
+                        <label for="document">Message</label>
+                        <textarea class="form-control message-for-brodcast" name="message" placeholder="Enter your message"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-send-brodcast-message">Send</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+           <form action="{{ route("task.save-documents") }}" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="task_id" id="hidden-task-id" value="">
+                <div class="modal-header">
+                    <h4 class="modal-title">Upload File(s)</h4>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                        @csrf
+                        <div class="form-group">
+                            <label for="document">Documents</label>
+                            <div class="needsclick dropzone" id="document-dropzone">
+
+                            </div>
+                        </div>
+                        <div class="form-group add-task-list">
+                            
+                        </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-save-documents">Save</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
               50% 50% no-repeat;display:none;">
@@ -2674,6 +2729,43 @@
             }
             // }
         });
+
+        $("#send_message_button").on("click", function() {
+            $("#send-message-text-box").modal("show");
+        });
+
+        $(".btn-send-brodcast-message").on("click",function () {
+            if (selected_tasks.length > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "{{ url('tasks/send-brodcast') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        selected_tasks: selected_tasks,
+                        message : $(".message-for-brodcast").val()
+                    },
+                    beforeSend : function() {
+                        $("#loading-image").show();
+                    }
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if(response.code == 200) {
+                        toastr["success"](response.message);
+                        $("#send-message-text-box").modal("hide");
+                    }else{
+                        toastr["error"](response.message);
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    console.log(response);
+                    toastr["error"]("Request has been failed due to the server , please contact administrator");
+                });
+            } else {
+                $("#loading-image").hide();
+                toastr["error"]("Please select atleast 1 task!");
+            }
+        });  
+
 
         $('#taskCreateButton').on('click', function (e) {
             e.preventDefault();
