@@ -19,7 +19,7 @@ class ProjectFileManagerController extends Controller
 	public function index(Request $request)
 	{
 
-		$totalSizeq = ProjectFileManager::select()->whereDate("created_at",date("Y-m-d"))->whereNull("parent")->get();
+		$totalSizeq = ProjectFileManager::whereNull("parent")->get();
 
 		$totalSize = 0;
 
