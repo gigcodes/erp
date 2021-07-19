@@ -109,7 +109,8 @@ class TwilioController extends FindByNumberController
                 $tokens=[];
                 foreach ($devices as $device){
                     $capability = new ClientToken($device->account_id, $device->auth_token);
-                    $capability->allowClientOutgoing(\Config::get("twilio.webrtc_app_sid"));
+                    // $capability->allowClientOutgoing(\Config::get("twilio.webrtc_app_sid"));
+                    $capability->allowClientOutgoing($device->twiml_app_sid);
                     
                     $capability->allowClientIncoming($agent);
                     $expiresIn = (3600 * 1);
@@ -1237,7 +1238,7 @@ class TwilioController extends FindByNumberController
                 return redirect()->back()->with('success','Twilio details updated successfully');
 
             }else{
-                TwilioCredential::create([
+                $create_new = TwilioCredential::create([
                    'twilio_email' => $request->email,
                    'account_id' => $request->account_id,
                    'auth_token' => $request->auth_token
@@ -1256,6 +1257,12 @@ class TwilioController extends FindByNumberController
                             "friendlyName" => "voice call"
                         ]
                 );
+
+                
+                if($application)
+                {
+                    TwilioCredential::where('id','=',$create_new->id)->update(['twiml_app_sid' => $application->sid]);
+                }
                 //Create TwiML Apps - END 
 
                 //Get Phone Number - START
