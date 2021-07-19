@@ -2894,5 +2894,24 @@ class TaskModuleController extends Controller {
     ]);
   }
 
+  public function sendBrodCast(Request $request)
+  {
+  		$taskIds = $request->selected_tasks;
+
+  		if(!empty($taskIds)) {
+  			foreach($taskIds as $tid){ 
+  				// started to send message
+  				$requestData = new Request();
+	            $requestData->setMethod('POST');
+	            $requestData->request->add(['task_id' => $tid, 'message' => $request->message, 'status' => 1]);
+	            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'task');
+  			}
+
+  			return response()->json(["code" => 200 , "message" => "Message has been sent to all selected task"]);
+  		}
+
+  		return response()->json(["code" => 500 , "message" => "Please select atleast one task"]);
+  }
+
    
 }
