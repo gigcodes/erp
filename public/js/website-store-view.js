@@ -50,6 +50,27 @@ var page = {
             page.push($(this));
         });
 
+        
+        page.config.bodyView.on("click",".btn-create-group",function(e) {
+            page.createTemplate($(this));
+        });
+        
+        page.config.bodyView.on("click",".btn-edit-group",function(e) {
+            page.editTemplate($(this));
+        });
+
+        $(".common-modal").on("click",".submit-group",function() {
+            page.submitFormGroup($(this));
+        });
+ 
+        page.config.bodyView.on("click",".btn-delete-group",function(e) {
+            if(!confirm("Are you sure you want to delete record?")) {
+                return false;
+            }else {
+                page.deleteTemplate($(this));
+            }
+        });
+
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -111,6 +132,26 @@ var page = {
             toastr['error']('Oops.something went wrong', 'error');
         }
 
+    }
+    ,
+    deleteTemplate : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/website-store-views/group/"+ele.data("id")+"/delete/"+ele.data("store_group_id"),
+            method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, 'deleteTemplateResults');
+    },
+    deleteTemplateResults : function(response) {
+        if(response.code == 200){
+            this.getResults();
+            toastr['success']('Message deleted successfully', 'success');
+        }else{
+            toastr['error']('Oops.something went wrong', 'error');
+        }
+
     },
     createRecord : function(response) {
         var createWebTemplate = $.templates("#template-create-website");
@@ -119,7 +160,16 @@ var page = {
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
-    },
+    }, 
+    
+    createTemplate : function(response) {
+        var createWebTemplate = $.templates("#template-create-group");
+        var tplHtml = createWebTemplate.render({data:{row_id:response.data('id'), type:'create'}});
+        
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
+    }, 
 
     editRecord : function(ele) {
         var _z = {
@@ -129,17 +179,79 @@ var page = {
         this.sendAjax(_z, 'editResult');
     },
 
+    editTemplate : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/website-store-views/group/"+ele.data("id")+"/edit/"+ele.data("store_group_id"),
+            method: "get",
+        }
+        this.sendAjax(_z, 'editTemplateResult');
+    },
+
     editResult : function(response) {
         var createWebTemplate = $.templates("#template-create-website");
         var tplHtml = createWebTemplate.render(response);
         var common =  $(".common-modal");
-            common.find(".modal-dialog").html(tplHtml); 
-            common.modal("show");
+        common.find(".modal-dialog").html(tplHtml); 
+        common.modal("show");
+    },
+    
+    editTemplateResult : function(response) {
+        var agents = response.responseData.agents;
+        var agent_priorities = Object.keys(response.responseData.agent_priorities);
+        var agent_priorities_value = Object.values(response.responseData.agent_priorities);
+        var html = '';
+        for(let i=0; i<agent_priorities.length; i++){
+            let options = `<select name="agents[]" class="form-control select-2"> `;
+            for(let j=0; j<agents.length; j++){
+                options += `<option value="${agents[j].id}" ${agents[j].id == agent_priorities[i] ? 'selected' : ''}>${agents[j].id}</option>`;
+            }
+            options += '</select>';
+            html += `
+                <div class="abc">
+                    <div class="form-group col-md-7 agents">
+                        ${options}
+                    </div> 
+                    <div class="form-group col-md-4 priorities">
+                        <select name="priorites[]" class="form-control select-2"> 
+                            <option value="first" ${agent_priorities_value[i] == 'first' ? 'selected' : ''}>first</option> 
+                            <option value="normal" ${agent_priorities_value[i] == 'normal' ? 'selected' : ''}>normal</option> 
+                            <option value="last" ${agent_priorities_value[i] == 'last' ? 'selected' : ''}>last</option> 
+                            <option value="supervisor" ${agent_priorities_value[i] == 'supervisor' ? 'selected' : ''}>supervisor</option> 
+                        </select>
+                    </div>
+                    <div class="form-group col-md-1">
+                        <button type="button" title="Remove" data-id="" class="btn btn-remove-priority">
+                            <i class="fa fa-close" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+            
+        var createWebTemplate = $.templates("#template-create-group");
+        var tplHtml = createWebTemplate.render({data:response.responseData});
+        
+        var common =  $(".common-modal");
+        common.find(".modal-dialog").html(tplHtml); 
+        common.modal("show");
+        $('#form-create-group .modal-body').append(html);
     },
 
     submitFormSite : function(ele) {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/website-store-views/save",
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveSite");
+    },
+
+    submitFormGroup : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/website-store-views/group/save",
             method: "post",
             data : ele.closest("form").serialize(),
             beforeSend : function() {
