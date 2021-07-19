@@ -1206,7 +1206,7 @@
            <form action="{{ route('task.send-brodcast') }}" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="task_id" id="hidden-task-id" value="">
                 <div class="modal-header">
-                    <h4 class="modal-title">Send Broadcast Message</h4>
+                    <h4 class="modal-title">Send Brodcast Message</h4>
                 </div>
                 <div class="modal-body" style="background-color: #999999;">
                     @csrf
@@ -2742,8 +2742,12 @@
                         _token: "{{ csrf_token() }}",
                         selected_tasks: selected_tasks,
                         message : $(".message-for-brodcast").val()
+                    },
+                    beforeSend : function() {
+                        $("#loading-image").show();
                     }
                 }).done(function (response) {
+                    $("#loading-image").hide();
                     if(response.code == 200) {
                         toastr["success"](response.message);
                         $("#send-message-text-box").modal("hide");
@@ -2751,10 +2755,12 @@
                         toastr["error"](response.message);
                     }
                 }).fail(function (response) {
+                    $("#loading-image").hide();
                     console.log(response);
                     toastr["error"]("Request has been failed due to the server , please contact administrator");
                 });
             } else {
+                $("#loading-image").hide();
                 toastr["error"]("Please select atleast 1 task!");
             }
         });  
