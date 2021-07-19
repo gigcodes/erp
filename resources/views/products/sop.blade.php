@@ -198,7 +198,7 @@
                                             <i class="fa fa-download downloadpdf" style="font-size:15px; margin-left:-7px;"></i>
                                             </a>
 
-                                            <button type="button" class="btn send-email-common-btn" data-toemail="{{$value->user->email}}" data-object="Sop" data-id="{{$value->user_id}}" style="font-size:15px; margin-left:-19px;"><i class="fa fa-envelope-square"></i></button>
+                                            <button type="button" class="btn send-email-common-btn" data-toemail="@if ($value->user) {{$value->user->email}} @endif" data-object="Sop" data-id="{{$value->user_id}}" style="font-size:15px; margin-left:-19px;"><i class="fa fa-envelope-square"></i></button>
                                        
                                 </td>
                         @endforeach
