@@ -786,6 +786,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/{id}/isWatched', 'TaskModuleController@isWatched');
     Route::post('task-remark/{id}/delete', 'TaskModuleController@archiveTaskRemark')->name('task.archive.remark');
     Route::post('tasks/deleteTask', 'TaskModuleController@deleteTask');
+    Route::post('tasks/send-brodcast', 'TaskModuleController@sendBrodCast')->name('task.send-brodcast');
     Route::post('tasks/{id}/delete', 'TaskModuleController@archiveTask')->name('task.archive');
     //  Route::get('task/completeStatutory/{satutory_task}','TaskModuleController@completeStatutory');
     Route::post('task/deleteStatutoryTask', 'TaskModuleController@deleteStatutoryTask');
