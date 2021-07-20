@@ -112,6 +112,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('live-laravel-logs-single', 'LaravelLogController@liveLogsSingle');
 
     Route::get('keyword-create', 'LaravelLogController@LogKeyword');
+    Route::get('keyword-delete', 'LaravelLogController@LogKeywordDelete');
     Route::post('assign', 'LaravelLogController@assign')->name('logging.assign');
     Route::get('sku-logs', 'Logging\LogScraperController@logSKU')->name('logging.scrap.log');
     Route::get('sku-logs-errors', 'Logging\LogScraperController@logSKUErrors')->name('logging.sku.errors.log');
