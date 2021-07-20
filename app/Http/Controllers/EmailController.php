@@ -118,7 +118,7 @@ class EmailController extends Controller
 
         if(!empty($mailbox)) {
             $query = $query->where(function ($query) use ($mailbox) {
-                $query->orWhere('from','like','%'.$mailbox.'%');
+                $query->orWhere('to','like','%'.$mailbox.'%');
             });
         }
 

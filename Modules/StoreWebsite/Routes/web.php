@@ -98,6 +98,8 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::post('push-to-store', 'BrandController@pushToStore')->name("store-website.brand.push-to-store");
         Route::post('refresh-min-max-price', 'BrandController@refreshMinMaxPrice')->name("store-website.refresh-min-max-price");
         Route::get('history','BrandController@history')->name("store-website.brand.history");
+        Route::get('live-brands','BrandController@liveBrands')->name("store-website.brand.live-brands");
+        Route::get('missing-brands','BrandController@missingBrands')->name("store-website.brand.missing-brands");
     });
 
     Route::prefix('price-override')->group(function () {
@@ -167,6 +169,10 @@ Route::prefix('store-website')->middleware('auth')->group(function () {
         Route::get('/{id}/edit', 'WebsiteStoreViewController@edit')->name("store-website.website-store-views.edit");
         Route::get('/{id}/delete', 'WebsiteStoreViewController@delete')->name("store-website.website-store-views.delete");
         Route::get('/{id}/push', 'WebsiteStoreViewController@push')->name("store-website.website-store-views.push");
+        Route::get('/group/{id}/edit/{store_group_id}', 'WebsiteStoreViewController@editGroup')->name("store-website.website-store-views.group.edit");
+        Route::post('/group/save', 'WebsiteStoreViewController@storeGroup')->name("store-website.website-store-views.group.save");
+        Route::get('/group/{id}/delete/{store_group_id}', 'WebsiteStoreViewController@deleteGroup')->name("store-website.website-store-views.group.delete");
+        Route::get('/agents', 'WebsiteStoreViewController@agents')->name("store-website.website-store-views.group.agents");
     });
     
     Route::prefix('page')->group(function () {

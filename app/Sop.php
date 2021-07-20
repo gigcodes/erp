@@ -15,4 +15,13 @@ class Sop extends Model
     public function purchaseProductOrderLogs(){
         return $this->hasOne(PurchaseProductOrderLog::class, 'purchase_product_order_id', 'id');
     }
+ 
+    public function user(){
+        return $this->hasOne(User::class, 'id', 'user_id');
+    }
+
+    public function emails()
+    {
+        return $this->hasMany('App\Email', 'model_id', 'id');
+    }
 }

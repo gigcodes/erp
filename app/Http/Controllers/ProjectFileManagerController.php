@@ -18,12 +18,24 @@ class ProjectFileManagerController extends Controller
 	
 	public function index(Request $request)
 	{
+
+		$totalSizeq = ProjectFileManager::whereNull("parent")->get();
+
+		$totalSize = 0;
+
+		if(!$totalSizeq->isEmpty()) {
+			foreach($totalSizeq as $tSq) {
+				$size = preg_replace('/[^0-9.]+/', '', $tSq->size);
+				$totalSize += $size;
+			}
+		}
+
 		$query = ProjectFileManager::query();
 		if($request->search){
 			$query = $query->where('name', 'LIKE','%'.$request->search.'%')->orWhere('parent', 'LIKE', '%'.$request->search.'%');
 		}
-		$projectDirectoryData = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
-		return view('project_directory_manager.index', compact('projectDirectoryData'))
+		$projectDirectoryData = $query->orderByRaw('CAST(size AS DECIMAL(10,2)) DESC')->paginate(25)->appends(request()->except(['page']));
+		return view('project_directory_manager.index', compact('projectDirectoryData','totalSize'))
 			->with('i', ($request->input('page', 1) - 1) * 5);
 		
 	}
