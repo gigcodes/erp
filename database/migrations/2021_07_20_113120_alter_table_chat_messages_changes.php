@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterTableChatMessages extends Migration
+class AlterTableChatMessagesChanges extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,8 @@ class AlterTableChatMessages extends Migration
     public function up()
     {
         Schema::table('chat_messages',function(Blueprint $table){
-            $table->string("sop_user_id")->after('user_id')->nullable();
-        });
+            $table->index(['sop_user_id']);
+            });
     }
 
     /**
@@ -25,8 +25,12 @@ class AlterTableChatMessages extends Migration
      */
     public function down()
     {
+
         Schema::table('chat_messages',function(Blueprint $table){
-            $table->dropColumn('sop_user_id');
-        });
+            $table->dropIndex(['sop_user_id']);
+         });
+
+
+
     }
 }

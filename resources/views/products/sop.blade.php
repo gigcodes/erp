@@ -442,11 +442,6 @@
             let subject = $("#subject").val();
             let message = $(".mail_message").val();
 
-               if(subject == '' || message == ''){
-                   alert("please fill This field") 
-                   return false;
-               } 
-                     
             $.ajax({
                 url: "{{ route('common.send.email') }}",
                 type: 'POST',
@@ -457,7 +452,7 @@
                     "object": object,
                     "subject": subject,
                     "message": message,
-                    
+                    "from": 'sop',
                     "_token": "{{csrf_token()}}",
                                    
                 },
@@ -467,11 +462,12 @@
                     $('#commonEmailModal').modal('hide');
                    
                    toastr["success"]("Your Mail sent successfully!", "Message");
-                  
+                 
                                               
                 },
                 error: function (response) {
-                    alert('There was an error sending the message...');
+                    toastr["error"]("There was an error sending the Mail...", "Message");
+                   
                 }
             });
        
@@ -513,7 +509,7 @@ $(document).on('click', '.send-message-open', function (event) {
                 },
                
                 error: function (response) {
-                    alert('There was an error sending the message...');
+                    toastr["error"]("There was an error sending the message...", "Message");
                    
                 }
             });
