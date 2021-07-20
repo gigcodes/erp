@@ -46,23 +46,27 @@
 								<th>Size</th>
 								<th>Expected Size</th>
 								<th>Created</th>
+                                <th>Updated</th>
 							</tr>
 							@foreach ($projectDirectoryData as $data )
 								<tr>
 									<td>{{$data->name}}</td>
 									<td>{{$data->parent}}</td>
-									<td>{{$data->size}}</td>
+									<td class="setup-size">{{$data->size}}(MB)</td>
 									<td>
-										<div class="col-md-8">
+										<div class="col-md-12">
 											<div class="col-md-6">
 												<input class="form-control" id="expected_{{$data->id}}" name="notification_at" placeholder="Expected Size" value="{{$data->notification_at}}">
 											</div>
-											<div class="col-md-2">
+											<div class="col-md-4">
 												<button class="btn btn-sm btn-image send-message1" data-id="{{$data->id}}"><img src="images/filled-sent.png"></button>
+                                                <button class="btn btn-sm btn-image get-latest-size" data-id="{{$data->id}}" title="Get latest size"><i class="fa fa-file"></i></button>
+                                                <button class="btn btn-sm btn-image delete-file" data-id="{{$data->id}}" title="Delete"><i class="fa fa-trash"></i></button>
 											</div>
 										</div>
 									</td>
 									<td>{{$data->created_at}}</td>
+                                    <td>{{$data->updated_at}}</td>
 								</tr>
 							@endforeach
 						</table>
@@ -106,5 +110,62 @@ $(document).on('click', '.send-message1', function () {
 		});
 	}
 });
+
+$(document).on("click",".get-latest-size",function() {
+    var id = $(this).data("id");
+    var $this = $(this);
+    $.ajax({
+        url: "/project-file-manager/get-latest-size",
+        type: 'POST',
+        data: {"_token": "{{ csrf_token() }}", id: id},
+        beforeSend: function () {
+            $("#loading-image").show();
+        },
+        dataType:"json",
+        success: function (response) {
+            $("#loading-image").hide();
+            if(response.code == 200) {
+                $this.closest("tr").find(".setup-size").html(response.size);
+                toastr['success'](response.message, 'success');
+            }else{
+                toastr['error'](response.message, 'error');
+            }
+        },
+        error: function (response) {
+            $("#loading-image").hide();
+            toastr['error']("Requested faield , please check log file.", 'error');
+        }
+    });
+});
+
+$(document).on("click",".delete-file",function() {
+    var id = $(this).data("id");
+    var $this = $(this);
+    if(confirm("Are you sure you want to delete this file ? you will not able to roll back after delete")) {
+        $.ajax({
+            url: "/project-file-manager/delete-file",
+            type: 'POST',
+            data: {"_token": "{{ csrf_token() }}", id: id},
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            dataType:"json",
+            success: function (response) {
+                $("#loading-image").hide();
+                $this.closest("tr").remove();
+                if(response.code == 200) {
+                    toastr['success'](response.message, 'success');
+                }else{
+                    toastr['error'](response.message, 'error');
+                }
+            },
+            error: function (response) {
+                $("#loading-image").hide();
+                toastr['error']("Requested faield , please check log file.", 'error');
+            }
+        });
+    }
+});
+
 </script>
 @endsection
