@@ -262,6 +262,8 @@
             category: form.find('select[name=category] option:selected').val(),
             short_description: form.find('input[name=short_description]').val(),
             price: form.find('input[name=price]').val(),
+            price_inr_special: form.find('input[name=price_inr_special]').val(),
+            price_special_offer: form.find('input[name=price_special_offer]').val(),
             status_id: form.find('select[name=status_id] option:selected').val(),
             quick_product: form.find('select[name=quick_product] option:selected').val(),
             supplier_link: form.find('input[name=supplier_link]').val(),
@@ -280,7 +282,7 @@
             success: function(response) {
                 $("#editModal").modal('hide');
                 alert(response.message);
-                location.reload();
+                //location.reload();
             },
             error: function() {
                 alert('Oops, Something went wrong!!');

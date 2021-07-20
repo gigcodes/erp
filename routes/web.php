@@ -1824,6 +1824,8 @@ Route::post('tickets/email-send', 'LiveChatController@sendEmail')->name('tickets
 Route::post('tickets/assign-ticket', 'LiveChatController@AssignTicket')->name('tickets.assign');
 Route::post('tickets/add-ticket-status', 'LiveChatController@TicketStatus')->name('tickets.add.status');
 Route::post('tickets/change-ticket-status', 'LiveChatController@ChangeStatus')->name('tickets.status.change');
+Route::post('tickets/send-brodcast', 'LiveChatController@sendBrodcast')->name('tickets.send-brodcast');
+
 Route::post('livechat/create-ticket', 'LiveChatController@createTickets')->name('livechat.create.ticket');
 Route::get('livechat/get-tickets-data', 'LiveChatController@getTicketsData')->name('livechat.get.tickets.data');
 Route::post('livechat/create-credit', 'LiveChatController@createCredits')->name('livechat.create.credit');
@@ -2140,6 +2142,8 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::post('/scrap/assignTask', 'ScrapController@assignScrapProductTask')->name('scrap.assignTask');
 
     Route::get('servers/statistics','ScrapController@getServerStatistics')->name('scrap.servers.statistics');
+
+    Route::get('logdata/view_scrappers_data','ScrapStatisticsController@view_scrappers_data')->name('scrap.logdata.view_scrappers_data');//Purpose : Add Route - DEVTASK-20102
  
 });
 
