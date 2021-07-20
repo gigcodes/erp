@@ -102,7 +102,7 @@
                 <div class="col-md-2">
                     
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <select class="form-control select-multiple globalSelect2" id="web-select" tabindex="-1" aria-hidden="true" name="website" onchange="showStores(this)">
                         <option value="">Select Website</option>
                         @foreach($allWebsites as $websiteRow)
@@ -115,14 +115,23 @@
                     </select>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-">
                     <select class="form-control select-multiple globalSelect2" id="web_store" tabindex="-1" aria-hidden="true" name="store" onchange="showLanguages(this)">
                         <option value="">Select Store</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <select class="form-control select-multiple globalSelect2" id="web_language" tabindex="-1" aria-hidden="true" name="language">
                         <option value="">Select Language</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-control select-multiple" id="web_device" tabindex="-1" aria-hidden="true" name="device">
+                        <option value="">Select Device</option>
+                        
+                        <option {{ (isset($_REQUEST['device']) && $_REQUEST['device'] == "desktop" ? 'selected' :'' ) }} value="desktop">Desktop</option>
+                        <option {{ (isset($_REQUEST['device']) && $_REQUEST['device'] == "mobile" ? 'selected' :'' ) }} value="mobile">Mobile</option>
+                        <option {{ (isset($_REQUEST['device']) && $_REQUEST['device'] == "tablet" ? 'selected' :'' ) }} value="tablet">Tablet</option>
                     </select>
                 </div>
                 <div class="col-md-1">
@@ -374,22 +383,43 @@
         var website = $('#web-select').find(":selected").val();
         var webstore = $('#web_store').find(":selected").val();
         var weblanguage = $('#web_language').find(":selected").val();
+        var webdevice = $('#web_device').find(":selected").val();
 
-        if(website == ''){
+        if(website == '' && webstore != '' && weblanguage != ''){
              toastr['error']('Please Select Website');
              return false;
         }
-        else if(webstore == ''){
+        else if(webstore == '' && website != '' && weblanguage != ''){
             toastr['error']('Please Select Store');
              return false;
         }
-        else if(weblanguage == ''){
+        else if(weblanguage == '' && website != '' && webstore != ''){
             toastr['error']('Please Select Language');
              return false;
         }
 
-        var origin   = window.location.origin;
-        var url = origin+"/scrapper-python/list-images?web_id="+website+"&id="+webstore+"&code="+weblanguage;
+        if(webdevice != '' && (website == '' || webstore == '' || weblanguage == ''))
+        {
+            var full_url   = window.location.href; 
+            const myArr = full_url.split("&");
+                
+            var url_path = myArr[0]+'&'+myArr[1];
+            var url = full_url+"&device="+webdevice;
+        }else{
+
+            if(website == '' || webstore == '' || weblanguage == '')
+            {
+                var full_url   = window.location.href; 
+                const myArr = full_url.split("&");
+                
+                var url_path = myArr[0]+'&'+myArr[1];
+                var url = url_path+"&device="+webdevice;
+            }else{
+                var origin   = window.location.origin;
+                var url = origin+"/scrapper-python/list-images?web_id="+website+"&id="+webstore+"&code="+weblanguage+"&device="+webdevice;
+            }
+        }
+       
         window.location.href = url;
     });
 </script>
