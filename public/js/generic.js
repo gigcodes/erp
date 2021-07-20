@@ -252,6 +252,14 @@ var getHtml = function(response) {
             }
         }
         //END - DEVTASK-4236
+
+        //START - Purpose : Add resend button - DEVTASK-18283
+        if(message.type == "order")
+        {
+            button += "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'><i class='fa fa-repeat' aria-hidden='true'></i> (" + message.resent + ")</a>";
+        }
+        //END - DEVTASK-18283
+
         if(message.is_queue == 1) {
            button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>';
         }
@@ -262,6 +270,8 @@ var getHtml = function(response) {
         if (message.inout == 'out' || message.inout == 'in') {
             button += '<a title="Dialog" href="javascript:;" class="btn btn-xs btn-secondary ml-1 create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>';
         }
+        button += '<a title="Add Sop" href="javascript:;" data-toggle="modal" data-target="#Create-Sop-Shortcut" class="btn btn-xs btn-secondary ml-1 create_short_cut" data-message="'+message.message+'" data-id="' + message.id + '"><i class="fa fa-asterisk" aria-hidden="true"></i></a>';
+        // button+='<a href=""  class="add-sop-knowledge-modal">open modal</a>'
 
 
         //check parent media details
@@ -360,8 +370,15 @@ var getHtml = function(response) {
 
 $(document).on('click', '.load-communication-modal', function () {
     var feedback_category_id = null;
+    var feedback_status_id = null;
+
     if ($(this).data('feedback_cat_id')) {
+        var feedback_status_id = $(this).parents('tr').find('.user_feedback_status').val();
+        if (feedback_status_id.length === 0) {
+            var feedback_status_id = null;
+        }
         var feedback_category_id = $(this).data('feedback_cat_id');
+        
     }
 
     var thiss = $(this);
@@ -389,7 +406,6 @@ $(document).on('click', '.load-communication-modal', function () {
         object_val:object_id
     }
 
-
     $.ajax({
         type: "GET",
         url: "/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages",
@@ -399,6 +415,7 @@ $(document).on('click', '.load-communication-modal', function () {
             load_attached: load_attached,
             load_type: load_type,
             feedback_category_id: feedback_category_id,
+            feedback_status_id: feedback_status_id,
         },
         beforeSend: function () {
             //$(thiss).text('Loading...');
@@ -637,6 +654,11 @@ $(document).on('click','.delete-message',function(e) {
     }).fail(function(response) {
 
     });
+})
+
+$(document).on("click",'.create_short_cut', function(){
+    var msg = $(this).data('message');
+    $('#Create-Sop-Shortcut').find('.sop_description').text(msg);
 })
 
 $('#addRemarkButton').on('click', function() {

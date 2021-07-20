@@ -25,6 +25,7 @@ class WebsiteStoreView extends Model
         'sort_order', 
         'platform_id', 
         'website_store_id', 
+        'store_group_id', 
     ];
 
     public function websiteStore()

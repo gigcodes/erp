@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\ChatMessage;
 use App\Http\Controllers\WhatsAppController;
+use App\MagentoLogHistory;
 use App\StoreWebsite;
 use Auth;
 use Crypt;
@@ -29,20 +30,42 @@ class MagentoProductPushErrors extends Controller
     {
         $title = "List | Magento Log Errors";
 
-        return view('magento-product-error.index', compact('title'));
+        $websites = StoreWebsite::get();
+
+        return view('magento-product-error.index', compact('title', 'websites'));
     }
 
     public function records(Request $request)
     {
         $keyword = $request->get("keyword");
 
-        $records = ProductPushErrorLog::with('store_website')
-            ->where('response_status','error');
+        if($request->website !== '' && $request->website !== 'all'){
+            $records = ProductPushErrorLog::whereHas('store_website', function($q) use($request){
+                $q->where('id', $request->website);
+            });
+//                ->where('response_status','error');
+        }else{
+
+            $records = ProductPushErrorLog::with('store_website');
+//                ->where('response_status','error');
+        }
+
 
         if (!empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
                 $q->where("message", "LIKE", "%$keyword%");
             });
+        }
+        if (!empty($keyword)) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where("message", "LIKE", "%$keyword%");
+            });
+        }
+
+        if(!empty($request->log_date)){
+            $log_date = date("Y-m-d", strtotime($request->log_date));
+//            dd($log_date);
+            $records = $records->whereBetween('created_at', [$log_date.' 00:00:00', $log_date. ' 23:59:59']);
         }
 
 
@@ -53,16 +76,24 @@ class MagentoProductPushErrors extends Controller
         foreach ($records as $row) {
 
             $recorsArray[] = [
-                'product_id'      => $row->product_id,
+                'product_id'      => '<a class="show-product-information" data-id="'.$row->product_id.'" href="/products/'.$row->product_id.'" target="__blank">'.$row->product_id.'</a>',
                 'updated_at'      => $row->created_at->format('d-m-y H:i:s'),
-                'store_website'   => $row->store_website->title,
+                'store_website'   => ($row->store_website) ? $row->store_website->title : "-",
                 'message'         => str_limit($row->message, 30, 
                     '<a data-logid='.$row->id.' class="message_load">...</a>'),
-                'request_data'    => str_limit($row->request_data, 30, 
+                'request_data'    => str_limit($row->request_data, 30,
                     '<a data-logid='.$row->id.' class="request_data_load">...</a>'),
                 'response_data'   => str_limit($row->response_data, 30, 
                     '<a data-logid='.$row->id.' class="response_data_load">...</a>'),
-                'response_status' => $row->response_status,
+//                'response_status' => $row->response_status,
+                'response_status' => ' <div style="display:flex;"><select class="form-control globalSelect2" name="error_status" id="error_status" data-log_id="'.$row->id.'">
+ <option value="" ></option>
+ <option value="error" '.($row->response_status == 'error' ? 'selected' : '' ).'>Error</option>
+ <option value="php" '.($row->response_status === 'php' ? 'selected' : '' ).'>Php</option>
+ <option value="magento" '.($row->response_status == 'magento' ? 'selected' : '' ).'>Magento</option>
+</select> <button style="padding-left:5px !important;" type="button" class="btn btn-xs show-logs-history" title="Show Logs History" data-id="'.$row->id.'">
+                <i class="fa fa-info-circle"></i>
+            </button></div>',
             ];
         }    
 
@@ -96,20 +127,128 @@ class MagentoProductPushErrors extends Controller
             ->get();
 
         $recordsArr = []; 
+
+        //START - Purpose : Comment code , Data sorting - DEVTASK-20123
+        // foreach($records as $row){
+
+        //     $recordsArr[] = [
+        //         'count' => $row->count,
+        //         'message' => $row->message,
+
+        //     ];
+        // }
+
         foreach($records as $row){
+            
+            if (strpos($row->message, 'Failed readiness') !== false) {
 
-            $recordsArr[] = [
-                'count' => $row->count,
-                'message' => $row->message,
+                if (array_key_exists("Failed_readiness",$recordsArr))
+                {
+                    $recordsArr['Failed_readiness']['count'] = $recordsArr['Failed_readiness']['count'] + 1;
+                    $recordsArr['Failed_readiness']['message'] = 'Failed readiness';
+                }else{
+                    $recordsArr['Failed_readiness'] = [
+                        'count' => 1,
+                        'message' => $row->message,
+    
+                    ];
+                }
+            }else{
+                $recordsArr[] = [
+                    'count' => $row->count,
+                    'message' => $row->message,
 
-            ];
+                ];
+            }
         }
+        
+        usort($recordsArr, function($a, $b) {
+            return $a['count'] - $b['count'];
+        });
+
+        rsort($recordsArr);
+        //END - DEVTASK-20123
 
         // echo "<pre>";
         // print_r($recordsArr);
         // exit;
 
-        $filename = 'Today Report Magento Errors.csv';
+        $filename = 'Today Report Magento Errors.xlsx';
         return Excel::download(new MagentoProductCommonError($recordsArr),$filename);
+    }
+
+    //START - Purpose : Open modal and get data - DEVTASK-20123
+    public function groupErrorMessageReport(Request $request)
+    {
+        $records = ProductPushErrorLog::where('response_status','error')
+            ->whereDate('created_at',Carbon::now()->format('Y-m-d'))
+            ->latest('count')
+            ->groupBy('message')
+            ->select(\DB::raw('*,COUNT(message) AS count'))
+            ->get();
+
+        $recordsArr = []; 
+        foreach($records as $row){
+            
+            if (strpos($row->message, 'Failed readiness') !== false) {
+
+                if (array_key_exists("Failed_readiness",$recordsArr))
+                {
+                    $recordsArr['Failed_readiness']['count'] = $recordsArr['Failed_readiness']['count'] + 1;
+                    $recordsArr['Failed_readiness']['message'] = 'Failed readiness';
+                }else{
+                    $recordsArr['Failed_readiness'] = [
+                        'count' => 1,
+                        'message' => $row->message,
+    
+                    ];
+                }
+            }else{
+                $recordsArr[] = [
+                    'count' => $row->count,
+                    'message' => $row->message,
+
+                ];
+            }
+        }
+        
+        usort($recordsArr, function($a, $b) {
+            return $a['count'] - $b['count'];
+        });
+
+        rsort($recordsArr);
+
+        return response()->json(["code" => 200, "data" => $recordsArr]);
+    }
+    //END - DEVTASK-20123
+
+    public function getHistory(Request $request, $id){
+
+        $log_module = MagentoLogHistory::join('users','users.id','magento_log_history.user_id')->where('log_id', $id)->select('magento_log_history.*','users.name')->get();
+
+        if($log_module) {
+            return $log_module;
+        }
+        return 'error';
+    }
+    public function changeStatus(Request $request, $id){
+
+        $log = ProductPushErrorLog::where('id', $id)->first();
+        $logged_user = $request->user();
+
+        if($log){
+            $old_value = $log->response_status;
+            $log->response_status = $request->type;
+            $log->save();
+
+            MagentoLogHistory::create([
+                'log_id' => $log->id,
+                'user_id' => $logged_user->id,
+                'old_value' => $old_value,
+                'new_value' => $request->type,
+            ]);
+        }
+        return response()->json(true);
+
     }
 }

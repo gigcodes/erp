@@ -2054,7 +2054,7 @@ class TaskModuleController extends Controller {
 			'task_subject'	=> 'required',
 			'task_detail'	=> 'required',
 			'task_asssigned_to' => 'required_without:assign_to_contacts',
-			'cost'=>'sometimes|integer'
+			//'cost'=>'sometimes|integer'
 		]);
 		$data['assign_from'] = Auth::id();
 		$data['status'] = 3;
@@ -2821,6 +2821,19 @@ class TaskModuleController extends Controller {
 
    	    	$task->save();
 
+			$task_user = User::find($task->assign_to);
+            if(!empty($task_user)){
+				PaymentReceipt::create([
+					'status'            => 'Pending',
+					'rate_estimated'    => $task_user->fixed_price_user_or_job == 1 ? $task->cost ?? 0 : $task->approximate * ($task_user->hourly_rate ?? 0) / 60,
+					'date'              => date('Y-m-d'),
+					'currency'          => '',
+					'user_id'           => $task_user->id,
+					'by_command'        => 4,
+					'task_id'           => $task->id,
+				]);
+            }
+
    	    	return response()->json([
                 'status' => 'success', 'message' =>'The task status updated.'
             ],200);
@@ -2879,6 +2892,25 @@ class TaskModuleController extends Controller {
     return response()->json([
       'success'
     ]);
+  }
+
+  public function sendBrodCast(Request $request)
+  {
+  		$taskIds = $request->selected_tasks;
+
+  		if(!empty($taskIds)) {
+  			foreach($taskIds as $tid){ 
+  				// started to send message
+  				$requestData = new Request();
+	            $requestData->setMethod('POST');
+	            $requestData->request->add(['task_id' => $tid, 'message' => $request->message, 'status' => 1]);
+	            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'task');
+  			}
+
+  			return response()->json(["code" => 200 , "message" => "Message has been sent to all selected task"]);
+  		}
+
+  		return response()->json(["code" => 500 , "message" => "Please select atleast one task"]);
   }
 
    
