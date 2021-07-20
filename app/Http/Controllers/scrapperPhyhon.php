@@ -263,7 +263,7 @@ class scrapperPhyhon extends Controller
            'image'          => 'required|valid_base',
            'image_name'     => 'required',
            'store_website'  => 'required|exists:store_websites,magento_url',
-           'device'         => 'required',
+           'device'         => 'required|in:desktop,mobile,tablet',
         ]);
 
         if ($validator->fails()) {
