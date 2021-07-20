@@ -3121,6 +3121,7 @@ Route::get('/set/default/store/{website?}/{store?}/{checked?}', 'scrapperPhyhon@
 
 
 Route::get('/get/website/stores/{website?}', 'scrapperPhyhon@websiteStoreList')->name('website.store.list');
+Route::get('/get/stores/language/{website?}', 'scrapperPhyhon@storeLanguageList')->name('store.language.list');
 
 
 // DEV MANISH
