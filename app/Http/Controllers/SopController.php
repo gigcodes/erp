@@ -77,6 +77,7 @@ class SopController extends Controller
         }
         
         $user_email = User::select('email')->where('id', $sop->user_id)->get();
+        // $user_email = User::select('email')->where('id', $sop->user_id)->get();
         $only_date = $sop->created_at->todatestring();
 
         return response()->json(['only_date' => $only_date,'sop' => $sop, 'user_email' => $user_email, 'params' => $params]);

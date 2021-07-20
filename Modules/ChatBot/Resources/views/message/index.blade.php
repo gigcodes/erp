@@ -42,6 +42,17 @@
                                 <?php echo Form::text("search", request("search", null), ["class" => "form-control", "placeholder" => "Enter input here.."]); ?>
                             </div>
                             <div class="col">
+                                <select style="width: 130px !important" name="search_type" class="chatboat-message-status form-control">
+                                    <option value="">Select Search Type</option>
+                                    <option value="customer" {{request()->get('search_type') == 'customer' ? 'selected' : ''}}>Customer</option>
+                                    <option value="vendor" {{request()->get('search_type') == 'vendor' ? 'selected' : ''}}>Vendor</option>
+                                    <option value="supplier" {{request()->get('search_type') == 'supplier' ? 'selected' : ''}}>Supplier</option>
+                                    <option value="task" {{request()->get('search_type') == 'task' ? 'selected' : ''}}>Task</option>
+                                    <option value="dev_task" {{request()->get('search_type') == 'dev_task' ? 'selected' : ''}}>DEV Task</option>
+                                </select>
+                            </div>
+
+                            <div class="col">
                                 <select style="width: 130px !important" name="status" class="chatboat-message-status form-control">
                                     <option value="">Select Status</option>
                                     <option value="1" {{request()->get('status') == '1' ? 'selected' : ''}}>
@@ -124,6 +135,7 @@
             </div>
         </div>
     </div>
+    @include("partials.customer-new-ticket")
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
   50% 50% no-repeat;display:none;">
     </div>
@@ -622,7 +634,10 @@
         /*$(document).on('change', '.quickComment', function () {
             siteHelpers.changeQuickComment($(this));
         });*/
-    
+
+        $('document').on('click', '.create-customer-ticket-modal', function () {
+            $('#ticket_customer_id').val($(this).attr('data-customer_id'));
+        });
 
     </script>
 @endsection

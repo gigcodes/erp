@@ -176,12 +176,20 @@
                         </button>
                     </a>
                 </div>
-                <div class="col-md-2 mt-1">
+                <div class="col-md-4 mt-1">
                     <a href="javascript:void(0)">
                         <button type="button" class="btn btn-default btn-sm position-all">
                             <span class="glyphicon glyphicon-th-list"></span> Download Scraper position
                         </button>
                     </a>
+
+                    <!-- START - Purpose : Add Button - DEVTASK-20102-->
+                    <a href="javascript:void(0)">
+                        <button type="button" class="btn btn-default btn-sm scrapper_process_btn">
+                            <span class=""></span>Scraper Process
+                        </button>
+                    </a>
+                    <!-- END - DEVTASK-20102-->
                 </div>
             </div>
          </div>   
@@ -981,6 +989,38 @@
             </div>
         </div>
       </div>
+
+      <!-- Modal -->
+    <div class="modal fade" id="scrapper_process_log" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="">Scraper Process List</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="max-height: 610px;overflow: auto;">
+                <table class="table table-bordered table-striped scraper-process">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Scraper Name</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="ScraperProcess">
+                        
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
                50% 50% no-repeat;display:none;">
     </div>
@@ -2116,5 +2156,32 @@
                 
             });
         });
+
+        //START - Purpose : Add get data for scrappers - DEVTASK-20102
+        $(document).on("click",".scrapper_process_btn",function(e) {
+            
+
+            $.ajax({
+                type: 'GET',
+                url: '/scrap/logdata/view_scrappers_data',
+                // data: {
+                //     search: id,
+                //     field: "scraper_made_by",
+                //     field_value: tr.find(".scraper_made_by").val()
+                // },
+            }).done(function (response) {
+                // toastr['success']('Data updated Successfully', 'success');
+                $('#scrapper_process_log').modal('show');
+                $('.ScraperProcess').append(response);
+            }).fail(function (response) {
+
+            });
+        });
+
+        $( window ).scroll(function() {
+            $( "span" ).css( "display", "inline" ).fadeOut( "slow" );
+        });
+
+        //END - DEVTASK-20102
     </script>
 @endsection

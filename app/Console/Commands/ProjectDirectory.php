@@ -46,6 +46,8 @@ class ProjectDirectory extends Command
         if (!empty($output)) {
             $lastFolder = null;
             $this->info("Output : " . $output);
+
+
             foreach (explode(PHP_EOL, $output) as $o) {
                 $directory = explode("]", $o);
                 if (isset($directory[0]) && isset($directory[1])) {
@@ -56,6 +58,12 @@ class ProjectDirectory extends Command
                     }
 
                     $size = explode(']', (explode('[', $o)[1]))[0];
+                    if(strpos($size,"G") !== false) {
+                      $size = str_replace("G", "", $size);
+                      $size = $size * 1024;
+                    }else if(strpos($size,"M") !== false){
+                      $size = str_replace("M", "", $size);
+                    }
 
                     $projectManager = ProjectFileManager::where("name",$directoryStr)->first();
                     if($projectManager) {
